@@ -29,9 +29,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\..\Lib\Neon.Cadence\Neon.Cadence.csproj" />
 		<ProjectReference Include="..\..\Lib\Neon.Couchbase\Neon.Couchbase.csproj" />
-		<ProjectReference Include="..\..\Lib\Neon.Temporal\Neon.Temporal.csproj" />
 		<ProjectReference Include="..\Test.Neon.Models.Definitions\Test.Neon.Models.Definitions.csproj" />
-		<ProjectReference Include="..\Test.Neon.Models.Temporal\Test.Neon.Models.Temporal.csproj" />
 	</ItemGroup>
 
 	<Target Name="ModelGen" BeforeTargets="BeforeBuild" Condition="Exists('$(NF_ROOT)\Tools\neon-modelgen\bin\$(Configuration)\net6.0\neon-modelgen.dll')">

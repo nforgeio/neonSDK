@@ -19,7 +19,7 @@
 # This script builds the [tests] GOLANG executables and writes
 # them to: $NF_BUILD/go-test.
 #
-# USAGE: pwsh -file build-test.ps1
+# USAGE: pwsh -f build-test.ps1
 
 # Import the global solution include file.
 

@@ -1,2 +1,2 @@
 @echo off 
-pwsh -file "%~dp0\neon-cadence.ps1" %*
+pwsh -f "%~dp0\neon-cadence.ps1" %*

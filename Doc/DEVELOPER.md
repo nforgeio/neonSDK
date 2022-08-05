@@ -9,7 +9,7 @@ This page describes how to get started with neonKUBE development.
 * Visual Studio 2019 Edition (or better)
 * Visual Studio Code
 
-Note that the build environment currently assumes that only one Windows user will be acting as a developer on any given workstation.  Developers cannot share a machine and neonKUBE only builds on Windows at this time.
+Note that the build environment currently assumes that only one Windows user will be acting as a developer on any given workstation.  Developers cannot share a machine and neonSDK only builds on Windows at this time.
 
 ## Workstation Configuration
 
@@ -91,7 +91,7 @@ Follow the steps below to configure a development or test workstation:
     * Clock **Docker Engine** and disable BuildKit (which causes random problems) so be sure to disable it by setting **buildkit=false** in the edit box
 	* Start a command window and use `docker login` to login using your GitHub credentials
 
-10. Install **Visual Studio 2022 Community 17.2.5+** from [here](https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030&passive=false)
+10. Install **Visual Studio 2022 Community 17.3+** from [here](https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030&passive=false)
 
   * Select **all workloads** on the first panel
   * Click **Install** (and take a coffee break)
@@ -108,7 +108,7 @@ Follow the steps below to configure a development or test workstation:
     * Navigate to **Text Editor/YAML/General**
     * Uncheck **YAML validation** at the top of the right panel
 
-13. Install Visual Studio Code and GO (needed for the Cadence and Temporal proxy builds):
+13. Install Visual Studio Code and GO (needed for the Cadence proxy build):
 
     * Install **Visual Studio Code 64-bit** from [here](https://code.visualstudio.com/download)
     * Install **go1.17.2.windows-amd64.msi** from: [here](https://golang.org/dl/go1.17.2.windows-amd64.msi)
@@ -133,10 +133,9 @@ Follow the steps below to configure a development or test workstation:
     * **Right-click** on **buildenv.cmd** and then **Run as adminstrator**
     * Press ENTER to close the CMD window when the script is finished
   
-18. **Clone** the other neonFORGE repos to the same parent directory as **neonKUBE** without changing their folder names:
+18. **Clone** the related neonSDK repos to the same parent directory as **neonSDK** using the repo names for the folders:
 
     * https://github.com/nforgeio/cadence-samples.git
-    * https://github.com/nforgeio/temporal-samples.git
     * https://github.com/nforgeio/nforgeio.github.io.git
 
     You can do this manually or use the CMD script below: 
@@ -149,10 +148,6 @@ Follow the steps below to configure a development or test workstation:
     cd "%NF_ROOT%\.."
     mkdir cadence-samples
     git clone https://github.com/nforgeio/cadence-samples.git
-
-    cd "%NF_ROOT%\.."
-    mkdir temporal-samples
-    git clone https://github.com/nforgeio/temporal-samples.git
     ```
 
 19. **Close** any running instances of **Visual Studio**
@@ -179,7 +174,7 @@ Follow the steps below to configure a development or test workstation:
 23. Confirm that the solution builds:
 
     * Restart **Visual Studio** as **administrator** (to pick up the new environment variables)
-    * Open **$/neonKUBE.sln** (where **$** is the repo root directory)
+    * Open **$/neonSDK.sln** (where **$** is the repo root directory)
     * Click the **Install** link at the top of the solution explorer panel when there's a warning about a missing SDK.
     * Select **Build/Rebuild** Solution
 
@@ -207,17 +202,6 @@ Follow the steps below to configure a development or test workstation:
 	  `nuget SetApiKey YOUR-KEY`
 	
     * **Install:** GitHub CLI (amd64) v1.9.2 or greater from: https://github.com/cli/cli/releases
-    * **Close:** all Visual Studio instances.
-    * **Install:** the HTML Help Compiler by running `$/External/htmlhelp.exe` with the default options.  You can ignore any message about a newer version already being installed.
-    * **Unzip:** `$/External/SHFBInstaller_v2020.3.6.0.zip` to a temporary folder and run `SandcastleInstaller.exe`, then:
-      * Click **Next** until you get to the **Sandcastle Help File Builder and Tools** page.
-      * Click **Install SHFB**
-	  * Click **Next** to the **Sandcastle Help File Builder Visual Studio Package** page.
-	  * Click **Install Package**
-	  * Click **Next**
-	  * Click **Install Schemas**
-      * Click **Next** until you get to the last page.
-      * Click **Close** to close the SHFB installer.
 
 29. *Optional:* Disable **Visual Studio Complete Line Intellicode**.  I (jefflill) personally find this distracting.  This blog post agrees and describes how to disable this:
 
@@ -228,8 +212,6 @@ Follow the steps below to configure a development or test workstation:
     c. **Show whole line completions on new lines**
 
 30. *Optional:* Create the **EDITOR** environment variable and point it to `C:\Program Files\Notepad++\notepad++.exe` or your favorite text editor executable.
-
-31. *Optional:* Maintainers will need to install the **GitHub CLI** from here: https://cli.github.com/
 
 32: *Optional:* Maintainers will need to install **AWS client version 2** from: [here](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2-windows.html)
 

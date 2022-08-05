@@ -20,7 +20,7 @@
 #
 # NOTE: You must be already logged into the target container registry.
 #
-# USAGE: pwsh -file ./publish-all.ps1 [-all]
+# USAGE: pwsh -f publish-all.ps1 [-all]
 
 param 
 (
@@ -137,7 +137,6 @@ try
     {
         Publish "$image_root\test"
         Publish "$image_root\test-cadence"
-        Publish "$image_root\test-temporal"
     }
 
     if ($services)

@@ -22,7 +22,6 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\Lib\Neon.Common\Neon.Common.csproj" />
-		<ProjectReference Include="..\..\Lib\Neon.Temporal\Neon.Temporal.csproj" />
 		<ProjectReference Include="..\Test.Neon.Models.Definitions\Test.Neon.Models.Definitions.csproj" />
 	</ItemGroup>
 

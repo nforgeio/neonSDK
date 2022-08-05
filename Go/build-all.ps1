@@ -18,7 +18,7 @@
 #
 # This script builds all GOLANG projects.
 #
-# USAGE: pwsh -file build-all.ps1
+# USAGE: pwsh -f build-all.ps1
 #
 # ARGUMENTS: NONE
 
@@ -35,8 +35,8 @@ try
 {
     # Perform the builds
 
-    $result = Invoke-CaptureStreams "pwsh -file ./build-cadence-proxy.ps1"
-    $result = Invoke-CaptureStreams "pwsh ./build-test.ps1"
+    $result = Invoke-CaptureStreams "pwsh -f build-cadence-proxy.ps1"
+    $result = Invoke-CaptureStreams "pwsh -f build-test.ps1"
 }
 catch
 {

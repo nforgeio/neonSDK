@@ -18,7 +18,7 @@
 
 # Builds a [ghcr.io/neonrelease/yugabyte] image.
 #
-# USAGE: pwsh -file build.ps1 REGISTRY VERSION TAG
+# USAGE: pwsh -f build.ps1 REGISTRY VERSION TAG
 
 param 
 (

@@ -20,7 +20,7 @@
 # new Cadence release branches from the source http://github.com/uber/cadence
 # repository.
 #
-# USAGE: pwsh -file ./neon-cadence.ps1 PATH BRANCH
+# USAGE: pwsh -f neon-cadence.ps1 PATH BRANCH
 #
 # COMMANDS:
 #

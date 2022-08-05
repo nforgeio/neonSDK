@@ -19,7 +19,7 @@
 # This script builds the [cadence-proxy] GOLANG executables and writes
 # them to: $NF_BUILD.
 #
-# USAGE: pwsh -file build-cadence-proxy.ps1
+# USAGE: pwsh -f build-cadence-proxy.ps1
 
 # Import the global solution include file.
 
