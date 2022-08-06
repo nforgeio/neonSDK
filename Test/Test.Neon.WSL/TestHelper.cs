@@ -21,7 +21,6 @@ using System.Threading.Tasks;
 
 using Neon.Common;
 using Neon.IO;
-using Neon.Kube;
 using Neon.Net;
 using Neon.WSL;
 using Neon.Xunit;
@@ -39,7 +38,7 @@ namespace TestWSL
         /// Reasonable base WSL2 image for testing.  This will need to be updated if/when the
         /// location for this changes.
         /// </summary>
-        public const string BaseImageUri = $"{KubeDownloads.NeonPublicBucketUri}/downloads/ubuntu-20.04.tar";
+        public const string BaseImageUri = $"{NeonHelper.NeonPublicBucketUri}/downloads/ubuntu-20.04.tar";
 
         /// <summary>
         /// Used to identify the WSL2 distribution we'll be using for testing.

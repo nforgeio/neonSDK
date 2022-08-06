@@ -21,7 +21,6 @@ using System.Threading.Tasks;
 
 using Neon.Common;
 using Neon.IO;
-using Neon.Kube;
 using Neon.Net;
 using Neon.WSL;
 using Neon.Xunit;
@@ -33,6 +32,8 @@ namespace TestWSL
     [Trait(TestTrait.Category, TestArea.NeonWSL)]
     public class Test_Wsl2Proxy
     {
+        private const string SysAdminUser = "sysadmin";
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -82,7 +83,7 @@ namespace TestWSL
                     Wsl2Proxy.Import(TestHelper.TestDistroName, exportPath, tempFolder.Path);
                     Assert.True(Wsl2Proxy.Exists(TestHelper.TestDistroName));
 
-                    distro = new Wsl2Proxy(TestHelper.TestDistroName, user: KubeConst.SysAdminUser);
+                    distro = new Wsl2Proxy(TestHelper.TestDistroName, user: SysAdminUser);
 
                     Assert.Contains("Hello World!", distro.Execute("echo", "Hello World!").OutputText);
                 }
@@ -107,7 +108,7 @@ namespace TestWSL
                     Wsl2Proxy.Import(TestHelper.TestDistroName, imagePath, tempFolder.Path);
                     Assert.True(Wsl2Proxy.Exists(TestHelper.TestDistroName));
 
-                    var distro = new Wsl2Proxy(TestHelper.TestDistroName, user: KubeConst.SysAdminUser);
+                    var distro = new Wsl2Proxy(TestHelper.TestDistroName, user: SysAdminUser);
 
                     Assert.Contains("Hello World!", distro.SudoExecute("echo", "Hello World!").OutputText);
                 }
@@ -131,7 +132,7 @@ namespace TestWSL
                 {
                     Wsl2Proxy.Import(TestHelper.TestDistroName, imagePath, tempFolder.Path);
 
-                    var distro = new Wsl2Proxy(TestHelper.TestDistroName, user: KubeConst.SysAdminUser);
+                    var distro = new Wsl2Proxy(TestHelper.TestDistroName, user: SysAdminUser);
 
                     Assert.Contains("Hello World!", distro.Execute("echo", "Hello World!").OutputText);
                     Assert.Contains("Hello World!", distro.SudoExecute("echo", "Hello World!").OutputText);
@@ -160,7 +161,7 @@ namespace TestWSL
                     {
                         Wsl2Proxy.Import(TestHelper.TestDistroName, imagePath, tempFolder.Path);
 
-                        var distro = new Wsl2Proxy(TestHelper.TestDistroName, user: KubeConst.SysAdminUser);
+                        var distro = new Wsl2Proxy(TestHelper.TestDistroName, user: SysAdminUser);
 
                         distro.TempFolder = folderWithSpaces.Path;
 
@@ -188,7 +189,7 @@ namespace TestWSL
                 {
                     Wsl2Proxy.Import(TestHelper.TestDistroName, imagePath, tempFolder.Path);
 
-                    var distro = new Wsl2Proxy(TestHelper.TestDistroName, user: KubeConst.SysAdminUser);
+                    var distro = new Wsl2Proxy(TestHelper.TestDistroName, user: SysAdminUser);
 
                     // Linux --> Windows
 
@@ -221,7 +222,7 @@ namespace TestWSL
                 {
                     Wsl2Proxy.Import(TestHelper.TestDistroName, imagePath, tempFolder.Path);
 
-                    var distro = new Wsl2Proxy(TestHelper.TestDistroName, user: KubeConst.SysAdminUser);
+                    var distro = new Wsl2Proxy(TestHelper.TestDistroName, user: SysAdminUser);
                     var text   =
 @"Line 1
 Line 2
@@ -231,10 +232,10 @@ Line 4
                     // Write a file using the defaults to convert CRLF-->LF with 
                     // no special permissions.
 
-                    distro.UploadFile($"/home/{KubeConst.SysAdminUser}/test1.txt", text, toLinuxText: true);
-                    Assert.Equal("Line 1\nLine 2\nLine 3\nLine 4\n", File.ReadAllText(distro.ToWindowsPath($"/home/{KubeConst.SysAdminUser}/test1.txt")));
+                    distro.UploadFile($"/home/{SysAdminUser}/test1.txt", text, toLinuxText: true);
+                    Assert.Equal("Line 1\nLine 2\nLine 3\nLine 4\n", File.ReadAllText(distro.ToWindowsPath($"/home/{SysAdminUser}/test1.txt")));
 
-                    var response = distro.SudoExecute("ls", "-l", $"/home/{KubeConst.SysAdminUser}/test1.txt");
+                    var response = distro.SudoExecute("ls", "-l", $"/home/{SysAdminUser}/test1.txt");
 
                     response.EnsureSuccess();
                     Assert.StartsWith("-rw-r--r-- ", response.OutputText);
@@ -243,14 +244,14 @@ Line 4
                     // and some permissions.  Also verify that the file is owned by
                     // the default distro user.
 
-                    distro.UploadFile($"/home/{KubeConst.SysAdminUser}/test2.txt", text, permissions: "666", toLinuxText: false);
-                    Assert.Equal("Line 1\r\nLine 2\r\nLine 3\r\nLine 4\r\n", File.ReadAllText(distro.ToWindowsPath($"/home/{KubeConst.SysAdminUser}/test2.txt")));
+                    distro.UploadFile($"/home/{SysAdminUser}/test2.txt", text, permissions: "666", toLinuxText: false);
+                    Assert.Equal("Line 1\r\nLine 2\r\nLine 3\r\nLine 4\r\n", File.ReadAllText(distro.ToWindowsPath($"/home/{SysAdminUser}/test2.txt")));
 
-                    response = distro.SudoExecute("ls", "-l", $"/home/{KubeConst.SysAdminUser}/test2.txt");
+                    response = distro.SudoExecute("ls", "-l", $"/home/{SysAdminUser}/test2.txt");
 
                     response.EnsureSuccess();
                     Assert.StartsWith("-rw-rw-rw- ", response.OutputText);
-                    Assert.Contains($"{KubeConst.SysAdminUser} {KubeConst.SysAdminUser}", response.OutputText);
+                    Assert.Contains($"{SysAdminUser} {SysAdminUser}", response.OutputText);
                 }
                 finally
                 {
@@ -316,9 +317,9 @@ Line 4
 
                     // Start as the [sysadmin] user.
 
-                    var distro = new Wsl2Proxy(TestHelper.TestDistroName, user: KubeConst.SysAdminUser);
+                    var distro = new Wsl2Proxy(TestHelper.TestDistroName, user: SysAdminUser);
 
-                    Assert.Equal(KubeConst.SysAdminUser, distro.User);
+                    Assert.Equal(SysAdminUser, distro.User);
 
                     // Expecting to be running under MSFT's [init] process 1.
 
@@ -332,7 +333,7 @@ Line 4
                     response = distro.Execute("echo", "$LOGNAME");
 
                     Assert.Equal(0, response.ExitCode);
-                    Assert.Equal(KubeConst.SysAdminUser, response.OutputText.Trim());
+                    Assert.Equal(SysAdminUser, response.OutputText.Trim());
                 }
                 finally
                 {

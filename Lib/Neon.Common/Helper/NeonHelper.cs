@@ -151,6 +151,12 @@ namespace Neon.Common
         public const string NeonMetricsPrefix = "neon_";
 
         /// <summary>
+        /// The URI for the public AWS S3 bucket where we persist cluster VM images 
+        /// and other things.
+        /// </summary>
+        public const string NeonPublicBucketUri = "https://neon-public.s3.us-west-2.amazonaws.com";
+
+        /// <summary>
         /// The <see cref="Neon.Common.ServiceContainer"/> instance returned by 
         /// <see cref="ServiceContainer"/>.
         /// </summary>
