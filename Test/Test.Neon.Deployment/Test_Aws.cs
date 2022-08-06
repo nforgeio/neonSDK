@@ -94,7 +94,7 @@ namespace TestDeployment
             }
         }
 
-        [Fact]
+        [MaintainerFact]
         public void S3_File_UploadDownload_WithS3Ref()
         {
             CheckCredentials();
@@ -126,7 +126,7 @@ namespace TestDeployment
             }
         }
 
-        [Fact]
+        [MaintainerFact]
         public void S3_File_UploadDownload_WithHttpsRef()
         {
             CheckCredentials();
@@ -158,7 +158,7 @@ namespace TestDeployment
             }
         }
 
-        [Fact]
+        [MaintainerFact]
         public void S3_Text_UploadDownload_WithS3Ref()
         {
             CheckCredentials();
@@ -183,7 +183,7 @@ namespace TestDeployment
             Assert.Equal(sb.ToString(), download);
         }
 
-        [Fact]
+        [MaintainerFact]
         public void S3_Text_UploadDownload_WithHttpsRef()
         {
             CheckCredentials();
@@ -208,7 +208,7 @@ namespace TestDeployment
             Assert.Equal(sb.ToString(), download);
         }
 
-        [Fact]
+        [MaintainerFact]
         public void S3_Bytes_UploadDownload_WithS3Ref()
         {
             CheckCredentials();
@@ -233,7 +233,7 @@ namespace TestDeployment
             Assert.Equal(bytes, download);
         }
 
-        [Fact]
+        [MaintainerFact]
         public void S3_Bytes_UploadDownload_WithHttpsRef()
         {
             CheckCredentials();

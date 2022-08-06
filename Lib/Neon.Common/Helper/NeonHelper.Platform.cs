@@ -46,6 +46,7 @@ namespace Neon.Common
         private static bool?            is64BitBuild;
         private static bool             isARM;
         private static bool?            isDevWorkstation;
+        private static bool?            isMaintainer;
         private static bool?            isKubernetes;
         private static bool?            isAdmin;
 
@@ -291,6 +292,25 @@ namespace Neon.Common
                 isDevWorkstation = Environment.GetEnvironmentVariable("DEV_WORKSTATION") != null;
 
                 return isDevWorkstation.Value;
+            }
+        }
+
+        /// <summary>
+        /// Indicates whether the current user is a neonFORGE maintainer.  This is determined by the
+        /// presence of the <b>NF_MAINTAINER</b> environment variable.
+        /// </summary>
+        public static bool IsMaintainer
+        {
+            get
+            {
+                if (isMaintainer.HasValue)
+                {
+                    return isMaintainer.Value;
+                }
+
+                isMaintainer = Environment.GetEnvironmentVariable("NF_MAINTAINER") != null;
+
+                return isMaintainer.Value;
             }
         }
 

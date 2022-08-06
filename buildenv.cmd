@@ -38,6 +38,31 @@ REM Some scripts need to know the developer's GitHub username:
 echo.
 set /p NEON_GITHUB_USER="Enter your GitHub username: "
 
+REM Ask the developer if they're a maintainer and set NF_MAINTAINER if they say yes.
+
+:maintainerPrompt
+
+set /P "IS_MAINTAINER=Are you a neonFORGE maintainer (y/n): "
+
+if "%IS_MAINTAINER%"=="y" (
+    set NF_MAINTAINER=1
+    setx NF_MAINTAINER 1 /M
+) else if "%IS_MAINTAINER%"=="Y" (
+    set NF_MAINTAINER=1
+    setx NF_MAINTAINER 1 /M
+) else if "%IS_MAINTAINER%"=="n" (
+    set NF_MAINTAINER=
+    setx NF_MAINTAINER "" /M
+) else if "%IS_MAINTAINER%"=="N" (
+    set NF_MAINTAINER=
+    setx NF_MAINTAINER "" /M
+) else (
+    echo.
+    echo "*** ERROR: You must answer with Y or N."
+    echo.
+    goto maintainerPrompt
+)
+
 echo.
 echo Configuring...
 echo.
