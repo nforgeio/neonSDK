@@ -177,8 +177,8 @@ services:
         /// </param>
         /// <param name="ycqlPort">
         /// Specifies the port to be exposed by the Cassandra YCQL service.  This currently defaults to <see cref="DefaultYcqlPort"/>
-        /// which is temporarily set to <b>9099</b> to avoid conflicts with the Cassandra DBs deployed by the Cadence and Temporal
-        /// test fixtures but we hope eventually to change those to use a different port so we can revert this to the standard
+        /// which is temporarily set to <b>9099</b> to avoid conflicts with the Cassandra DBs deployed by the Cadence test
+        /// fixtures but we hope eventually to change those to use a different port so we can revert this to the standard
         /// <b>9042</b> port.
         /// </param>
         /// <param name="ysqlPort">
@@ -228,8 +228,8 @@ services:
         /// </param>
         /// <param name="ycqlPort">
         /// Specifies the port to be exposed by the Cassandra YCQL service.  This currently defaults to <see cref="DefaultYcqlPort"/>
-        /// which is temporarily set to <b>9099</b> to avoid conflicts with the Cassandra DBs deployed by the Cadence and Temporal
-        /// test fixtures but we hope eventually to change those to use a different port so we can revert this to the standard
+        /// which is temporarily set to <b>9099</b> to avoid conflicts with the Cassandra DBs deployed by the Cadence tess
+        /// fixtures but we hope eventually to change those to use a different port so we can revert this to the standard
         /// <b>9042</b> port.
         /// </param>
         /// <param name="ysqlPort">

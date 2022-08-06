@@ -339,7 +339,6 @@ SetVersion Neon.Nats                        $libraryVersion
 SetVersion Neon.Postgres                    $libraryVersion
 SetVersion Neon.SSH                         $libraryVersion
 SetVersion Neon.Tailwind                    $libraryVersion
-SetVersion Neon.Temporal                    $libraryVersion
 SetVersion Neon.Web                         $libraryVersion
 SetVersion Neon.WinTTY                      $libraryVersion
 SetVersion Neon.WSL                         $libraryVersion
@@ -347,7 +346,6 @@ SetVersion Neon.XenServer                   $libraryVersion
 SetVersion Neon.Xunit                       $libraryVersion
 SetVersion Neon.Xunit.Cadence               $libraryVersion
 SetVersion Neon.Xunit.Couchbase             $libraryVersion
-SetVersion Neon.Xunit.Temporal              $libraryVersion
 SetVersion Neon.Xunit.YugaByte              $libraryVersion
 SetVersion Neon.YugaByte                    $libraryVersion
 
@@ -370,7 +368,6 @@ Publish Neon.Nats                           $libraryVersion
 Publish Neon.Postgres                       $libraryVersion
 Publish Neon.SSH                            $libraryVersion
 Publish Neon.Tailwind                       $libraryVersion
-Publish Neon.Temporal                       $libraryVersion
 Publish Neon.Web                            $libraryVersion
 Publish Neon.WinTTY                         $libraryVersion
 Publish Neon.WSL                            $libraryVersion
@@ -378,7 +375,6 @@ Publish Neon.XenServer                      $libraryVersion
 Publish Neon.Xunit                          $libraryVersion
 Publish Neon.Xunit.Cadence                  $libraryVersion
 Publish Neon.Xunit.Couchbase                $libraryVersion
-Publish Neon.Xunit.Temporal                 $libraryVersion
 Publish Neon.Xunit.YugaByte                 $libraryVersion
 Publish Neon.YugaByte                       $libraryVersion
 
@@ -401,7 +397,6 @@ RestoreVersion Neon.Nats
 RestoreVersion Neon.Postgres
 RestoreVersion Neon.SSH
 RestoreVersion Neon.Tailwind
-RestoreVersion Neon.Temporal
 RestoreVersion Neon.Web
 RestoreVersion Neon.WinTTY
 RestoreVersion Neon.WSL
@@ -409,7 +404,6 @@ RestoreVersion Neon.XenServer
 RestoreVersion Neon.Xunit
 RestoreVersion Neon.Xunit.Cadence
 RestoreVersion Neon.Xunit.Couchbase
-RestoreVersion Neon.Xunit.Temporal
 RestoreVersion Neon.Xunit.YugaByte
 RestoreVersion Neon.YugaByte
 

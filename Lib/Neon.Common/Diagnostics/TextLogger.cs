@@ -93,8 +93,8 @@ namespace Neon.Diagnostics
         /// <param name="writer">Optionally specifies the output writer.  This defaults to <see cref="Console.Error"/>.</param>
         /// <param name="contextId">
         /// Optionally specifies additional information that can be used to identify context
-        /// for logged events.  For example, the <c>Neon.Cadence</c> and <c>Neon.Temporal</c>
-        /// clients use this to record the ID of the workflow recording events.
+        /// for logged events.  For example, the <c>Neon.Cadence</c> client uses this to
+        /// record the ID of the workflow events.
         /// </param>
         /// <param name="logFilter">
         /// Optionally specifies a filter predicate to be used for filtering log entries.  This examines

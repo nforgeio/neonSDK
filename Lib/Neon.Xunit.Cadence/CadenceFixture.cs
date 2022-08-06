@@ -92,7 +92,7 @@ namespace Neon.Xunit.Cadence
     public sealed class CadenceFixture : DockerComposeFixture
     {
         /// <summary>
-        /// The default Docker compose file text used to spin up Temporal and its related services
+        /// The default Docker compose file text used to spin up Cadence and its related services
         /// by the <see cref="CadenceFixture"/>.
         /// </summary>
         public const string DefaultComposeFile =
@@ -167,10 +167,10 @@ services:
         /// <param name="name">Optionally specifies the Cadence container name (defaults to <c>cadence-dev</c>).</param>
         /// <param name="composeFile">
         /// <para>
-        /// Optionally specifies the Temporal Docker compose file text.  This defaults to
-        /// <see cref="DefaultComposeFile"/> which configures Temporal server to start with
+        /// Optionally specifies the Cadence Docker compose file text.  This defaults to
+        /// <see cref="DefaultComposeFile"/> which configures Cadence server to start with
         /// a new Cassandra database instance listening on port <b>9042</b> as well as the
-        /// Temporal web UI running on port <b>8088</b>.  Temporal server is listening on
+        /// Cadence web UI running on port <b>8088</b>.  Cadence server is listening on
         /// its standard gRPC port <b>7233</b>.
         /// </para>
         /// <para>
@@ -187,7 +187,7 @@ services:
         /// </param>
         /// <param name="keepRunning">
         /// Optionally indicates that the container should remain running after the fixture is disposed.
-        /// This is handy for using the Temporal web UI for port mortems after tests have completed.
+        /// This is handy for using the Cadenced web UI for port mortems after tests have completed.
         /// </param>
         /// <param name="noClient">
         /// Optionally disables establishing a client connection when <c>true</c>
@@ -253,10 +253,10 @@ services:
         /// <param name="name">Optionally specifies the Cadence container name (defaults to <c>cadence-dev</c>).</param>
         /// <param name="composeFile">
         /// <para>
-        /// Optionally specifies the Temporal Docker compose file text.  This defaults to
-        /// <see cref="DefaultComposeFile"/> which configures Temporal server to start with
+        /// Optionally specifies the Cadence Docker compose file text.  This defaults to
+        /// <see cref="DefaultComposeFile"/> which configures Cadence server to start with
         /// a new Cassandra database instance listening on port <b>9042</b> as well as the
-        /// Temporal web UI running on port <b>8088</b>.  Temporal server is listening on
+        /// Cadence web UI running on port <b>8088</b>.  Cadence server is listening on
         /// its standard gRPC port <b>7233</b>.
         /// </para>
         /// <para>
@@ -273,7 +273,7 @@ services:
         /// </param>
         /// <param name="keepRunning">
         /// Optionally indicates that the container should remain running after the fixture is disposed.
-        /// This is handy for using the Temporal web UI for port mortems after tests have completed.
+        /// This is handy for using the Cadence web UI for port mortems after tests have completed.
         /// </param>
         /// <param name="noClient">
         /// Optionally disables establishing a client connection when <c>true</c>
@@ -324,7 +324,7 @@ services:
 
                 // It can take Cadence server some time to start.  Rather than relying on [cadence-proxy]
                 // to handle retries (which may take longer than the connect timeout), we're going to wait
-                // up to 4 minutes for Temporal to start listening on its RPC socket.
+                // up to 4 minutes for Cadence to start listening on its RPC socket.
 
                 var retry = new LinearRetryPolicy(e => true, maxAttempts: int.MaxValue, retryInterval: TimeSpan.FromSeconds(0.5), timeout: TimeSpan.FromMinutes(4));
 
@@ -332,7 +332,7 @@ services:
                     () =>
                     {
                         // The [socket.Connect()] calls below will throw [SocketException] until
-                        // Temporal starts listening on its RPC socket.
+                        // Cadence starts listening on its RPC socket.
 
                         var socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
 
