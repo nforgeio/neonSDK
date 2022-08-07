@@ -42,7 +42,7 @@ function Build
 		[switch]$latest = $false
 	)
 
-	$registry    = GetLibraryRegistry "couchbase-dev"
+	$registry    = GetSdkRegistry "couchbase-dev"
 	$tag         = $version
 	$tagAsLatest = TagAsLatest
 

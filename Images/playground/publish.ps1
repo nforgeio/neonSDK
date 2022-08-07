@@ -16,7 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Builds the NATS-STREAMING images and pushes them to the container registry.
+# Builds the NATS images and pushes them to the container registry.
 #
 # NOTE: You must be already logged into the target container registry.
 #
@@ -30,7 +30,7 @@ param
 
 #----------------------------------------------------------
 # Global Includes
-$image_root = "$env:NF_ROOT\Images"
+$image_root = "$env:NK_ROOT\Images"
 . $image_root/includes.ps1
 #----------------------------------------------------------
 
@@ -42,7 +42,7 @@ function Build
 		[switch]$latest = $false
 	)
 
-	$registry    = GetSdkRegistry "nats-streaming"
+	$registry    = GetSdkRegistry "playground"
 	$tag         = $version
 	$tagAsLatest = TagAsLatest
 
@@ -66,4 +66,4 @@ if ($allVersions)
 {
 }
 
-Build "0.12.2" -latest
+Build "0" -latest

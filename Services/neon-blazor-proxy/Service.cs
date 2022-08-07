@@ -53,7 +53,7 @@ namespace NeonBlazorProxy
         /// <summary>
         /// Config file location.
         /// </summary>
-        public const string ConfigFile = "/etc/neonkube/neon-blazor-proxy/config.yaml";
+        public const string ConfigFile = "/etc/neonsdk/neon-blazor-proxy/config.yaml";
 
         /// <summary>
         /// Session cookie name.

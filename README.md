@@ -1,6 +1,6 @@
 ﻿# neonSDK: Potentially useful libraries published as NuGet packages
 
-Neon/neonKUBE is an open source project released under the MIT license.
+neonSDK is an open source project released under the MIT license.
 
 ### Maintainters:
 

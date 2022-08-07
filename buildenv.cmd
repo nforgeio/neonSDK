@@ -1,5 +1,5 @@
 @echo off
-REM Configures the environment variables required to build neonKUBE projects.
+REM Configures the environment variables required to build neonSDK projects.
 REM 
 REM 	buildenv [ <source folder> ]
 REM
@@ -8,9 +8,9 @@ REM batch file.
 REM
 REM This must be [RUN AS ADMINISTRATOR].
 
-echo ===========================================
-echo * neonKUBE Build Environment Configurator *
-echo ===========================================
+echo ==========================================
+echo * neonSDK Build Environment Configurator *
+echo ==========================================
 
 REM Default NF_ROOT to the folder holding this batch file after stripping
 REM off the trailing backslash.
@@ -125,24 +125,6 @@ REM smart enough to only add directories that actually exist.
 %NF_TOOLBIN%\pathtool -dedup -system -add "%ProgramFiles(x86)%\PuTTY"
 %NF_TOOLBIN%\pathtool -dedup -system -add "%ProgramFiles%\WinSCP"
 %NF_TOOLBIN%\pathtool -dedup -system -add "%ProgramFiles(x86)%\WinSCP"
-
-REM Configure the neonKUBE program folder and add it to the PATH.
-
-if not exist "%ProgramFiles%\neonKUBE" mkdir "%ProgramFiles%\neonKUBE"
-%NF_TOOLBIN%\pathtool -dedup -system -add "%ProgramFiles%\neonKUBE"
-
-REM Remove obsolete paths if they exist.
-
-%NF_TOOLBIN%\pathtool --dedup -del "%NF_TOOLBIN%\OpenSSL"
-
-REM Configure the neonKUBE kubeconfig path (as a USER environment variable).
-
-set KUBECONFIG=%USERPROFILE%\.kube\admin.conf
-reg add HKCU\Environment /v KUBECONFIG /t REG_EXPAND_SZ /d %USERPROFILE%\.kube\config /f > /nul
-
-REM Install the KubeOps project templates: https://buehler.github.io/dotnet-operator-sdk/docs/templates.html
-
-dotnet new --install KubeOps.Templates::* > /nul
 
 REM Perform additional implementation in via Powershell.
 

@@ -42,7 +42,7 @@ function Build
 		[switch]$latest = $false
 	)
 
-	$registry    = GetLibraryRegistry "test-cadence"
+	$registry    = GetSdkRegistry "test-cadence"
 	$tag         = $version
 	$tagAsLatest = TagAsLatest
 

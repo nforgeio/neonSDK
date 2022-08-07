@@ -1,6 +1,6 @@
 #Requires -Version 7.1.3 -RunAsAdministrator
 #------------------------------------------------------------------------------
-# FILE:         neonkube-cadence.ps1
+# FILE:         neonsdk-cadence.ps1
 # CONTRIBUTOR:  Jeff Lill
 # COPYRIGHT:    Copyright (c) 2005-2022 by neonFORGE LLC.  All rights reserved.
 #

@@ -119,5 +119,10 @@ namespace Neon.Xunit
         /// Identifies <b>Neon.Cloud</b> tests.
         /// </summary>
         public const string NeonCloud = "Neon.Cloud";
+
+        /// <summary>
+        /// Identfies <b>Neon.JsonConverters</b> tests.
+        /// </summary>
+        public const string NeonJsonConverters = "Neon.JsonConverters";
     }
 }

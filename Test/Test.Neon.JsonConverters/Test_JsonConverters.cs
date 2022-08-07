@@ -33,7 +33,7 @@ using Xunit;
 
 namespace TestConverters
 {
-    [Trait(TestTrait.Category, TestArea.NeonKube)]
+    [Trait(TestTrait.Category, TestArea.NeonJsonConverters)]
     [Collection(TestCollection.NonParallel)]
     [CollectionDefinition(TestCollection.NonParallel, DisableParallelization = true)]
     public class Test_JsonConverters

@@ -34,7 +34,7 @@ namespace NeonBuild
 
         private static readonly string usage =
 $@"
-Internal neonKUBE project build related utilities: v{version}
+Internal neonSDK project build related utilities: v{version}
 
 -----------------------
 neon-build clean [-all] REPO-PATH
@@ -286,11 +286,11 @@ ARGUMENTS:
 
             try
             {
-                Program.NeonKubeRepoPath = Environment.GetEnvironmentVariable("NF_ROOT");
+                Program.NeonSdkRepoPath = Environment.GetEnvironmentVariable("NF_ROOT");
 
-                if (string.IsNullOrEmpty(Program.NeonKubeRepoPath) || !Directory.Exists(Program.NeonKubeRepoPath))
+                if (string.IsNullOrEmpty(Program.NeonSdkRepoPath) || !Directory.Exists(Program.NeonSdkRepoPath))
                 {
-                    Console.Error.WriteLine("*** ERROR: NF_ROOT environment variable does not reference the local neonKUBE repostory.");
+                    Console.Error.WriteLine("*** ERROR: NF_ROOT environment variable does not reference the local neonSDK repostory.");
                     Program.Exit(1);
                 }
 
@@ -552,9 +552,9 @@ ARGUMENTS:
         }
 
         /// <summary>
-        /// Returns the path to the neonKUBE local repository root folder.
+        /// Returns the path to the neonSDK local repository root folder.
         /// </summary>
-        public static string NeonKubeRepoPath { get; private set; }
+        public static string NeonSdkRepoPath { get; private set; }
 
         /// <summary>
         /// Terminates the program with a specified exit code.

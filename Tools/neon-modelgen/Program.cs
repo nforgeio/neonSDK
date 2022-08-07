@@ -34,7 +34,7 @@ namespace NeonModelGen
     public static class Program
     {
         private static readonly string usage = $@"
-neon-modelgen v{Build.NeonLibraryVersion}
+neon-modelgen v{Build.NeonSdkVersion}
 -----------------------------------------
 Generates C# source code for data and service models defined as interfaces
 within a compiled assembly.

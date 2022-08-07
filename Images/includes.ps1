@@ -29,21 +29,23 @@
 #------------------------------------------------------------------------------
 # Important source code paths.
 
-$NF_ROOT    = $env:NF_ROOT
-$nfImages   = "$NF_ROOT\Images"
-$nfLib      = "$NF_ROOT\Lib"
-$nfServices = "$NF_ROOT\Services"
-$nfTools    = "$NF_ROOT\Tools"
+$nfRoot     = $env:NF_ROOT
+$nkRoot     = $env:NK_ROOT
+$ncRoot     = $env:NC_ROOT
+$ncImages   = "$ncRoot\Images"
+$ncLib      = "$ncRoot\Lib"
+$ncServices = "$ncRoot\Services"
+$ncTools    = "$ncRoot\Tools"
 
 #------------------------------------------------------------------------------
 # Global constants.
 
-# neonKUBE release Version.
+# neonSDK release Version.
 
-$neonKUBE_Version = $(& "$NF_ROOT\ToolBin\neon-build" read-version "$nfLib\Neon.Kube\KubeVersions.cs" NeonKube)
+$neonSDK_Version = $(& neon-build read-version "$nkRoot\Lib\Neon.Kube\KubeVersions.cs" NeonSdkVersion)
 ThrowOnExitCode
 
-$neonKUBE_Tag = "neonkube-" + $neonKUBE_Version
+$neonSDK_Tag = "neonsdk-" + $neonSDK_Version
 
 # Override the common image tag if the [NEON_CONTAINER_TAG_OVERRIDE] is defined.\
 # This is used for development purposes.
@@ -52,7 +54,7 @@ $tagOverride = $env:NEON_CONTAINER_TAG_OVERRIDE
 
 if (-not [System.String]::IsNullOrEmpty($tagOverride))
 {
-	$neonKUBE_Tag = $tagOverride
+	$neonSDK_Tag = $tagOverride
 }
 
 #------------------------------------------------------------------------------
@@ -132,22 +134,22 @@ function TagAsLatest
 }
 
 #------------------------------------------------------------------------------
-# Prefixes the image name passed with the target neonLIBRARY GitHub container 
+# Prefixes the image name passed with the target neonSDK GitHub container 
 # registry for the current git branch by default such that when the current branch
 # name starts with "release-" the image will be pushed to "ghcr.io/neonrelease/"
 # otherwise it will be pushed to "ghcr.io/neonrelease-dev/".
 
-function GetLibraryRegistry($image)
+function GetSdkRegistry($image)
 {
-	$org = LibraryRegistryOrg
+	$org = SdkRegistryOrg
 	
 	return "$org/$image"
 }
 
 #------------------------------------------------------------------------------
-# Returns the neonLIBRARY registry organization corresponding to the current git branch.
+# Returns the neonSDK registry organization corresponding to the current git branch.
 
-function LibraryRegistryOrg
+function SdkRegistryOrg
 {
 	if (IsRelease)
 	{

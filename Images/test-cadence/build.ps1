@@ -15,7 +15,7 @@ param
 )
 
 $appname           = "test-cadence"
-$organization      = LibraryRegistryOrg
+$organization      = SdkRegistryOrg
 $base_organization = KubeBaseRegistryOrg
 $branch            = GitBranch $env:NF_ROOT
 
@@ -44,7 +44,7 @@ ThrowOnExitCode
 
 # Build the image.
 
-$result = Invoke-CaptureStreams "docker build -t ${registry}:${tag} --build-arg `"APPNAME=$appname`" --build-arg `"ORGANIZATION=$organization`" --build-arg `"BASE_ORGANIZATION=$base_organization`" --build-arg `"CLUSTER_VERSION=neonkube-$neonKUBE_Version`" --build-arg `"BRANCH=$branch`" ." -interleave
+$result = Invoke-CaptureStreams "docker build -t ${registry}:${tag} --build-arg `"APPNAME=$appname`" --build-arg `"ORGANIZATION=$organization`" --build-arg `"BASE_ORGANIZATION=$base_organization`" --build-arg `"CLUSTER_VERSION=neonsdk-$neonSDK_Version`" --build-arg `"BRANCH=$branch`" ." -interleave
 
 # Clean up
 

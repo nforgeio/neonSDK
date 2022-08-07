@@ -1,6 +1,6 @@
 @echo off
 REM ---------------------------------------------------------------------------
-REM FILE:         neonkube-nuget-dev.cmd
+REM FILE:         neonsdk-nuget-dev.cmd
 REM CONTRIBUTOR:  Jeff Lill
 REM COPYRIGHT:    Copyright (c) 2005-2022 by neonFORGE LLC.  All rights reserved.
 REM

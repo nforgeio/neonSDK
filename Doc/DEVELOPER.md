@@ -1,6 +1,6 @@
-﻿# neonKUBE Developer Setup
+﻿# neonSDK Developer Setup
 
-This page describes how to get started with neonKUBE development.
+This page describes how to get started with neonSDK development.
 
 ## Workstation Requirements
 
@@ -99,7 +99,7 @@ Follow the steps below to configure a development or test workstation:
   * **Close** Visual Studio to install any updates
   * **NOTE:** You need sign into Visual Studio using a Windows account (like **sally@neonforge.com** for internal developers)
 
-11. Create a **shortcut** for Visual Studio and configure it to run as **administrator**.  To build and run neonKUBE applications and services, **Visual Studio run with elevated privileges** to build neonKUBE.
+11. Create a **shortcut** for Visual Studio and configure it to run as **administrator**.  To build and run neonSDK applications and services, **Visual Studio run with elevated privileges** to build neonSDK.
 
 12. Disable **Visual Studio YAML validation:**
 
@@ -122,7 +122,7 @@ Follow the steps below to configure a development or test workstation:
    * Install **.NET 5.0 SDK 5.0.408** from [here](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-5.0.403-windows-x64-installer) (.NET SDK x64 installer)
    * Install **.NET 6.0 SDK 6.0.301** from [here](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-6.0.301-windows-x64-installer) (.NET SDK x64 installer)
 
-16. **Clone** the https://github.com/nforgeio/neonKUBE.git repository to your workstation:
+16. **Clone** the https://github.com/nforgeio/neonSDK.git repository to your workstation:
 
     * **IMPORTANT:** All neonFORGE related repositories must be cloned within the same parent directory and their folder names must be the same as the repo names.
 

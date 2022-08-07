@@ -73,4 +73,4 @@ if ($allVersions)
 {
 }
 
-Build $neonKUBE_Tag -latest
+Build $neonSDK_Tag -latest

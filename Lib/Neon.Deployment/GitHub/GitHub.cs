@@ -128,7 +128,7 @@ namespace Neon.Deployment
             GitHub.GetCredentials();
 
             var repoPath = GitHubRepoPath.Parse(repo);
-            var client = new GitHubClient(new Octokit.ProductHeaderValue("neonkube.com"));    // $todo(jefflill): https://github.com/nforgeio/neonKUBE/issues/1214
+            var client = new GitHubClient(new Octokit.ProductHeaderValue("neonforge.com"));    // $todo(jefflill): https://github.com/nforgeio/neonKUBE/issues/1214
 
             client.Credentials = new Octokit.Credentials(AccessToken);
 

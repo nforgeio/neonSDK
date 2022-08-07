@@ -16,9 +16,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Performs a clean build of the neonKUBE solution and publishes binaries
-# to the [$/build] folder.  This can also optionally build the neonKUBE
-# Desktop installer.
+# Performs a clean build of the neonSDK solution and publishes binaries
+# to the [$/build] folder.
 #
 # USAGE: pwsh -f neonsdk-builder.ps1 [OPTIONS]
 #
@@ -83,7 +82,7 @@ $nfToolBin   = "$nfRoot\ToolBin"
 $buildConfig = "-p:Configuration=$config"
 $env:PATH   += ";$nfBuild"
 
-$libraryVersion = $(& "$nfToolBin\neon-build" read-version "$nfLib\Neon.Common\Build.cs" NeonLibraryVersion)
+$neonSdkVersion = $(& "$nfToolBin\neon-build" read-version "$nfLib\Neon.Common\Build.cs" NeonSdkVersion)
 ThrowOnExitCode
 
 #------------------------------------------------------------------------------
@@ -191,7 +190,7 @@ try
         # $todo(jefflill): 
         #
         # I'm not sure if we still need this.  I believe we were running into trouble
-        # building the neonKUBE CodeDoc using SHFB, which we're no longer using.
+        # building the neonSDK CodeDoc using SHFB, which we're no longer using.
 
         # Ensure-VisualStudioNotRunning
 

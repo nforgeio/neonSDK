@@ -245,7 +245,7 @@ namespace Neon.Xunit.Couchbase
             string              hostInterface = null,
             ContainerLimits     limits        = null)
         {
-            image = image ?? $"{NeonHelper.NeonLibraryBranchRegistry}/couchbase-dev:latest";
+            image = image ?? $"{NeonHelper.NeonSdkBranchRegistry}/couchbase-dev:latest";
 
             base.CheckWithinAction();
 

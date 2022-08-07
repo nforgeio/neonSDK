@@ -42,7 +42,7 @@ function Build
 		[switch]$latest = $false
 	)
 
-	$registry    = GetLibraryRegistry "cassandra"
+	$registry    = GetSdkRegistry "cassandra"
 	$tag         = $version
 	$tagAsLatest = TagAsLatest
 

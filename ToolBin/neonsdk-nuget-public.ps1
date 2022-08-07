@@ -59,7 +59,7 @@ function SetVersion
     )
 
     "$project"
-	neon-build pack-version NeonLibraryVersion "$env:NF_ROOT\Lib\$project\$project.csproj"
+	neon-build pack-version NeonSDKVersion "$env:NF_ROOT\Lib\$project\$project.csproj"
     ThrowOnExitCode
 }
 
@@ -96,7 +96,7 @@ function Publish
         $prerelease = ""
     }
 
-	nuget push -Source nuget.org -ApiKey $nugetApiKey "$env:NF_BUILD\nuget\$project.$libraryVersion$prerelease.nupkg" -SkipDuplicate -Timeout 600
+	nuget push -Source nuget.org -ApiKey $nugetApiKey "$env:NF_BUILD\nuget\$project.$neonSdkVersion$prerelease.nupkg" -SkipDuplicate -Timeout 600
     ThrowOnExitCode
 }
 
@@ -109,7 +109,7 @@ $nfBuild         = "$env:NF_BUILD"
 $nfLib           = "$nfRoot\Lib"
 $nfTools         = "$nfRoot\Tools"
 $nfToolBin       = "$nfRoot\ToolBin"
-$libraryVersion  = $(& "$nfToolBin\neon-build" read-version "$nfLib/Neon.Common/Build.cs" NeonLibraryVersion)
+$neonSdkVersion  = $(& "$nfToolBin\neon-build" read-version "$nfLib/Neon.Common/Build.cs" NeonSDKVersion)
 $neonkubeVersion = $(& "$nfToolBin\neon-build" read-version "$nfLib/Neon.Kube/KubeVersions.cs" NeonKube)
 
 # We need to do a release solution build to ensure that any tools or other
@@ -151,61 +151,61 @@ if (-not $?)
 
 # Update the project versions.
 
-SetVersion Neon.Cadence             $libraryVersion
-SetVersion Neon.Cassandra           $libraryVersion
-SetVersion Neon.Common              $libraryVersion
-SetVersion Neon.Couchbase           $libraryVersion
-SetVersion Neon.Cryptography        $libraryVersion
-SetVersion Neon.CSharp              $libraryVersion
-SetVersion Neon.Deployment          $libraryVersion
-SetVersion Neon.Docker              $libraryVersion
-SetVersion Neon.JsonConverters      $libraryVersion
-SetVersion Neon.HyperV              $libraryVersion
-SetVersion Neon.Service             $libraryVersion
-SetVersion Neon.ModelGen            $libraryVersion
-SetVersion Neon.ModelGenerator      $libraryVersion
-SetVersion Neon.Nats                $libraryVersion
-SetVersion Neon.Postgres            $libraryVersion
-SetVersion Neon.SSH                 $libraryVersion
-SetVersion Neon.Tailwind            $libraryVersion
-SetVersion Neon.Web                 $libraryVersion
-SetVersion Neon.WinTTY              $libraryVersion
-SetVersion Neon.WSL                 $libraryVersion
-SetVersion Neon.XenServer           $libraryVersion
-SetVersion Neon.Xunit               $libraryVersion
-SetVersion Neon.Xunit.Cadence       $libraryVersion
-SetVersion Neon.Xunit.Couchbase     $libraryVersion
-SetVersion Neon.Xunit.YugaByte      $libraryVersion
-SetVersion Neon.YugaByte            $libraryVersion
+SetVersion Neon.Cadence             $neonSdkVersion
+SetVersion Neon.Cassandra           $neonSdkVersion
+SetVersion Neon.Common              $neonSdkVersion
+SetVersion Neon.Couchbase           $neonSdkVersion
+SetVersion Neon.Cryptography        $neonSdkVersion
+SetVersion Neon.CSharp              $neonSdkVersion
+SetVersion Neon.Deployment          $neonSdkVersion
+SetVersion Neon.Docker              $neonSdkVersion
+SetVersion Neon.JsonConverters      $neonSdkVersion
+SetVersion Neon.HyperV              $neonSdkVersion
+SetVersion Neon.Service             $neonSdkVersion
+SetVersion Neon.ModelGen            $neonSdkVersion
+SetVersion Neon.ModelGenerator      $neonSdkVersion
+SetVersion Neon.Nats                $neonSdkVersion
+SetVersion Neon.Postgres            $neonSdkVersion
+SetVersion Neon.SSH                 $neonSdkVersion
+SetVersion Neon.Tailwind            $neonSdkVersion
+SetVersion Neon.Web                 $neonSdkVersion
+SetVersion Neon.WinTTY              $neonSdkVersion
+SetVersion Neon.WSL                 $neonSdkVersion
+SetVersion Neon.XenServer           $neonSdkVersion
+SetVersion Neon.Xunit               $neonSdkVersion
+SetVersion Neon.Xunit.Cadence       $neonSdkVersion
+SetVersion Neon.Xunit.Couchbase     $neonSdkVersion
+SetVersion Neon.Xunit.YugaByte      $neonSdkVersion
+SetVersion Neon.YugaByte            $neonSdkVersion
 
 # Build and publish the projects.
 
-Publish Neon.Cadence                $libraryVersion
-Publish Neon.Cassandra              $libraryVersion
-Publish Neon.Common                 $libraryVersion
-Publish Neon.Couchbase              $libraryVersion
-Publish Neon.Cryptography           $libraryVersion
-Publish Neon.CSharp                 $libraryVersion
-Publish Neon.Deployment             $libraryVersion
-Publish Neon.Docker                 $libraryVersion
-Publish Neon.JsonConverters         $libraryVersion
-Publish Neon.HyperV                 $libraryVersion
-Publish Neon.Service                $libraryVersion
-Publish Neon.ModelGen               $libraryVersion
-Publish Neon.ModelGenerator         $libraryVersion
-Publish Neon.Nats                   $libraryVersion
-Publish Neon.Postgres               $libraryVersion
-Publish Neon.SSH                    $libraryVersion
-Publish Neon.Tailwind               $libraryVersion
-Publish Neon.Web                    $libraryVersion
-Publish Neon.WinTTY                 $libraryVersion
-Publish Neon.WSL                    $libraryVersion
-Publish Neon.XenServer              $libraryVersion
-Publish Neon.Xunit                  $libraryVersion
-Publish Neon.Xunit.Cadence          $libraryVersion
-Publish Neon.Xunit.Couchbase        $libraryVersion
-Publish Neon.Xunit.YugaByte         $libraryVersion
-Publish Neon.YugaByte               $libraryVersion
+Publish Neon.Cadence                $neonSdkVersion
+Publish Neon.Cassandra              $neonSdkVersion
+Publish Neon.Common                 $neonSdkVersion
+Publish Neon.Couchbase              $neonSdkVersion
+Publish Neon.Cryptography           $neonSdkVersion
+Publish Neon.CSharp                 $neonSdkVersion
+Publish Neon.Deployment             $neonSdkVersion
+Publish Neon.Docker                 $neonSdkVersion
+Publish Neon.JsonConverters         $neonSdkVersion
+Publish Neon.HyperV                 $neonSdkVersion
+Publish Neon.Service                $neonSdkVersion
+Publish Neon.ModelGen               $neonSdkVersion
+Publish Neon.ModelGenerator         $neonSdkVersion
+Publish Neon.Nats                   $neonSdkVersion
+Publish Neon.Postgres               $neonSdkVersion
+Publish Neon.SSH                    $neonSdkVersion
+Publish Neon.Tailwind               $neonSdkVersion
+Publish Neon.Web                    $neonSdkVersion
+Publish Neon.WinTTY                 $neonSdkVersion
+Publish Neon.WSL                    $neonSdkVersion
+Publish Neon.XenServer              $neonSdkVersion
+Publish Neon.Xunit                  $neonSdkVersion
+Publish Neon.Xunit.Cadence          $neonSdkVersion
+Publish Neon.Xunit.Couchbase        $neonSdkVersion
+Publish Neon.Xunit.YugaByte         $neonSdkVersion
+Publish Neon.YugaByte               $neonSdkVersion
 
 # Remove all of the generated nuget files so these don't accumulate.
 

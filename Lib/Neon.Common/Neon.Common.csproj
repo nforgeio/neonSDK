@@ -7,8 +7,8 @@
 		<Version>10000.0.2060-dev-marcus</Version>
 		<Company>neonFORGE LLC</Company>
 		<Authors>neonFORGE Team</Authors>
-		<Description>Useful classes used by other neonLIBRARY packages as well as neonFORGE applications</Description>
-		<PackageReleaseNotes>https://github.com/nforgeio/neonKUBE/releases</PackageReleaseNotes>
+		<Description>Useful classes used by other neonSDK packages as well as neonFORGE applications</Description>
+		<PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
 		<Copyright>Copyright © 2005-2022 by neonFORGE LLC.  All rights reserved.</Copyright>
 		<AssemblyVersion>0.0.0.0</AssemblyVersion>
 		<FileVersion>0.0.0.0</FileVersion>
@@ -16,9 +16,9 @@
 		<LangVersion>latest</LangVersion>
 		<IsPackable>true</IsPackable>
 		<PackageLicenseUrl></PackageLicenseUrl>
-		<PackageProjectUrl>https://github.com/nforgeio/neonKUBE/blob/master/Lib/Neon.Common/README.md</PackageProjectUrl>
+		<PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.Common/README.md</PackageProjectUrl>
 		<RepositoryType>git</RepositoryType>
-		<RepositoryUrl>https://github.com/nforgeio/neonKUBE</RepositoryUrl>
+		<RepositoryUrl>https://github.com/nforgeio/neonSDK</RepositoryUrl>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<Configurations>Debug;Release;CodeDoc</Configurations>

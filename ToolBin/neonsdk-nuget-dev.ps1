@@ -1,6 +1,6 @@
 #Requires -Version 7.1.3 -RunAsAdministrator
 #------------------------------------------------------------------------------
-# FILE:         neonkube-nuget-dev.ps1
+# FILE:         neonsdk-nuget-dev.ps1
 # CONTRIBUTOR:  Jeff Lill
 # COPYRIGHT:    Copyright (c) 2005-2022 by neonFORGE LLC.  All rights reserved.
 #
@@ -22,7 +22,7 @@
 # at https://nuget-dev.neoncloud.io so intermediate builds can be shared 
 # by maintainers.
 #
-# USAGE: pwsh -f neonkube-nuget-dev.ps1 [OPTIONS]
+# USAGE: pwsh -f neonsdk-nuget-dev.ps1 [OPTIONS]
 #
 # OPTIONS:
 #
@@ -50,7 +50,7 @@
 # within the local feed folder:
 #
 #   C:\nc-nuget-local\neonKUBE.version.txt
-#   C:\nc-nuget-local\neonLIBRARY.version.txt
+#   C:\nc-nuget-local\neonSDK.version.txt
 #
 # These simply hold the next version as an integer on the first line for 
 # each set of packages.  You'll need to manually initialize these files
@@ -210,15 +210,15 @@ if ($localVersion)
 {
     # EMERGENCY MODE: Use local counters.
 
-    $nfVersionPath = [System.IO.Path]::Combine($env:NC_NUGET_LOCAL, "neonKUBE.version.txt")
-    $nlVersionPath = [System.IO.Path]::Combine($env:NC_NUGET_LOCAL, "neonLIBRARY.version.txt")
+    $nfVersionPath = [System.IO.Path]::Combine($env:NC_NUGET_LOCAL, "neonSDK.version.txt")
+    $nkVersionPath = [System.IO.Path]::Combine($env:NC_NUGET_LOCAL, "neonKUBE.version.txt")
 
-    if (![System.IO.File]::Exists("$nfVersionPath") -or ![System.IO.File]::Exists("$nlVersionPath"))
+    if (![System.IO.File]::Exists("$nfVersionPath") -or ![System.IO.File]::Exists("$nfVersionPath"))
     {
         Write-Error "You'll need to manually initialize the local version files at:" -ErrorAction continue
         Write-Error ""                   -ErrorAction continue
         Write-Error "    $nfVersionPath" -ErrorAction continue
-        Write-Error "    $nlVersionPath" -ErrorAction continue
+        Write-Error "    $nfVersionPath" -ErrorAction continue
         Write-Error "" -ErrorAction continue
         Write-Error "Create these files with the minor version number currently referenced" -ErrorAction continue
         Write-Error "by your local neonCLOUD solution:" -ErrorAction continue
@@ -226,30 +226,30 @@ if ($localVersion)
         Write-Error "The easiest way to do this is to open the [neonCLOUD/Tools/neon-cli/neon-cli.csproj]" -ErrorAction continue
         Write-Error "file extract the minor version for the package references as described below:" -ErrorAction continue
         Write-Error "" -ErrorAction continue
-        Write-Error "    neonKUBE.version.txt:    from Neon.Kube" -ErrorAction continue
-        Write-Error "    neonLIBRARY.version.txt: from Neon.Common" -ErrorAction continue
+        Write-Error "    neonSDK.version.txt:  from Neon.Common" -ErrorAction continue
+        Write-Error "    neonKUBE.version.txt: from Neon.Kube" -ErrorAction continue
         Write-Error "" -ErrorAction continue
         Write-Error "NOTE: These two version numbers are currently the same (Jan 2022), but they" -ErrorAction continue
         Write-Error "      may diverge at any time and will definitely diverge after we separate " -ErrorAction continue
-        Write-Error "      neonLIBRARY and neonKUBE." -ErrorAction continue
+        Write-Error "      neonSDK and neonKUBE." -ErrorAction continue
         exit 1
     }
-
-    $version = [int](Get-Content -TotalCount 1 $nlVersionPath).Trim()
-    $version++
-    [System.IO.File]::WriteAllText($nlVersionPath, $version)
-    $libraryVersion = "10000.0.$version-dev-$branch"
 
     $version = [int](Get-Content -TotalCount 1 $nfVersionPath).Trim()
     $version++
     [System.IO.File]::WriteAllText($nfVersionPath, $version)
-    $kubeVersion = "10000.0.$version-dev-$branch"
+    $neonSdkVersion = "10000.0.$version-dev-$branch"
+
+    $version = [int](Get-Content -TotalCount 1 $nfVersionPath).Trim()
+    $version++
+    [System.IO.File]::WriteAllText($nfVersionPath, $version)
+    $neonkubeVersion = "10000.0.$version-dev-$branch"
 }
 else
 {
     # We're going to call the neonCLOUD nuget versioner service to atomically increment the 
     # dev package version counters for the solution and then generate the full version for
-    # the packages we'll be publishing.  We'll use separate counters for the neonLIBRARY
+    # the packages we'll be publishing.  We'll use separate counters for the neonSDK
     # and neonKUBE packages.
     #
     # The package versions will also include the current branch appended to the preview tag
@@ -274,11 +274,11 @@ else
     # Submit PUTs request to the versioner service, specifying the counter name.  The service will
     # atomically increment the counter and return the next value.
 
-    $reply          = Invoke-WebRequest -Uri "$env:NC_NUGET_VERSIONER/counter/neonLIBRARY-dev" -Method 'PUT' -Headers @{ 'Authorization' = "Bearer $versionerKeyBase64" } 
-    $libraryVersion = "10000.0.$reply-dev-$branch"
+    $reply           = Invoke-WebRequest -Uri "$env:NC_NUGET_VERSIONER/counter/neonSDK-dev" -Method 'PUT' -Headers @{ 'Authorization' = "Bearer $versionerKeyBase64" } 
+    $neonSdkVersion  = "10000.0.$reply-dev-$branch"
 
-    $reply          = Invoke-WebRequest -Uri "$env:NC_NUGET_VERSIONER/counter/neonKUBE-dev" -Method 'PUT' -Headers @{ 'Authorization' = "Bearer $versionerKeyBase64" } 
-    $kubeVersion    = "10000.0.$reply-dev-$branch"
+    $reply           = Invoke-WebRequest -Uri "$env:NC_NUGET_VERSIONER/counter/neonKUBE-dev" -Method 'PUT' -Headers @{ 'Authorization' = "Bearer $versionerKeyBase64" } 
+    $neonkubeVersion = "10000.0.$reply-dev-$branch"
 }
 
 # We need to do a solution build to ensure that any tools or other dependencies 
@@ -322,61 +322,61 @@ if (-not $?)
 # implicit package dependencies will work for external projects importing
 # these packages.
 
-SetVersion Neon.Cadence                     $libraryVersion
-SetVersion Neon.Cassandra                   $libraryVersion
-SetVersion Neon.Common                      $libraryVersion
-SetVersion Neon.Couchbase                   $libraryVersion
-SetVersion Neon.Cryptography                $libraryVersion
-SetVersion Neon.CSharp                      $libraryVersion
-SetVersion Neon.Deployment                  $libraryVersion
-SetVersion Neon.Docker                      $libraryVersion
-SetVersion Neon.JsonConverters              $libraryVersion
-SetVersion Neon.HyperV                      $libraryVersion
-SetVersion Neon.Service                     $libraryVersion
-SetVersion Neon.ModelGen                    $libraryVersion
-SetVersion Neon.ModelGenerator              $libraryVersion
-SetVersion Neon.Nats                        $libraryVersion
-SetVersion Neon.Postgres                    $libraryVersion
-SetVersion Neon.SSH                         $libraryVersion
-SetVersion Neon.Tailwind                    $libraryVersion
-SetVersion Neon.Web                         $libraryVersion
-SetVersion Neon.WinTTY                      $libraryVersion
-SetVersion Neon.WSL                         $libraryVersion
-SetVersion Neon.XenServer                   $libraryVersion
-SetVersion Neon.Xunit                       $libraryVersion
-SetVersion Neon.Xunit.Cadence               $libraryVersion
-SetVersion Neon.Xunit.Couchbase             $libraryVersion
-SetVersion Neon.Xunit.YugaByte              $libraryVersion
-SetVersion Neon.YugaByte                    $libraryVersion
+SetVersion Neon.Cadence                     $neonSdkVersion
+SetVersion Neon.Cassandra                   $neonSdkVersion
+SetVersion Neon.Common                      $neonSdkVersion
+SetVersion Neon.Couchbase                   $neonSdkVersion
+SetVersion Neon.Cryptography                $neonSdkVersion
+SetVersion Neon.CSharp                      $neonSdkVersion
+SetVersion Neon.Deployment                  $neonSdkVersion
+SetVersion Neon.Docker                      $neonSdkVersion
+SetVersion Neon.JsonConverters              $neonSdkVersion
+SetVersion Neon.HyperV                      $neonSdkVersion
+SetVersion Neon.Service                     $neonSdkVersion
+SetVersion Neon.ModelGen                    $neonSdkVersion
+SetVersion Neon.ModelGenerator              $neonSdkVersion
+SetVersion Neon.Nats                        $neonSdkVersion
+SetVersion Neon.Postgres                    $neonSdkVersion
+SetVersion Neon.SSH                         $neonSdkVersion
+SetVersion Neon.Tailwind                    $neonSdkVersion
+SetVersion Neon.Web                         $neonSdkVersion
+SetVersion Neon.WinTTY                      $neonSdkVersion
+SetVersion Neon.WSL                         $neonSdkVersion
+SetVersion Neon.XenServer                   $neonSdkVersion
+SetVersion Neon.Xunit                       $neonSdkVersion
+SetVersion Neon.Xunit.Cadence               $neonSdkVersion
+SetVersion Neon.Xunit.Couchbase             $neonSdkVersion
+SetVersion Neon.Xunit.YugaByte              $neonSdkVersion
+SetVersion Neon.YugaByte                    $neonSdkVersion
 
 # Build and publish the projects.
 
-Publish Neon.Cadence                        $libraryVersion
-Publish Neon.Cassandra                      $libraryVersion
-Publish Neon.Common                         $libraryVersion
-Publish Neon.Couchbase                      $libraryVersion
-Publish Neon.Cryptography                   $libraryVersion
-Publish Neon.CSharp                         $libraryVersion
-Publish Neon.Deployment                     $libraryVersion
-Publish Neon.Docker                         $libraryVersion
-Publish Neon.JsonConverters                 $libraryVersion
-Publish Neon.HyperV                         $libraryVersion
-Publish Neon.Service                        $libraryVersion
-Publish Neon.ModelGen                       $libraryVersion
-Publish Neon.ModelGenerator                 $libraryVersion
-Publish Neon.Nats                           $libraryVersion
-Publish Neon.Postgres                       $libraryVersion
-Publish Neon.SSH                            $libraryVersion
-Publish Neon.Tailwind                       $libraryVersion
-Publish Neon.Web                            $libraryVersion
-Publish Neon.WinTTY                         $libraryVersion
-Publish Neon.WSL                            $libraryVersion
-Publish Neon.XenServer                      $libraryVersion
-Publish Neon.Xunit                          $libraryVersion
-Publish Neon.Xunit.Cadence                  $libraryVersion
-Publish Neon.Xunit.Couchbase                $libraryVersion
-Publish Neon.Xunit.YugaByte                 $libraryVersion
-Publish Neon.YugaByte                       $libraryVersion
+Publish Neon.Cadence                        $neonSdkVersion
+Publish Neon.Cassandra                      $neonSdkVersion
+Publish Neon.Common                         $neonSdkVersion
+Publish Neon.Couchbase                      $neonSdkVersion
+Publish Neon.Cryptography                   $neonSdkVersion
+Publish Neon.CSharp                         $neonSdkVersion
+Publish Neon.Deployment                     $neonSdkVersion
+Publish Neon.Docker                         $neonSdkVersion
+Publish Neon.JsonConverters                 $neonSdkVersion
+Publish Neon.HyperV                         $neonSdkVersion
+Publish Neon.Service                        $neonSdkVersion
+Publish Neon.ModelGen                       $neonSdkVersion
+Publish Neon.ModelGenerator                 $neonSdkVersion
+Publish Neon.Nats                           $neonSdkVersion
+Publish Neon.Postgres                       $neonSdkVersion
+Publish Neon.SSH                            $neonSdkVersion
+Publish Neon.Tailwind                       $neonSdkVersion
+Publish Neon.Web                            $neonSdkVersion
+Publish Neon.WinTTY                         $neonSdkVersion
+Publish Neon.WSL                            $neonSdkVersion
+Publish Neon.XenServer                      $neonSdkVersion
+Publish Neon.Xunit                          $neonSdkVersion
+Publish Neon.Xunit.Cadence                  $neonSdkVersion
+Publish Neon.Xunit.Couchbase                $neonSdkVersion
+Publish Neon.Xunit.YugaByte                 $neonSdkVersion
+Publish Neon.YugaByte                       $neonSdkVersion
 
 # Restore the project versions
 

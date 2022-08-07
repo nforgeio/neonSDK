@@ -42,7 +42,7 @@ function Build
 		[switch]$latest = $false
 	)
 
-	$registry    = GetLibraryRegistry "yugabyte"
+	$registry    = GetSdkRegistry "yugabyte"
 	$tag         = $yugabyteVersion
 	$tagAsLatest = TagAsLatest
 

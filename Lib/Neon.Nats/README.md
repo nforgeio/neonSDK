@@ -1,5 +1,4 @@
-﻿Neon.Kube.Resources
-===================
+﻿Neon.Nats
+=========
 
-Defines the custom neonKUBE related Kubernetes resource types and well as the custom resource definitions (CRD)
-that will be added to clusters when they are deployed.
+Extensions for the NAT queue client.
