@@ -62,7 +62,7 @@ namespace Neon.Cadence
     /// is finished.
     /// </para>
     /// <para>
-    /// See the documentation site for more information: <a href="https://doc.neonkube.com/Neon.Cadence-Workflow-SynchronousSignals.htm">Synchronous Signals</a>
+    /// See the documentation site for more information: <a href="https://sdk.neonforge.com/Neon.Cadence-Workflow-SynchronousSignals.htm">Synchronous Signals</a>
     /// </para>
     /// </remarks>
     public class SignalRequest 

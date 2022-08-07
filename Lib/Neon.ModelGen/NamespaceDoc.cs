@@ -38,7 +38,7 @@ namespace Neon.ModelGen
     /// add a custom build target to invoke <b>neon-modelgen</b>.
     /// </para>
     /// <para>
-    /// See <a href="https://doc.neonkube.com/Neon.ModelGen-Overview.htm">ModelGen Overview</a> for 
+    /// See <a href="https://sdk.neonforge.com/Neon.ModelGen-Overview.htm">ModelGen Overview</a> for 
     /// more information.
     /// </para>
     /// </summary>

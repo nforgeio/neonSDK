@@ -58,7 +58,7 @@ You need to select the correct one for your build environment by editing the las
 Here's some documentation for the underlying model generator class as well as the [neon-modelgen]
 command line tool itself:
 
-https://doc.neonkube.com/Neon.ModelGen-Overview.htm
+https://sdk.neonforge.com/Neon.ModelGen-Overview.htm
 
 
 neon-modelgen

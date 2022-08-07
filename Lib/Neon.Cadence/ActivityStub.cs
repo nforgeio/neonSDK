@@ -64,7 +64,7 @@ namespace Neon.Cadence
         /// </code>
         /// <note>
         /// You may need to customize activity type name when interoperating with activities written
-        /// in other languages.  See <a href="https://doc.neonkube.com/Neon.Cadence-CrossPlatform.htm">Cadence Cross-Platform</a>
+        /// in other languages.  See <a href="https://sdk.neonforge.com/Neon.Cadence-CrossPlatform.htm">Cadence Cross-Platform</a>
         /// for more information.
         /// </note>
         /// </remarks>

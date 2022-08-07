@@ -94,7 +94,7 @@ namespace Neon.Cadence
         /// be replaced by upcoming Cadence server features.
         /// </para>
         /// <para>
-        /// See the documentation site for more information: <a href="https://doc.neonkube.com/Neon.Cadence-Workflow-SyncSignals.htm">Synchronous Signals</a>
+        /// See the documentation site for more information: <a href="https://sdk.neonforge.com/Neon.Cadence-Workflow-SyncSignals.htm">Synchronous Signals</a>
         /// </para>
         /// </remarks>
         public bool Synchronous { get; set; } = false;
