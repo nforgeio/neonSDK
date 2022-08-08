@@ -16,7 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Builds the NATS images and pushes them to the container registry.
+# Builds the Playground image and pushes it to the container registry.
 #
 # NOTE: You must be already logged into the target container registry.
 #
@@ -30,7 +30,7 @@ param
 
 #----------------------------------------------------------
 # Global Includes
-$image_root = "$env:NK_ROOT\Images"
+$image_root = "$env:NF_ROOT\Images"
 . $image_root/includes.ps1
 #----------------------------------------------------------
 

@@ -16,7 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Builds the NATS-STREAMING images and pushes them to the container registry.
+# Builds the NATS-STREAMING image and it to the container registry.
 #
 # NOTE: You must be already logged into the target container registry.
 #

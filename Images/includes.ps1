@@ -27,10 +27,20 @@
 . $env:NF_ROOT/Powershell/includes.ps1
 
 #------------------------------------------------------------------------------
-# Important source code paths.
+# Important source repo paths.
 
 $nfRoot     = $env:NF_ROOT
+$nfImages   = "$nfRoot\Images"
+$nfLib      = "$nfRoot\Lib"
+$nfServices = "$nfRoot\Services"
+$nfTools    = "$nfRoot\Tools"
+
 $nkRoot     = $env:NK_ROOT
+$nkImages   = "$nkRoot\Images"
+$nkLib      = "$nkRoot\Lib"
+$nkServices = "$nkRoot\Services"
+$nkTools    = "$nkRoot\Tools"
+
 $ncRoot     = $env:NC_ROOT
 $ncImages   = "$ncRoot\Images"
 $ncLib      = "$ncRoot\Lib"
@@ -42,7 +52,7 @@ $ncTools    = "$ncRoot\Tools"
 
 # neonSDK release Version.
 
-$neonSDK_Version = $(& neon-build read-version "$nkRoot\Lib\Neon.Kube\KubeVersions.cs" NeonSdkVersion)
+$neonSDK_Version = $(& neon-build read-version "$nfRoot\Lib\Neon.Common\Build.cs" NeonSdkVersion)
 ThrowOnExitCode
 
 $neonSDK_Tag = "neonsdk-" + $neonSDK_Version
