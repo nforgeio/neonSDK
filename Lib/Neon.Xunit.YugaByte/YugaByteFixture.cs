@@ -95,7 +95,7 @@ namespace Neon.Xunit.YugaByte
 
 # This compose file is parameterized to support custom ports as well
 # as to prefix the custom container names with the compose application
-# name so thew underlying [DockerComposeFixture] will be able to
+# name so the underlying [DockerComposeFixture] will be able to
 # remove the containers.
 #
 #       YCQLPORT    - will be replaced by the Cassandra port
@@ -111,7 +111,7 @@ services:
                '--rpc_bind_addresses=yb-master-n1:7100',
                '--replication_factor=1' ]
     ports:
-      - '7000:7000'
+      - '127.0.0.1:7000:7000'
     environment:
       SERVICE_7000_NAME: yb-master
 
@@ -124,9 +124,9 @@ services:
                '--rpc_bind_addresses=yb-tserver-n1:9100',
                '--tserver_master_addrs=yb-master-n1:7100' ]
     ports:
-      - 'YCQLPORT:9042'
-      - 'YSQLPORT:5433'
-      - '9000:9000'
+      - '127.0.0.1:YCQLPORT:9042'
+      - '127.0.0.1:YSQLPORT:5433'
+      - '127.0.0.1:9000:9000'
     environment:
       SERVICE_YSQLPORT_NAME: ysql
       SERVICE_YCQLPORT_NAME: ycql
