@@ -15,9 +15,9 @@
             </summary>
             <param name="args">The command line arguments.</param>
         </member>
-        <member name="P:NeonBuild.Program.NeonKubeRepoPath">
+        <member name="P:NeonBuild.Program.NeonSdkRepoPath">
             <summary>
-            Returns the path to the neonKUBE local repository root folder.
+            Returns the path to the neonSDK local repository root folder.
             </summary>
         </member>
         <member name="M:NeonBuild.Program.Exit(System.Int32)">
@@ -31,7 +31,7 @@
             Reads a version number from a C# source file.
             </summary>
             <param name="csPath">Path to the C# source file.</param>
-            <param name="name">Name of the version constant.</param>
+            <param name="constant">Name of the version constant.</param>
             <returns>The version string.</returns>
         </member>
         <member name="M:NeonBuild.Program.Dotnet(Neon.Common.CommandLine)">

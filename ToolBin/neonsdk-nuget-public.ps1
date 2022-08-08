@@ -59,7 +59,7 @@ function SetVersion
     )
 
     "$project"
-	neon-build pack-version NeonSDKVersion "$env:NF_ROOT\Lib\$project\$project.csproj"
+	neon-build pack-version "$env:NF_ROOT\Lib\Neon.Common\Build.cs" NeonSDKVersion "$env:NF_ROOT\Lib\$project\$project.csproj"
     ThrowOnExitCode
 }
 

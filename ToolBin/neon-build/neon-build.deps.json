@@ -8,7 +8,7 @@
     ".NETCoreApp,Version=v6.0": {
       "neon-build/1.0.0": {
         "dependencies": {
-          "Neon.Common": "10000.0.1650-dev-jeff"
+          "Neon.Common": "10000.0.2060-dev-marcus"
         },
         "runtime": {
           "neon-build.dll": {}
@@ -630,7 +630,7 @@
           }
         }
       },
-      "Neon.Common/10000.0.1650-dev-jeff": {
+      "Neon.Common/10000.0.2060-dev-marcus": {
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection": "6.0.0",
           "Microsoft.Extensions.Logging.Abstractions": "6.0.0",
@@ -1184,7 +1184,7 @@
       "path": "yamldotnet/11.2.1",
       "hashPath": "yamldotnet.11.2.1.nupkg.sha512"
     },
-    "Neon.Common/10000.0.1650-dev-jeff": {
+    "Neon.Common/10000.0.2060-dev-marcus": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

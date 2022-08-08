@@ -92,14 +92,14 @@ replaces them with the AFTER string in the file at PATH, writing the changes
 to the same file.
 
 ---------------------------------------------------------------------
-neon-build read-version [-n] CSPATH NAME
+neon-build read-version [-n] CSPATH CONSTANT
 
 Used to read a version constant from a C# source file.
 
 ARGUMENTS:
 
     CSPATH          - Path to the source file defining the version constant
-    NAME            - Name of the the constant to be read
+    CONSTANT        - Name of the the constant to be read
 
 OPTIONS:
 
@@ -109,7 +109,7 @@ REMARKS:
 
 The value of the constant read is written to STDOUT.
 
-NOTE: The constant must appear exactly like:
+NOTE: The constant must be formatted exactly like:
 
     public const string NAME = ""VERSION"";
 
@@ -117,14 +117,21 @@ within the C# source file to be parsed correctly where [NAME] is the constant
 name and [VERSION] will be returned as value.
 
 ----------------------------------------------------
-neon-build pack-version VERSION-CONSTANT CSPROJ-FILE
+neon-build pack-version CSPATH CONSTANT CSPROJ
 
-Updates the specified library CSPROJ file version to a combination of
-a global constant from [Neon.Common.Build.cs] and an optional project
-local [prerelease.txt] file as specified here:
+Updates the specified library CSPROJ file's package version to the value
+of a constant named CONSTANT from the C# source file at CSPATH.
 
-    https://github.com/nforgeio/neonKUBE/issues/715
+NOTE: The constant must be formatted exactly like:
 
+    public const string NAME = ""VALUE"";
+
+ARGUMENTS:
+
+    CSPATH      - Path to the C# file defining the version constant
+    CONSTANT    - Constant name
+    CSPROJ      - Path to the CSPROJ file being modified
+    
 ---------------------------------------------------
 neon-build shfb SHFB-FOLDER SITE-FOLDER [OPTIONS]
 
@@ -134,6 +141,7 @@ files if requested, relocating HTML files to the same directory as the index
 file and then fixing up all of the relative links.
 
 ARGUMENTS:
+
     SHFB-FOLDER     - Path to the SHFB project directory in the source repo
     SITE-FOLDER     - Path to the SHFB site output directory
 
@@ -569,17 +577,17 @@ ARGUMENTS:
         /// Reads a version number from a C# source file.
         /// </summary>
         /// <param name="csPath">Path to the C# source file.</param>
-        /// <param name="name">Name of the version constant.</param>
+        /// <param name="constant">Name of the version constant.</param>
         /// <returns>The version string.</returns>
-        private static string ReadVersion(string csPath, string name)
+        private static string ReadVersion(string csPath, string constant)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(csPath), nameof(csPath));
-            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(name), nameof(name));
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(constant), nameof(constant));
 
             // We're simply going to scan the source file for the first line 
             // that looks like the constant definition.
 
-            var match = $"public const string {name} =";
+            var match = $"public const string {constant} =";
 
             using (var reader = new StreamReader(csPath))
             {
@@ -597,7 +605,7 @@ ARGUMENTS:
                 }
             }
 
-            throw new Exception($" Cannot locate the constant [{name}] in [{csPath}].");
+            throw new Exception($" Cannot locate the constant [{constant}] in [{csPath}].");
         }
     }
 }

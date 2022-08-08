@@ -36,18 +36,19 @@ namespace NeonBuild
         {
             commandLine = commandLine.Shift(1);
 
-            if (commandLine.Arguments.Length != 2)
+            if (commandLine.Arguments.Length != 3)
             {
                 Console.WriteLine(usage);
                 Program.Exit(1);
             }
 
-            var versionConstantName = commandLine.Arguments[0];
-            var csprojPath          = Environment.ExpandEnvironmentVariables(commandLine.Arguments[1]);
-            var localVersionPath    = Path.Combine(Path.GetDirectoryName(csprojPath), "prerelease.txt");
-            var rawSolutionVersion  = ReadVersion(Path.Combine(Program.NeonSdkRepoPath, "Lib", "Neon.Common", "Build.cs"), versionConstantName);
-            var solutionVersion     = SemanticVersion.Parse(rawSolutionVersion.Trim());
-            var localPrerelease     = (string)null;
+            var csPath             = commandLine.Arguments[0];
+            var constant           = commandLine.Arguments[1];
+            var csprojPath         = Environment.ExpandEnvironmentVariables(commandLine.Arguments[2]);
+            var localVersionPath   = Path.Combine(Path.GetDirectoryName(csprojPath), "prerelease.txt");
+            var rawSolutionVersion = ReadVersion(csPath, constant);
+            var solutionVersion    = SemanticVersion.Parse(rawSolutionVersion.Trim());
+            var localPrerelease    = (string)null;
 
             if (File.Exists(localVersionPath))
             {

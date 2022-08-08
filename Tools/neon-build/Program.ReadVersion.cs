@@ -16,6 +16,7 @@
 // limitations under the License.
 
 using System;
+using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -33,7 +34,7 @@ namespace NeonBuild
         private static void ReadVersion(CommandLine commandLine)
         {
             var csPath     = commandLine.Arguments.ElementAtOrDefault(1);
-            var name       = commandLine.Arguments.ElementAtOrDefault(2);
+            var constant   = commandLine.Arguments.ElementAtOrDefault(2);
             var terminator = !commandLine.HasOption("-n");
 
             if (string.IsNullOrEmpty(csPath))
@@ -42,7 +43,7 @@ namespace NeonBuild
                 Program.Exit(1);
             }
 
-            if (string.IsNullOrEmpty(name))
+            if (string.IsNullOrEmpty(constant))
             {
                 Console.Error.WriteLine("*** ERROR: NAME argument is required.");
                 Program.Exit(1);
@@ -50,7 +51,7 @@ namespace NeonBuild
 
             try
             {
-                Console.Write(ReadVersion(csPath, name));
+                Console.Write(ReadVersion(csPath, constant));
 
                 if (terminator)
                 {
@@ -59,9 +60,14 @@ namespace NeonBuild
 
                 Program.Exit(0);
             }
+            catch (IOException)
+            {
+                Console.Error.WriteLine($"*** ERROR: Cannot locate file: {csPath}");
+                Program.Exit(1);
+            }
             catch
             {
-                Console.Error.WriteLine($"*** ERROR: Cannot locate the constant [{name}] in [{csPath}].");
+                Console.Error.WriteLine($"*** ERROR: Cannot locate the constant [{constant}] in [{csPath}].");
                 Console.Error.WriteLine("            Make sure the constant definition is formatted exactly like:");
                 Console.Error.WriteLine();
                 Console.Error.WriteLine("            public const string NAME = \"VALUE\";");

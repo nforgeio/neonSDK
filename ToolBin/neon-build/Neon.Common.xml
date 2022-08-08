@@ -25,11 +25,11 @@
             </summary>
         </member>
         <member name="F:Neon.Build.ProductName">
-            <summary>
+            <summary> 
             The product name.
             </summary>
         </member>
-        <member name="F:Neon.Build.NeonLibraryVersion">
+        <member name="F:Neon.Build.NeonSdkVersion">
             <summary>
             <para>
             The released library/package version.
@@ -2894,21 +2894,21 @@
             <param name="sourcePath">Path to the (compressed) source file.</param>
             <param name="targetPath">Path to the (uncompressed) target file.</param>
         </member>
-        <member name="F:Neon.Common.NeonHelper.NeonLibraryProdRegistry">
+        <member name="F:Neon.Common.NeonHelper.NeonSdkProdRegistry">
             <summary>
-            Identifies the production neonLIBRARY container image registry.
+            Identifies the production neonSDK container image registry.
             </summary>
         </member>
-        <member name="F:Neon.Common.NeonHelper.NeonLibraryDevRegistry">
+        <member name="F:Neon.Common.NeonHelper.NeonSdkDevRegistry">
             <summary>
-            Identifies the development neonLIBRARY container image registry.
+            Identifies the development neonSDK container image registry.
             </summary>
         </member>
-        <member name="P:Neon.Common.NeonHelper.NeonLibraryBranchRegistry">
+        <member name="P:Neon.Common.NeonHelper.NeonSdkBranchRegistry">
             <summary>
-            Returns the appropriate public container neonLIBRARY registry to be used for the git 
-            branch the assembly was built from.  This returns <see cref="F:Neon.Common.NeonHelper.NeonLibraryProdRegistry"/> for
-            release branches and <see cref="F:Neon.Common.NeonHelper.NeonLibraryDevRegistry"/> for all other branches.
+            Returns the appropriate public container neonSDK registry to be used for the git 
+            branch the assembly was built from.  This returns <see cref="F:Neon.Common.NeonHelper.NeonSdkProdRegistry"/> for
+            release branches and <see cref="F:Neon.Common.NeonHelper.NeonSdkDevRegistry"/> for all other branches.
             </summary>
         </member>
         <member name="F:Neon.Common.NeonHelper.syncRoot">
@@ -3000,6 +3000,12 @@
         <member name="F:Neon.Common.NeonHelper.NeonMetricsPrefix">
             <summary>
             Returns the prefix to be used for Neon related Prometheus names.
+            </summary>
+        </member>
+        <member name="F:Neon.Common.NeonHelper.NeonPublicBucketUri">
+            <summary>
+            The URI for the public AWS S3 bucket where we persist cluster VM images 
+            and other things.
             </summary>
         </member>
         <member name="F:Neon.Common.NeonHelper.serviceContainer">
@@ -3495,7 +3501,7 @@
         </member>
         <member name="F:Neon.Common.NeonHelper.EnumMemberSerializationInfo.EnumToStrings">
             <summary>
-            Maps serialized enum [EnumMember] strings to their ordinal value.
+            Maps serialized enum [EnumMember] strings to their ordinal values.
             </summary>
         </member>
         <member name="F:Neon.Common.NeonHelper.EnumMemberSerializationInfo.EnumToOrdinals">
@@ -3851,6 +3857,16 @@
             <param name="output">Returns as the parsed value.</param>
             <returns><c>true</c> if the value was parsed.</returns>
         </member>
+        <member name="M:Neon.Common.NeonHelper.TryParseEnum``1(System.String,``0@)">
+            <summary>
+            <c>enum</c> parser that also honors any <see cref="T:System.Runtime.Serialization.EnumMemberAttribute"/>
+            decorating the enumeration values.  This is case insensitive.
+            </summary>
+            <typeparam name="TEnum">Specifies the enumeration type.</typeparam>
+            <param name="input">The input string.</param>
+            <param name="output">Returns as the parsed value.</param>
+            <returns><c>true</c> if the value was parsed.</returns>
+        </member>
         <member name="M:Neon.Common.NeonHelper.EnumToString``1(``0)">
             <summary>
             Type-safe <c>enum</c> serializer that also honors any <see cref="T:System.Runtime.Serialization.EnumMemberAttribute"/>
@@ -3868,6 +3884,13 @@
             <param name="type">The enumeration type.</param>
             <param name="input">The input value.</param>
             <returns>The deserialized value.</returns>
+        </member>
+        <member name="M:Neon.Common.NeonHelper.GetEnumNames``1">
+            <summary>
+            Returns the value names for an enumeration type.  This is similar to <see cref="M:System.Enum.GetNames(System.Type)"/>
+            but also honors value names customized via <see cref="T:System.Runtime.Serialization.EnumMemberAttribute"/>.
+            </summary>
+            <returns>The array of value names.</returns>
         </member>
         <member name="M:Neon.Common.NeonHelper.UrlTokenEncode(System.Byte[])">
             <summary>
@@ -4317,6 +4340,12 @@
             <summary>
             Indicates whether the current application is running on a developer workstation.
             This is determined by the presence of the <b>DEV_WORKSTATION</b> environment variable.
+            </summary>
+        </member>
+        <member name="P:Neon.Common.NeonHelper.IsMaintainer">
+            <summary>
+            Indicates whether the current user is a neonFORGE maintainer.  This is determined by the
+            presence of the <b>NF_MAINTAINER</b> environment variable.
             </summary>
         </member>
         <member name="P:Neon.Common.NeonHelper.IsWindows">
@@ -5793,7 +5822,7 @@
         <member name="T:Neon.Common.NamespaceDoc">
             <summary>
             This namespace includes generally useful types that are consumed by
-            the remaining neonLIBRARY libraries and can also be useful for
+            the remaining neonSDK libraries and can also be useful for
             end-user applications.
             </summary>
         </member>
@@ -8157,8 +8186,8 @@
             <param name="writer">Optionally specifies the output writer.  This defaults to <see cref="P:System.Console.Error"/>.</param>
             <param name="contextId">
             Optionally specifies additional information that can be used to identify context
-            for logged events.  For example, the <c>Neon.Cadence</c> and <c>Neon.Temporal</c>
-            clients use this to record the ID of the workflow recording events.
+            for logged events.  For example, the <c>Neon.Cadence</c> client uses this to
+            record the ID of the workflow events.
             </param>
             <param name="logFilter">
             Optionally specifies a filter predicate to be used for filtering log entries.  This examines
@@ -14205,8 +14234,9 @@
             </summary>
             <param name="interval">Optionally specifies the timer interval.</param>
             <param name="delayFirstTick">
-            The callback is called immediately by default.  You can delay this until
-            the interval has passed by passing this as <c>true</c>.
+            The callback is called immediately by default.  You can delay this for 
+            <paramref name="interval"/> by passing this as <c>true</c>.  This defaults
+            to <c>false</c>.
             </param>
             <param name="callback">
             <para>
@@ -17443,37 +17473,37 @@
             <summary>IsDirtyString: true</summary>
         </member>
         <member name="F:ThisAssembly.Git.RepositoryUrl">
-            <summary>Repository URL: https://github.com/nforgeio/neonKUBE</summary>
+            <summary>Repository URL: https://github.com/nforgeio/neonsdk.git</summary>
         </member>
         <member name="F:ThisAssembly.Git.Branch">
-            <summary>Branch: master</summary>
+            <summary>Branch: jeff</summary>
         </member>
         <member name="F:ThisAssembly.Git.Commit">
-            <summary>Commit: 7b02bff65</summary>
+            <summary>Commit: 747e9b8</summary>
         </member>
         <member name="F:ThisAssembly.Git.Sha">
-            <summary>Sha: 7b02bff6547f9f5b0b5b7ecb9cc65e43bb863a4c</summary>
+            <summary>Sha: 747e9b89ba4d1fd15a81f7c853b0ac294246f426</summary>
         </member>
         <member name="F:ThisAssembly.Git.CommitDate">
-            <summary>Commit date: 2022-07-07T13:44:51-07:00</summary>
+            <summary>Commit date: 2022-08-07T10:38:13-07:00</summary>
         </member>
         <member name="F:ThisAssembly.Git.Commits">
-            <summary>Commits on top of base version: 1219</summary>
+            <summary>Commits on top of base version: 8</summary>
         </member>
         <member name="F:ThisAssembly.Git.Tag">
-            <summary>Tag: neonLIBRARY-v2.19.0-1219-g7b02bff65</summary>
+            <summary>Tag: </summary>
         </member>
         <member name="F:ThisAssembly.Git.BaseTag">
-            <summary>Base tag: neonLIBRARY-v2.19.0</summary>
+            <summary>Base tag: </summary>
         </member>
         <member name="T:ThisAssembly.Git.BaseVersion">
             <summary>Provides access to the base version information used to determine the <see cref="T:ThisAssembly.Git.SemVer" />.</summary>      
         </member>
         <member name="F:ThisAssembly.Git.BaseVersion.Major">
-            <summary>Major: 2</summary>
+            <summary>Major: 0</summary>
         </member>
         <member name="F:ThisAssembly.Git.BaseVersion.Minor">
-            <summary>Minor: 19</summary>
+            <summary>Minor: 0</summary>
         </member>
         <member name="F:ThisAssembly.Git.BaseVersion.Patch">
             <summary>Patch: 0</summary>
@@ -17482,22 +17512,22 @@
             <summary>Provides access to SemVer information for the current assembly.</summary>
         </member>
         <member name="F:ThisAssembly.Git.SemVer.Major">
-            <summary>Major: 2</summary>
+            <summary>Major: 0</summary>
         </member>
         <member name="F:ThisAssembly.Git.SemVer.Minor">
-            <summary>Minor: 19</summary>
+            <summary>Minor: 0</summary>
         </member>
         <member name="F:ThisAssembly.Git.SemVer.Patch">
-            <summary>Patch: 1219</summary>
+            <summary>Patch: 8</summary>
         </member>
         <member name="F:ThisAssembly.Git.SemVer.Label">
-            <summary>Label: neonLIBRARY</summary>
+            <summary>Label: </summary>
         </member>
         <member name="F:ThisAssembly.Git.SemVer.DashLabel">
-            <summary>Label with dash prefix: -neonLIBRARY</summary>
+            <summary>Label with dash prefix: </summary>
         </member>
         <member name="F:ThisAssembly.Git.SemVer.Source">
-            <summary>Source: Tag</summary>
+            <summary>Source: Default</summary>
         </member>
     </members>
 </doc>
