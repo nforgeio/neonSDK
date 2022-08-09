@@ -103,7 +103,7 @@ namespace Neon.Xunit.YugaByte
 
 services:
   yb-master:
-    image: yugabytedb/yugabyte:latest
+    image: yugabytedb/yugabyte:2.12.6.1-b4 
     container_name: yb-master-n1
     command: [ '/home/yugabyte/bin/yb-master',
                '--fs_data_dirs=/mnt/master',
@@ -116,7 +116,7 @@ services:
       SERVICE_7000_NAME: yb-master
 
   yb-tserver:
-    image: yugabytedb/yugabyte:latest
+    image: yugabytedb/yugabyte:2.12.6.1-b4 
     container_name: yb-tserver-n1
     command: [ '/home/yugabyte/bin/yb-tserver',
                '--fs_data_dirs=/mnt/tserver',
