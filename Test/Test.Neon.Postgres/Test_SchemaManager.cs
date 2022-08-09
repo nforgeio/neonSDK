@@ -776,7 +776,7 @@ INSERT INTO my_table (version) values (1);",
         }
 
         [Fact]
-        public async Task Updater_Conflict()
+        public async Task Update_Conflict()
         {
             // Verify that we can detect when another updater appears to be 
             // updating the database.
@@ -849,7 +849,7 @@ INSERT INTO my_table (version) values (1);",
         }
 
         [Fact]
-        public async Task Updater_Error()
+        public async Task Update_Error()
         {
             // Verify that we can detect when another updater appears to be 
             // failed due to a simulated script execution error.
