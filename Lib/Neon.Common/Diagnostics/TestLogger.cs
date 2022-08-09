@@ -690,7 +690,7 @@ namespace Neon.Diagnostics
                 // We really need to implement this at some point instead of 
                 // treating this the same as DEBUG:
                 //
-                //      https://github.com/nforgeio/neonKUBE/issues/1593
+                //      https://github.com/nforgeio/neonsdk/issues/6
 
                 case Microsoft.Extensions.Logging.LogLevel.Trace:
 
