@@ -274,11 +274,7 @@ else
     # Submit PUTs request to the versioner service, specifying the counter name.  The service will
     # atomically increment the counter and return the next value.
 
-    # $note(jefflill): 
-    #
-    # We're using the same versioner counter (neonKUBE-dev) for neonSDK and neonKUBE for historical reasons.
-
-    $reply           = Invoke-WebRequest -Uri "$env:NC_NUGET_VERSIONER/counter/neonKUBE-dev" -Method 'PUT' -Headers @{ 'Authorization' = "Bearer $versionerKeyBase64" } 
+    $reply           = Invoke-WebRequest -Uri "$env:NC_NUGET_VERSIONER/counter/neonSDK-dev" -Method 'PUT' -Headers @{ 'Authorization' = "Bearer $versionerKeyBase64" } 
     $neonSdkVersion  = "10000.0.$reply-dev-$branch"
 
     $reply           = Invoke-WebRequest -Uri "$env:NC_NUGET_VERSIONER/counter/neonKUBE-dev" -Method 'PUT' -Headers @{ 'Authorization' = "Bearer $versionerKeyBase64" } 
