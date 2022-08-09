@@ -287,7 +287,7 @@ services:
             // Note that we're going to delete the Cassandra keyspace and Postgres database
             // before recreating them so they'll start out empty for each unit test.
 
-            var retry = new LinearRetryPolicy(e => true, int.MaxValue, retryInterval: TimeSpan.FromSeconds(1), timeout: new TimeSpan(15));
+            var retry = new LinearRetryPolicy(e => true, int.MaxValue, retryInterval: TimeSpan.FromSeconds(1), timeout: TimeSpan.FromSeconds(15));
 
             // Establish the Cassandra session, recreating the keyspace.
 
