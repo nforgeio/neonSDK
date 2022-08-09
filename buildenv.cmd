@@ -42,26 +42,51 @@ REM Ask the developer if they're a maintainer and set NF_MAINTAINER if they say 
 
 :maintainerPrompt
 
-set /P "IS_MAINTAINER=Are you a neonFORGE maintainer (y/n): "
+set /P "IS_MAINTAINER=Are you a neonFORGE maintainer? (y/n): "
 
 if "%IS_MAINTAINER%"=="y" (
     set NF_MAINTAINER=1
-    setx NF_MAINTAINER 1 /M
 ) else if "%IS_MAINTAINER%"=="Y" (
     set NF_MAINTAINER=1
-    setx NF_MAINTAINER 1 /M
 ) else if "%IS_MAINTAINER%"=="n" (
     set NF_MAINTAINER=
-    setx NF_MAINTAINER "" /M
 ) else if "%IS_MAINTAINER%"=="N" (
     set NF_MAINTAINER=
-    setx NF_MAINTAINER "" /M
 ) else (
     echo.
-    echo "*** ERROR: You must answer with Y or N."
+    echo "*** ERROR: You must answer with: Y or N."
     echo.
     goto maintainerPrompt
 )
+
+REM Ask the developer if they're using preview Visual Studio.
+
+:previewVSPrompt
+
+set /P "IS_VS_PREVIEW=Are you a using a PREVIEW version of Visual Studio? (y/n): "
+
+if "%IS_VS_PREVIEW%"=="y" (
+    set IS_VS_PREVIEW=1
+) else if "%IS_VS_PREVIEW%"=="Y" (
+    set IS_VS_PREVIEW=1
+) else if "%IS_VS_PREVIEW%"=="n" (
+    set IS_VS_PREVIEW=0
+) else if "%IS_VS_PREVIEW%"=="N" (
+    set IS_VS_PREVIEW=0
+) else (
+    echo.
+    echo "*** ERROR: You must answer with: Y or N."
+    echo.
+    goto previewVSPrompt
+)
+
+if "%IS_VS_PREVIEW%"=="1" (
+    set VS_EDITION=Preview
+) else (
+    set VS_EDITION=Community
+)
+
+REM Get on with configuration.
 
 echo.
 echo Configuring...
@@ -77,21 +102,22 @@ set NF_TEST=%NF_ROOT%\Test
 set NF_TEMP=C:\Temp
 set NF_SAMPLES_CADENCE=%NF_ROOT%\..\cadence-samples
 set DOTNETPATH=%WINDIR%\Microsoft.NET\Framework64\v4.0.30319
-set MSBUILDPATH=C:\Program Files\Microsoft Visual Studio\2022\Community\Msbuild\Current\Bin\MSBuild.exe
+set MSBUILDPATH=C:\Program Files\Microsoft Visual Studio\2022\%VS_EDITION%\Msbuild\Current\Bin\MSBuild.exe
 set NEON_CLUSTER_TESTING=1
 
 REM Persist the environment variables.
 
-setx NEON_GITHUB_USER "%NEON_GITHUB_USER%" /M                 > nul
-setx NF_REPOS "%NF_REPOS%" /M                                 > nul
-setx NF_ROOT "%NF_ROOT%" /M                                   > nul
-setx NF_TOOLBIN "%NF_TOOLBIN%" /M                             > nul
-setx NF_BUILD "%NF_BUILD%" /M                                 > nul
-setx NF_CACHE "%NF_CACHE%" /M                                 > nul
-setx NF_SNIPPETS "%NF_SNIPPETS%" /M                           > nul
-setx NF_TEST "%NF_TEST%" /M                                   > nul
-setx NF_TEMP "%NF_TEMP%" /M                                   > nul
-setx NF_SAMPLES_CADENCE "%NF_SAMPLES_CADENCE%" /M             > nul
+setx NEON_GITHUB_USER "%NEON_GITHUB_USER%" /M     > nul
+setx NF_MAINTAINER "%NF_MAINTAINER%" /M           > nul              
+setx NF_REPOS "%NF_REPOS%" /M                     > nul
+setx NF_ROOT "%NF_ROOT%" /M                       > nul
+setx NF_TOOLBIN "%NF_TOOLBIN%" /M                 > nul
+setx NF_BUILD "%NF_BUILD%" /M                     > nul
+setx NF_CACHE "%NF_CACHE%" /M                     > nul
+setx NF_SNIPPETS "%NF_SNIPPETS%" /M               > nul
+setx NF_TEST "%NF_TEST%" /M                       > nul
+setx NF_TEMP "%NF_TEMP%" /M                       > nul
+setx NF_SAMPLES_CADENCE "%NF_SAMPLES_CADENCE%" /M > nul
 
 setx DOTNETPATH "%DOTNETPATH%" /M                             > nul
 setx MSBUILDPATH "%MSBUILDPATH%" /M                           > nul
