@@ -15,8 +15,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if !NETCOREAPP3_1
-
 using System;
 using System.Linq;
 using System.Threading;
@@ -39,10 +37,10 @@ namespace Neon.Web.SignalR
 {
     internal sealed class NatsSubscriptionManager
     {
-        private readonly ConcurrentDictionary<string, HubConnectionStore> subscriptions = new ConcurrentDictionary<string, HubConnectionStore>(StringComparer.Ordinal);
-        private readonly ConcurrentDictionary<string, IAsyncSubscription> natsSubscriptions = new ConcurrentDictionary<string, IAsyncSubscription>(StringComparer.Ordinal);
-        private readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
-        private readonly INeonLogger logger;
+        private readonly ConcurrentDictionary<string, HubConnectionStore>   subscriptions     = new ConcurrentDictionary<string, HubConnectionStore>(StringComparer.Ordinal);
+        private readonly ConcurrentDictionary<string, IAsyncSubscription>   natsSubscriptions = new ConcurrentDictionary<string, IAsyncSubscription>(StringComparer.Ordinal);
+        private readonly SemaphoreSlim                                      @lock             = new SemaphoreSlim(1, 1);
+        private readonly INeonLogger                                        logger;
 
         /// <summary>
         /// Constructor.
@@ -56,13 +54,13 @@ namespace Neon.Web.SignalR
         /// <summary>
         /// Add a subscription to the store.
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="connection"></param>
-        /// <param name="subscribeMethod"></param>
-        /// <returns></returns>
+        /// <param name="id">The subscription ID.</param>
+        /// <param name="connection">The connection.</param>
+        /// <param name="subscribeMethod">Specifies the subscribe method.</param>
+        /// <returns>The tracking <see cref="Task"/>.</returns>
         public async Task AddSubscriptionAsync(string id, HubConnectionContext connection, Func<string, HubConnectionStore, Task<IAsyncSubscription>> subscribeMethod)
         {
-            await _lock.WaitAsync();
+            await @lock.WaitAsync();
 
             logger?.LogDebug($"Subscribing to subject [Subject={id}].");
 
@@ -79,10 +77,12 @@ namespace Neon.Web.SignalR
 
                 subscription.Add(connection);
 
-                // Subscribe once
+                // Subscribe once.
+
                 if (subscription.Count == 1)
                 {
                     var sAsync = await subscribeMethod(id, subscription);
+
                     sAsync.Start();
                     natsSubscriptions.GetOrAdd(id, _ => sAsync);
                 }
@@ -94,20 +94,20 @@ namespace Neon.Web.SignalR
             }
             finally
             {
-                _lock.Release();
+                @lock.Release();
             }
         }
 
         /// <summary>
         /// Remove a subscription from the store.
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="connection"></param>
-        /// <param name="state"></param>
-        /// <returns></returns>
+        /// <param name="id">The subscriptn ID.</param>
+        /// <param name="connection">The connection.</param>
+        /// <param name="state">Specifies state.</param>
+        /// <returns>The tracking <see cref="Task"/>.</returns>
         public async Task RemoveSubscriptionAsync(string id, HubConnectionContext connection, object state)
         {
-            await _lock.WaitAsync();
+            await @lock.WaitAsync();
 
             logger?.LogDebug($"Unsubscribing from NATS subject. [Subject={id}] [Connection={connection.ConnectionId}]");
 
@@ -139,10 +139,8 @@ namespace Neon.Web.SignalR
             }
             finally
             {
-                _lock.Release();
+                @lock.Release();
             }
         }
     }
 }
-
-#endif

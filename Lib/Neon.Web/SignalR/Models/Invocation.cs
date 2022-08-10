@@ -15,8 +15,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if !NETCOREAPP3_1
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -71,25 +69,23 @@ namespace Neon.Web.SignalR
         public string ReturnChannel { get; set; } = null;
 
         /// <summary>
-        /// Writes a <see cref="Invocation"/> to a byte[].
+        /// Writes a <see cref="Invocation"/> to a byte array.
         /// </summary>
         /// <param name="methodName"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        public static byte[] Write(string methodName, object[] args) =>
-            Write(methodName: methodName, args: args, excludedConnectionIds: null);
+        public static byte[] Write(string methodName, object[] args) => Write(methodName: methodName, args: args, excludedConnectionIds: null);
 
         /// <summary>
-        /// Writes a <see cref="Invocation"/> to a byte[].
+        /// Writes a <see cref="Invocation"/> to a byte array.
         /// </summary>
-        /// <param name="methodName"></param>
-        /// <param name="args"></param>
-        /// <param name="invocationId"></param>
-        /// <param name="excludedConnectionIds"></param>
-        /// <param name="returnChannel"></param>
-        /// <returns></returns>
-        public static byte[] Write(string methodName, object[] args, string invocationId = null,
-                                IReadOnlyList<string> excludedConnectionIds = null, string returnChannel = null)
+        /// <param name="methodName">The method name.</param>
+        /// <param name="args">The arguments.</param>
+        /// <param name="invocationId">Optionally specifies an invocation ID.</param>
+        /// <param name="excludedConnectionIds">Optionally specifies excluded connection IDs.</param>
+        /// <param name="returnChannel">Optionally specifies the return channel.</param>
+        /// <returns>The serialized message.</returns>
+        public static byte[] Write(string methodName, object[] args, string invocationId = null, IReadOnlyList<string> excludedConnectionIds = null, string returnChannel = null)
         {
             var invokation = new Invocation()
             {
@@ -106,13 +102,11 @@ namespace Neon.Web.SignalR
         /// <summary>
         /// Reads an <see cref="Invocation"/> from a byte array.
         /// </summary>
-        /// <param name="message"></param>
-        /// <returns></returns>
+        /// <param name="message">The message bytes.</param>
+        /// <returns>The parsed <see cref="Invocation"/>.</returns>
         public static Invocation Read(byte[] message)
         {
             return MessagePackSerializer.Deserialize<Invocation>(message);
         }
     }
 }
-
-#endif

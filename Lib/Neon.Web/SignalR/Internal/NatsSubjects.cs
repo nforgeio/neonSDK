@@ -15,8 +15,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if !NETCOREAPP3_1
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,7 +25,7 @@ namespace Neon.Web.SignalR
 {
     internal class NatsSubjects
     {
-        private readonly string _prefix;
+        private readonly string prefix;
 
         /// <summary>
         /// Gets the name of the subject for sending to all connections.
@@ -39,11 +37,15 @@ namespace Neon.Web.SignalR
         /// </summary>
         public string GroupManagement { get; }
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="prefix">The subject prefix.</param>
         public NatsSubjects(string prefix)
         {
-            _prefix = prefix;
+            this.prefix = prefix;
 
-            All = prefix + ".all";
+            All             = prefix + ".all";
             GroupManagement = prefix + ".internal.groups";
         }
 
@@ -53,7 +55,7 @@ namespace Neon.Web.SignalR
         /// <param name="connectionId">The ID of the connection to get the subject for.</param>
         public string Connection(string connectionId)
         {
-            return _prefix + ".connection." + connectionId;
+            return prefix + ".connection." + connectionId;
         }
 
         /// <summary>
@@ -62,7 +64,7 @@ namespace Neon.Web.SignalR
         /// <param name="groupName">The name of the group to get the subject for.</param>
         public string Group(string groupName)
         {
-            return _prefix + ".group." + groupName;
+            return prefix + ".group." + groupName;
         }
 
         /// <summary>
@@ -71,7 +73,7 @@ namespace Neon.Web.SignalR
         /// <param name="userId">The ID of the user to get the subject for.</param>
         public string User(string userId)
         {
-            return _prefix + ".user." + userId;
+            return prefix + ".user." + userId;
         }
 
         /// <summary>
@@ -81,7 +83,7 @@ namespace Neon.Web.SignalR
         /// <returns></returns>
         public string Ack(string serverName)
         {
-            return _prefix + ".internal.ack." + serverName;
+            return prefix + ".internal.ack." + serverName;
         }
 
         /// <summary>
@@ -91,9 +93,7 @@ namespace Neon.Web.SignalR
         /// <returns></returns>
         public string ReturnResults(string serverName)
         {
-            return _prefix + ".internal.return." + serverName;
+            return prefix + ".internal.return." + serverName;
         }
     }
 }
-
-#endif

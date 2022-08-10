@@ -15,8 +15,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if !NETCOREAPP3_1
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -33,7 +31,7 @@ using Newtonsoft.Json;
 namespace Neon.Web.SignalR
 {
     /// <summary>
-    /// Represents a group command.
+    /// Used to serialize a group command.
     /// </summary>
     [MessagePackObject]
     public class GroupCommand
@@ -70,13 +68,13 @@ namespace Neon.Web.SignalR
         public string ConnectionId { get; set; } = null;
 
         /// <summary>
-        /// Writes a <see cref="GroupCommand"/> to a byte[].
+        /// Writes a <see cref="GroupCommand"/> to a byte array.
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="serverName"></param>
-        /// <param name="action"></param>
-        /// <param name="groupName"></param>
-        /// <param name="connectionId"></param>
+        /// <param name="id">The message ID.</param>
+        /// <param name="serverName">The target server.</param>
+        /// <param name="action">The action.</param>
+        /// <param name="groupName">The group name.</param>
+        /// <param name="connectionId">The connection ID.</param>
         /// <returns></returns>
         public static byte[] Write(int id, string serverName, GroupAction action, string groupName, string connectionId)
         {
@@ -95,13 +93,11 @@ namespace Neon.Web.SignalR
         /// <summary>
         /// Reads an <see cref="GroupCommand"/> from a byte array.
         /// </summary>
-        /// <param name="message"></param>
-        /// <returns></returns>
+        /// <param name="message">The message bytes.</param>
+        /// <returns>The parsed <see cref="GroupCommand"/>.</returns>
         public static GroupCommand Read(byte[] message)
         {
             return MessagePackSerializer.Deserialize<GroupCommand>(message);
         }
     }
 }
-
-#endif

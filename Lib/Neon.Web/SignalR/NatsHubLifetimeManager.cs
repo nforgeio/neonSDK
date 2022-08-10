@@ -15,8 +15,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if !NETCOREAPP3_1
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
@@ -75,8 +73,7 @@ namespace Neon.Web.SignalR
         /// </summary>
         /// <param name="logger">The logger to write information about what the class is doing.</param>
         /// <param name="connection">The NATS <see cref="IConnection"/>.</param>
-        public NatsHubLifetimeManager(IConnection connection,
-                                      ILogger logger = null)
+        public NatsHubLifetimeManager(IConnection connection, ILogger logger = null)
         {
             this.serverName  = GenerateServerName();
             this.nats        = connection;
@@ -86,12 +83,11 @@ namespace Neon.Web.SignalR
             this.connections = new NatsSubscriptionManager(this.logger);
             this.subjects    = new NatsSubjects($"Neon.SignalR.{typeof(THub).FullName}");
 
-
             _ = SubscribeToAllAsync();
             _ = SubscribeToGroupManagementSubjectAsync();
         }
 
-        /// <inheritdoc />
+        /// <inheritdoc/>
         public void Dispose()
         {
             nats?.Dispose();
@@ -107,15 +103,17 @@ namespace Neon.Web.SignalR
             }
 
             await connectionLock.WaitAsync();
+
             try
             {
-                await NeonHelper.WaitForAsync(async () =>
-                {
-                    await SyncContext.Clear;
+                await NeonHelper.WaitForAsync(
+                    async () =>
+                    {
+                        await SyncContext.Clear;
 
-                    return !nats.IsReconnecting();
-                },
-                timeout: TimeSpan.FromSeconds(60),
+                        return !nats.IsReconnecting();
+                    },
+                timeout:      TimeSpan.FromSeconds(60),
                 pollInterval: TimeSpan.FromMilliseconds(250));
 
                 nats.Flush();
@@ -128,7 +126,7 @@ namespace Neon.Web.SignalR
             }
         }
 
-        /// <inheritdoc />
+        /// <inheritdoc/>
         public override async Task OnConnectedAsync(HubConnectionContext connection)
         {
             await SyncContext.Clear;
@@ -136,6 +134,7 @@ namespace Neon.Web.SignalR
             await EnsureNatsServerConnection();
 
             var feature = new NatsFeature();
+
             connection.Features.Set<INatsFeature>(feature);
 
             hubConnections.Add(connection);
@@ -152,14 +151,15 @@ namespace Neon.Web.SignalR
             await Task.WhenAll(tasks);
         }
 
-        /// <inheritdoc />
+        /// <inheritdoc/>
         public override async Task OnDisconnectedAsync(HubConnectionContext connection)
         {
             await SyncContext.Clear;
 
             hubConnections.Remove(connection);
 
-            // If the nats is null then the connection failed to be established and none of the other connection setup ran
+            // If the nats is null then the connection failed to be established and none of the other connection setup ran.
+
             if (nats is null)
             {
                 return;
@@ -168,6 +168,7 @@ namespace Neon.Web.SignalR
             var connectionSubject = subjects.Connection(connection.ConnectionId);
 
             var tasks = new List<Task>();
+
             tasks.Add(RemoveConnectionSubscriptionAsync(connection));
             tasks.Add(groups.RemoveSubscriptionAsync(connectionSubject, connection, this));
 
@@ -177,11 +178,13 @@ namespace Neon.Web.SignalR
             if (groupNames != null)
             {
                 // Copy the groups to an array here because they get removed from this collection
-                // in RemoveFromGroupAsync
+                // in RemoveFromGroupAsync.
+
                 foreach (var group in groupNames.ToArray())
                 {
                     // Use RemoveGroupAsyncCore because the connection is local and we don't want to
                     // accidentally go to other servers with our remove request.
+
                     tasks.Add(RemoveGroupAsyncCore(connection, group));
                 }
             }
@@ -194,7 +197,7 @@ namespace Neon.Web.SignalR
             await Task.WhenAll(tasks);
         }
 
-        /// <inheritdoc />
+        /// <inheritdoc/>
         public override async Task AddToGroupAsync(string connectionId, string groupName, CancellationToken cancellationToken = default)
         {
             await SyncContext.Clear;
@@ -203,16 +206,18 @@ namespace Neon.Web.SignalR
             Covenant.Requires<ArgumentNullException>(groupName != null, nameof(groupName));
 
             var connection = hubConnections[connectionId];
+
             if (connection != null)
             {
-                // short circuit if connection is on this server
+                // Short circuit if connection is on this server.
+
                 await AddGroupAsyncCore(connection, groupName);
             }
 
             await SendGroupActionAndWaitForAckAsync(connectionId, groupName, GroupAction.Add);
         }
 
-        /// <inheritdoc />
+        /// <inheritdoc/>
         public override async Task RemoveFromGroupAsync(string connectionId, string groupName, CancellationToken cancellationToken = default)
         {
             await SyncContext.Clear;
@@ -221,16 +226,18 @@ namespace Neon.Web.SignalR
             Covenant.Requires<ArgumentNullException>(groupName != null, nameof(groupName));
 
             var connection = hubConnections[connectionId];
+
             if (connection != null)
             {
-                // short circuit if connection is on this server
+                // Short circuit if connection is on this server.
+
                 await RemoveGroupAsyncCore(connection, groupName);
             }
-
+            
             await SendGroupActionAndWaitForAckAsync(connectionId, groupName, GroupAction.Remove);
         }
 
-        /// <inheritdoc />
+        /// <inheritdoc/>
         public override async Task SendAllAsync(string methodName, object[] args, CancellationToken cancellationToken = default)
         {
             await SyncContext.Clear;
@@ -241,7 +248,7 @@ namespace Neon.Web.SignalR
             await PublishAsync(subjects.All, Invocation.Write(methodName: methodName, args: args));
         }
 
-        /// <inheritdoc />
+        /// <inheritdoc/>
         public override async Task SendAllExceptAsync(string methodName, object[] args, IReadOnlyList<string> excludedConnectionIds, CancellationToken cancellationToken = default)
         {
             await SyncContext.Clear;
@@ -253,7 +260,7 @@ namespace Neon.Web.SignalR
             await PublishAsync(subjects.All, Invocation.Write(methodName: methodName, args: args, excludedConnectionIds: excludedConnectionIds));
         }
 
-        /// <inheritdoc />
+        /// <inheritdoc/>
         public override async Task SendConnectionAsync(string connectionId, string methodName, object[] args, CancellationToken cancellationToken = default)
         {
             await SyncContext.Clear;
@@ -265,7 +272,7 @@ namespace Neon.Web.SignalR
             await PublishAsync(subjects.Connection(connectionId), Invocation.Write(methodName: methodName, args: args));
         }
 
-        /// <inheritdoc />
+        /// <inheritdoc/>
         public override async Task SendConnectionsAsync(IReadOnlyList<string> connectionIds, string methodName, object[] args, CancellationToken cancellationToken = default)
         {
             await SyncContext.Clear;
@@ -285,7 +292,7 @@ namespace Neon.Web.SignalR
             await Task.WhenAll(tasks);
         }
 
-        /// <inheritdoc />
+        /// <inheritdoc/>
         public override async Task SendGroupAsync(string groupName, string methodName, object[] args, CancellationToken cancellationToken = default)
         {
             await SyncContext.Clear;
@@ -297,7 +304,7 @@ namespace Neon.Web.SignalR
             await PublishAsync(subjects.Group(groupName), Invocation.Write(methodName: methodName, args: args));
         }
 
-        /// <inheritdoc />
+        /// <inheritdoc/>
         public override async Task SendGroupExceptAsync(string groupName, string methodName, object[] args, IReadOnlyList<string> excludedConnectionIds, CancellationToken cancellationToken = default)
         {
             await SyncContext.Clear;
@@ -310,7 +317,7 @@ namespace Neon.Web.SignalR
             await PublishAsync(subjects.Group(groupName), Invocation.Write(methodName: methodName, args: args, excludedConnectionIds: excludedConnectionIds));
         }
 
-        /// <inheritdoc />
+        /// <inheritdoc/>
         public override async Task SendGroupsAsync(IReadOnlyList<string> groupNames, string methodName, object[] args, CancellationToken cancellationToken = default)
         {
             await SyncContext.Clear;
@@ -319,7 +326,7 @@ namespace Neon.Web.SignalR
             Covenant.Requires<ArgumentNullException>(methodName != null, nameof(methodName));
             Covenant.Requires<ArgumentNullException>(args != null, nameof(args));
 
-            var tasks = new List<Task>();
+            var tasks   = new List<Task>();
             var message = Invocation.Write(methodName: methodName, args: args);
 
             foreach (var groupName in groupNames)
@@ -330,7 +337,7 @@ namespace Neon.Web.SignalR
             await Task.WhenAll(tasks);
         }
 
-        /// <inheritdoc />
+        /// <inheritdoc/>
         public override async Task SendUserAsync(string userId, string methodName, object[] args, CancellationToken cancellationToken = default)
         {
             await SyncContext.Clear;
@@ -342,7 +349,7 @@ namespace Neon.Web.SignalR
             await PublishAsync(subjects.User(userId), Invocation.Write(methodName: methodName, args: args));
         }
 
-        /// <inheritdoc />
+        /// <inheritdoc/>
         public override async Task SendUsersAsync(IReadOnlyList<string> userIds, string methodName, object[] args, CancellationToken cancellationToken = default)
         {
             await SyncContext.Clear;
@@ -408,7 +415,7 @@ namespace Neon.Web.SignalR
                     try
                     {
                         var invocation = Invocation.Read(args.Message.Data);
-                        var message = new InvocationMessage(invocation.MethodName, invocation.Args);
+                        var message    = new InvocationMessage(invocation.MethodName, invocation.Args);
 
                         await connection.WriteAsync(message).AsTask();
                     }
@@ -419,8 +426,10 @@ namespace Neon.Web.SignalR
                     }
                 };
 
-                IAsyncSubscription sAsync = nats.SubscribeAsync(connectionSubject);
+                var sAsync = nats.SubscribeAsync(connectionSubject);
+
                 sAsync.MessageHandler += handler;
+
                 sAsync.Start();
                 return sAsync;
             });
@@ -471,8 +480,10 @@ namespace Neon.Web.SignalR
                     }
                 };
 
-                IAsyncSubscription sAsync = nats.SubscribeAsync(subjectName);
+                var sAsync = nats.SubscribeAsync(subjectName);
+
                 sAsync.MessageHandler += handler;
+
                 return sAsync;
             });
         }
@@ -512,8 +523,10 @@ namespace Neon.Web.SignalR
                 }
             };
 
-            IAsyncSubscription sAsync = nats.SubscribeAsync(groupSubject);
+            var sAsync = nats.SubscribeAsync(groupSubject);
+
             sAsync.MessageHandler += handler;
+
             return sAsync;
         }
 
@@ -572,7 +585,8 @@ namespace Neon.Web.SignalR
             {
                 var id = Interlocked.Increment(ref internalAckId);
 
-                // Send Add/Remove Group to other servers and wait for an ack or timeout
+                // Send Add/Remove Group to other servers and wait for an ack or timeout.
+
                 var message = GroupCommand.Write(id, serverName, action, groupName, connectionId);
 
                 await nats.RequestAsync(subjects.GroupManagement, message, timeout: 10000);
@@ -622,8 +636,10 @@ namespace Neon.Web.SignalR
                 }
             };
 
-            IAsyncSubscription sAsync = nats.SubscribeAsync(subjects.All);
+            var sAsync = nats.SubscribeAsync(subjects.All);
+
             sAsync.MessageHandler += handler;
+
             sAsync.Start();
         }
 
@@ -665,6 +681,7 @@ namespace Neon.Web.SignalR
                     logger?.LogDebug($"Publishing message to NATS subject. [Subject={subjects.GroupManagement}].");
 
                     // Send an ack to the server that sent the original command.
+
                     nats.Publish(args.Message.Reply, Encoding.UTF8.GetBytes($"{groupMessage.Id}"));
                 }
                 catch (Exception e)
@@ -674,8 +691,10 @@ namespace Neon.Web.SignalR
                 }
             };
 
-            IAsyncSubscription sAsync = nats.SubscribeAsync(subjects.GroupManagement);
+            var sAsync = nats.SubscribeAsync(subjects.GroupManagement);
+
             sAsync.MessageHandler += handler;
+
             sAsync.Start();
         }
 
@@ -690,5 +709,3 @@ namespace Neon.Web.SignalR
         }
     }
 }
-
-#endif

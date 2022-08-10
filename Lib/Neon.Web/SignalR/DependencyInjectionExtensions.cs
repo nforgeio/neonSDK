@@ -15,8 +15,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if !NETCOREAPP3_1
-
 using System;
 using System.Linq;
 using System.Threading;
@@ -55,14 +53,12 @@ namespace Neon.Web.SignalR
         /// </summary>
         /// <param name="signalrBuilder">The <see cref="ISignalRServerBuilder"/>.</param>
         /// <returns>The same instance of the <see cref="IServiceCollection"/> for chaining.</returns>
-        public static IServiceCollection AddNeonNats(
-            this ISignalRServerBuilder signalrBuilder)
+        public static IServiceCollection AddNeonNats(this ISignalRServerBuilder signalrBuilder)
         {
             signalrBuilder.AddMessagePackProtocol()
                 .Services.AddResponseCompression(opts =>
                 {
-                    opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
-                        new[] { "application/octet-stream" });
+                    opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[] { "application/octet-stream" });
                 })
                 .AddSingleton(typeof(HubLifetimeManager<>), typeof(NatsHubLifetimeManager<>));
 
@@ -75,12 +71,10 @@ namespace Neon.Web.SignalR
         /// <param name="signalrBuilder">The <see cref="ISignalRServerBuilder"/>.</param>
         /// <param name="natConnectionString">The nats connection string.</param>
         /// <returns>The same instance of the <see cref="IServiceCollection"/> for chaining.</returns>
-        public static IServiceCollection AddNeonNats(
-            this ISignalRServerBuilder signalrBuilder,
-            string natConnectionString)
+        public static IServiceCollection AddNeonNats(this ISignalRServerBuilder signalrBuilder, string natConnectionString)
         {
             var connectionFactory = new ConnectionFactory();
-            var options = ConnectionFactory.GetDefaultOptions();
+            var options           = ConnectionFactory.GetDefaultOptions();
 
             options.Servers = new string[] { natConnectionString };
 
@@ -95,9 +89,7 @@ namespace Neon.Web.SignalR
         /// <param name="signalrBuilder">The <see cref="ISignalRServerBuilder"/>.</param>
         /// <param name="connection">The nats <see cref="IConnection"/>.</param>
         /// <returns>The same instance of the <see cref="IServiceCollection"/> for chaining.</returns>
-        public static IServiceCollection AddNeonNats(
-            this ISignalRServerBuilder signalrBuilder,
-            IConnection connection)
+        public static IServiceCollection AddNeonNats(this ISignalRServerBuilder signalrBuilder, IConnection connection)
         {
             signalrBuilder.Services.AddSingleton(connection);
 
@@ -105,5 +97,3 @@ namespace Neon.Web.SignalR
         }
     }
 }
-
-#endif

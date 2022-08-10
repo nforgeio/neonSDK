@@ -15,8 +15,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if !NETCOREAPP3_1
-
 using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
@@ -39,24 +37,27 @@ namespace Neon.Web.SignalR
     /// </summary>
     internal sealed class ClientResultsManager : IInvocationBinder
     {
-        private readonly ConcurrentDictionary<string, (Type Type, string ConnectionId, object Tcs, Action<object, CompletionMessage> Complete)> _pendingInvocations = new();
+        private readonly ConcurrentDictionary<string, (Type Type, string ConnectionId, object Tcs, Action<object, CompletionMessage> Complete)> pendingInvocations = new();
 
         public Task<T> AddInvocation<T>(string connectionId, string invocationId, CancellationToken cancellationToken)
         {
-            var tcs = new TaskCompletionSourceWithCancellation<T>(this, connectionId, invocationId, cancellationToken);
-            var result = _pendingInvocations.TryAdd(invocationId, (typeof(T), connectionId, tcs, static (state, completionMessage) =>
-            {
-                var tcs = (TaskCompletionSourceWithCancellation<T>)state;
-                if (completionMessage.HasResult)
+            var tcs    = new TaskCompletionSourceWithCancellation<T>(this, connectionId, invocationId, cancellationToken);
+            var result = pendingInvocations.TryAdd(invocationId, (typeof(T), connectionId, tcs, 
+                static (state, completionMessage) =>
                 {
-                    tcs.SetResult((T)completionMessage.Result);
+                    var tcs = (TaskCompletionSourceWithCancellation<T>)state;
+
+                    if (completionMessage.HasResult)
+                    {
+                        tcs.SetResult((T)completionMessage.Result);
+                    }
+                    else
+                    {
+                        tcs.SetException(new Exception(completionMessage.Error));
+                    }
                 }
-                else
-                {
-                    tcs.SetException(new Exception(completionMessage.Error));
-                }
-            }
-            ));
+                ));
+
             Debug.Assert(result);
 
             tcs.RegisterCancellation();
@@ -66,13 +67,14 @@ namespace Neon.Web.SignalR
 
         public void AddInvocation(string invocationId, (Type Type, string ConnectionId, object Tcs, Action<object, CompletionMessage> Complete) invocationInfo)
         {
-            var result = _pendingInvocations.TryAdd(invocationId, invocationInfo);
+            var result = pendingInvocations.TryAdd(invocationId, invocationInfo);
+
             Debug.Assert(result);
         }
 
         public void TryCompleteResult(string connectionId, CompletionMessage message)
         {
-            if (_pendingInvocations.TryGetValue(message.InvocationId!, out var item))
+            if (pendingInvocations.TryGetValue(message.InvocationId!, out var item))
             {
                 if (item.ConnectionId != connectionId)
                 {
@@ -81,8 +83,9 @@ namespace Neon.Web.SignalR
 
                 // if false the connection disconnected right after the above TryGetValue
                 // or someone else completed the invocation (likely a bad client)
-                // we'll ignore both cases
-                if (_pendingInvocations.Remove(message.InvocationId!, out _))
+                // we'll ignore both cases.
+
+                if (pendingInvocations.Remove(message.InvocationId!, out _))
                 {
                     item.Complete(item.Tcs, message);
                 }
@@ -95,17 +98,19 @@ namespace Neon.Web.SignalR
 
         public (Type Type, string ConnectionId, object Tcs, Action<object, CompletionMessage> Completion)? RemoveInvocation(string invocationId)
         {
-            _pendingInvocations.TryRemove(invocationId, out var item);
+            pendingInvocations.TryRemove(invocationId, out var item);
+
             return item;
         }
 
         public bool TryGetType(string invocationId, [NotNullWhen(true)] out Type type)
         {
-            if (_pendingInvocations.TryGetValue(invocationId, out var item))
+            if (pendingInvocations.TryGetValue(invocationId, out var item))
             {
                 type = item.Type;
                 return true;
             }
+
             type = null;
             return false;
         }
@@ -116,49 +121,51 @@ namespace Neon.Web.SignalR
             {
                 return type;
             }
+
             throw new InvalidOperationException($"Invocation ID '{invocationId}' is not associated with a pending client result.");
         }
 
-        // Unused, here to honor the IInvocationBinder interface but should never be called
+        // UNUSED: Here to honor the IInvocationBinder interface but should never be called
         public IReadOnlyList<Type> GetParameterTypes(string methodName)
         {
             throw new NotImplementedException();
         }
 
-        // Unused, here to honor the IInvocationBinder interface but should never be called
+        // UNUSED: Here to honor the IInvocationBinder interface but should never be called
         public Type GetStreamItemType(string streamId)
         {
             throw new NotImplementedException();
         }
 
-        // Custom TCS type to avoid the extra allocation that would be introduced if we managed the cancellation separately
-        // Also makes it easier to keep track of the CancellationTokenRegistration for disposal
+        /// <summary>
+        /// Custom TCS type to avoid the extra allocation that would be introduced if we managed the cancellation separately
+        /// Also makes it easier to keep track of the CancellationTokenRegistration for disposal
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
         internal sealed class TaskCompletionSourceWithCancellation<T> : TaskCompletionSource<T>
         {
-            private readonly ClientResultsManager _clientResultsManager;
-            private readonly string _connectionId;
-            private readonly string _invocationId;
-            private readonly CancellationToken _token;
+            private readonly ClientResultsManager   clientResultsManager;
+            private readonly string                 connectionId;
+            private readonly string                 invocationId;
+            private readonly CancellationToken      token;
+            private CancellationTokenRegistration   tokenRegistration;
 
-            private CancellationTokenRegistration _tokenRegistration;
-
-            public TaskCompletionSourceWithCancellation(ClientResultsManager clientResultsManager, string connectionId, string invocationId,
-                CancellationToken cancellationToken)
+            public TaskCompletionSourceWithCancellation(ClientResultsManager clientResultsManager, string connectionId, string invocationId, CancellationToken cancellationToken)
                 : base(TaskCreationOptions.RunContinuationsAsynchronously)
             {
-                _clientResultsManager = clientResultsManager;
-                _connectionId = connectionId;
-                _invocationId = invocationId;
-                _token = cancellationToken;
+                this.clientResultsManager = clientResultsManager;
+                this.connectionId         = connectionId;
+                this.invocationId         = invocationId;
+                this.token                = cancellationToken;
             }
 
             // Needs to be called after adding the completion to the dictionary in order to avoid synchronous completions of the token registration
             // not canceling when the dictionary hasn't been updated yet.
             public void RegisterCancellation()
             {
-                if (_token.CanBeCanceled)
+                if (token.CanBeCanceled)
                 {
-                    _tokenRegistration = _token.UnsafeRegister(static o =>
+                    tokenRegistration = token.UnsafeRegister(static o =>
                     {
                         var tcs = (TaskCompletionSourceWithCancellation<T>)o!;
                         tcs.SetCanceled();
@@ -170,18 +177,19 @@ namespace Neon.Web.SignalR
             {
                 // TODO: RedisHubLifetimeManager will want to notify the other server (if there is one) about the cancellation
                 // so it can clean up state and potentially forward that info to the connection
-                _clientResultsManager.TryCompleteResult(_connectionId, CompletionMessage.WithError(_invocationId, "Canceled"));
+
+                clientResultsManager.TryCompleteResult(connectionId, CompletionMessage.WithError(invocationId, "Canceled"));
             }
 
             public new void SetResult(T result)
             {
-                _tokenRegistration.Dispose();
+                tokenRegistration.Dispose();
                 base.SetResult(result);
             }
 
             public new void SetException(Exception exception)
             {
-                _tokenRegistration.Dispose();
+                tokenRegistration.Dispose();
                 base.SetException(exception);
             }
 
@@ -222,5 +230,3 @@ namespace Neon.Web.SignalR
         }
     }
 }
-
-#endif

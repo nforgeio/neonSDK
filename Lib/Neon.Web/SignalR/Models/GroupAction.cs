@@ -15,8 +15,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if !NETCOREAPP3_1
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -44,8 +42,6 @@ namespace Neon.Web.SignalR
         /// Remove a member from the group.
         /// </summary>
         [EnumMember(Value = "remove")]
-        Remove,
+        Remove
     }
 }
-
-#endif
