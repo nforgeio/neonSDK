@@ -56,9 +56,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ToolBin", "ToolBin", "{E9E3
 		ToolBin\neonsdk-archive.ps1 = ToolBin\neonsdk-archive.ps1
 		ToolBin\neonsdk-builder.cmd = ToolBin\neonsdk-builder.cmd
 		ToolBin\neonsdk-builder.ps1 = ToolBin\neonsdk-builder.ps1
-		ToolBin\neonsdk-nuget-dev.cmd = ToolBin\neonsdk-nuget-dev.cmd
-		ToolBin\neonsdk-cadence.ps1 = ToolBin\neonsdk-cadence.ps1
 		ToolBin\neonsdk-cadence.cmd = ToolBin\neonsdk-cadence.cmd
+		ToolBin\neonsdk-cadence.ps1 = ToolBin\neonsdk-cadence.ps1
+		ToolBin\neonsdk-nuget-dev.cmd = ToolBin\neonsdk-nuget-dev.cmd
 		ToolBin\neonsdk-nuget-dev.ps1 = ToolBin\neonsdk-nuget-dev.ps1
 		ToolBin\neonsdk-nuget-public.cmd = ToolBin\neonsdk-nuget-public.cmd
 		ToolBin\neonsdk-nuget-public.ps1 = ToolBin\neonsdk-nuget-public.ps1
@@ -279,6 +279,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OpenSSL", "OpenSSL", "{BE9B
 		External\OpenSSL\openssl.exe = External\OpenSSL\openssl.exe
 		External\OpenSSL\ReadMe.txt = External\OpenSSL\ReadMe.txt
 		External\OpenSSL\ssleay32.dll = External\OpenSSL\ssleay32.dll
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{F4B6467F-4D28-465C-A0DD-A1CE93F2889D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "actions", "actions", "{97A29780-3722-470A-B1D0-E7A1AD64D73A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{83998920-2461-454A-8163-E09B978133AA}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\new-issues.yaml = .github\workflows\new-issues.yaml
 	EndProjectSection
 EndProject
 Global
@@ -1430,6 +1439,9 @@ Global
 		{2792A0DE-3870-4E76-98E9-F3E82B101439} = {DBDA1B94-CCD1-48E4-AA0A-FDB5B18AF069}
 		{B0A3D7A3-BFFB-46F8-8EC3-69E82F8D7588} = {9BF7513A-5219-4862-A290-7D2A00589312}
 		{BE9B9A01-C521-4C4D-8FBD-597BA2F5F300} = {1A3C35E5-1C30-44F2-AB46-F5E7F99E524C}
+		{F4B6467F-4D28-465C-A0DD-A1CE93F2889D} = {D9006A33-CDE2-4791-86F6-9DFD89D93012}
+		{97A29780-3722-470A-B1D0-E7A1AD64D73A} = {F4B6467F-4D28-465C-A0DD-A1CE93F2889D}
+		{83998920-2461-454A-8163-E09B978133AA} = {F4B6467F-4D28-465C-A0DD-A1CE93F2889D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5F2E7334-FE9C-4C03-AF1E-BB3B7D5531D9}
