@@ -26,9 +26,8 @@ using Neon.Common;
 namespace Neon.Web
 {
     /// <summary>
-    /// This namespace includes the <see cref="NeonController"/> and <see cref="NeonControllerBase"/> which
-    /// can be used as the base  classes for your ASP.NET controllers.  These add logging capabilities to
-    /// your AP.NET applications.
+    /// This namespace includes <see cref="WebHelper"/> which defines some helpers and extension
+    /// methods as well as a scalable SignalR related backplane implementation.
     /// </summary>
     [System.Runtime.CompilerServices.CompilerGenerated]
     class NamespaceDoc

@@ -107,8 +107,7 @@ namespace NeonBlazorProxy.Controllers
         {
             await SyncContext.Clear;
 
-            var host = await GetHostAsync();
-
+            var host  = await GetHostAsync();
             var error = await forwarder.SendAsync(HttpContext, $"{config.Backend.Scheme}://{host}:{config.Backend.Port}", httpClient, forwarderRequestConfig, transformer);
 
             if (error != ForwarderError.None)
@@ -157,10 +156,9 @@ namespace NeonBlazorProxy.Controllers
             if (error != ForwarderError.None)
             {
                 var errorFeature = HttpContext.GetForwarderErrorFeature();
-                var exception = errorFeature.Exception;
+                var exception    = errorFeature.Exception;
 
-                if (exception.GetType() != typeof(TaskCanceledException)
-                    && exception.GetType() != typeof(OperationCanceledException))
+                if (exception.GetType() != typeof(TaskCanceledException) && exception.GetType() != typeof(OperationCanceledException))
                 {
                     LogError("_blazor", exception);
                 }
@@ -176,11 +174,9 @@ namespace NeonBlazorProxy.Controllers
             await SyncContext.Clear;
 
             var host = config.Backend.Host;
+            var dns  = await dnsClient.QueryAsync(config.Backend.Host, QueryType.SRV);
 
-            var dns = await dnsClient.QueryAsync(config.Backend.Host, QueryType.SRV);
-
-            if (dns.HasError 
-                || dns.Answers.IsEmpty())
+            if (dns.HasError || dns.Answers.IsEmpty())
             {
                 LogDebug($"Dns error. [{NeonHelper.JsonSerialize(dns)}]");
                 return host;
@@ -197,14 +193,14 @@ namespace NeonBlazorProxy.Controllers
                 DnsMetrics.DnsLookupsRequested += 1;
 
                 var index = srv.FindIndex(r => r.Target.Value == Service.LastServer) + 1;
-                if (index >= srv.Count()
-                    || index < 0)
+
+                if (index >= srv.Count() || index < 0)
                 {
                     index = 0;
                 }
 
                 Service.LastServer = srv.ElementAt(index).Target.Value;
-                host = Service.LastServer.Trim('.');
+                host               = Service.LastServer.Trim('.');
             }
 
             LogDebug($"Dns host: [{host}]");
