@@ -54,8 +54,12 @@ namespace Neon.Diagnostics
         private string                  module;
         private bool                    infoAsDebug;
         private TextWriter              writer;
+        private string                  contextId;
         private Func<LogEvent, bool>    logFilter;
         private Func<bool>              isLogEnabledFunc;
+
+        /// <inheritdoc/>
+        public string ContextId => this.contextId;
 
         /// <inheritdoc/>
         public bool IsLogTraceEnabled => logManager.LogLevel >= LogLevel.Trace;
@@ -90,6 +94,11 @@ namespace Neon.Diagnostics
         /// <param name="logManager">The parent log manager or <c>null</c>.</param>
         /// <param name="module">Optionally identifies the event source module or <c>null</c>.</param>
         /// <param name="writer">Optionally specifies the output writer.  This defaults to <see cref="Console.Error"/>.</param>
+        /// <param name="contextId">
+        /// Optionally specifies additional information that can be used to identify context
+        /// for logged events.  For example, the <c>Neon.Cadence</c> client uses this to
+        /// record the ID of the workflow events.
+        /// </param>
         /// <param name="logFilter">
         /// Optionally specifies a filter predicate to be used for filtering log entries.  This examines
         /// the <see cref="LogEvent"/> and returns <c>true</c> if the event should be logged or <c>false</c>
@@ -117,12 +126,14 @@ namespace Neon.Diagnostics
             ILogManager             logManager,
             string                  module           = null,
             TextWriter              writer           = null,
+            string                  contextId        = null,
             Func<LogEvent, bool>    logFilter        = null,
             Func<bool>              isLogEnabledFunc = null)
         {
             this.logManager       = logManager ?? LogManager.Disabled;
             this.module           = module;
             this.writer           = writer ?? Console.Error;
+            this.contextId        = contextId;
             this.logFilter        = logFilter;
             this.isLogEnabledFunc = isLogEnabledFunc;
 

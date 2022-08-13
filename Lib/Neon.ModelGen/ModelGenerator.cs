@@ -2641,7 +2641,6 @@ namespace Neon.ModelGen
 
             sbParameters.AppendWithSeparator("CancellationToken _cancellationToken = default", argSeparator);
             sbParameters.AppendWithSeparator("IRetryPolicy _retryPolicy = default", argSeparator);
-            sbParameters.AppendWithSeparator("LogActivity _logActivity = default", argSeparator);
 
             // Generate the arguments to be passed to the client methods.
 
@@ -2883,7 +2882,6 @@ namespace Neon.ModelGen
             }
 
             sbArguments.AppendWithSeparator("cancellationToken: _cancellationToken", argSeparator);
-            sbArguments.AppendWithSeparator("logActivity: _logActivity", argSeparator);
 
             // Generate the safe and unsafe query method names and 
             // verify that each method actually supports sending

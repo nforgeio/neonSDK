@@ -53,7 +53,6 @@ namespace TestModelGen
         private Type                instanceType;
         private CancellationToken   defaultCancellationToken;
         private IRetryPolicy        defaultRetryPolicy;
-        private object              defaultLogActivity;
 
         /// <summary>
         /// Constructs an instance with uninitialized properties.
@@ -88,7 +87,6 @@ namespace TestModelGen
 
             this.defaultCancellationToken = default(CancellationToken);
             this.defaultRetryPolicy       = default(IRetryPolicy);
-            this.defaultLogActivity       = Activator.CreateInstance(context.NeonCommonAssembly.GetType(typeof(LogActivity).FullName));
         }
 
         /// <inheritdoc/>
@@ -141,7 +139,6 @@ namespace TestModelGen
 
             argList.Add(defaultCancellationToken);
             argList.Add(defaultRetryPolicy);
-            argList.Add(defaultLogActivity);
 
             await (Task)method.Invoke(instance, argList.ToArray());
         }
@@ -184,7 +181,6 @@ namespace TestModelGen
 
             argList.Add(defaultCancellationToken);
             argList.Add(defaultRetryPolicy);
-            argList.Add(defaultLogActivity);
 
             try
             {
@@ -251,7 +247,6 @@ namespace TestModelGen
 
             argList.Add(defaultCancellationToken);
             argList.Add(defaultRetryPolicy);
-            argList.Add(defaultLogActivity);
 
             await (Task)method.Invoke(property.GetValue(instance), argList.ToArray());
         }
@@ -302,7 +297,6 @@ namespace TestModelGen
 
             argList.Add(defaultCancellationToken);
             argList.Add(defaultRetryPolicy);
-            argList.Add(defaultLogActivity);
 
             try
             {

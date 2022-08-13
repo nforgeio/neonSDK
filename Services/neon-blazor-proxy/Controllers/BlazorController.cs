@@ -115,7 +115,7 @@ namespace NeonBlazorProxy.Controllers
                 var errorFeature = HttpContext.GetForwarderErrorFeature();
                 var exception    = errorFeature.Exception;
 
-                LogError("CatchAll", exception);
+                Logger.LogError("CatchAll", exception);
             }
         }
 
@@ -137,7 +137,7 @@ namespace NeonBlazorProxy.Controllers
             var sessionId = cipher.DecryptStringFrom(cookie.Value);
             var session   = NeonHelper.JsonDeserialize<Session>(await cache.GetAsync(sessionId));
 
-            LogDebug(NeonHelper.JsonSerialize(session));
+            Logger.LogDebug(NeonHelper.JsonSerialize(session));
 
             session.ConnectionId = HttpContext.Connection.Id;
 
@@ -147,11 +147,11 @@ namespace NeonBlazorProxy.Controllers
             WebsocketMetrics.ConnectionsEstablished.Inc();
             blazorProxyService.CurrentConnections.Add(session.ConnectionId);
 
-            LogDebug($"Forwarding connection. [{NeonHelper.JsonSerializeToBytes(session)}]");
+            Logger.LogDebug($"Forwarding connection. [{NeonHelper.JsonSerializeToBytes(session)}]");
 
             var error = await forwarder.SendAsync(HttpContext, $"{config.Backend.Scheme}://{session.UpstreamHost}", httpClient, forwarderRequestConfig, transformer);
 
-            LogDebug($"Session closed. [{NeonHelper.JsonSerializeToBytes(session)}]");
+            Logger.LogDebug($"Session closed. [{NeonHelper.JsonSerializeToBytes(session)}]");
 
             if (error != ForwarderError.None)
             {
@@ -160,7 +160,7 @@ namespace NeonBlazorProxy.Controllers
 
                 if (exception.GetType() != typeof(TaskCanceledException) && exception.GetType() != typeof(OperationCanceledException))
                 {
-                    LogError("_blazor", exception);
+                    Logger.LogError("_blazor", exception);
                 }
             }
         }
@@ -178,7 +178,7 @@ namespace NeonBlazorProxy.Controllers
 
             if (dns.HasError || dns.Answers.IsEmpty())
             {
-                LogDebug($"Dns error. [{NeonHelper.JsonSerialize(dns)}]");
+                Logger.LogDebug($"Dns error. [{NeonHelper.JsonSerialize(dns)}]");
                 return host;
             }
 
@@ -186,7 +186,7 @@ namespace NeonBlazorProxy.Controllers
 
             var srv = dns.Answers.SrvRecords().Where(r => r.Port == config.Backend.Port).ToList();
 
-            LogDebug($"SRV: [{NeonHelper.JsonSerialize(srv)}]");
+            Logger.LogDebug($"SRV: [{NeonHelper.JsonSerialize(srv)}]");
 
             lock (Service.ServerLock)
             {
@@ -203,7 +203,7 @@ namespace NeonBlazorProxy.Controllers
                 host               = Service.LastServer.Trim('.');
             }
 
-            LogDebug($"Dns host: [{host}]");
+            Logger.LogDebug($"Dns host: [{host}]");
 
             return host;
         }

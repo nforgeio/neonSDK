@@ -216,7 +216,6 @@ namespace Neon.Diagnostics
                 emitCount        = 0;
 
                 moduleToLogger.Clear();
-                TestLogger.ClearEvents();
             }
         }
 

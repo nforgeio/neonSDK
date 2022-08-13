@@ -39,6 +39,9 @@ using Prometheus;
 
 namespace Neon.Web
 {
+    /// <summary>
+    /// Misc ASP.NET related helper methods.
+    /// </summary>
     public static partial class WebHelper
     {
         //---------------------------------------------------------------------
