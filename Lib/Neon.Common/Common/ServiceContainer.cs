@@ -143,23 +143,9 @@ namespace Neon.Common
             }
         }
 
-        /// <summary>
-        /// Ensures that the container is writable.
-        /// </summary>
-        /// <exception cref="InvalidOperationException">Thrown if the service container is read-only.</exception>
-        private void EnsureWritable()
-        {
-            if (provider != null)
-            {
-                throw new InvalidOperationException($"[{nameof(ServiceContainer)}] is read-only.");
-            }
-        }
-
         /// <inheritdoc/>
         public void Add(ServiceDescriptor item)
         {
-            EnsureWritable();
-
             lock (syncRoot)
             {
                 // Remove any existing descriptors with the same service type.
@@ -187,14 +173,13 @@ namespace Neon.Common
                 }
 
                 ((IList<ServiceDescriptor>)services).Add(item);
+                provider = null;
             }
         }
 
         /// <inheritdoc/>
         public void Clear()
         {
-            EnsureWritable();
-
             lock (syncRoot)
             {
                 services.Clear();
@@ -214,8 +199,6 @@ namespace Neon.Common
         /// <inheritdoc/>
         public void CopyTo(ServiceDescriptor[] array, int arrayIndex)
         {
-            EnsureWritable();
-
             lock (syncRoot)
             {
                 services.CopyTo(array, arrayIndex);
@@ -242,8 +225,6 @@ namespace Neon.Common
         /// <inheritdoc/>
         public void Insert(int index, ServiceDescriptor item)
         {
-            EnsureWritable();
-
             lock (syncRoot)
             {
                 services.Insert(index, item);
@@ -254,8 +235,6 @@ namespace Neon.Common
         /// <inheritdoc/>
         public bool Remove(ServiceDescriptor item)
         {
-            EnsureWritable();
-
             lock (syncRoot)
             {
                 provider = null;
@@ -267,8 +246,6 @@ namespace Neon.Common
         /// <inheritdoc/>
         public void RemoveAt(int index)
         {
-            EnsureWritable();
-
             lock (syncRoot)
             {
                 services.RemoveAt(index);
@@ -309,21 +286,14 @@ namespace Neon.Common
         /// <inheritdoc/>
         public object GetService(Type serviceType)
         {
-            if (provider != null)
+            lock (syncRoot)
             {
-                return provider.GetService(serviceType);
-            }
-            else
-            {
-                lock (syncRoot)
+                if (provider == null)
                 {
-                    if (provider == null)
-                    {
-                        provider = this.BuildServiceProvider();
-                    }
-
-                    return provider.GetService(serviceType);
+                    provider = this.BuildServiceProvider();
                 }
+
+                return provider.GetService(serviceType);
             }
         }
     }
