@@ -36,15 +36,15 @@ namespace Neon.Diagnostics
         /// </summary>
         /// <param name="log">The log.</param>
         /// <param name="messageFunc">The message function.</param>
-        /// <param name="activityId">The optional activity ID.</param>
         /// <remarks>
-        /// This method is intended mostly to enable the efficient use of interpolated C# strings.
+        /// This method is intended mostly to avoid processing interpolated strings when the 
+        /// current log level will prevent any log from being emitted, for better performance.
         /// </remarks>
-        public static void LogDebug(this INeonLogger log, Func<string> messageFunc, string activityId = null)
+        public static void LogDebug(this INeonLogger log, Func<string> messageFunc)
         {
             if (log.IsLogDebugEnabled)
             {
-                log.LogDebug(messageFunc(), activityId);
+                log.LogDebug(messageFunc());
             }
         }
 
@@ -53,15 +53,15 @@ namespace Neon.Diagnostics
         /// </summary>
         /// <param name="log">The log.</param>
         /// <param name="messageFunc">The message function.</param>
-        /// <param name="activityId">The optional activity ID.</param>
         /// <remarks>
-        /// This method is intended mostly to enable the efficient use of interpolated C# strings.
+        /// This method is intended mostly to avoid processing interpolated strings when the
+        /// current log level will prevent any log from being emitted, for better performance.
         /// </remarks>
-        public static void LogTransient(this INeonLogger log, Func<string> messageFunc, string activityId = null)
+        public static void LogTransient(this INeonLogger log, Func<string> messageFunc)
         {
             if (log.IsLogDebugEnabled)
             {
-                log.LogTransient(messageFunc(), activityId);
+                log.LogTransient(messageFunc());
             }
         }
 
@@ -70,15 +70,15 @@ namespace Neon.Diagnostics
         /// </summary>
         /// <param name="log">The log.</param>
         /// <param name="messageFunc">The message function.</param>
-        /// <param name="activityId">The optional activity ID.</param>
         /// <remarks>
-        /// This method is intended mostly to enable the efficient use of interpolated C# strings.
+        /// This method is intended mostly to avoid processing interpolated strings when the
+        /// current log level will prevent any log from being emitted, for better performance.
         /// </remarks>
-        public static void LogInfo(this INeonLogger log, Func<string> messageFunc, string activityId = null)
+        public static void LogInfo(this INeonLogger log, Func<string> messageFunc)
         {
             if (log.IsLogInfoEnabled)
             {
-                log.LogInfo(messageFunc(), activityId);
+                log.LogInfo(messageFunc());
             }
         }
 
@@ -87,15 +87,15 @@ namespace Neon.Diagnostics
         /// </summary>
         /// <param name="log">The log.</param>
         /// <param name="messageFunc">The message function.</param>
-        /// <param name="activityId">The optional activity ID.</param>
         /// <remarks>
-        /// This method is intended mostly to enable the efficient use of interpolated C# strings.
+        /// This method is intended mostly to avoid processing interpolated strings when the
+        /// current log level will prevent any log from being emitted, for better performance.
         /// </remarks>
-        public static void LogWarn(this INeonLogger log, Func<string> messageFunc, string activityId = null)
+        public static void LogWarn(this INeonLogger log, Func<string> messageFunc)
         {
             if (log.IsLogWarnEnabled)
             {
-                log.LogWarn(messageFunc(), activityId);
+                log.LogWarn(messageFunc());
             }
         }
 
@@ -104,15 +104,15 @@ namespace Neon.Diagnostics
         /// </summary>
         /// <param name="log">The log.</param>
         /// <param name="messageFunc">The message function.</param>
-        /// <param name="activityId">The optional activity ID.</param>
         /// <remarks>
-        /// This method is intended mostly to enable the efficient use of interpolated C# strings.
+        /// This method is intended mostly to avoid processing interpolated strings when the
+        /// current log level will prevent any log from being emitted, for better performance.
         /// </remarks>
-        public static void LogError(this INeonLogger log, Func<string> messageFunc, string activityId = null)
+        public static void LogError(this INeonLogger log, Func<string> messageFunc)
         {
             if (log.IsLogErrorEnabled)
             {
-                log.LogError(messageFunc(), activityId);
+                log.LogError(messageFunc());
             }
         }
 
@@ -121,15 +121,15 @@ namespace Neon.Diagnostics
         /// </summary>
         /// <param name="log">The log.</param>
         /// <param name="messageFunc">The message function.</param>
-        /// <param name="activityId">The optional activity ID.</param>
         /// <remarks>
-        /// This method is intended mostly to enable the efficient use of interpolated C# strings.
+        /// This method is intended mostly to avoid processing interpolated strings when the
+        /// current log level will prevent any log from being emitted, for better performance.
         /// </remarks>
-        public static void LogCritical(this INeonLogger log, Func<string> messageFunc, string activityId = null)
+        public static void LogCritical(this INeonLogger log, Func<string> messageFunc)
         {
             if (log.IsLogCriticalEnabled)
             {
-                log.LogCritical(messageFunc(), activityId);
+                log.LogCritical(messageFunc());
             }
         }
 
@@ -138,12 +138,11 @@ namespace Neon.Diagnostics
         /// </summary>
         /// <param name="log">The log.</param>
         /// <param name="e">The exception.</param>
-        /// <param name="activityId">The optional activity ID.</param>
-        public static void LogDebug(this INeonLogger log, Exception e, string activityId = null)
+        public static void LogDebug(this INeonLogger log, Exception e)
         {
             if (log.IsLogDebugEnabled)
             {
-                log.LogDebug(null, e, activityId);
+                log.LogDebug(null, e);
             }
         }
 
@@ -152,12 +151,11 @@ namespace Neon.Diagnostics
         /// </summary>
         /// <param name="log">The log.</param>
         /// <param name="e">The exception.</param>
-        /// <param name="activityId">The optional activity ID.</param>
-        public static void LogTransient(this INeonLogger log, Exception e, string activityId = null)
+        public static void LogTransient(this INeonLogger log, Exception e)
         {
             if (log.IsLogTransientEnabled)
             {
-                log.LogTransient(null, e, activityId);
+                log.LogTransient(null, e);
             }
         }
 
@@ -166,12 +164,11 @@ namespace Neon.Diagnostics
         /// </summary>
         /// <param name="log">The log.</param>
         /// <param name="e">The exception.</param>
-        /// <param name="activityId">The optional activity ID.</param>
-        public static void LogInfo(this INeonLogger log, Exception e, string activityId = null)
+        public static void LogInfo(this INeonLogger log, Exception e)
         {
             if (log.IsLogInfoEnabled)
             {
-                log.LogInfo(null, e, activityId);
+                log.LogInfo(null, e);
             }
         }
 
@@ -180,12 +177,11 @@ namespace Neon.Diagnostics
         /// </summary>
         /// <param name="log">The log.</param>
         /// <param name="e">The exception.</param>
-        /// <param name="activityId">The optional activity ID.</param>
-        public static void LogWarn(this INeonLogger log, Exception e, string activityId = null)
+        public static void LogWarn(this INeonLogger log, Exception e)
         {
             if (log.IsLogWarnEnabled)
             {
-                log.LogWarn(null, e, activityId);
+                log.LogWarn(null, e);
             }
         }
 
@@ -194,12 +190,11 @@ namespace Neon.Diagnostics
         /// </summary>
         /// <param name="log">The log.</param>
         /// <param name="e">The exception.</param>
-        /// <param name="activityId">The optional activity ID.</param>
-        public static void LogError(this INeonLogger log, Exception e, string activityId = null)
+        public static void LogError(this INeonLogger log, Exception e)
         {
             if (log.IsLogErrorEnabled)
             {
-                log.LogError(null, e, activityId);
+                log.LogError(null, e);
             }
         }
 
@@ -208,12 +203,11 @@ namespace Neon.Diagnostics
         /// </summary>
         /// <param name="log">The log.</param>
         /// <param name="e">The exception.</param>
-        /// <param name="activityId">The optional activity ID.</param>
-        public static void LogCritical(this INeonLogger log, Exception e, string activityId = null)
+        public static void LogCritical(this INeonLogger log, Exception e)
         {
             if (log.IsLogCriticalEnabled)
             {
-                log.LogCritical(null, e, activityId);
+                log.LogCritical(null, e);
             }
         }
     }

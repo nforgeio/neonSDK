@@ -38,6 +38,7 @@ using Neon.Collections;
 using Neon.Data;
 using Neon.Diagnostics;
 using Neon.Retry;
+using System.Runtime.CompilerServices;
 
 namespace Neon.Net
 {
@@ -46,23 +47,23 @@ namespace Neon.Net
     /// </summary>
     /// <remarks>
     /// <para>
-    /// Use <see cref="GetAsync(string, ArgDictionary, ArgDictionary, CancellationToken, LogActivity)"/>, 
-    /// <see cref="PutAsync(string, object, ArgDictionary, ArgDictionary, CancellationToken, LogActivity)"/>, 
-    /// <see cref="PostAsync(string, object, ArgDictionary, ArgDictionary, CancellationToken, LogActivity)"/>, 
-    /// <see cref="DeleteAsync(string, ArgDictionary, ArgDictionary, CancellationToken, LogActivity)"/>,
-    /// <see cref="OptionsAsync(string, object, ArgDictionary, ArgDictionary, CancellationToken, LogActivity)"/>,
-    /// <see cref="HeadAsync(string, object, ArgDictionary, ArgDictionary, CancellationToken, LogActivity)"/>, or
-    /// <see cref="PatchAsync(string, object, ArgDictionary, ArgDictionary, CancellationToken, LogActivity)"/>
+    /// Use <see cref="GetAsync(string, ArgDictionary, ArgDictionary, CancellationToken)"/>, 
+    /// <see cref="PutAsync(string, object, ArgDictionary, ArgDictionary, CancellationToken)"/>, 
+    /// <see cref="PostAsync(string, object, ArgDictionary, ArgDictionary, CancellationToken)"/>, 
+    /// <see cref="DeleteAsync(string, ArgDictionary, ArgDictionary, CancellationToken)"/>,
+    /// <see cref="OptionsAsync(string, object, ArgDictionary, ArgDictionary, CancellationToken)"/>,
+    /// <see cref="HeadAsync(string, object, ArgDictionary, ArgDictionary, CancellationToken)"/>, or
+    /// <see cref="PatchAsync(string, object, ArgDictionary, ArgDictionary, CancellationToken)"/>
     /// to perform HTTP operations that ensure that a non-error HTTP status code is returned by the servers.
     /// </para>
     /// <para>
-    /// Use <see cref="GetUnsafeAsync(string, ArgDictionary, ArgDictionary, CancellationToken, LogActivity)"/>, 
-    /// <see cref="PutUnsafeAsync(string, object, ArgDictionary, ArgDictionary, CancellationToken, LogActivity)"/>, 
-    /// <see cref="PostUnsafeAsync(string, object, ArgDictionary, ArgDictionary, CancellationToken, LogActivity)"/>, 
-    /// <see cref="DeleteUnsafeAsync(string, ArgDictionary, ArgDictionary, CancellationToken, LogActivity)"/>,
-    /// <see cref="OptionsUnsafeAsync(string, object, ArgDictionary, ArgDictionary, CancellationToken, LogActivity)"/>,
-    /// <see cref="HeadUnsafeAsync(string, object, ArgDictionary, ArgDictionary, CancellationToken, LogActivity)"/>, or
-    /// <see cref="PatchUnsafeAsync(string, object, ArgDictionary, ArgDictionary, CancellationToken, LogActivity)"/>
+    /// Use <see cref="GetUnsafeAsync(string, ArgDictionary, ArgDictionary, CancellationToken)"/>, 
+    /// <see cref="PutUnsafeAsync(string, object, ArgDictionary, ArgDictionary, CancellationToken)"/>, 
+    /// <see cref="PostUnsafeAsync(string, object, ArgDictionary, ArgDictionary, CancellationToken)"/>, 
+    /// <see cref="DeleteUnsafeAsync(string, ArgDictionary, ArgDictionary, CancellationToken)"/>,
+    /// <see cref="OptionsUnsafeAsync(string, object, ArgDictionary, ArgDictionary, CancellationToken)"/>,
+    /// <see cref="HeadUnsafeAsync(string, object, ArgDictionary, ArgDictionary, CancellationToken)"/>, or
+    /// <see cref="PatchUnsafeAsync(string, object, ArgDictionary, ArgDictionary, CancellationToken)"/>
     /// to perform an HTTP without ensuring a non-error HTTP status code.
     /// </para>
     /// <para>

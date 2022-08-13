@@ -76,7 +76,7 @@ namespace Neon.Diagnostics
         Info = 600,
 
         /// <summary>
-        /// Indicates a transient error, typically logged by a <see cref="Neon.Retry.IRetryPolicy"/>
+        /// Describes a transient error, typically logged by a <see cref="Neon.Retry.IRetryPolicy"/>
         /// implementations.
         /// </summary>
         Transient = 700,
@@ -84,6 +84,11 @@ namespace Neon.Diagnostics
         /// <summary>
         /// Describes detailed debug or diagnostic information.
         /// </summary>
-        Debug = 800
+        Debug = 800,
+
+        /// <summary>
+        /// Describes <b>very</b> detailed debug or diagnostic information.
+        /// </summary>
+        Trace = 900
     }
 }

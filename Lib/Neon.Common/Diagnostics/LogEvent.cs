@@ -37,7 +37,6 @@ namespace Neon.Diagnostics
         /// Constructor.
         /// </summary>
         /// <param name="module">Optionally identifies the source module.</param>
-        /// <param name="contextId">Optionaly specifies additional event context information.</param>
         /// <param name="index">
         /// Specifies the one-based position of the event in the stream of events
         /// logged by the log manager.
@@ -45,37 +44,27 @@ namespace Neon.Diagnostics
         /// <param name="timeUtc">Time (UTC) when the event was logged.</param>
         /// <param name="logLevel">The event log level.</param>
         /// <param name="message">Optionally specifies the event message.</param>
-        /// <param name="activityId">Optionally specifies the event activity ID.</param>
         /// <param name="e">Optionally specifies the exception being logged.</param>
         public LogEvent(
             string      module,
-            string      contextId,
             long        index,
             DateTime    timeUtc,
             LogLevel    logLevel,
             string      message,
-            string      activityId,
             Exception   e)
         {
-            this.Module     = module;
-            this.ContextId  = contextId;
-            this.Index      = index;
-            this.TimeUtc    = timeUtc;
-            this.LogLevel   = logLevel;
-            this.Message    = message;
-            this.ActivityId = activityId;
-            this.Exception  = e;
+            this.Module    = module;
+            this.Index     = index;
+            this.TimeUtc   = timeUtc;
+            this.LogLevel  = logLevel;
+            this.Message   = message;
+            this.Exception = e;
         }
 
         /// <summary>
         /// Optionally identifies the source module.
         /// </summary>
         public string Module { get; private set; }
-
-        /// <summary>
-        /// Optionaly specifies additional event context information.
-        /// </summary>
-        public string ContextId { get; private set; }
 
         /// <summary>
         /// Specifies the one-based position of the event in the stream of events
@@ -97,11 +86,6 @@ namespace Neon.Diagnostics
         /// The event message.
         /// </summary>
         public string Message { get; private set; }
-
-        /// <summary>
-        /// Optionally specifies the event activity ID.
-        /// </summary>
-        public string ActivityId { get; private set; }
 
         /// <summary>
         /// Optionally specifies the event exception.

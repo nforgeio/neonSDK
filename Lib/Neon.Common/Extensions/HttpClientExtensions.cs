@@ -30,12 +30,12 @@ using System.Threading.Tasks;
 using Neon.Diagnostics;
 using Neon.Collections;
 using Neon.Tasks;
+using System.Runtime.CompilerServices;
 
 namespace System.Net.Http
 {
     /// <summary>
-    /// <see cref="HttpClient"/> extension methods, mostly related to supporting <see cref="LogActivity"/> 
-    /// related headers.
+    /// <see cref="HttpClient"/> extension methods, mostly related to easily supporting custom headers.
     /// </summary>
     public static partial class HttpClientExtensions
     {
@@ -43,6 +43,26 @@ namespace System.Net.Http
         private static HttpMethod headMethod    = new HttpMethod("HEAD");
         private static HttpMethod optionsMethod = new HttpMethod("OPTIONS");
         private static HttpMethod patchMethod   = new HttpMethod("PATCH");
+
+        //---------------------------------------------------------------------
+        // Static members
+
+        /// <summary>
+        /// Adds headers to an HTTP request.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <param name="headers">Optionally specifies a dictionary of headers.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void AddHeaders(HttpRequestMessage request, ArgDictionary headers = null)
+        {
+            if (headers != null)
+            {
+                foreach (var header in headers)
+                {
+                    request.Headers.Add(header.Key, header.Value.ToString());
+                }
+            }
+        }
 
         /// <summary>
         /// Sends a GET request to the specified string URI.
@@ -55,7 +75,6 @@ namespace System.Net.Http
         /// reading the whole response content).
         /// </param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <param name="activity">Optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The response.</returns>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is <c>null</c>.</exception>
         public static async Task<HttpResponseMessage> GetAsync(
@@ -63,25 +82,11 @@ namespace System.Net.Http
             Uri                     requestUri, 
             ArgDictionary           headers           = null,
             HttpCompletionOption    completionOption  = default, 
-            CancellationToken       cancellationToken = default, 
-            LogActivity             activity          = default)
+            CancellationToken       cancellationToken = default)
         {
             await SyncContext.Clear;
 
             var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
-
-            if (!string.IsNullOrEmpty(activity.Id))
-            {
-                request.Headers.Add(LogActivity.HttpHeader, activity.Id);
-            }
-
-            if (headers != null)
-            {
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value.ToString());
-                }
-            }
 
             return await client.SendAsync(request, completionOption, cancellationToken);
         }
@@ -97,7 +102,6 @@ namespace System.Net.Http
         /// reading the whole response content).
         /// </param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <param name="activity">Optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The response.</returns>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is <c>null</c>.</exception>
         public static async Task<HttpResponseMessage> GetAsync(
@@ -105,25 +109,13 @@ namespace System.Net.Http
             string                  requestUri, 
             ArgDictionary           headers           = null,
             HttpCompletionOption    completionOption  = default, 
-            CancellationToken       cancellationToken = default, 
-            LogActivity             activity          = default)
+            CancellationToken       cancellationToken = default)
         {
             await SyncContext.Clear;
 
             var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
 
-            if (!string.IsNullOrEmpty(activity.Id))
-            {
-                request.Headers.Add(LogActivity.HttpHeader, activity.Id);
-            }
-
-            if (headers != null)
-            {
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value.ToString());
-                }
-            }
+            AddHeaders(request, headers);
 
             return await client.SendAsync(request, completionOption, cancellationToken);
         }
@@ -134,31 +126,18 @@ namespace System.Net.Http
         /// <param name="client">The client.</param>
         /// <param name="requestUri">The request URI.</param>
         /// <param name="headers">Optional request headers.</param>
-        /// <param name="activity">Optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The response byte array.</returns>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is <c>null</c>.</exception>
         public static async Task<byte[]> GetByteArrayAsync(
             this HttpClient         client, 
             string                  requestUri, 
-            ArgDictionary           headers  = null,
-            LogActivity             activity = default)
+            ArgDictionary           headers = null)
         {
             await SyncContext.Clear;
 
             var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
 
-            if (!string.IsNullOrEmpty(activity.Id))
-            {
-                request.Headers.Add(LogActivity.HttpHeader, activity.Id);
-            }
-
-            if (headers != null)
-            {
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value.ToString());
-                }
-            }
+            AddHeaders(request, headers);
 
             var response = await client.SendAsync(request);
 
@@ -171,31 +150,18 @@ namespace System.Net.Http
         /// <param name="client">The client.</param>
         /// <param name="requestUri">The request URI.</param>
         /// <param name="headers">Optional request headers.</param>
-        /// <param name="activity">Optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The response byte array.</returns>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is <c>null</c>.</exception>
         public static async Task<byte[]> GetByteArrayAsync(
             this HttpClient         client,
             Uri                     requestUri,
-            ArgDictionary           headers  = null,
-            LogActivity             activity = default)
+            ArgDictionary           headers = null)
         {
             await SyncContext.Clear;
 
             var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
 
-            if (!string.IsNullOrEmpty(activity.Id))
-            {
-                request.Headers.Add(LogActivity.HttpHeader, activity.Id);
-            }
-
-            if (headers != null)
-            {
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value.ToString());
-                }
-            }
+            AddHeaders(request, headers);
 
             var response = await client.SendAsync(request);
 
@@ -208,31 +174,18 @@ namespace System.Net.Http
         /// <param name="client">The client.</param>
         /// <param name="requestUri">The request URI.</param>
         /// <param name="headers">Optional request headers.</param>
-        /// <param name="activity">Optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The response stream.</returns>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is <c>null</c>.</exception>
         public static async Task<Stream> GetStreamAsync(
             this HttpClient         client, 
             string                  requestUri, 
-            ArgDictionary           headers  = null,
-            LogActivity             activity = default)
+            ArgDictionary           headers = null)
         {
             await SyncContext.Clear;
 
             var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
 
-            if (!string.IsNullOrEmpty(activity.Id))
-            {
-                request.Headers.Add(LogActivity.HttpHeader, activity.Id);
-            }
-
-            if (headers != null)
-            {
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value.ToString());
-                }
-            }
+            AddHeaders(request, headers);
 
             var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
 
@@ -245,31 +198,18 @@ namespace System.Net.Http
         /// <param name="client">The client.</param>
         /// <param name="requestUri">The request URI.</param>
         /// <param name="headers">Optional request headers.</param>
-        /// <param name="activity">Optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The response stream.</returns>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is <c>null</c>.</exception>
         public static async Task<Stream> GetStreamAsync(
             this HttpClient         client,
             Uri                     requestUri, 
-            ArgDictionary           headers  = null,
-            LogActivity             activity = default)
+            ArgDictionary           headers = null)
         {
             await SyncContext.Clear;
 
             var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
 
-            if (!string.IsNullOrEmpty(activity.Id))
-            {
-                request.Headers.Add(LogActivity.HttpHeader, activity.Id);
-            }
-
-            if (headers != null)
-            {
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value.ToString());
-                }
-            }
+            AddHeaders(request, headers);
 
             var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
 
@@ -282,31 +222,18 @@ namespace System.Net.Http
         /// <param name="client">The client.</param>
         /// <param name="requestUri">The request URI.</param>
         /// <param name="headers">Optional request headers.</param>
-        /// <param name="activity">Optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The response string.</returns>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is <c>null</c>.</exception>
         public static async Task<string> GetStringAsync(
             this HttpClient         client, 
             string                  requestUri,
-            ArgDictionary           headers  = null,
-            LogActivity             activity = default)
+            ArgDictionary           headers = null)
         {
             await SyncContext.Clear;
 
             var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
 
-            if (!string.IsNullOrEmpty(activity.Id))
-            {
-                request.Headers.Add(LogActivity.HttpHeader, activity.Id);
-            }
-
-            if (headers != null)
-            {
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value.ToString());
-                }
-            }
+            AddHeaders(request, headers);
 
             var response = await client.SendAsync(request);
 
@@ -319,31 +246,18 @@ namespace System.Net.Http
         /// <param name="client">The client.</param>
         /// <param name="requestUri">The request URI.</param>
         /// <param name="headers">Optional request headers.</param>
-        /// <param name="activity">Optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The response string.</returns>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is <c>null</c>.</exception>
         public static async Task<string> GetStringAsync(
             this HttpClient         client,
             Uri                     requestUri,
-            ArgDictionary           headers  = null,
-            LogActivity             activity = default)
+            ArgDictionary           headers = null)
         {
             await SyncContext.Clear;
 
             var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
 
-            if (!string.IsNullOrEmpty(activity.Id))
-            {
-                request.Headers.Add(LogActivity.HttpHeader, activity.Id);
-            }
-
-            if (headers != null)
-            {
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value.ToString());
-                }
-            }
+            AddHeaders(request, headers);
 
             var response = await client.SendAsync(request);
 
@@ -362,7 +276,6 @@ namespace System.Net.Http
         /// reading the whole response content).
         /// </param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <param name="activity">Optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The response.</returns>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is <c>null</c>.</exception>
         public static async Task<HttpResponseMessage> PostAsync(
@@ -371,8 +284,7 @@ namespace System.Net.Http
             HttpContent             content,
             ArgDictionary           headers           = null,
             HttpCompletionOption    completionOption  = default,
-            CancellationToken       cancellationToken = default,
-            LogActivity             activity          = default)
+            CancellationToken       cancellationToken = default)
         {
             await SyncContext.Clear;
 
@@ -380,18 +292,7 @@ namespace System.Net.Http
 
             request.Content = content;
 
-            if (!string.IsNullOrEmpty(activity.Id))
-            {
-                request.Headers.Add(LogActivity.HttpHeader, activity.Id);
-            }
-
-            if (headers != null)
-            {
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value.ToString());
-                }
-            }
+            AddHeaders(request, headers);
 
             return await client.SendAsync(request, completionOption, cancellationToken);
         }
@@ -408,7 +309,6 @@ namespace System.Net.Http
         /// reading the whole response content).
         /// </param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <param name="activity">Optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The response.</returns>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is <c>null</c>.</exception>
         public static async Task<HttpResponseMessage> PostAsync(
@@ -417,8 +317,7 @@ namespace System.Net.Http
             HttpContent             content, 
             ArgDictionary           headers           = null,
             HttpCompletionOption    completionOption  = default,
-            CancellationToken       cancellationToken = default, 
-            LogActivity             activity          = default)
+            CancellationToken       cancellationToken = default)
         {
             await SyncContext.Clear;
 
@@ -426,18 +325,7 @@ namespace System.Net.Http
 
             request.Content = content;
 
-            if (!string.IsNullOrEmpty(activity.Id))
-            {
-                request.Headers.Add(LogActivity.HttpHeader, activity.Id);
-            }
-
-            if (headers != null)
-            {
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value.ToString());
-                }
-            }
+            AddHeaders(request, headers);
 
             return await client.SendAsync(request, completionOption, cancellationToken);
         }
@@ -454,7 +342,6 @@ namespace System.Net.Http
         /// reading the whole response content).
         /// </param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <param name="activity">Optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The response.</returns>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is <c>null</c>.</exception>
         public static async Task<HttpResponseMessage> PutAsync(
@@ -463,8 +350,7 @@ namespace System.Net.Http
             HttpContent             content, 
             ArgDictionary           headers           = null,
             HttpCompletionOption    completionOption  = default,
-            CancellationToken       cancellationToken = default,
-            LogActivity             activity          = default)
+            CancellationToken       cancellationToken = default)
         {
             await SyncContext.Clear;
 
@@ -472,18 +358,7 @@ namespace System.Net.Http
 
             request.Content = content;
 
-            if (!string.IsNullOrEmpty(activity.Id))
-            {
-                request.Headers.Add(LogActivity.HttpHeader, activity.Id);
-            }
-
-            if (headers != null)
-            {
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value.ToString());
-                }
-            }
+            AddHeaders(request, headers);
 
             return await client.SendAsync(request, completionOption, cancellationToken);
         }
@@ -500,7 +375,6 @@ namespace System.Net.Http
         /// reading the whole response content).
         /// </param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <param name="activity">Optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The response.</returns>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is <c>null</c>.</exception>
         public static async Task<HttpResponseMessage> PutAsync(
@@ -509,8 +383,7 @@ namespace System.Net.Http
             HttpContent             content, 
             ArgDictionary           headers           = null,
             HttpCompletionOption    completionOption  = default, 
-            CancellationToken       cancellationToken = default,
-            LogActivity             activity          = default)
+            CancellationToken       cancellationToken = default)
         {
             await SyncContext.Clear;
 
@@ -518,18 +391,7 @@ namespace System.Net.Http
 
             request.Content = content;
 
-            if (!string.IsNullOrEmpty(activity.Id))
-            {
-                request.Headers.Add(LogActivity.HttpHeader, activity.Id);
-            }
-
-            if (headers != null)
-            {
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value.ToString());
-                }
-            }
+            AddHeaders(request, headers);
 
             return await client.SendAsync(request, completionOption, cancellationToken);
         }
@@ -547,7 +409,6 @@ namespace System.Net.Http
         /// reading the whole response content).
         /// </param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <param name="activity">Optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The response.</returns>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is <c>null</c>.</exception>
         public static async Task<HttpResponseMessage> DeleteAsync(
@@ -556,8 +417,7 @@ namespace System.Net.Http
             HttpContent             content           = null, 
             ArgDictionary           headers           = null,
             HttpCompletionOption    completionOption  = default, 
-            CancellationToken       cancellationToken = default,
-            LogActivity             activity          = default)
+            CancellationToken       cancellationToken = default)
         {
             await SyncContext.Clear;
 
@@ -568,18 +428,7 @@ namespace System.Net.Http
                 request.Content = content;
             }
 
-            if (!string.IsNullOrEmpty(activity.Id))
-            {
-                request.Headers.Add(LogActivity.HttpHeader, activity.Id);
-            }
-
-            if (headers != null)
-            {
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value.ToString());
-                }
-            }
+            AddHeaders(request, headers);
 
             return await client.SendAsync(request, completionOption, cancellationToken);
         }
@@ -596,7 +445,6 @@ namespace System.Net.Http
         /// reading the whole response content).
         /// </param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <param name="activity">Optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The response.</returns>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is <c>null</c>.</exception>
         public static async Task<HttpResponseMessage> DeleteAsync(
@@ -605,8 +453,7 @@ namespace System.Net.Http
             HttpContent             content           = null, 
             ArgDictionary           headers           = null,
             HttpCompletionOption    completionOption  = default,
-            CancellationToken       cancellationToken = default,
-            LogActivity             activity          = default)
+            CancellationToken       cancellationToken = default)
         {
             await SyncContext.Clear;
 
@@ -617,18 +464,7 @@ namespace System.Net.Http
                 request.Content = content;
             }
 
-            if (!string.IsNullOrEmpty(activity.Id))
-            {
-                request.Headers.Add(LogActivity.HttpHeader, activity.Id);
-            }
-
-            if (headers != null)
-            {
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value.ToString());
-                }
-            }
+            AddHeaders(request, headers);
 
             return await client.SendAsync(request, completionOption, cancellationToken);
         }
@@ -645,7 +481,6 @@ namespace System.Net.Http
         /// reading the whole response content).
         /// </param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <param name="activity">Optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The response.</returns>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is <c>null</c>.</exception>
         public static async Task<HttpResponseMessage> PatchAsync(
@@ -654,8 +489,7 @@ namespace System.Net.Http
             HttpContent             content, 
             ArgDictionary           headers           = null,
             HttpCompletionOption    completionOption  = default, 
-            CancellationToken       cancellationToken = default,
-            LogActivity             activity          = default)
+            CancellationToken       cancellationToken = default)
         {
             await SyncContext.Clear;
 
@@ -663,18 +497,7 @@ namespace System.Net.Http
 
             request.Content = content;
 
-            if (!string.IsNullOrEmpty(activity.Id))
-            {
-                request.Headers.Add(LogActivity.HttpHeader, activity.Id);
-            }
-
-            if (headers != null)
-            {
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value.ToString());
-                }
-            }
+            AddHeaders(request, headers);
 
             return await client.SendAsync(request, completionOption, cancellationToken);
         }
@@ -691,7 +514,6 @@ namespace System.Net.Http
         /// reading the whole response content).
         /// </param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <param name="activity">Optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The response.</returns>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is <c>null</c>.</exception>
         public static async Task<HttpResponseMessage> PatchAsync(
@@ -700,8 +522,7 @@ namespace System.Net.Http
             HttpContent             content, 
             ArgDictionary           headers           = null,
             HttpCompletionOption    completionOption  = default,
-            CancellationToken       cancellationToken = default,
-            LogActivity             activity          = default)
+            CancellationToken       cancellationToken = default)
         {
             await SyncContext.Clear;
 
@@ -709,18 +530,7 @@ namespace System.Net.Http
 
             request.Content = content;
 
-            if (!string.IsNullOrEmpty(activity.Id))
-            {
-                request.Headers.Add(LogActivity.HttpHeader, activity.Id);
-            }
-
-            if (headers != null)
-            {
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value.ToString());
-                }
-            }
+            AddHeaders(request, headers);
 
             return await client.SendAsync(request, completionOption, cancellationToken);
         }
@@ -737,7 +547,6 @@ namespace System.Net.Http
         /// reading the whole response content).
         /// </param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <param name="activity">Optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The response.</returns>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is <c>null</c>.</exception>
         public static async Task<HttpResponseMessage> OptionsAsync(
@@ -746,8 +555,7 @@ namespace System.Net.Http
             HttpContent             content           = null, 
             ArgDictionary           headers           = null,
             HttpCompletionOption    completionOption  = default, 
-            CancellationToken       cancellationToken = default,
-            LogActivity             activity          = default)
+            CancellationToken       cancellationToken = default)
         {
             await SyncContext.Clear;
 
@@ -758,18 +566,7 @@ namespace System.Net.Http
                 request.Content = content;
             }
 
-            if (!string.IsNullOrEmpty(activity.Id))
-            {
-                request.Headers.Add(LogActivity.HttpHeader, activity.Id);
-            }
-
-            if (headers != null)
-            {
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value.ToString());
-                }
-            }
+            AddHeaders(request, headers);
 
             return await client.SendAsync(request, completionOption, cancellationToken);
         }
@@ -786,7 +583,6 @@ namespace System.Net.Http
         /// reading the whole response content).
         /// </param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <param name="activity">Optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The response.</returns>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is <c>null</c>.</exception>
         public static async Task<HttpResponseMessage> OptionsAsync(
@@ -795,8 +591,7 @@ namespace System.Net.Http
             HttpContent             content           = null,
             ArgDictionary           headers           = null,
             HttpCompletionOption    completionOption  = default,
-            CancellationToken       cancellationToken = default, 
-            LogActivity             activity          = default)
+            CancellationToken       cancellationToken = default)
         {
             await SyncContext.Clear;
 
@@ -807,18 +602,7 @@ namespace System.Net.Http
                 request.Content = content;
             }
 
-            if (!string.IsNullOrEmpty(activity.Id))
-            {
-                request.Headers.Add(LogActivity.HttpHeader, activity.Id);
-            }
-
-            if (headers != null)
-            {
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value.ToString());
-                }
-            }
+            AddHeaders(request, headers);
 
             return await client.SendAsync(request, completionOption, cancellationToken);
         }
@@ -835,7 +619,6 @@ namespace System.Net.Http
         /// reading the whole response content).
         /// </param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <param name="activity">Optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The response.</returns>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is <c>null</c>.</exception>
         public static async Task<HttpResponseMessage> HeadAsync(
@@ -844,8 +627,7 @@ namespace System.Net.Http
             HttpContent             content           = null, 
             ArgDictionary           headers           = null,
             HttpCompletionOption    completionOption  = default, 
-            CancellationToken       cancellationToken = default, 
-            LogActivity             activity          = default)
+            CancellationToken       cancellationToken = default)
         {
             await SyncContext.Clear;
 
@@ -856,18 +638,7 @@ namespace System.Net.Http
                 request.Content = content;
             }
 
-            if (!string.IsNullOrEmpty(activity.Id))
-            {
-                request.Headers.Add(LogActivity.HttpHeader, activity.Id);
-            }
-
-            if (headers != null)
-            {
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value.ToString());
-                }
-            }
+            AddHeaders(request, headers);
 
             return await client.SendAsync(request, completionOption, cancellationToken);
         }
@@ -884,7 +655,6 @@ namespace System.Net.Http
         /// reading the whole response content).
         /// </param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <param name="activity">Optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The response.</returns>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is <c>null</c>.</exception>
         public static async Task<HttpResponseMessage> HeadAsync(
@@ -893,8 +663,7 @@ namespace System.Net.Http
             HttpContent             content           = null, 
             ArgDictionary           headers           = null,
             HttpCompletionOption    completionOption  = default, 
-            CancellationToken       cancellationToken = default,
-            LogActivity             activity          = default)
+            CancellationToken       cancellationToken = default)
         {
             await SyncContext.Clear;
 
@@ -905,18 +674,7 @@ namespace System.Net.Http
                 request.Content = content;
             }
 
-            if (!string.IsNullOrEmpty(activity.Id))
-            {
-                request.Headers.Add(LogActivity.HttpHeader, activity.Id);
-            }
-
-            if (headers != null)
-            {
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value.ToString());
-                }
-            }
+            AddHeaders(request, headers);
 
             return await client.SendAsync(request, completionOption, cancellationToken);
         }
@@ -932,7 +690,6 @@ namespace System.Net.Http
         /// reading the whole response content).
         /// </param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <param name="activity">Optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The response.</returns>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is <c>null</c>.</exception>
         /// <exception cref="InvalidOperationException">Thrown when the request has already been sent by the <see cref="HttpClient"/> class.</exception>
@@ -941,23 +698,11 @@ namespace System.Net.Http
             HttpRequestMessage      request,
             ArgDictionary           headers           = null,
             HttpCompletionOption    completionOption  = default,
-            CancellationToken       cancellationToken = default,
-            LogActivity             activity          = default)
+            CancellationToken       cancellationToken = default)
         {
             await SyncContext.Clear;
 
-            if (!string.IsNullOrEmpty(activity.Id))
-            {
-                request.Headers.Add(LogActivity.HttpHeader, activity.Id);
-            }
-
-            if (headers != null)
-            {
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value.ToString());
-                }
-            }
+            AddHeaders(request, headers);
 
             return await client.SendAsync(request, completionOption, cancellationToken);
         }

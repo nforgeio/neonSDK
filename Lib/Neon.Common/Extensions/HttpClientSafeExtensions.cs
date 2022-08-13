@@ -36,10 +36,6 @@ using Neon.Tasks;
 
 namespace System.Net.Http
 {
-    /// <summary>
-    /// <see cref="HttpClient"/> extension methods, mostly related to supporting <see cref="LogActivity"/> 
-    /// related headers.
-    /// </summary>
     public static partial class HttpClientExtensions
     {
         /// <summary>
@@ -71,7 +67,6 @@ namespace System.Net.Http
         /// reading the whole response content).
         /// </param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <param name="activity">Optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The response.</returns>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is <c>null</c>.</exception>
         /// <exception cref="SocketException">Thrown for network connectivity issues.</exception>
@@ -81,26 +76,14 @@ namespace System.Net.Http
             Uri                     requestUri, 
             ArgDictionary           headers           = null,
             HttpCompletionOption    completionOption  = default, 
-            CancellationToken       cancellationToken = default, 
-            LogActivity             activity          = default)
+            CancellationToken       cancellationToken = default)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(requestUri != null, nameof(requestUri));
 
             var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
 
-            if (!string.IsNullOrEmpty(activity.Id))
-            {
-                request.Headers.Add(LogActivity.HttpHeader, activity.Id);
-            }
-
-            if (headers != null)
-            {
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value.ToString());
-                }
-            }
+            AddHeaders(request, headers);
 
             return EnsureSuccess(await client.SendAsync(request, completionOption, cancellationToken));
         }
@@ -116,7 +99,6 @@ namespace System.Net.Http
         /// reading the whole response content).
         /// </param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <param name="activity">Optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The response.</returns>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is <c>null</c>.</exception>
         /// <exception cref="SocketException">Thrown for network connectivity issues.</exception>
@@ -126,26 +108,14 @@ namespace System.Net.Http
             string                  requestUri, 
             ArgDictionary           headers           = null,
             HttpCompletionOption    completionOption  = default, 
-            CancellationToken       cancellationToken = default, 
-            LogActivity             activity          = default)
+            CancellationToken       cancellationToken = default)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(requestUri), nameof(requestUri));
 
             var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
 
-            if (!string.IsNullOrEmpty(activity.Id))
-            {
-                request.Headers.Add(LogActivity.HttpHeader, activity.Id);
-            }
-
-            if (headers != null)
-            {
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value.ToString());
-                }
-            }
+            AddHeaders(request, headers);
 
             return EnsureSuccess(await client.SendAsync(request, completionOption, cancellationToken));
         }
@@ -156,7 +126,6 @@ namespace System.Net.Http
         /// <param name="client">The client.</param>
         /// <param name="requestUri">The request URI.</param>
         /// <param name="headers">Optional request headers.</param>
-        /// <param name="activity">Optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The response byte array.</returns>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is <c>null</c>.</exception>
         /// <exception cref="SocketException">Thrown for network connectivity issues.</exception>
@@ -164,26 +133,14 @@ namespace System.Net.Http
         public static async Task<byte[]> GetByteArraySafeAsync(
             this HttpClient         client, 
             string                  requestUri, 
-            ArgDictionary           headers  = null,
-            LogActivity             activity = default)
+            ArgDictionary           headers = null)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(requestUri), nameof(requestUri));
 
             var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
 
-            if (!string.IsNullOrEmpty(activity.Id))
-            {
-                request.Headers.Add(LogActivity.HttpHeader, activity.Id);
-            }
-
-            if (headers != null)
-            {
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value.ToString());
-                }
-            }
+            AddHeaders(request, headers);
 
             var response = EnsureSuccess(await client.SendAsync(request));
 
@@ -196,7 +153,6 @@ namespace System.Net.Http
         /// <param name="client">The client.</param>
         /// <param name="requestUri">The request URI.</param>
         /// <param name="headers">Optional request headers.</param>
-        /// <param name="activity">Optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The response byte array.</returns>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is <c>null</c>.</exception>
         /// <exception cref="SocketException">Thrown for network connectivity issues.</exception>
@@ -204,26 +160,14 @@ namespace System.Net.Http
         public static async Task<byte[]> GetByteArraySafeAsync(
             this HttpClient         client,
             Uri                     requestUri,
-            ArgDictionary           headers  = null,
-            LogActivity             activity = default)
+            ArgDictionary           headers = null)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(requestUri != null, nameof(requestUri));
 
             var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
 
-            if (!string.IsNullOrEmpty(activity.Id))
-            {
-                request.Headers.Add(LogActivity.HttpHeader, activity.Id);
-            }
-
-            if (headers != null)
-            {
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value.ToString());
-                }
-            }
+            AddHeaders(request, headers);
 
             var response = EnsureSuccess(await client.SendAsync(request));
 
@@ -236,7 +180,6 @@ namespace System.Net.Http
         /// <param name="client">The client.</param>
         /// <param name="requestUri">The request URI.</param>
         /// <param name="headers">Optional request headers.</param>
-        /// <param name="activity">Optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The response stream.</returns>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is <c>null</c>.</exception>
         /// <exception cref="SocketException">Thrown for network connectivity issues.</exception>
@@ -244,26 +187,14 @@ namespace System.Net.Http
         public static async Task<Stream> GetStreamSafeAsync(
             this HttpClient         client, 
             string                  requestUri, 
-            ArgDictionary           headers  = null,
-            LogActivity             activity = default)
+            ArgDictionary           headers = null)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(requestUri), nameof(requestUri));
 
             var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
 
-            if (!string.IsNullOrEmpty(activity.Id))
-            {
-                request.Headers.Add(LogActivity.HttpHeader, activity.Id);
-            }
-
-            if (headers != null)
-            {
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value.ToString());
-                }
-            }
+            AddHeaders(request, headers);
 
             var response = EnsureSuccess(await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead));
 
@@ -276,7 +207,6 @@ namespace System.Net.Http
         /// <param name="client">The client.</param>
         /// <param name="requestUri">The request URI.</param>
         /// <param name="headers">Optional request headers.</param>
-        /// <param name="activity">Optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The response stream.</returns>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is <c>null</c>.</exception>
         /// <exception cref="SocketException">Thrown for network connectivity issues.</exception>
@@ -284,26 +214,14 @@ namespace System.Net.Http
         public static async Task<Stream> GetStreamSafeAsync(
             this HttpClient         client,
             Uri                     requestUri, 
-            ArgDictionary           headers  = null,
-            LogActivity             activity = default)
+            ArgDictionary           headers = null)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(requestUri != null, nameof(requestUri));
 
             var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
 
-            if (!string.IsNullOrEmpty(activity.Id))
-            {
-                request.Headers.Add(LogActivity.HttpHeader, activity.Id);
-            }
-
-            if (headers != null)
-            {
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value.ToString());
-                }
-            }
+            AddHeaders(request, headers);
 
             var response = EnsureSuccess(await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead));
 
@@ -316,7 +234,6 @@ namespace System.Net.Http
         /// <param name="client">The client.</param>
         /// <param name="requestUri">The request URI.</param>
         /// <param name="headers">Optional request headers.</param>
-        /// <param name="activity">Optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The response string.</returns>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is <c>null</c>.</exception>
         /// <exception cref="SocketException">Thrown for network connectivity issues.</exception>
@@ -324,26 +241,14 @@ namespace System.Net.Http
         public static async Task<string> GetStringSafeAsync(
             this HttpClient         client, 
             string                  requestUri,
-            ArgDictionary           headers  = null,
-            LogActivity             activity = default)
+            ArgDictionary           headers = null)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(requestUri), nameof(requestUri));
 
             var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
 
-            if (!string.IsNullOrEmpty(activity.Id))
-            {
-                request.Headers.Add(LogActivity.HttpHeader, activity.Id);
-            }
-
-            if (headers != null)
-            {
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value.ToString());
-                }
-            }
+            AddHeaders(request, headers);
 
             var response = EnsureSuccess(await client.SendAsync(request));
 
@@ -356,7 +261,6 @@ namespace System.Net.Http
         /// <param name="client">The client.</param>
         /// <param name="requestUri">The request URI.</param>
         /// <param name="headers">Optional request headers.</param>
-        /// <param name="activity">Optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The response string.</returns>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is <c>null</c>.</exception>
         /// <exception cref="SocketException">Thrown for network connectivity issues.</exception>
@@ -364,18 +268,12 @@ namespace System.Net.Http
         public static async Task<string> GetStringSafeAsync(
             this HttpClient         client,
             Uri                     requestUri,
-            ArgDictionary           headers  = null,
-            LogActivity             activity = default)
+            ArgDictionary           headers = null)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(requestUri != null, nameof(requestUri));
 
             var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
-
-            if (!string.IsNullOrEmpty(activity.Id))
-            {
-                request.Headers.Add(LogActivity.HttpHeader, activity.Id);
-            }
 
             if (headers != null)
             {
@@ -397,20 +295,18 @@ namespace System.Net.Http
         /// <param name="requestUri">The request URI.</param>
         /// <param name="output">The stream where the URI contents will be written.</param>
         /// <param name="headers">Optional request headers.</param>
-        /// <param name="activity">Optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// /// <returns>The <see cref="HttpResponseMessage"/> making things like response headers available.</returns>
         public static async Task<HttpResponseMessage> GetToStreamSafeAsync(
             this HttpClient         client,
             string                  requestUri,
             Stream                  output,
-            ArgDictionary           headers  = null,
-            LogActivity             activity = default)
+            ArgDictionary           headers = null)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(requestUri), nameof(requestUri));
             Covenant.Requires<ArgumentNullException>(output != null);
 
-            return await GetToStreamSafeAsync(client, new Uri(requestUri), output, headers, activity);
+            return await GetToStreamSafeAsync(client, new Uri(requestUri), output, headers);
         }
 
         /// <summary>
@@ -420,14 +316,12 @@ namespace System.Net.Http
         /// <param name="requestUri">The request URI.</param>
         /// <param name="output">The stream where the URI contents will be written.</param>
         /// <param name="headers">Optional request headers.</param>
-        /// <param name="activity">Optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The <see cref="HttpResponseMessage"/> making things like response headers available.</returns>
         public static async Task<HttpResponseMessage> GetToStreamSafeAsync(
             this HttpClient         client,
             Uri                     requestUri,
             Stream                  output,
-            ArgDictionary           headers  = null,
-            LogActivity             activity = default)
+            ArgDictionary           headers = null)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(requestUri != null, nameof(requestUri));
@@ -435,18 +329,7 @@ namespace System.Net.Http
 
             var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
 
-            if (!string.IsNullOrEmpty(activity.Id))
-            {
-                request.Headers.Add(LogActivity.HttpHeader, activity.Id);
-            }
-
-            if (headers != null)
-            {
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value.ToString());
-                }
-            }
+            AddHeaders(request, headers);
 
             var response = EnsureSuccess(await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead));
 
@@ -477,20 +360,18 @@ namespace System.Net.Http
         /// <param name="requestUri">The request URI.</param>
         /// <param name="outputPath">The path to the output file.</param>
         /// <param name="headers">Optional request headers.</param>
-        /// <param name="activity">Optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The <see cref="HttpResponseMessage"/> making things like response headers available.</returns>
         public static async Task<HttpResponseMessage> GetToFileSafeAsync(
             this HttpClient         client,
             string                  requestUri,
             string                  outputPath,
-            ArgDictionary           headers  = null,
-            LogActivity             activity = default)
+            ArgDictionary           headers = null)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(requestUri), nameof(requestUri));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(outputPath), nameof(outputPath));
 
-            return await GetToFileSafeAsync(client, new Uri(requestUri), outputPath, headers, activity);
+            return await GetToFileSafeAsync(client, new Uri(requestUri), outputPath, headers);
         }
 
         /// <summary>
@@ -500,14 +381,12 @@ namespace System.Net.Http
         /// <param name="requestUri">The request URI.</param>
         /// <param name="outputPath">The path to the output file.</param>
         /// <param name="headers">Optional request headers.</param>
-        /// <param name="activity">Optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The <see cref="HttpResponseMessage"/> making things like response headers available.</returns>
         public static async Task<HttpResponseMessage> GetToFileSafeAsync(
             this HttpClient         client,
             Uri                     requestUri,
             string                  outputPath,
-            ArgDictionary           headers  = null,
-            LogActivity             activity = default)
+            ArgDictionary           headers = null)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(requestUri != null, nameof(Uri));
@@ -517,7 +396,7 @@ namespace System.Net.Http
             {
                 using (var output = new FileStream(outputPath, FileMode.Create, FileAccess.ReadWrite))
                 {
-                    return await GetToStreamSafeAsync(client, requestUri, output, headers, activity);
+                    return await GetToStreamSafeAsync(client, requestUri, output, headers);
                 }
             }
             catch
@@ -541,7 +420,6 @@ namespace System.Net.Http
         /// reading the whole response content).
         /// </param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <param name="activity">Optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The response.</returns>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is <c>null</c>.</exception>
         /// <exception cref="SocketException">Thrown for network connectivity issues.</exception>
@@ -552,8 +430,7 @@ namespace System.Net.Http
             HttpContent             content,
             ArgDictionary           headers           = null,
             HttpCompletionOption    completionOption  = default,
-            CancellationToken       cancellationToken = default,
-            LogActivity             activity          = default)
+            CancellationToken       cancellationToken = default)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(requestUri), nameof(requestUri));
@@ -562,18 +439,7 @@ namespace System.Net.Http
 
             request.Content = content;
 
-            if (!string.IsNullOrEmpty(activity.Id))
-            {
-                request.Headers.Add(LogActivity.HttpHeader, activity.Id);
-            }
-
-            if (headers != null)
-            {
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value.ToString());
-                }
-            }
+            AddHeaders(request, headers);
 
             return EnsureSuccess(await client.SendAsync(request, completionOption, cancellationToken));
         }
@@ -590,7 +456,6 @@ namespace System.Net.Http
         /// reading the whole response content).
         /// </param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <param name="activity">Optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The response.</returns>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is <c>null</c>.</exception>
         /// <exception cref="SocketException">Thrown for network connectivity issues.</exception>
@@ -601,8 +466,7 @@ namespace System.Net.Http
             HttpContent             content, 
             ArgDictionary           headers           = null,
             HttpCompletionOption    completionOption  = default,
-            CancellationToken       cancellationToken = default, 
-            LogActivity             activity          = default)
+            CancellationToken       cancellationToken = default)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(requestUri != null, nameof(requestUri));
@@ -611,18 +475,7 @@ namespace System.Net.Http
 
             request.Content = content;
 
-            if (!string.IsNullOrEmpty(activity.Id))
-            {
-                request.Headers.Add(LogActivity.HttpHeader, activity.Id);
-            }
-
-            if (headers != null)
-            {
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value.ToString());
-                }
-            }
+            AddHeaders(request, headers);
 
             return EnsureSuccess(await client.SendAsync(request, completionOption, cancellationToken));
         }
@@ -639,7 +492,6 @@ namespace System.Net.Http
         /// reading the whole response content).
         /// </param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <param name="activity">Optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The response.</returns>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is <c>null</c>.</exception>
         /// <exception cref="SocketException">Thrown for network connectivity issues.</exception>
@@ -650,8 +502,7 @@ namespace System.Net.Http
             HttpContent             content, 
             ArgDictionary           headers           = null,
             HttpCompletionOption    completionOption  = default,
-            CancellationToken       cancellationToken = default,
-            LogActivity             activity          = default)
+            CancellationToken       cancellationToken = default)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(requestUri), nameof(requestUri));
@@ -660,18 +511,7 @@ namespace System.Net.Http
 
             request.Content = content;
 
-            if (!string.IsNullOrEmpty(activity.Id))
-            {
-                request.Headers.Add(LogActivity.HttpHeader, activity.Id);
-            }
-
-            if (headers != null)
-            {
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value.ToString());
-                }
-            }
+            AddHeaders(request, headers);
 
             return EnsureSuccess(await client.SendAsync(request, completionOption, cancellationToken));
         }
@@ -688,7 +528,6 @@ namespace System.Net.Http
         /// reading the whole response content).
         /// </param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <param name="activity">Optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The response.</returns>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is <c>null</c>.</exception>
         /// <exception cref="SocketException">Thrown for network connectivity issues.</exception>
@@ -699,8 +538,7 @@ namespace System.Net.Http
             HttpContent             content, 
             ArgDictionary           headers           = null,
             HttpCompletionOption    completionOption  = default, 
-            CancellationToken       cancellationToken = default,
-            LogActivity             activity          = default)
+            CancellationToken       cancellationToken = default)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(requestUri != null, nameof(requestUri));
@@ -709,18 +547,7 @@ namespace System.Net.Http
 
             request.Content = content;
 
-            if (!string.IsNullOrEmpty(activity.Id))
-            {
-                request.Headers.Add(LogActivity.HttpHeader, activity.Id);
-            }
-
-            if (headers != null)
-            {
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value.ToString());
-                }
-            }
+            AddHeaders(request, headers);
 
             return EnsureSuccess(await client.SendAsync(request, completionOption, cancellationToken));
         }
@@ -738,7 +565,6 @@ namespace System.Net.Http
         /// reading the whole response content).
         /// </param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <param name="activity">Optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The response.</returns>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is <c>null</c>.</exception>
         /// <exception cref="SocketException">Thrown for network connectivity issues.</exception>
@@ -749,8 +575,7 @@ namespace System.Net.Http
             HttpContent             content           = null, 
             ArgDictionary           headers           = null,
             HttpCompletionOption    completionOption  = default, 
-            CancellationToken       cancellationToken = default,
-            LogActivity             activity          = default)
+            CancellationToken       cancellationToken = default)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(requestUri), nameof(requestUri));
@@ -762,18 +587,7 @@ namespace System.Net.Http
                 request.Content = content;
             }
 
-            if (!string.IsNullOrEmpty(activity.Id))
-            {
-                request.Headers.Add(LogActivity.HttpHeader, activity.Id);
-            }
-
-            if (headers != null)
-            {
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value.ToString());
-                }
-            }
+            AddHeaders(request, headers);
 
             return EnsureSuccess(await client.SendAsync(request, completionOption, cancellationToken));
         }
@@ -790,7 +604,6 @@ namespace System.Net.Http
         /// reading the whole response content).
         /// </param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <param name="activity">Optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The response.</returns>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is <c>null</c>.</exception>
         /// <exception cref="SocketException">Thrown for network connectivity issues.</exception>
@@ -801,8 +614,7 @@ namespace System.Net.Http
             HttpContent             content           = null, 
             ArgDictionary           headers           = null,
             HttpCompletionOption    completionOption  = default,
-            CancellationToken       cancellationToken = default,
-            LogActivity             activity          = default)
+            CancellationToken       cancellationToken = default)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(requestUri != null, nameof(requestUri));
@@ -814,18 +626,7 @@ namespace System.Net.Http
                 request.Content = content;
             }
 
-            if (!string.IsNullOrEmpty(activity.Id))
-            {
-                request.Headers.Add(LogActivity.HttpHeader, activity.Id);
-            }
-
-            if (headers != null)
-            {
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value.ToString());
-                }
-            }
+            AddHeaders(request, headers);
 
             return EnsureSuccess(await client.SendAsync(request, completionOption, cancellationToken));
         }
@@ -842,7 +643,6 @@ namespace System.Net.Http
         /// reading the whole response content).
         /// </param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <param name="activity">Optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The response.</returns>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is <c>null</c>.</exception>
         /// <exception cref="SocketException">Thrown for network connectivity issues.</exception>
@@ -853,8 +653,7 @@ namespace System.Net.Http
             HttpContent             content, 
             ArgDictionary           headers           = null,
             HttpCompletionOption    completionOption  = default, 
-            CancellationToken       cancellationToken = default,
-            LogActivity             activity          = default)
+            CancellationToken       cancellationToken = default)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(requestUri), nameof(requestUri));
@@ -863,18 +662,7 @@ namespace System.Net.Http
 
             request.Content = content;
 
-            if (!string.IsNullOrEmpty(activity.Id))
-            {
-                request.Headers.Add(LogActivity.HttpHeader, activity.Id);
-            }
-
-            if (headers != null)
-            {
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value.ToString());
-                }
-            }
+            AddHeaders(request, headers);
 
             return EnsureSuccess(await client.SendAsync(request, completionOption, cancellationToken));
         }
@@ -891,7 +679,6 @@ namespace System.Net.Http
         /// reading the whole response content).
         /// </param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <param name="activity">Optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The response.</returns>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is <c>null</c>.</exception>
         /// <exception cref="SocketException">Thrown for network connectivity issues.</exception>
@@ -902,8 +689,7 @@ namespace System.Net.Http
             HttpContent             content, 
             ArgDictionary           headers           = null,
             HttpCompletionOption    completionOption  = default,
-            CancellationToken       cancellationToken = default,
-            LogActivity             activity          = default)
+            CancellationToken       cancellationToken = default)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(requestUri != null, nameof(requestUri));
@@ -912,18 +698,7 @@ namespace System.Net.Http
 
             request.Content = content;
 
-            if (!string.IsNullOrEmpty(activity.Id))
-            {
-                request.Headers.Add(LogActivity.HttpHeader, activity.Id);
-            }
-
-            if (headers != null)
-            {
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value.ToString());
-                }
-            }
+            AddHeaders(request, headers);
 
             return EnsureSuccess(await client.SendAsync(request, completionOption, cancellationToken));
         }
@@ -940,7 +715,6 @@ namespace System.Net.Http
         /// reading the whole response content).
         /// </param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <param name="activity">Optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The response.</returns>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is <c>null</c>.</exception>
         /// <exception cref="SocketException">Thrown for network connectivity issues.</exception>
@@ -951,8 +725,7 @@ namespace System.Net.Http
             HttpContent             content           = null, 
             ArgDictionary           headers           = null,
             HttpCompletionOption    completionOption  = default, 
-            CancellationToken       cancellationToken = default,
-            LogActivity             activity          = default)
+            CancellationToken       cancellationToken = default)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(requestUri), nameof(requestUri));
@@ -964,18 +737,7 @@ namespace System.Net.Http
                 request.Content = content;
             }
 
-            if (!string.IsNullOrEmpty(activity.Id))
-            {
-                request.Headers.Add(LogActivity.HttpHeader, activity.Id);
-            }
-
-            if (headers != null)
-            {
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value.ToString());
-                }
-            }
+            AddHeaders(request, headers);
 
             return EnsureSuccess(await client.SendAsync(request, completionOption, cancellationToken));
         }
@@ -992,7 +754,6 @@ namespace System.Net.Http
         /// reading the whole response content).
         /// </param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <param name="activity">Optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The response.</returns>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is <c>null</c>.</exception>
         /// <exception cref="SocketException">Thrown for network connectivity issues.</exception>
@@ -1003,8 +764,7 @@ namespace System.Net.Http
             HttpContent             content           = null,
             ArgDictionary           headers           = null,
             HttpCompletionOption    completionOption  = default,
-            CancellationToken       cancellationToken = default, 
-            LogActivity             activity          = default)
+            CancellationToken       cancellationToken = default)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(requestUri != null, nameof(requestUri));
@@ -1016,18 +776,7 @@ namespace System.Net.Http
                 request.Content = content;
             }
 
-            if (!string.IsNullOrEmpty(activity.Id))
-            {
-                request.Headers.Add(LogActivity.HttpHeader, activity.Id);
-            }
-
-            if (headers != null)
-            {
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value.ToString());
-                }
-            }
+            AddHeaders(request, headers);
 
             return EnsureSuccess(await client.SendAsync(request, completionOption, cancellationToken));
         }
@@ -1044,7 +793,6 @@ namespace System.Net.Http
         /// reading the whole response content).
         /// </param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <param name="activity">Optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The response.</returns>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is <c>null</c>.</exception>
         /// <exception cref="SocketException">Thrown for network connectivity issues.</exception>
@@ -1055,8 +803,7 @@ namespace System.Net.Http
             HttpContent             content           = null, 
             ArgDictionary           headers           = null,
             HttpCompletionOption    completionOption  = default, 
-            CancellationToken       cancellationToken = default, 
-            LogActivity             activity          = default)
+            CancellationToken       cancellationToken = default)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(requestUri), nameof(requestUri));
@@ -1068,18 +815,7 @@ namespace System.Net.Http
                 request.Content = content;
             }
 
-            if (!string.IsNullOrEmpty(activity.Id))
-            {
-                request.Headers.Add(LogActivity.HttpHeader, activity.Id);
-            }
-
-            if (headers != null)
-            {
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value.ToString());
-                }
-            }
+            AddHeaders(request, headers);
 
             return EnsureSuccess(await client.SendAsync(request, completionOption, cancellationToken));
         }
@@ -1096,7 +832,6 @@ namespace System.Net.Http
         /// reading the whole response content).
         /// </param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <param name="activity">Optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The response.</returns>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is <c>null</c>.</exception>
         /// <exception cref="SocketException">Thrown for network connectivity issues.</exception>
@@ -1107,8 +842,7 @@ namespace System.Net.Http
             HttpContent             content           = null, 
             ArgDictionary           headers           = null,
             HttpCompletionOption    completionOption  = default, 
-            CancellationToken       cancellationToken = default,
-            LogActivity             activity          = default)
+            CancellationToken       cancellationToken = default)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(requestUri != null, nameof(requestUri));
@@ -1120,18 +854,7 @@ namespace System.Net.Http
                 request.Content = content;
             }
 
-            if (!string.IsNullOrEmpty(activity.Id))
-            {
-                request.Headers.Add(LogActivity.HttpHeader, activity.Id);
-            }
-
-            if (headers != null)
-            {
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value.ToString());
-                }
-            }
+            AddHeaders(request, headers);
 
             return EnsureSuccess(await client.SendAsync(request, completionOption, cancellationToken));
         }
@@ -1147,7 +870,6 @@ namespace System.Net.Http
         /// reading the whole response content).
         /// </param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <param name="activity">Optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The response.</returns>
         /// <exception cref="ArgumentNullException">Thrown when a required argument is <c>null</c>.</exception>
         /// <exception cref="InvalidOperationException">Thrown when the request has already been sent by the <see cref="HttpClient"/> class.</exception>
@@ -1158,24 +880,12 @@ namespace System.Net.Http
             HttpRequestMessage      request,
             ArgDictionary           headers           = null,
             HttpCompletionOption    completionOption  = default,
-            CancellationToken       cancellationToken = default,
-            LogActivity             activity          = default)
+            CancellationToken       cancellationToken = default)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(request != null, nameof(request));
 
-            if (!string.IsNullOrEmpty(activity.Id))
-            {
-                request.Headers.Add(LogActivity.HttpHeader, activity.Id);
-            }
-
-            if (headers != null)
-            {
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value.ToString());
-                }
-            }
+            AddHeaders(request, headers);
 
             return EnsureSuccess(await client.SendAsync(request, completionOption, cancellationToken));
         }

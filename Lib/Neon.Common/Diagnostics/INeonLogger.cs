@@ -32,9 +32,9 @@ namespace Neon.Diagnostics
     public interface INeonLogger
     {
         /// <summary>
-        /// Returns the logger's context ID or <c>null</c>.
+        /// Returns <c>true</c> if <b>trace</b> logging is enabled.
         /// </summary>
-        string ContextId { get; }
+        public bool IsLogTraceEnabled { get; }
 
         /// <summary>
         /// Returns <c>true</c> if <b>debug</b> logging is enabled.
@@ -87,120 +87,232 @@ namespace Neon.Diagnostics
         /// Logs a <b>debug</b> message.
         /// </summary>
         /// <param name="message">The message.</param>
-        /// <param name="activityId">The optional activity ID.</param>
-        void LogDebug(string message, string activityId = null);
+        /// <param name="attributes">Optionally specifies key/value pairs to be added to the event as attributes.</param>
+        /// <param name="attributeGetter">Optionally specifies a function that returns key/value pairs to be added to the event as attributes.</param>
+        /// <remarks>
+        /// <note>
+        /// Attributes returned by <paramref name="attributeGetter"/> will override attributes passed via <paramref name="attributes"/>
+        /// when there are any conflicts.
+        /// </note>
+        /// </remarks>
+        void LogDebug(string message, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null);
 
         /// <summary>
         /// Logs a <b>transient</b> message.
         /// </summary>
         /// <param name="message">The message.</param>
-        /// <param name="activityId">The optional activity ID.</param>
-        void LogTransient(string message, string activityId = null);
+        /// <param name="attributes">Optionally specifies key/value pairs to be added to the event as attributes.</param>
+        /// <param name="attributeGetter">Optionally specifies a function that returns key/value pairs to be added to the event as attributes.</param>
+        /// <remarks>
+        /// <note>
+        /// Attributes returned by <paramref name="attributeGetter"/> will override attributes passed via <paramref name="attributes"/>
+        /// when there are any conflicts.
+        /// </note>
+        /// </remarks>
+        void LogTransient(string message, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null);
 
         /// <summary>
         /// Logs an <b>sinfo</b> message.
         /// </summary>
         /// <param name="message">The message.</param>
-        /// <param name="activityId">The optional activity ID.</param>
-        void LogSInfo(string message, string activityId = null);
+        /// <param name="attributes">Optionally specifies key/value pairs to be added to the event as attributes.</param>
+        /// <param name="attributeGetter">Optionally specifies a function that returns key/value pairs to be added to the event as attributes.</param>
+        /// <remarks>
+        /// <note>
+        /// Attributes returned by <paramref name="attributeGetter"/> will override attributes passed via <paramref name="attributes"/>
+        /// when there are any conflicts.
+        /// </note>
+        /// </remarks>
+        void LogSInfo(string message, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null);
 
         /// <summary>
         /// Logs an <b>info</b> message.
         /// </summary>
         /// <param name="message">The message.</param>
-        /// <param name="activityId">The optional activity ID.</param>
-        void LogInfo(string message, string activityId = null);
+        /// <param name="attributes">Optionally specifies key/value pairs to be added to the event as attributes.</param>
+        /// <param name="attributeGetter">Optionally specifies a function that returns key/value pairs to be added to the event as attributes.</param>
+        /// <remarks>
+        /// <note>
+        /// Attributes returned by <paramref name="attributeGetter"/> will override attributes passed via <paramref name="attributes"/>
+        /// when there are any conflicts.
+        /// </note>
+        /// </remarks>
+        void LogInfo(string message, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null);
 
         /// <summary>
         /// Logs a <b>warn</b> message.
         /// </summary>
         /// <param name="message">The message.</param>
-        /// <param name="activityId">The optional activity ID.</param>
-        void LogWarn(string message, string activityId = null);
+        /// <param name="attributes">Optionally specifies key/value pairs to be added to the event as attributes.</param>
+        /// <param name="attributeGetter">Optionally specifies a function that returns key/value pairs to be added to the event as attributes.</param>
+        /// <remarks>
+        /// <note>
+        /// Attributes returned by <paramref name="attributeGetter"/> will override attributes passed via <paramref name="attributes"/>
+        /// when there are any conflicts.
+        /// </note>
+        /// </remarks>
+        void LogWarn(string message, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null);
 
         /// <summary>
         /// Logs an <b>serror</b> message.
         /// </summary>
         /// <param name="message">The message.</param>
-        /// <param name="activityId">The optional activity ID.</param>
-        void LogSError(string message, string activityId = null);
+        /// <param name="attributes">Optionally specifies key/value pairs to be added to the event as attributes.</param>
+        /// <param name="attributeGetter">Optionally specifies a function that returns key/value pairs to be added to the event as attributes.</param>
+        /// <remarks>
+        /// <note>
+        /// Attributes returned by <paramref name="attributeGetter"/> will override attributes passed via <paramref name="attributes"/>
+        /// when there are any conflicts.
+        /// </note>
+        /// </remarks>
+        void LogSError(string message, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null);
 
         /// <summary>
         /// Logs an <b>error</b> message.
         /// </summary>
         /// <param name="message">The message.</param>
-        /// <param name="activityId">The optional activity ID.</param>
-        void LogError(string message, string activityId = null);
+        /// <param name="attributes">Optionally specifies key/value pairs to be added to the event as attributes.</param>
+        /// <param name="attributeGetter">Optionally specifies a function that returns key/value pairs to be added to the event as attributes.</param>
+        /// <remarks>
+        /// <note>
+        /// Attributes returned by <paramref name="attributeGetter"/> will override attributes passed via <paramref name="attributes"/>
+        /// when there are any conflicts.
+        /// </note>
+        /// </remarks>
+        void LogError(string message, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null);
 
         /// <summary>
         /// Logs a <b>critical</b> message.
         /// </summary>
         /// <param name="message">The message.</param>
-        /// <param name="activityId">The optional activity ID.</param>
-        void LogCritical(string message, string activityId = null);
+        /// <param name="attributes">Optionally specifies key/value pairs to be added to the event as attributes.</param>
+        /// <param name="attributeGetter">Optionally specifies a function that returns key/value pairs to be added to the event as attributes.</param>
+        /// <remarks>
+        /// <note>
+        /// Attributes returned by <paramref name="attributeGetter"/> will override attributes passed via <paramref name="attributes"/>
+        /// when there are any conflicts.
+        /// </note>
+        /// </remarks>
+        void LogCritical(string message, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null);
 
         /// <summary>
         /// Logs a <b>debug</b> message along with exception information.
         /// </summary>
         /// <param name="message">The message.</param>
         /// <param name="e">The exception.</param>
-        /// <param name="activityId">The optional activity ID.</param>
-        void LogDebug(string message, Exception e, string activityId = null);
+        /// <param name="attributes">Optionally specifies key/value pairs to be added to the event as attributes.</param>
+        /// <param name="attributeGetter">Optionally specifies a function that returns key/value pairs to be added to the event as attributes.</param>
+        /// <remarks>
+        /// <note>
+        /// Attributes returned by <paramref name="attributeGetter"/> will override attributes passed via <paramref name="attributes"/>
+        /// when there are any conflicts.
+        /// </note>
+        /// </remarks>
+        void LogDebug(string message, Exception e, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null);
 
         /// <summary>
         /// Logs a <b>transient</b> message along with exception information.
         /// </summary>
         /// <param name="message">The message.</param>
         /// <param name="e">The exception.</param>
-        /// <param name="activityId">The optional activity ID.</param>
-        void LogTransient(string message, Exception e, string activityId = null);
+        /// <param name="attributes">Optionally specifies key/value pairs to be added to the event as attributes.</param>
+        /// <param name="attributeGetter">Optionally specifies a function that returns key/value pairs to be added to the event as attributes.</param>
+        /// <remarks>
+        /// <note>
+        /// Attributes returned by <paramref name="attributeGetter"/> will override attributes passed via <paramref name="attributes"/>
+        /// when there are any conflicts.
+        /// </note>
+        /// </remarks>
+        void LogTransient(string message, Exception e, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null);
 
         /// <summary>
         /// Logs an <b>sinfo</b> message along with exception information.
         /// </summary>
         /// <param name="message">The message.</param>
         /// <param name="e">The exception.</param>
-        /// <param name="activityId">The optional activity ID.</param>
-        void LogSInfo(string message, Exception e, string activityId = null);
+        /// <param name="attributes">Optionally specifies key/value pairs to be added to the event as attributes.</param>
+        /// <param name="attributeGetter">Optionally specifies a function that returns key/value pairs to be added to the event as attributes.</param>
+        /// <remarks>
+        /// <note>
+        /// Attributes returned by <paramref name="attributeGetter"/> will override attributes passed via <paramref name="attributes"/>
+        /// when there are any conflicts.
+        /// </note>
+        /// </remarks>
+        void LogSInfo(string message, Exception e, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null);
 
         /// <summary>
         /// Logs an <b>info</b> message along with exception information.
         /// </summary>
         /// <param name="message">The message.</param>
         /// <param name="e">The exception.</param>
-        /// <param name="activityId">The optional activity ID.</param>
-        void LogInfo(string message, Exception e, string activityId = null);
+        /// <param name="attributes">Optionally specifies key/value pairs to be added to the event as attributes.</param>
+        /// <param name="attributeGetter">Optionally specifies a function that returns key/value pairs to be added to the event as attributes.</param>
+        /// <remarks>
+        /// <note>
+        /// Attributes returned by <paramref name="attributeGetter"/> will override attributes passed via <paramref name="attributes"/>
+        /// when there are any conflicts.
+        /// </note>
+        /// </remarks>
+        void LogInfo(string message, Exception e, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null);
 
         /// <summary>
         /// Logs a <b>warn</b> message along with exception information.
         /// </summary>
         /// <param name="message">The message.</param>
         /// <param name="e">The exception.</param>
-        /// <param name="activityId">The optional activity ID.</param>
-        void LogWarn(string message, Exception e, string activityId = null);
+        /// <param name="attributes">Optionally specifies key/value pairs to be added to the event as attributes.</param>
+        /// <param name="attributeGetter">Optionally specifies a function that returns key/value pairs to be added to the event as attributes.</param>
+        /// <remarks>
+        /// <note>
+        /// Attributes returned by <paramref name="attributeGetter"/> will override attributes passed via <paramref name="attributes"/>
+        /// when there are any conflicts.
+        /// </note>
+        /// </remarks>
+        void LogWarn(string message, Exception e, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null);
 
         /// <summary>
         /// Logs an <b>error</b> message along with exception information.
         /// </summary>
         /// <param name="message">The message.</param>
         /// <param name="e">The exception.</param>
-        /// <param name="activityId">The optional activity ID.</param>
-        void LogError(string message, Exception e, string activityId = null);
+        /// <param name="attributes">Optionally specifies key/value pairs to be added to the event as attributes.</param>
+        /// <param name="attributeGetter">Optionally specifies a function that returns key/value pairs to be added to the event as attributes.</param>
+        /// <remarks>
+        /// <note>
+        /// Attributes returned by <paramref name="attributeGetter"/> will override attributes passed via <paramref name="attributes"/>
+        /// when there are any conflicts.
+        /// </note>
+        /// </remarks>
+        void LogError(string message, Exception e, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null);
 
         /// <summary>
         /// Logs an <b>serror</b> message along with exception information.
         /// </summary>
         /// <param name="message">The message.</param>
         /// <param name="e">The exception.</param>
-        /// <param name="activityId">The optional activity ID.</param>
-        void LogSError(string message, Exception e, string activityId = null);
+        /// <param name="attributes">Optionally specifies key/value pairs to be added to the event as attributes.</param>
+        /// <param name="attributeGetter">Optionally specifies a function that returns key/value pairs to be added to the event as attributes.</param>
+        /// <remarks>
+        /// <note>
+        /// Attributes returned by <paramref name="attributeGetter"/> will override attributes passed via <paramref name="attributes"/>
+        /// when there are any conflicts.
+        /// </note>
+        /// </remarks>
+        void LogSError(string message, Exception e, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null);
 
         /// <summary>
         /// Logs a <b>critical</b> message along with exception information.
         /// </summary>
         /// <param name="message">The message.</param>
         /// <param name="e">The exception.</param>
-        /// <param name="activityId">The optional activity ID.</param>
-        void LogCritical(string message, Exception e, string activityId = null);
+        /// <param name="attributes">Optionally specifies key/value pairs to be added to the event as attributes.</param>
+        /// <param name="attributeGetter">Optionally specifies a function that returns key/value pairs to be added to the event as attributes.</param>
+        /// <remarks>
+        /// <note>
+        /// Attributes returned by <paramref name="attributeGetter"/> will override attributes passed via <paramref name="attributes"/>
+        /// when there are any conflicts.
+        /// </note>
+        /// </remarks>
+        void LogCritical(string message, Exception e, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null);
     }
 }

@@ -51,7 +51,6 @@ namespace Neon.Net
         /// <param name="args">The optional query arguments.</param>
         /// <param name="headers">The Optional HTTP headers.</param>
         /// <param name="cancellationToken">The optional <see cref="CancellationToken"/>.</param>
-        /// <param name="logActivity">The optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The <see cref="JsonResponse"/>.</returns>
         /// <exception cref="SocketException">Thrown for network connectivity issues.</exception>
         /// <exception cref="HttpException">Thrown when the server responds with an HTTP error status code.</exception>
@@ -60,8 +59,7 @@ namespace Neon.Net
             object              document          = null, 
             ArgDictionary       args              = null, 
             ArgDictionary       headers           = null,
-            CancellationToken   cancellationToken = default, 
-            LogActivity         logActivity       = default)
+            CancellationToken   cancellationToken = default)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(uri), nameof(uri));
@@ -80,7 +78,7 @@ namespace Neon.Net
                             throw new ObjectDisposedException(nameof(JsonClient));
                         }
 
-                        var httpResponse = await client.PutAsync(requestUri, CreateContent(document), cancellationToken: cancellationToken, headers: headers, activity: logActivity);
+                        var httpResponse = await client.PutAsync(requestUri, CreateContent(document), cancellationToken: cancellationToken, headers: headers);
                         var jsonResponse = new JsonResponse(requestUri, "PUT", httpResponse, await httpResponse.Content.ReadAsStringAsync());
 
                         jsonResponse.EnsureSuccess();
@@ -103,7 +101,6 @@ namespace Neon.Net
         /// <param name="args">The optional query arguments.</param>
         /// <param name="headers">The Optional HTTP headers.</param>
         /// <param name="cancellationToken">The optional <see cref="CancellationToken"/>.</param>
-        /// <param name="logActivity">The optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The <see cref="JsonResponse"/>.</returns>
         /// <exception cref="SocketException">Thrown for network connectivity issues.</exception>
         /// <exception cref="HttpException">Thrown when the server responds with an HTTP error status code.</exception>
@@ -112,8 +109,7 @@ namespace Neon.Net
             object              document          = null,
             ArgDictionary       args              = null, 
             ArgDictionary       headers           = null,
-            CancellationToken   cancellationToken = default, 
-            LogActivity         logActivity       = default)
+            CancellationToken   cancellationToken = default)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(uri), nameof(uri));
@@ -132,7 +128,7 @@ namespace Neon.Net
                             throw new ObjectDisposedException(nameof(JsonClient));
                         }
 
-                        var httpResponse = await client.PutAsync(requestUri, CreateContent(document), cancellationToken: cancellationToken, headers: headers, activity: logActivity);
+                        var httpResponse = await client.PutAsync(requestUri, CreateContent(document), cancellationToken: cancellationToken, headers: headers);
                         var jsonResponse = new JsonResponse(requestUri, "PUT", httpResponse, await httpResponse.Content.ReadAsStringAsync());
 
                         jsonResponse.EnsureSuccess();
@@ -158,7 +154,6 @@ namespace Neon.Net
         /// <param name="args">The optional query arguments.</param>
         /// <param name="headers">The Optional HTTP headers.</param>
         /// <param name="cancellationToken">The optional <see cref="CancellationToken"/>.</param>
-        /// <param name="logActivity">The optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The <see cref="JsonResponse"/>.</returns>
         /// <exception cref="SocketException">Thrown for network connectivity issues.</exception>
         /// <exception cref="HttpException">Thrown when the server responds with an HTTP error status code.</exception>
@@ -168,8 +163,7 @@ namespace Neon.Net
             object              document          = null, 
             ArgDictionary       args              = null, 
             ArgDictionary       headers           = null,
-            CancellationToken   cancellationToken = default, 
-            LogActivity         logActivity       = default)
+            CancellationToken   cancellationToken = default)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(uri), nameof(uri));
@@ -190,7 +184,7 @@ namespace Neon.Net
                             throw new ObjectDisposedException(nameof(JsonClient));
                         }
 
-                        var httpResponse = await client.PutAsync(requestUri, CreateContent(document), cancellationToken: cancellationToken, headers: headers, activity: logActivity);
+                        var httpResponse = await client.PutAsync(requestUri, CreateContent(document), cancellationToken: cancellationToken, headers: headers);
                         var jsonResponse = new JsonResponse(requestUri, "PUT", httpResponse, await httpResponse.Content.ReadAsStringAsync());
 
                         jsonResponse.EnsureSuccess();
@@ -212,7 +206,6 @@ namespace Neon.Net
         /// <param name="args">The optional query arguments.</param>
         /// <param name="headers">The Optional HTTP headers.</param>
         /// <param name="cancellationToken">The optional <see cref="CancellationToken"/>.</param>
-        /// <param name="logActivity">The optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The <see cref="JsonResponse"/>.</returns>
         /// <exception cref="SocketException">Thrown for network connectivity issues.</exception>
         public async Task<JsonResponse> PutUnsafeAsync(
@@ -220,8 +213,7 @@ namespace Neon.Net
             object              document          = null, 
             ArgDictionary       args              = null, 
             ArgDictionary       headers           = null,
-            CancellationToken   cancellationToken = default, 
-            LogActivity         logActivity       = default)
+            CancellationToken   cancellationToken = default)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(uri), nameof(uri));
@@ -240,7 +232,7 @@ namespace Neon.Net
                             throw new ObjectDisposedException(nameof(JsonClient));
                         }
 
-                        var httpResponse = await client.PutAsync(FormatUri(uri, args), CreateContent(document), cancellationToken: cancellationToken, headers: headers, activity: logActivity);
+                        var httpResponse = await client.PutAsync(FormatUri(uri, args), CreateContent(document), cancellationToken: cancellationToken, headers: headers);
 
                         return new JsonResponse(requestUri, "PUT", httpResponse, await httpResponse.Content.ReadAsStringAsync());
                     }
@@ -261,7 +253,6 @@ namespace Neon.Net
         /// <param name="args">The optional query arguments.</param>
         /// <param name="headers">The Optional HTTP headers.</param>
         /// <param name="cancellationToken">The optional <see cref="CancellationToken"/>.</param>
-        /// <param name="logActivity">The optional <see cref="LogActivity"/> whose ID is to be included in the request.</param>
         /// <returns>The <see cref="JsonResponse"/>.</returns>
         /// <exception cref="SocketException">Thrown for network connectivity issues.</exception>
         public async Task<JsonResponse> PutUnsafeAsync(
@@ -270,8 +261,7 @@ namespace Neon.Net
             object              document          = null,
             ArgDictionary       args              = null, 
             ArgDictionary       headers           = null,
-            CancellationToken   cancellationToken = default, 
-            LogActivity         logActivity       = default)
+            CancellationToken   cancellationToken = default)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(uri), nameof(uri));
@@ -292,7 +282,7 @@ namespace Neon.Net
                             throw new ObjectDisposedException(nameof(JsonClient));
                         }
 
-                        var httpResponse = await client.PutAsync(requestUri, CreateContent(document), cancellationToken: cancellationToken, headers: headers, activity: logActivity);
+                        var httpResponse = await client.PutAsync(requestUri, CreateContent(document), cancellationToken: cancellationToken, headers: headers);
 
                         return new JsonResponse(requestUri, "PUT", httpResponse, await httpResponse.Content.ReadAsStringAsync());
                     }

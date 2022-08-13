@@ -54,12 +54,11 @@ namespace Neon.Diagnostics
         private string                  module;
         private bool                    infoAsDebug;
         private TextWriter              writer;
-        private string                  contextId;
         private Func<LogEvent, bool>    logFilter;
         private Func<bool>              isLogEnabledFunc;
 
         /// <inheritdoc/>
-        public string ContextId => this.contextId;
+        public bool IsLogTraceEnabled => logManager.LogLevel >= LogLevel.Trace;
 
         /// <inheritdoc/>
         public bool IsLogDebugEnabled => logManager.LogLevel >= LogLevel.Debug;
@@ -91,11 +90,6 @@ namespace Neon.Diagnostics
         /// <param name="logManager">The parent log manager or <c>null</c>.</param>
         /// <param name="module">Optionally identifies the event source module or <c>null</c>.</param>
         /// <param name="writer">Optionally specifies the output writer.  This defaults to <see cref="Console.Error"/>.</param>
-        /// <param name="contextId">
-        /// Optionally specifies additional information that can be used to identify context
-        /// for logged events.  For example, the <c>Neon.Cadence</c> client uses this to
-        /// record the ID of the workflow events.
-        /// </param>
         /// <param name="logFilter">
         /// Optionally specifies a filter predicate to be used for filtering log entries.  This examines
         /// the <see cref="LogEvent"/> and returns <c>true</c> if the event should be logged or <c>false</c>
@@ -123,14 +117,12 @@ namespace Neon.Diagnostics
             ILogManager             logManager,
             string                  module           = null,
             TextWriter              writer           = null,
-            string                  contextId        = null,
             Func<LogEvent, bool>    logFilter        = null,
             Func<bool>              isLogEnabledFunc = null)
         {
             this.logManager       = logManager ?? LogManager.Disabled;
             this.module           = module;
             this.writer           = writer ?? Console.Error;
-            this.contextId        = contextId;
             this.logFilter        = logFilter;
             this.isLogEnabledFunc = isLogEnabledFunc;
 
@@ -192,6 +184,10 @@ namespace Neon.Diagnostics
 
                     return IsLogDebugEnabled;
 
+                case LogLevel.Trace:
+
+                    return IsLogTraceEnabled;
+
                 default:
 
                     throw new NotImplementedException();
@@ -224,8 +220,9 @@ namespace Neon.Diagnostics
         /// <param name="logLevel">The event level.</param>
         /// <param name="message">The event message.</param>
         /// <param name="e">Optionally passed as a related exception.</param>
-        /// <param name="activityId">The optional activity ID.</param>
-        private void Log(LogLevel logLevel, string message, Exception e = null, string activityId = null)
+        /// <param name="attributes">Optionally specifies key/value pairs to be added to the event as attributes.</param>
+        /// <param name="attributeGetter">Optionally specifies a function that returns key/value pairs to be added to the event as attributes.</param>
+        private void Log(LogLevel logLevel, string message, Exception e = null, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null)
         {
             // Increment the metrics counter for the event type.  Note that we're
             // going to increment the count even when logging for the level is
@@ -298,12 +295,10 @@ namespace Neon.Diagnostics
                 var logEvent =
                     new LogEvent(
                         module:     this.module,
-                        contextId:  contextId,
                         index:      0,                  // We don't set this when filtering
                         timeUtc:    DateTime.UtcNow,
                         logLevel:   logLevel,
                         message:    message,
-                        activityId: activityId,
                         e:          e);
 
                 if (!logFilter(logEvent))
@@ -384,20 +379,6 @@ namespace Neon.Diagnostics
                 module = $" [module:{this.module}]";
             }
 
-            var activity = string.Empty;
-
-            if (!string.IsNullOrEmpty(activityId))
-            {
-                activity = $" [activity-id:{activityId}]";
-            }
-
-            var context = string.Empty;
-
-            if (!string.IsNullOrEmpty(contextId))
-            {
-                context = $" [context-id:{contextId}]";
-            }
-
             var index = string.Empty;
 
             if (logManager.EmitIndex)
@@ -409,22 +390,22 @@ namespace Neon.Diagnostics
             {
                 var timestamp = DateTime.UtcNow.ToString(NeonHelper.DateFormatTZ);
 
-                writer.WriteLine($"[{timestamp}] [{level}]{version}{module}{activity}{context}{index} {message}");
+                writer.WriteLine($"[{timestamp}] [{level}]{version}{module}{index} {message}");
             }
             else
             {
-                writer.WriteLine($"[{level}]{version}{module}{activity}{context}{index} {message}");
+                writer.WriteLine($"[{level}]{version}{module}{index} {message}");
             }
         }
 
         /// <inheritdoc/>
-        public void LogDebug(string message, string activityId = null)
+        public void LogDebug(string message, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null)
         {
             if (IsLogDebugEnabled)
             {
                 try
                 {
-                    Log(LogLevel.Debug, message, activityId: activityId);
+                    Log(LogLevel.Debug, message, attributes: attributes, attributeGetter: attributeGetter);
                 }
                 catch
                 {
@@ -434,7 +415,7 @@ namespace Neon.Diagnostics
         }
 
         /// <inheritdoc/>
-        public void LogDebug(string message, Exception e, string activityId = null)
+        public void LogDebug(string message, Exception e, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null)
         {
             Covenant.Requires<ArgumentNullException>(e != null, nameof(e));
 
@@ -444,11 +425,11 @@ namespace Neon.Diagnostics
                 {
                     if (message != null)
                     {
-                        Log(LogLevel.Debug, $"{message} {NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, activityId: activityId);
+                        Log(LogLevel.Debug, $"{message} {NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
                     }
                     else
                     {
-                        Log(LogLevel.Debug, $"{NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, activityId: activityId);
+                        Log(LogLevel.Debug, $"{NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
                     }
                 }
                 catch
@@ -459,13 +440,13 @@ namespace Neon.Diagnostics
         }
 
         /// <inheritdoc/>
-        public void LogTransient(string message, string activityId = null)
+        public void LogTransient(string message, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null)
         {
             if (IsLogTransientEnabled)
             {
                 try
                 {
-                    Log(LogLevel.Transient, message, activityId: activityId);
+                    Log(LogLevel.Transient, message, attributes: attributes, attributeGetter: attributeGetter);
                 }
                 catch
                 {
@@ -475,7 +456,7 @@ namespace Neon.Diagnostics
         }
 
         /// <inheritdoc/>
-        public void LogTransient(string message, Exception e, string activityId = null)
+        public void LogTransient(string message, Exception e, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null)
         {
             Covenant.Requires<ArgumentNullException>(e != null, nameof(e));
 
@@ -485,11 +466,11 @@ namespace Neon.Diagnostics
                 {
                     if (message != null)
                     {
-                        Log(LogLevel.Transient, $"{message} {NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, activityId: activityId);
+                        Log(LogLevel.Transient, $"{message} {NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
                     }
                     else
                     {
-                        Log(LogLevel.Transient, $"{NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, activityId: activityId);
+                        Log(LogLevel.Transient, $"{NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
                     }
                 }
                 catch
@@ -500,13 +481,13 @@ namespace Neon.Diagnostics
         }
 
         /// <inheritdoc/>
-        public void LogError(string message, string activityId = null)
+        public void LogError(string message, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null)
         {
             if (IsLogErrorEnabled)
             {
                 try
                 {
-                    Log(LogLevel.Error, message, activityId: activityId);
+                    Log(LogLevel.Error, message, attributes: attributes, attributeGetter: attributeGetter);
                 }
                 catch
                 {
@@ -516,7 +497,7 @@ namespace Neon.Diagnostics
         }
 
         /// <inheritdoc/>
-        public void LogError(string message, Exception e, string activityId = null)
+        public void LogError(string message, Exception e, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null)
         {
             Covenant.Requires<ArgumentNullException>(e != null, nameof(e));
 
@@ -526,11 +507,11 @@ namespace Neon.Diagnostics
                 {
                     if (message != null)
                     {
-                        Log(LogLevel.Error, $"{message} {NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, activityId: activityId);
+                        Log(LogLevel.Error, $"{message} {NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
                     }
                     else
                     {
-                        Log(LogLevel.Error, $"{NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, activityId: activityId);
+                        Log(LogLevel.Error, $"{NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
                     }
                 }
                 catch
@@ -541,13 +522,13 @@ namespace Neon.Diagnostics
         }
 
         /// <inheritdoc/>
-        public void LogSError(string message, string activityId = null)
+        public void LogSError(string message, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null)
         {
             if (IsLogSErrorEnabled)
             {
                 try
                 {
-                    Log(LogLevel.SError, message, activityId: activityId);
+                    Log(LogLevel.SError, message, attributes: attributes, attributeGetter: attributeGetter);
                 }
                 catch
                 {
@@ -557,7 +538,7 @@ namespace Neon.Diagnostics
         }
 
         /// <inheritdoc/>
-        public void LogSError(string message, Exception e, string activityId = null)
+        public void LogSError(string message, Exception e, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null)
         {
             Covenant.Requires<ArgumentNullException>(e != null, nameof(e));
 
@@ -567,11 +548,11 @@ namespace Neon.Diagnostics
                 {
                     if (message != null)
                     {
-                        Log(LogLevel.SError, $"{message} {NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, activityId: activityId);
+                        Log(LogLevel.SError, $"{message} {NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
                     }
                     else
                     {
-                        Log(LogLevel.SError, $"{NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, activityId: activityId);
+                        Log(LogLevel.SError, $"{NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
                     }
                 }
                 catch
@@ -582,13 +563,13 @@ namespace Neon.Diagnostics
         }
 
         /// <inheritdoc/>
-        public void LogCritical(string message, string activityId = null)
+        public void LogCritical(string message, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null)
         {
             if (IsLogCriticalEnabled)
             {
                 try
                 {
-                    Log(LogLevel.Critical, message, activityId: activityId);
+                    Log(LogLevel.Critical, message, attributes: attributes, attributeGetter: attributeGetter);
                 }
                 catch
                 {
@@ -598,7 +579,7 @@ namespace Neon.Diagnostics
         }
 
         /// <inheritdoc/>
-        public void LogCritical(string message, Exception e, string activityId = null)
+        public void LogCritical(string message, Exception e, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null)
         {
             Covenant.Requires<ArgumentNullException>(e != null, nameof(e));
 
@@ -608,11 +589,11 @@ namespace Neon.Diagnostics
                 {
                     if (message != null)
                     {
-                        Log(LogLevel.Critical, $"{message} {NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, activityId: activityId);
+                        Log(LogLevel.Critical, $"{message} {NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
                     }
                     else
                     {
-                        Log(LogLevel.Critical, $"{NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, activityId: activityId);
+                        Log(LogLevel.Critical, $"{NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
                     }
                 }
                 catch
@@ -623,13 +604,13 @@ namespace Neon.Diagnostics
         }
 
         /// <inheritdoc/>
-        public void LogInfo(string message, string activityId = null)
+        public void LogInfo(string message, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null)
         {
             if (IsLogInfoEnabled)
             {
                 try
                 {
-                    Log(LogLevel.Info, message, activityId: activityId);
+                    Log(LogLevel.Info, message, attributes: attributes, attributeGetter: attributeGetter);
                 }
                 catch
                 {
@@ -639,7 +620,7 @@ namespace Neon.Diagnostics
         }
 
         /// <inheritdoc/>
-        public void LogInfo(string message, Exception e, string activityId = null)
+        public void LogInfo(string message, Exception e, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null)
         {
             Covenant.Requires<ArgumentNullException>(e != null, nameof(e));
 
@@ -649,11 +630,11 @@ namespace Neon.Diagnostics
                 {
                     if (message != null)
                     {
-                        Log(LogLevel.Info, $"{message} {NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, activityId: activityId);
+                        Log(LogLevel.Info, $"{message} {NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
                     }
                     else
                     {
-                        Log(LogLevel.Info, $"{NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, activityId: activityId);
+                        Log(LogLevel.Info, $"{NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
                     }
                 }
                 catch
@@ -664,13 +645,13 @@ namespace Neon.Diagnostics
         }
 
         /// <inheritdoc/>
-        public void LogSInfo(string message, string activityId = null)
+        public void LogSInfo(string message, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null)
         {
             if (IsLogSInfoEnabled)
             {
                 try
                 {
-                    Log(LogLevel.SInfo, message, activityId: activityId);
+                    Log(LogLevel.SInfo, message, attributes: attributes, attributeGetter: attributeGetter);
                 }
                 catch
                 {
@@ -680,7 +661,7 @@ namespace Neon.Diagnostics
         }
 
         /// <inheritdoc/>
-        public void LogSInfo(string message, Exception e, string activityId = null)
+        public void LogSInfo(string message, Exception e, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null)
         {
             Covenant.Requires<ArgumentNullException>(e != null, nameof(e));
 
@@ -690,11 +671,11 @@ namespace Neon.Diagnostics
                 {
                     if (message != null)
                     {
-                        Log(LogLevel.SInfo, $"{message} {NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, activityId: activityId);
+                        Log(LogLevel.SInfo, $"{message} {NeonHelper.ExceptionError(e, stackTrace: true)}", attributes: attributes, attributeGetter: attributeGetter);
                     }
                     else
                     {
-                        Log(LogLevel.SInfo, $"{NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, activityId: activityId);
+                        Log(LogLevel.SInfo, $"{NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
                     }
                 }
                 catch
@@ -705,13 +686,13 @@ namespace Neon.Diagnostics
         }
 
         /// <inheritdoc/>
-        public void LogWarn(string message, string activityId = null)
+        public void LogWarn(string message, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null)
         {
             if (IsLogWarnEnabled)
             {
                 try
                 {
-                    Log(LogLevel.Warn, message, activityId: activityId);
+                    Log(LogLevel.Warn, message, attributes: attributes, attributeGetter: attributeGetter);
                 }
                 catch
                 {
@@ -721,7 +702,7 @@ namespace Neon.Diagnostics
         }
 
         /// <inheritdoc/>
-        public void LogWarn(string message, Exception e, string activityId = null)
+        public void LogWarn(string message, Exception e, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null)
         {
             Covenant.Requires<ArgumentNullException>(e != null, nameof(e));
 
@@ -731,11 +712,11 @@ namespace Neon.Diagnostics
                 {
                     if (message != null)
                     {
-                        Log(LogLevel.Warn, $"{message} {NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, activityId: activityId);
+                        Log(LogLevel.Warn, $"{message} {NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
                     }
                     else
                     {
-                        Log(LogLevel.Warn, $"{NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, activityId: activityId);
+                        Log(LogLevel.Warn, $"{NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
                     }
                 }
                 catch
