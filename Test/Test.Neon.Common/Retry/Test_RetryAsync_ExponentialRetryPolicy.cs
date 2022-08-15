@@ -518,7 +518,7 @@ namespace TestCommon
                         });
                 });
 
-            Assert.Equal(3, times.Count);
+            Assert.True(times.Count >= 3);
         }
     }
 }
