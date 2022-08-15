@@ -136,21 +136,21 @@ REM Configure the PATH.
 REM
 REM Note that some tools like PuTTY and 7-Zip may be installed as
 REM x86 or x64 to different directories.  We'll include commands that
-REM attempt to add both locations to the path and [pathtool] is
+REM attempt to add both locations to the path and [%NF_TOOLBIN%\pathtool] is
 REM smart enough to only add directories that actually exist.
 
-pathtool -dedup -system -add "%NF_BUILD%"
-pathtool -dedup -system -add "%NF_BUILD%\neon"
-pathtool -dedup -system -add "%NF_TOOLBIN%"
-pathtool -dedup -system -add "%NF_ROOT%\External\OpenSSL"
-pathtool -dedup -system -add "%DOTNETPATH%"
-pathtool -dedup -system -add "C:\cygwin64\bin"
-pathtool -dedup -system -add "%ProgramFiles%\7-Zip"
-pathtool -dedup -system -add "%ProgramFiles(x86)%\7-Zip"
-pathtool -dedup -system -add "%ProgramFiles%\PuTTY"
-pathtool -dedup -system -add "%ProgramFiles(x86)%\PuTTY"
-pathtool -dedup -system -add "%ProgramFiles%\WinSCP"
-pathtool -dedup -system -add "%ProgramFiles(x86)%\WinSCP"
+%NF_TOOLBIN%\pathtool -dedup -system -add "%NF_BUILD%"
+%NF_TOOLBIN%\pathtool -dedup -system -add "%NF_BUILD%\neon"
+%NF_TOOLBIN%\pathtool -dedup -system -add "%NF_TOOLBIN%"
+%NF_TOOLBIN%\pathtool -dedup -system -add "%NF_ROOT%\External\OpenSSL"
+%NF_TOOLBIN%\pathtool -dedup -system -add "%DOTNETPATH%"
+%NF_TOOLBIN%\pathtool -dedup -system -add "C:\cygwin64\bin"
+%NF_TOOLBIN%\pathtool -dedup -system -add "%ProgramFiles%\7-Zip"
+%NF_TOOLBIN%\pathtool -dedup -system -add "%ProgramFiles(x86)%\7-Zip"
+%NF_TOOLBIN%\pathtool -dedup -system -add "%ProgramFiles%\PuTTY"
+%NF_TOOLBIN%\pathtool -dedup -system -add "%ProgramFiles(x86)%\PuTTY"
+%NF_TOOLBIN%\pathtool -dedup -system -add "%ProgramFiles%\WinSCP"
+%NF_TOOLBIN%\pathtool -dedup -system -add "%ProgramFiles(x86)%\WinSCP"
 
 REM Perform additional implementation in via Powershell.
 
