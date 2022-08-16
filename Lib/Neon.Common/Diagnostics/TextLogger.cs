@@ -50,16 +50,13 @@ namespace Neon.Diagnostics
         //---------------------------------------------------------------------
         // Instance members
 
-        private ILogManager             logManager;
-        private string                  module;
-        private bool                    infoAsDebug;
-        private TextWriter              writer;
-        private string                  contextId;
-        private Func<LogEvent, bool>    logFilter;
-        private Func<bool>              isLogEnabledFunc;
-
-        /// <inheritdoc/>
-        public string ContextId => this.contextId;
+        private ILogManager                                 logManager;
+        private string                                      module;
+        private bool                                        infoAsDebug;
+        private TextWriter                                  writer;
+        private IEnumerable<KeyValuePair<string, string>>   attributes = null;
+        private Func<LogEvent, bool>                        logFilter;
+        private Func<bool>                                  isLogEnabledFunc;
 
         /// <inheritdoc/>
         public bool IsLogTraceEnabled => logManager.LogLevel >= LogLevel.Trace;
@@ -94,10 +91,9 @@ namespace Neon.Diagnostics
         /// <param name="logManager">The parent log manager or <c>null</c>.</param>
         /// <param name="module">Optionally identifies the event source module or <c>null</c>.</param>
         /// <param name="writer">Optionally specifies the output writer.  This defaults to <see cref="Console.Error"/>.</param>
-        /// <param name="contextId">
-        /// Optionally specifies additional information that can be used to identify context
-        /// for logged events.  For example, the <c>Neon.Cadence</c> client uses this to
-        /// record the ID of the workflow events.
+        /// <param name="attributes">
+        /// Optionally specifies attributes to be included in every event logged by the logger returned.  This may
+        /// be passed as <c>null</c>.
         /// </param>
         /// <param name="logFilter">
         /// Optionally specifies a filter predicate to be used for filtering log entries.  This examines
@@ -123,17 +119,17 @@ namespace Neon.Diagnostics
         /// </note>
         /// </remarks>
         public TextLogger(
-            ILogManager             logManager,
-            string                  module           = null,
-            TextWriter              writer           = null,
-            string                  contextId        = null,
-            Func<LogEvent, bool>    logFilter        = null,
-            Func<bool>              isLogEnabledFunc = null)
+            ILogManager                                 logManager,
+            string                                      module           = null,
+            TextWriter                                  writer           = null,
+            IEnumerable<KeyValuePair<string, string>>   attributes       = null,
+            Func<LogEvent, bool>                        logFilter        = null,
+            Func<bool>                                  isLogEnabledFunc = null)
         {
             this.logManager       = logManager ?? LogManager.Disabled;
             this.module           = module;
             this.writer           = writer ?? Console.Error;
-            this.contextId        = contextId;
+            this.attributes       = attributes;
             this.logFilter        = logFilter;
             this.isLogEnabledFunc = isLogEnabledFunc;
 
@@ -252,11 +248,6 @@ namespace Neon.Diagnostics
                     LogEventCountByLevel.WithLabels("debug").Inc();
                     break;
 
-                case LogLevel.Transient:
-
-                    LogEventCountByLevel.WithLabels("transient").Inc();
-                    break;
-
                 case LogLevel.Error:
 
                     LogEventCountByLevel.WithLabels("error").Inc();
@@ -279,6 +270,16 @@ namespace Neon.Diagnostics
                 case LogLevel.SInfo:
 
                     LogEventCountByLevel.WithLabels("sinfo").Inc();
+                    break;
+
+                case LogLevel.Trace:
+
+                    LogEventCountByLevel.WithLabels("trace").Inc();
+                    break;
+
+                case LogLevel.Transient:
+
+                    LogEventCountByLevel.WithLabels("transient").Inc();
                     break;
 
                 case LogLevel.Warn:
@@ -334,11 +335,6 @@ namespace Neon.Diagnostics
                     level = "DEBUG";
                     break;
 
-                case LogLevel.Transient:    
-                    
-                    level = "TRANSIENT";
-                    break;
-
                 case LogLevel.Error:      
                     
                     level = "ERROR";
@@ -362,6 +358,16 @@ namespace Neon.Diagnostics
                 case LogLevel.SInfo:  
                     
                     level = "SINFO";
+                    break;
+
+                case LogLevel.Trace:
+
+                    level = "TRACE";
+                    break;
+
+                case LogLevel.Transient:
+
+                    level = "TRANSIENT";
                     break;
 
                 case LogLevel.Warn:     

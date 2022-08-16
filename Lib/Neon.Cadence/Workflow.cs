@@ -119,7 +119,7 @@ namespace Neon.Cadence
             this.Client                    = client;
             this.IsReplaying               = isReplaying;
             this.Execution                 = new WorkflowExecution(workflowId, runId);
-            this.Logger                    = LogManager.Default.GetLogger(module: workflowTypeName, contextId: runId, logFilter: null, isLogEnabledFunc: () => !IsReplaying || Client.Settings.LogDuringReplay);
+            this.Logger                    = LogManager.Default.GetLogger(module: workflowTypeName, new KeyValuePair<string, string>[] { new KeyValuePair<string, string>("cadence.workflow-id", runId) }, logFilter: null, isLogEnabledFunc: () => !IsReplaying || Client.Settings.LogDuringReplay);
 
             if (client.Settings.Debug)
             {

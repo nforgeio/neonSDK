@@ -49,7 +49,11 @@ namespace Neon.Cadence
             Covenant.Requires<ArgumentNullException>(parent != null, nameof(parent));
 
             this.parent = parent;
-            this.Logger = LogManager.Default.GetLogger(module: Client.Settings.ClientIdentity, contextId: parent.ActivityTask?.WorkflowExecution?.RunId);
+            this.Logger = LogManager.Default.GetLogger(module: Client.Settings.ClientIdentity,
+                attributes: new KeyValuePair<string, string>[]
+                {
+                    new KeyValuePair<string, string>("cadence.activity-id", parent.ActivityTask?.WorkflowExecution?.RunId) 
+                });
         }
 
         /// <summary>

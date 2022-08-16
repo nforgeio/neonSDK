@@ -32,36 +32,6 @@ using Neon.Common;
 namespace Neon.Diagnostics
 {
     /// <summary>
-    /// Defines the <see cref="ILogManager.LoggerCreator"/> function used to return custom
-    /// logger implementations.
-    /// </summary>
-    /// <param name="logManager">The parent log manager.</param>
-    /// <param name="module">The case sensitive logger event source module (defaults to <c>null</c>).</param>
-    /// <param name="writer">
-    /// Optionally specifies a target <see cref="TextWriter"/>.  This can be useful for 
-    /// redirecting the ourput of a text logger to a file or somewhere else.  This parameter
-    /// may be ignored for non-text based loggers or for other logger specific reasons.
-    /// </param>
-    /// <param name="contextId">
-    /// Optionally specifies additional information that can be used to identify
-    /// context for logged events.  For example, the Neon.Cadence client uses this 
-    ///  to record the ID of the workflow recording events.
-    /// </param>
-    /// <param name="logFilter">
-    /// Optionally specifies a filter predicate that overrides the parent <see cref="ILogManager"/> filter
-    /// (if any) used for filtering log entries.  This examines the <see cref="LogEvent"/> and returns <c>true</c>
-    /// if the event should be logged or <c>false</c> when it is to be ignored.  All events will be logged when
-    /// this is <c>null</c>.
-    /// </param>
-    /// <param name="isLogEnabledFunc">
-    /// Optionally specifies a function that will be called at runtime to determine whether to event
-    /// logging is actually enabled.  This overrides the parent <see cref="ILogManager"/> function
-    /// if any.  Events will be logged for <c>null</c> functions.
-    /// </param>
-    /// <returns>The <see cref="INeonLogger"/> instance.</returns>
-    public delegate INeonLogger LoggerCreatorDelegate(LogManager logManager, string module, TextWriter writer, string contextId, Func<LogEvent, bool> logFilter, Func<bool> isLogEnabledFunc);
-
-    /// <summary>
     /// Describes an application log manager implementation.  <see cref="LogManager"/> is a reasonable
     /// implementation for many situations but it's possible for developers to implement custom solutions.
     /// </summary>
@@ -96,9 +66,9 @@ namespace Neon.Diagnostics
     public interface ILogManager : ILoggerProvider
     {
         /// <summary>
-        /// Intended to reset the log manager to its default condition.  Implementations may cxustomize
+        /// Intended to reset the log manager to its default condition.  Implementations may customize
         /// what this actually does but the default <see cref="LogManager"/> implementation resets its
-        /// emitted event counter to zero, clears and cached loggers, and resets the <see cref="LoggerCreator"/>
+        /// emitted event index to zero, clears any cached loggers, and resets the <see cref="LoggerCreator"/>
         /// delegate.
         /// </summary>
         void Reset();
@@ -159,7 +129,7 @@ namespace Neon.Diagnostics
 
         /// <summary>
         /// Used to customize what type of <see cref="INeonLogger"/> will be returned by the 
-        /// various <see cref="GetLogger(string, string, Func{LogEvent, bool}, Func{bool})"/> methods.  This defaults
+        /// various <see cref="GetLogger(string, IEnumerable{KeyValuePair{string, string}}, Func{LogEvent, bool}, Func{bool})"/> methods.  This defaults
         /// to creating <see cref="TextLogger"/> instances.
         /// </summary>
         /// <remarks>
@@ -177,10 +147,8 @@ namespace Neon.Diagnostics
         /// Returns a named logger.
         /// </summary>
         /// <param name="module">The case sensitive logger event source module (defaults to <c>null</c>).</param>
-        /// <param name="contextId">
-        /// Optionally specifies additional information that can be used to identify
-        /// context for logged events.  For example, the Neon.Cadence client uses this 
-        /// to record the ID of the workflow recording events.
+        /// <param name="attributes">
+        /// Optionally specifies attributes to be included in every event logged by the logger returned.
         /// </param>
         /// <param name="logFilter">
         /// Optionally overrides the manager's log filter predicate.  This examines the <see cref="LogEvent"/>
@@ -193,16 +161,14 @@ namespace Neon.Diagnostics
         /// if any.  Events will be logged for <c>null</c> functions.
         /// </param>
         /// <returns>The <see cref="INeonLogger"/> instance.</returns>
-        INeonLogger GetLogger(string module = null, string contextId = null, Func<LogEvent, bool> logFilter = null, Func<bool> isLogEnabledFunc = null);
+        INeonLogger GetLogger(string module = null, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<LogEvent, bool> logFilter = null, Func<bool> isLogEnabledFunc = null);
 
         /// <summary>
         /// Returns a logger to be associated with a specific type.  This method supports both <c>static</c> and normal types.
         /// </summary>
         /// <param name="type">The type.</param>
-        /// <param name="contextId">
-        /// Optionally specifies additional information that can be used to identify
-        /// context for logged events.  For example, the Neon.Cadence client uses this 
-        /// to record the ID of the workflow recording events.
+        /// <param name="attributes">
+        /// Optionally specifies attributes to be included in every event logged by the logger returned.
         /// </param>
         /// <param name="logFilter">
         /// Optionally overrides the manager's log filter predicate.  This examines the <see cref="LogEvent"/>
@@ -215,16 +181,14 @@ namespace Neon.Diagnostics
         /// if any.  Events will be logged for <c>null</c> functions.
         /// </param>
         /// <returns>The <see cref="INeonLogger"/> instance.</returns>
-        INeonLogger GetLogger(Type type, string contextId = null, Func<LogEvent, bool> logFilter = null, Func<bool> isLogEnabledFunc = null);
+        INeonLogger GetLogger(Type type, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<LogEvent, bool> logFilter = null, Func<bool> isLogEnabledFunc = null);
 
         /// <summary>
         /// Returns a logger to be associated with a specific type.  This method works only for non-<c>static</c> types.
         /// </summary>
         /// <typeparam name="T">The type.</typeparam>
-        /// <param name="contextId">
-        /// Optionally specifies additional information that can be used to identify
-        /// context for logged events.  For example, the Neon.Cadence client uses this 
-        /// to record the ID of the workflow recording events.
+        /// <param name="attributes">
+        /// Optionally specifies attributes to be included in every event logged by the logger returned.
         /// </param>
         /// <param name="logFilter">
         /// Optionally overrides the manager's log filter predicate.  This examines the <see cref="LogEvent"/>
@@ -237,6 +201,6 @@ namespace Neon.Diagnostics
         /// if any.  Events will be logged for <c>null</c> functions.
         /// </param>
         /// <returns>The <see cref="INeonLogger"/> instance.</returns>
-        INeonLogger GetLogger<T>(string contextId = null, Func<LogEvent, bool> logFilter = null, Func<bool> isLogEnabledFunc = null);
+        INeonLogger GetLogger<T>(IEnumerable<KeyValuePair<string, string>> attributes = null, Func<LogEvent, bool> logFilter = null, Func<bool> isLogEnabledFunc = null);
     }
 }
