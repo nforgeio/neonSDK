@@ -27,11 +27,17 @@ using System.Threading.Tasks;
 namespace Neon.Diagnostics
 {
     /// <summary>
-    /// Enumerates the possible log levels.  Note that the relative
-    /// ordinal values of  these definitions are used when deciding
-    /// to log an event when a specific <see cref="LogLevel"/> is 
-    /// set.  Only events with log levels less than or equal to the
-    /// current level will be logged.
+    /// <para>
+    /// Enumerates the possible log levels.  Note that the relative ordinal values of these
+    /// definitions are used when deciding to log an event when a specific <see cref="LogLevel"/>
+    /// is set.  Only events with log levels greater than or equal to the current level will be logged.
+    /// </para>
+    /// <para>
+    /// The ordinal values map to the OpenTelemetry defined severity numbers as described 
+    /// <a href="https://opentelemetry.io/docs/reference/specification/logs/data-model/#displaying-severity">here</a>.
+    /// This gives OpenTelemetry a fighting chance to convert our log level values into something
+    /// that makes sense for other logging systems.
+    /// </para>
     /// </summary>
     public enum LogLevel
     {
@@ -45,50 +51,50 @@ namespace Neon.Diagnostics
         /// a very serious failure has occurred that may have crashed the program or
         /// at least seriousoly impacts its functioning.
         /// </summary>
-        Critical = 100,
+        Critical = 21,  // SeverityNumber.FATAL
 
         /// <summary>
         /// A security related error has occurred.  Errors indicate a problem that may be
         /// transient, be recovered from, or are perhaps more serious.
         /// </summary>
-        SError = 200,
+        SError = 18,    // SeverityNumber.ERROR2
 
         /// <summary>
         /// An error has been detected.  Errors indicate a problem that may be
         /// transient, be recovered from, or are perhaps more serious.
         /// </summary>
-        Error = 300,
+        Error = 17,     // SeverityNumber.ERROR
 
         /// <summary>
         /// An unusual condition has been detected that may ultimately lead to an error.
         /// </summary>
-        Warn = 400,
+        Warn = 13,      // SeverityNumber.WARN
 
         /// <summary>
         /// Describes a non-error security operation or condition, such as a 
         /// a successful login or authentication.
         /// </summary>
-        SInfo = 500,
+        SInfo = 10,     // SeverityNumber.INFO2
 
         /// <summary>
         /// Describes a normal operation or condition.
         /// </summary>
-        Info = 600,
+        Info = 9,       // SeverityNumber.INFO
 
         /// <summary>
         /// Describes a transient error, typically logged by a <see cref="Neon.Retry.IRetryPolicy"/>
         /// implementations.
         /// </summary>
-        Transient = 700,
+        Transient = 6,  // SeverityNumber.DEBUG2
 
         /// <summary>
         /// Describes detailed debug or diagnostic information.
         /// </summary>
-        Debug = 800,
+        Debug = 5,      // SeverityNumber.DEBUG
 
         /// <summary>
         /// Describes <b>very</b> detailed debug or diagnostic information.
         /// </summary>
-        Trace = 900
+        Trace = 1       // SeverityNumber.TRACE
     }
 }

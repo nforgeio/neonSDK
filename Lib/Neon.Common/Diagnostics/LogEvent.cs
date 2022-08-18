@@ -31,64 +31,73 @@ namespace Neon.Diagnostics
     /// <summary>
     /// Used by or capturing logged events in memory.
     /// </summary>
-    public struct LogEvent
+    public class LogEvent
     {
         /// <summary>
         /// Constructor.
         /// </summary>
-        /// <param name="module">Optionally identifies the source module.</param>
+        /// <param name="categoryName">Optionally identifies the log event category name.</param>
         /// <param name="index">
         /// Specifies the one-based position of the event in the stream of events
         /// logged by the log manager.
         /// </param>
-        /// <param name="timeUtc">Time (UTC) when the event was logged.</param>
+        /// <param name="timestamp">Time (UTC) when the event was logged.</param>
         /// <param name="logLevel">The event log level.</param>
-        /// <param name="message">Optionally specifies the event message.</param>
+        /// <param name="body">Specifies the event body or <c>null</c>.</param>
+        /// <param name="attributes">Specifies any arrtibutes to be logged with the event or <c>null</c>.</param>
         /// <param name="e">Optionally specifies the exception being logged.</param>
         public LogEvent(
-            string      module,
-            long        index,
-            DateTime    timeUtc,
-            LogLevel    logLevel,
-            string      message,
-            Exception   e)
+            string                                      categoryName,
+            long                                        index,
+            DateTime                                    timestamp,
+            LogLevel                                    logLevel,
+            string                                      body,
+            IEnumerable<KeyValuePair<string, string>>   attributes,
+            Exception                                   e)
         {
-            this.Module    = module;
-            this.Index     = index;
-            this.TimeUtc   = timeUtc;
-            this.LogLevel  = logLevel;
-            this.Message   = message;
-            this.Exception = e;
+            this.CategoryName = categoryName;
+            this.Index        = index;
+            this.Timestamp    = timestamp;
+            this.LogLevel     = logLevel;
+            this.Body         = body ?? string.Empty;
+            this.Attributes   = attributes;
+            this.Exception    = e;
         }
 
         /// <summary>
-        /// Optionally identifies the source module.
+        /// Returns the log event category name or <c>null</c>.  This is often the name of
+        /// the class or parent class that's responsible for the operation being logged.
         /// </summary>
-        public string Module { get; private set; }
+        public string CategoryName { get; private set; }
 
         /// <summary>
-        /// Specifies the one-based position of the event in the stream of events
+        /// Returns the one-based position of the event in the stream of events
         /// logged by the log manager.
         /// </summary>
         public long Index { get; internal set; }
 
         /// <summary>
-        /// Time (UTC) when the event was logged.
+        /// Returns the time (UTC) when the event was logged.
         /// </summary>
-        public DateTime TimeUtc { get; private set; }
+        public DateTime Timestamp { get; private set; }
 
         /// <summary>
-        /// The event log level.
+        /// Returns event log level.
         /// </summary>
         public LogLevel LogLevel { get; private set; }
 
         /// <summary>
-        /// The event message.
+        /// Returns event body text.
         /// </summary>
-        public string Message { get; private set; }
+        public string Body { get; private set; }
 
         /// <summary>
-        /// Optionally specifies the event exception.
+        /// Returns and event attributes.  This may be <c>null</c>.
+        /// </summary>
+        public IEnumerable<KeyValuePair<string, string>> Attributes { get; private set; }
+
+        /// <summary>
+        /// Returns any exception associated with the event.
         /// </summary>
         public Exception Exception { get; private set; }
     }

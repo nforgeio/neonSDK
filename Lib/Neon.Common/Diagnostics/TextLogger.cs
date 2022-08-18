@@ -23,6 +23,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -59,31 +60,31 @@ namespace Neon.Diagnostics
         private Func<bool>                                  isLogEnabledFunc;
 
         /// <inheritdoc/>
-        public bool IsLogTraceEnabled => logManager.LogLevel >= LogLevel.Trace;
+        public bool IsLogTraceEnabled => logManager.LogLevel <= LogLevel.Trace;
 
         /// <inheritdoc/>
-        public bool IsLogDebugEnabled => logManager.LogLevel >= LogLevel.Debug;
+        public bool IsLogDebugEnabled => logManager.LogLevel <= LogLevel.Debug;
 
         /// <inheritdoc/>
-        public bool IsLogTransientEnabled => logManager.LogLevel >= LogLevel.Transient;
+        public bool IsLogTransientEnabled => logManager.LogLevel <= LogLevel.Transient;
 
         /// <inheritdoc/>
-        public bool IsLogErrorEnabled => logManager.LogLevel >= LogLevel.Error;
+        public bool IsLogErrorEnabled => logManager.LogLevel <= LogLevel.Error;
 
         /// <inheritdoc/>
-        public bool IsLogSErrorEnabled => logManager.LogLevel >= LogLevel.SError;
+        public bool IsLogSErrorEnabled => logManager.LogLevel <= LogLevel.SError;
 
         /// <inheritdoc/>
-        public bool IsLogCriticalEnabled => logManager.LogLevel >= LogLevel.Critical;
+        public bool IsLogCriticalEnabled => logManager.LogLevel <= LogLevel.Critical;
 
         /// <inheritdoc/>
-        public bool IsLogInfoEnabled => logManager.LogLevel >= LogLevel.Info;
+        public bool IsLogInfoEnabled => logManager.LogLevel <= LogLevel.Info;
 
         /// <inheritdoc/>
-        public bool IsLogSInfoEnabled => logManager.LogLevel >= LogLevel.SInfo;
+        public bool IsLogSInfoEnabled => logManager.LogLevel <= LogLevel.SInfo;
 
         /// <inheritdoc/>
-        public bool IsLogWarnEnabled => logManager.LogLevel >= LogLevel.Warn;
+        public bool IsLogWarnEnabled => logManager.LogLevel <= LogLevel.Warn;
 
         /// <summary>
         /// Constructor.
@@ -304,14 +305,17 @@ namespace Neon.Diagnostics
 
             if (logFilter != null)
             {
+                // $todo(jefflill): Replace this with LogRecord???
+
                 var logEvent =
                     new LogEvent(
-                        module:     this.module,
-                        index:      0,                  // We don't set this when filtering
-                        timeUtc:    DateTime.UtcNow,
-                        logLevel:   logLevel,
-                        message:    message,
-                        e:          e);
+                        categoryName: this.module,
+                        index:        0,                  // We don't set this when filtering
+                        timestamp:    DateTime.UtcNow,
+                        logLevel:     logLevel,
+                        body:         message,
+                        attributes:   null,
+                        e:            e);
 
                 if (!logFilter(logEvent))
                 {
