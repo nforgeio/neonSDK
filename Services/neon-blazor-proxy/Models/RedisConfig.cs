@@ -48,7 +48,7 @@ namespace NeonBlazorProxy
         /// <summary>
         /// The Redis port.
         /// </summary>
-        [JsonProperty(PropertyName = "Port", Required = Required.Always, DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
+        [JsonProperty(PropertyName = "Port", Required = Required.Default, DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
         [YamlMember(Alias = "port", ApplyNamingConventions = false)]
         [DefaultValue(6379)]
         public int Port { get; set; } = 6379;
@@ -56,7 +56,7 @@ namespace NeonBlazorProxy
         /// <summary>
         /// The Redis instance name.
         /// </summary>
-        [JsonProperty(PropertyName = "InstanceName", Required = Required.Always, DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
+        [JsonProperty(PropertyName = "InstanceName", Required = Required.Default, DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
         [YamlMember(Alias = "instanceName", ApplyNamingConventions = false)]
         [DefaultValue(null)]
         public string InstanceName { get; set; } = null;
@@ -72,10 +72,18 @@ namespace NeonBlazorProxy
         /// <summary>
         /// The service name used to resolve a service via Sentinel.
         /// </summary>
-        [JsonProperty(PropertyName = "ServiceName", Required = Required.Always, DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
+        [JsonProperty(PropertyName = "ServiceName", Required = Required.Default, DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
         [YamlMember(Alias = "serviceName", ApplyNamingConventions = false)]
         [DefaultValue(null)]
         public string ServiceName { get; set; } = null;
+
+        /// <summary>
+        /// The service name used to resolve a service via Sentinel.
+        /// </summary>
+        [JsonProperty(PropertyName = "Proxy", Required = Required.Default, DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
+        [YamlMember(Alias = "proxy", ApplyNamingConventions = false)]
+        [DefaultValue(Proxy.None)]
+        public Proxy Proxy { get; set; } = Proxy.None;
 
         /// <summary>
         /// Returns the options as <see cref="RedisCacheOptions"/>.
@@ -89,8 +97,10 @@ namespace NeonBlazorProxy
                 InstanceName = InstanceName,
                 ConfigurationOptions = new ConfigurationOptions()
                 {
-                    AllowAdmin = AllowAdmin,
-                    ServiceName = ServiceName
+                    AllowAdmin  = AllowAdmin,
+                    ServiceName = ServiceName,
+                    Proxy       = Proxy,
+                    
                 }
             };
 

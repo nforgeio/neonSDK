@@ -38,6 +38,7 @@ using Neon.Web;
 using DnsClient;
 
 using Enyim;
+using Enyim.Caching;
 
 using Prometheus;
 
@@ -85,18 +86,32 @@ namespace NeonBlazorProxy
             {
                 case CacheType.Memcached:
 
-                    services.AddEnyimMemcached(options => { NeonBlazorProxyService.Config.Cache.Memcached.GetOptions(); });
-
+                    NeonBlazorProxyService.Log.LogInfo($"Connecting to Memcached. [{NeonBlazorProxyService.Config.Cache.Memcached.Address}]");
+                    services.AddEnyimMemcached(options => 
+                    { 
+                        options = NeonBlazorProxyService.Config.Cache.Memcached.GetOptions();
+                        NeonBlazorProxyService.Log.LogDebug(NeonHelper.JsonSerialize(options));
+                    });
                     break;
 
                 case CacheType.Redis:
 
-                    services.AddStackExchangeRedisCache(options => { NeonBlazorProxyService.Config.Cache.Redis.GetOptions(); });
+                    NeonBlazorProxyService.Log.LogInfo($"Connecting to Redis. [{NeonBlazorProxyService.Config.Cache.Redis.Host}]");
+                    services.AddStackExchangeRedisCache(options => 
+                    {
+                        options.ConfigurationOptions = new ConfigurationOptions()
+                        {
+                            EndPoints = { NeonBlazorProxyService.Config.Cache.Redis.Host },
+                            Proxy     = NeonBlazorProxyService.Config.Cache.Redis.Proxy
+                        };
+                        NeonBlazorProxyService.Log.LogDebug(NeonHelper.JsonSerialize(options));
+                    });
                     break;
 
                 case CacheType.InMemory:
                 default:
 
+                    NeonBlazorProxyService.Log.LogInfo("Using Local cache.");
                     services.AddDistributedMemoryCache();
                     break;
             }
@@ -105,6 +120,7 @@ namespace NeonBlazorProxy
             services.AddSingleton(NeonBlazorProxyService.Config);
             services.AddSingleton<INeonLogger>(NeonBlazorProxyService.Log);
             services.AddSingleton(NeonBlazorProxyService.DnsClient);
+            services.AddSingleton<CacheHelper>();
             services.AddSingleton(new ForwarderRequestConfig()
             {
                 ActivityTimeout = TimeSpan.FromSeconds(100)
@@ -143,7 +159,7 @@ namespace NeonBlazorProxy
             services.AddSingleton<SessionTransformer>(
                 serviceProvider =>
                 {
-                    return new SessionTransformer(serviceProvider.GetService<IDistributedCache>(), NeonBlazorProxyService.Log, cacheOptions, NeonBlazorProxyService.AesCipher);
+                    return new SessionTransformer(serviceProvider.GetService<CacheHelper>(), NeonBlazorProxyService.Log, cacheOptions, NeonBlazorProxyService.AesCipher);
                 });
 
             services.AddControllers()
@@ -160,6 +176,11 @@ namespace NeonBlazorProxy
             if (NeonBlazorProxyService.InDevelopment || !string.IsNullOrEmpty(NeonBlazorProxyService.GetEnvironmentVariable("DEBUG")))
             {
                 app.UseDeveloperExceptionPage();
+            }
+
+            if (NeonBlazorProxyService.Config.Cache.Backend == CacheType.Memcached)
+            {
+                app.UseEnyimMemcached();
             }
 
             app.UseRouting();
