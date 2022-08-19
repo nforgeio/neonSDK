@@ -15,7 +15,6 @@ namespace Neon.Tailwind
 
         protected HeadlessDisclosure Disclosure { get; set; } = default!;
 
-        [Parameter] public string TagName { get; set; } = "button";
 
 
         /// <inheritdoc/>
@@ -23,6 +22,8 @@ namespace Neon.Tailwind
         protected override async Task OnInitializedAsync()
         {
             await Disclosure.RegisterButton(this);
+            TagName = "button";
+
         }
         public async void HandleClick()
         {
