@@ -427,14 +427,14 @@ namespace Neon.Cadence
 
         /// <summary>
         /// Optionally specifies the logging level for the associated <b>cadence-proxy</b>.
-        /// This defaults to <see cref="Neon.Diagnostics.LogLevel.None"/> which will be appropriate for most
-        /// production situations.  You may wish to set this to <see cref="Neon.Diagnostics.LogLevel.Info"/>
-        /// or <see cref="Neon.Diagnostics.LogLevel.Debug"/> while debugging.
+        /// This defaults to <see cref="Neon.Diagnostics.NeonLogLevel.None"/> which will be appropriate for most
+        /// production situations.  You may wish to set this to <see cref="Neon.Diagnostics.NeonLogLevel.Information"/>
+        /// or <see cref="Neon.Diagnostics.NeonLogLevel.Debug"/> while debugging.
         /// </summary>
         [JsonProperty(PropertyName = "LogLevel", Required = Required.Default, DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
         [YamlMember(Alias = "logLevel", ApplyNamingConventions = false)]
-        [DefaultValue(LogLevel.None)]
-        public LogLevel LogLevel { get; set; } = LogLevel.None;
+        [DefaultValue(NeonLogLevel.None)]
+        public NeonLogLevel LogLevel { get; set; } = NeonLogLevel.None;
 
         /// <summary>
         /// Optionally specifies that messages from the embedded GOLANG Cadence client 

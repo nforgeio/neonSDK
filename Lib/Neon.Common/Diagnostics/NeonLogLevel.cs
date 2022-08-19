@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:	    LogLevel.cs
+// FILE:	    NeonLogLevel.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright (c) 2005-2022 by neonFORGE LLC.  All rights reserved.
 //
@@ -29,7 +29,7 @@ namespace Neon.Diagnostics
     /// <summary>
     /// <para>
     /// Enumerates the possible log levels.  Note that the relative ordinal values of these
-    /// definitions are used when deciding to log an event when a specific <see cref="LogLevel"/>
+    /// definitions are used when deciding to log an event when a specific <see cref="NeonLogLevel"/>
     /// is set.  Only events with log levels greater than or equal to the current level will be logged.
     /// </para>
     /// <para>
@@ -39,62 +39,60 @@ namespace Neon.Diagnostics
     /// that makes sense for other logging systems.
     /// </para>
     /// </summary>
-    public enum LogLevel
+    public enum NeonLogLevel
     {
         /// <summary>
         /// Logging is disabled.
         /// </summary>
-        None = 0,
+        None = SeverityNumber.SEVERITY_NUMBER_UNSPECIFIED,
 
         /// <summary>
         /// A critical or fatal error has been detected.  These errors indicate that
         /// a very serious failure has occurred that may have crashed the program or
         /// at least seriousoly impacts its functioning.
         /// </summary>
-        Critical = 21,  // SeverityNumber.FATAL
+        Fatal = SeverityNumber.SEVERITY_NUMBER_FATAL,
 
         /// <summary>
-        /// A security related error has occurred.  Errors indicate a problem that may be
-        /// transient, be recovered from, or are perhaps more serious.
+        /// A security related error has occurred.
         /// </summary>
-        SError = 18,    // SeverityNumber.ERROR2
+        SecurityError = SeverityNumber.SEVERITY_NUMBER_ERROR2,
 
         /// <summary>
-        /// An error has been detected.  Errors indicate a problem that may be
-        /// transient, be recovered from, or are perhaps more serious.
+        /// An error has been detected.
         /// </summary>
-        Error = 17,     // SeverityNumber.ERROR
+        Error = SeverityNumber.SEVERITY_NUMBER_ERROR,
 
         /// <summary>
         /// An unusual condition has been detected that may ultimately lead to an error.
         /// </summary>
-        Warn = 13,      // SeverityNumber.WARN
+        Warning = SeverityNumber.SEVERITY_NUMBER_WARN,
 
         /// <summary>
         /// Describes a non-error security operation or condition, such as a 
         /// a successful login or authentication.
         /// </summary>
-        SInfo = 10,     // SeverityNumber.INFO2
+        SecurityInformation = SeverityNumber.SEVERITY_NUMBER_INFO2,
 
         /// <summary>
         /// Describes a normal operation or condition.
         /// </summary>
-        Info = 9,       // SeverityNumber.INFO
+        Information = SeverityNumber.SEVERITY_NUMBER_INFO,
 
         /// <summary>
         /// Describes a transient error, typically logged by a <see cref="Neon.Retry.IRetryPolicy"/>
         /// implementations.
         /// </summary>
-        Transient = 6,  // SeverityNumber.DEBUG2
+        Transient = SeverityNumber.SEVERITY_NUMBER_DEBUG2,
 
         /// <summary>
         /// Describes detailed debug or diagnostic information.
         /// </summary>
-        Debug = 5,      // SeverityNumber.DEBUG
+        Debug = SeverityNumber.SEVERITY_NUMBER_DEBUG,
 
         /// <summary>
         /// Describes <b>very</b> detailed debug or diagnostic information.
         /// </summary>
-        Trace = 1       // SeverityNumber.TRACE
+        Trace = SeverityNumber.SEVERITY_NUMBER_TRACE
     }
 }

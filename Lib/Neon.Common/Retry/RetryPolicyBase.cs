@@ -38,16 +38,16 @@ namespace Neon.Retry
         /// <summary>
         /// Constructor.
         /// </summary>
-        /// <param name="sourceModule">Optionally enables transient error logging by identifying the source module (defaults to <c>null</c>).</param>
+        /// <param name="categoryName">Optionally enables transient error logging by identifying the source category name (defaults to <c>null</c>).</param>
         /// <param name="timeout">Optionally specifies the maximum time the operation will be retried (defaults to unconstrained)</param>
-        public RetryPolicyBase(string sourceModule = null, TimeSpan? timeout = null)
+        public RetryPolicyBase(string categoryName = null, TimeSpan? timeout = null)
         {
-            this.SourceModule = sourceModule;
+            this.CategoryName = categoryName;
             this.Timeout      = timeout;
 
-            if (!string.IsNullOrEmpty(sourceModule))
+            if (!string.IsNullOrEmpty(categoryName))
             {
-                this.log = LogManager.Default.GetLogger(sourceModule);
+                this.log = LogManager.Default.GetLogger(categoryName);
             }
         }
 
@@ -73,9 +73,9 @@ namespace Neon.Retry
         public abstract TResult Invoke<TResult>(Func<TResult> action);
 
         /// <summary>
-        /// Returns the source module.
+        /// Returns the associated log source category name (or <c>null)</c>.
         /// </summary>
-        protected string SourceModule { get; private set; }
+        protected string CategoryName { get; private set; }
 
         /// <summary>
         /// Handles logging of transient exceptions by invoking any <see cref="OnTransient"/>

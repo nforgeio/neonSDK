@@ -190,7 +190,7 @@ namespace TestCadence
         {
             public async Task RunAsync()
             {
-                Workflow.Logger.LogInfo("Hello World!");
+                Workflow.Logger.LogInformation("Hello World!");
                 await Task.CompletedTask;
             }
         }

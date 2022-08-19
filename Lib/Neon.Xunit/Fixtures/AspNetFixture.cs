@@ -35,7 +35,7 @@ using Neon.Net;
 
 using Xunit.Abstractions;
 
-using LogLevel = Neon.Diagnostics.LogLevel;
+using NeonLogLevel = Neon.Diagnostics.NeonLogLevel;
 
 namespace Neon.Xunit
 {
@@ -54,7 +54,7 @@ namespace Neon.Xunit
         {
             private LogManager  logManager;
 
-            public LoggingProvider(TextWriter logWriter, LogLevel logLevel)
+            public LoggingProvider(TextWriter logWriter, NeonLogLevel logLevel)
             {
                 this.logManager = new LogManager(writer: logWriter)
                 {
@@ -82,7 +82,7 @@ namespace Neon.Xunit
 
         private Action<IWebHostBuilder> hostConfigurator;
         private TextWriter              logWriter = null;
-        private LogLevel                logLevel  = LogLevel.None;
+        private NeonLogLevel                logLevel  = NeonLogLevel.None;
 
         /// <summary>
         /// Constructs the fixture.
@@ -124,7 +124,7 @@ namespace Neon.Xunit
         /// Starts the ASP.NET service using the default controller factory.
         /// </para>
         /// <note>
-        /// You'll need to call <see cref="StartAsComposed{TStartup}(Action{IWebHostBuilder}, int, TestOutputWriter, LogLevel)"/>
+        /// You'll need to call <see cref="StartAsComposed{TStartup}(Action{IWebHostBuilder}, int, TestOutputWriter, NeonLogLevel)"/>
         /// instead when this fixture is being added to a <see cref="ComposedFixture"/>.
         /// </note>
         /// </summary>
@@ -132,11 +132,11 @@ namespace Neon.Xunit
         /// <param name="hostConfigurator">Optional action providing for customization of the hosting environment.</param>
         /// <param name="port">The port where the server will listen or zero to allow the operating system to select a free port.</param>
         /// <param name="logWriter">Optionally specifies a test output writer.</param>
-        /// <param name="logLevel">Optionally specifies the log level.  This defaults to <see cref="LogLevel.None"/>.</param>
+        /// <param name="logLevel">Optionally specifies the log level.  This defaults to <see cref="NeonLogLevel.None"/>.</param>
         /// <remarks>
         /// <para>
         /// You can capture ASP.NET and service logs into your unit test logs by passing <paramref name="logWriter"/> as 
-        /// non-null and <paramref name="logLevel"/> as something other than <see cref="LogLevel.None"/>.  You'll need
+        /// non-null and <paramref name="logLevel"/> as something other than <see cref="NeonLogLevel.None"/>.  You'll need
         /// to obtain a <see cref="ITestOutputHelper"/> instance from Xunit via dependency injection by adding a parameter
         /// to your test constructor and then creating a <see cref="TestOutputWriter"/> from it, like:
         /// </para>
@@ -162,7 +162,7 @@ namespace Neon.Xunit
         /// }
         /// </code>
         /// </remarks>
-        public void Start<TStartup>(Action<IWebHostBuilder> hostConfigurator = null, int port = 0, TestOutputWriter logWriter = null, LogLevel logLevel = LogLevel.None)
+        public void Start<TStartup>(Action<IWebHostBuilder> hostConfigurator = null, int port = 0, TestOutputWriter logWriter = null, NeonLogLevel logLevel = NeonLogLevel.None)
             where TStartup : class
         {
             base.CheckDisposed();
@@ -181,11 +181,11 @@ namespace Neon.Xunit
         /// <param name="hostConfigurator">Optional action providing for customization of the hosting environment.</param>
         /// <param name="port">The port where the server will listen or zero to allow the operating system to select a free port.</param>
         /// <param name="logWriter">Optionally specifies a test output writer.</param>
-        /// <param name="logLevel">Optionally specifies the log level.  This defaults to <see cref="LogLevel.None"/>.</param>
+        /// <param name="logLevel">Optionally specifies the log level.  This defaults to <see cref="NeonLogLevel.None"/>.</param>
         /// <remarks>
         /// <para>
         /// You can capture ASP.NET and service logs into your unit test logs by passing <paramref name="logWriter"/> as 
-        /// non-null and <paramref name="logLevel"/> as something other than <see cref="LogLevel.None"/>.  You'll need
+        /// non-null and <paramref name="logLevel"/> as something other than <see cref="NeonLogLevel.None"/>.  You'll need
         /// to obtain a <see cref="ITestOutputHelper"/> instance from Xunit via dependency injection by adding a parameter
         /// to your test constructor and then creating a <see cref="TestOutputWriter"/> from it, like:
         /// </para>
@@ -211,7 +211,7 @@ namespace Neon.Xunit
         /// }
         /// </code>
         /// </remarks>
-        public void StartAsComposed<TStartup>(Action<IWebHostBuilder> hostConfigurator = null, int port = 0, TestOutputWriter logWriter = null, LogLevel logLevel = LogLevel.None)
+        public void StartAsComposed<TStartup>(Action<IWebHostBuilder> hostConfigurator = null, int port = 0, TestOutputWriter logWriter = null, NeonLogLevel logLevel = NeonLogLevel.None)
             where TStartup : class
         {
             this.hostConfigurator = hostConfigurator;
@@ -254,7 +254,7 @@ namespace Neon.Xunit
                         options.Listen(IPAddress.Loopback, port);
                     });
 
-            if (logWriter != null && logLevel != LogLevel.None)
+            if (logWriter != null && logLevel != NeonLogLevel.None)
             {
                 app.ConfigureLogging(
                     (hostingContext, logging) =>

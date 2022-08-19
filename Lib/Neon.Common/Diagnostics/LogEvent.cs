@@ -50,7 +50,7 @@ namespace Neon.Diagnostics
             string                                      categoryName,
             long                                        index,
             DateTime                                    timestamp,
-            LogLevel                                    logLevel,
+            NeonLogLevel                                    logLevel,
             string                                      body,
             IEnumerable<KeyValuePair<string, string>>   attributes,
             Exception                                   e)
@@ -84,7 +84,7 @@ namespace Neon.Diagnostics
         /// <summary>
         /// Returns event log level.
         /// </summary>
-        public LogLevel LogLevel { get; private set; }
+        public NeonLogLevel LogLevel { get; private set; }
 
         /// <summary>
         /// Returns event body text.

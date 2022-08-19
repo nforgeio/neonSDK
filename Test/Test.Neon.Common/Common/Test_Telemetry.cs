@@ -32,45 +32,61 @@ namespace TestCommon
 {
     public class Test_Telemetry
     {
-        [Fact]
-        public void TelemetryAttribute()
+        private class TestObject
         {
-            //-----------------------------------------------------------------
-            // Non-error cases:
+            public TestObject(string field1, int field2)
+            {
+                this.Field1 = field1;
+                this.Field2 = field2;
+            }
 
-            var attribute = new TelemetryAttribute("test", "value");
+            public string Field1 { get; set; }
+            public int Field2 { get; set; }
+        }
 
-            Assert.Equal("test", attribute.Key);
-            Assert.Equal("value", attribute.Value);
+        [Fact]
+        public void LogAttributes()
+        {
+            var logAttibutes = new LogAttributes();
 
-            attribute = new TelemetryAttribute("test-1234", 123);
+            // Attributes starts out empty.
 
-            Assert.Equal("test-1234", attribute.Key);
-            Assert.Equal(123, attribute.Value);
+            Assert.Empty(logAttibutes.Attributes);
 
-            attribute = new TelemetryAttribute("test.value", true);
+            // Verify that we can add attributes with different value types.
 
-            Assert.Equal("test.value", attribute.Key);
-            Assert.Equal(true, attribute.Value);
+            logAttibutes = new LogAttributes();
 
-            attribute = new TelemetryAttribute("TEST_value", new Uri("http://test.com"));
+            logAttibutes.Add("bool-true", true);
+            logAttibutes.Add("bool-false", false);
+            logAttibutes.Add("long", 1234L);
+            logAttibutes.Add("double", 123.456D);
+            logAttibutes.Add("string-hello", "Hello World!");
+            logAttibutes.Add("string-null", (string)null);
+            logAttibutes.Add("string-empty", string.Empty);
+            logAttibutes.Add("object-null", null);
+            logAttibutes.Add("object-value", new TestObject("test", 123));
 
-            Assert.Equal("TEST_value", attribute.Key);
-            Assert.Equal(new Uri("http://test.com"), attribute.Value);
+            Assert.NotEmpty(logAttibutes.Attributes);
+            Assert.True((bool)logAttibutes.Attributes["bool-true"]);
+            Assert.False((bool)logAttibutes.Attributes["bool-false"]);
+            Assert.Equal(1234L, logAttibutes.Attributes["long"]);
+            Assert.Equal("Hello World!", logAttibutes.Attributes["string-hello"]);
+            Assert.Null(logAttibutes.Attributes["string-null"]);
+            Assert.Empty((string)logAttibutes.Attributes["string-empty"]);
+            Assert.Null(logAttibutes.Attributes["object-null"]);
 
-            attribute = new TelemetryAttribute(new string('a', 255));
+            var obj = (TestObject)logAttibutes.Attributes["object-value"];
 
-            Assert.Equal(new string('a', 255), attribute.Key);
+            Assert.Equal("test", obj.Field1);
+            Assert.Equal(123, obj.Field2);
 
-            //-----------------------------------------------------------------
-            // Error cases:
+            // Attribute names cannot be NULL or empty.
 
-            Assert.Throws<ArgumentNullException>(() => new TelemetryAttribute().Validate());        // Key is null
-            Assert.Throws<ArgumentNullException>(() => new TelemetryAttribute(null));               // Key is null
-            Assert.Throws<ArgumentNullException>(() => new TelemetryAttribute(""));                 // Key is empty
-            Assert.Throws<ArgumentException>(() => new TelemetryAttribute(new string('a', 256)));   // Key is longer than 255 chars
-            Assert.Throws<ArgumentException>(() => new TelemetryAttribute("\"hello\""));            // Key includes invalid chars
-            Assert.Throws<ArgumentException>(() => new TelemetryAttribute("ö"));                    // Key includes non-ASCII character
+            logAttibutes = new LogAttributes();
+
+            Assert.Throws<ArgumentNullException>(() => logAttibutes.Add(null, "Hello World!"));
+            Assert.Throws<ArgumentNullException>(() => logAttibutes.Add(String.Empty, "Hello World!"));
         }
     }
 }

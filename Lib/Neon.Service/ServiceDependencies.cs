@@ -117,7 +117,7 @@ namespace Neon.Service
                     }
                     else
                     {
-                        textLogger.LogWarn($"Service Dependency: [{uriString}] is not a valid URI and will be ignored.");
+                        textLogger.LogWarning($"Service Dependency: [{uriString}] is not a valid URI and will be ignored.");
                     }
                 }
             }
@@ -134,7 +134,7 @@ namespace Neon.Service
                 }
                 else
                 {
-                    textLogger.LogWarn($"Service Dependency: [NEON_SERVICE_DEPENDENCIES_DISABLE_DNS_CHECK={disableDnsCheckVar}] is not a valid and will be ignored.");
+                    textLogger.LogWarning($"Service Dependency: [NEON_SERVICE_DEPENDENCIES_DISABLE_DNS_CHECK={disableDnsCheckVar}] is not a valid and will be ignored.");
                 }
             }
 
@@ -150,7 +150,7 @@ namespace Neon.Service
                 }
                 else
                 {
-                    textLogger.LogWarn($"Service Dependency: [NEON_SERVICE_DEPENDENCIES_TIMEOUT_SECONDS={timeoutSecondsVar}] is not a valid and will be ignored.");
+                    textLogger.LogWarning($"Service Dependency: [NEON_SERVICE_DEPENDENCIES_TIMEOUT_SECONDS={timeoutSecondsVar}] is not a valid and will be ignored.");
                 }
             }
 
@@ -166,7 +166,7 @@ namespace Neon.Service
                 }
                 else
                 {
-                    textLogger.LogWarn($"Service Dependency: [NEON_SERVICE_DEPENDENCIES_WAIT_SECONDS={waitSecondsVar}] is not a valid and will be ignored.");
+                    textLogger.LogWarning($"Service Dependency: [NEON_SERVICE_DEPENDENCIES_WAIT_SECONDS={waitSecondsVar}] is not a valid and will be ignored.");
                 }
             }
         }

@@ -65,7 +65,7 @@ namespace TestCadence
                 Assert.Equal(0, message.RequestId);
                 Assert.Null(message.LibraryAddress);
                 Assert.Equal(0, message.LibraryPort);
-                Assert.Equal(LogLevel.None, message.LogLevel);
+                Assert.Equal(NeonLogLevel.None, message.LogLevel);
 
                 // Round-trip
 
@@ -73,13 +73,13 @@ namespace TestCadence
                 message.RequestId      = 555;
                 message.LibraryAddress = "1.2.3.4";
                 message.LibraryPort    = 666;
-                message.LogLevel       = LogLevel.Info;
+                message.LogLevel       = NeonLogLevel.Information;
 
                 Assert.Equal(444, message.ClientId);
                 Assert.Equal(555, message.RequestId);
                 Assert.Equal("1.2.3.4", message.LibraryAddress);
                 Assert.Equal(666, message.LibraryPort);
-                Assert.Equal(LogLevel.Info, message.LogLevel);
+                Assert.Equal(NeonLogLevel.Information, message.LogLevel);
 
                 stream.SetLength(0);
                 stream.Write(message.SerializeAsBytes());
@@ -91,7 +91,7 @@ namespace TestCadence
                 Assert.Equal(555, message.RequestId);
                 Assert.Equal("1.2.3.4", message.LibraryAddress);
                 Assert.Equal(666, message.LibraryPort);
-                Assert.Equal(LogLevel.Info, message.LogLevel);
+                Assert.Equal(NeonLogLevel.Information, message.LogLevel);
 
                 // Clone()
 
@@ -101,7 +101,7 @@ namespace TestCadence
                 Assert.Equal(555, message.RequestId);
                 Assert.Equal("1.2.3.4", message.LibraryAddress);
                 Assert.Equal(666, message.LibraryPort);
-                Assert.Equal(LogLevel.Info, message.LogLevel);
+                Assert.Equal(NeonLogLevel.Information, message.LogLevel);
 
                 // Echo the message via the associated [cadence-proxy] and verify.
 
@@ -111,7 +111,7 @@ namespace TestCadence
                 Assert.Equal(555, message.RequestId);
                 Assert.Equal("1.2.3.4", message.LibraryAddress);
                 Assert.Equal(666, message.LibraryPort);
-                Assert.Equal(LogLevel.Info, message.LogLevel);
+                Assert.Equal(NeonLogLevel.Information, message.LogLevel);
             }
         }
 
@@ -1845,7 +1845,7 @@ namespace TestCadence
                 Assert.Equal(0, message.ClientId);
                 Assert.Equal(0, message.RequestId);
                 Assert.Equal(DateTime.MinValue, message.TimeUtc);
-                Assert.Equal(Neon.Diagnostics.LogLevel.None, message.LogLevel);
+                Assert.Equal(Neon.Diagnostics.NeonLogLevel.None, message.LogLevel);
                 Assert.False(message.FromCadence);
                 Assert.Null(message.LogMessage);
 
@@ -1855,14 +1855,14 @@ namespace TestCadence
                 message.RequestId   = 555;
                 message.TimeUtc     = new DateTime(2019, 8, 27);
                 message.FromCadence = true;
-                message.LogLevel    = Neon.Diagnostics.LogLevel.Info;
+                message.LogLevel    = Neon.Diagnostics.NeonLogLevel.Information;
                 message.LogMessage  = "Hello World!";
 
                 Assert.Equal(444, message.ClientId);
                 Assert.Equal(555, message.RequestId);
                 Assert.Equal(new DateTime(2019, 8, 27), message.TimeUtc);
                 Assert.True(message.FromCadence);
-                Assert.Equal(Neon.Diagnostics.LogLevel.Info, message.LogLevel);
+                Assert.Equal(Neon.Diagnostics.NeonLogLevel.Information, message.LogLevel);
                 Assert.Equal("Hello World!", message.LogMessage);
 
                 stream.SetLength(0);
@@ -1875,7 +1875,7 @@ namespace TestCadence
                 Assert.Equal(555, message.RequestId);
                 Assert.Equal(new DateTime(2019, 8, 27), message.TimeUtc);
                 Assert.True(message.FromCadence);
-                Assert.Equal(Neon.Diagnostics.LogLevel.Info, message.LogLevel);
+                Assert.Equal(Neon.Diagnostics.NeonLogLevel.Information, message.LogLevel);
                 Assert.Equal("Hello World!", message.LogMessage);
 
                 // Clone()
@@ -1886,7 +1886,7 @@ namespace TestCadence
                 Assert.Equal(555, message.RequestId);
                 Assert.Equal(new DateTime(2019, 8, 27), message.TimeUtc);
                 Assert.True(message.FromCadence);
-                Assert.Equal(Neon.Diagnostics.LogLevel.Info, message.LogLevel);
+                Assert.Equal(Neon.Diagnostics.NeonLogLevel.Information, message.LogLevel);
                 Assert.Equal("Hello World!", message.LogMessage);
 
                 // Echo the message via the associated [cadence-proxy] and verify.
@@ -1897,7 +1897,7 @@ namespace TestCadence
                 Assert.Equal(555, message.RequestId);
                 Assert.Equal(new DateTime(2019, 8, 27), message.TimeUtc);
                 Assert.True(message.FromCadence);
-                Assert.Equal(Neon.Diagnostics.LogLevel.Info, message.LogLevel);
+                Assert.Equal(Neon.Diagnostics.NeonLogLevel.Information, message.LogLevel);
                 Assert.Equal("Hello World!", message.LogMessage);
             }
         }

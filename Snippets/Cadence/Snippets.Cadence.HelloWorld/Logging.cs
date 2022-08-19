@@ -93,7 +93,7 @@
         {
             try
             {
-                Workflow.Logger.LogInfo("SendMessagesAsync: started");
+                Workflow.Logger.LogInformation("SendMessagesAsync: started");
 
                 var activityStub = Workflow.NewActivityStub<IEmailActivity>();
                 var emailList    = await activityStub.GetEmailListAsync();
@@ -110,7 +110,7 @@
             }
             finally
             {
-                Workflow.Logger.LogInfo("SendMessagesAsync: finished");
+                Workflow.Logger.LogInformation("SendMessagesAsync: finished");
             }
         }
     }
@@ -126,7 +126,7 @@
             LogManager.Default.SetLogLevel("info");
 
             logger = LogManager.Default.GetLogger(typeof(Program));
-            logger.LogInfo("Starting workflow service");
+            logger.LogInformation("Starting workflow service");
 
             try
             {
@@ -161,7 +161,7 @@
             }
             finally
             {
-                logger.LogInfo("Exiting workflow service");
+                logger.LogInformation("Exiting workflow service");
             }
         }
     }

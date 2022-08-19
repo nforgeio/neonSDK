@@ -104,17 +104,17 @@ namespace TestNeonService
 
                 try
                 {
-                    LogManager.LogLevel = LogLevel.Debug;
+                    LogManager.LogLevel = NeonLogLevel.Debug;
 
                     var logger = LogManager.GetLogger(this.Name);
 
                     logger.LogDebug("debug event");
-                    logger.LogInfo("info event");
-                    logger.LogSInfo("security info event");
-                    logger.LogWarn("warn event");
+                    logger.LogInformation("info event");
+                    logger.LogSecurityInformation("security info event");
+                    logger.LogWarning("warn event");
                     logger.LogTransient("transient event");
                     logger.LogError("error event");
-                    logger.LogSError("security error event");
+                    logger.LogSecurityError("security error event");
                     logger.LogCritical("critical event");
 
                     // Increment the test counter.
@@ -196,17 +196,17 @@ namespace TestNeonService
 
                 try
                 {
-                    LogManager.LogLevel = LogLevel.Debug;
+                    LogManager.LogLevel = NeonLogLevel.Debug;
 
                     var logger = LogManager.GetLogger(this.Name);
 
                     logger.LogDebug("debug event");
-                    logger.LogInfo("info event");
-                    logger.LogSInfo("security info event");
-                    logger.LogWarn("warn event");
+                    logger.LogInformation("info event");
+                    logger.LogSecurityInformation("security info event");
+                    logger.LogWarning("warn event");
                     logger.LogTransient("transient event");
                     logger.LogError("error event");
-                    logger.LogSError("security error event");
+                    logger.LogSecurityError("security error event");
                     logger.LogCritical("critical event");
 
                     // Signal to the test case that the service has done its thing

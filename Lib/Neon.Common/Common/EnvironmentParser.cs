@@ -447,7 +447,7 @@ namespace Neon.Common
 
             if (log != null)
             {
-                log.LogInfo(() => $"{variable}={value}");
+                log.LogInformation(() => $"{variable}={value}");
             }
         }
 

@@ -63,7 +63,7 @@ namespace TestCadence
         /// <summary>
         /// Specifies the log level to use for Cadence related unit tests.
         /// </summary>
-        public static readonly LogLevel LogLevel = LogLevel.Info;
+        public static readonly NeonLogLevel LogLevel = NeonLogLevel.Information;
 
         /// <summary>
         /// Specifies whether Cadence unit tests will connect to Cadence in DEBUG mode

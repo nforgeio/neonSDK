@@ -306,7 +306,7 @@ namespace TestModelGen.AspNet
         public Test_EndToEnd(AspNetFixture fixture, ITestOutputHelper outputHelper)
         {
             var testPort = 0;
-            var logLevel = Neon.Diagnostics.LogLevel.None;
+            var logLevel = Neon.Diagnostics.NeonLogLevel.None;
 
             this.fixture    = fixture;
             this.testWriter = new TestOutputWriter(outputHelper);

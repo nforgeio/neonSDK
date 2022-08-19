@@ -51,7 +51,7 @@ namespace Neon.Diagnostics
     /// </para>
     /// <para>
     /// Log managers provide the <see cref="LogLevel"/> property which can be used to control which events
-    /// are actually recorded.  <see cref="Neon.Diagnostics.LogLevel"/> for information about the relative 
+    /// are actually recorded.  <see cref="Neon.Diagnostics.NeonLogLevel"/> for information about the relative 
     /// lof levels.
     /// </para>
     /// <para>
@@ -89,7 +89,7 @@ namespace Neon.Diagnostics
         /// <summary>
         /// Specifies the level required for events to be actually recorded.
         /// </summary>
-        LogLevel LogLevel { get; set; }
+        NeonLogLevel LogLevel { get; set; }
 
         /// <summary>
         /// Sets the log level by safely parsing a string.
@@ -146,7 +146,10 @@ namespace Neon.Diagnostics
         /// <summary>
         /// Returns a named logger.
         /// </summary>
-        /// <param name="module">The case sensitive logger event source module (defaults to <c>null</c>).</param>
+        /// <param name="categoryName">
+        /// Optionally identifies the event source category.  This is typically used 
+        /// for identifying the event source.
+        /// </param>
         /// <param name="attributes">
         /// Optionally specifies attributes to be included in every event logged by the logger returned.
         /// </param>
@@ -161,7 +164,7 @@ namespace Neon.Diagnostics
         /// if any.  Events will be logged for <c>null</c> functions.
         /// </param>
         /// <returns>The <see cref="INeonLogger"/> instance.</returns>
-        INeonLogger GetLogger(string module = null, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<LogEvent, bool> logFilter = null, Func<bool> isLogEnabledFunc = null);
+        INeonLogger GetLogger(string categoryName = null, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<LogEvent, bool> logFilter = null, Func<bool> isLogEnabledFunc = null);
 
         /// <summary>
         /// Returns a logger to be associated with a specific type.  This method supports both <c>static</c> and normal types.

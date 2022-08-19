@@ -1057,39 +1057,39 @@ namespace Neon.Cadence.Internal
         }
 
         /// <summary>
-        /// Converts a Neon <see cref="Neon.Diagnostics.LogLevel"/> value into a <b>cadence-proxy</b> compatible
+        /// Converts a Neon <see cref="Neon.Diagnostics.NeonLogLevel"/> value into a <b>cadence-proxy</b> compatible
         /// log level string.
         /// </summary>
         /// <param name="logLevel">The input log level.</param>
         /// <returns>The <b>cadence-proxy</b> compatable level string.</returns>
-        internal static string ToCadenceLogLevel(LogLevel logLevel)
+        internal static string ToCadenceLogLevel(NeonLogLevel logLevel)
         {
             switch (logLevel)
             {
-                case LogLevel.Critical: 
+                case NeonLogLevel.Fatal: 
                     
                     return "fatal";
 
-                case LogLevel.Debug:    
+                case NeonLogLevel.Debug:    
                     
                     return "debug";
 
-                case LogLevel.Error:    
-                case LogLevel.SError:   
+                case NeonLogLevel.Error:    
+                case NeonLogLevel.SecurityError:   
                     
                     return "error";
 
-                case LogLevel.Info:
-                case LogLevel.SInfo:
+                case NeonLogLevel.Information:
+                case NeonLogLevel.SecurityInformation:
                 default:
 
                     return "info";
 
-                case LogLevel.None:     
+                case NeonLogLevel.None:     
                     
                     return "none";
 
-                case LogLevel.Warn:
+                case NeonLogLevel.Warning:
 
                     return "warn";
             }

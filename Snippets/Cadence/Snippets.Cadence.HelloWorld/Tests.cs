@@ -43,7 +43,7 @@ namespace MyTests
             var settings = new CadenceSettings()
             {
                 DefaultDomain = "test-domain",
-                LogLevel      = LogLevel.Info,
+                LogLevel      = NeonLogLevel.Information,
                 CreateDomain  = true            // <-- this ensures that the default domain exists
             };
 

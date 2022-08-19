@@ -36,7 +36,10 @@ namespace Neon.Diagnostics
     /// logger implementations.
     /// </summary>
     /// <param name="logManager">The parent log manager.</param>
-    /// <param name="module">The case sensitive logger event source module (defaults to <c>null</c>).</param>
+    /// <param name="categoryName">
+    /// Optionally identifies the event source category.  This is typically used 
+    /// for identifying the event source.
+    /// </param>
     /// <param name="writer">
     /// Optionally specifies a target <see cref="TextWriter"/>.  This can be useful for 
     /// redirecting the ourput of a text logger to a file or somewhere else.  This parameter
@@ -54,5 +57,5 @@ namespace Neon.Diagnostics
     /// if any.  Events will be logged for <c>null</c> functions.
     /// </param>
     /// <returns>The <see cref="INeonLogger"/> instance.</returns>
-    public delegate INeonLogger LoggerCreatorDelegate(LogManager logManager, string module, TextWriter writer, Func<LogEvent, bool> logFilter, Func<bool> isLogEnabledFunc);
+    public delegate INeonLogger LoggerCreatorDelegate(LogManager logManager, string categoryName, TextWriter writer, Func<LogEvent, bool> logFilter, Func<bool> isLogEnabledFunc);
 }

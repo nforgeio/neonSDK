@@ -55,10 +55,10 @@ namespace Neon.Cadence.Internal
         /// <summary>
         /// Identifies the log level.
         /// </summary>
-        public LogLevel LogLevel
+        public NeonLogLevel LogLevel
         {
-            get => GetEnumProperty<LogLevel>(PropertyNames.LogLevel);
-            set => SetEnumProperty<LogLevel>(PropertyNames.LogLevel, value);
+            get => GetEnumProperty<NeonLogLevel>(PropertyNames.LogLevel);
+            set => SetEnumProperty<NeonLogLevel>(PropertyNames.LogLevel, value);
         }
 
         /// <summary>

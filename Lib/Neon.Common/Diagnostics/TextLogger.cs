@@ -17,21 +17,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 using Microsoft.Extensions.Logging;
-
 using Neon.Common;
-
 using Prometheus;
 
 namespace Neon.Diagnostics
@@ -51,46 +41,49 @@ namespace Neon.Diagnostics
         //---------------------------------------------------------------------
         // Instance members
 
-        private ILogManager                                 logManager;
-        private string                                      module;
-        private bool                                        infoAsDebug;
-        private TextWriter                                  writer;
-        private IEnumerable<KeyValuePair<string, string>>   attributes = null;
-        private Func<LogEvent, bool>                        logFilter;
-        private Func<bool>                                  isLogEnabledFunc;
+        private ILogManager             logManager;
+        private string                  categoryName;
+        private bool                    infoAsDebug;
+        private TextWriter              writer;
+        private LogAttributes           attributes;
+        private Func<LogEvent, bool>    logFilter;
+        private Func<bool>              isLogEnabledFunc;
 
         /// <inheritdoc/>
-        public bool IsLogTraceEnabled => logManager.LogLevel <= LogLevel.Trace;
+        public bool IsLogTraceEnabled => logManager.LogLevel <= NeonLogLevel.Trace;
 
         /// <inheritdoc/>
-        public bool IsLogDebugEnabled => logManager.LogLevel <= LogLevel.Debug;
+        public bool IsLogDebugEnabled => logManager.LogLevel <= NeonLogLevel.Debug;
 
         /// <inheritdoc/>
-        public bool IsLogTransientEnabled => logManager.LogLevel <= LogLevel.Transient;
+        public bool IsLogTransientEnabled => logManager.LogLevel <= NeonLogLevel.Transient;
 
         /// <inheritdoc/>
-        public bool IsLogErrorEnabled => logManager.LogLevel <= LogLevel.Error;
+        public bool IsLogErrorEnabled => logManager.LogLevel <= NeonLogLevel.Error;
 
         /// <inheritdoc/>
-        public bool IsLogSErrorEnabled => logManager.LogLevel <= LogLevel.SError;
+        public bool IsLogSecurityErrorEnabled => logManager.LogLevel <= NeonLogLevel.SecurityError;
 
         /// <inheritdoc/>
-        public bool IsLogCriticalEnabled => logManager.LogLevel <= LogLevel.Critical;
+        public bool IsLogCriticalEnabled => logManager.LogLevel <= NeonLogLevel.Fatal;
 
         /// <inheritdoc/>
-        public bool IsLogInfoEnabled => logManager.LogLevel <= LogLevel.Info;
+        public bool IsLogInformationEnabled => logManager.LogLevel <= NeonLogLevel.Information;
 
         /// <inheritdoc/>
-        public bool IsLogSInfoEnabled => logManager.LogLevel <= LogLevel.SInfo;
+        public bool IsLogSecurityInformationEnabled => logManager.LogLevel <= NeonLogLevel.SecurityInformation;
 
         /// <inheritdoc/>
-        public bool IsLogWarnEnabled => logManager.LogLevel <= LogLevel.Warn;
+        public bool IsLogWarningEnabled => logManager.LogLevel <= NeonLogLevel.Warning;
 
         /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="logManager">The parent log manager or <c>null</c>.</param>
-        /// <param name="module">Optionally identifies the event source module or <c>null</c>.</param>
+        /// <param name="categoryName">
+        /// Optionally identifies the event source category.  This is typically used 
+        /// for identifying the event source.
+        /// </param>
         /// <param name="writer">Optionally specifies the output writer.  This defaults to <see cref="Console.Error"/>.</param>
         /// <param name="attributes">
         /// Optionally specifies attributes to be included in every event logged by the logger returned.  This may
@@ -120,15 +113,15 @@ namespace Neon.Diagnostics
         /// </note>
         /// </remarks>
         public TextLogger(
-            ILogManager                                 logManager,
-            string                                      module           = null,
-            TextWriter                                  writer           = null,
-            IEnumerable<KeyValuePair<string, string>>   attributes       = null,
-            Func<LogEvent, bool>                        logFilter        = null,
-            Func<bool>                                  isLogEnabledFunc = null)
+            ILogManager             logManager,
+            string                  categoryName     = null,
+            TextWriter              writer           = null,
+            LogAttributes           attributes       = null,
+            Func<LogEvent, bool>    logFilter        = null,
+            Func<bool>              isLogEnabledFunc = null)
         {
             this.logManager       = logManager ?? LogManager.Disabled;
-            this.module           = module;
+            this.categoryName     = categoryName;
             this.writer           = writer ?? Console.Error;
             this.attributes       = attributes;
             this.logFilter        = logFilter;
@@ -139,11 +132,11 @@ namespace Neon.Diagnostics
             // We're going to assume that ASP.NET related loggers are always
             // prefixed by: [Microsoft.AspNetCore]
 
-            this.infoAsDebug = module != null && module.StartsWith("Microsoft.AspNetCore.");
+            this.infoAsDebug = categoryName != null && categoryName.StartsWith("Microsoft.AspNetCore.");
         }
 
         /// <inheritdoc/>
-        public bool IsLogLevelEnabled(LogLevel logLevel)
+        public bool IsLogLevelEnabled(NeonLogLevel logLevel)
         {
             // Verify that logging isn't temporarily disabled.
 
@@ -156,43 +149,43 @@ namespace Neon.Diagnostics
 
             switch (logLevel)
             {
-                case LogLevel.None:
+                case NeonLogLevel.None:
 
                     return false;
 
-                case LogLevel.Critical:
+                case NeonLogLevel.Fatal:
 
                     return IsLogCriticalEnabled;
 
-                case LogLevel.SError:
+                case NeonLogLevel.SecurityError:
 
-                    return IsLogSErrorEnabled;
+                    return IsLogSecurityErrorEnabled;
 
-                case LogLevel.Error:
+                case NeonLogLevel.Error:
 
                     return IsLogErrorEnabled;
 
-                case LogLevel.Warn:
+                case NeonLogLevel.Warning:
 
-                    return IsLogWarnEnabled;
+                    return IsLogWarningEnabled;
 
-                case LogLevel.SInfo:
+                case NeonLogLevel.SecurityInformation:
 
-                    return IsLogSInfoEnabled;
+                    return IsLogSecurityInformationEnabled;
 
-                case LogLevel.Info:
+                case NeonLogLevel.Information:
 
-                    return IsLogInfoEnabled;
+                    return IsLogInformationEnabled;
 
-                case LogLevel.Transient:
+                case NeonLogLevel.Transient:
 
                     return IsLogTransientEnabled;
 
-                case LogLevel.Debug:
+                case NeonLogLevel.Debug:
 
                     return IsLogDebugEnabled;
 
-                case LogLevel.Trace:
+                case NeonLogLevel.Trace:
 
                     return IsLogTraceEnabled;
 
@@ -230,7 +223,7 @@ namespace Neon.Diagnostics
         /// <param name="e">Optionally passed as a related exception.</param>
         /// <param name="attributes">Optionally specifies key/value pairs to be added to the event as attributes.</param>
         /// <param name="attributeGetter">Optionally specifies a function that returns key/value pairs to be added to the event as attributes.</param>
-        private void Log(LogLevel logLevel, string message, Exception e = null, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null)
+        private void Log(NeonLogLevel logLevel, string message, Exception e = null, LogAttributes attributes = null, Func<LogAttributes> attributeGetter = null)
         {
             // Increment the metrics counter for the event type.  Note that we're
             // going to increment the count even when logging for the level is
@@ -239,51 +232,51 @@ namespace Neon.Diagnostics
 
             switch (logLevel)
             {
-                case LogLevel.Critical:
+                case NeonLogLevel.Fatal:
 
                     LogEventCountByLevel.WithLabels("critical").Inc();
                     break;
 
-                case LogLevel.Debug:
+                case NeonLogLevel.Debug:
 
                     LogEventCountByLevel.WithLabels("debug").Inc();
                     break;
 
-                case LogLevel.Error:
+                case NeonLogLevel.Error:
 
                     LogEventCountByLevel.WithLabels("error").Inc();
                     break;
 
-                case LogLevel.Info:
+                case NeonLogLevel.Information:
 
                     LogEventCountByLevel.WithLabels("info").Inc();
                     break;
 
-                case LogLevel.None:
+                case NeonLogLevel.None:
 
                     break;
 
-                case LogLevel.SError:
+                case NeonLogLevel.SecurityError:
 
                     LogEventCountByLevel.WithLabels("serror").Inc();
                     break;
 
-                case LogLevel.SInfo:
+                case NeonLogLevel.SecurityInformation:
 
                     LogEventCountByLevel.WithLabels("sinfo").Inc();
                     break;
 
-                case LogLevel.Trace:
+                case NeonLogLevel.Trace:
 
                     LogEventCountByLevel.WithLabels("trace").Inc();
                     break;
 
-                case LogLevel.Transient:
+                case NeonLogLevel.Transient:
 
                     LogEventCountByLevel.WithLabels("transient").Inc();
                     break;
 
-                case LogLevel.Warn:
+                case NeonLogLevel.Warning:
 
                     LogEventCountByLevel.WithLabels("warn").Inc();
                     break;
@@ -293,14 +286,14 @@ namespace Neon.Diagnostics
                     throw new NotImplementedException();
             }
 
-            if (infoAsDebug && logLevel == LogLevel.Info)
+            if (infoAsDebug && logLevel == NeonLogLevel.Information)
             {
                 if (!IsLogDebugEnabled)
                 {
                     return;
                 }
 
-                logLevel = LogLevel.Debug;
+                logLevel = NeonLogLevel.Debug;
             }
 
             if (logFilter != null)
@@ -309,7 +302,7 @@ namespace Neon.Diagnostics
 
                 var logEvent =
                     new LogEvent(
-                        categoryName: this.module,
+                        categoryName: this.categoryName,
                         index:        0,                  // We don't set this when filtering
                         timestamp:    DateTime.UtcNow,
                         logLevel:     logLevel,
@@ -325,64 +318,7 @@ namespace Neon.Diagnostics
                 }
             }
 
-            string level;
-
-            switch (logLevel)
-            {
-                case LogLevel.Critical:
-                    
-                    level = "CRITICAL";
-                    break;
-
-                case LogLevel.Debug:       
-                    
-                    level = "DEBUG";
-                    break;
-
-                case LogLevel.Error:      
-                    
-                    level = "ERROR";
-                    break;
-
-                case LogLevel.Info:       
-                    
-                    level = "INFO";
-                    break;
-
-                case LogLevel.None:    
-                    
-                    level = "NONE"; 
-                    break;
-
-                case LogLevel.SError:     
-                    
-                    level = "SERROR";
-                    break;
-
-                case LogLevel.SInfo:  
-                    
-                    level = "SINFO";
-                    break;
-
-                case LogLevel.Trace:
-
-                    level = "TRACE";
-                    break;
-
-                case LogLevel.Transient:
-
-                    level = "TRANSIENT";
-                    break;
-
-                case LogLevel.Warn:     
-                    
-                    level = "WARN";
-                    break;
-
-                default:
-
-                    throw new NotImplementedException();
-            }
+            var level = NeonHelper.EnumToString(logLevel);
 
             message = Normalize(message);
 
@@ -393,11 +329,11 @@ namespace Neon.Diagnostics
                 version = $" [version:{this.logManager.Version}]";
             }
 
-            var module = string.Empty;
+            var categoryName = string.Empty;
 
-            if (!string.IsNullOrEmpty(this.module))
+            if (!string.IsNullOrEmpty(this.categoryName))
             {
-                module = $" [module:{this.module}]";
+                categoryName = $" [categoryName:{this.categoryName}]";
             }
 
             var index = string.Empty;
@@ -411,22 +347,22 @@ namespace Neon.Diagnostics
             {
                 var timestamp = DateTime.UtcNow.ToString(NeonHelper.DateFormatTZ);
 
-                writer.WriteLine($"[{timestamp}] [{level}]{version}{module}{index} {message}");
+                writer.WriteLine($"[{timestamp}] [{level}]{version}{categoryName}{index} {message}");
             }
             else
             {
-                writer.WriteLine($"[{level}]{version}{module}{index} {message}");
+                writer.WriteLine($"[{level}]{version}{categoryName}{index} {message}");
             }
         }
 
         /// <inheritdoc/>
-        public void LogDebug(string message, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null)
+        public void LogDebug(string message, LogAttributes attributes = null, Func<LogAttributes> attributeGetter = null)
         {
             if (IsLogDebugEnabled)
             {
                 try
                 {
-                    Log(LogLevel.Debug, message, attributes: attributes, attributeGetter: attributeGetter);
+                    Log(NeonLogLevel.Debug, message, attributes: attributes, attributeGetter: attributeGetter);
                 }
                 catch
                 {
@@ -436,7 +372,7 @@ namespace Neon.Diagnostics
         }
 
         /// <inheritdoc/>
-        public void LogDebug(string message, Exception e, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null)
+        public void LogDebug(string message, Exception e, LogAttributes attributes = null, Func<LogAttributes> attributeGetter = null)
         {
             Covenant.Requires<ArgumentNullException>(e != null, nameof(e));
 
@@ -446,11 +382,11 @@ namespace Neon.Diagnostics
                 {
                     if (message != null)
                     {
-                        Log(LogLevel.Debug, $"{message} {NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
+                        Log(NeonLogLevel.Debug, $"{message} {NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
                     }
                     else
                     {
-                        Log(LogLevel.Debug, $"{NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
+                        Log(NeonLogLevel.Debug, $"{NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
                     }
                 }
                 catch
@@ -461,13 +397,13 @@ namespace Neon.Diagnostics
         }
 
         /// <inheritdoc/>
-        public void LogTransient(string message, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null)
+        public void LogTransient(string message, LogAttributes attributes = null, Func<LogAttributes> attributeGetter = null)
         {
             if (IsLogTransientEnabled)
             {
                 try
                 {
-                    Log(LogLevel.Transient, message, attributes: attributes, attributeGetter: attributeGetter);
+                    Log(NeonLogLevel.Transient, message, attributes: attributes, attributeGetter: attributeGetter);
                 }
                 catch
                 {
@@ -477,7 +413,7 @@ namespace Neon.Diagnostics
         }
 
         /// <inheritdoc/>
-        public void LogTransient(string message, Exception e, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null)
+        public void LogTransient(string message, Exception e, LogAttributes attributes = null, Func<LogAttributes> attributeGetter = null)
         {
             Covenant.Requires<ArgumentNullException>(e != null, nameof(e));
 
@@ -487,11 +423,11 @@ namespace Neon.Diagnostics
                 {
                     if (message != null)
                     {
-                        Log(LogLevel.Transient, $"{message} {NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
+                        Log(NeonLogLevel.Transient, $"{message} {NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
                     }
                     else
                     {
-                        Log(LogLevel.Transient, $"{NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
+                        Log(NeonLogLevel.Transient, $"{NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
                     }
                 }
                 catch
@@ -502,13 +438,13 @@ namespace Neon.Diagnostics
         }
 
         /// <inheritdoc/>
-        public void LogError(string message, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null)
+        public void LogError(string message, LogAttributes attributes = null, Func<LogAttributes> attributeGetter = null)
         {
             if (IsLogErrorEnabled)
             {
                 try
                 {
-                    Log(LogLevel.Error, message, attributes: attributes, attributeGetter: attributeGetter);
+                    Log(NeonLogLevel.Error, message, attributes: attributes, attributeGetter: attributeGetter);
                 }
                 catch
                 {
@@ -518,7 +454,7 @@ namespace Neon.Diagnostics
         }
 
         /// <inheritdoc/>
-        public void LogError(string message, Exception e, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null)
+        public void LogError(string message, Exception e, LogAttributes attributes = null, Func<LogAttributes> attributeGetter = null)
         {
             Covenant.Requires<ArgumentNullException>(e != null, nameof(e));
 
@@ -528,11 +464,11 @@ namespace Neon.Diagnostics
                 {
                     if (message != null)
                     {
-                        Log(LogLevel.Error, $"{message} {NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
+                        Log(NeonLogLevel.Error, $"{message} {NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
                     }
                     else
                     {
-                        Log(LogLevel.Error, $"{NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
+                        Log(NeonLogLevel.Error, $"{NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
                     }
                 }
                 catch
@@ -543,13 +479,13 @@ namespace Neon.Diagnostics
         }
 
         /// <inheritdoc/>
-        public void LogSError(string message, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null)
+        public void LogSecurityError(string message, LogAttributes attributes = null, Func<LogAttributes> attributeGetter = null)
         {
-            if (IsLogSErrorEnabled)
+            if (IsLogSecurityErrorEnabled)
             {
                 try
                 {
-                    Log(LogLevel.SError, message, attributes: attributes, attributeGetter: attributeGetter);
+                    Log(NeonLogLevel.SecurityError, message, attributes: attributes, attributeGetter: attributeGetter);
                 }
                 catch
                 {
@@ -559,21 +495,21 @@ namespace Neon.Diagnostics
         }
 
         /// <inheritdoc/>
-        public void LogSError(string message, Exception e, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null)
+        public void LogSecurityError(string message, Exception e, LogAttributes attributes = null, Func<LogAttributes> attributeGetter = null)
         {
             Covenant.Requires<ArgumentNullException>(e != null, nameof(e));
 
-            if (IsLogSErrorEnabled)
+            if (IsLogSecurityErrorEnabled)
             {
                 try
                 {
                     if (message != null)
                     {
-                        Log(LogLevel.SError, $"{message} {NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
+                        Log(NeonLogLevel.SecurityError, $"{message} {NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
                     }
                     else
                     {
-                        Log(LogLevel.SError, $"{NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
+                        Log(NeonLogLevel.SecurityError, $"{NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
                     }
                 }
                 catch
@@ -584,13 +520,13 @@ namespace Neon.Diagnostics
         }
 
         /// <inheritdoc/>
-        public void LogCritical(string message, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null)
+        public void LogCritical(string message, LogAttributes attributes = null, Func<LogAttributes> attributeGetter = null)
         {
             if (IsLogCriticalEnabled)
             {
                 try
                 {
-                    Log(LogLevel.Critical, message, attributes: attributes, attributeGetter: attributeGetter);
+                    Log(NeonLogLevel.Fatal, message, attributes: attributes, attributeGetter: attributeGetter);
                 }
                 catch
                 {
@@ -600,7 +536,7 @@ namespace Neon.Diagnostics
         }
 
         /// <inheritdoc/>
-        public void LogCritical(string message, Exception e, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null)
+        public void LogCritical(string message, Exception e, LogAttributes attributes = null, Func<LogAttributes> attributeGetter = null)
         {
             Covenant.Requires<ArgumentNullException>(e != null, nameof(e));
 
@@ -610,11 +546,11 @@ namespace Neon.Diagnostics
                 {
                     if (message != null)
                     {
-                        Log(LogLevel.Critical, $"{message} {NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
+                        Log(NeonLogLevel.Fatal, $"{message} {NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
                     }
                     else
                     {
-                        Log(LogLevel.Critical, $"{NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
+                        Log(NeonLogLevel.Fatal, $"{NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
                     }
                 }
                 catch
@@ -625,13 +561,13 @@ namespace Neon.Diagnostics
         }
 
         /// <inheritdoc/>
-        public void LogInfo(string message, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null)
+        public void LogInformation(string message, LogAttributes attributes = null, Func<LogAttributes> attributeGetter = null)
         {
-            if (IsLogInfoEnabled)
+            if (IsLogInformationEnabled)
             {
                 try
                 {
-                    Log(LogLevel.Info, message, attributes: attributes, attributeGetter: attributeGetter);
+                    Log(NeonLogLevel.Information, message, attributes: attributes, attributeGetter: attributeGetter);
                 }
                 catch
                 {
@@ -641,21 +577,21 @@ namespace Neon.Diagnostics
         }
 
         /// <inheritdoc/>
-        public void LogInfo(string message, Exception e, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null)
+        public void LogInformation(string message, Exception e, LogAttributes attributes = null, Func<LogAttributes> attributeGetter = null)
         {
             Covenant.Requires<ArgumentNullException>(e != null, nameof(e));
 
-            if (IsLogInfoEnabled)
+            if (IsLogInformationEnabled)
             {
                 try
                 {
                     if (message != null)
                     {
-                        Log(LogLevel.Info, $"{message} {NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
+                        Log(NeonLogLevel.Information, $"{message} {NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
                     }
                     else
                     {
-                        Log(LogLevel.Info, $"{NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
+                        Log(NeonLogLevel.Information, $"{NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
                     }
                 }
                 catch
@@ -666,13 +602,13 @@ namespace Neon.Diagnostics
         }
 
         /// <inheritdoc/>
-        public void LogSInfo(string message, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null)
+        public void LogSecurityInformation(string message, LogAttributes attributes = null, Func<LogAttributes> attributeGetter = null)
         {
-            if (IsLogSInfoEnabled)
+            if (IsLogSecurityInformationEnabled)
             {
                 try
                 {
-                    Log(LogLevel.SInfo, message, attributes: attributes, attributeGetter: attributeGetter);
+                    Log(NeonLogLevel.SecurityInformation, message, attributes: attributes, attributeGetter: attributeGetter);
                 }
                 catch
                 {
@@ -682,21 +618,21 @@ namespace Neon.Diagnostics
         }
 
         /// <inheritdoc/>
-        public void LogSInfo(string message, Exception e, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null)
+        public void LogSecurityInformation(string message, Exception e, LogAttributes attributes = null, Func<LogAttributes> attributeGetter = null)
         {
             Covenant.Requires<ArgumentNullException>(e != null, nameof(e));
 
-            if (IsLogSInfoEnabled)
+            if (IsLogSecurityInformationEnabled)
             {
                 try
                 {
                     if (message != null)
                     {
-                        Log(LogLevel.SInfo, $"{message} {NeonHelper.ExceptionError(e, stackTrace: true)}", attributes: attributes, attributeGetter: attributeGetter);
+                        Log(NeonLogLevel.SecurityInformation, $"{message} {NeonHelper.ExceptionError(e, stackTrace: true)}", attributes: attributes, attributeGetter: attributeGetter);
                     }
                     else
                     {
-                        Log(LogLevel.SInfo, $"{NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
+                        Log(NeonLogLevel.SecurityInformation, $"{NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
                     }
                 }
                 catch
@@ -707,13 +643,13 @@ namespace Neon.Diagnostics
         }
 
         /// <inheritdoc/>
-        public void LogWarn(string message, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null)
+        public void LogWarning(string message, LogAttributes attributes = null, Func<LogAttributes> attributeGetter = null)
         {
-            if (IsLogWarnEnabled)
+            if (IsLogWarningEnabled)
             {
                 try
                 {
-                    Log(LogLevel.Warn, message, attributes: attributes, attributeGetter: attributeGetter);
+                    Log(NeonLogLevel.Warning, message, attributes: attributes, attributeGetter: attributeGetter);
                 }
                 catch
                 {
@@ -723,21 +659,21 @@ namespace Neon.Diagnostics
         }
 
         /// <inheritdoc/>
-        public void LogWarn(string message, Exception e, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<IEnumerable<KeyValuePair<string, string>>> attributeGetter = null)
+        public void LogWarning(string message, Exception e, LogAttributes attributes = null, Func<LogAttributes> attributeGetter = null)
         {
             Covenant.Requires<ArgumentNullException>(e != null, nameof(e));
 
-            if (IsLogWarnEnabled)
+            if (IsLogWarningEnabled)
             {
                 try
                 {
                     if (message != null)
                     {
-                        Log(LogLevel.Warn, $"{message} {NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
+                        Log(NeonLogLevel.Warning, $"{message} {NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
                     }
                     else
                     {
-                        Log(LogLevel.Warn, $"{NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
+                        Log(NeonLogLevel.Warning, $"{NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
                     }
                 }
                 catch
@@ -777,36 +713,36 @@ namespace Neon.Diagnostics
         /// Converts a Microsoft log level into the corresponding Neon level.
         /// </summary>
         /// <param name="logLevel">The Microsoft log level.</param>
-        /// <returns>The Neon <see cref="LogLevel"/>.</returns>
-        private static LogLevel ToNeonLevel(Microsoft.Extensions.Logging.LogLevel logLevel)
+        /// <returns>The Neon <see cref="NeonLogLevel"/>.</returns>
+        private static NeonLogLevel ToNeonLevel(Microsoft.Extensions.Logging.LogLevel logLevel)
         {
             switch (logLevel)
             {
                 default:
                 case Microsoft.Extensions.Logging.LogLevel.None:
 
-                    return LogLevel.None;
+                    return NeonLogLevel.None;
 
                 case Microsoft.Extensions.Logging.LogLevel.Debug:
                 case Microsoft.Extensions.Logging.LogLevel.Trace:
 
-                    return LogLevel.Debug;
+                    return NeonLogLevel.Debug;
 
                 case Microsoft.Extensions.Logging.LogLevel.Information:
 
-                    return LogLevel.Info;
+                    return NeonLogLevel.Information;
 
                 case Microsoft.Extensions.Logging.LogLevel.Warning:
 
-                    return LogLevel.Warn;
+                    return NeonLogLevel.Warning;
 
                 case Microsoft.Extensions.Logging.LogLevel.Error:
 
-                    return LogLevel.Error;
+                    return NeonLogLevel.Error;
 
                 case Microsoft.Extensions.Logging.LogLevel.Critical:
 
-                    return LogLevel.Critical;
+                    return NeonLogLevel.Fatal;
             }
         }
 
@@ -822,7 +758,7 @@ namespace Neon.Diagnostics
 
             switch (ToNeonLevel(logLevel))
             {
-                case LogLevel.Critical:
+                case NeonLogLevel.Fatal:
 
                     if (e == null)
                     {
@@ -834,8 +770,8 @@ namespace Neon.Diagnostics
                     }
                     break;
 
-                case LogLevel.Debug:
-                case LogLevel.Transient:
+                case NeonLogLevel.Debug:
+                case NeonLogLevel.Transient:
 
                     if (e == null)
                     {
@@ -847,7 +783,7 @@ namespace Neon.Diagnostics
                     }
                     break;
 
-                case LogLevel.Error:
+                case NeonLogLevel.Error:
 
                     if (e == null)
                     {
@@ -859,51 +795,51 @@ namespace Neon.Diagnostics
                     }
                     break;
 
-                case LogLevel.Info:
+                case NeonLogLevel.Information:
 
                     if (e == null)
                     {
-                        LogInfo(message);
+                        LogInformation(message);
                     }
                     else
                     {
-                        LogInfo(message, e);
+                        LogInformation(message, e);
                     }
                     break;
 
-                case LogLevel.SError:
+                case NeonLogLevel.SecurityError:
 
                     if (e == null)
                     {
-                        LogSError(message);
+                        LogSecurityError(message);
                     }
                     else
                     {
-                        LogSError(message, e);
+                        LogSecurityError(message, e);
                     }
                     break;
 
-                case LogLevel.SInfo:
+                case NeonLogLevel.SecurityInformation:
 
                     if (e == null)
                     {
-                        LogSInfo(message);
+                        LogSecurityInformation(message);
                     }
                     else
                     {
-                        LogSInfo(message, e);
+                        LogSecurityInformation(message, e);
                     }
                     break;
 
-                case LogLevel.Warn:
+                case NeonLogLevel.Warning:
 
                     if (e == null)
                     {
-                        LogWarn(message);
+                        LogWarning(message);
                     }
                     else
                     {
-                        LogWarn(message, e);
+                        LogWarning(message, e);
                     }
                     break;
             }

@@ -771,11 +771,11 @@ namespace Neon.Cadence
                         {
                             if (File.Exists(binaryPath))
                             {
-                                log.LogWarn($"[cadence-proxy] binary [{binaryPath}] already exists and is probably read-only.", e);
+                                log.LogWarning($"[cadence-proxy] binary [{binaryPath}] already exists and is probably read-only.", e);
                             }
                             else
                             {
-                                log.LogWarn($"[cadence-proxy] binary [{binaryPath}] cannot be written.", e);
+                                log.LogWarning($"[cadence-proxy] binary [{binaryPath}] cannot be written.", e);
                             }
                         }
 
@@ -1240,7 +1240,7 @@ namespace Neon.Cadence
                 }
                 else
                 {
-                    log.LogWarn(() => $"Reply [type={reply.Type}, requestId={reply.RequestId}] does not map to a pending operation and will be ignored.");
+                    log.LogWarning(() => $"Reply [type={reply.Type}, requestId={reply.RequestId}] does not map to a pending operation and will be ignored.");
 
                     httpReply.StatusCode = 400;     // BadRequest;
                     httpReply.Message    = $"[cadence-client] does not have a pending operation with [requestId={reply.RequestId}].";
@@ -1267,41 +1267,41 @@ namespace Neon.Cadence
                 switch (logRequest.LogLevel)
                 {
                     default:
-                    case Neon.Diagnostics.LogLevel.None:
+                    case Neon.Diagnostics.NeonLogLevel.None:
 
                         break;  // NOP
 
-                    case Neon.Diagnostics.LogLevel.Critical:
+                    case Neon.Diagnostics.NeonLogLevel.Fatal:
 
                         cadenceLogger.LogCritical(logRequest.LogMessage);
                         break;
 
-                    case Neon.Diagnostics.LogLevel.SError:
+                    case Neon.Diagnostics.NeonLogLevel.SecurityError:
 
-                        cadenceLogger.LogSError(logRequest.LogMessage);
+                        cadenceLogger.LogSecurityError(logRequest.LogMessage);
                         break;
 
-                    case Neon.Diagnostics.LogLevel.Error:
+                    case Neon.Diagnostics.NeonLogLevel.Error:
 
                         cadenceLogger.LogError(logRequest.LogMessage);
                         break;
 
-                    case Neon.Diagnostics.LogLevel.Warn:
+                    case Neon.Diagnostics.NeonLogLevel.Warning:
 
-                        cadenceLogger.LogWarn(logRequest.LogMessage);
+                        cadenceLogger.LogWarning(logRequest.LogMessage);
                         break;
 
-                    case Neon.Diagnostics.LogLevel.Info:
+                    case Neon.Diagnostics.NeonLogLevel.Information:
 
-                        cadenceLogger.LogInfo(logRequest.LogMessage);
+                        cadenceLogger.LogInformation(logRequest.LogMessage);
                         break;
 
-                    case Neon.Diagnostics.LogLevel.SInfo:
+                    case Neon.Diagnostics.NeonLogLevel.SecurityInformation:
 
-                        cadenceLogger.LogSInfo(logRequest.LogMessage);
+                        cadenceLogger.LogSecurityInformation(logRequest.LogMessage);
                         break;
 
-                    case Neon.Diagnostics.LogLevel.Debug:
+                    case Neon.Diagnostics.NeonLogLevel.Debug:
 
                         cadenceLogger.LogDebug(logRequest.LogMessage);
                         break;
@@ -1312,41 +1312,41 @@ namespace Neon.Cadence
                 switch (logRequest.LogLevel)
                 {
                     default:
-                    case Neon.Diagnostics.LogLevel.None:
+                    case Neon.Diagnostics.NeonLogLevel.None:
 
                         break;  // NOP
 
-                    case Neon.Diagnostics.LogLevel.Critical:
+                    case Neon.Diagnostics.NeonLogLevel.Fatal:
 
                         cadenceProxyLogger.LogCritical(logRequest.LogMessage);
                         break;
 
-                    case Neon.Diagnostics.LogLevel.SError:
+                    case Neon.Diagnostics.NeonLogLevel.SecurityError:
 
-                        cadenceProxyLogger.LogSError(logRequest.LogMessage);
+                        cadenceProxyLogger.LogSecurityError(logRequest.LogMessage);
                         break;
 
-                    case Neon.Diagnostics.LogLevel.Error:
+                    case Neon.Diagnostics.NeonLogLevel.Error:
 
                         cadenceProxyLogger.LogError(logRequest.LogMessage);
                         break;
 
-                    case Neon.Diagnostics.LogLevel.Warn:
+                    case Neon.Diagnostics.NeonLogLevel.Warning:
 
-                        cadenceProxyLogger.LogWarn(logRequest.LogMessage);
+                        cadenceProxyLogger.LogWarning(logRequest.LogMessage);
                         break;
 
-                    case Neon.Diagnostics.LogLevel.Info:
+                    case Neon.Diagnostics.NeonLogLevel.Information:
 
-                        cadenceProxyLogger.LogInfo(logRequest.LogMessage);
+                        cadenceProxyLogger.LogInformation(logRequest.LogMessage);
                         break;
 
-                    case Neon.Diagnostics.LogLevel.SInfo:
+                    case Neon.Diagnostics.NeonLogLevel.SecurityInformation:
 
-                        cadenceProxyLogger.LogSInfo(logRequest.LogMessage);
+                        cadenceProxyLogger.LogSecurityInformation(logRequest.LogMessage);
                         break;
 
-                    case Neon.Diagnostics.LogLevel.Debug:
+                    case Neon.Diagnostics.NeonLogLevel.Debug:
 
                         cadenceProxyLogger.LogDebug(logRequest.LogMessage);
                         break;
@@ -1601,7 +1601,7 @@ namespace Neon.Cadence
                 initialRetryInterval: TimeSpan.FromSeconds(0.25),
                 maxRetryInterval:     TimeSpan.FromSeconds(1),
                 timeout:              TimeSpan.FromSeconds(60),
-                sourceModule:         nameof(CadenceClient));
+                categoryName:         nameof(CadenceClient));
 
             lock (syncLock)
             {
@@ -2207,7 +2207,7 @@ namespace Neon.Cadence
                             // run in parallel rather than waiting for them to complete
                             // one-by-one.
 
-                            log.LogWarn(() => $"Request Timeout: [request={operation.Request.GetType().Name}, started={operation.StartTimeUtc.ToString(NeonHelper.DateFormat100NsTZ)}, timeout={operation.Timeout}].");
+                            log.LogWarning(() => $"Request Timeout: [request={operation.Request.GetType().Name}, started={operation.StartTimeUtc.ToString(NeonHelper.DateFormat100NsTZ)}, timeout={operation.Timeout}].");
 
                             // $todo(jefflill):
                             //

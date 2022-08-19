@@ -151,7 +151,7 @@ namespace NeonBlazorProxy
 
             _ = webHost.RunAsync();
 
-            Log.LogInfo($"Listening on {IPAddress.Any}:{Config.Port}");
+            Log.LogInformation($"Listening on {IPAddress.Any}:{Config.Port}");
 
             // Indicate that the service is ready for business.
 

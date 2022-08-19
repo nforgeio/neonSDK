@@ -67,10 +67,10 @@ namespace Neon.Cadence.Internal
         /// Specifies the log level <b>cadence-proxy</b> should use when deciding
         /// which log events to forward to the <b>cadence-client</b>.
         /// </summary>
-        public LogLevel LogLevel
+        public NeonLogLevel LogLevel
         {
-            get => GetEnumProperty<LogLevel>(PropertyNames.LogLevel);
-            set => SetEnumProperty<LogLevel>(PropertyNames.LogLevel, value);
+            get => GetEnumProperty<NeonLogLevel>(PropertyNames.LogLevel);
+            set => SetEnumProperty<NeonLogLevel>(PropertyNames.LogLevel, value);
         }
 
         /// <inheritdoc/>

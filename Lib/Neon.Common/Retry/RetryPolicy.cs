@@ -44,13 +44,13 @@ namespace Neon.Retry
         /// <summary>
         /// Constructor.
         /// </summary>
-        /// <param name="sourceModule">Optionally enables transient error logging by identifying the source module (defaults to <c>null</c>).</param>
+        /// <param name="categoryName">Optionally enables transient error logging by identifying the source category name (defaults to <c>null</c>).</param>
         /// <param name="timeout">Optionally specifies the maximum time the operation should be retried (defaults to no limit).</param>
-        public RetryPolicy(string sourceModule = null, TimeSpan? timeout = null)
+        public RetryPolicy(string categoryName = null, TimeSpan? timeout = null)
         {
-            if (!string.IsNullOrEmpty(sourceModule))
+            if (!string.IsNullOrEmpty(categoryName))
             {
-                this.log = LogManager.Default.GetLogger(sourceModule);
+                this.log = LogManager.Default.GetLogger(categoryName);
             }
 
             if (timeout != null && timeout >= TimeSpan.Zero)

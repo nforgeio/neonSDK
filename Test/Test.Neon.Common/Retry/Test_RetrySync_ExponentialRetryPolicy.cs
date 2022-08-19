@@ -77,7 +77,7 @@ namespace TestCommon
         [Fact]
         public void Defaults()
         {
-            var policy = new ExponentialRetryPolicy(TransientDetector, sourceModule: "test");
+            var policy = new ExponentialRetryPolicy(TransientDetector, categoryName: "test");
 
             Assert.Equal(RetryPolicy.DefaultMaxAttempts, policy.MaxAttempts);
             Assert.Null(policy.Timeout);

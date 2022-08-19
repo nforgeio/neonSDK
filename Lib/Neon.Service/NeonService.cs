@@ -211,7 +211,7 @@ namespace Neon.Service
     /// Each <see cref="NeonService"/> instance maintains its own <see cref="LogManager"/>
     /// instance with the a default logger created at <see cref="Log"/>.  The log manager
     /// is initialized using the <b>LOG_LEVEL</b> environment variable value which defaults
-    /// to <b>info</b> when not present.  <see cref="Neon.Diagnostics.LogLevel"/> for the possible values.
+    /// to <b>info</b> when not present.  <see cref="Neon.Diagnostics.NeonLogLevel"/> for the possible values.
     /// </para>
     /// <para>
     /// Note that the <see cref="Neon.Diagnostics.LogManager.Default"/> log manager will
@@ -1078,12 +1078,12 @@ namespace Neon.Service
                 if (newStatus == NeonServiceStatus.Unhealthy)
                 {
                     unhealthyCount.Inc();
-                    Log.LogWarn($"[{Name}] health status: [{newStatusString}]");
+                    Log.LogWarning($"[{Name}] health status: [{newStatusString}]");
                 }
                 else
                 {
 
-                    Log.LogInfo($"[{Name}] health status: [{newStatusString}]");
+                    Log.LogInformation($"[{Name}] health status: [{newStatusString}]");
                 }
 
                 if (healthStatusPath != null)
@@ -1232,11 +1232,11 @@ namespace Neon.Service
 
             if (!string.IsNullOrEmpty(Version))
             {
-                Log.LogInfo(() => $"Starting [{Name}:{Version}]");
+                Log.LogInformation(() => $"Starting [{Name}:{Version}]");
             }
             else
             {
-                Log.LogInfo(() => $"Starting [{Name}]");
+                Log.LogInformation(() => $"Starting [{Name}]");
             }
 
             // Initialize the health status paths when enabled on Linux and
@@ -1256,7 +1256,7 @@ namespace Neon.Service
                     healthFolder = $"/";
                 }
 
-                Log.LogInfo(() => $"Deploying health checkers to: {healthFolder}");
+                Log.LogInformation(() => $"Deploying health checkers to: {healthFolder}");
                 
                 healthStatusPath = Path.Combine(healthFolder, "health-status");
                 healthCheckPath  = Path.Combine(healthFolder, "health-check");
@@ -1330,11 +1330,11 @@ namespace Neon.Service
             {
                 if (healthFolder.Equals(disableHealthChecks, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    Log.LogInfo("Built-in health check executables are disabled.");
+                    Log.LogInformation("Built-in health check executables are disabled.");
                 }
                 else
                 {
-                    Log.LogWarn("NeonService health checking is currently only supported on Linux/AMD64.");
+                    Log.LogWarning("NeonService health checking is currently only supported on Linux/AMD64.");
                 }
 
                 healthFolder = null;
@@ -1465,7 +1465,7 @@ namespace Neon.Service
 
                                 default:
 
-                                    Log.LogWarn($"Service Dependency: [{uri}] has an unsupported scheme and will be ignored.  Only HTTP, HTTPS, and TCP URIs are allowed.");
+                                    Log.LogWarning($"Service Dependency: [{uri}] has an unsupported scheme and will be ignored.  Only HTTP, HTTPS, and TCP URIs are allowed.");
                                     readyServices.Add(uri);     // Add the bad URI so we won't try it again.
                                     break;
                             }
@@ -1532,7 +1532,7 @@ namespace Neon.Service
                     {
                         if (File.Exists(terminationMessagePath))
                         {
-                            Log.LogInfo($"Kubernetes termination: {File.ReadAllText(terminationMessagePath)}");
+                            Log.LogInformation($"Kubernetes termination: {File.ReadAllText(terminationMessagePath)}");
                         }
                     }
                     catch (IOException)
@@ -1572,7 +1572,7 @@ namespace Neon.Service
 
             // Perform last rights for the service before it passes away.
 
-            Log.LogInfo(() => $"Exiting [{Name}] with [exitcode={ExitCode}].");
+            Log.LogInformation(() => $"Exiting [{Name}] with [exitcode={ExitCode}].");
 
             runtimerCts.Cancel();
             await runtimerTask;

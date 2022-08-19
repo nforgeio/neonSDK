@@ -65,7 +65,7 @@ namespace Neon.Retry
         /// <param name="maxAttempts">Optionally specifies the maximum number of times an action should be retried (defaults to <b>5</b>).</param>
         /// <param name="retryInterval">Optionally specifies time interval between retry attempts (defaults to <b>1 second</b>).</param>
         /// <param name="timeout">Optionally specifies the maximum time the operation will be retried (defaults to unconstrained)</param>
-        /// <param name="sourceModule">Optionally enables transient error logging by identifying the source module (defaults to <c>null</c>).</param>
+        /// <param name="categoryName">Optionally enables transient error logging by identifying the source category name (defaults to <c>null</c>).</param>
         /// <remarks>
         /// <para>
         /// The <paramref name="maxAttempts"/> parameter defaults to <b>-1</b> indicating that the
@@ -84,9 +84,9 @@ namespace Neon.Retry
             int                     maxAttempts       = -1, 
             TimeSpan?               retryInterval     = null, 
             TimeSpan?               timeout           = null, 
-            string                  sourceModule      = null)
+            string                  categoryName      = null)
 
-            : base(sourceModule, timeout)
+            : base(categoryName, timeout)
         {
             Covenant.Requires<ArgumentException>(retryInterval == null || retryInterval >= TimeSpan.Zero, nameof(retryInterval));
 
@@ -109,7 +109,7 @@ namespace Neon.Retry
         /// <param name="exceptionType">The exception type to be considered to be transient.</param>
         /// <param name="maxAttempts">Optionally specifies the maximum number of times an action should be retried (defaults to <b>5</b>).</param>
         /// <param name="retryInterval">Optionally specifies the time interval between retry attempts (defaults to <b>1 second</b>).</param>
-        /// <param name="sourceModule">Optionally enables transient error logging by identifying the source module (defaults to <c>null</c>).</param>
+        /// <param name="categoryName">Optionally enables transient error logging by identifying the source category name (defaults to <c>null</c>).</param>
         /// <param name="timeout">Optionally specifies the maximum time the operation will be retried (defaults to unconstrained)</param>
         /// <remarks>
         /// <para>
@@ -129,14 +129,14 @@ namespace Neon.Retry
             int         maxAttempts   = -1, 
             TimeSpan?   retryInterval = null, 
             TimeSpan?   timeout       = null, 
-            string      sourceModule  = null)
+            string      categoryName  = null)
             : this
             (
                 e => TransientDetector.MatchException(e, exceptionType),
                 maxAttempts,
                 retryInterval,
                 timeout,
-                sourceModule
+                categoryName
             )
         {
             Covenant.Requires<ArgumentNullException>(exceptionType != null, nameof(exceptionType));
@@ -149,7 +149,7 @@ namespace Neon.Retry
         /// <param name="maxAttempts">Optionally specifies the maximum number of times an action should be retried (defaults to <b>5</b>).</param>
         /// <param name="retryInterval">Optionally specifies the time interval between retry attempts (defaults to <b>1 second</b>).</param>
         /// <param name="timeout">Optionally specifies the maximum time the operation will be retried (defaults to unconstrained)</param>
-        /// <param name="sourceModule">Optionally enables transient error logging by identifying the source module (defaults to <c>null</c>).</param>
+        /// <param name="categoryName">Optionally enables transient error logging by identifying the source category name (defaults to <c>null</c>).</param>
         /// <remarks>
         /// <para>
         /// The <paramref name="maxAttempts"/> parameter defaults to <b>-1</b> indicating that the
@@ -168,7 +168,7 @@ namespace Neon.Retry
             int         maxAttempts   = -1, 
             TimeSpan?   retryInterval = null, 
             TimeSpan?   timeout       = null, 
-            string      sourceModule  = null)
+            string      categoryName  = null)
             : this
             (
                 e =>
@@ -191,7 +191,7 @@ namespace Neon.Retry
                 maxAttempts,
                 retryInterval,
                 timeout,
-                sourceModule
+                categoryName
             )
         {
         }
@@ -218,7 +218,7 @@ namespace Neon.Retry
             }
             else
             {
-                return new LinearRetryPolicy(transientDetector ?? this.transientDetector, MaxAttempts, RetryInterval, Timeout, SourceModule);
+                return new LinearRetryPolicy(transientDetector ?? this.transientDetector, MaxAttempts, RetryInterval, Timeout, CategoryName);
             }
         }
 
