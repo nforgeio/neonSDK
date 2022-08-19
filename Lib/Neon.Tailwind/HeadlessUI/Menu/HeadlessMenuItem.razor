@@ -21,8 +21,8 @@
                 PreventDefaultOn="@(new() { "onclick", "onfocus" })"
                 @onclick="HandleClick"
                 @onfocus="HandleFocus"
-                @onmouseenter="HandleMouseEnter"
-                @onmouseleave="HandleMouseOut"
+                @onmouseover="HandleMouseEnter"
+                @onmouseout="HandleMouseOut"
                 @attributes="AdditionalAttributes"
                 Id="@Id"
                 role="menuitem">
