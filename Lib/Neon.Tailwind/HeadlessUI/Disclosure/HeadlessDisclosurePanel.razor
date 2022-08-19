@@ -1,0 +1,14 @@
+﻿@namespace Neon.Tailwind
+
+@inherits HtmlElement
+
+    <HtmlElement 
+    Id="@Id"
+    aria-expanded="@((IsVisible == DisclosureState.Open).ToString())"  
+    @attributes="Attributes"
+    @ref="rootElement" >
+    @if (IsVisible == DisclosureState.Open) {
+    @ChildContent
+    }
+
+</HtmlElement>

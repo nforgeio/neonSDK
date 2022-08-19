@@ -53,6 +53,9 @@
   <ItemGroup>
 	  <None Include="..\nuget-icon.png" Pack="true" PackagePath="" />
 	  <None Include="..\..\LICENSE" Pack="true" PackagePath="" />
+	  <None Include="wwwroot\clickoffhandler.js" />
+	  <None Include="wwwroot\common.js" />
+	  <None Include="wwwroot\keydownhandler.js" />
   </ItemGroup>
 
   <ItemGroup>
