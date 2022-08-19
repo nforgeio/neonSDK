@@ -53,6 +53,9 @@
   <ItemGroup>
 	  <None Include="..\nuget-icon.png" Pack="true" PackagePath="" />
 	  <None Include="..\..\LICENSE" Pack="true" PackagePath="" />
+	  <None Include="HeadlessUI\Disclosure\HeadlessDisclosure.razor" />
+	  <None Include="HeadlessUI\Disclosure\HeadlessDisclosureButton.razor" />
+	  <None Include="HeadlessUI\Disclosure\HeadlessDisclosurePanel.razor" />
   </ItemGroup>
 
   <ItemGroup>
