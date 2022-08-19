@@ -71,8 +71,8 @@ namespace Neon.Web
 
                 // $todo(jefflill):
                 //
-                // I should be getting either an [ILogProvider] or [ILogManager] dynamically 
-                // via dependency injection rather than hardcoding a call to [LogManager.Default]
+                // I should be getting either an [ILogProvider] or [IelemetryHub] dynamically 
+                // via dependency injection rather than hardcoding a call to [TelemetryHub.Default]
                 // and then getting an [INeonLogger] from that or wrapping an [ILogger] with
                 // a [NeonLoggerShim].
                 //
@@ -85,9 +85,9 @@ namespace Neon.Web
                 // this.  An alternative might be use property injection, but I don't think
                 // the ASP.NET pipeline supports that.
                 //
-                // See the TODO in [LogManager.cs] for more information.
+                // See the TODO in [TelemetryHub.cs] for more information.
 
-                return logger = LogManager.Default.GetLogger("WEB-" + base.ControllerContext.ActionDescriptor.ControllerName);
+                return logger = TelemetryHub.Default.GetLogger("WEB-" + base.ControllerContext.ActionDescriptor.ControllerName);
             }
         }
     }

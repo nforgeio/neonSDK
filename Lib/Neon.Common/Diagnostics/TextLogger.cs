@@ -41,7 +41,7 @@ namespace Neon.Diagnostics
         //---------------------------------------------------------------------
         // Instance members
 
-        private ILogManager             logManager;
+        private ITelemetryHub           telemetryHub;
         private string                  categoryName;
         private bool                    infoAsDebug;
         private TextWriter              writer;
@@ -50,36 +50,36 @@ namespace Neon.Diagnostics
         private Func<bool>              isLogEnabledFunc;
 
         /// <inheritdoc/>
-        public bool IsLogTraceEnabled => logManager.LogLevel <= NeonLogLevel.Trace;
+        public bool IsLogTraceEnabled => telemetryHub.LogLevel <= NeonLogLevel.Trace;
 
         /// <inheritdoc/>
-        public bool IsLogDebugEnabled => logManager.LogLevel <= NeonLogLevel.Debug;
+        public bool IsLogDebugEnabled => telemetryHub.LogLevel <= NeonLogLevel.Debug;
 
         /// <inheritdoc/>
-        public bool IsLogTransientEnabled => logManager.LogLevel <= NeonLogLevel.Transient;
+        public bool IsLogTransientEnabled => telemetryHub.LogLevel <= NeonLogLevel.Transient;
 
         /// <inheritdoc/>
-        public bool IsLogErrorEnabled => logManager.LogLevel <= NeonLogLevel.Error;
+        public bool IsLogErrorEnabled => telemetryHub.LogLevel <= NeonLogLevel.Error;
 
         /// <inheritdoc/>
-        public bool IsLogSecurityErrorEnabled => logManager.LogLevel <= NeonLogLevel.SecurityError;
+        public bool IsLogSecurityErrorEnabled => telemetryHub.LogLevel <= NeonLogLevel.SecurityError;
 
         /// <inheritdoc/>
-        public bool IsLogCriticalEnabled => logManager.LogLevel <= NeonLogLevel.Fatal;
+        public bool IsLogCriticalEnabled => telemetryHub.LogLevel <= NeonLogLevel.Critical;
 
         /// <inheritdoc/>
-        public bool IsLogInformationEnabled => logManager.LogLevel <= NeonLogLevel.Information;
+        public bool IsLogInformationEnabled => telemetryHub.LogLevel <= NeonLogLevel.Information;
 
         /// <inheritdoc/>
-        public bool IsLogSecurityInformationEnabled => logManager.LogLevel <= NeonLogLevel.SecurityInformation;
+        public bool IsLogSecurityInformationEnabled => telemetryHub.LogLevel <= NeonLogLevel.SecurityInformation;
 
         /// <inheritdoc/>
-        public bool IsLogWarningEnabled => logManager.LogLevel <= NeonLogLevel.Warning;
+        public bool IsLogWarningEnabled => telemetryHub.LogLevel <= NeonLogLevel.Warning;
 
         /// <summary>
         /// Constructor.
         /// </summary>
-        /// <param name="logManager">The parent log manager or <c>null</c>.</param>
+        /// <param name="telemetryHub">The parent log manager or <c>null</c>.</param>
         /// <param name="categoryName">
         /// Optionally identifies the event source category.  This is typically used 
         /// for identifying the event source.
@@ -101,7 +101,7 @@ namespace Neon.Diagnostics
         /// </param>
         /// <remarks>
         /// <para>
-        /// The instances returned will log nothing if <paramref name="logManager"/>
+        /// The instances returned will log nothing if <paramref name="telemetryHub"/>
         /// is passed as <c>null</c>.
         /// </para>
         /// <note>
@@ -113,14 +113,14 @@ namespace Neon.Diagnostics
         /// </note>
         /// </remarks>
         public TextLogger(
-            ILogManager             logManager,
+            ITelemetryHub           telemetryHub,
             string                  categoryName     = null,
             TextWriter              writer           = null,
             LogAttributes           attributes       = null,
             Func<LogEvent, bool>    logFilter        = null,
             Func<bool>              isLogEnabledFunc = null)
         {
-            this.logManager       = logManager ?? LogManager.Disabled;
+            this.telemetryHub     = telemetryHub ?? TelemetryHub.Disabled;
             this.categoryName     = categoryName;
             this.writer           = writer ?? Console.Error;
             this.attributes       = attributes;
@@ -153,7 +153,7 @@ namespace Neon.Diagnostics
 
                     return false;
 
-                case NeonLogLevel.Fatal:
+                case NeonLogLevel.Critical:
 
                     return IsLogCriticalEnabled;
 
@@ -232,7 +232,7 @@ namespace Neon.Diagnostics
 
             switch (logLevel)
             {
-                case NeonLogLevel.Fatal:
+                case NeonLogLevel.Critical:
 
                     LogEventCountByLevel.WithLabels("critical").Inc();
                     break;
@@ -324,9 +324,9 @@ namespace Neon.Diagnostics
 
             var version = string.Empty;
 
-            if (!string.IsNullOrEmpty(this.logManager.Version))
+            if (!string.IsNullOrEmpty(this.telemetryHub.Version))
             {
-                version = $" [version:{this.logManager.Version}]";
+                version = $" [version:{this.telemetryHub.Version}]";
             }
 
             var categoryName = string.Empty;
@@ -338,12 +338,12 @@ namespace Neon.Diagnostics
 
             var index = string.Empty;
 
-            if (logManager.EmitIndex)
+            if (telemetryHub.EmitIndex)
             {
-                index = $" [index:{logManager.GetNextEventIndex()}]";
+                index = $" [index:{telemetryHub.GetNextEventIndex()}]";
             }
 
-            if (logManager.EmitTimestamp)
+            if (telemetryHub.EmitTimestamp)
             {
                 var timestamp = DateTime.UtcNow.ToString(NeonHelper.DateFormatTZ);
 
@@ -526,7 +526,7 @@ namespace Neon.Diagnostics
             {
                 try
                 {
-                    Log(NeonLogLevel.Fatal, message, attributes: attributes, attributeGetter: attributeGetter);
+                    Log(NeonLogLevel.Critical, message, attributes: attributes, attributeGetter: attributeGetter);
                 }
                 catch
                 {
@@ -546,11 +546,11 @@ namespace Neon.Diagnostics
                 {
                     if (message != null)
                     {
-                        Log(NeonLogLevel.Fatal, $"{message} {NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
+                        Log(NeonLogLevel.Critical, $"{message} {NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
                     }
                     else
                     {
-                        Log(NeonLogLevel.Fatal, $"{NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
+                        Log(NeonLogLevel.Critical, $"{NeonHelper.ExceptionError(e, stackTrace: true)}", e: e, attributes: attributes, attributeGetter: attributeGetter);
                     }
                 }
                 catch
@@ -742,7 +742,7 @@ namespace Neon.Diagnostics
 
                 case Microsoft.Extensions.Logging.LogLevel.Critical:
 
-                    return NeonLogLevel.Fatal;
+                    return NeonLogLevel.Critical;
             }
         }
 
@@ -758,7 +758,7 @@ namespace Neon.Diagnostics
 
             switch (ToNeonLevel(logLevel))
             {
-                case NeonLogLevel.Fatal:
+                case NeonLogLevel.Critical:
 
                     if (e == null)
                     {

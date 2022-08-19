@@ -50,7 +50,7 @@ namespace Neon.Retry
         {
             if (!string.IsNullOrEmpty(categoryName))
             {
-                this.log = LogManager.Default.GetLogger(categoryName);
+                this.log = TelemetryHub.Default.GetLogger(categoryName);
             }
 
             if (timeout != null && timeout >= TimeSpan.Zero)

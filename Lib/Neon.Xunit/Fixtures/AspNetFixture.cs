@@ -52,11 +52,11 @@ namespace Neon.Xunit
         /// </summary>
         private class LoggingProvider : ILoggerProvider
         {
-            private LogManager  logManager;
+            private TelemetryHub  telemetryHub;
 
             public LoggingProvider(TextWriter logWriter, NeonLogLevel logLevel)
             {
-                this.logManager = new LogManager(writer: logWriter)
+                this.telemetryHub = new TelemetryHub(writer: logWriter)
                 {
                     LogLevel = logLevel
                 };
@@ -64,15 +64,15 @@ namespace Neon.Xunit
 
             public ILogger CreateLogger(string categoryName)
             {
-                return (ILogger)logManager.GetLogger(categoryName);
+                return (ILogger)telemetryHub.GetLogger(categoryName);
             }
 
             public void Dispose()
             {
-                if (logManager != null)
+                if (telemetryHub != null)
                 {
-                    logManager.Dispose();
-                    logManager = null;
+                    telemetryHub.Dispose();
+                    telemetryHub = null;
                 }
             }
         }

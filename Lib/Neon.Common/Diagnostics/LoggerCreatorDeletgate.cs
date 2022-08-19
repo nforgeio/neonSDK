@@ -32,10 +32,10 @@ using Neon.Common;
 namespace Neon.Diagnostics
 {
     /// <summary>
-    /// Defines the <see cref="ILogManager.LoggerCreator"/> function used to return custom
+    /// Defines the <see cref="ITelemetryHub.LoggerCreator"/> function used to return custom
     /// logger implementations.
     /// </summary>
-    /// <param name="logManager">The parent log manager.</param>
+    /// <param name="telemetryHub">The parent telemetry hub.</param>
     /// <param name="categoryName">
     /// Optionally identifies the event source category.  This is typically used 
     /// for identifying the event source.
@@ -46,16 +46,16 @@ namespace Neon.Diagnostics
     /// may be ignored for non-text based loggers or for other logger specific reasons.
     /// </param>
     /// <param name="logFilter">
-    /// Optionally specifies a filter predicate that overrides the parent <see cref="ILogManager"/> filter
+    /// Optionally specifies a filter predicate that overrides the parent <see cref="ITelemetryHub"/> filter
     /// (if any) used for filtering log entries.  This examines the <see cref="LogEvent"/> and returns <c>true</c>
     /// if the event should be logged or <c>false</c> when it is to be ignored.  All events will be logged when
     /// this is <c>null</c>.
     /// </param>
     /// <param name="isLogEnabledFunc">
     /// Optionally specifies a function that will be called at runtime to determine whether event
-    /// logging is actually enabled.  This overrides the parent <see cref="ILogManager"/> function
+    /// logging is actually enabled.  This overrides the parent <see cref="ITelemetryHub"/> function
     /// if any.  Events will be logged for <c>null</c> functions.
     /// </param>
     /// <returns>The <see cref="INeonLogger"/> instance.</returns>
-    public delegate INeonLogger LoggerCreatorDelegate(LogManager logManager, string categoryName, TextWriter writer, Func<LogEvent, bool> logFilter, Func<bool> isLogEnabledFunc);
+    public delegate INeonLogger LoggerCreatorDelegate(TelemetryHub telemetryHub, string categoryName, TextWriter writer, Func<LogEvent, bool> logFilter, Func<bool> isLogEnabledFunc);
 }

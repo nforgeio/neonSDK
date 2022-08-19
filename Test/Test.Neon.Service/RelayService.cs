@@ -123,7 +123,7 @@ namespace TestNeonService
 
             if (webService == null)
             {
-                Log.LogError("Service description for [web-service] not found.");
+                Logger.LogError("Service description for [web-service] not found.");
                 Exit(1);
             }
 

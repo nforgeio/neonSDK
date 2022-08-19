@@ -123,9 +123,9 @@
         {
             // Initialize the logger.
 
-            LogManager.Default.SetLogLevel("info");
+            TelemetryHub.Default.SetLogLevel("info");
 
-            logger = LogManager.Default.GetLogger(typeof(Program));
+            logger = TelemetryHub.Default.GetLogger(typeof(Program));
             logger.LogInformation("Starting workflow service");
 
             try

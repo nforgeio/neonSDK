@@ -59,14 +59,14 @@ namespace CadenceService
             var taskList = GetEnvironmentVariable("CADENCE_TASKLIST");
             var error    = false;
 
-            Log.LogInformation(() => $"CADENCE_SERVERS:  {servers}");
-            Log.LogInformation(() => $"CADENCE_DOMAIN:   {domain}");
-            Log.LogInformation(() => $"CADENCE_TASKLIST: {taskList}");
+            Logger.LogInformation(() => $"CADENCE_SERVERS:  {servers}");
+            Logger.LogInformation(() => $"CADENCE_DOMAIN:   {domain}");
+            Logger.LogInformation(() => $"CADENCE_TASKLIST: {taskList}");
 
             if (string.IsNullOrEmpty(servers))
             {
                 error = true;
-                Log.LogError("The [CADENCE_SERVERS] environment variable is required.");
+                Logger.LogError("The [CADENCE_SERVERS] environment variable is required.");
             }
 
             try
@@ -81,19 +81,19 @@ namespace CadenceService
             catch
             {
                 error = true;
-                Log.LogError(() => $"One or more URIs are invalid: CADENCE_SERVERS={servers}");
+                Logger.LogError(() => $"One or more URIs are invalid: CADENCE_SERVERS={servers}");
             }
 
             if (string.IsNullOrEmpty(domain))
             {
                 error = true;
-                Log.LogError("The [CADENCE_DOMAIN] environment variable is required.");
+                Logger.LogError("The [CADENCE_DOMAIN] environment variable is required.");
             }
 
             if (string.IsNullOrEmpty(taskList))
             {
                 error = true;
-                Log.LogError("The [CADENCE_TASKLIST] environment variable is required.");
+                Logger.LogError("The [CADENCE_TASKLIST] environment variable is required.");
             }
 
             if (error)
@@ -103,7 +103,7 @@ namespace CadenceService
 
             // Connect to Cadence and register the workflows and activities.
 
-            Log.LogInformation("Connecting to Cadence.");
+            Logger.LogInformation("Connecting to Cadence.");
 
             settings.DefaultDomain = domain;
 
@@ -111,18 +111,18 @@ namespace CadenceService
             {
                 // Register the workflows.
 
-                Log.LogInformation("Registering workflows.");
+                Logger.LogInformation("Registering workflows.");
                 await client.RegisterAssemblyAsync(Assembly.GetExecutingAssembly());
 
                 // Start the worker.
 
-                Log.LogInformation("Starting worker.");
+                Logger.LogInformation("Starting worker.");
 
                 using (var worker = client.StartWorkerAsync(taskList))
                 {
                     // Indicate that the service is running.
 
-                    Log.LogInformation("Ready for work.");
+                    Logger.LogInformation("Ready for work.");
                     await StartedAsync();
                 }
             }

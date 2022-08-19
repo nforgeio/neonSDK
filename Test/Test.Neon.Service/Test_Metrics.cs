@@ -100,13 +100,13 @@ namespace TestNeonService
                 // Log some events so we can verify that the default [Neon.Diagnostics] logger
                 // increments counters for the different log levels.
 
-                var orgLogLevel = LogManager.LogLevel;
+                var orgLogLevel = TelemetryHub.LogLevel;
 
                 try
                 {
-                    LogManager.LogLevel = NeonLogLevel.Debug;
+                    TelemetryHub.LogLevel = NeonLogLevel.Debug;
 
-                    var logger = LogManager.GetLogger(this.Name);
+                    var logger = TelemetryHub.GetLogger(this.Name);
 
                     logger.LogDebug("debug event");
                     logger.LogInformation("info event");
@@ -134,7 +134,7 @@ namespace TestNeonService
                 }
                 finally
                 {
-                    LogManager.LogLevel = orgLogLevel;
+                    TelemetryHub.LogLevel = orgLogLevel;
                 }
             }
         }
@@ -192,13 +192,13 @@ namespace TestNeonService
                 // Log some events so we can verify that the default Neon.Diagnostics logger
                 // increments counters for the different log levels.
 
-                var orgLogLevel = LogManager.LogLevel;
+                var orgLogLevel = TelemetryHub.LogLevel;
 
                 try
                 {
-                    LogManager.LogLevel = NeonLogLevel.Debug;
+                    TelemetryHub.LogLevel = NeonLogLevel.Debug;
 
-                    var logger = LogManager.GetLogger(this.Name);
+                    var logger = TelemetryHub.GetLogger(this.Name);
 
                     logger.LogDebug("debug event");
                     logger.LogInformation("info event");
@@ -222,7 +222,7 @@ namespace TestNeonService
                 }
                 finally
                 {
-                    LogManager.LogLevel = orgLogLevel;
+                    TelemetryHub.LogLevel = orgLogLevel;
                 }
             }
         }

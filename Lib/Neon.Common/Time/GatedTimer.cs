@@ -37,7 +37,7 @@ namespace Neon.Time
     public class GatedTimer : IDisposable
     {
         private readonly object syncLock = new object();
-        private INeonLogger     logger   = LogManager.Default.GetLogger<GatedTimer>();
+        private INeonLogger     logger   = TelemetryHub.Default.GetLogger<GatedTimer>();
 
         private Timer           timer;          // The underlying timer
         private TimeSpan        dueTime;        // Time to wait before firing the first event

@@ -51,7 +51,7 @@ namespace Neon.Diagnostics
         /// a very serious failure has occurred that may have crashed the program or
         /// at least seriousoly impacts its functioning.
         /// </summary>
-        Fatal = SeverityNumber.SEVERITY_NUMBER_FATAL,
+        Critical = SeverityNumber.SEVERITY_NUMBER_FATAL,
 
         /// <summary>
         /// A security related error has occurred.

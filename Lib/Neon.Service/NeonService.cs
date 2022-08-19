@@ -208,32 +208,32 @@ namespace Neon.Service
     /// </note>
     /// <para><b>LOGGING</b></para>
     /// <para>
-    /// Each <see cref="NeonService"/> instance maintains its own <see cref="LogManager"/>
-    /// instance with the a default logger created at <see cref="Log"/>.  The log manager
+    /// Each <see cref="NeonService"/> instance maintains its own <see cref="TelemetryHub"/>
+    /// instance with the a default logger created at <see cref="Logger"/>.  The log manager
     /// is initialized using the <b>LOG_LEVEL</b> environment variable value which defaults
     /// to <b>info</b> when not present.  <see cref="Neon.Diagnostics.NeonLogLevel"/> for the possible values.
     /// </para>
     /// <para>
-    /// Note that the <see cref="Neon.Diagnostics.LogManager.Default"/> log manager will
+    /// Note that the <see cref="Neon.Diagnostics.TelemetryHub.Default"/> log manager will
     /// also be initialized with the log level when the service is running in a production
     /// environment so that logging in production works completely as expected.
     /// </para>
     /// <para>
-    /// For development environments, the <see cref="Neon.Diagnostics.LogManager.Default"/>
+    /// For development environments, the <see cref="Neon.Diagnostics.TelemetryHub.Default"/>
     /// instance's log level will not be modified.  This means that loggers created from
-    /// <see cref="Neon.Diagnostics.LogManager.Default"/> may not use the same log
+    /// <see cref="Neon.Diagnostics.TelemetryHub.Default"/> may not use the same log
     /// level as the service itself.  This means that library classes that create their
     /// own loggers won't honor the service log level.  This is an unfortunate consequence
     /// of running emulated services in the same process.
     /// </para>
     /// <para>
     /// There are two ways to mitigate this.  First, any source code defined within the 
-    /// service project should be designed to create loggers from the service's <see cref="LogManager"/>
+    /// service project should be designed to create loggers from the service's <see cref="TelemetryHub"/>
     /// rather than using the global one.  Second, you can configure your unit test to
     /// set the desired log level like:
     /// </para>
     /// <code language="C#">
-    /// LogManager.Default.SetLogLevel(LogLevel.Debug));
+    /// TelemetryHub.Default.SetLogLevel(LogLevel.Debug));
     /// </code>
     /// <note>
     /// Setting the global default log level like this will impact loggers created for all
@@ -505,7 +505,7 @@ namespace Neon.Service
                     // instance hasn't been created yet.  This isn't ideal.
 
                     var exception = (Exception)a.ExceptionObject;
-                    var logger    = Neon.Diagnostics.LogManager.Default.GetLogger();
+                    var logger    = Neon.Diagnostics.TelemetryHub.Default.GetLogger();
 
                     logger.LogCritical($"Unhandled exception [terminating={a.IsTerminating}]", exception);
                 };
@@ -744,7 +744,7 @@ namespace Neon.Service
             this.ServiceMap             = serviceMap;
             this.InProduction           = !NeonHelper.IsDevWorkstation;
             this.Terminator             = new ProcessTerminator(gracefulShutdownTimeout: gracefulShutdownTimeout, minShutdownTime: minShutdownTime);
-            this.Version                = global::Neon.Diagnostics.LogManager.VersionRegex.IsMatch(Version) ? version : "unknown";
+            this.Version                = global::Neon.Diagnostics.TelemetryHub.VersionRegex.IsMatch(Version) ? version : "unknown";
             this.Environment            = new EnvironmentParser(null, VariableSource);  // Temporarily setting a NULL logger until we create the service logger below
             this.configFiles            = new Dictionary<string, FileInfo>();
             this.healthFolder           = healthFolder ?? "/";
@@ -784,13 +784,13 @@ namespace Neon.Service
             // fail with a [NullReferenceException].  Note that we don't recommend
             // logging from within the constructor.
 
-            LogManager = new LogManager(parseLogLevel: false, version: this.Version, logFilter: logFilter);
+            TelemetryHub = new TelemetryHub(parseLogLevel: false, version: this.Version, logFilter: logFilter);
 
-            LogManager.SetLogLevel(GetEnvironmentVariable("LOG_LEVEL", "info"));
+            TelemetryHub.SetLogLevel(GetEnvironmentVariable("LOG_LEVEL", "info"));
 
-            Log = LogManager.GetLogger();
+            Logger = TelemetryHub.GetLogger();
 
-            Environment.SetLogger(Log);
+            Environment.SetLogger(Logger);
 
             // Update the Prometheus metrics port from the service description if present.
 
@@ -1019,12 +1019,12 @@ namespace Neon.Service
         /// <summary>
         /// Returns the service's log manager.
         /// </summary>
-        public ILogManager LogManager { get; private set; }
+        public ITelemetryHub TelemetryHub { get; private set; }
 
         /// <summary>
         /// Returns the service's default logger.
         /// </summary>
-        public INeonLogger Log { get; private set; }
+        public INeonLogger Logger { get; private set; }
 
         /// <summary>
         /// Returns the service's <see cref="ProcessTerminator"/>.  This can be used
@@ -1078,12 +1078,12 @@ namespace Neon.Service
                 if (newStatus == NeonServiceStatus.Unhealthy)
                 {
                     unhealthyCount.Inc();
-                    Log.LogWarning($"[{Name}] health status: [{newStatusString}]");
+                    Logger.LogWarning($"[{Name}] health status: [{newStatusString}]");
                 }
                 else
                 {
 
-                    Log.LogInformation($"[{Name}] health status: [{newStatusString}]");
+                    Logger.LogInformation($"[{Name}] health status: [{newStatusString}]");
                 }
 
                 if (healthStatusPath != null)
@@ -1223,20 +1223,20 @@ namespace Neon.Service
 
             // Initialize the default log manager, when one isn't already assigned.
 
-            Neon.Diagnostics.LogManager.Default = LogManager;
+            Neon.Diagnostics.TelemetryHub.Default = TelemetryHub;
 
-            LogManager.Version = Version;
-            LogManager.SetLogLevel(GetEnvironmentVariable("LOG_LEVEL", "info"));
+            TelemetryHub.Version = Version;
+            TelemetryHub.SetLogLevel(GetEnvironmentVariable("LOG_LEVEL", "info"));
 
-            Log = LogManager.GetLogger();
+            Logger = TelemetryHub.GetLogger();
 
             if (!string.IsNullOrEmpty(Version))
             {
-                Log.LogInformation(() => $"Starting [{Name}:{Version}]");
+                Logger.LogInformation(() => $"Starting [{Name}:{Version}]");
             }
             else
             {
-                Log.LogInformation(() => $"Starting [{Name}]");
+                Logger.LogInformation(() => $"Starting [{Name}]");
             }
 
             // Initialize the health status paths when enabled on Linux and
@@ -1256,7 +1256,7 @@ namespace Neon.Service
                     healthFolder = $"/";
                 }
 
-                Log.LogInformation(() => $"Deploying health checkers to: {healthFolder}");
+                Logger.LogInformation(() => $"Deploying health checkers to: {healthFolder}");
                 
                 healthStatusPath = Path.Combine(healthFolder, "health-status");
                 healthCheckPath  = Path.Combine(healthFolder, "health-check");
@@ -1319,7 +1319,7 @@ namespace Neon.Service
                     // system is read-only.  We're going to log this and disable the health
                     // status feature in this case. 
 
-                    Log.LogError($"Cannot initialize the health folder [{healthFolder}].  The health status feature will be disabled.", e);
+                    Logger.LogError($"Cannot initialize the health folder [{healthFolder}].  The health status feature will be disabled.", e);
 
                     healthFolder     = null;
                     healthStatusPath = null;
@@ -1330,11 +1330,11 @@ namespace Neon.Service
             {
                 if (healthFolder.Equals(disableHealthChecks, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    Log.LogInformation("Built-in health check executables are disabled.");
+                    Logger.LogInformation("Built-in health check executables are disabled.");
                 }
                 else
                 {
-                    Log.LogWarning("NeonService health checking is currently only supported on Linux/AMD64.");
+                    Logger.LogWarning("NeonService health checking is currently only supported on Linux/AMD64.");
                 }
 
                 healthFolder = null;
@@ -1465,7 +1465,7 @@ namespace Neon.Service
 
                                 default:
 
-                                    Log.LogWarning($"Service Dependency: [{uri}] has an unsupported scheme and will be ignored.  Only HTTP, HTTPS, and TCP URIs are allowed.");
+                                    Logger.LogWarning($"Service Dependency: [{uri}] has an unsupported scheme and will be ignored.  Only HTTP, HTTPS, and TCP URIs are allowed.");
                                     readyServices.Add(uri);     // Add the bad URI so we won't try it again.
                                     break;
                             }
@@ -1480,7 +1480,7 @@ namespace Neon.Service
             {
                 // Report the problem and exit the service.
 
-                Log.LogError($"Service Dependency: [{notReadyUri}] is still not ready after waiting [{Dependencies.Timeout}].", notReadyException);
+                Logger.LogError($"Service Dependency: [{notReadyUri}] is still not ready after waiting [{Dependencies.Timeout}].", notReadyException);
 
                 if (metricServer != null)
                 {
@@ -1532,7 +1532,7 @@ namespace Neon.Service
                     {
                         if (File.Exists(terminationMessagePath))
                         {
-                            Log.LogInformation($"Kubernetes termination: {File.ReadAllText(terminationMessagePath)}");
+                            Logger.LogInformation($"Kubernetes termination: {File.ReadAllText(terminationMessagePath)}");
                         }
                     }
                     catch (IOException)
@@ -1566,13 +1566,13 @@ namespace Neon.Service
                 ExitException = e;
                 ExitCode      = 1;
 
-                Log.LogError(e);
+                Logger.LogError(e);
                 TerminateAnySidecars();
             }
 
             // Perform last rights for the service before it passes away.
 
-            Log.LogInformation(() => $"Exiting [{Name}] with [exitcode={ExitCode}].");
+            Logger.LogInformation(() => $"Exiting [{Name}] with [exitcode={ExitCode}].");
 
             runtimerCts.Cancel();
             await runtimerTask;

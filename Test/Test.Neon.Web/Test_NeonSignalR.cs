@@ -193,7 +193,7 @@ namespace Test.Neon.SignalR
             options.Servers = new string[] { natsServerUri };
 
             var services = new ServiceCollection();
-            var logger   = new global::Neon.Diagnostics.LogManager().GetLogger();
+            var logger   = new global::Neon.Diagnostics.TelemetryHub().GetLogger();
             
             services.AddSingleton(logger);
 

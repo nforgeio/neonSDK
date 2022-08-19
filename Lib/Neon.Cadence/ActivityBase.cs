@@ -561,7 +561,7 @@ namespace Neon.Cadence
             this.ContextId               = contextId;
             this.CancellationTokenSource = new CancellationTokenSource();
             this.CancellationToken       = CancellationTokenSource.Token;
-            this.logger                  = LogManager.Default.GetLogger(categoryName: activityType.FullName);
+            this.logger                  = TelemetryHub.Default.GetLogger(categoryName: activityType.FullName);
         }
 
         /// <summary>

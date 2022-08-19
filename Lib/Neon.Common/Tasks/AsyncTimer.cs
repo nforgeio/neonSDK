@@ -58,7 +58,7 @@ namespace Neon.Tasks
     /// </note>
     /// <note>
     /// This class handles any exceptions thrown by the callback by logging them to the
-    /// default <see cref="LogManager"/> and then continuing on with firing ticks.  
+    /// default <see cref="TelemetryHub"/> and then continuing on with firing ticks.  
     /// You'll need to add a try/catch to your callback to do your own exception handling.
     /// </note>
     /// </remarks>
@@ -67,7 +67,7 @@ namespace Neon.Tasks
         //---------------------------------------------------------------------
         // Static members
 
-        private static INeonLogger      log = LogManager.Default.GetLogger<AsyncTimer>();
+        private static INeonLogger      log = TelemetryHub.Default.GetLogger<AsyncTimer>();
 
         //---------------------------------------------------------------------
         // Instance members

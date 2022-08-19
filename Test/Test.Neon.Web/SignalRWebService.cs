@@ -29,10 +29,12 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 
 using Neon.Common;
 using Neon.Cryptography;
+using Neon.Diagnostics;
 using Neon.IO;
 using Neon.Service;
 using Neon.Web.SignalR;
@@ -46,31 +48,30 @@ namespace Test.Neon.SignalR
 {
     public class Startup
     {
-        private WebService service;
-        private IConfiguration configuration;
+        private WebService      service;
+        private IConfiguration  configuration;
 
         public Startup(IConfiguration configuration, WebService service)
         {
             this.configuration = configuration;
-            this.service = service;
+            this.service       = service;
         }
 
         public void ConfigureServices(IServiceCollection services)
         {
-            var natsServerUri = service.GetEnvironmentVariable("NATS_URI", string.Empty);
-
+            var natsServerUri     = service.GetEnvironmentVariable("NATS_URI", string.Empty);
             var connectionFactory = new ConnectionFactory();
-            var options = ConnectionFactory.GetDefaultOptions();
+            var options           = ConnectionFactory.GetDefaultOptions();
             
             options.Servers = new string[] { natsServerUri };
 
             var connection = connectionFactory.CreateConnection(options);
-
-            var logger = service.LogManager.CreateLogger("neon-signalr");
+            var logger     = (INeonLogger)service.TelemetryHub.CreateLogger("neon-signalr");
 
             services
                 .AddSingleton<IUserIdProvider, UserNameIdProvider>()
-                .AddSingleton(logger)
+                .AddSingleton<ILogger>(logger)
+                .AddSingleton<INeonLogger>(logger)
                 .AddSignalR()
                 .AddNeonNats(connection);
         }
@@ -89,7 +90,9 @@ namespace Test.Neon.SignalR
             public string GetUserId(HubConnectionContext connection)
             {
                 // This is an AWFUL way to authenticate users! We're just using it for test purposes.
+
                 var userNameHeader = connection.GetHttpContext().Request.Headers["UserName"];
+
                 if (!StringValues.IsNullOrEmpty(userNameHeader))
                 {
                     return userNameHeader;
@@ -100,10 +103,13 @@ namespace Test.Neon.SignalR
         }
     }
 
+    /// <summary>
+    /// Implements the SignalR web service.
+    /// </summary>
     public class WebService : NeonService
     {
-        private IWebHost webHost;
-        public string NatsServerUri;
+        private IWebHost    webHost;
+        public string       NatsServerUri;
 
         /// <summary>
         /// Constructor.
@@ -139,7 +145,7 @@ namespace Test.Neon.SignalR
 
             if (string.IsNullOrEmpty(NatsServerUri))
             {
-                Log.LogCritical("Invalid configuration: [NATS_URI] environment variable is missing or invalid.");
+                Logger.LogCritical("Invalid configuration: [NATS_URI] environment variable is missing or invalid.");
                 Exit(1);
             }
 

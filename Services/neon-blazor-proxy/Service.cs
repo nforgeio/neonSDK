@@ -131,7 +131,7 @@ namespace NeonBlazorProxy
                 CacheFailedResults  = Config.Dns.CacheFailedResults
             });
 
-            AesCipher = new AesCipher(GetEnvironmentVariable("COOKIE_CIPHER", AesCipher.GenerateKey(), redacted: !Log.IsLogDebugEnabled));
+            AesCipher = new AesCipher(GetEnvironmentVariable("COOKIE_CIPHER", AesCipher.GenerateKey(), redacted: !Logger.IsLogDebugEnabled));
 
             CurrentConnections = new HashSet<string>();
 
@@ -151,7 +151,7 @@ namespace NeonBlazorProxy
 
             _ = webHost.RunAsync();
 
-            Log.LogInformation($"Listening on {IPAddress.Any}:{Config.Port}");
+            Logger.LogInformation($"Listening on {IPAddress.Any}:{Config.Port}");
 
             // Indicate that the service is ready for business.
 

@@ -24,55 +24,57 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Logging;
+
 namespace Neon.Diagnostics
 {
     /// <summary>
     /// Defines the methods and properties for a diagnostics logger. 
     /// </summary>
-    public interface INeonLogger
+    public interface INeonLogger : ILogger
     {
         /// <summary>
-        /// Returns <c>true</c> if <b>trace</b> logging is enabled.
+        /// Returns <c>true</c> if <see cref="NeonLogLevel.Trace"/> logging is enabled.
         /// </summary>
         public bool IsLogTraceEnabled { get; }
 
         /// <summary>
-        /// Returns <c>true</c> if <b>debug</b> logging is enabled.
+        /// Returns <c>true</c> if <see cref="NeonLogLevel.Debug"/> logging is enabled.
         /// </summary>
         bool IsLogDebugEnabled { get; }
 
         /// <summary>
-        /// Returns <c>true</c> if <b>transient</b> logging is enabled.
+        /// Returns <c>true</c> if <see cref="NeonLogLevel.Transient"/> logging is enabled.
         /// </summary>
         bool IsLogTransientEnabled { get; }
 
         /// <summary>
-        /// Returns <c>true</c> if <b>sinfo</b> logging is enabled.
+        /// Returns <c>true</c> if <see cref="NeonLogLevel.SecurityInformation"/> logging is enabled.
         /// </summary>
         bool IsLogSecurityInformationEnabled { get; }
 
         /// <summary>
-        /// Returns <c>true</c> if <b>info</b> logging is enabled.
+        /// Returns <c>true</c> if <see cref="NeonLogLevel.Information"/>> logging is enabled.
         /// </summary>
         bool IsLogInformationEnabled { get; }
 
         /// <summary>
-        /// Returns <c>true</c> if <b>warn</b> logging is enabled.
+        /// Returns <c>true</c> if <see cref="NeonLogLevel.Warning"/>> logging is enabled.
         /// </summary>
         bool IsLogWarningEnabled { get; }
 
         /// <summary>
-        /// Returns <c>true</c> if <b>error</b> logging is enabled.
+        /// Returns <c>true</c> if <see cref="NeonLogLevel.Error"/> logging is enabled.
         /// </summary>
         bool IsLogErrorEnabled { get; }
 
         /// <summary>
-        /// Returns <c>true</c> if <b>serror</b> logging is enabled.
+        /// Returns <c>true</c> if <see cref="NeonLogLevel.SecurityError"/> logging is enabled.
         /// </summary>
         bool IsLogSecurityErrorEnabled { get; }
 
         /// <summary>
-        /// Returns <c>true</c> if <b>critical</b> logging is enabled.
+        /// Returns <c>true</c> if <see cref="NeonLogLevel.Critical"/> logging is enabled.
         /// </summary>
         bool IsLogCriticalEnabled { get; }
 

@@ -39,7 +39,7 @@ namespace Neon.Cadence
         //---------------------------------------------------------------------
         // Static members
 
-        private static INeonLogger Log = LogManager.Default.GetLogger<WorkflowMethodMap>();
+        private static INeonLogger Log = TelemetryHub.Default.GetLogger<WorkflowMethodMap>();
 
         /// <summary>
         /// Constructs a query/signal method map for a workflow type.

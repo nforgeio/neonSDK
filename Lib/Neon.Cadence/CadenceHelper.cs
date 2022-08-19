@@ -1066,7 +1066,7 @@ namespace Neon.Cadence.Internal
         {
             switch (logLevel)
             {
-                case NeonLogLevel.Fatal: 
+                case NeonLogLevel.Critical: 
                     
                     return "fatal";
 

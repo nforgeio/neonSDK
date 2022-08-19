@@ -150,7 +150,7 @@ namespace Neon.Cadence
         // Static members
 
         private static readonly object                                  syncLock     = new object();
-        private static INeonLogger                                      log          = LogManager.Default.GetLogger<WorkflowBase>();
+        private static INeonLogger                                      log          = TelemetryHub.Default.GetLogger<WorkflowBase>();
         private static Dictionary<WorkflowInstanceKey, WorkflowBase>    idToWorkflow = new Dictionary<WorkflowInstanceKey, WorkflowBase>();
 
         // This dictionary is used to map workflow type names to the target workflow

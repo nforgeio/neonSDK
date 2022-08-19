@@ -576,7 +576,7 @@ namespace Neon.Cadence
 
         private static readonly object                              syncLock      = new object();
         private static readonly Assembly                            thisAssembly  = Assembly.GetExecutingAssembly();
-        private static readonly INeonLogger                         log           = LogManager.Default.GetLogger<CadenceClient>();
+        private static readonly INeonLogger                         log           = TelemetryHub.Default.GetLogger<CadenceClient>();
         private static bool                                         proxyWritten  = false;
         private static long                                         nextClientId  = 0;
         private static readonly Dictionary<long, CadenceClient>     idToClient    = new Dictionary<long, CadenceClient>();
@@ -1271,7 +1271,7 @@ namespace Neon.Cadence
 
                         break;  // NOP
 
-                    case Neon.Diagnostics.NeonLogLevel.Fatal:
+                    case Neon.Diagnostics.NeonLogLevel.Critical:
 
                         cadenceLogger.LogCritical(logRequest.LogMessage);
                         break;
@@ -1316,7 +1316,7 @@ namespace Neon.Cadence
 
                         break;  // NOP
 
-                    case Neon.Diagnostics.NeonLogLevel.Fatal:
+                    case Neon.Diagnostics.NeonLogLevel.Critical:
 
                         cadenceProxyLogger.LogCritical(logRequest.LogMessage);
                         break;
@@ -1590,8 +1590,8 @@ namespace Neon.Cadence
             }
 
             DataConverter      = new JsonDataConverter();
-            cadenceLogger      = LogManager.Default.GetLogger("cadence", isLogEnabledFunc: () => Settings.LogCadence);
-            cadenceProxyLogger = LogManager.Default.GetLogger("cadence-proxy", isLogEnabledFunc: () => Settings.LogCadenceProxy);
+            cadenceLogger      = TelemetryHub.Default.GetLogger("cadence", isLogEnabledFunc: () => Settings.LogCadence);
+            cadenceProxyLogger = TelemetryHub.Default.GetLogger("cadence-proxy", isLogEnabledFunc: () => Settings.LogCadenceProxy);
 
             // Initialize a reasonable default synchronous signal query retry policy. 
 

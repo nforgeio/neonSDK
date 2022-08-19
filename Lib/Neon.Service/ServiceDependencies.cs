@@ -92,7 +92,7 @@ namespace Neon.Service
         {
             // $hack(jefflill): This screams for dependency injection.
 
-            var textLogger = new TextLogger(LogManager.Default);
+            var textLogger = new TextLogger(TelemetryHub.Default);
 
             // Parse: NEON_SERVICE_DEPENDENCIES_URIS
 

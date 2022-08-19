@@ -112,7 +112,7 @@ namespace Neon.Common
 
         /// <summary>
         /// Appends a line of text to the file at <see cref="DebugLogPath"/>.  This is intended for
-        /// low-level debugging when normal logging via <see cref="LogManager"/> isn't suitable (i.e.
+        /// low-level debugging when normal logging via <see cref="TelemetryHub"/> isn't suitable (i.e.
         /// when debugging logging code or application initialization code running before normal 
         /// logging is configured.
         /// </summary>
@@ -133,7 +133,7 @@ namespace Neon.Common
 
         /// <summary>
         /// Appends exception information to the file at <see cref="DebugLogPath"/>.  This is intended for
-        /// low-level debugging when normal logging via <see cref="LogManager"/> isn't suitable.
+        /// low-level debugging when normal logging via <see cref="TelemetryHub"/> isn't suitable.
         /// </summary>
         /// <param name="e">The exception.</param>
         public static void LogDebug(Exception e)

@@ -46,6 +46,7 @@ using StackExchange.Redis;
 using Yarp;
 using Yarp.Telemetry.Consumption;
 using Yarp.ReverseProxy.Forwarder;
+using Microsoft.Extensions.Logging;
 
 namespace NeonBlazorProxy
 {
@@ -101,10 +102,11 @@ namespace NeonBlazorProxy
                     break;
             }
 
-            services.AddSingleton(NeonBlazorProxyService);
-            services.AddSingleton(NeonBlazorProxyService.Config);
-            services.AddSingleton<INeonLogger>(NeonBlazorProxyService.Log);
-            services.AddSingleton(NeonBlazorProxyService.DnsClient);
+            services.AddSingleton(Program.Service);
+            services.AddSingleton(Program.Service.Config);
+            services.AddSingleton<ILogger>(Program.Service.Logger);
+            services.AddSingleton<INeonLogger>(Program.Service.Logger);
+            services.AddSingleton(Program.Service.DnsClient);
             services.AddSingleton(new ForwarderRequestConfig()
             {
                 ActivityTimeout = TimeSpan.FromSeconds(100)
@@ -143,7 +145,7 @@ namespace NeonBlazorProxy
             services.AddSingleton<SessionTransformer>(
                 serviceProvider =>
                 {
-                    return new SessionTransformer(serviceProvider.GetService<IDistributedCache>(), NeonBlazorProxyService.Log, cacheOptions, NeonBlazorProxyService.AesCipher);
+                    return new SessionTransformer(serviceProvider.GetService<IDistributedCache>(), NeonBlazorProxyService.Logger, cacheOptions, NeonBlazorProxyService.AesCipher);
                 });
 
             services.AddControllers()

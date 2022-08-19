@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:	    ILogManager.cs
+// FILE:	    ITelemetryHub.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright (c) 2005-2022 by neonFORGE LLC.  All rights reserved.
 //
@@ -32,7 +32,7 @@ using Neon.Common;
 namespace Neon.Diagnostics
 {
     /// <summary>
-    /// Describes an application log manager implementation.  <see cref="LogManager"/> is a reasonable
+    /// Describes an application log manager implementation.  <see cref="TelemetryHub"/> is a reasonable
     /// implementation for many situations but it's possible for developers to implement custom solutions.
     /// </summary>
     /// <remarks>
@@ -55,19 +55,19 @@ namespace Neon.Diagnostics
     /// lof levels.
     /// </para>
     /// <para>
-    /// Log managers typically provide a default <see cref="INeonLogger"/> implementation.  <see cref="LogManager"/>
+    /// Log managers typically provide a default <see cref="INeonLogger"/> implementation.  <see cref="TelemetryHub"/>
     /// defaults to logging events to STDERR as text via <see cref="TextLogger"/> which is suitable for
     /// many server applications, espectially for those deployed as containers where this is standard
-    /// behavior.  <see cref="LogManager"/> also implements the <see cref="LoggerCreator"/> delegate 
+    /// behavior.  <see cref="TelemetryHub"/> also implements the <see cref="LoggerCreator"/> delegate 
     /// as an easy way to support custom loggers in your application without having to implement a custom
-    /// <see cref="ILogManager"/> as well.
+    /// <see cref="ITelemetryHub"/> as well.
     /// </para>
     /// </remarks>
-    public interface ILogManager : ILoggerProvider
+    public interface ITelemetryHub : ILoggerProvider
     {
         /// <summary>
         /// Intended to reset the log manager to its default condition.  Implementations may customize
-        /// what this actually does but the default <see cref="LogManager"/> implementation resets its
+        /// what this actually does but the default <see cref="TelemetryHub"/> implementation resets its
         /// emitted event index to zero, clears any cached loggers, and resets the <see cref="LoggerCreator"/>
         /// delegate.
         /// </summary>
@@ -134,10 +134,10 @@ namespace Neon.Diagnostics
         /// </summary>
         /// <remarks>
         /// <para>
-        /// <see cref="ILogManager"/> implementations can choose to ignore this delegate when
-        /// creating loggers.  The default <see cref="LogManager"/> implementation does honor
+        /// <see cref="ITelemetryHub"/> implementations can choose to ignore this delegate when
+        /// creating loggers.  The default <see cref="TelemetryHub"/> implementation does honor
         /// this as an easy for applications to change the loggers without having to go to
-        /// the trouble of implementing and registering an new <see cref="ILogManager"/>
+        /// the trouble of implementing and registering an new <see cref="ITelemetryHub"/>
         /// implementation.
         /// </para>
         /// </remarks>
@@ -160,7 +160,7 @@ namespace Neon.Diagnostics
         /// </param>
         /// <param name="isLogEnabledFunc">
         /// Optionally specifies a function that will be called at runtime to determine whether to event
-        /// logging is actually enabled.  This overrides the parent <see cref="ILogManager"/> function
+        /// logging is actually enabled.  This overrides the parent <see cref="ITelemetryHub"/> function
         /// if any.  Events will be logged for <c>null</c> functions.
         /// </param>
         /// <returns>The <see cref="INeonLogger"/> instance.</returns>
@@ -180,7 +180,7 @@ namespace Neon.Diagnostics
         /// </param>
         /// <param name="isLogEnabledFunc">
         /// Optionally specifies a function that will be called at runtime to determine whether to event
-        /// logging is actually enabled.  This overrides the parent <see cref="ILogManager"/> function
+        /// logging is actually enabled.  This overrides the parent <see cref="ITelemetryHub"/> function
         /// if any.  Events will be logged for <c>null</c> functions.
         /// </param>
         /// <returns>The <see cref="INeonLogger"/> instance.</returns>
@@ -200,7 +200,7 @@ namespace Neon.Diagnostics
         /// </param>
         /// <param name="isLogEnabledFunc">
         /// Optionally specifies a function that will be called at runtime to determine whether to event
-        /// logging is actually enabled.  This overrides the parent <see cref="ILogManager"/> function
+        /// logging is actually enabled.  This overrides the parent <see cref="ITelemetryHub"/> function
         /// if any.  Events will be logged for <c>null</c> functions.
         /// </param>
         /// <returns>The <see cref="INeonLogger"/> instance.</returns>

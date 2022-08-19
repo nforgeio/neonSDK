@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:	    LogManager.cs
+// FILE:	    TelemetryHub.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright (c) 2005-2022 by neonFORGE LLC.  All rights reserved.
 //
@@ -37,9 +37,9 @@ namespace Neon.Diagnostics
 {
     /// <summary>
     /// A reasonable default implementation of an application log manager.  See
-    /// <see cref="ILogManager"/> for a description of how log managers work.
+    /// <see cref="ITelemetryHub"/> for a description of how log managers work.
     /// </summary>
-    public class LogManager : ILogManager
+    public class TelemetryHub : ITelemetryHub
     {
         //---------------------------------------------------------------------
         // Static members
@@ -51,8 +51,8 @@ namespace Neon.Diagnostics
 
         /// <summary>
         /// <para>
-        /// The default <see cref="ILogManager"/> that can be used by applications that don't
-        /// use dependency injection.  This defaults to an instance of <see cref="LogManager"/>
+        /// The default <see cref="ITelemetryHub"/> that can be used by applications that don't
+        /// use dependency injection.  This defaults to an instance of <see cref="TelemetryHub"/>
         /// but can be set to something else for unit tests or early in application startup.
         /// </para>
         /// <para>
@@ -60,16 +60,16 @@ namespace Neon.Diagnostics
         /// <see cref="NeonHelper.ServiceContainer"/>.
         /// </para>
         /// </summary>
-        public static ILogManager Default
+        public static ITelemetryHub Default
         {
-            get { return NeonHelper.ServiceContainer.GetService<ILogManager>(); }
+            get { return NeonHelper.ServiceContainer.GetService<ITelemetryHub>(); }
 
             set
             {
                 // Ensure that updates to the default manager will also be reflected in 
                 // the dependency services so users won't be surprised.
 
-                NeonHelper.ServiceContainer.AddSingleton<ILogManager>(value);
+                NeonHelper.ServiceContainer.AddSingleton<ITelemetryHub>(value);
                 NeonHelper.ServiceContainer.AddSingleton<ILoggerProvider>(value);
             }
         }
@@ -77,15 +77,15 @@ namespace Neon.Diagnostics
         /// <summary>
         /// Returns a <b>log-nothing</b> log manager.
         /// </summary>
-        public static ILogManager Disabled { get; private set; }
+        public static ITelemetryHub Disabled { get; private set; }
         
         /// <summary>
         /// Static constructor.
         /// </summary>
-        static LogManager()
+        static TelemetryHub()
         {
-            Default  = new LogManager(name: "DEFAULT");
-            Disabled = new LogManager(parseLogLevel: false)
+            Default  = new TelemetryHub(name: "DEFAULT");
+            Disabled = new TelemetryHub(parseLogLevel: false)
             {
                 LogLevel = NeonLogLevel.None
             };
@@ -132,7 +132,7 @@ namespace Neon.Diagnostics
         /// log manager itself.
         /// </param>
         /// <param name="writer">Optionally specifies the output writer.  This defaults to <see cref="Console.Error"/>.</param>
-        public LogManager(bool parseLogLevel = true, string version = null, Func<LogEvent, bool> logFilter = null, Func<bool> isLogEnabledFunc = null, TextWriter writer = null, string name = null)
+        public TelemetryHub(bool parseLogLevel = true, string version = null, Func<LogEvent, bool> logFilter = null, Func<bool> isLogEnabledFunc = null, TextWriter writer = null, string name = null)
         {
             this.Name = name;
 
@@ -194,7 +194,7 @@ namespace Neon.Diagnostics
             {
                 case "CRITICAL":
 
-                    LogLevel = NeonLogLevel.Fatal;
+                    LogLevel = NeonLogLevel.Critical;
                     break;
 
                 case "SERROR":
@@ -305,7 +305,7 @@ namespace Neon.Diagnostics
         /// </param>
         /// <param name="isLogEnabledFunc">
         /// Optionally specifies a function that will be called at runtime to determine whether to event
-        /// logging is actually enabled.  This overrides the parent <see cref="ILogManager"/> function
+        /// logging is actually enabled.  This overrides the parent <see cref="ITelemetryHub"/> function
         /// if any.  Events will be logged for <c>null</c> functions.
         /// </param>
         /// <returns>The <see cref="INeonLogger"/> instance.</returns>
@@ -344,7 +344,7 @@ namespace Neon.Diagnostics
         /// </param>
         /// <param name="isLogEnabledFunc">
         /// Optionally specifies a function that will be called at runtime to determine whether to event
-        /// logging is actually enabled.  This overrides the parent <see cref="ILogManager"/> function
+        /// logging is actually enabled.  This overrides the parent <see cref="ITelemetryHub"/> function
         /// if any.  Events will be logged for <c>null</c> functions.
         /// </param>
         /// <returns>The <see cref="INeonLogger"/> instance.</returns>
