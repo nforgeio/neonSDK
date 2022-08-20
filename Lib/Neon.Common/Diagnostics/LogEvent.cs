@@ -44,15 +44,15 @@ namespace Neon.Diagnostics
         /// <param name="timestamp">Time (UTC) when the event was logged.</param>
         /// <param name="logLevel">The event log level.</param>
         /// <param name="body">Specifies the event body or <c>null</c>.</param>
-        /// <param name="attributes">Specifies any arrtibutes to be logged with the event or <c>null</c>.</param>
+        /// <param name="tags">Specifies any tags to be logged with the event or <c>null</c>.</param>
         /// <param name="e">Optionally specifies the exception being logged.</param>
         public LogEvent(
             string                                      categoryName,
             long                                        index,
             DateTime                                    timestamp,
-            NeonLogLevel                                    logLevel,
+            NeonLogLevel                                logLevel,
             string                                      body,
-            IEnumerable<KeyValuePair<string, string>>   attributes,
+            IEnumerable<KeyValuePair<string, object>>   tags,
             Exception                                   e)
         {
             this.CategoryName = categoryName;
@@ -60,7 +60,7 @@ namespace Neon.Diagnostics
             this.Timestamp    = timestamp;
             this.LogLevel     = logLevel;
             this.Body         = body ?? string.Empty;
-            this.Attributes   = attributes;
+            this.Tags         = tags ?? Array.Empty<KeyValuePair<string, object>>();
             this.Exception    = e;
         }
 
@@ -92,9 +92,9 @@ namespace Neon.Diagnostics
         public string Body { get; private set; }
 
         /// <summary>
-        /// Returns and event attributes.  This may be <c>null</c>.
+        /// Returns any event tags.
         /// </summary>
-        public IEnumerable<KeyValuePair<string, string>> Attributes { get; private set; }
+        public IEnumerable<KeyValuePair<string, object>> Tags { get; private set; }
 
         /// <summary>
         /// Returns any exception associated with the event.

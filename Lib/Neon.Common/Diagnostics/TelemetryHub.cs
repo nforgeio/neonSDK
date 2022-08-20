@@ -31,41 +31,27 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 using Neon.Common;
-using YamlDotNet.Serialization;
 
 namespace Neon.Diagnostics
 {
     /// <summary>
-    /// A reasonable default implementation of an application log manager.  See
-    /// <see cref="ITelemetryHub"/> for a description of how log managers work.
+    /// A reasonable default implementation of an application telemetry hub.  See
+    /// <see cref="ITelemetryHub"/> for a description of how telemetry hubs work.
     /// </summary>
     public class TelemetryHub : ITelemetryHub
     {
         //---------------------------------------------------------------------
         // Static members
 
-        /// <summary>
-        /// Returns the <see cref="Regex"/> used for lite validation of program version strings.
-        /// </summary>
-        public static Regex VersionRegex { get; private set; } = new Regex(@"[0-9a-zA-Z\.-_/]+");
-
-        /// <summary>
-        /// <para>
-        /// The default <see cref="ITelemetryHub"/> that can be used by applications that don't
-        /// use dependency injection.  This defaults to an instance of <see cref="TelemetryHub"/>
-        /// but can be set to something else for unit tests or early in application startup.
-        /// </para>
-        /// <para>
-        /// Applications that do use dependency injection can obtain this by default via
-        /// <see cref="NeonHelper.ServiceContainer"/>.
-        /// </para>
-        /// </summary>
+        /// <inheritdoc/>
         public static ITelemetryHub Default
         {
             get { return NeonHelper.ServiceContainer.GetService<ITelemetryHub>(); }
 
             set
             {
+                Covenant.Requires<ArgumentNullException>(value != null, nameof(value));
+
                 // Ensure that updates to the default manager will also be reflected in 
                 // the dependency services so users won't be surprised.
 
@@ -75,35 +61,20 @@ namespace Neon.Diagnostics
         }
 
         /// <summary>
-        /// Returns a <b>log-nothing</b> log manager.
-        /// </summary>
-        public static ITelemetryHub Disabled { get; private set; }
-        
-        /// <summary>
         /// Static constructor.
         /// </summary>
         static TelemetryHub()
         {
-            Default  = new TelemetryHub(name: "DEFAULT");
-            Disabled = new TelemetryHub(parseLogLevel: false)
-            {
-                LogLevel = NeonLogLevel.None
-            };
+            Default = new TelemetryHub();
         }
 
         //---------------------------------------------------------------------
         // Instance members
 
-        // $todo(jefflill):
-        //
-        // Using [syncRoot] to implement thread safety via a [Monitor] may introduce
-        // some performance overhead for ASP.NET sites with lots of traffic.  It
-        // may be worth investigating whether a [SpinLock] might be better.
-
         private readonly object                             syncRoot         = new object();
         private readonly Dictionary<string, INeonLogger>    categoryToLogger = new Dictionary<string, INeonLogger>();
-        private readonly TextWriter                         writer           = null;
         private NeonLogLevel                                logLevel         = NeonLogLevel.Information;
+        private ActivitySource                              activitySource;
         private long                                        emitCount;
         private LoggerCreatorDelegate                       loggerCreator;
         private Func<LogEvent, bool>                        logFilter;
@@ -112,11 +83,7 @@ namespace Neon.Diagnostics
         /// <summary>
         /// Default constructor.
         /// </summary>
-        /// <param name="parseLogLevel">Indicates that the <b>LOG-LEVEL</b> environment variable should be parsed (defaults to <c>true</c>).</param>
-        /// <param name="version">
-        /// Optionally specifies the semantic version of the current program.  This can be a somewhat arbitrary
-        /// string that matches this regex: <b>[0-9a-zA-Z\.-_/]+</b>.  This defaults to <c>null</c>.
-        /// </param>
+        /// <param name="parseLogLevel">Indicates that the <b>LOG_LEVEL</b> environment variable should be parsed (defaults to <c>true</c>).</param>
         /// <param name="logFilter">
         /// Optionally specifies a filter predicate to be used for filtering log entries.  This examines
         /// the <see cref="LogEvent"/> and returns <c>true</c> if the event should be logged or <c>false</c>
@@ -127,56 +94,17 @@ namespace Neon.Diagnostics
         /// determine whether to event logging is actually enabled.  This defaults
         /// to <c>null</c> which will always log events.
         /// </param>
-        /// <param name="name">
-        /// Optionally specifies the log manager's name.  This can be useful when debugging the
-        /// log manager itself.
-        /// </param>
-        /// <param name="writer">Optionally specifies the output writer.  This defaults to <see cref="Console.Error"/>.</param>
-        public TelemetryHub(bool parseLogLevel = true, string version = null, Func<LogEvent, bool> logFilter = null, Func<bool> isLogEnabledFunc = null, TextWriter writer = null, string name = null)
+        public TelemetryHub(bool parseLogLevel = true, Func<LogEvent, bool> logFilter = null, Func<bool> isLogEnabledFunc = null)
         {
-            this.Name = name;
-
             if (parseLogLevel && !Enum.TryParse<NeonLogLevel>(Environment.GetEnvironmentVariable("LOG_LEVEL"), true, out logLevel))
             {
                 logLevel = NeonLogLevel.Information;
             }
 
-            if (!string.IsNullOrEmpty(version) && VersionRegex.IsMatch(version))
-            {
-                this.Version = version;
-            }
-            else
-            {
-                this.Version = "unknown";
-            }
-
             this.logFilter        = logFilter;
             this.isLogEnabledFunc = isLogEnabledFunc;
-            this.writer           = writer;
             this.emitCount        = 0;
         }
-
-        /// <inheritdoc/>
-        public void Reset()
-        {
-            lock (syncRoot)
-            {
-                LoggerCreator    = null;
-                LogLevel         = NeonLogLevel.Information;
-                logFilter        = null;
-                isLogEnabledFunc = null;
-                EmitIndex        = true;
-                emitCount        = 0;
-
-                categoryToLogger.Clear();
-            }
-        }
-
-        /// <inheritdoc/>
-        public string Name { get; private set; } = null;
-
-        /// <inheritdoc/>
-        public string Version { get; set; } = null;
 
         /// <inheritdoc/>
         public NeonLogLevel LogLevel
@@ -186,9 +114,9 @@ namespace Neon.Diagnostics
         }
 
         /// <inheritdoc/>
-        public void SetLogLevel(string level)
+        public void ParseLogLevel(string level)
         {
-            level = level ?? "INFO";
+            level = level ?? "INFORMATION";
 
             switch (level.ToUpperInvariant())
             {
@@ -197,7 +125,8 @@ namespace Neon.Diagnostics
                     LogLevel = NeonLogLevel.Critical;
                     break;
 
-                case "SERROR":
+                case "SERROR":  // Backwards compatibility
+                case "SECURITYERROR":
 
                     LogLevel = NeonLogLevel.SecurityError;
                     break;
@@ -207,20 +136,21 @@ namespace Neon.Diagnostics
                     LogLevel = NeonLogLevel.Error;
                     break;
 
-                case "WARN":
+                case "WARN":    // Backwards compatibility
                 case "WARNING":
 
                     LogLevel = NeonLogLevel.Warning;
                     break;
 
                 default:
-                case "INFO":
+                case "INFO":    // Backwards compatibility
                 case "INFORMATION":
 
                     LogLevel = NeonLogLevel.Information;
                     break;
 
-                case "SINFO":
+                case "SINFO":   // Backwards compatibility
+                case "SECURITYINFORMATION":
 
                     LogLevel = NeonLogLevel.SecurityInformation;
                     break;
@@ -244,6 +174,22 @@ namespace Neon.Diagnostics
 
                     LogLevel = NeonLogLevel.None;
                     break;
+            }
+        }
+
+        /// <inheritdoc/>
+        public ActivitySource ActivitySource
+        {
+            get => activitySource;
+
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentNullException(nameof(value), $"The [{ActivitySource}] property cannot be set to NULL.");
+                }
+                
+                activitySource = value;
             }
         }
 
@@ -293,9 +239,8 @@ namespace Neon.Diagnostics
         /// Optionally identifies the event source category.  This is typically used 
         /// for identifying the event source.
         /// </param>
-        /// <param name="writer">Optionally specifies a target <see cref="TextWriter"/>.</param>
-        /// <param name="attributes">
-        /// Specifies attributes to be included in every event logged by the logger returned.  This may
+        /// <param name="tags">
+        /// Specifies tags to be included in every event logged by the logger returned.  This may
         /// be passed as <c>null</c>.
         /// </param>
         /// <param name="logFilter">
@@ -309,18 +254,18 @@ namespace Neon.Diagnostics
         /// if any.  Events will be logged for <c>null</c> functions.
         /// </param>
         /// <returns>The <see cref="INeonLogger"/> instance.</returns>
-        private INeonLogger CreateLogger(string categoryName, TextWriter writer, IEnumerable<KeyValuePair<string, string>> attributes, Func<LogEvent, bool> logFilter, Func<bool> isLogEnabledFunc)
+        private INeonLogger CreateLogger(string categoryName,  IEnumerable<KeyValuePair<string, object>> tags, Func<LogEvent, bool> logFilter, Func<bool> isLogEnabledFunc)
         {
             logFilter        ??= this.logFilter;
             isLogEnabledFunc ??= this.isLogEnabledFunc;
 
             if (LoggerCreator == null)
             {
-                return new TextLogger(this, categoryName, writer: writer, logFilter: logFilter, isLogEnabledFunc: isLogEnabledFunc);
+                return new TextLogger(categoryName, logFilter: logFilter, isLogEnabledFunc: isLogEnabledFunc);
             }
             else
             {
-                return loggerCreator(this, categoryName, writer: writer, logFilter: logFilter, isLogEnabledFunc: isLogEnabledFunc);
+                return loggerCreator(categoryName, logFilter: logFilter, isLogEnabledFunc: isLogEnabledFunc);
             }
         }
 
@@ -332,9 +277,8 @@ namespace Neon.Diagnostics
         /// Optionally identifies the event source category.  This is typically used 
         /// for identifying the event source.
         /// </param>
-        /// <param name="writer">Optionally specifies a target <see cref="TextWriter"/>.</param>
-        /// <param name="attributes">
-        /// Optionally specifies attributes to be included in every event logged by the logger returned.  This may
+        /// <param name="tags">
+        /// Optionally specifies tags to be included in every event logged by the logger returned.  This may
         /// be passed as <c>null</c>.
         /// </param>
         /// <param name="logFilter">
@@ -348,7 +292,7 @@ namespace Neon.Diagnostics
         /// if any.  Events will be logged for <c>null</c> functions.
         /// </param>
         /// <returns>The <see cref="INeonLogger"/> instance.</returns>
-        private INeonLogger InternalGetLogger(string categoryName, TextWriter writer = null, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<LogEvent, bool> logFilter = null, Func<bool> isLogEnabledFunc = null)
+        private INeonLogger InternalGetLogger(string categoryName, IEnumerable<KeyValuePair<string, object>> tags = null, Func<LogEvent, bool> logFilter = null, Func<bool> isLogEnabledFunc = null)
         {
             categoryName = categoryName ?? string.Empty;
 
@@ -356,7 +300,7 @@ namespace Neon.Diagnostics
             {
                 if (!categoryToLogger.TryGetValue((string)categoryName, out var logger))
                 {
-                    logger = CreateLogger((string)categoryName, writer: writer, attributes:attributes, logFilter: logFilter, isLogEnabledFunc: isLogEnabledFunc);
+                    logger = CreateLogger((string)categoryName, tags:tags, logFilter: logFilter, isLogEnabledFunc: isLogEnabledFunc);
 
                     categoryToLogger.Add((string)categoryName, logger);
                 }
@@ -366,21 +310,21 @@ namespace Neon.Diagnostics
         }
 
         /// <inheritdoc/>
-        public INeonLogger GetLogger(string categoryName = null, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<LogEvent, bool> logFilter = null, Func<bool> isLogEnabledFunc = null)
+        public INeonLogger GetLogger(string categoryName = null, IEnumerable<KeyValuePair<string, object>> tags = null, Func<LogEvent, bool> logFilter = null, Func<bool> isLogEnabledFunc = null)
         {
-            return InternalGetLogger(categoryName, writer, attributes, logFilter, isLogEnabledFunc);
+            return InternalGetLogger(categoryName, tags, logFilter, isLogEnabledFunc);
         }
 
         /// <inheritdoc/>
-        public INeonLogger GetLogger(Type type, IEnumerable<KeyValuePair<string, string>> attributes = null, Func<LogEvent, bool> logFilter = null, Func<bool> isLogEnabledFunc = null)
+        public INeonLogger GetLogger(Type type, IEnumerable<KeyValuePair<string, object>> tags = null, Func<LogEvent, bool> logFilter = null, Func<bool> isLogEnabledFunc = null)
         {
-            return InternalGetLogger(type.FullName, writer, attributes, logFilter, isLogEnabledFunc);
+            return InternalGetLogger(type.FullName, tags, logFilter, isLogEnabledFunc);
         }
 
         /// <inheritdoc/>
-        public INeonLogger GetLogger<T>(IEnumerable<KeyValuePair<string, string>> attributes = null, Func<LogEvent, bool> logFilter = null, Func<bool> isLogEnabledFunc = null)
+        public INeonLogger GetLogger<T>(IEnumerable<KeyValuePair<string, object>> tags = null, Func<LogEvent, bool> logFilter = null, Func<bool> isLogEnabledFunc = null)
         {
-            return InternalGetLogger(typeof(T).FullName, writer, attributes, logFilter, isLogEnabledFunc);
+            return InternalGetLogger(typeof(T).FullName, tags, logFilter, isLogEnabledFunc);
         }
 
         //---------------------------------------------------------------------

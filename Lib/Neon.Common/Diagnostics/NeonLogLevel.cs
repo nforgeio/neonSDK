@@ -44,55 +44,55 @@ namespace Neon.Diagnostics
         /// <summary>
         /// Logging is disabled.
         /// </summary>
-        None = SeverityNumber.SEVERITY_NUMBER_UNSPECIFIED,
+        None = SeverityNumbers.SEVERITY_NUMBER_UNSPECIFIED,
 
         /// <summary>
         /// A critical or fatal error has been detected.  These errors indicate that
         /// a very serious failure has occurred that may have crashed the program or
         /// at least seriousoly impacts its functioning.
         /// </summary>
-        Critical = SeverityNumber.SEVERITY_NUMBER_FATAL,
+        Critical = SeverityNumbers.SEVERITY_NUMBER_FATAL,
 
         /// <summary>
         /// A security related error has occurred.
         /// </summary>
-        SecurityError = SeverityNumber.SEVERITY_NUMBER_ERROR2,
+        SecurityError = SeverityNumbers.SEVERITY_NUMBER_ERROR2,
 
         /// <summary>
         /// An error has been detected.
         /// </summary>
-        Error = SeverityNumber.SEVERITY_NUMBER_ERROR,
+        Error = SeverityNumbers.SEVERITY_NUMBER_ERROR,
 
         /// <summary>
         /// An unusual condition has been detected that may ultimately lead to an error.
         /// </summary>
-        Warning = SeverityNumber.SEVERITY_NUMBER_WARN,
+        Warning = SeverityNumbers.SEVERITY_NUMBER_WARN,
 
         /// <summary>
         /// Describes a non-error security operation or condition, such as a 
         /// a successful login or authentication.
         /// </summary>
-        SecurityInformation = SeverityNumber.SEVERITY_NUMBER_INFO2,
+        SecurityInformation = SeverityNumbers.SEVERITY_NUMBER_INFO2,
 
         /// <summary>
         /// Describes a normal operation or condition.
         /// </summary>
-        Information = SeverityNumber.SEVERITY_NUMBER_INFO,
+        Information = SeverityNumbers.SEVERITY_NUMBER_INFO,
 
         /// <summary>
         /// Describes a transient error, typically logged by a <see cref="Neon.Retry.IRetryPolicy"/>
         /// implementations.
         /// </summary>
-        Transient = SeverityNumber.SEVERITY_NUMBER_DEBUG2,
+        Transient = SeverityNumbers.SEVERITY_NUMBER_DEBUG2,
 
         /// <summary>
         /// Describes detailed debug or diagnostic information.
         /// </summary>
-        Debug = SeverityNumber.SEVERITY_NUMBER_DEBUG,
+        Debug = SeverityNumbers.SEVERITY_NUMBER_DEBUG,
 
         /// <summary>
         /// Describes <b>very</b> detailed debug or diagnostic information.
         /// </summary>
-        Trace = SeverityNumber.SEVERITY_NUMBER_TRACE
+        Trace = SeverityNumbers.SEVERITY_NUMBER_TRACE
     }
 }

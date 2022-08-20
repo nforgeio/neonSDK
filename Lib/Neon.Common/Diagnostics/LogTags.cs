@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:	    LogAttributes.cs
+// FILE:	    LogTags.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright (c) 2005-2022 by neonFORGE LLC.  All rights reserved.
 //
@@ -19,98 +19,103 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
-
+using System.Runtime.CompilerServices;
 using Neon.Common;
 
 namespace Neon.Diagnostics
 {
     /// <summary>
-    /// Holds attributes to be included in log events recorded by <see cref="INeonLogger"/> logging 
+    /// Holds tags to be included in log events recorded by <see cref="INeonLogger"/> logging 
     /// methods.
     /// </summary>
-    /// <remarks>LogAttributes is a wrapper around <see cref="ActivityTagsCollection"/> class.</remarks>
-    public class LogAttributes
+    public class LogTags
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="LogAttributes"/> class.
+        /// Initializes a new instance of the <see cref="LogTags"/> class.
         /// </summary>
-        public LogAttributes()
+        public LogTags()
         {
-            this.Attributes = new ActivityTagsCollection();
+            this.Tags = new LogTagsCollection();
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="LogAttributes"/> class.
+        /// Initializes a new instance of the <see cref="LogTags"/> class.
         /// </summary>
-        /// <param name="attributes">Initial attributes to store in the collection.</param>
-        public LogAttributes(LogAttributes attributes)
+        /// <param name="tags">Initial tags to store in the collection.</param>
+        public LogTags(LogTags tags)
             : this()
         {
-            Covenant.Requires<ArgumentNullException>(attributes != null, nameof(attributes));
+            Covenant.Requires<ArgumentNullException>(tags != null, nameof(tags));
 
-            foreach (KeyValuePair<string, object> kvp in attributes.Attributes)
+            foreach (KeyValuePair<string, object> kvp in tags.Tags)
             {
                 this.AddInternal(kvp.Key, kvp.Value);
             }
         }
 
-        internal ActivityTagsCollection Attributes { get; }
+        internal LogTagsCollection Tags { get; }
 
         /// <summary>
-        /// Adds a <c>long</c> attribute.
+        /// Adds a <c>long</c> tags.
         /// </summary>
-        /// <param name="key">Entry key.</param>
-        /// <param name="value">Entry value.</param>
+        /// <param name="key">Tag key.</param>
+        /// <param name="value">Tag value.</param>
         public void Add(string key, long value)
         {
             this.AddInternal(key, value);
         }
 
         /// <summary>
-        /// Adds a <c>string</c> attribute.
+        /// Adds a <c>string</c> tags.
         /// </summary>
-        /// <param name="key">Entry key.</param>
-        /// <param name="value">Entry value.</param>
+        /// <param name="key">Tag key.</param>
+        /// <param name="value">Tag value.</param>
         public void Add(string key, string value)
         {
             this.AddInternal(key, value);
         }
 
         /// <summary>
-        /// Adds a <c>bool</c> attribute.
+        /// Adds a <c>bool</c> tags.
         /// </summary>
-        /// <param name="key">Entry key.</param>
-        /// <param name="value">Entry value.</param>
+        /// <param name="key">Tag key.</param>
+        /// <param name="value">Tag value.</param>
         public void Add(string key, bool value)
         {
             this.AddInternal(key, value);
         }
 
         /// <summary>
-        /// Adds a <c>double</c> attribute.
+        /// Adds a <c>double</c> tags.
         /// </summary>
-        /// <param name="key">Entry key.</param>
-        /// <param name="value">Entry value.</param>
+        /// <param name="key">Tag key.</param>
+        /// <param name="value">Tag value.</param>
         public void Add(string key, double value)
         {
             this.AddInternal(key, value);
         }
 
         /// <summary>
-        /// Adds an arbitrary object attribute.
+        /// Adds an arbitrary object tags.
         /// </summary>
-        /// <param name="key">Entry key.</param>
-        /// <param name="value">Entry value.</param>
+        /// <param name="key">Tag key.</param>
+        /// <param name="value">Tag value.</param>
         public void Add(string key, object value)
         {
             AddInternal(key, value);
         }
 
+        /// <summary>
+        /// Used internall to add a tag to the collection.
+        /// </summary>
+        /// <param name="key">Tag key.</param>
+        /// <param name="value">Tag value.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void AddInternal(string key, object value)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(key), nameof(key));
 
-            this.Attributes[key] = value;
+            this.Tags[key] = value;
         }
     }
 }

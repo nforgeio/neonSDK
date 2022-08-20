@@ -25,17 +25,17 @@ namespace Neon.Diagnostics
     /// <summary>
     /// <para>
     /// Adapted from the OpenTelemetry standard severity number enumeration to bring
-    /// those definitions into <b>Neon.Common</b> and also to add attributes used to
+    /// those definitions into <b>Neon.Common</b> and also to add tags used to
     /// render severity values into their corresponding strings.
     /// </para>
     /// <note>
     /// <see cref="INeonLogger"/> extends the log levels recorded by <see cref="ILogger"/>
     /// by adding additional log levels that map to severity numbers not emitted by 
-    /// <see cref="ILogger"/>.  The attributes specified below will render these extended
+    /// <see cref="ILogger"/>.  The tags specified below will render these extended
     /// log levels to the new mappings.
     /// </note>
     /// </summary>
-    internal enum SeverityNumber
+    internal enum SeverityNumbers
     {
         [EnumMember(Value="None")]
         SEVERITY_NUMBER_UNSPECIFIED = 0,

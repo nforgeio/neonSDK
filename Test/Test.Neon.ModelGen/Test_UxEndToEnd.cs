@@ -282,17 +282,14 @@ namespace TestModelGen.UxAspNet
     {
         private AspNetFixture               fixture;
         private TestUxAspNetFixtureClient   client;
-        private TestOutputWriter            testWriter;
 
         public Test_EndToEnd(AspNetFixture fixture, ITestOutputHelper outputHelper)
         {
             var testPort = 0;
-            var logLevel = Neon.Diagnostics.NeonLogLevel.None;
 
-            this.fixture    = fixture;
-            this.testWriter = new TestOutputWriter(outputHelper);
+            this.fixture = fixture;
 
-            fixture.Start<Startup>(port: testPort, logWriter: testWriter, logLevel: logLevel);
+            fixture.Start<Startup>(port: testPort);
 
             client = new TestUxAspNetFixtureClient()
             {

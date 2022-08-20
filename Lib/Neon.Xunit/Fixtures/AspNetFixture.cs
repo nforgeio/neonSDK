@@ -56,7 +56,7 @@ namespace Neon.Xunit
 
             public LoggingProvider(TextWriter logWriter, NeonLogLevel logLevel)
             {
-                this.telemetryHub = new TelemetryHub(writer: logWriter)
+                this.telemetryHub = new TelemetryHub()
                 {
                     LogLevel = logLevel
                 };
@@ -81,8 +81,6 @@ namespace Neon.Xunit
         // Implementation
 
         private Action<IWebHostBuilder> hostConfigurator;
-        private TextWriter              logWriter = null;
-        private NeonLogLevel                logLevel  = NeonLogLevel.None;
 
         /// <summary>
         /// Constructs the fixture.
@@ -124,45 +122,14 @@ namespace Neon.Xunit
         /// Starts the ASP.NET service using the default controller factory.
         /// </para>
         /// <note>
-        /// You'll need to call <see cref="StartAsComposed{TStartup}(Action{IWebHostBuilder}, int, TestOutputWriter, NeonLogLevel)"/>
+        /// You'll need to call <see cref="StartAsComposed{TStartup}(Action{IWebHostBuilder}, int)"/>
         /// instead when this fixture is being added to a <see cref="ComposedFixture"/>.
         /// </note>
         /// </summary>
         /// <typeparam name="TStartup">The startup class for the service.</typeparam>
         /// <param name="hostConfigurator">Optional action providing for customization of the hosting environment.</param>
         /// <param name="port">The port where the server will listen or zero to allow the operating system to select a free port.</param>
-        /// <param name="logWriter">Optionally specifies a test output writer.</param>
-        /// <param name="logLevel">Optionally specifies the log level.  This defaults to <see cref="NeonLogLevel.None"/>.</param>
-        /// <remarks>
-        /// <para>
-        /// You can capture ASP.NET and service logs into your unit test logs by passing <paramref name="logWriter"/> as 
-        /// non-null and <paramref name="logLevel"/> as something other than <see cref="NeonLogLevel.None"/>.  You'll need
-        /// to obtain a <see cref="ITestOutputHelper"/> instance from Xunit via dependency injection by adding a parameter
-        /// to your test constructor and then creating a <see cref="TestOutputWriter"/> from it, like:
-        /// </para>
-        /// <code language="c#">
-        /// public class MyTest : IClassFixture&lt;AspNetFixture&gt;
-        /// {
-        ///     private AspNetFixture               fixture;
-        ///     private TestAspNetFixtureClient     client;
-        ///     private TestOutputWriter            testWriter;
-        ///
-        ///     public Test_EndToEnd(AspNetFixture fixture, ITestOutputHelper outputHelper)
-        ///     {
-        ///         this.fixture    = fixture;
-        ///         this.testWriter = new TestOutputWriter(outputHelper);
-        ///
-        ///         fixture.Start&lt;Startup&gt;(logWriter: testWriter, logLevel: Neon.Diagnostics.LogLevel.Debug);
-        ///
-        ///         client = new TestAspNetFixtureClient()
-        ///         {
-        ///             BaseAddress = fixture.BaseAddress
-        ///         };
-        ///      }
-        /// }
-        /// </code>
-        /// </remarks>
-        public void Start<TStartup>(Action<IWebHostBuilder> hostConfigurator = null, int port = 0, TestOutputWriter logWriter = null, NeonLogLevel logLevel = NeonLogLevel.None)
+        public void Start<TStartup>(Action<IWebHostBuilder> hostConfigurator = null, int port = 0)
             where TStartup : class
         {
             base.CheckDisposed();
@@ -170,7 +137,7 @@ namespace Neon.Xunit
             base.Start(
                 () =>
                 {
-                    StartAsComposed<TStartup>(hostConfigurator, port, logWriter, logLevel);
+                    StartAsComposed<TStartup>(hostConfigurator, port);
                 });
         }
 
@@ -180,43 +147,10 @@ namespace Neon.Xunit
         /// <typeparam name="TStartup">The startup class for the service.</typeparam>
         /// <param name="hostConfigurator">Optional action providing for customization of the hosting environment.</param>
         /// <param name="port">The port where the server will listen or zero to allow the operating system to select a free port.</param>
-        /// <param name="logWriter">Optionally specifies a test output writer.</param>
-        /// <param name="logLevel">Optionally specifies the log level.  This defaults to <see cref="NeonLogLevel.None"/>.</param>
-        /// <remarks>
-        /// <para>
-        /// You can capture ASP.NET and service logs into your unit test logs by passing <paramref name="logWriter"/> as 
-        /// non-null and <paramref name="logLevel"/> as something other than <see cref="NeonLogLevel.None"/>.  You'll need
-        /// to obtain a <see cref="ITestOutputHelper"/> instance from Xunit via dependency injection by adding a parameter
-        /// to your test constructor and then creating a <see cref="TestOutputWriter"/> from it, like:
-        /// </para>
-        /// <code language="c#">
-        /// public class MyTest : IClassFixture&lt;AspNetFixture&gt;
-        /// {
-        ///     private AspNetFixture               fixture;
-        ///     private TestAspNetFixtureClient     client;
-        ///     private TestOutputWriter            testWriter;
-        ///
-        ///     public Test_EndToEnd(AspNetFixture fixture, ITestOutputHelper outputHelper)
-        ///     {
-        ///         this.fixture    = fixture;
-        ///         this.testWriter = new TestOutputWriter(outputHelper);
-        ///
-        ///         fixture.Start&lt;Startup&gt;(logWriter: testWriter, logLevel: Neon.Diagnostics.LogLevel.Debug);
-        ///
-        ///         client = new TestAspNetFixtureClient()
-        ///         {
-        ///             BaseAddress = fixture.BaseAddress
-        ///         };
-        ///      }
-        /// }
-        /// </code>
-        /// </remarks>
-        public void StartAsComposed<TStartup>(Action<IWebHostBuilder> hostConfigurator = null, int port = 0, TestOutputWriter logWriter = null, NeonLogLevel logLevel = NeonLogLevel.None)
+        public void StartAsComposed<TStartup>(Action<IWebHostBuilder> hostConfigurator = null, int port = 0)
             where TStartup : class
         {
             this.hostConfigurator = hostConfigurator;
-            this.logWriter        = logWriter;
-            this.logLevel         = logLevel;
 
             base.CheckWithinAction();
 
@@ -253,15 +187,6 @@ namespace Neon.Xunit
                     {
                         options.Listen(IPAddress.Loopback, port);
                     });
-
-            if (logWriter != null && logLevel != NeonLogLevel.None)
-            {
-                app.ConfigureLogging(
-                    (hostingContext, logging) =>
-                    {
-                        logging.AddProvider(new LoggingProvider(logWriter, logLevel));
-                    });
-            }
 
             hostConfigurator?.Invoke(app);
             WebHost = app.Build();

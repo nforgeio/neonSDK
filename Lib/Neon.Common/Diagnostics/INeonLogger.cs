@@ -89,232 +89,232 @@ namespace Neon.Diagnostics
         /// Logs a <b>debug</b> event.
         /// </summary>
         /// <param name="message">The message text.</param>
-        /// <param name="attributes">Optionally specifies attributes to be added to the logged event.</param>
-        /// <param name="attributeGetter">Optionally specifies a function that returns attributes to be added to the logged event.</param>
+        /// <param name="tags">Optionally specifies tags to be added to the logged event.</param>
+        /// <param name="tagGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
         /// <remarks>
         /// <note>
-        /// Attributes returned by <paramref name="attributeGetter"/> will override attributes passed via <paramref name="attributes"/>
+        /// tags returned by <paramref name="tagGetter"/> will override tags passed via <paramref name="tags"/>
         /// when there are any conflicts.
         /// </note>
         /// </remarks>
-        void LogDebug(string message, LogAttributes attributes = null, Func<LogAttributes> attributeGetter = null);
+        void LogDebug(string message, LogTags tags = null, Func<LogTags> tagGetter = null);
 
         /// <summary>
         /// Logs a <b>transient</b> event.
         /// </summary>
         /// <param name="message">The message text.</param>
-        /// <param name="attributes">Optionally specifies attributes to be added to the logged event.</param>
-        /// <param name="attributeGetter">Optionally specifies a function that returns attributes to be added to the logged event.</param>
+        /// <param name="tags">Optionally specifies tags to be added to the logged event.</param>
+        /// <param name="tagGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
         /// <remarks>
         /// <note>
-        /// Attributes returned by <paramref name="attributeGetter"/> will override attributes passed via <paramref name="attributes"/>
+        /// tags returned by <paramref name="tagGetter"/> will override tags passed via <paramref name="tags"/>
         /// when there are any conflicts.
         /// </note>
         /// </remarks>
-        void LogTransient(string message, LogAttributes attributes = null, Func<LogAttributes> attributeGetter = null);
+        void LogTransient(string message, LogTags tags = null, Func<LogTags> tagGetter = null);
 
         /// <summary>
         /// Logs a <b>security information</b> event.
         /// </summary>
         /// <param name="message">The message text.</param>
-        /// <param name="attributes">Optionally specifies attributes to be added to the logged event.</param>
-        /// <param name="attributeGetter">Optionally specifies a function that returns attributes to be added to the logged event.</param>
+        /// <param name="tags">Optionally specifies tags to be added to the logged event.</param>
+        /// <param name="tagGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
         /// <remarks>
         /// <note>
-        /// Attributes returned by <paramref name="attributeGetter"/> will override attributes passed via <paramref name="attributes"/>
+        /// tags returned by <paramref name="tagGetter"/> will override tags passed via <paramref name="tags"/>
         /// when there are any conflicts.
         /// </note>
         /// </remarks>
-        void LogSecurityInformation(string message, LogAttributes attributes = null, Func<LogAttributes> attributeGetter = null);
+        void LogSecurityInformation(string message, LogTags tags = null, Func<LogTags> tagGetter = null);
 
         /// <summary>
         /// Logs an <b>information</b> event.
         /// </summary>
         /// <param name="message">The message text.</param>
-        /// <param name="attributes">Optionally specifies attributes to be added to the logged event.</param>
-        /// <param name="attributeGetter">Optionally specifies a function that returns attributes to be added to the logged event.</param>
+        /// <param name="tags">Optionally specifies tags to be added to the logged event.</param>
+        /// <param name="tagGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
         /// <remarks>
         /// <note>
-        /// Attributes returned by <paramref name="attributeGetter"/> will override attributes passed via <paramref name="attributes"/>
+        /// tags returned by <paramref name="tagGetter"/> will override tags passed via <paramref name="tags"/>
         /// when there are any conflicts.
         /// </note>
         /// </remarks>
-        void LogInformation(string message, LogAttributes attributes = null, Func<LogAttributes> attributeGetter = null);
+        void LogInformation(string message, LogTags tags = null, Func<LogTags> tagGetter = null);
 
         /// <summary>
         /// Logs a <b>warning</b> event.
         /// </summary>
         /// <param name="message">The message text.</param>
-        /// <param name="attributes">Optionally specifies attributes to be added to the logged event.</param>
-        /// <param name="attributeGetter">Optionally specifies a function that returns attributes to be added to the logged event.</param>
+        /// <param name="tags">Optionally specifies tags to be added to the logged event.</param>
+        /// <param name="tagGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
         /// <remarks>
         /// <note>
-        /// Attributes returned by <paramref name="attributeGetter"/> will override attributes passed via <paramref name="attributes"/>
+        /// tags returned by <paramref name="tagGetter"/> will override tags passed via <paramref name="tags"/>
         /// when there are any conflicts.
         /// </note>
         /// </remarks>
-        void LogWarning(string message, LogAttributes attributes = null, Func<LogAttributes> attributeGetter = null);
+        void LogWarning(string message, LogTags tags = null, Func<LogTags> tagGetter = null);
 
         /// <summary>
         /// Logs a <b>security error</b> event.
         /// </summary>
         /// <param name="message">The message text.</param>
-        /// <param name="attributes">Optionally specifies attributes to be added to the logged event.</param>
-        /// <param name="attributeGetter">Optionally specifies a function that returns attributes to be added to the logged event.</param>
+        /// <param name="tags">Optionally specifies tags to be added to the logged event.</param>
+        /// <param name="tagGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
         /// <remarks>
         /// <note>
-        /// Attributes returned by <paramref name="attributeGetter"/> will override attributes passed via <paramref name="attributes"/>
+        /// tags returned by <paramref name="tagGetter"/> will override tags passed via <paramref name="tags"/>
         /// when there are any conflicts.
         /// </note>
         /// </remarks>
-        void LogSecurityError(string message, LogAttributes attributes = null, Func<LogAttributes> attributeGetter = null);
+        void LogSecurityError(string message, LogTags tags = null, Func<LogTags> tagGetter = null);
 
         /// <summary>
         /// Logs an <b>error</b> event.
         /// </summary>
         /// <param name="message">The message text.</param>
-        /// <param name="attributes">Optionally specifies attributes to be added to the logged event.</param>
-        /// <param name="attributeGetter">Optionally specifies a function that returns attributes to be added to the logged event.</param>
+        /// <param name="tags">Optionally specifies tags to be added to the logged event.</param>
+        /// <param name="tagGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
         /// <remarks>
         /// <note>
-        /// Attributes returned by <paramref name="attributeGetter"/> will override attributes passed via <paramref name="attributes"/>
+        /// tags returned by <paramref name="tagGetter"/> will override tags passed via <paramref name="tags"/>
         /// when there are any conflicts.
         /// </note>
         /// </remarks>
-        void LogError(string message, LogAttributes attributes = null, Func<LogAttributes> attributeGetter = null);
+        void LogError(string message, LogTags tags = null, Func<LogTags> tagGetter = null);
 
         /// <summary>
         /// Logs a <b>critical</b> event.
         /// </summary>
         /// <param name="message">The message text.</param>
-        /// <param name="attributes">Optionally specifies attributes to be added to the logged event.</param>
-        /// <param name="attributeGetter">Optionally specifies a function that returns attributes to be added to the logged event.</param>
+        /// <param name="tags">Optionally specifies tags to be added to the logged event.</param>
+        /// <param name="tagGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
         /// <remarks>
         /// <note>
-        /// Attributes returned by <paramref name="attributeGetter"/> will override attributes passed via <paramref name="attributes"/>
+        /// tags returned by <paramref name="tagGetter"/> will override tags passed via <paramref name="tags"/>
         /// when there are any conflicts.
         /// </note>
         /// </remarks>
-        void LogCritical(string message, LogAttributes attributes = null, Func<LogAttributes> attributeGetter = null);
+        void LogCritical(string message, LogTags tags = null, Func<LogTags> tagGetter = null);
 
         /// <summary>
         /// Logs a <b>debug</b> event along with exception information.
         /// </summary>
         /// <param name="message">The message text.</param>
         /// <param name="e">The exception.</param>
-        /// <param name="attributes">Optionally specifies attributes to be added to the logged event.</param>
-        /// <param name="attributeGetter">Optionally specifies a function that returns attributes to be added to the logged event.</param>
+        /// <param name="tags">Optionally specifies tags to be added to the logged event.</param>
+        /// <param name="tagGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
         /// <remarks>
         /// <note>
-        /// Attributes returned by <paramref name="attributeGetter"/> will override attributes passed via <paramref name="attributes"/>
+        /// tags returned by <paramref name="tagGetter"/> will override tags passed via <paramref name="tags"/>
         /// when there are any conflicts.
         /// </note>
         /// </remarks>
-        void LogDebug(string message, Exception e, LogAttributes attributes = null, Func<LogAttributes> attributeGetter = null);
+        void LogDebug(string message, Exception e, LogTags tags = null, Func<LogTags> tagGetter = null);
 
         /// <summary>
         /// Logs a <b>transient</b> ewvent along with exception information.
         /// </summary>
         /// <param name="message">The message text.</param>
         /// <param name="e">The exception.</param>
-        /// <param name="attributes">Optionally specifies attributes to be added to the logged event.</param>
-        /// <param name="attributeGetter">Optionally specifies a function that returns attributes to be added to the logged event.</param>
+        /// <param name="tags">Optionally specifies tags to be added to the logged event.</param>
+        /// <param name="tagGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
         /// <remarks>
         /// <note>
-        /// Attributes returned by <paramref name="attributeGetter"/> will override attributes passed via <paramref name="attributes"/>
+        /// tags returned by <paramref name="tagGetter"/> will override tags passed via <paramref name="tags"/>
         /// when there are any conflicts.
         /// </note>
         /// </remarks>
-        void LogTransient(string message, Exception e, LogAttributes attributes = null, Func<LogAttributes> attributeGetter = null);
+        void LogTransient(string message, Exception e, LogTags tags = null, Func<LogTags> tagGetter = null);
 
         /// <summary>
         /// Logs a <b>security information</b> event along with exception information.
         /// </summary>
         /// <param name="message">The message text.</param>
         /// <param name="e">The exception.</param>
-        /// <param name="attributes">Optionally specifies attributes to be added to the logged event.</param>
-        /// <param name="attributeGetter">Optionally specifies a function that returns attributes to be added to the logged event.</param>
+        /// <param name="tags">Optionally specifies tags to be added to the logged event.</param>
+        /// <param name="tagGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
         /// <remarks>
         /// <note>
-        /// Attributes returned by <paramref name="attributeGetter"/> will override attributes passed via <paramref name="attributes"/>
+        /// tags returned by <paramref name="tagGetter"/> will override tags passed via <paramref name="tags"/>
         /// when there are any conflicts.
         /// </note>
         /// </remarks>
-        void LogSecurityInformation(string message, Exception e, LogAttributes attributes = null, Func<LogAttributes> attributeGetter = null);
+        void LogSecurityInformation(string message, Exception e, LogTags tags = null, Func<LogTags> tagGetter = null);
 
         /// <summary>
         /// Logs an <b>information</b> event along with exception information.
         /// </summary>
         /// <param name="message">The message text.</param>
         /// <param name="e">The exception.</param>
-        /// <param name="attributes">Optionally specifies attributes to be added to the logged event.</param>
-        /// <param name="attributeGetter">Optionally specifies a function that returns attributes to be added to the logged event.</param>
+        /// <param name="tags">Optionally specifies tags to be added to the logged event.</param>
+        /// <param name="tagGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
         /// <remarks>
         /// <note>
-        /// Attributes returned by <paramref name="attributeGetter"/> will override attributes passed via <paramref name="attributes"/>
+        /// tags returned by <paramref name="tagGetter"/> will override tags passed via <paramref name="tags"/>
         /// when there are any conflicts.
         /// </note>
         /// </remarks>
-        void LogInformation(string message, Exception e, LogAttributes attributes = null, Func<LogAttributes> attributeGetter = null);
+        void LogInformation(string message, Exception e, LogTags tags = null, Func<LogTags> tagGetter = null);
 
         /// <summary>
         /// Logs a <b>warning</b> event along with exception information.
         /// </summary>
         /// <param name="message">The message.</param>
         /// <param name="e">The exception.</param>
-        /// <param name="attributes">Optionally specifies attributes to be added to the logged event.</param>
-        /// <param name="attributeGetter">Optionally specifies a function that returns attributes to be added to the logged event.</param>
+        /// <param name="tags">Optionally specifies tags to be added to the logged event.</param>
+        /// <param name="tagGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
         /// <remarks>
         /// <note>
-        /// Attributes returned by <paramref name="attributeGetter"/> will override attributes passed via <paramref name="attributes"/>
+        /// tags returned by <paramref name="tagGetter"/> will override tags passed via <paramref name="tags"/>
         /// when there are any conflicts.
         /// </note>
         /// </remarks>
-        void LogWarning(string message, Exception e, LogAttributes attributes = null, Func<LogAttributes> attributeGetter = null);
+        void LogWarning(string message, Exception e, LogTags tags = null, Func<LogTags> tagGetter = null);
 
         /// <summary>
         /// Logs an <b>error</b> event along with exception information.
         /// </summary>
         /// <param name="body">The message.</param>
         /// <param name="e">The exception.</param>
-        /// <param name="attributes">Optionally specifies attributes to be added to the logged event.</param>
-        /// <param name="attributeGetter">Optionally specifies a function that returns attributes to be added to the logged event.</param>
+        /// <param name="tags">Optionally specifies tags to be added to the logged event.</param>
+        /// <param name="tagGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
         /// <remarks>
         /// <note>
-        /// Attributes returned by <paramref name="attributeGetter"/> will override attributes passed via <paramref name="attributes"/>
+        /// tags returned by <paramref name="tagGetter"/> will override tags passed via <paramref name="tags"/>
         /// when there are any conflicts.
         /// </note>
         /// </remarks>
-        void LogError(string body, Exception e, LogAttributes attributes = null, Func<LogAttributes> attributeGetter = null);
+        void LogError(string body, Exception e, LogTags tags = null, Func<LogTags> tagGetter = null);
 
         /// <summary>
         /// Logs a <b>security error</b> event along with exception information.
         /// </summary>
         /// <param name="body">The message.</param>
         /// <param name="e">The exception.</param>
-        /// <param name="attributes">Optionally specifies attributes to be added to the logged event.</param>
-        /// <param name="attributeGetter">Optionally specifies a function that returns attributes to be added to the logged event.</param>
+        /// <param name="tags">Optionally specifies tags to be added to the logged event.</param>
+        /// <param name="tagGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
         /// <remarks>
         /// <note>
-        /// Attributes returned by <paramref name="attributeGetter"/> will override attributes passed via <paramref name="attributes"/>
+        /// tags returned by <paramref name="tagGetter"/> will override tags passed via <paramref name="tags"/>
         /// when there are any conflicts.
         /// </note>
         /// </remarks>
-        void LogSecurityError(string body, Exception e, LogAttributes attributes = null, Func<LogAttributes> attributeGetter = null);
+        void LogSecurityError(string body, Exception e, LogTags tags = null, Func<LogTags> tagGetter = null);
 
         /// <summary>
         /// Logs a <b>critical</b> event along with exception information.
         /// </summary>
         /// <param name="body">The message.</param>
         /// <param name="e">The exception.</param>
-        /// <param name="attributes">Optionally specifies attributes to be added to the logged event.</param>
-        /// <param name="attributeGetter">Optionally specifies a function that returns attributes to be added to the logged event.</param>
+        /// <param name="tags">Optionally specifies tags to be added to the logged event.</param>
+        /// <param name="tagGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
         /// <remarks>
         /// <note>
-        /// Attributes returned by <paramref name="attributeGetter"/> will override attributes passed via <paramref name="attributes"/>
+        /// tags returned by <paramref name="tagGetter"/> will override tags passed via <paramref name="tags"/>
         /// when there are any conflicts.
         /// </note>
         /// </remarks>
-        void LogCritical(string body, Exception e, LogAttributes attributes = null, Func<LogAttributes> attributeGetter = null);
+        void LogCritical(string body, Exception e, LogTags tags = null, Func<LogTags> tagGetter = null);
     }
 }

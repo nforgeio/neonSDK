@@ -100,13 +100,13 @@ namespace TestNeonService
                 // Log some events so we can verify that the default [Neon.Diagnostics] logger
                 // increments counters for the different log levels.
 
-                var orgLogLevel = TelemetryHub.LogLevel;
+                var orgLogLevel = TelemetryHub.Default.LogLevel;
 
                 try
                 {
-                    TelemetryHub.LogLevel = NeonLogLevel.Debug;
+                    TelemetryHub.Default.LogLevel = NeonLogLevel.Debug;
 
-                    var logger = TelemetryHub.GetLogger(this.Name);
+                    var logger = TelemetryHub.Default.GetLogger(this.Name);
 
                     logger.LogDebug("debug event");
                     logger.LogInformation("info event");
@@ -134,7 +134,7 @@ namespace TestNeonService
                 }
                 finally
                 {
-                    TelemetryHub.LogLevel = orgLogLevel;
+                    TelemetryHub.Default.LogLevel = orgLogLevel;
                 }
             }
         }
@@ -192,13 +192,13 @@ namespace TestNeonService
                 // Log some events so we can verify that the default Neon.Diagnostics logger
                 // increments counters for the different log levels.
 
-                var orgLogLevel = TelemetryHub.LogLevel;
+                var orgLogLevel = TelemetryHub.Default.LogLevel;
 
                 try
                 {
-                    TelemetryHub.LogLevel = NeonLogLevel.Debug;
+                    TelemetryHub.Default.LogLevel = NeonLogLevel.Debug;
 
-                    var logger = TelemetryHub.GetLogger(this.Name);
+                    var logger = TelemetryHub.Default.GetLogger(this.Name);
 
                     logger.LogDebug("debug event");
                     logger.LogInformation("info event");
@@ -222,7 +222,7 @@ namespace TestNeonService
                 }
                 finally
                 {
-                    TelemetryHub.LogLevel = orgLogLevel;
+                    TelemetryHub.Default.LogLevel = orgLogLevel;
                 }
             }
         }

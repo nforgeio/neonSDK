@@ -90,9 +90,7 @@ namespace Neon.Service
         /// </summary>
         public ServiceDependencies()
         {
-            // $hack(jefflill): This screams for dependency injection.
-
-            var textLogger = new TextLogger(TelemetryHub.Default);
+            var logger = TelemetryHub.Default.GetLogger();
 
             // Parse: NEON_SERVICE_DEPENDENCIES_URIS
 
@@ -117,7 +115,7 @@ namespace Neon.Service
                     }
                     else
                     {
-                        textLogger.LogWarning($"Service Dependency: [{uriString}] is not a valid URI and will be ignored.");
+                        logger.LogWarning($"Service Dependency: [{uriString}] is not a valid URI and will be ignored.");
                     }
                 }
             }
@@ -134,7 +132,7 @@ namespace Neon.Service
                 }
                 else
                 {
-                    textLogger.LogWarning($"Service Dependency: [NEON_SERVICE_DEPENDENCIES_DISABLE_DNS_CHECK={disableDnsCheckVar}] is not a valid and will be ignored.");
+                    logger.LogWarning($"Service Dependency: [NEON_SERVICE_DEPENDENCIES_DISABLE_DNS_CHECK={disableDnsCheckVar}] is not a valid and will be ignored.");
                 }
             }
 
@@ -150,7 +148,7 @@ namespace Neon.Service
                 }
                 else
                 {
-                    textLogger.LogWarning($"Service Dependency: [NEON_SERVICE_DEPENDENCIES_TIMEOUT_SECONDS={timeoutSecondsVar}] is not a valid and will be ignored.");
+                    logger.LogWarning($"Service Dependency: [NEON_SERVICE_DEPENDENCIES_TIMEOUT_SECONDS={timeoutSecondsVar}] is not a valid and will be ignored.");
                 }
             }
 
@@ -166,7 +164,7 @@ namespace Neon.Service
                 }
                 else
                 {
-                    textLogger.LogWarning($"Service Dependency: [NEON_SERVICE_DEPENDENCIES_WAIT_SECONDS={waitSecondsVar}] is not a valid and will be ignored.");
+                    logger.LogWarning($"Service Dependency: [NEON_SERVICE_DEPENDENCIES_WAIT_SECONDS={waitSecondsVar}] is not a valid and will be ignored.");
                 }
             }
         }

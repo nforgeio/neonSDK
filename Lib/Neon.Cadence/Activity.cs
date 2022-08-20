@@ -50,9 +50,9 @@ namespace Neon.Cadence
 
             this.parent = parent;
             this.Logger = TelemetryHub.Default.GetLogger(categoryName: Client.Settings.ClientIdentity,
-                attributes: new KeyValuePair<string, string>[]
+                tags: new KeyValuePair<string, object>[]
                 {
-                    new KeyValuePair<string, string>("cadence.activity-id", parent.ActivityTask?.WorkflowExecution?.RunId) 
+                    new KeyValuePair<string, object>("cadence.activity-id", parent.ActivityTask?.WorkflowExecution?.RunId) 
                 });
         }
 

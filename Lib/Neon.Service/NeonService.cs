@@ -40,6 +40,7 @@ using Neon.Windows;
 
 using DnsClient;
 using Prometheus;
+using System.Diagnostics;
 
 namespace Neon.Service
 {
@@ -619,6 +620,7 @@ namespace Neon.Service
 
         private readonly object                 syncLock       = new object();
         private readonly AsyncMutex             asyncMutex     = new AsyncMutex();
+        private readonly Func<LogEvent, bool>   logFilter;
         private readonly Counter                runtimeCount;
         private readonly Counter                unhealthyCount;
         private bool                            isRunning;
@@ -744,8 +746,9 @@ namespace Neon.Service
             this.ServiceMap             = serviceMap;
             this.InProduction           = !NeonHelper.IsDevWorkstation;
             this.Terminator             = new ProcessTerminator(gracefulShutdownTimeout: gracefulShutdownTimeout, minShutdownTime: minShutdownTime);
-            this.Version                = global::Neon.Diagnostics.TelemetryHub.VersionRegex.IsMatch(Version) ? version : "unknown";
+            this.Version                = version;
             this.Environment            = new EnvironmentParser(null, VariableSource);  // Temporarily setting a NULL logger until we create the service logger below
+            this.logFilter              = logFilter;
             this.configFiles            = new Dictionary<string, FileInfo>();
             this.healthFolder           = healthFolder ?? "/";
             this.terminationMessagePath = terminationMessagePath ?? "/dev/termination-log";
@@ -784,11 +787,11 @@ namespace Neon.Service
             // fail with a [NullReferenceException].  Note that we don't recommend
             // logging from within the constructor.
 
-            TelemetryHub = new TelemetryHub(parseLogLevel: false, version: this.Version, logFilter: logFilter);
+            var telemetryHub = new TelemetryHub(parseLogLevel: false, logFilter: logFilter);
 
-            TelemetryHub.SetLogLevel(GetEnvironmentVariable("LOG_LEVEL", "info"));
+            telemetryHub.ParseLogLevel(GetEnvironmentVariable("LOG_LEVEL", "info"));
 
-            Logger = TelemetryHub.GetLogger();
+            Logger = telemetryHub.GetLogger();
 
             Environment.SetLogger(Logger);
 
@@ -1017,11 +1020,6 @@ namespace Neon.Service
         public MetricsOptions MetricsOptions { get; set; } = new MetricsOptions();
 
         /// <summary>
-        /// Returns the service's log manager.
-        /// </summary>
-        public ITelemetryHub TelemetryHub { get; private set; }
-
-        /// <summary>
         /// Returns the service's default logger.
         /// </summary>
         public INeonLogger Logger { get; private set; }
@@ -1223,12 +1221,11 @@ namespace Neon.Service
 
             // Initialize the default log manager, when one isn't already assigned.
 
-            Neon.Diagnostics.TelemetryHub.Default = TelemetryHub;
+            TelemetryHub.Default = new TelemetryHub(parseLogLevel: true, logFilter: logFilter);
+            TelemetryHub.Default.ActivitySource = new ActivitySource(Name, Version);
+            TelemetryHub.Default.ParseLogLevel(GetEnvironmentVariable("LOG_LEVEL", "info"));
 
-            TelemetryHub.Version = Version;
-            TelemetryHub.SetLogLevel(GetEnvironmentVariable("LOG_LEVEL", "info"));
-
-            Logger = TelemetryHub.GetLogger();
+            Logger = TelemetryHub.Default.GetLogger();
 
             if (!string.IsNullOrEmpty(Version))
             {

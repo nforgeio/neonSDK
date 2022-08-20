@@ -35,15 +35,9 @@ namespace Neon.Diagnostics
     /// Defines the <see cref="ITelemetryHub.LoggerCreator"/> function used to return custom
     /// logger implementations.
     /// </summary>
-    /// <param name="telemetryHub">The parent telemetry hub.</param>
     /// <param name="categoryName">
     /// Optionally identifies the event source category.  This is typically used 
     /// for identifying the event source.
-    /// </param>
-    /// <param name="writer">
-    /// Optionally specifies a target <see cref="TextWriter"/>.  This can be useful for 
-    /// redirecting the ourput of a text logger to a file or somewhere else.  This parameter
-    /// may be ignored for non-text based loggers or for other logger specific reasons.
     /// </param>
     /// <param name="logFilter">
     /// Optionally specifies a filter predicate that overrides the parent <see cref="ITelemetryHub"/> filter
@@ -57,5 +51,5 @@ namespace Neon.Diagnostics
     /// if any.  Events will be logged for <c>null</c> functions.
     /// </param>
     /// <returns>The <see cref="INeonLogger"/> instance.</returns>
-    public delegate INeonLogger LoggerCreatorDelegate(TelemetryHub telemetryHub, string categoryName, TextWriter writer, Func<LogEvent, bool> logFilter, Func<bool> isLogEnabledFunc);
+    public delegate INeonLogger LoggerCreatorDelegate(string categoryName, Func<LogEvent, bool> logFilter, Func<bool> isLogEnabledFunc);
 }

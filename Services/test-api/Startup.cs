@@ -63,8 +63,8 @@ namespace TestApiService
         public void ConfigureServices(IServiceCollection services)
         {
             services
-                .AddSingleton<ILoggerProvider>(Program.Service.TelemetryHub)
-                .AddSingleton<ITelemetryHub>(Program.Service.TelemetryHub)
+                .AddSingleton<ILoggerProvider>(TelemetryHub.Default)
+                .AddSingleton<ITelemetryHub>(TelemetryHub.Default)
                 .AddControllers()
                 .AddNeon();
         }

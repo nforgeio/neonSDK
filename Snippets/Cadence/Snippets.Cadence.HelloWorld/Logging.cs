@@ -123,7 +123,7 @@
         {
             // Initialize the logger.
 
-            TelemetryHub.Default.SetLogLevel("info");
+            TelemetryHub.Default.ParseLogLevel("info");
 
             logger = TelemetryHub.Default.GetLogger(typeof(Program));
             logger.LogInformation("Starting workflow service");
