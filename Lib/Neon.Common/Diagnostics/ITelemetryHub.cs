@@ -51,7 +51,7 @@ namespace Neon.Diagnostics
     /// </para>
     /// <para>
     /// telemetry hubs provide the <see cref="LogLevel"/> property which can be used to control which events
-    /// are actually recorded.  <see cref="Neon.Diagnostics.NeonLogLevel"/> for information about the relative 
+    /// are actually recorded.  <see cref="LogLevel"/> for information about the relative 
     /// lof levels.
     /// </para>
     /// <para>
@@ -81,7 +81,7 @@ namespace Neon.Diagnostics
         /// <summary>
         /// Specifies the level required for events to be actually recorded.
         /// </summary>
-        NeonLogLevel LogLevel { get; set; }
+        LogLevel LogLevel { get; set; }
 
         /// <summary>
         /// Sets the log level by safely parsing a string.

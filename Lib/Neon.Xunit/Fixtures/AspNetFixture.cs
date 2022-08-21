@@ -35,8 +35,6 @@ using Neon.Net;
 
 using Xunit.Abstractions;
 
-using NeonLogLevel = Neon.Diagnostics.NeonLogLevel;
-
 namespace Neon.Xunit
 {
     /// <summary>
@@ -54,7 +52,7 @@ namespace Neon.Xunit
         {
             private TelemetryHub  telemetryHub;
 
-            public LoggingProvider(TextWriter logWriter, NeonLogLevel logLevel)
+            public LoggingProvider(TextWriter logWriter, LogLevel logLevel)
             {
                 this.telemetryHub = new TelemetryHub()
                 {

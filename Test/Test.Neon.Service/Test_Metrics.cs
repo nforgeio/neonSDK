@@ -27,6 +27,8 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Logging;
+
 using Neon.Common;
 using Neon.Cryptography;
 using Neon.Diagnostics;
@@ -104,17 +106,14 @@ namespace TestNeonService
 
                 try
                 {
-                    TelemetryHub.Default.LogLevel = NeonLogLevel.Debug;
+                    TelemetryHub.Default.LogLevel = LogLevel.Debug;
 
                     var logger = TelemetryHub.Default.GetLogger(this.Name);
 
                     logger.LogDebug("debug event");
                     logger.LogInformation("info event");
-                    logger.LogSecurityInformation("security info event");
                     logger.LogWarning("warn event");
-                    logger.LogTransient("transient event");
                     logger.LogError("error event");
-                    logger.LogSecurityError("security error event");
                     logger.LogCritical("critical event");
 
                     // Increment the test counter.
@@ -196,17 +195,14 @@ namespace TestNeonService
 
                 try
                 {
-                    TelemetryHub.Default.LogLevel = NeonLogLevel.Debug;
+                    TelemetryHub.Default.LogLevel = LogLevel.Debug;
 
                     var logger = TelemetryHub.Default.GetLogger(this.Name);
 
                     logger.LogDebug("debug event");
                     logger.LogInformation("info event");
-                    logger.LogSecurityInformation("security info event");
                     logger.LogWarning("warn event");
-                    logger.LogTransient("transient event");
                     logger.LogError("error event");
-                    logger.LogSecurityError("security error event");
                     logger.LogCritical("critical event");
 
                     // Signal to the test case that the service has done its thing

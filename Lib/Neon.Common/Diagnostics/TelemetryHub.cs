@@ -73,7 +73,7 @@ namespace Neon.Diagnostics
 
         private readonly object                             syncRoot         = new object();
         private readonly Dictionary<string, INeonLogger>    categoryToLogger = new Dictionary<string, INeonLogger>();
-        private NeonLogLevel                                logLevel         = NeonLogLevel.Information;
+        private LogLevel                                    logLevel         = LogLevel.Information;
         private ActivitySource                              activitySource;
         private long                                        emitCount;
         private LoggerCreatorDelegate                       loggerCreator;
@@ -92,13 +92,13 @@ namespace Neon.Diagnostics
         /// <param name="isLogEnabledFunc">
         /// Optionally specifies a function that will be called at runtime to
         /// determine whether to event logging is actually enabled.  This defaults
-        /// to <c>null</c> which will always log events.
+        /// to <c>null</c> which always enables event logging.
         /// </param>
         public TelemetryHub(bool parseLogLevel = true, Func<LogEvent, bool> logFilter = null, Func<bool> isLogEnabledFunc = null)
         {
-            if (parseLogLevel && !Enum.TryParse<NeonLogLevel>(Environment.GetEnvironmentVariable("LOG_LEVEL"), true, out logLevel))
+            if (parseLogLevel && !Enum.TryParse<LogLevel>(Environment.GetEnvironmentVariable("LOG_LEVEL"), true, out logLevel))
             {
-                logLevel = NeonLogLevel.Information;
+                logLevel = LogLevel.Information;
             }
 
             this.logFilter        = logFilter;
@@ -107,7 +107,7 @@ namespace Neon.Diagnostics
         }
 
         /// <inheritdoc/>
-        public NeonLogLevel LogLevel
+        public LogLevel LogLevel
         {
             get => this.logLevel;
             set => this.logLevel = value;
@@ -122,57 +122,40 @@ namespace Neon.Diagnostics
             {
                 case "CRITICAL":
 
-                    LogLevel = NeonLogLevel.Critical;
-                    break;
-
-                case "SERROR":  // Backwards compatibility
-                case "SECURITYERROR":
-
-                    LogLevel = NeonLogLevel.SecurityError;
+                    LogLevel = LogLevel.Critical;
                     break;
 
                 case "ERROR":
 
-                    LogLevel = NeonLogLevel.Error;
+                    LogLevel = LogLevel.Error;
                     break;
 
                 case "WARN":    // Backwards compatibility
                 case "WARNING":
 
-                    LogLevel = NeonLogLevel.Warning;
+                    LogLevel = LogLevel.Warning;
                     break;
 
                 default:
                 case "INFO":    // Backwards compatibility
                 case "INFORMATION":
 
-                    LogLevel = NeonLogLevel.Information;
-                    break;
-
-                case "SINFO":   // Backwards compatibility
-                case "SECURITYINFORMATION":
-
-                    LogLevel = NeonLogLevel.SecurityInformation;
-                    break;
-
-                case "TRANSIENT":
-
-                    LogLevel = NeonLogLevel.Transient;
+                    LogLevel = LogLevel.Information;
                     break;
 
                 case "DEBUG":
 
-                    LogLevel = NeonLogLevel.Debug;
+                    LogLevel = LogLevel.Debug;
                     break;
 
                 case "TRACE":
 
-                    LogLevel = NeonLogLevel.Trace;
+                    LogLevel = LogLevel.Trace;
                     break;
 
                 case "NONE":
 
-                    LogLevel = NeonLogLevel.None;
+                    LogLevel = LogLevel.None;
                     break;
             }
         }

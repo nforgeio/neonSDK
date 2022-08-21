@@ -37,8 +37,9 @@ using Neon.Xunit.Cadence;
 using Newtonsoft.Json;
 using Xunit;
 
-using Test.Neon.Models;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
+using Test.Neon.Models;
 
 namespace TestCadence
 {
@@ -63,7 +64,7 @@ namespace TestCadence
         /// <summary>
         /// Specifies the log level to use for Cadence related unit tests.
         /// </summary>
-        public static readonly NeonLogLevel LogLevel = NeonLogLevel.Information;
+        public static readonly LogLevel LogLevel = LogLevel.Information;
 
         /// <summary>
         /// Specifies whether Cadence unit tests will connect to Cadence in DEBUG mode

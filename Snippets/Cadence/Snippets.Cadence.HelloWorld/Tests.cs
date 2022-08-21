@@ -4,6 +4,8 @@ using System.Net.Mail;
 using System.Reflection;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Logging;
+
 using Neon.Cadence;
 using Neon.Common;
 using Neon.Diagnostics;
@@ -43,7 +45,7 @@ namespace MyTests
             var settings = new CadenceSettings()
             {
                 DefaultDomain = "test-domain",
-                LogLevel      = NeonLogLevel.Information,
+                LogLevel      = LogLevel.Information,
                 CreateDomain  = true            // <-- this ensures that the default domain exists
             };
 

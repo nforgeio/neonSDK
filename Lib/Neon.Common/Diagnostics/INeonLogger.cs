@@ -34,47 +34,32 @@ namespace Neon.Diagnostics
     public interface INeonLogger : ILogger
     {
         /// <summary>
-        /// Returns <c>true</c> if <see cref="NeonLogLevel.Trace"/> logging is enabled.
+        /// Returns <c>true</c> if <see cref="LogLevel.Trace"/> logging is enabled.
         /// </summary>
         public bool IsLogTraceEnabled { get; }
 
         /// <summary>
-        /// Returns <c>true</c> if <see cref="NeonLogLevel.Debug"/> logging is enabled.
+        /// Returns <c>true</c> if <see cref="LogLevel.Debug"/> logging is enabled.
         /// </summary>
         bool IsLogDebugEnabled { get; }
 
         /// <summary>
-        /// Returns <c>true</c> if <see cref="NeonLogLevel.Transient"/> logging is enabled.
-        /// </summary>
-        bool IsLogTransientEnabled { get; }
-
-        /// <summary>
-        /// Returns <c>true</c> if <see cref="NeonLogLevel.SecurityInformation"/> logging is enabled.
-        /// </summary>
-        bool IsLogSecurityInformationEnabled { get; }
-
-        /// <summary>
-        /// Returns <c>true</c> if <see cref="NeonLogLevel.Information"/>> logging is enabled.
-        /// </summary>
-        bool IsLogInformationEnabled { get; }
-
-        /// <summary>
-        /// Returns <c>true</c> if <see cref="NeonLogLevel.Warning"/>> logging is enabled.
+        /// Returns <c>true</c> if <see cref="LogLevel.Warning"/>> logging is enabled.
         /// </summary>
         bool IsLogWarningEnabled { get; }
 
         /// <summary>
-        /// Returns <c>true</c> if <see cref="NeonLogLevel.Error"/> logging is enabled.
+        /// Returns <c>true</c> if <see cref="LogLevel.Information"/>> logging is enabled.
+        /// </summary>
+        bool IsLogInformationEnabled { get; }
+
+        /// <summary>
+        /// Returns <c>true</c> if <see cref="LogLevel.Error"/> logging is enabled.
         /// </summary>
         bool IsLogErrorEnabled { get; }
 
         /// <summary>
-        /// Returns <c>true</c> if <see cref="NeonLogLevel.SecurityError"/> logging is enabled.
-        /// </summary>
-        bool IsLogSecurityErrorEnabled { get; }
-
-        /// <summary>
-        /// Returns <c>true</c> if <see cref="NeonLogLevel.Critical"/> logging is enabled.
+        /// Returns <c>true</c> if <see cref="LogLevel.Critical"/> logging is enabled.
         /// </summary>
         bool IsLogCriticalEnabled { get; }
 
@@ -83,7 +68,7 @@ namespace Neon.Diagnostics
         /// </summary>
         /// <param name="logLevel">The log level.</param>
         /// <returns><c>true</c> if logging is enabled for <paramref name="logLevel"/>.</returns>
-        bool IsLogLevelEnabled(NeonLogLevel logLevel);
+        bool IsLogLevelEnabled(LogLevel logLevel);
 
         /// <summary>
         /// Logs a <b>debug</b> event.
@@ -98,34 +83,6 @@ namespace Neon.Diagnostics
         /// </note>
         /// </remarks>
         void LogDebug(string message, LogTags tags = null, Func<LogTags> tagGetter = null);
-
-        /// <summary>
-        /// Logs a <b>transient</b> event.
-        /// </summary>
-        /// <param name="message">The message text.</param>
-        /// <param name="tags">Optionally specifies tags to be added to the logged event.</param>
-        /// <param name="tagGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
-        /// <remarks>
-        /// <note>
-        /// tags returned by <paramref name="tagGetter"/> will override tags passed via <paramref name="tags"/>
-        /// when there are any conflicts.
-        /// </note>
-        /// </remarks>
-        void LogTransient(string message, LogTags tags = null, Func<LogTags> tagGetter = null);
-
-        /// <summary>
-        /// Logs a <b>security information</b> event.
-        /// </summary>
-        /// <param name="message">The message text.</param>
-        /// <param name="tags">Optionally specifies tags to be added to the logged event.</param>
-        /// <param name="tagGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
-        /// <remarks>
-        /// <note>
-        /// tags returned by <paramref name="tagGetter"/> will override tags passed via <paramref name="tags"/>
-        /// when there are any conflicts.
-        /// </note>
-        /// </remarks>
-        void LogSecurityInformation(string message, LogTags tags = null, Func<LogTags> tagGetter = null);
 
         /// <summary>
         /// Logs an <b>information</b> event.
@@ -154,20 +111,6 @@ namespace Neon.Diagnostics
         /// </note>
         /// </remarks>
         void LogWarning(string message, LogTags tags = null, Func<LogTags> tagGetter = null);
-
-        /// <summary>
-        /// Logs a <b>security error</b> event.
-        /// </summary>
-        /// <param name="message">The message text.</param>
-        /// <param name="tags">Optionally specifies tags to be added to the logged event.</param>
-        /// <param name="tagGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
-        /// <remarks>
-        /// <note>
-        /// tags returned by <paramref name="tagGetter"/> will override tags passed via <paramref name="tags"/>
-        /// when there are any conflicts.
-        /// </note>
-        /// </remarks>
-        void LogSecurityError(string message, LogTags tags = null, Func<LogTags> tagGetter = null);
 
         /// <summary>
         /// Logs an <b>error</b> event.
@@ -213,36 +156,6 @@ namespace Neon.Diagnostics
         void LogDebug(string message, Exception e, LogTags tags = null, Func<LogTags> tagGetter = null);
 
         /// <summary>
-        /// Logs a <b>transient</b> ewvent along with exception information.
-        /// </summary>
-        /// <param name="message">The message text.</param>
-        /// <param name="e">The exception.</param>
-        /// <param name="tags">Optionally specifies tags to be added to the logged event.</param>
-        /// <param name="tagGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
-        /// <remarks>
-        /// <note>
-        /// tags returned by <paramref name="tagGetter"/> will override tags passed via <paramref name="tags"/>
-        /// when there are any conflicts.
-        /// </note>
-        /// </remarks>
-        void LogTransient(string message, Exception e, LogTags tags = null, Func<LogTags> tagGetter = null);
-
-        /// <summary>
-        /// Logs a <b>security information</b> event along with exception information.
-        /// </summary>
-        /// <param name="message">The message text.</param>
-        /// <param name="e">The exception.</param>
-        /// <param name="tags">Optionally specifies tags to be added to the logged event.</param>
-        /// <param name="tagGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
-        /// <remarks>
-        /// <note>
-        /// tags returned by <paramref name="tagGetter"/> will override tags passed via <paramref name="tags"/>
-        /// when there are any conflicts.
-        /// </note>
-        /// </remarks>
-        void LogSecurityInformation(string message, Exception e, LogTags tags = null, Func<LogTags> tagGetter = null);
-
-        /// <summary>
         /// Logs an <b>information</b> event along with exception information.
         /// </summary>
         /// <param name="message">The message text.</param>
@@ -275,7 +188,7 @@ namespace Neon.Diagnostics
         /// <summary>
         /// Logs an <b>error</b> event along with exception information.
         /// </summary>
-        /// <param name="body">The message.</param>
+        /// <param name="message">The message.</param>
         /// <param name="e">The exception.</param>
         /// <param name="tags">Optionally specifies tags to be added to the logged event.</param>
         /// <param name="tagGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
@@ -285,27 +198,12 @@ namespace Neon.Diagnostics
         /// when there are any conflicts.
         /// </note>
         /// </remarks>
-        void LogError(string body, Exception e, LogTags tags = null, Func<LogTags> tagGetter = null);
-
-        /// <summary>
-        /// Logs a <b>security error</b> event along with exception information.
-        /// </summary>
-        /// <param name="body">The message.</param>
-        /// <param name="e">The exception.</param>
-        /// <param name="tags">Optionally specifies tags to be added to the logged event.</param>
-        /// <param name="tagGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
-        /// <remarks>
-        /// <note>
-        /// tags returned by <paramref name="tagGetter"/> will override tags passed via <paramref name="tags"/>
-        /// when there are any conflicts.
-        /// </note>
-        /// </remarks>
-        void LogSecurityError(string body, Exception e, LogTags tags = null, Func<LogTags> tagGetter = null);
+        void LogError(string message, Exception e, LogTags tags = null, Func<LogTags> tagGetter = null);
 
         /// <summary>
         /// Logs a <b>critical</b> event along with exception information.
         /// </summary>
-        /// <param name="body">The message.</param>
+        /// <param name="message">The message.</param>
         /// <param name="e">The exception.</param>
         /// <param name="tags">Optionally specifies tags to be added to the logged event.</param>
         /// <param name="tagGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
@@ -315,6 +213,6 @@ namespace Neon.Diagnostics
         /// when there are any conflicts.
         /// </note>
         /// </remarks>
-        void LogCritical(string body, Exception e, LogTags tags = null, Func<LogTags> tagGetter = null);
+        void LogCritical(string message, Exception e, LogTags tags = null, Func<LogTags> tagGetter = null);
     }
 }

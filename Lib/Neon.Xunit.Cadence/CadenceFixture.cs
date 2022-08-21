@@ -35,6 +35,7 @@ using Neon.Diagnostics;
 using Neon.Retry;
 using Neon.Net;
 
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using Xunit;
 
@@ -78,7 +79,7 @@ namespace Neon.Xunit.Cadence
     /// are not true.
     /// </para>
     /// <para>
-    /// See <see cref="Start(CadenceSettings, string, string, string, Neon.Diagnostics.NeonLogLevel, bool, bool, bool, bool)"/>
+    /// See <see cref="Start(CadenceSettings, string, string, string, Microsoft.Extensions.Logging.LogLevel, bool, bool, bool, bool)"/>
     /// for more information about how this works.
     /// </para>
     /// <note>
@@ -159,7 +160,7 @@ services:
         /// to call this in your test class constructor instead of <see cref="ITestFixture.Start(Action)"/>.
         /// </para>
         /// <note>
-        /// You'll need to call <see cref="StartAsComposed(CadenceSettings, string, string, string, Neon.Diagnostics.NeonLogLevel, bool, bool, bool, bool)"/>
+        /// You'll need to call <see cref="StartAsComposed(CadenceSettings, string, string, string, Microsoft.Extensions.Logging.LogLevel, bool, bool, bool, bool)"/>
         /// instead when this fixture is being added to a <see cref="ComposedFixture"/>.
         /// </note>
         /// </summary>
@@ -179,7 +180,7 @@ services:
         /// </para>
         /// </param>
         /// <param name="defaultDomain">Optionally specifies the default domain for the fixture's client.  This defaults to <b>test-domain</b>.</param>
-        /// <param name="logLevel">Specifies the Cadence log level.  This defaults to <see cref="Neon.Diagnostics.NeonLogLevel.None"/>.</param>
+        /// <param name="logLevel">Specifies the Cadence log level.  This defaults to <see cref="Microsoft.Extensions.Logging.LogLevel.None"/>.</param>
         /// <param name="reconnect">
         /// Optionally specifies that a new Cadence connection <b>should</b> be established for each
         /// unit test case.  By default, the same connection will be reused which will save about a 
@@ -222,7 +223,7 @@ services:
             string              name          = "cadence-dev",
             string              composeFile   = DefaultComposeFile,
             string              defaultDomain = DefaultDomain,
-            NeonLogLevel            logLevel      = NeonLogLevel.None,
+            LogLevel            logLevel      = LogLevel.None,
             bool                reconnect     = false,
             bool                keepRunning   = false,
             bool                noClient      = false,
@@ -265,7 +266,7 @@ services:
         /// </para>
         /// </param>
         /// <param name="defaultDomain">Optionally specifies the default domain for the fixture's client.  This defaults to <b>test-domain</b>.</param>
-        /// <param name="logLevel">Specifies the Cadence log level.  This defaults to <see cref="Neon.Diagnostics.NeonLogLevel.None"/>.</param>
+        /// <param name="logLevel">Specifies the Cadence log level.  This defaults to <see cref="Microsoft.Extensions.Logging.LogLevel.None"/>.</param>
         /// <param name="reconnect">
         /// Optionally specifies that a new Cadence connection <b>should</b> be established for each
         /// unit test case.  By default, the same connection will be reused which will save about a 
@@ -297,7 +298,7 @@ services:
             string              name          = "cadence-dev",
             string              composeFile   = DefaultComposeFile,
             string              defaultDomain = DefaultDomain,
-            NeonLogLevel            logLevel      = NeonLogLevel.None,
+            LogLevel            logLevel      = LogLevel.None,
             bool                reconnect     = false,
             bool                keepRunning   = false,
             bool                noClient      = false,

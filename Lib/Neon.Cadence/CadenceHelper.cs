@@ -28,6 +28,8 @@ using System.Runtime.Loader;
 using System.Text;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Logging;
+
 using Neon.Cadence;
 using Neon.Cadence.Internal;
 using Neon.Common;
@@ -1057,39 +1059,41 @@ namespace Neon.Cadence.Internal
         }
 
         /// <summary>
-        /// Converts a Neon <see cref="Neon.Diagnostics.NeonLogLevel"/> value into a <b>cadence-proxy</b> compatible
+        /// Converts a Neon <see cref="Microsoft.Extensions.Logging.LogLevel"/> value into a <b>cadence-proxy</b> compatible
         /// log level string.
         /// </summary>
         /// <param name="logLevel">The input log level.</param>
         /// <returns>The <b>cadence-proxy</b> compatable level string.</returns>
-        internal static string ToCadenceLogLevel(NeonLogLevel logLevel)
+        internal static string ToCadenceLogLevel(LogLevel logLevel)
         {
             switch (logLevel)
             {
-                case NeonLogLevel.Critical: 
+                case LogLevel.Critical: 
                     
                     return "fatal";
 
-                case NeonLogLevel.Debug:    
-                    
+                case LogLevel.Debug:
+
                     return "debug";
 
-                case NeonLogLevel.Error:    
-                case NeonLogLevel.SecurityError:   
+                case LogLevel.Trace:
+
+                    return "trace";
+
+                case LogLevel.Error:    
                     
                     return "error";
 
-                case NeonLogLevel.Information:
-                case NeonLogLevel.SecurityInformation:
+                case LogLevel.Information:
                 default:
 
                     return "info";
 
-                case NeonLogLevel.None:     
+                case LogLevel.None:     
                     
                     return "none";
 
-                case NeonLogLevel.Warning:
+                case LogLevel.Warning:
 
                     return "warn";
             }

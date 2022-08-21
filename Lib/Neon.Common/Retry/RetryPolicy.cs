@@ -108,7 +108,7 @@ namespace Neon.Retry
         {
             if (OnTransient == null)
             {
-                log?.LogTransient(e);
+                log?.LogWarning("Transient error", e);  // $todo(jefflill) Add transient error tag
             }
             else
             {
@@ -124,7 +124,7 @@ namespace Neon.Retry
                     }
                 }
 
-                log?.LogTransient(e);
+                log?.LogWarning("Transient Error", e);  // $todo(jefflill) Add transient error tag
             }
         }
 

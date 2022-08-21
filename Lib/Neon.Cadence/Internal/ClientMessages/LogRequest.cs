@@ -19,6 +19,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 
+using Microsoft.Extensions.Logging;
+
 using Neon.Cadence;
 using Neon.Common;
 using Neon.Diagnostics;
@@ -55,10 +57,10 @@ namespace Neon.Cadence.Internal
         /// <summary>
         /// Identifies the log level.
         /// </summary>
-        public NeonLogLevel LogLevel
+        public LogLevel LogLevel
         {
-            get => GetEnumProperty<NeonLogLevel>(PropertyNames.LogLevel);
-            set => SetEnumProperty<NeonLogLevel>(PropertyNames.LogLevel, value);
+            get => GetEnumProperty<LogLevel>(PropertyNames.LogLevel);
+            set => SetEnumProperty<LogLevel>(PropertyNames.LogLevel, value);
         }
 
         /// <summary>

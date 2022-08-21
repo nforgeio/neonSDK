@@ -1267,41 +1267,36 @@ namespace Neon.Cadence
                 switch (logRequest.LogLevel)
                 {
                     default:
-                    case Neon.Diagnostics.NeonLogLevel.None:
+                    case LogLevel.None:
 
                         break;  // NOP
 
-                    case Neon.Diagnostics.NeonLogLevel.Critical:
+                    case LogLevel.Critical:
 
                         cadenceLogger.LogCritical(logRequest.LogMessage);
                         break;
 
-                    case Neon.Diagnostics.NeonLogLevel.SecurityError:
-
-                        cadenceLogger.LogSecurityError(logRequest.LogMessage);
-                        break;
-
-                    case Neon.Diagnostics.NeonLogLevel.Error:
+                    case LogLevel.Error:
 
                         cadenceLogger.LogError(logRequest.LogMessage);
                         break;
 
-                    case Neon.Diagnostics.NeonLogLevel.Warning:
+                    case LogLevel.Warning:
 
                         cadenceLogger.LogWarning(logRequest.LogMessage);
                         break;
 
-                    case Neon.Diagnostics.NeonLogLevel.Information:
+                    case LogLevel.Information:
 
                         cadenceLogger.LogInformation(logRequest.LogMessage);
                         break;
 
-                    case Neon.Diagnostics.NeonLogLevel.SecurityInformation:
+                    case LogLevel.Debug:
 
-                        cadenceLogger.LogSecurityInformation(logRequest.LogMessage);
+                        cadenceLogger.LogDebug(logRequest.LogMessage);
                         break;
 
-                    case Neon.Diagnostics.NeonLogLevel.Debug:
+                    case LogLevel.Trace:
 
                         cadenceLogger.LogDebug(logRequest.LogMessage);
                         break;
@@ -1312,41 +1307,36 @@ namespace Neon.Cadence
                 switch (logRequest.LogLevel)
                 {
                     default:
-                    case Neon.Diagnostics.NeonLogLevel.None:
+                    case LogLevel.None:
 
                         break;  // NOP
 
-                    case Neon.Diagnostics.NeonLogLevel.Critical:
+                    case LogLevel.Critical:
 
                         cadenceProxyLogger.LogCritical(logRequest.LogMessage);
                         break;
 
-                    case Neon.Diagnostics.NeonLogLevel.SecurityError:
-
-                        cadenceProxyLogger.LogSecurityError(logRequest.LogMessage);
-                        break;
-
-                    case Neon.Diagnostics.NeonLogLevel.Error:
+                    case LogLevel.Error:
 
                         cadenceProxyLogger.LogError(logRequest.LogMessage);
                         break;
 
-                    case Neon.Diagnostics.NeonLogLevel.Warning:
+                    case LogLevel.Warning:
 
                         cadenceProxyLogger.LogWarning(logRequest.LogMessage);
                         break;
 
-                    case Neon.Diagnostics.NeonLogLevel.Information:
+                    case LogLevel.Information:
 
                         cadenceProxyLogger.LogInformation(logRequest.LogMessage);
                         break;
 
-                    case Neon.Diagnostics.NeonLogLevel.SecurityInformation:
+                    case LogLevel.Debug:
 
-                        cadenceProxyLogger.LogSecurityInformation(logRequest.LogMessage);
+                        cadenceProxyLogger.LogDebug(logRequest.LogMessage);
                         break;
 
-                    case Neon.Diagnostics.NeonLogLevel.Debug:
+                    case LogLevel.Trace:
 
                         cadenceProxyLogger.LogDebug(logRequest.LogMessage);
                         break;

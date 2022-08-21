@@ -22,6 +22,7 @@ using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Text;
 
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using YamlDotNet.Serialization;
 
@@ -427,14 +428,14 @@ namespace Neon.Cadence
 
         /// <summary>
         /// Optionally specifies the logging level for the associated <b>cadence-proxy</b>.
-        /// This defaults to <see cref="Neon.Diagnostics.NeonLogLevel.None"/> which will be appropriate for most
-        /// production situations.  You may wish to set this to <see cref="Neon.Diagnostics.NeonLogLevel.Information"/>
-        /// or <see cref="Neon.Diagnostics.NeonLogLevel.Debug"/> while debugging.
+        /// This defaults to <see cref="Microsoft.Extensions.Logging.LogLevel.None"/> which will be appropriate for most
+        /// production situations.  You may wish to set this to <see cref="Microsoft.Extensions.Logging.LogLevel.Information"/>
+        /// or <see cref="Microsoft.Extensions.Logging.LogLevel.Debug"/> while debugging.
         /// </summary>
         [JsonProperty(PropertyName = "LogLevel", Required = Required.Default, DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
         [YamlMember(Alias = "logLevel", ApplyNamingConventions = false)]
-        [DefaultValue(NeonLogLevel.None)]
-        public NeonLogLevel LogLevel { get; set; } = NeonLogLevel.None;
+        [DefaultValue(LogLevel.None)]
+        public LogLevel LogLevel { get; set; } = LogLevel.None;
 
         /// <summary>
         /// Optionally specifies that messages from the embedded GOLANG Cadence client 

@@ -24,10 +24,12 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Logging;
+
 namespace Neon.Diagnostics
 {
     /// <summary>
-    /// Extends <see cref="INeonLogger"/>.
+    /// Extends <see cref="ILogger"/>.
     /// </summary>
     public static class LogExtensions
     {
@@ -36,70 +38,16 @@ namespace Neon.Diagnostics
         /// </summary>
         /// <param name="logger">The logger.</param>
         /// <param name="messageFunc">The message function.</param>
-        /// <param name="attributeGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
+        /// <param name="tagGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
         /// <remarks>
         /// This method is intended mostly to avoid processing interpolated strings and tags
         /// when the current log level prevents any log from being emitted, for better performance.
         /// </remarks>
-        public static void LogDebug(this INeonLogger logger, Func<string> messageFunc, Func<LogTags> attributeGetter = null)
+        public static void LogDebug(this ILogger logger, Func<string> messageFunc, Func<LogTags> tagGetter = null)
         {
-            if (logger.IsLogDebugEnabled)
+            if (logger.IsEnabled(LogLevel.Debug))
             {
-                logger.LogDebug(messageFunc(), tagGetter: attributeGetter);
-            }
-        }
-
-        /// <summary>
-        /// Logs a transient message retrieved via a message function.
-        /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="messageFunc">The message function.</param>
-        /// <param name="attributeGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
-        /// <remarks>
-        /// This method is intended mostly to avoid processing interpolated strings and tags
-        /// when the current log level prevents any log from being emitted, for better performance.
-        /// </remarks>
-        public static void LogTransient(this INeonLogger logger, Func<string> messageFunc, Func<LogTags> attributeGetter = null)
-        {
-            if (logger.IsLogDebugEnabled)
-            {
-                logger.LogTransient(messageFunc(), tagGetter: attributeGetter);
-            }
-        }
-
-        /// <summary>
-        /// Logs a <b>security information</b> event.
-        /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="messageFunc">The message function.</param>
-        /// <param name="attributeGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
-        /// <remarks>
-        /// This method is intended mostly to avoid processing interpolated strings and tags
-        /// when the current log level prevents any log from being emitted, for better performance.
-        /// </remarks>
-        public static void LogSecurityInformation(this INeonLogger logger, Func<string> messageFunc, Func<LogTags> attributeGetter = null)
-        {
-            if (logger.IsLogSecurityErrorEnabled)
-            {
-                logger.LogSecurityInformation(messageFunc(), tagGetter: attributeGetter);
-            }
-        }
-
-        /// <summary>
-        /// Logs an informational message retrieved via a message function.
-        /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="messageFunc">The message function.</param>
-        /// <param name="attributeGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
-        /// <remarks>
-        /// This method is intended mostly to avoid processing interpolated strings and tags
-        /// when the current log level prevents any log from being emitted, for better performance.
-        /// </remarks>
-        public static void LogInformation(this INeonLogger logger, Func<string> messageFunc, Func<LogTags> attributeGetter = null)
-        {
-            if (logger.IsLogInformationEnabled)
-            {
-                logger.LogInformation(messageFunc(), tagGetter: attributeGetter);
+                // $todo(jefflill): Implement this
             }
         }
 
@@ -108,34 +56,16 @@ namespace Neon.Diagnostics
         /// </summary>
         /// <param name="logger">The logger.</param>
         /// <param name="messageFunc">The message function.</param>
-        /// <param name="attributeGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
+        /// <param name="tagGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
         /// <remarks>
         /// This method is intended mostly to avoid processing interpolated strings and tags
         /// when the current log level prevents any log from being emitted, for better performance.
         /// </remarks>
-        public static void LogWarning(this INeonLogger logger, Func<string> messageFunc, Func<LogTags> attributeGetter = null)
+        public static void LogWarning(this ILogger logger, Func<string> messageFunc, Func<LogTags> tagGetter = null)
         {
-            if (logger.IsLogWarningEnabled)
+            if (logger.IsEnabled(LogLevel.Warning))
             {
-                logger.LogWarning(messageFunc(), tagGetter: attributeGetter);
-            }
-        }
-
-        /// <summary>
-        /// Logs a <b>security error</b> event.
-        /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="messageFunc">The message function.</param>
-        /// <param name="attributeGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
-        /// <remarks>
-        /// This method is intended mostly to avoid processing interpolated strings and tags
-        /// when the current log level prevents any log from being emitted, for better performance.
-        /// </remarks>
-        public static void LogSecurityError(this INeonLogger logger, Func<string> messageFunc, Func<LogTags> attributeGetter = null)
-        {
-            if (logger.IsLogSecurityErrorEnabled)
-            {
-                logger.LogSecurityError(messageFunc(), tagGetter: attributeGetter);
+                // $todo(jefflill): Implement this
             }
         }
 
@@ -144,16 +74,16 @@ namespace Neon.Diagnostics
         /// </summary>
         /// <param name="logger">The logger.</param>
         /// <param name="messageFunc">The message function.</param>
-        /// <param name="attributeGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
+        /// <param name="tagGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
         /// <remarks>
         /// This method is intended mostly to avoid processing interpolated strings and tags
         /// when the current log level prevents any log from being emitted, for better performance.
         /// </remarks>
-        public static void LogError(this INeonLogger logger, Func<string> messageFunc, Func<LogTags> attributeGetter = null)
+        public static void LogError(this ILogger logger, Func<string> messageFunc, Func<LogTags> tagGetter = null)
         {
-            if (logger.IsLogErrorEnabled)
+            if (logger.IsEnabled(LogLevel.Error))
             {
-                logger.LogError(messageFunc(), tagGetter: attributeGetter);
+                // $todo(jefflill): Implement this
             }
         }
 
@@ -162,16 +92,16 @@ namespace Neon.Diagnostics
         /// </summary>
         /// <param name="logger">The logger.</param>
         /// <param name="messageFunc">The message function.</param>
-        /// <param name="attributeGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
+        /// <param name="tagGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
         /// <remarks>
         /// This method is intended mostly to avoid processing interpolated strings and tags
         /// when the current log level prevents any log from being emitted, for better performance.
         /// </remarks>
-        public static void LogCritical(this INeonLogger logger, Func<string> messageFunc, Func<LogTags> attributeGetter = null)
+        public static void LogCritical(this ILogger logger, Func<string> messageFunc, Func<LogTags> tagGetter = null)
         {
-            if (logger.IsLogCriticalEnabled)
+            if (logger.IsEnabled(LogLevel.Critical))
             {
-                logger.LogCritical(messageFunc(), tagGetter: attributeGetter);
+                // $todo(jefflill): Implement this
             }
         }
 
@@ -180,52 +110,52 @@ namespace Neon.Diagnostics
         /// </summary>
         /// <param name="logger">The logger.</param>
         /// <param name="e">The exception.</param>
-        /// <param name="attributeGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
+        /// <param name="tagGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
         /// <remarks>
         /// This method is intended mostly to avoid processing tags when the current 
         /// log level prevents any log from being emitted, for better performance.
         /// </remarks>
-        public static void LogDebug(this INeonLogger logger, Exception e, Func<LogTags> attributeGetter = null)
+        public static void LogDebug(this ILogger logger, Exception e, Func<LogTags> tagGetter = null)
         {
-            if (logger.IsLogDebugEnabled)
+            if (logger.IsEnabled(LogLevel.Debug))
             {
-                logger.LogDebug(null, e, tagGetter: attributeGetter);
+                // $todo(jefflill): Implement this
             }
         }
 
         /// <summary>
-        /// Logs a transient exception.
+        /// Logs an information exception.
         /// </summary>
         /// <param name="logger">The logger.</param>
         /// <param name="e">The exception.</param>
-        /// <param name="attributeGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
+        /// <param name="tagGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
         /// <remarks>
         /// This method is intended mostly to avoid processing tags when the current 
         /// log level prevents any log from being emitted, for better performance.
         /// </remarks>
-        public static void LogTransient(this INeonLogger logger, Exception e, Func<LogTags> attributeGetter = null)
+        public static void LogInformation(this ILogger logger, Exception e, Func<LogTags> tagGetter = null)
         {
-            if (logger.IsLogTransientEnabled)
+            if (logger.IsEnabled(LogLevel.Information))
             {
-                logger.LogTransient(null, e, tagGetter: attributeGetter);
+                // $todo(jefflill): Implement this
             }
         }
 
         /// <summary>
-        /// Logs an info exception.
+        /// Logs an information message retrieved via a message function.
         /// </summary>
         /// <param name="logger">The logger.</param>
-        /// <param name="e">The exception.</param>
-        /// <param name="attributeGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
+        /// <param name="messageFunc">The message function.</param>
+        /// <param name="tagGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
         /// <remarks>
-        /// This method is intended mostly to avoid processing tags when the current 
-        /// log level prevents any log from being emitted, for better performance.
+        /// This method is intended mostly to avoid processing interpolated strings and tags
+        /// when the current log level prevents any log from being emitted, for better performance.
         /// </remarks>
-        public static void LogInformation(this INeonLogger logger, Exception e, Func<LogTags> attributeGetter = null)
+        public static void LogInformation(this ILogger logger, Func<string> messageFunc, Func<LogTags> tagGetter = null)
         {
-            if (logger.IsLogInformationEnabled)
+            if (logger.IsEnabled(LogLevel.Error))
             {
-                logger.LogInformation(null, e, tagGetter: attributeGetter);
+                // $todo(jefflill): Implement this
             }
         }
 
@@ -234,16 +164,16 @@ namespace Neon.Diagnostics
         /// </summary>
         /// <param name="logger">The logger.</param>
         /// <param name="e">The exception.</param>
-        /// <param name="attributeGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
+        /// <param name="tagGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
         /// <remarks>
         /// This method is intended mostly to avoid processing tags when the current 
         /// log level prevents any log from being emitted, for better performance.
         /// </remarks>
-        public static void LogWarning(this INeonLogger logger, Exception e, Func<LogTags> attributeGetter = null)
+        public static void LogWarning(this ILogger logger, Exception e, Func<LogTags> tagGetter = null)
         {
-            if (logger.IsLogWarningEnabled)
+            if (logger.IsEnabled(LogLevel.Warning))
             {
-                logger.LogWarning(null, e, tagGetter: attributeGetter);
+                // $todo(jefflill): Implement this
             }
         }
 
@@ -252,16 +182,16 @@ namespace Neon.Diagnostics
         /// </summary>
         /// <param name="logger">The logger.</param>
         /// <param name="e">The exception.</param>
-        /// <param name="attributeGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
+        /// <param name="tagGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
         /// <remarks>
         /// This method is intended mostly to avoid processing tags when the current 
         /// log level prevents any log from being emitted, for better performance.
         /// </remarks>
-        public static void LogError(this INeonLogger logger, Exception e, Func<LogTags> attributeGetter = null)
+        public static void LogError(this ILogger logger, Exception e, Func<LogTags> tagGetter = null)
         {
-            if (logger.IsLogErrorEnabled)
+            if (logger.IsEnabled(LogLevel.Error))
             {
-                logger.LogError(null, e, tagGetter: attributeGetter);
+                // $todo(jefflill): Implement this
             }
         }
 
@@ -270,16 +200,16 @@ namespace Neon.Diagnostics
         /// </summary>
         /// <param name="logger">The logger.</param>
         /// <param name="e">The exception.</param>
-        /// <param name="attributeGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
+        /// <param name="tagGetter">Optionally specifies a function that returns tags to be added to the logged event.</param>
         /// <remarks>
         /// This method is intended mostly to avoid processing tags when the current 
         /// log level prevents any log from being emitted, for better performance.
         /// </remarks>
-        public static void LogCritical(this INeonLogger logger, Exception e, Func<LogTags> attributeGetter = null)
+        public static void LogCritical(this ILogger logger, Exception e, Func<LogTags> tagGetter = null)
         {
-            if (logger.IsLogCriticalEnabled)
+            if (logger.IsEnabled(LogLevel.Critical))
             {
-                logger.LogCritical(null, e, tagGetter: attributeGetter);
+                // $todo(jefflill): Implement this
             }
         }
     }

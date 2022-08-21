@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.IO;
 using System.Net;
@@ -28,6 +29,8 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+
+using Microsoft.Extensions.Logging;
 
 using Neon.Common;
 using Neon.Cryptography;
@@ -40,7 +43,6 @@ using Neon.Windows;
 
 using DnsClient;
 using Prometheus;
-using System.Diagnostics;
 
 namespace Neon.Service
 {
@@ -212,7 +214,7 @@ namespace Neon.Service
     /// Each <see cref="NeonService"/> instance maintains its own <see cref="TelemetryHub"/>
     /// instance with the a default logger created at <see cref="Logger"/>.  The log manager
     /// is initialized using the <b>LOG_LEVEL</b> environment variable value which defaults
-    /// to <b>info</b> when not present.  <see cref="Neon.Diagnostics.NeonLogLevel"/> for the possible values.
+    /// to <b>info</b> when not present.  <see cref="LogLevel"/> for the possible values.
     /// </para>
     /// <para>
     /// Note that the <see cref="Neon.Diagnostics.TelemetryHub.Default"/> log manager will

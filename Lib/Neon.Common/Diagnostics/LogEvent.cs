@@ -24,6 +24,8 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Logging;
+
 using Neon.Common;
 
 namespace Neon.Diagnostics
@@ -50,7 +52,7 @@ namespace Neon.Diagnostics
             string                                      categoryName,
             long                                        index,
             DateTime                                    timestamp,
-            NeonLogLevel                                logLevel,
+            LogLevel                                    logLevel,
             string                                      body,
             IEnumerable<KeyValuePair<string, object>>   tags,
             Exception                                   e)
@@ -84,7 +86,7 @@ namespace Neon.Diagnostics
         /// <summary>
         /// Returns event log level.
         /// </summary>
-        public NeonLogLevel LogLevel { get; private set; }
+        public LogLevel LogLevel { get; private set; }
 
         /// <summary>
         /// Returns event body text.
