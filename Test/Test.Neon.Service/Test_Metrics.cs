@@ -99,47 +99,28 @@ namespace TestNeonService
             /// <returns>The service exit code.</returns>
             protected override async Task<int> OnRunAsync()
             {
-                // Log some events so we can verify that the default [Neon.Diagnostics] logger
-                // increments counters for the different log levels.
+                var logger = TelemetryHub.CreateLogger(this.Name);
 
-                // $todo(jefflill): IMPLEMENT THIS!
+                logger.LogDebug("debug event");
+                logger.LogInformation("info event");
+                logger.LogWarning("warn event");
+                logger.LogError("error event");
+                logger.LogCritical("critical event");
 
-                return 1;
-#if DISABLED
-                var orgLogLevel = TelemetryHub.LogLevel;
+                // Increment the test counter.
 
-                try
-                {
-                    TelemetryHub.LogLevel = LogLevel.Debug;
+                TestCounter.Inc();
 
-                    var logger = TelemetryHub.CreateLogger(this.Name);
+                // Signal to the test case that the service has done its thing
+                // and is ready to exit.
 
-                    logger.LogDebug("debug event");
-                    logger.LogInformation("info event");
-                    logger.LogWarning("warn event");
-                    logger.LogError("error event");
-                    logger.LogCritical("critical event");
+                ReadyToExitEvent.Set();
 
-                    // Increment the test counter.
+                // Wait for the test to signal that the service can exit.
 
-                    TestCounter.Inc();
+                await CanExitEvent.WaitAsync();
 
-                    // Signal to the test case that the service has done its thing
-                    // and is ready to exit.
-
-                    ReadyToExitEvent.Set();
-
-                    // Wait for the test to signal that the service can exit.
-
-                    await CanExitEvent.WaitAsync();
-
-                    return await Task.FromResult(0);
-                }
-                finally
-                {
-                    TelemetryHub.LogLevel = orgLogLevel;
-                }
-#endif
+                return await Task.FromResult(0);
             }
         }
 
@@ -193,43 +174,24 @@ namespace TestNeonService
 
                 TestCounter.Inc();
                 
-                // $todo(jefflill): IMPLEMENT THIS!
+                var logger = TelemetryHub.CreateLogger(this.Name);
 
-                return 1;
-#if DISABLED
-                // Log some events so we can verify that the default Neon.Diagnostics logger
-                // increments counters for the different log levels.
+                logger.LogDebug("debug event");
+                logger.LogInformation("info event");
+                logger.LogWarning("warn event");
+                logger.LogError("error event");
+                logger.LogCritical("critical event");
 
-                var orgLogLevel = TelemetryHub.LogLevel;
+                // Signal to the test case that the service has done its thing
+                // and is ready to exit.
 
-                try
-                {
-                    TelemetryHub.LogLevel = LogLevel.Debug;
+                ReadyToExitEvent.Set();
 
-                    var logger = TelemetryHub.CreateLogger(this.Name);
+                // Wait for the test to signal that the service can exit.
 
-                    logger.LogDebug("debug event");
-                    logger.LogInformation("info event");
-                    logger.LogWarning("warn event");
-                    logger.LogError("error event");
-                    logger.LogCritical("critical event");
+                await CanExitEvent.WaitAsync();
 
-                    // Signal to the test case that the service has done its thing
-                    // and is ready to exit.
-
-                    ReadyToExitEvent.Set();
-
-                    // Wait for the test to signal that the service can exit.
-
-                    await CanExitEvent.WaitAsync();
-
-                    return await Task.FromResult(0);
-                }
-                finally
-                {
-                    TelemetryHub.LogLevel = orgLogLevel;
-                }
-#endif
+                return await Task.FromResult(0);
             }
         }
 

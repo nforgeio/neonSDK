@@ -625,7 +625,6 @@ namespace Neon.Service
 
         private readonly object                 syncLock       = new object();
         private readonly AsyncMutex             asyncMutex     = new AsyncMutex();
-        private readonly Func<LogEvent, bool>   logFilter;
         private readonly Counter                runtimeCount;
         private readonly Counter                unhealthyCount;
         private bool                            isRunning;
@@ -650,11 +649,6 @@ namespace Neon.Service
         /// <param name="version">
         /// Optionally specifies the version of your service formatted as a valid <see cref="SemanticVersion"/>.
         /// This will default to <b>"unknown"</b> when not set or when the value passed is invalid.
-        /// </param>
-        /// <param name="logFilter">
-        /// Optionally specifies a filter predicate to be used for filtering log entries.  This examines
-        /// the <see cref="LogEvent"/> and returns <c>true</c> if the event should be logged or <c>false</c>
-        /// when it is to be ignored.  All events will be logged when this is <c>null</c>.
         /// </param>
         /// <param name="metricsPrefix">
         /// Optionally specifies prefix to be used by metrics counters, overridding a prefix based on the
@@ -712,7 +706,6 @@ namespace Neon.Service
         public NeonService(
             string                  name, 
             string                  version                 = null,
-            Func<LogEvent, bool>    logFilter               = null,
             string                  metricsPrefix           = null,
             string                  healthFolder            = null,
             ServiceMap              serviceMap              = null,
@@ -753,7 +746,6 @@ namespace Neon.Service
             this.Terminator             = new ProcessTerminator(gracefulShutdownTimeout: gracefulShutdownTimeout, minShutdownTime: minShutdownTime);
             this.Version                = version;
             this.Environment            = new EnvironmentParser(null, VariableSource);  // Temporarily setting a NULL logger until we create the service logger below
-            this.logFilter              = logFilter;
             this.configFiles            = new Dictionary<string, FileInfo>();
             this.healthFolder           = healthFolder ?? "/";
             this.terminationMessagePath = terminationMessagePath ?? "/dev/termination-log";
