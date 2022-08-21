@@ -23,6 +23,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Logging;
+
 using Neon.Diagnostics;
 using Neon.Tasks;
 
@@ -35,7 +37,7 @@ namespace Neon.Retry
     /// <remarks>
     /// <para>
     /// You can enable transient error logging by passing a non-empty <b>logCategory</b>
-    /// name to the constructor.  This creates an embedded <see cref="INeonLogger"/>
+    /// name to the constructor.  This creates an embedded <see cref="ILogger"/>
     /// using that name and any retried transient errors will then be logged as
     /// warnings including <b>[transient-retry]</b> in the message.
     /// </para>

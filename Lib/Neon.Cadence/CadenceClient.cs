@@ -576,14 +576,14 @@ namespace Neon.Cadence
 
         private static readonly object                              syncLock      = new object();
         private static readonly Assembly                            thisAssembly  = Assembly.GetExecutingAssembly();
-        private static readonly INeonLogger                         log           = TelemetryHub.Default.GetLogger<CadenceClient>();
+        private static readonly ILogger                             logger        = TelemetryHub.CreateLogger<CadenceClient>();
         private static bool                                         proxyWritten  = false;
         private static long                                         nextClientId  = 0;
         private static readonly Dictionary<long, CadenceClient>     idToClient    = new Dictionary<long, CadenceClient>();
         private static long                                         nextRequestId = 0;
         private static readonly Dictionary<long, Operation>         operations    = new Dictionary<long, Operation>();
-        private static INeonLogger                                  cadenceLogger;
-        private static INeonLogger                                  cadenceProxyLogger;
+        private static ILogger                                      cadenceLogger;
+        private static ILogger                                      cadenceProxyLogger;
 
         /// <summary>
         /// Resets <see cref="CadenceClient"/> to its initial state, by closing
@@ -771,11 +771,11 @@ namespace Neon.Cadence
                         {
                             if (File.Exists(binaryPath))
                             {
-                                log.LogWarning($"[cadence-proxy] binary [{binaryPath}] already exists and is probably read-only.", e);
+                                logger.LogWarning($"[cadence-proxy] binary [{binaryPath}] already exists and is probably read-only.", e);
                             }
                             else
                             {
-                                log.LogWarning($"[cadence-proxy] binary [{binaryPath}] cannot be written.", e);
+                                logger.LogWarning($"[cadence-proxy] binary [{binaryPath}] cannot be written.", e);
                             }
                         }
 
@@ -1063,12 +1063,12 @@ namespace Neon.Cadence
             }
             catch (FormatException e)
             {
-                log.LogError(e);
+                logger.LogError(e);
                 response.StatusCode = 400;  // BadRequest
             }
             catch (Exception e)
             {
-                log.LogError(e);
+                logger.LogError(e);
                 response.StatusCode = 500;  // InternalServerError
             }
         }
@@ -1148,12 +1148,12 @@ namespace Neon.Cadence
             }
             catch (FormatException e)
             {
-                log.LogError(e);
+                logger.LogError(e);
                 response.StatusCode = StatusCodes.Status400BadRequest;
             }
             catch (Exception e)
             {
-                log.LogError(e);
+                logger.LogError(e);
                 response.StatusCode = StatusCodes.Status500InternalServerError;
             }
         }
@@ -1240,7 +1240,7 @@ namespace Neon.Cadence
                 }
                 else
                 {
-                    log.LogWarning(() => $"Reply [type={reply.Type}, requestId={reply.RequestId}] does not map to a pending operation and will be ignored.");
+                    logger.LogWarning(() => $"Reply [type={reply.Type}, requestId={reply.RequestId}] does not map to a pending operation and will be ignored.");
 
                     httpReply.StatusCode = 400;     // BadRequest;
                     httpReply.Message    = $"[cadence-client] does not have a pending operation with [requestId={reply.RequestId}].";
@@ -1580,8 +1580,8 @@ namespace Neon.Cadence
             }
 
             DataConverter      = new JsonDataConverter();
-            cadenceLogger      = TelemetryHub.Default.GetLogger("cadence", isLogEnabledFunc: () => Settings.LogCadence);
-            cadenceProxyLogger = TelemetryHub.Default.GetLogger("cadence-proxy", isLogEnabledFunc: () => Settings.LogCadenceProxy);
+            cadenceLogger      = TelemetryHub.CreateLogger("cadence", isLogEnabledFunc: () => Settings.LogCadence);
+            cadenceProxyLogger = TelemetryHub.CreateLogger("cadence-proxy", isLogEnabledFunc: () => Settings.LogCadenceProxy);
 
             // Initialize a reasonable default synchronous signal query retry policy. 
 
@@ -2008,7 +2008,7 @@ namespace Neon.Cadence
                 pendingException  = e;
                 closingConnection = true;
 
-                log.LogCritical(e);
+                logger.LogCritical(e);
                 throw;
             }
         }
@@ -2059,7 +2059,7 @@ namespace Neon.Cadence
                 pendingException  = e;
                 closingConnection = true;
 
-                log.LogCritical(e);
+                logger.LogCritical(e);
                 throw;
             }
         }
@@ -2098,7 +2098,7 @@ namespace Neon.Cadence
                                 }
                                 catch (Exception e)
                                 {
-                                    log.LogError("Heartbeat check failed.  Closing Cadence connection.", e);
+                                    logger.LogError("Heartbeat check failed.  Closing Cadence connection.", e);
 
                                     exception = new TimeoutException("[cadence-proxy] heartbeat failure.", e);
 
@@ -2119,7 +2119,7 @@ namespace Neon.Cadence
                         if (!closingConnection || !e.Contains<TaskCanceledException>())
                         {
                             exception = e;
-                            log.LogError(e);
+                            logger.LogError(e);
                         }
                     }
 
@@ -2197,7 +2197,7 @@ namespace Neon.Cadence
                             // run in parallel rather than waiting for them to complete
                             // one-by-one.
 
-                            log.LogWarning(() => $"Request Timeout: [request={operation.Request.GetType().Name}, started={operation.StartTimeUtc.ToString(NeonHelper.DateFormat100NsTZ)}, timeout={operation.Timeout}].");
+                            logger.LogWarning(() => $"Request Timeout: [request={operation.Request.GetType().Name}, started={operation.StartTimeUtc.ToString(NeonHelper.DateFormat100NsTZ)}, timeout={operation.Timeout}].");
 
                             // $todo(jefflill):
                             //
@@ -2229,7 +2229,7 @@ namespace Neon.Cadence
                 if (!closingConnection || !(e is TaskCanceledException))
                 {
                     exception = e;
-                    log.LogError(e);
+                    logger.LogError(e);
                 }
             }
 

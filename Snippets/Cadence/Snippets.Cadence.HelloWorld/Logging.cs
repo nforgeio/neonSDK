@@ -5,7 +5,7 @@
     using System.Collections.Generic;
     using System.Net.Mail;
     using System.Threading.Tasks;
-
+    using Microsoft.Extensions.Logging;
     using Neon.Cadence;
     using Neon.Common;
     using Neon.Diagnostics;
@@ -117,15 +117,15 @@
 
     public static class Program
     {
-        private static INeonLogger logger;
+        private static ILogger logger;
 
         public static async Task Main(string[] args)
         {
             // Initialize the logger.
 
-            TelemetryHub.Default.ParseLogLevel("info");
+            TelemetryHub.ParseLogLevel("info");
 
-            logger = TelemetryHub.Default.GetLogger(typeof(Program));
+            logger = TelemetryHub.CreateLogger("");
             logger.LogInformation("Starting workflow service");
 
             try

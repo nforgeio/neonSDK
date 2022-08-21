@@ -21,12 +21,14 @@ using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 
+using Microsoft.Extensions.Logging;
+
 using Neon.Common;
 
 namespace Neon.Diagnostics
 {
     /// <summary>
-    /// Holds tags to be included in log events recorded by <see cref="INeonLogger"/> logging 
+    /// Holds tags to be included in log events recorded by <see cref="ILogger"/> logging 
     /// methods.
     /// </summary>
     public class LogTags

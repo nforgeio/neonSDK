@@ -51,7 +51,7 @@ namespace Neon.Web.SignalR
         private readonly NatsSubscriptionManager connections;
         private readonly NatsSubscriptionManager groups;
         private readonly NatsSubscriptionManager users;
-        private readonly INeonLogger             logger;
+        private readonly ILogger                 logger;
         private readonly IConnection             nats;
         private readonly NatsSubjects            subjects;
         private readonly string                  serverName;
@@ -77,7 +77,7 @@ namespace Neon.Web.SignalR
         {
             this.serverName  = GenerateServerName();
             this.nats        = connection;
-            this.logger      = (INeonLogger)logger;
+            this.logger      = (ILogger)logger;
             this.users       = new NatsSubscriptionManager(this.logger);
             this.groups      = new NatsSubscriptionManager(this.logger);
             this.connections = new NatsSubscriptionManager(this.logger);

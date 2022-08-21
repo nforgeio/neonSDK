@@ -66,12 +66,11 @@ namespace Test.Neon.SignalR
             options.Servers = new string[] { natsServerUri };
 
             var connection = connectionFactory.CreateConnection(options);
-            var logger     = (INeonLogger)TelemetryHub.Default.CreateLogger("neon-signalr");
+            var logger     = TelemetryHub.CreateLogger("neon-signalr");
 
             services
                 .AddSingleton<IUserIdProvider, UserNameIdProvider>()
                 .AddSingleton<ILogger>(logger)
-                .AddSingleton<INeonLogger>(logger)
                 .AddSignalR()
                 .AddNeonNats(connection);
         }

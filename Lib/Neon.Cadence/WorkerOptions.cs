@@ -118,7 +118,7 @@ namespace Neon.Cadence
         /// Optionally enables logging in replay.  This defaults to <c>false</c>.
         /// </summary>
         /// <remarks>
-        /// In the workflow code you can use workflow.GetLogger(ctx) to write logs. By default, the logger will skip log
+        /// In the workflow code you can use workflow.CreateLogger(ctx) to write logs. By default, the logger will skip log
         /// entry during replay mode so you won't see duplicate logs. This option will enable the logging in replay mode.
         /// This is only useful for debugging purpose.
         /// </remarks>

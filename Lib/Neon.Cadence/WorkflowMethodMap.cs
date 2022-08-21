@@ -23,6 +23,8 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Logging;
+
 using Neon.Cadence;
 using Neon.Cadence.Internal;
 using Neon.Common;
@@ -39,7 +41,7 @@ namespace Neon.Cadence
         //---------------------------------------------------------------------
         // Static members
 
-        private static INeonLogger Log = TelemetryHub.Default.GetLogger<WorkflowMethodMap>();
+        private static ILogger Logger = TelemetryHub.CreateLogger<WorkflowMethodMap>();
 
         /// <summary>
         /// Constructs a query/signal method map for a workflow type.

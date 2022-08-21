@@ -24,6 +24,8 @@ using System.Threading;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
 
+using Microsoft.Extensions.Logging;
+
 using Neon.Common;
 using Neon.Diagnostics;
 using Neon.Net;
@@ -44,7 +46,7 @@ namespace Neon.Web
     [TypeFilter(typeof(LoggingExceptionFilter))]
     public abstract class NeonController : Controller
     {
-        private INeonLogger logger;
+        private ILogger logger;
 
         /// <summary>
         /// Constructor.
@@ -56,7 +58,7 @@ namespace Neon.Web
         /// <summary>
         /// Returns the controller's logger.
         /// </summary>
-        public INeonLogger Logger
+        public ILogger Logger
         {
             get
             {
@@ -72,7 +74,7 @@ namespace Neon.Web
                 //
                 // I should be getting either an [ILogProvider] or [ITelemetryHub] dynamically 
                 // via dependency injection rather than hardcoding a call to [TelemetryHub.Default]
-                // and then getting an [INeonLogger] from that or wrapping an [ILogger] with
+                // and then getting an [ILogger] from that or wrapping an [ILogger] with
                 // a [NeonLoggerShim].
                 //
                 // I'm not entirely sure how to accomplish this.  I believe the only way is
@@ -86,7 +88,7 @@ namespace Neon.Web
                 //
                 // See the TODO in [TelemetryHub.cs] for more information.
 
-                return logger = TelemetryHub.Default.GetLogger("Web-" + base.ControllerContext.ActionDescriptor.ControllerName);
+                return logger = TelemetryHub.CreateLogger("Web-" + base.ControllerContext.ActionDescriptor.ControllerName);
             }
         }
     }

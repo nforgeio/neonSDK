@@ -27,10 +27,13 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Logging;
+
 using Neon.Cadence;
 using Neon.Cadence.Internal;
 using Neon.Common;
 using Neon.Data;
+using Neon.Diagnostics;
 using Neon.IO;
 using Neon.Tasks;
 using Neon.Xunit;

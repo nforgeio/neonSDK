@@ -25,6 +25,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 using Neon.Cadence;
 using Neon.Cadence.Internal;
@@ -528,7 +529,7 @@ namespace Neon.Cadence
         private Type            activityType;
         private MethodInfo      activityMethod;
         private IDataConverter  dataConverter;
-        private INeonLogger     logger;
+        private ILogger         logger;
 
         /// <summary>
         /// Default protected constructor.
@@ -561,7 +562,7 @@ namespace Neon.Cadence
             this.ContextId               = contextId;
             this.CancellationTokenSource = new CancellationTokenSource();
             this.CancellationToken       = CancellationTokenSource.Token;
-            this.logger                  = TelemetryHub.Default.GetLogger(categoryName: activityType.FullName);
+            this.logger                  = TelemetryHub.CreateLogger(categoryName: activityType.FullName);
         }
 
         /// <summary>

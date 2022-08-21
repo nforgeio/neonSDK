@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------
-// FILE:	    Test_WebService.cs
+// FILE:	    TestSignalR.cs
 // CONTRIBUTOR: Marcus Bowyer
 // COPYRIGHT:	Copyright (c) 2005-2022 by neonFORGE LLC.  All rights reserved.
 //
@@ -52,7 +52,7 @@ namespace Test.Neon.SignalR
     [Trait(TestTrait.Category, TestArea.NeonService)]
     [Collection(TestCollection.NonParallel)]
     [CollectionDefinition(TestCollection.NonParallel, DisableParallelization = true)]
-    public class Test_WebService : IClassFixture<ComposedFixture>
+    public class TestSignalR : IClassFixture<ComposedFixture>
     {
         private ComposedFixture                     composedFixture;
         private NatsFixture                         natsFixture;
@@ -64,7 +64,7 @@ namespace Test.Neon.SignalR
         private HubConnection thirdConnection;
         private HubConnection fourthConnection;
 
-        public Test_WebService(ComposedFixture fixture)
+        public TestSignalR(ComposedFixture fixture)
         {
             TestHelper.ResetDocker(this.GetType());
 
@@ -193,7 +193,7 @@ namespace Test.Neon.SignalR
             options.Servers = new string[] { natsServerUri };
 
             var services = new ServiceCollection();
-            var logger   = new global::Neon.Diagnostics.TelemetryHub().GetLogger();
+            var logger   = TelemetryHub.CreateLogger<TestSignalR>();
             
             services.AddSingleton(logger);
 

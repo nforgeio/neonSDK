@@ -22,7 +22,9 @@ using System.Threading.Tasks;
 using System.Web;
 
 using Microsoft.AspNetCore.Http;
+
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Logging;
 
 using Neon.Common;
 using Neon.Cryptography;
@@ -38,10 +40,10 @@ namespace NeonBlazorProxy
 {
     public class SessionTransformer : HttpTransformer
     {
-        private IDistributedCache cache;
-        private INeonLogger logger;
-        private DistributedCacheEntryOptions cacheOptions;
-        private AesCipher cipher;
+        private IDistributedCache               cache;
+        private ILogger                         logger;
+        private DistributedCacheEntryOptions    cacheOptions;
+        private AesCipher                       cipher;
 
         /// <summary>
         /// Constructor.
@@ -51,14 +53,14 @@ namespace NeonBlazorProxy
         /// <param name="logger"></param>
         public SessionTransformer(
             IDistributedCache cache,
-            INeonLogger logger,
+            ILogger logger,
             DistributedCacheEntryOptions cacheOptions,
             AesCipher cipher)
         {
-            this.cache = cache;
-            this.logger = logger;
+            this.cache        = cache;
+            this.logger       = logger;
             this.cacheOptions = cacheOptions;
-            this.cipher = cipher;
+            this.cipher       = cipher;
         }
 
         /// <summary>

@@ -23,6 +23,8 @@ using System.Diagnostics.Contracts;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Logging;
+
 using Neon.Cadence;
 using Neon.Cadence.Internal;
 using Neon.Common;
@@ -49,11 +51,10 @@ namespace Neon.Cadence
             Covenant.Requires<ArgumentNullException>(parent != null, nameof(parent));
 
             this.parent = parent;
-            this.Logger = TelemetryHub.Default.GetLogger(categoryName: Client.Settings.ClientIdentity,
-                tags: new KeyValuePair<string, object>[]
-                {
-                    new KeyValuePair<string, object>("cadence.activity-id", parent.ActivityTask?.WorkflowExecution?.RunId) 
-                });
+
+            // $todo(jefflill): tag: cadence.activity-id???
+
+            this.Logger = TelemetryHub.CreateLogger(categoryName: Client.Settings.ClientIdentity);
         }
 
         /// <summary>
@@ -95,7 +96,7 @@ namespace Neon.Cadence
         /// <summary>
         /// Returns the logger to be used for logging activity related events.
         /// </summary>
-        public INeonLogger Logger { get; private set; }
+        public ILogger Logger { get; private set; }
 
         /// <summary>
         /// <para>

@@ -17,7 +17,6 @@
 
 using System;
 using System.Collections.Generic;
-using Neon.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.IO;
@@ -25,7 +24,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Logging;
+
 using Neon.Common;
+using Neon.Diagnostics;
 
 namespace Neon.Common
 {
@@ -341,16 +343,16 @@ namespace Neon.Common
         // Implementation
 
         private VariableSource  source;
-        private INeonLogger     log;
+        private ILogger         logger;
 
         /// <summary>
         /// Constructor.
         /// </summary>
-        /// <param name="log">Optionally specifies the logger where parsing errors will be logged.</param>
+        /// <param name="logger">Optionally specifies the logger where parsing errors will be logged.</param>
         /// <param name="source">Optionally specifies an alternative variable source.  This defaults to retrieving environment variables.</param>
-        public EnvironmentParser(INeonLogger log = null, VariableSource source = null)
+        public EnvironmentParser(ILogger logger = null, VariableSource source = null)
         {
-            this.log    = log;
+            this.logger = logger;
             this.source = source ?? EnvironmentSource;
         }
 
@@ -359,10 +361,10 @@ namespace Neon.Common
         /// using the <see cref="EnvironmentParser"/> to read the log settings first, create the
         /// logger and then initialize the logger parser here.
         /// </summary>
-        /// <param name="log">The logger or <c>null</c> to disable logging.</param>
-        public void SetLogger(INeonLogger log)
+        /// <param name="logger">The logger or <c>null</c> to disable logging.</param>
+        public void SetLogger(ILogger logger)
         {
-            this.log = log;
+            this.logger = logger;
         }
 
         /// <summary>
@@ -383,9 +385,9 @@ namespace Neon.Common
         /// <param name="variable">The variable name.</param>
         private void LogMissingVariable(string variable)
         {
-            if (log != null)
+            if (logger != null)
             {
-                log.LogError(() => $"[{variable}] environment variable does not exist.");
+                logger.LogError(() => $"[{variable}] environment variable does not exist.");
             }
         }
 
@@ -404,9 +406,9 @@ namespace Neon.Common
                 error += ".";
             }
 
-            if (log != null)
+            if (logger != null)
             {
-                log.LogError(() => $"[{variable}={value}]: {error}");
+                logger.LogError(() => $"[{variable}={value}]: {error}");
             }
         }
 
@@ -426,9 +428,9 @@ namespace Neon.Common
                 error += ".";
             }
 
-            if (log != null)
+            if (logger != null)
             {
-                log.LogError(() => $"[{variable}={value}]: {error}  Defaulting to [{def}].");
+                logger.LogError(() => $"[{variable}={value}]: {error}  Defaulting to [{def}].");
             }
         }
 
@@ -445,9 +447,9 @@ namespace Neon.Common
                 value = "REDACTED";
             }
 
-            if (log != null)
+            if (logger != null)
             {
-                log.LogInformation(() => $"{variable}={value}");
+                logger.LogInformation(() => $"{variable}={value}");
             }
         }
 

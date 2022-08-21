@@ -35,314 +35,147 @@ using Neon.Common;
 namespace Neon.Diagnostics
 {
     /// <summary>
-    /// A reasonable default implementation of an application telemetry hub.  See
-    /// <see cref="ITelemetryHub"/> for a description of how telemetry hubs work.
+    /// <para>
+    /// Provides a standard global place where libraries and applications can gain access to
+    /// the application's <see cref="ActivitySource"/> and <see cref="LoggerFactory"/> for 
+    /// recording traces and logs.  Applications that enable tracing and logging should set
+    /// <see cref="ActivitySource"/> to the global program activity source and <see cref="LoggerFactory"/>
+    /// to the program's global <see cref="ILoggerFactory"/> so that Neon (and perhaps other) 
+    /// libraries can emit traces and logs.
+    /// </para>
+    /// <note>
+    /// The <b>Neon.Service.NeonService</b> class initializes these properties by default when
+    /// used by programs.
+    /// </note>
+    /// <para>
+    /// The <see cref="ParseLogLevel(string, LogLevel)"/> utility can be used to parse a log level
+    /// string obtained from an environment variable or elsewhere.
+    /// </para>
     /// </summary>
-    public class TelemetryHub : ITelemetryHub
+    public static class TelemetryHub
     {
-        //---------------------------------------------------------------------
-        // Static members
+        /// <summary>
+        /// Holds the global activity source used by Neon and perhaps other libraries for emitting
+        /// traces.  This defaults to <c>null</c> which means that libraries won't emit any
+        /// traces by default.  Programs should set this after configuring tracing.
+        /// </summary>
+        public static ActivitySource ActivitySource { private get; set; } = null;
 
-        /// <inheritdoc/>
-        public static ITelemetryHub Default
+        /// <summary>
+        /// Holds the global <see cref="ILoggerFactory"/> used by the Neon and perhaps other libraries
+        /// for emitting logs.  This defaults to <c>null</c> which means that libraries won't emit any
+        /// logs by default.  Programs should set this after configuring logging.
+        /// </summary>
+        public static ILoggerFactory LoggerFactory { private get; set; } = null;
+
+        /// <summary>
+        /// <para>
+        /// Returns an <see cref="ILogger"/> using the fully qualified name of the <typeparamref name="T"/>
+        /// type as the logger's category name.
+        /// </para>
+        /// <note>
+        /// This returns an internal do-nothing logger when <see cref="LoggerFactory"/> is <c>null</c>.
+        /// </note>
+        /// </summary>
+        /// <typeparam name="T">Identifies the type whose fully-qualified name is to be used as the logger's category name.</typeparam>
+        /// <param name="isLogEnabledFunc">Optionally specifies a function that controls whether a do-nothing logger should be returned.</param>
+        /// <returns>The <see cref="ILogger"/>.</returns>
+        public static ILogger CreateLogger<T>(Func<bool> isLogEnabledFunc = null)
         {
-            get { return NeonHelper.ServiceContainer.GetService<ITelemetryHub>(); }
-
-            set
+            if (isLogEnabledFunc != null && !isLogEnabledFunc())
             {
-                Covenant.Requires<ArgumentNullException>(value != null, nameof(value));
+                return new NullLogger();
+            }
 
-                // Ensure that updates to the default manager will also be reflected in 
-                // the dependency services so users won't be surprised.
-
-                NeonHelper.ServiceContainer.AddSingleton<ITelemetryHub>(value);
-                NeonHelper.ServiceContainer.AddSingleton<ILoggerProvider>(value);
+            if (LoggerFactory == null)
+            {
+                return new NullLogger();
+            }
+            else
+            {
+                return LoggerFactory.CreateLogger<T>();
             }
         }
 
         /// <summary>
-        /// Static constructor.
+        /// <para>
+        /// Returns an <see cref="ILogger"/> using the category name passed.
+        /// </para>
+        /// <note>
+        /// This returns an internal do-nothing logger when <see cref="LoggerFactory"/> is <c>null</c>.
+        /// </note>
         /// </summary>
-        static TelemetryHub()
+        /// <param name="categoryName">Specifies the logger's category name.</param>
+        /// <param name="isLogEnabledFunc">Optionally specifies a function that controls whether a do-nothing logger should be returned.</param>
+        /// <returns>The <see cref="ILogger"/>.</returns>
+        public static ILogger CreateLogger(string categoryName, Func<bool> isLogEnabledFunc = null)
         {
-            Default = new TelemetryHub();
-        }
-
-        //---------------------------------------------------------------------
-        // Instance members
-
-        private readonly object                             syncRoot         = new object();
-        private readonly Dictionary<string, INeonLogger>    categoryToLogger = new Dictionary<string, INeonLogger>();
-        private LogLevel                                    logLevel         = LogLevel.Information;
-        private ActivitySource                              activitySource;
-        private long                                        emitCount;
-        private LoggerCreatorDelegate                       loggerCreator;
-        private Func<LogEvent, bool>                        logFilter;
-        private Func<bool>                                  isLogEnabledFunc;
-
-        /// <summary>
-        /// Default constructor.
-        /// </summary>
-        /// <param name="parseLogLevel">Indicates that the <b>LOG_LEVEL</b> environment variable should be parsed (defaults to <c>true</c>).</param>
-        /// <param name="logFilter">
-        /// Optionally specifies a filter predicate to be used for filtering log entries.  This examines
-        /// the <see cref="LogEvent"/> and returns <c>true</c> if the event should be logged or <c>false</c>
-        /// when it is to be ignored.  All events will be logged when this is <c>null</c>.
-        /// </param>
-        /// <param name="isLogEnabledFunc">
-        /// Optionally specifies a function that will be called at runtime to
-        /// determine whether to event logging is actually enabled.  This defaults
-        /// to <c>null</c> which always enables event logging.
-        /// </param>
-        public TelemetryHub(bool parseLogLevel = true, Func<LogEvent, bool> logFilter = null, Func<bool> isLogEnabledFunc = null)
-        {
-            if (parseLogLevel && !Enum.TryParse<LogLevel>(Environment.GetEnvironmentVariable("LOG_LEVEL"), true, out logLevel))
+            if (isLogEnabledFunc != null && !isLogEnabledFunc())
             {
-                logLevel = LogLevel.Information;
+                return new NullLogger();
             }
 
-            this.logFilter        = logFilter;
-            this.isLogEnabledFunc = isLogEnabledFunc;
-            this.emitCount        = 0;
+            categoryName ??= "DEFAULT";
+
+            if (LoggerFactory == null)
+            {
+                return new NullLogger();
+            }
+            else
+            {
+                return LoggerFactory.CreateLogger(categoryName);
+            }
         }
 
-        /// <inheritdoc/>
-        public LogLevel LogLevel
+        /// <summary>
+        /// Parses a <see cref="LogLevel"/> from a string.
+        /// </summary>
+        /// <param name="input">The input string.</param>
+        /// <param name="default">The default value to return when <paramref name="input"/> is <c>null</c> or invalid.</param>
+        /// <returns></returns>
+        public static LogLevel ParseLogLevel(string input, LogLevel @default = LogLevel.Information)
         {
-            get => this.logLevel;
-            set => this.logLevel = value;
-        }
+            if (input == null)
+            {
+                return @default;
+            }
 
-        /// <inheritdoc/>
-        public void ParseLogLevel(string level)
-        {
-            level = level ?? "INFORMATION";
-
-            switch (level.ToUpperInvariant())
+            switch (input.ToUpperInvariant())
             {
                 case "CRITICAL":
 
-                    LogLevel = LogLevel.Critical;
-                    break;
+                    return LogLevel.Critical;
 
                 case "ERROR":
 
-                    LogLevel = LogLevel.Error;
-                    break;
+                    return LogLevel.Error;
 
                 case "WARN":    // Backwards compatibility
                 case "WARNING":
 
-                    LogLevel = LogLevel.Warning;
-                    break;
+                    return LogLevel.Warning;
 
-                default:
                 case "INFO":    // Backwards compatibility
                 case "INFORMATION":
 
-                    LogLevel = LogLevel.Information;
-                    break;
+                    return LogLevel.Information; ;
 
                 case "DEBUG":
 
-                    LogLevel = LogLevel.Debug;
-                    break;
+                    return LogLevel.Debug;
 
                 case "TRACE":
 
-                    LogLevel = LogLevel.Trace;
-                    break;
+                    return LogLevel.Trace;
 
                 case "NONE":
 
-                    LogLevel = LogLevel.None;
-                    break;
+                    return LogLevel.None;
+
+                default:
+
+                    return @default;
             }
-        }
-
-        /// <inheritdoc/>
-        public ActivitySource ActivitySource
-        {
-            get => activitySource;
-
-            set
-            {
-                if (value == null)
-                {
-                    throw new ArgumentNullException(nameof(value), $"The [{ActivitySource}] property cannot be set to NULL.");
-                }
-                
-                activitySource = value;
-            }
-        }
-
-        /// <inheritdoc/>
-        public bool EmitTimestamp { get; set; } = true;
-
-        /// <inheritdoc/>
-        public bool EmitIndex { get; set; } = true;
-
-        /// <inheritdoc/>
-        public long GetNextEventIndex()
-        {
-            if (EmitIndex)
-            {
-                return Interlocked.Increment(ref emitCount);
-            }
-            else
-            {
-                return -1;
-            }
-        }
-
-        /// <inheritdoc/>
-        public LoggerCreatorDelegate LoggerCreator
-        {
-            get => this.loggerCreator;
-
-            set
-            {
-                // We're going to clear any cached loggers so they will be recreated
-                // using the new create function as necessary.
-
-                lock (syncRoot)
-                {
-                    categoryToLogger.Clear();
-
-                    this.loggerCreator = value;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Uses the <see cref="LoggerCreator"/> function to construct a logger for a specific 
-        /// source category name.
-        /// </summary>
-        /// <param name="categoryName">
-        /// Optionally identifies the event source category.  This is typically used 
-        /// for identifying the event source.
-        /// </param>
-        /// <param name="tags">
-        /// Specifies tags to be included in every event logged by the logger returned.  This may
-        /// be passed as <c>null</c>.
-        /// </param>
-        /// <param name="logFilter">
-        /// Optionally overrides the manager's log filter predicate.  This examines the <see cref="LogEvent"/>
-        /// and returns <c>true</c> if the event should be logged or <c>false</c> when it is to be ignored.  
-        /// All events will be logged when this is and the managers filter is <c>null</c>.
-        /// </param>
-        /// <param name="isLogEnabledFunc">
-        /// Optionally specifies a function that will be called at runtime to determine whether to event
-        /// logging is actually enabled.  This overrides the parent <see cref="ITelemetryHub"/> function
-        /// if any.  Events will be logged for <c>null</c> functions.
-        /// </param>
-        /// <returns>The <see cref="INeonLogger"/> instance.</returns>
-        private INeonLogger CreateLogger(string categoryName,  IEnumerable<KeyValuePair<string, object>> tags, Func<LogEvent, bool> logFilter, Func<bool> isLogEnabledFunc)
-        {
-            logFilter        ??= this.logFilter;
-            isLogEnabledFunc ??= this.isLogEnabledFunc;
-
-            if (LoggerCreator == null)
-            {
-                return new TextLogger(categoryName, logFilter: logFilter, isLogEnabledFunc: isLogEnabledFunc);
-            }
-            else
-            {
-                return loggerCreator(categoryName, logFilter: logFilter, isLogEnabledFunc: isLogEnabledFunc);
-            }
-        }
-
-        /// <summary>
-        /// Manages the creation and caching of an <see cref="INeonLogger"/> based on its category name, if any.
-        /// There's no reason to create new loggers for the same category name.
-        /// </summary>
-        /// <param name="categoryName">
-        /// Optionally identifies the event source category.  This is typically used 
-        /// for identifying the event source.
-        /// </param>
-        /// <param name="tags">
-        /// Optionally specifies tags to be included in every event logged by the logger returned.  This may
-        /// be passed as <c>null</c>.
-        /// </param>
-        /// <param name="logFilter">
-        /// Optionally overrides the manager's log filter predicate.  This examines the <see cref="LogEvent"/>
-        /// and returns <c>true</c> if the event should be logged or <c>false</c> when it is to be ignored.  
-        /// All events will be logged when this is and the managers filter is <c>null</c>.
-        /// </param>
-        /// <param name="isLogEnabledFunc">
-        /// Optionally specifies a function that will be called at runtime to determine whether to event
-        /// logging is actually enabled.  This overrides the parent <see cref="ITelemetryHub"/> function
-        /// if any.  Events will be logged for <c>null</c> functions.
-        /// </param>
-        /// <returns>The <see cref="INeonLogger"/> instance.</returns>
-        private INeonLogger InternalGetLogger(string categoryName, IEnumerable<KeyValuePair<string, object>> tags = null, Func<LogEvent, bool> logFilter = null, Func<bool> isLogEnabledFunc = null)
-        {
-            categoryName = categoryName ?? string.Empty;
-
-            lock (syncRoot)
-            {
-                if (!categoryToLogger.TryGetValue((string)categoryName, out var logger))
-                {
-                    logger = CreateLogger((string)categoryName, tags:tags, logFilter: logFilter, isLogEnabledFunc: isLogEnabledFunc);
-
-                    categoryToLogger.Add((string)categoryName, logger);
-                }
-
-                return logger;
-            }
-        }
-
-        /// <inheritdoc/>
-        public INeonLogger GetLogger(string categoryName = null, IEnumerable<KeyValuePair<string, object>> tags = null, Func<LogEvent, bool> logFilter = null, Func<bool> isLogEnabledFunc = null)
-        {
-            return InternalGetLogger(categoryName, tags, logFilter, isLogEnabledFunc);
-        }
-
-        /// <inheritdoc/>
-        public INeonLogger GetLogger(Type type, IEnumerable<KeyValuePair<string, object>> tags = null, Func<LogEvent, bool> logFilter = null, Func<bool> isLogEnabledFunc = null)
-        {
-            return InternalGetLogger(type.FullName, tags, logFilter, isLogEnabledFunc);
-        }
-
-        /// <inheritdoc/>
-        public INeonLogger GetLogger<T>(IEnumerable<KeyValuePair<string, object>> tags = null, Func<LogEvent, bool> logFilter = null, Func<bool> isLogEnabledFunc = null)
-        {
-            return InternalGetLogger(typeof(T).FullName, tags, logFilter, isLogEnabledFunc);
-        }
-
-        //---------------------------------------------------------------------
-        // ILoggerProvider implementation
-
-        /// <inheritdoc/>
-        public void Dispose()
-        {
-            Dispose(true);
-        }
-
-        /// <summary>
-        /// Releases all associated resources.
-        /// </summary>
-        /// <param name="disposing">Pass <c>true</c> if we're disposing, <c>false</c> if we're finalizing.</param>
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                GC.SuppressFinalize(this);
-            }
-        }
-
-        /// <summary>
-        /// Creates a logger.
-        /// </summary>
-        /// <param name="categoryName">
-        /// Optionally identifies the event source category.  This is typically used 
-        /// for identifying the event source.
-        /// </param>
-        /// <returns>The created <see cref="ILogger"/>.</returns>
-        public ILogger CreateLogger(string categoryName)
-        {
-
-            return (ILogger)GetLogger(categoryName: categoryName);
         }
     }
 }

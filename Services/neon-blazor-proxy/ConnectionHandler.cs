@@ -22,7 +22,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.WebUtilities;
+
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Logging;
 
 using Neon.Common;
 using Neon.Cryptography;
@@ -61,7 +63,7 @@ namespace NeonBlazorProxy
         /// <param name="cache">The Cache.</param>
         /// <param name="cipher">The AES Cipher used to encrypt/decrypt cookies.</param>
         /// <param name="cacheOptions">The Cache options.</param>
-        /// <param name="logger">The <see cref="INeonLogger"/></param>
+        /// <param name="logger">The <see cref="ILogger"/></param>
         /// <returns></returns>
         public async Task InvokeAsync(
             HttpContext                     context,
@@ -69,7 +71,7 @@ namespace NeonBlazorProxy
             IDistributedCache               cache, 
             AesCipher                       cipher,
             DistributedCacheEntryOptions    cacheOptions,
-            INeonLogger                     logger)
+            ILogger                         logger)
         {
             await SyncContext.Clear;
 

@@ -42,42 +42,6 @@ namespace Neon.Xunit
     /// </summary>
     public class AspNetFixture : TestFixture
     {
-        //---------------------------------------------------------------------
-        // Private types
-
-        /// <summary>
-        /// Handles site logging if enabled below.
-        /// </summary>
-        private class LoggingProvider : ILoggerProvider
-        {
-            private TelemetryHub  telemetryHub;
-
-            public LoggingProvider(TextWriter logWriter, LogLevel logLevel)
-            {
-                this.telemetryHub = new TelemetryHub()
-                {
-                    LogLevel = logLevel
-                };
-            }
-
-            public ILogger CreateLogger(string categoryName)
-            {
-                return (ILogger)telemetryHub.GetLogger(categoryName);
-            }
-
-            public void Dispose()
-            {
-                if (telemetryHub != null)
-                {
-                    telemetryHub.Dispose();
-                    telemetryHub = null;
-                }
-            }
-        }
-
-        //---------------------------------------------------------------------
-        // Implementation
-
         private Action<IWebHostBuilder> hostConfigurator;
 
         /// <summary>

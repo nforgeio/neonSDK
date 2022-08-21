@@ -217,14 +217,14 @@ namespace Neon.Service
     /// to <b>info</b> when not present.  <see cref="LogLevel"/> for the possible values.
     /// </para>
     /// <para>
-    /// Note that the <see cref="Neon.Diagnostics.TelemetryHub.Default"/> log manager will
+    /// Note that the <see cref="Neon.Diagnostics.TelemetryHub"/> log manager will
     /// also be initialized with the log level when the service is running in a production
     /// environment so that logging in production works completely as expected.
     /// </para>
     /// <para>
-    /// For development environments, the <see cref="Neon.Diagnostics.TelemetryHub.Default"/>
+    /// For development environments, the <see cref="TelemetryHub"/>
     /// instance's log level will not be modified.  This means that loggers created from
-    /// <see cref="Neon.Diagnostics.TelemetryHub.Default"/> may not use the same log
+    /// <see cref="TelemetryHub"/> may not use the same log
     /// level as the service itself.  This means that library classes that create their
     /// own loggers won't honor the service log level.  This is an unfortunate consequence
     /// of running emulated services in the same process.
@@ -236,7 +236,7 @@ namespace Neon.Service
     /// set the desired log level like:
     /// </para>
     /// <code language="C#">
-    /// TelemetryHub.Default.SetLogLevel(LogLevel.Debug));
+    /// TelemetryHub.SetLogLevel(LogLevel.Debug));
     /// </code>
     /// <note>
     /// Setting the global default log level like this will impact loggers created for all
@@ -502,15 +502,18 @@ namespace Neon.Service
             AppDomain.CurrentDomain.UnhandledException +=
                 (s, a) =>
                 {
+                    // $todo(jefflill): IMPLEMENT THIS!
+#if DISABLED
                     // $hack(jefflill):
                     //
                     // We're just going to use the default logger here because the service
                     // instance hasn't been created yet.  This isn't ideal.
 
                     var exception = (Exception)a.ExceptionObject;
-                    var logger    = Neon.Diagnostics.TelemetryHub.Default.GetLogger();
+                    var logger    = Neon.Diagnostics.TelemetryHub.CreateLogger();
 
                     logger.LogCritical($"Unhandled exception [terminating={a.IsTerminating}]", exception);
+#endif
                 };
 
             isInitalized = true;
@@ -789,13 +792,17 @@ namespace Neon.Service
             // fail with a [NullReferenceException].  Note that we don't recommend
             // logging from within the constructor.
 
+            // $todo(jefflill): IMPLEMENT THIS!
+
+#if DISABLED
             var telemetryHub = new TelemetryHub(parseLogLevel: false, logFilter: logFilter);
 
             telemetryHub.ParseLogLevel(GetEnvironmentVariable("LOG_LEVEL", "info"));
 
-            Logger = telemetryHub.GetLogger();
+            Logger = telemetryHub.CreateLogger();
 
             Environment.SetLogger(Logger);
+#endif
 
             // Update the Prometheus metrics port from the service description if present.
 
@@ -1024,7 +1031,7 @@ namespace Neon.Service
         /// <summary>
         /// Returns the service's default logger.
         /// </summary>
-        public INeonLogger Logger { get; private set; }
+        public ILogger Logger { get; private set; }
 
         /// <summary>
         /// Returns the service's <see cref="ProcessTerminator"/>.  This can be used
@@ -1221,13 +1228,15 @@ namespace Neon.Service
                 Terminator.DisableProcessExit = true;
             }
 
+            // $todo(jefflill): IMPLEMENT THIS!
+#if DISABLED
             // Initialize the default log manager, when one isn't already assigned.
 
             TelemetryHub.Default = new TelemetryHub(parseLogLevel: true, logFilter: logFilter);
-            TelemetryHub.Default.ActivitySource = new ActivitySource(Name, Version);
-            TelemetryHub.Default.ParseLogLevel(GetEnvironmentVariable("LOG_LEVEL", "info"));
+            TelemetryHub.ActivitySource = new ActivitySource(Name, Version);
+            TelemetryHub.ParseLogLevel(GetEnvironmentVariable("LOG_LEVEL", "info"));
 
-            Logger = TelemetryHub.Default.GetLogger();
+            Logger = TelemetryHub.CreateLogger();
 
             if (!string.IsNullOrEmpty(Version))
             {
@@ -1237,6 +1246,7 @@ namespace Neon.Service
             {
                 Logger.LogInformation(() => $"Starting [{Name}]");
             }
+#endif
 
             // Initialize the health status paths when enabled on Linux and
             // deploy the health and ready check tools.  We'll log any

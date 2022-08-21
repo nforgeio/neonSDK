@@ -26,6 +26,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Logging;
+
 using Neon.Common;
 using Neon.Diagnostics;
 using Neon.Tasks;
@@ -67,7 +69,7 @@ namespace Neon.Tasks
         //---------------------------------------------------------------------
         // Static members
 
-        private static INeonLogger      log = TelemetryHub.Default.GetLogger<AsyncTimer>();
+        private static ILogger          logger = TelemetryHub.CreateLogger<AsyncTimer>();
 
         //---------------------------------------------------------------------
         // Instance members
@@ -297,7 +299,7 @@ namespace Neon.Tasks
                     }
                     catch (Exception e)
                     {
-                        log.LogError(e);
+                        logger.LogError(e);
                     }
 
                     if (!delayFirstTick)

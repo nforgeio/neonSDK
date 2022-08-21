@@ -31,11 +31,11 @@ namespace TestTailwind.Pages
 
         public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
 
-        private readonly ILogger<ErrorModel> _logger;
+        private readonly ILogger<ErrorModel> logger;
 
         public ErrorModel(ILogger<ErrorModel> logger)
         {
-            _logger = logger;
+            this.logger = logger;
         }
 
         public void OnGet()

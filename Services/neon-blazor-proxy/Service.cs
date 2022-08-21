@@ -31,6 +31,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 using Neon.Common;
 using Neon.Cryptography;
+using Neon.Diagnostics;
 using Neon.Service;
 
 using DnsClient;
@@ -131,7 +132,13 @@ namespace NeonBlazorProxy
                 CacheFailedResults  = Config.Dns.CacheFailedResults
             });
 
-            AesCipher = new AesCipher(GetEnvironmentVariable("COOKIE_CIPHER", AesCipher.GenerateKey(), redacted: !Logger.IsLogDebugEnabled));
+            var redact =
+#if DEBUG
+                false;
+#else
+                true;
+#endif
+            AesCipher = new AesCipher(GetEnvironmentVariable("COOKIE_CIPHER", AesCipher.GenerateKey(), redacted: redact));
 
             CurrentConnections = new HashSet<string>();
 

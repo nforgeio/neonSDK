@@ -22,6 +22,8 @@ using System.Diagnostics.Contracts;
 using System.Text;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Logging;
+
 using Neon.Common;
 using Neon.Diagnostics;
 using Neon.Time;
@@ -33,7 +35,7 @@ namespace Neon.Retry
     /// </summary>
     public abstract class RetryPolicyBase : IRetryPolicy
     {
-        private INeonLogger log;
+        private ILogger logger;
 
         /// <summary>
         /// Constructor.
@@ -47,7 +49,7 @@ namespace Neon.Retry
 
             if (!string.IsNullOrEmpty(categoryName))
             {
-                this.log = TelemetryHub.Default.GetLogger(categoryName);
+                this.logger = TelemetryHub.CreateLogger(categoryName);
             }
         }
 
@@ -87,7 +89,7 @@ namespace Neon.Retry
         {
             if (OnTransient == null)
             {
-                log?.LogWarning("Transient error", e);  // $todo(jefflill) Add transient error tag
+                logger?.LogWarning("Transient error", e);  // $todo(jefflill) Add transient error tag
             }
             else
             {
@@ -103,7 +105,7 @@ namespace Neon.Retry
                     }
                 }
 
-                log?.LogWarning("Transient Error", e);  // $todo(jefflill) Add transient error tag
+                logger?.LogWarning("Transient Error", e);  // $todo(jefflill) Add transient error tag
             }
         }
 

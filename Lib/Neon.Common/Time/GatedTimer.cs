@@ -19,6 +19,8 @@ using System;
 using System.Diagnostics.Contracts;
 using System.Threading;
 
+using Microsoft.Extensions.Logging;
+
 using Neon.Common;
 using Neon.Diagnostics;
 
@@ -37,7 +39,7 @@ namespace Neon.Time
     public class GatedTimer : IDisposable
     {
         private readonly object syncLock = new object();
-        private INeonLogger     logger   = TelemetryHub.Default.GetLogger<GatedTimer>();
+        private ILogger         logger   = TelemetryHub.CreateLogger<GatedTimer>();
 
         private Timer           timer;          // The underlying timer
         private TimeSpan        dueTime;        // Time to wait before firing the first event

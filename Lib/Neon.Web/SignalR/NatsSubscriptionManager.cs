@@ -40,13 +40,13 @@ namespace Neon.Web.SignalR
         private readonly ConcurrentDictionary<string, HubConnectionStore>   subscriptions     = new ConcurrentDictionary<string, HubConnectionStore>(StringComparer.Ordinal);
         private readonly ConcurrentDictionary<string, IAsyncSubscription>   natsSubscriptions = new ConcurrentDictionary<string, IAsyncSubscription>(StringComparer.Ordinal);
         private readonly SemaphoreSlim                                      @lock             = new SemaphoreSlim(1, 1);
-        private readonly INeonLogger                                        logger;
+        private readonly ILogger                                            logger;
 
         /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="logger"></param>
-        public NatsSubscriptionManager(INeonLogger logger)
+        public NatsSubscriptionManager(ILogger logger)
         {
             this.logger = logger;
         }

@@ -30,8 +30,10 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 using Neon.Common;
+using Neon.Diagnostics;
 using Neon.IO;
 using Neon.Net;
 using Neon.Service;
@@ -102,7 +104,7 @@ namespace TestApiService
 
             if (!int.TryParse(portVariable, out var port) || !NetHelper.IsValidPort(port))
             {
-                Logger.LogCritical($"[PORT={port}] environment variable is not valid.");
+                Logger.LogCritical(() => $"[PORT={port}] environment variable is not valid.");
                 return 1;
             }
 

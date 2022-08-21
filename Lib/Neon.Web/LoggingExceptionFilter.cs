@@ -51,7 +51,7 @@ namespace Neon.Web
         public void OnException(ExceptionContext context)
         {
             var controllerName = context.RouteData.Values["controller"];
-            var log            = TelemetryHub.Default.GetLogger("Web-" + controllerName);
+            var log            = TelemetryHub.CreateLogger("Web-" + controllerName);
 
             log.LogError(context.Exception);
         }

@@ -25,6 +25,8 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Logging;
+
 using Neon.Cadence;
 using Neon.Cadence.Internal;
 using Neon.Common;
@@ -119,7 +121,10 @@ namespace Neon.Cadence
             this.Client                    = client;
             this.IsReplaying               = isReplaying;
             this.Execution                 = new WorkflowExecution(workflowId, runId);
-            this.Logger                    = TelemetryHub.Default.GetLogger(categoryName: workflowTypeName, new KeyValuePair<string, object>[] { new KeyValuePair<string, object>("cadence.workflow-id", runId) }, logFilter: null, isLogEnabledFunc: () => !IsReplaying || Client.Settings.LogDuringReplay);
+
+            // $todo(jefflill): tag: cadence.workflow-id???
+
+            this.Logger                    = TelemetryHub.CreateLogger(categoryName: workflowTypeName, isLogEnabledFunc: () => !IsReplaying || Client.Settings.LogDuringReplay);
 
             if (client.Settings.Debug)
             {
@@ -171,7 +176,7 @@ namespace Neon.Cadence
         /// <summary>
         /// Returns the logger to be used for logging workflow related events.
         /// </summary>
-        public INeonLogger Logger { get; private set; }
+        public ILogger Logger { get; private set; }
 
         /// <summary>
         /// Returns information about the running workflow.

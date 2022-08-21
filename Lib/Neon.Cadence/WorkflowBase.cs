@@ -24,6 +24,8 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Logging;
+
 using Neon.Cadence.Internal;
 using Neon.Common;
 using Neon.Diagnostics;
@@ -150,7 +152,7 @@ namespace Neon.Cadence
         // Static members
 
         private static readonly object                                  syncLock     = new object();
-        private static INeonLogger                                      log          = TelemetryHub.Default.GetLogger<WorkflowBase>();
+        private static ILogger                                          logger       = TelemetryHub.CreateLogger<WorkflowBase>();
         private static Dictionary<WorkflowInstanceKey, WorkflowBase>    idToWorkflow = new Dictionary<WorkflowInstanceKey, WorkflowBase>();
 
         // This dictionary is used to map workflow type names to the target workflow
@@ -734,7 +736,7 @@ namespace Neon.Cadence
             }
             catch (CadenceException e)
             {
-                log.LogError(e);
+                logger.LogError(e);
 
                 await WaitForPendingWorkflowOperations(workflow);
 
@@ -745,7 +747,7 @@ namespace Neon.Cadence
             }
             catch (Exception e)
             {
-                log.LogError(e);
+                logger.LogError(e);
 
                 await WaitForPendingWorkflowOperations(workflow);
 
@@ -882,7 +884,7 @@ namespace Neon.Cadence
             }
             catch (Exception e)
             {
-                log.LogError(e);
+                logger.LogError(e);
 
                 return new WorkflowSignalInvokeReply()
                 {
@@ -1023,7 +1025,7 @@ namespace Neon.Cadence
                                     }
                                     else
                                     {
-                                        log.LogError(exception);
+                                        logger.LogError(exception);
 
                                         syncSignalStatus.Error = SyncSignalException.GetError(exception);
                                     }
@@ -1063,7 +1065,7 @@ namespace Neon.Cadence
             }
             catch (Exception e)
             {
-                log.LogError(e);
+                logger.LogError(e);
 
                 return new WorkflowSignalInvokeReply()
                 {
@@ -1200,7 +1202,7 @@ namespace Neon.Cadence
             }
             catch (Exception e)
             {
-                log.LogError(e);
+                logger.LogError(e);
 
                 return new WorkflowQueryInvokeReply()
                 {
@@ -1264,7 +1266,7 @@ namespace Neon.Cadence
             }
             catch (Exception e)
             {
-                log.LogError(e);
+                logger.LogError(e);
 
                 return new ActivityInvokeLocalReply()
                 {

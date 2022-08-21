@@ -32,6 +32,7 @@ using Neon.Cadence;
 using Neon.Cadence.Internal;
 using Neon.Common;
 using Neon.Data;
+using Neon.Diagnostics;
 using Neon.IO;
 using Neon.Net;
 using Neon.Retry;
@@ -41,6 +42,7 @@ using Neon.Xunit.Cadence;
 
 using Test.Neon.Models.Cadence;
 
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Xunit;
 

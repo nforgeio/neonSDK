@@ -62,7 +62,7 @@ try
     $env:GOOS   = "windows"
     $env:GOARCH = "amd64"
 
-    go build -o "$outputPath\cwf-args.exe" . >> "$logPath" 2>&1
+    go build -o "$outputPath\cwf-args.exe" . # >> "$logPath" 2>&1
     ThrowOnExitCode
 
     Write-Output "Build success" >> "$logPath" 2>&1
