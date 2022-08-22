@@ -51,7 +51,7 @@ namespace Neon.Diagnostics
                 // tags passed to the existing tags so new tags with the same names will override
                 // the existing tags.
 
-                var newTags = new LogTags(loggerWithTags.Tags);
+                var newTags = new LogTags(loggerWithTags.LoggerTags);
 
                 foreach (var tag in tags.Tags)
                 {

@@ -130,7 +130,17 @@ namespace Neon.Diagnostics
         }
 
         /// <summary>
-        /// Used internall to add a tag to the collection.
+        /// Used internally to add a tag item to the collection.
+        /// </summary>
+        /// <param name="item">Tag item.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void AddInternal(KeyValuePair<string, object> item)
+        {
+            this.Tags.Add(item);
+        }
+
+        /// <summary>
+        /// Used internally to add a tag to the collection.
         /// </summary>
         /// <param name="key">Tag key.</param>
         /// <param name="value">Tag value.</param>
