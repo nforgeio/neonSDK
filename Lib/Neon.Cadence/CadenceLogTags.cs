@@ -51,8 +51,23 @@ namespace Neon.Cadence
         public const string ActivityId = $"{Prefix}activity-id";
 
         /// <summary>
+        /// <b>string value:</b> Used the identify the activity type name.
+        /// </summary>
+        public const string ActivityTypeName = $"{Prefix}activity-type-name";
+
+        /// <summary>
+        /// <b>bool value:</b> Used to indicate that the activvity is local.
+        /// </summary>
+        public const string ActivityIsLocal = $"{Prefix}activity-is-local";
+
+        /// <summary>
         /// <b>string value:</b> Used to identify the current workflow via its workflow ID.
         /// </summary>
         public const string WorkflowId = $"{Prefix}workflow-id";
+
+        /// <summary>
+        /// <b>string value:</b> Used the identify the workflow type name.
+        /// </summary>
+        public const string WorkflowTypeName = $"{Prefix}workflow-type-name";
     }
 }

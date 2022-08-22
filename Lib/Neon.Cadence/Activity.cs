@@ -52,9 +52,15 @@ namespace Neon.Cadence
 
             this.parent = parent;
 
-            // $todo(jefflill): tag: cadence.activity-id???
+            // We're going to include some tags in every event logged by the workflow.
 
-            this.Logger = TelemetryHub.CreateLogger(categoryName: Client.Settings.ClientIdentity);
+            var tags = new LogTags();
+
+            tags.Add(CadenceLogTags.ActivityId, parent.ActivityTask.ActivityId);
+            tags.Add(CadenceLogTags.ActivityTypeName, parent.ActivityTask.ActivityTypeName);
+            tags.Add(CadenceLogTags.ActivityIsLocal, parent.IsLocal);
+
+            this.Logger = TelemetryHub.CreateLogger(categoryName: Client.Settings.ClientIdentity, tags: tags, nullLogger: !Client.Settings.LogDuringReplay);
         }
 
         /// <summary>

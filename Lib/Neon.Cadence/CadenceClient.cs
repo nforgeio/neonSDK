@@ -1580,8 +1580,8 @@ namespace Neon.Cadence
             }
 
             DataConverter      = new JsonDataConverter();
-            cadenceLogger      = TelemetryHub.CreateLogger("cadence", isLogEnabledFunc: () => Settings.LogCadence);
-            cadenceProxyLogger = TelemetryHub.CreateLogger("cadence-proxy", isLogEnabledFunc: () => Settings.LogCadenceProxy);
+            cadenceLogger      = TelemetryHub.CreateLogger("cadence", nullLogger: Settings.LogCadence);
+            cadenceProxyLogger = TelemetryHub.CreateLogger("cadence-proxy", nullLogger: Settings.LogCadenceProxy);
 
             // Initialize a reasonable default synchronous signal query retry policy. 
 

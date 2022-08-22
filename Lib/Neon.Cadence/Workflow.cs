@@ -122,9 +122,16 @@ namespace Neon.Cadence
             this.IsReplaying               = isReplaying;
             this.Execution                 = new WorkflowExecution(workflowId, runId);
 
-            // $todo(jefflill): tag: cadence.workflow-id???
+            // We're going to include some tags in every event logged by the workflow.
 
-            this.Logger                    = TelemetryHub.CreateLogger(categoryName: workflowTypeName, isLogEnabledFunc: () => !IsReplaying || Client.Settings.LogDuringReplay);
+            var tags = new LogTags();
+
+            tags.Add(CadenceLogTags.WorkflowId, workflowId);
+            tags.Add(CadenceLogTags.WorkflowTypeName, workflowTypeName);
+
+            this.Logger = TelemetryHub.CreateLogger(categoryName: workflowTypeName, tags: tags, nullLogger: IsReplaying && !Client.Settings.LogDuringReplay);
+
+            // Hold stack traces for pending operations for debug mode.s
 
             if (client.Settings.Debug)
             {

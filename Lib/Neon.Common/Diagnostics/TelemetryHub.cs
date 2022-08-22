@@ -69,48 +69,28 @@ namespace Neon.Diagnostics
         public static ILoggerFactory LoggerFactory { private get; set; } = null;
 
         /// <summary>
-        /// <para>
         /// Returns an <see cref="ILogger"/> using the fully qualified name of the <typeparamref name="T"/>
         /// type as the logger's category name.
-        /// </para>
-        /// <note>
-        /// This returns an internal do-nothing logger when <see cref="LoggerFactory"/> is <c>null</c>.
-        /// </note>
         /// </summary>
         /// <typeparam name="T">Identifies the type whose fully-qualified name is to be used as the logger's category name.</typeparam>
-        /// <param name="isLogEnabledFunc">Optionally specifies a function that controls whether a do-nothing logger should be returned.</param>
+        /// <param name="tags">Optionally specifies tags to be included in every event logged.</param>
+        /// <param name="nullLogger">Optionally specifies that a do-nothing logger should be returned.  This defaults to <c>false</c>.</param>
         /// <returns>The <see cref="ILogger"/>.</returns>
-        public static ILogger CreateLogger<T>(Func<bool> isLogEnabledFunc = null)
+        public static ILogger CreateLogger<T>(LogTags tags = null, bool nullLogger = false)
         {
-            if (isLogEnabledFunc != null && !isLogEnabledFunc())
-            {
-                return new NullLogger();
-            }
-
-            if (LoggerFactory == null)
-            {
-                return new NullLogger();
-            }
-            else
-            {
-                return LoggerFactory.CreateLogger<T>();
-            }
+            return CreateLogger(typeof(T).FullName, tags, nullLogger);
         }
 
         /// <summary>
-        /// <para>
         /// Returns an <see cref="ILogger"/> using the category name passed.
-        /// </para>
-        /// <note>
-        /// This returns an internal do-nothing logger when <see cref="LoggerFactory"/> is <c>null</c>.
-        /// </note>
         /// </summary>
         /// <param name="categoryName">Specifies the logger's category name.</param>
-        /// <param name="isLogEnabledFunc">Optionally specifies a function that controls whether a do-nothing logger should be returned.</param>
+        /// <param name="tags">Optionally specifies tags to be included in every event logged.</param>
+        /// <param name="nullLogger">Optionally specifies that a do-nothing logger should be returned.  This defaults to <c>false</c>.</param>
         /// <returns>The <see cref="ILogger"/>.</returns>
-        public static ILogger CreateLogger(string categoryName, Func<bool> isLogEnabledFunc = null)
+        public static ILogger CreateLogger(string categoryName, LogTags tags = null, bool nullLogger = false)
         {
-            if (isLogEnabledFunc != null && !isLogEnabledFunc())
+            if (nullLogger)
             {
                 return new NullLogger();
             }
@@ -123,7 +103,14 @@ namespace Neon.Diagnostics
             }
             else
             {
-                return LoggerFactory.CreateLogger(categoryName);
+                var logger = LoggerFactory.CreateLogger(categoryName); ;
+
+                if (tags != null && tags.Count > 0)
+                {
+                    logger = logger.CreateLoggerWithTags(tags);
+                }
+
+                return logger;
             }
         }
 

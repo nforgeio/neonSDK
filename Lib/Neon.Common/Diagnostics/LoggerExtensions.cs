@@ -33,8 +33,41 @@ namespace Neon.Diagnostics
     /// </summary>
     public static class LoggerExtensions
     {
+        /// <summary>
+        /// This wraps the logger passed with another logger that adds a colection of tags
+        /// to every logged event.
+        /// </summary>
+        /// <param name="logger">The logger being wrapped.</param>
+        /// <param name="tags">The tags to be included in all events logged from the wrapping logger returned.</param>
+        /// <returns>An <see cref="ILogger"/> that will include the tags in every event it logs.</returns>
+        public static ILogger CreateLoggerWithTags(this ILogger logger, LogTags tags)
+        {
+            Covenant.Requires<ArgumentNullException>(logger != null, nameof(logger));
+
+            if (logger is LoggerWithTags loggerWithTags)
+            {
+                // The logger passed is a [LoggerWithTags] so we'll create a new logger that
+                // combines the existing tags with the new ones.  Note that we're adding the
+                // tags passed to the existing tags so new tags with the same names will override
+                // the existing tags.
+
+                var newTags = new LogTags(loggerWithTags.Tags);
+
+                foreach (var tag in tags.Tags)
+                {
+                    newTags.Add(tag.Key, tag.Value);
+                }
+
+                return new LoggerWithTags(logger, newTags);
+            }
+            else
+            {
+                return new LoggerWithTags(logger, tags);
+            }
+        }
+
         //---------------------------------------------------------------------
-        // CRITICAL
+        // CRITICAL:
 
         /// <summary>
         /// Logs a critical message.
@@ -91,7 +124,7 @@ namespace Neon.Diagnostics
         }
 
         //---------------------------------------------------------------------
-        // ERROR
+        // ERROR:
 
         /// <summary>
         /// Logs an error message.
@@ -148,7 +181,7 @@ namespace Neon.Diagnostics
         }
 
         //---------------------------------------------------------------------
-        // WARNING
+        // WARNING:
 
         /// <summary>
         /// Logs a warning message.
@@ -205,7 +238,7 @@ namespace Neon.Diagnostics
         }
 
         //---------------------------------------------------------------------
-        // INFORMATION
+        // INFORMATION:
 
         /// <summary>
         /// Logs an information message.
@@ -262,7 +295,7 @@ namespace Neon.Diagnostics
         }
 
         //---------------------------------------------------------------------
-        // DEBUG
+        // DEBUG:
 
         /// <summary>
         /// Logs a debug message.
@@ -319,7 +352,7 @@ namespace Neon.Diagnostics
         }
 
         //---------------------------------------------------------------------
-        // TRACE
+        // TRACE:
 
         /// <summary>
         /// Logs a debug message.

@@ -15,15 +15,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
-
-using Microsoft.Extensions.Logging;
-
-using Neon.Common;
 
 namespace Neon.Diagnostics
 {
@@ -42,7 +38,8 @@ namespace Neon.Diagnostics
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="LogTags"/> class.
+        /// Initializes a new instance of the <see cref="LogTags"/> class by
+        /// cloning another <see cref="LogTags"/> instance.
         /// </summary>
         /// <param name="tags">Initial tags to store in the collection.</param>
         public LogTags(LogTags tags)
@@ -50,13 +47,37 @@ namespace Neon.Diagnostics
         {
             Covenant.Requires<ArgumentNullException>(tags != null, nameof(tags));
 
-            foreach (KeyValuePair<string, object> kvp in tags.Tags)
+            foreach (KeyValuePair<string, object> item in tags.Tags)
             {
-                this.AddInternal(kvp.Key, kvp.Value);
+                this.AddInternal(item.Key, item.Value);
             }
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LogTags"/> class from
+        /// a tag enumerable.
+        /// </summary>
+        /// <param name="tags">Initial tags to store in the collection.</param>
+        public LogTags(IEnumerable<KeyValuePair<string, object>> tags)
+            : this()
+        {
+            Covenant.Requires<ArgumentNullException>(tags != null, nameof(tags));
+
+            foreach (KeyValuePair<string, object> item in tags)
+            {
+                this.AddInternal(item.Key, item.Value);
+            }
+        }
+
+        /// <summary>
+        /// Returns the tag collection.
+        /// </summary>
         internal LogTagsCollection Tags { get; }
+
+        /// <summary>
+        /// Returns the number of tags in the collection.
+        /// </summary>
+        public int Count => Tags.Count;
 
         /// <summary>
         /// Adds a <c>long</c> tags.
