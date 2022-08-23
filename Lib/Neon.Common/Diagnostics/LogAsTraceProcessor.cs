@@ -118,7 +118,7 @@ namespace Neon.Diagnostics
                 // Compute the number of attributes we'll be adding to the span so we can
                 // construct the array.
 
-                var spanAttributeCount = 2;     // All events will include severity and severity-number attributes
+                var spanAttributeCount = 3;     // All events will include severity and severity-number attributes
                 var message            = logRecord.FormattedMessage;
 
                 if (!string.IsNullOrEmpty(message))
@@ -136,6 +136,7 @@ namespace Neon.Diagnostics
 
                 // Add the required attributes.
 
+                attributes[nextIndex++] = new KeyValuePair<string, object>("category-name", logRecord.CategoryName);
                 attributes[nextIndex++] = new KeyValuePair<string, object>("severity", levelToSeverityName[(int)logLevel]);
                 attributes[nextIndex++] = new KeyValuePair<string, object>("severity-number", levelToSeverityName[(int)logLevel]);
 
