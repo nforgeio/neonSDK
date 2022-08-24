@@ -15,6 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using Neon.Common;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
@@ -84,6 +85,32 @@ namespace System
             var offset   = roundUp ? interval.Ticks : 0;
 
             return new DateTime(dt.Ticks + offset - delta, dt.Kind);
+        }
+
+        /// <summary>
+        /// Converts the <see cref="DateTime"/> into the number of milliseconds since the
+        /// Unix Epoc (midnight 1-1-1070 UTC).
+        /// </summary>
+        /// <param name="time">The time being converted.</param>
+        /// <returns>The Unix time in milliseconds.</returns>
+        public static long ToUnixEpochMilliseconds(this DateTime time)
+        {
+            // 1 tick is 100ns so we need to divide by 10,000 to convert to milliseconds.
+
+            return (time.ToUniversalTime().Ticks - NeonHelper.UnixEpoch.Ticks) / 10000;
+        }
+
+        /// <summary>
+        /// Converts the <see cref="DateTime"/> into the number of neonseconds since the
+        /// Unix Epoc (midnight 1-1-1070 UTC).
+        /// </summary>
+        /// <param name="time">The time being converted.</param>
+        /// <returns>The Unix time in naonseconds.</returns>
+        public static long ToUnixEpochNanoseconds(this DateTime time)
+        {
+            // 1 tick is 100ns so we need to multiply by 100 to convert to nanoseconds.
+
+            return (time.ToUniversalTime().Ticks - NeonHelper.UnixEpoch.Ticks) * 100;
         }
     }
 }

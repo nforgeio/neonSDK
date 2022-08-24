@@ -569,29 +569,5 @@ namespace TestCommon
 
             Assert.Equal(new string[] { "_ZERO", "One", "_TWO" }, NeonHelper.GetEnumNames<TestEnum_MixedAttributes>());
         }
-
-        [Fact]
-        public void ToUnixEpocMilliseconds()
-        {
-            Assert.Equal(0L, NeonHelper.ToUnixEpochMilliseconds(NeonHelper.UnixEpoch));
-            Assert.Equal(1L, NeonHelper.ToUnixEpochMilliseconds(NeonHelper.UnixEpoch + TimeSpan.FromTicks(10000)));
-            Assert.Equal(-1L, NeonHelper.ToUnixEpochMilliseconds(NeonHelper.UnixEpoch - TimeSpan.FromTicks(10000)));
-
-            var utcNow = DateTime.UtcNow;
-
-            Assert.Equal(Math.Floor((utcNow - NeonHelper.UnixEpoch).TotalMilliseconds), NeonHelper.ToUnixEpochMilliseconds(utcNow));
-        }
-
-        [Fact]
-        public void ToUnixEpocNanoseconds()
-        {
-            Assert.Equal(0L, NeonHelper.ToUnixEpochNanoseconds(NeonHelper.UnixEpoch));
-            Assert.Equal(100L, NeonHelper.ToUnixEpochNanoseconds(NeonHelper.UnixEpoch + TimeSpan.FromTicks(1)));
-            Assert.Equal(-100L, NeonHelper.ToUnixEpochNanoseconds(NeonHelper.UnixEpoch - TimeSpan.FromTicks(1)));
-
-            var utcNow = DateTime.UtcNow;
-
-            Assert.Equal(Math.Floor((double)(utcNow - NeonHelper.UnixEpoch).Ticks), NeonHelper.ToUnixEpochNanoseconds(utcNow) / 100);
-        }
     }
 }

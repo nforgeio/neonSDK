@@ -111,5 +111,29 @@ namespace TestCommon
             rounded = date.RoundToNearest(TimeSpan.FromSeconds(1)); // 2010/02/05 10:35:38.000
             Assert.Equal(new DateTime(2010, 02, 05, 10, 35, 38, 0), rounded);
         }
+
+        [Fact]
+        public void ToUnixEpocMilliseconds()
+        {
+            Assert.Equal(0L, NeonHelper.UnixEpoch.ToUnixEpochMilliseconds());
+            Assert.Equal(1L, (NeonHelper.UnixEpoch + TimeSpan.FromTicks(10000)).ToUnixEpochMilliseconds());
+            Assert.Equal(-1L, (NeonHelper.UnixEpoch - TimeSpan.FromTicks(10000)).ToUnixEpochMilliseconds());
+
+            var utcNow = DateTime.UtcNow;
+
+            Assert.Equal(Math.Floor((utcNow - NeonHelper.UnixEpoch).TotalMilliseconds), utcNow.ToUnixEpochMilliseconds());
+        }
+
+        [Fact]
+        public void ToUnixEpocNanoseconds()
+        {
+            Assert.Equal(0L, NeonHelper.UnixEpoch.ToUnixEpochNanoseconds());
+            Assert.Equal(100L, (NeonHelper.UnixEpoch + TimeSpan.FromTicks(1)).ToUnixEpochNanoseconds());
+            Assert.Equal(-100L, (NeonHelper.UnixEpoch - TimeSpan.FromTicks(1)).ToUnixEpochNanoseconds());
+
+            var utcNow = DateTime.UtcNow;
+
+            Assert.Equal(Math.Floor((double)(utcNow - NeonHelper.UnixEpoch).Ticks), utcNow.ToUnixEpochNanoseconds() / 100);
+        }
     }
 }
