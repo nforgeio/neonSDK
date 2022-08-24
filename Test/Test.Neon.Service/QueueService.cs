@@ -99,7 +99,7 @@ namespace TestNeonService
 
             if (string.IsNullOrEmpty(natsServerUri))
             {
-                Logger.LogCritical("Invalid configuration: [NATS_URI] environment variable is missing or invalid.");
+                Logger.LogCriticalEx("Invalid configuration: [NATS_URI] environment variable is missing or invalid.");
                 Exit(1);
             }
 
@@ -107,7 +107,7 @@ namespace TestNeonService
 
             if (string.IsNullOrEmpty(natsQueue))
             {
-                Logger.LogCritical("Invalid configuration: [NATS_QUEUE] environment variable is missing or invalid.");
+                Logger.LogCriticalEx("Invalid configuration: [NATS_QUEUE] environment variable is missing or invalid.");
                 Exit(1);
             }
 
@@ -187,7 +187,7 @@ namespace TestNeonService
                     }
                     else
                     {
-                        Logger.LogError("SendTaskFunc", e);
+                        Logger.LogErrorEx(e, "SendTaskFunc");
                     }
                 }
             }
@@ -211,7 +211,7 @@ namespace TestNeonService
             {
                 if (!terminating)
                 {
-                    Logger.LogError("ReceiveTaskFunc", e);
+                    Logger.LogErrorEx(e, "ReceiveTaskFunc");
                 }
             }
 

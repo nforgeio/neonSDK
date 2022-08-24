@@ -512,7 +512,7 @@ namespace Neon.Service
                     var exception = (Exception)a.ExceptionObject;
                     var logger    = Neon.Diagnostics.TelemetryHub.CreateLogger();
 
-                    logger.LogCritical($"Unhandled exception [terminating={a.IsTerminating}]", exception);
+                    Logger.LogCriticalEx(() => $"Unhandled exception [terminating={a.IsTerminating}]", exception);
 #endif
                 };
 
@@ -1021,7 +1021,7 @@ namespace Neon.Service
         public MetricsOptions MetricsOptions { get; set; } = new MetricsOptions();
 
         /// <summary>
-        /// Returns the service's default logger.
+        /// Returns the service's default Logger.
         /// </summary>
         public ILogger Logger { get; private set; }
 
@@ -1077,12 +1077,12 @@ namespace Neon.Service
                 if (newStatus == NeonServiceStatus.Unhealthy)
                 {
                     unhealthyCount.Inc();
-                    Logger.LogWarning($"[{Name}] health status: [{newStatusString}]");
+                    Logger.LogWarningEx(() => $"[{Name}] health status: [{newStatusString}]");
                 }
                 else
                 {
 
-                    Logger.LogInformation($"[{Name}] health status: [{newStatusString}]");
+                    Logger.LogInformationEx(() => $"[{Name}] health status: [{newStatusString}]");
                 }
 
                 if (healthStatusPath != null)
@@ -1232,11 +1232,11 @@ namespace Neon.Service
 
             if (!string.IsNullOrEmpty(Version))
             {
-                Logger.LogInformation(() => $"Starting [{Name}:{Version}]");
+                Logger.LogInformationEx(() => $"Starting [{Name}:{Version}]");
             }
             else
             {
-                Logger.LogInformation(() => $"Starting [{Name}]");
+                Logger.LogInformationEx(() => $"Starting [{Name}]");
             }
 #endif
 
@@ -1257,7 +1257,7 @@ namespace Neon.Service
                     healthFolder = $"/";
                 }
 
-                Logger.LogInformation(() => $"Deploying health checkers to: {healthFolder}");
+                Logger.LogInformationEx(() => $"Deploying health checkers to: {healthFolder}");
                 
                 healthStatusPath = Path.Combine(healthFolder, "health-status");
                 healthCheckPath  = Path.Combine(healthFolder, "health-check");
@@ -1320,7 +1320,7 @@ namespace Neon.Service
                     // system is read-only.  We're going to log this and disable the health
                     // status feature in this case. 
 
-                    Logger.LogError($"Cannot initialize the health folder [{healthFolder}].  The health status feature will be disabled.", e);
+                    Logger.LogErrorEx(e, () => $"Cannot initialize the health folder [{healthFolder}].  The health status feature will be disabled.");
 
                     healthFolder     = null;
                     healthStatusPath = null;
@@ -1331,11 +1331,11 @@ namespace Neon.Service
             {
                 if (healthFolder.Equals(disableHealthChecks, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    Logger.LogInformation("Built-in health check executables are disabled.");
+                    Logger.LogInformationEx("Built-in health check executables are disabled.");
                 }
                 else
                 {
-                    Logger.LogWarning("NeonService health checking is currently only supported on Linux/AMD64.");
+                    Logger.LogWarningEx("NeonService health checking is currently only supported on Linux/AMD64.");
                 }
 
                 healthFolder = null;
@@ -1466,7 +1466,7 @@ namespace Neon.Service
 
                                 default:
 
-                                    Logger.LogWarning($"Service Dependency: [{uri}] has an unsupported scheme and will be ignored.  Only HTTP, HTTPS, and TCP URIs are allowed.");
+                                    Logger.LogWarningEx(() => $"Service Dependency: [{uri}] has an unsupported scheme and will be ignored.  Only HTTP, HTTPS, and TCP URIs are allowed.");
                                     readyServices.Add(uri);     // Add the bad URI so we won't try it again.
                                     break;
                             }
@@ -1481,7 +1481,7 @@ namespace Neon.Service
             {
                 // Report the problem and exit the service.
 
-                Logger.LogError($"Service Dependency: [{notReadyUri}] is still not ready after waiting [{Dependencies.Timeout}].", notReadyException);
+                Logger.LogErrorEx(notReadyException, () => $"Service Dependency: [{notReadyUri}] is still not ready after waiting [{Dependencies.Timeout}].");
 
                 if (metricServer != null)
                 {
@@ -1533,7 +1533,7 @@ namespace Neon.Service
                     {
                         if (File.Exists(terminationMessagePath))
                         {
-                            Logger.LogInformation($"Kubernetes termination: {File.ReadAllText(terminationMessagePath)}");
+                            Logger.LogInformationEx(() => $"Kubernetes termination: {File.ReadAllText(terminationMessagePath)}");
                         }
                     }
                     catch (IOException)
@@ -1567,13 +1567,13 @@ namespace Neon.Service
                 ExitException = e;
                 ExitCode      = 1;
 
-                Logger.LogError(e);
+                Logger.LogErrorEx(e);
                 TerminateAnySidecars();
             }
 
             // Perform last rights for the service before it passes away.
 
-            Logger.LogInformation(() => $"Exiting [{Name}] with [exitcode={ExitCode}].");
+            Logger.LogInformationEx(() => $"Exiting [{Name}] with [exitcode={ExitCode}].");
 
             runtimerCts.Cancel();
             await runtimerTask;

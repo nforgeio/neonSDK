@@ -53,7 +53,7 @@ namespace Neon.Web
             var controllerName = context.RouteData.Values["controller"];
             var log            = TelemetryHub.CreateLogger("Web-" + controllerName);
 
-            log.LogError(context.Exception);
+            log.LogErrorEx(context.Exception);
         }
     }
 }

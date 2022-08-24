@@ -477,7 +477,7 @@ namespace Neon.Cadence
             }
             catch (CadenceException e)
             {
-                activity.logger.LogError(e);
+                activity.logger.LogErrorEx(e);
 
                 return new ActivityInvokeReply()
                 {
@@ -493,7 +493,7 @@ namespace Neon.Cadence
             }
             catch (Exception e)
             {
-                activity.logger.LogError(e);
+                activity.logger.LogErrorEx(e);
 
                 return new ActivityInvokeReply()
                 {
@@ -695,7 +695,7 @@ namespace Neon.Cadence
                 }
                 catch (Exception e)
                 {
-                    logger.LogError(e);
+                    logger.LogErrorEx(e);
 
                     throw;
                 }

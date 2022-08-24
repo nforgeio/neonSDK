@@ -70,8 +70,8 @@ namespace Neon.Diagnostics
         /// <summary>
         /// Actually emits logs, trying to do something reasonable various combinations of arguments.
         /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="logLevel">The log level.</param>
+        /// <param name="logger">Specifies the logger.</param>
+        /// <param name="logLevel">Specifies the log level.</param>
         /// <param name="exception">Optionally specifies an exception.</param>
         /// <param name="message">Optionally specifies a message text.</param>
         /// <param name="messageFunc">Optionally specifies a function used to retrieve the message text.</param>
@@ -170,12 +170,12 @@ namespace Neon.Diagnostics
 
                 switch (logLevel)
                 {
-                    case LogLevel.Critical:     logger.LogCritical(exception, argNames, argValues); break;
-                    case LogLevel.Error:        logger.LogError(exception, argNames, argValues); break;
-                    case LogLevel.Warning:      logger.LogWarning(exception, argNames, argValues); break;
-                    case LogLevel.Information:  logger.LogInformation(exception, argNames, argValues); break;
-                    case LogLevel.Debug:        logger.LogDebug(exception, argNames, argValues); break;
-                    case LogLevel.Trace:        logger.LogTrace(exception, argNames, argValues); break;
+                    case LogLevel.Critical:     logger.LogCritical(exception, argNames, argValues);     break;
+                    case LogLevel.Error:        logger.LogError(exception, argNames, argValues);        break;
+                    case LogLevel.Warning:      logger.LogWarning(exception, argNames, argValues);      break;
+                    case LogLevel.Information:  logger.LogInformation(exception, argNames, argValues);  break;
+                    case LogLevel.Debug:        logger.LogDebug(exception, argNames, argValues);        break;
+                    case LogLevel.Trace:        logger.LogTrace(exception, argNames, argValues);        break;
                 }
             }
             finally
@@ -203,14 +203,14 @@ namespace Neon.Diagnostics
         /// <summary>
         /// Logs a critical message.
         /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="message">The message.</param>
+        /// <param name="logger">Specifies the logger.</param>
+        /// <param name="message">Specifies the message.</param>
         /// <param name="tagSetter">Specifies an action that can be used to add tags to the event being logged.</param>
         /// <remarks>
         /// This method is intended mostly to avoid processing interpolated strings and tags
         /// when the current log level prevents any log from being emitted, for better performance.
         /// </remarks>
-        public static void LogCritical(this ILogger logger, string message, Action<LogTags> tagSetter)
+        public static void LogCriticalEx(this ILogger logger, string message, Action<LogTags> tagSetter = null)
         {
             logger.LogInternal(LogLevel.Critical, message: message, tagSetter: tagSetter);
         }
@@ -218,14 +218,14 @@ namespace Neon.Diagnostics
         /// <summary>
         /// Logs a critical message retrieved via a message function.
         /// </summary>
-        /// <param name="logger">The logger.</param>
+        /// <param name="logger">Specifies the logger.</param>
         /// <param name="messageFunc">The message function.</param>
         /// <param name="tagSetter">Optionally specifies an action that can be used to add tags to the event being logged.</param>
         /// <remarks>
         /// This method is intended mostly to avoid processing interpolated strings and tags
         /// when the current log level prevents any log from being emitted, for better performance.
         /// </remarks>
-        public static void LogCritical(this ILogger logger, Func<string> messageFunc, Action<LogTags> tagSetter = null)
+        public static void LogCriticalEx(this ILogger logger, Func<string> messageFunc, Action<LogTags> tagSetter = null)
         {
             logger.LogInternal(LogLevel.Critical, messageFunc: messageFunc, tagSetter: tagSetter);
         }
@@ -233,48 +233,33 @@ namespace Neon.Diagnostics
         /// <summary>
         /// Logs a critical exception.
         /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="exception">The exception.</param>
+        /// <param name="logger">Specifies the logger.</param>
+        /// <param name="exception">Specifies the exception.</param>
+        /// <param name="message">Optionally specifies the event message.</param>
         /// <param name="tagSetter">Optionally specifies an action that can be used to add tags to the event being logged.</param>
         /// <remarks>
         /// This method is intended mostly to avoid processing tags when the current 
         /// log level prevents any log from being emitted, for better performance.
         /// </remarks>
-        public static void LogCritical(this ILogger logger, Exception exception, Action<LogTags> tagSetter = null)
+        public static void LogCriticalEx(this ILogger logger, Exception exception, string message = null, Action<LogTags> tagSetter = null)
         {
-            logger.LogInternal(LogLevel.Critical, exception: exception, tagSetter: tagSetter);
+            logger.LogInternal(LogLevel.Critical, exception: exception, message: message, tagSetter: tagSetter);
         }
 
         /// <summary>
         /// Logs a critical exception with a message returned by a custom message function..
         /// </summary>
-        /// <param name="logger">The logger.</param>
+        /// <param name="logger">Specifies the logger.</param>
         /// <param name="exception">The exception.</param>
-        /// <param name="messageFunc">The message function.</param>
+        /// <param name="messageFunc">Specifies the message function.</param>
         /// <param name="tagSetter">Optionally specifies an action that can be used to add tags to the event being logged.</param>
         /// <remarks>
         /// This method is intended mostly to avoid processing tags when the current 
         /// log level prevents any log from being emitted, for better performance.
         /// </remarks>
-        public static void LogCritical(this ILogger logger, Exception exception, Func<string> messageFunc, Action<LogTags> tagSetter = null)
+        public static void LogCriticalEx(this ILogger logger, Exception exception, Func<string> messageFunc, Action<LogTags> tagSetter = null)
         {
             logger.LogInternal(LogLevel.Critical, exception: exception, messageFunc: messageFunc, tagSetter: tagSetter);
-        }
-
-        /// <summary>
-        /// Logs a critical exception with a message.
-        /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="exception">The exception.</param>
-        /// <param name="message">The message.</param>
-        /// <param name="tagSetter">Optionally specifies an action that can be used to add tags to the event being logged.</param>
-        /// <remarks>
-        /// This method is intended mostly to avoid processing interpolated strings and tags
-        /// when the current log level prevents any log from being emitted, for better performance.
-        /// </remarks>
-        public static void LogCritical(this ILogger logger, Exception exception, string message, Action<LogTags> tagSetter = null)
-        {
-            logger.LogInternal(LogLevel.Critical, exception: exception, message: message, tagSetter: tagSetter);
         }
 
         //---------------------------------------------------------------------
@@ -283,14 +268,14 @@ namespace Neon.Diagnostics
         /// <summary>
         /// Logs an error message.
         /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="message">The message.</param>
+        /// <param name="logger">Specifies the logger.</param>
+        /// <param name="message">Specifies message.</param>
         /// <param name="tagSetter">Specifies an action that can be used to add tags to the event being logged.</param>
         /// <remarks>
         /// This method is intended mostly to avoid processing interpolated strings and tags
         /// when the current log level prevents any log from being emitted, for better performance.
         /// </remarks>
-        public static void LogError(this ILogger logger, string message, Action<LogTags> tagSetter)
+        public static void LogErrorEx(this ILogger logger, string message, Action<LogTags> tagSetter = null)
         {
             logger.LogInternal(LogLevel.Error, message: message, tagSetter: tagSetter);
         }
@@ -298,14 +283,14 @@ namespace Neon.Diagnostics
         /// <summary>
         /// Logs an error message retrieved via a message function.
         /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="messageFunc">The message function.</param>
+        /// <param name="logger">Specifies the logger.</param>
+        /// <param name="messageFunc">Specifies message function.</param>
         /// <param name="tagSetter">Optionally specifies an action that can be used to add tags to the event being logged.</param>
         /// <remarks>
         /// This method is intended mostly to avoid processing interpolated strings and tags
         /// when the current log level prevents any log from being emitted, for better performance.
         /// </remarks>
-        public static void LogError(this ILogger logger, Func<string> messageFunc, Action<LogTags> tagSetter = null)
+        public static void LogErrorEx(this ILogger logger, Func<string> messageFunc, Action<LogTags> tagSetter = null)
         {
             logger.LogInternal(LogLevel.Error, messageFunc: messageFunc, tagSetter: tagSetter);
         }
@@ -313,48 +298,33 @@ namespace Neon.Diagnostics
         /// <summary>
         /// Logs an error exception.
         /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="exception">The exception.</param>
+        /// <param name="logger">Specifies the logger.</param>
+        /// <param name="exception">Specifies exception.</param>
+        /// <param name="message">Optionally specifies the event message.</param>
         /// <param name="tagSetter">Optionally specifies an action that can be used to add tags to the event being logged.</param>
         /// <remarks>
         /// This method is intended mostly to avoid processing tags when the current 
         /// log level prevents any log from being emitted, for better performance.
         /// </remarks>
-        public static void LogError(this ILogger logger, Exception exception, Action<LogTags> tagSetter = null)
+        public static void LogErrorEx(this ILogger logger, Exception exception, string message = null, Action<LogTags> tagSetter = null)
         {
-            logger.LogInternal(LogLevel.Error, exception: exception, tagSetter: tagSetter);
+            logger.LogInternal(LogLevel.Error, exception: exception, message: message, tagSetter: tagSetter);
         }
 
         /// <summary>
         /// Logs an error exception with a message returned by a custom message function..
         /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="exception">The exception.</param>
-        /// <param name="messageFunc">The message function.</param>
+        /// <param name="logger">Specifies the logger.</param>
+        /// <param name="exception">Specifies exception.</param>
+        /// <param name="messageFunc">Specifies message function.</param>
         /// <param name="tagSetter">Optionally specifies an action that can be used to add tags to the event being logged.</param>
         /// <remarks>
         /// This method is intended mostly to avoid processing tags when the current 
         /// log level prevents any log from being emitted, for better performance.
         /// </remarks>
-        public static void LogError(this ILogger logger, Exception exception, Func<string> messageFunc, Action<LogTags> tagSetter = null)
+        public static void LogErrorEx(this ILogger logger, Exception exception, Func<string> messageFunc, Action<LogTags> tagSetter = null)
         {
             logger.LogInternal(LogLevel.Error, exception: exception, messageFunc: messageFunc, tagSetter: tagSetter);
-        }
-
-        /// <summary>
-        /// Logs an error exception with a message.
-        /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="exception">The exception.</param>
-        /// <param name="message">The message.</param>
-        /// <param name="tagSetter">Optionally specifies an action that can be used to add tags to the event being logged.</param>
-        /// <remarks>
-        /// This method is intended mostly to avoid processing interpolated strings and tags
-        /// when the current log level prevents any log from being emitted, for better performance.
-        /// </remarks>
-        public static void LogError(this ILogger logger, Exception exception, string message, Action<LogTags> tagSetter = null)
-        {
-            logger.LogInternal(LogLevel.Error, exception: exception, message: message, tagSetter: tagSetter);
         }
 
         //---------------------------------------------------------------------
@@ -363,14 +333,14 @@ namespace Neon.Diagnostics
         /// <summary>
         /// Logs a warning message.
         /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="message">The message.</param>
+        /// <param name="logger">Specifies the logger.</param>
+        /// <param name="message">Specifies message.</param>
         /// <param name="tagSetter">Specifies an action that can be used to add tags to the event being logged.</param>
         /// <remarks>
         /// This method is intended mostly to avoid processing interpolated strings and tags
         /// when the current log level prevents any log from being emitted, for better performance.
         /// </remarks>
-        public static void LogWarning(this ILogger logger, string message, Action<LogTags> tagSetter)
+        public static void LogWarningEx(this ILogger logger, string message, Action<LogTags> tagSetter = null)
         {
             logger.LogInternal(LogLevel.Warning, message: message, tagSetter: tagSetter);
         }
@@ -378,14 +348,14 @@ namespace Neon.Diagnostics
         /// <summary>
         /// Logs a warning message retrieved via a message function.
         /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="messageFunc">The message function.</param>
+        /// <param name="logger">Specifies the logger.</param>
+        /// <param name="messageFunc">Specifies message function.</param>
         /// <param name="tagSetter">Optionally specifies an action that can be used to add tags to the event being logged.</param>
         /// <remarks>
         /// This method is intended mostly to avoid processing interpolated strings and tags
         /// when the current log level prevents any log from being emitted, for better performance.
         /// </remarks>
-        public static void LogWarning(this ILogger logger, Func<string> messageFunc, Action<LogTags> tagSetter = null)
+        public static void LogWarningEx(this ILogger logger, Func<string> messageFunc, Action<LogTags> tagSetter = null)
         {
             logger.LogInternal(LogLevel.Warning, messageFunc: messageFunc, tagSetter: tagSetter);
         }
@@ -393,48 +363,33 @@ namespace Neon.Diagnostics
         /// <summary>
         /// Logs a warning exception.
         /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="exception">The exception.</param>
+        /// <param name="logger">Specifies the logger.</param>
+        /// <param name="exception">Specifies exception.</param>
+        /// <param name="message">Optionally specifies the event message.</param>
         /// <param name="tagSetter">Optionally specifies an action that can be used to add tags to the event being logged.</param>
         /// <remarks>
         /// This method is intended mostly to avoid processing tags when the current 
         /// log level prevents any log from being emitted, for better performance.
         /// </remarks>
-        public static void LogWarning(this ILogger logger, Exception exception, Action<LogTags> tagSetter = null)
+        public static void LogWarningEx(this ILogger logger, Exception exception, string message = null, Action<LogTags> tagSetter = null)
         {
-            logger.LogInternal(LogLevel.Warning, exception: exception, tagSetter: tagSetter);
+            logger.LogInternal(LogLevel.Warning, exception: exception, message: message, tagSetter: tagSetter);
         }
 
         /// <summary>
         /// Logs a warning exception with a message returned by a custom message function..
         /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="exception">The exception.</param>
-        /// <param name="messageFunc">The message function.</param>
+        /// <param name="logger">Specifies the logger.</param>
+        /// <param name="exception">Specifies exception.</param>
+        /// <param name="messageFunc">Specifies message function.</param>
         /// <param name="tagSetter">Optionally specifies an action that can be used to add tags to the event being logged.</param>
         /// <remarks>
         /// This method is intended mostly to avoid processing tags when the current 
         /// log level prevents any log from being emitted, for better performance.
         /// </remarks>
-        public static void LogWarning(this ILogger logger, Exception exception, Func<string> messageFunc, Action<LogTags> tagSetter = null)
+        public static void LogWarningEx(this ILogger logger, Exception exception, Func<string> messageFunc, Action<LogTags> tagSetter = null)
         {
             logger.LogInternal(LogLevel.Warning, exception: exception, messageFunc: messageFunc, tagSetter: tagSetter);
-        }
-
-        /// <summary>
-        /// Logs a warning exception with a message.
-        /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="exception">The exception.</param>
-        /// <param name="message">The message.</param>
-        /// <param name="tagSetter">Optionally specifies an action that can be used to add tags to the event being logged.</param>
-        /// <remarks>
-        /// This method is intended mostly to avoid processing interpolated strings and tags
-        /// when the current log level prevents any log from being emitted, for better performance.
-        /// </remarks>
-        public static void LogWarning(this ILogger logger, Exception exception, string message, Action<LogTags> tagSetter = null)
-        {
-            logger.LogInternal(LogLevel.Warning, exception: exception, message: message, tagSetter: tagSetter);
         }
 
         //---------------------------------------------------------------------
@@ -443,14 +398,14 @@ namespace Neon.Diagnostics
         /// <summary>
         /// Logs an information message.
         /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="message">The message.</param>
+        /// <param name="logger">Specifies the logger.</param>
+        /// <param name="message">Specifies message.</param>
         /// <param name="tagSetter">Specifies an action that can be used to add tags to the event being logged.</param>
         /// <remarks>
         /// This method is intended mostly to avoid processing interpolated strings and tags
         /// when the current log level prevents any log from being emitted, for better performance.
         /// </remarks>
-        public static void LogInformation(this ILogger logger, string message, Action<LogTags> tagSetter)
+        public static void LogInformationEx(this ILogger logger, string message, Action<LogTags> tagSetter = null)
         {
             logger.LogInternal(LogLevel.Information, message: message, tagSetter: tagSetter);
         }
@@ -458,14 +413,14 @@ namespace Neon.Diagnostics
         /// <summary>
         /// Logs an information message retrieved via a message function.
         /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="messageFunc">The message function.</param>
+        /// <param name="logger">Specifies the logger.</param>
+        /// <param name="messageFunc">Specifies message function.</param>
         /// <param name="tagSetter">Optionally specifies an action that can be used to add tags to the event being logged.</param>
         /// <remarks>
         /// This method is intended mostly to avoid processing interpolated strings and tags
         /// when the current log level prevents any log from being emitted, for better performance.
         /// </remarks>
-        public static void LogInformation(this ILogger logger, Func<string> messageFunc, Action<LogTags> tagSetter = null)
+        public static void LogInformationEx(this ILogger logger, Func<string> messageFunc, Action<LogTags> tagSetter = null)
         {
             logger.LogInternal(LogLevel.Information, messageFunc: messageFunc, tagSetter: tagSetter);
         }
@@ -473,48 +428,33 @@ namespace Neon.Diagnostics
         /// <summary>
         /// Logs an information exception.
         /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="exception">The exception.</param>
+        /// <param name="logger">Specifies the logger.</param>
+        /// <param name="exception">Specifies exception.</param>
+        /// <param name="message">Optionally specifies the event message.</param>
         /// <param name="tagSetter">Optionally specifies an action that can be used to add tags to the event being logged.</param>
         /// <remarks>
         /// This method is intended mostly to avoid processing tags when the current 
         /// log level prevents any log from being emitted, for better performance.
         /// </remarks>
-        public static void LogInformation(this ILogger logger, Exception exception, Action<LogTags> tagSetter = null)
+        public static void LogInformationEx(this ILogger logger, Exception exception, string message = null, Action<LogTags> tagSetter = null)
         {
-            logger.LogInternal(LogLevel.Information, exception: exception, tagSetter: tagSetter);
+            logger.LogInternal(LogLevel.Information, exception: exception, message: message, tagSetter: tagSetter);
         }
 
         /// <summary>
         /// Logs a information exception with a message returned by a custom message function..
         /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="exception">The exception.</param>
-        /// <param name="messageFunc">The message function.</param>
+        /// <param name="logger">Specifies the logger.</param>
+        /// <param name="exception">Specifies exception.</param>
+        /// <param name="messageFunc">Specifies message function.</param>
         /// <param name="tagSetter">Optionally specifies an action that can be used to add tags to the event being logged.</param>
         /// <remarks>
         /// This method is intended mostly to avoid processing tags when the current 
         /// log level prevents any log from being emitted, for better performance.
         /// </remarks>
-        public static void LogInformation(this ILogger logger, Exception exception, Func<string> messageFunc, Action<LogTags> tagSetter = null)
+        public static void LogInformationEx(this ILogger logger, Exception exception, Func<string> messageFunc, Action<LogTags> tagSetter = null)
         {
             logger.LogInternal(LogLevel.Information, exception: exception, messageFunc: messageFunc, tagSetter: tagSetter);
-        }
-
-        /// <summary>
-        /// Logs a information exception with a message.
-        /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="exception">The exception.</param>
-        /// <param name="message">The message.</param>
-        /// <param name="tagSetter">Optionally specifies an action that can be used to add tags to the event being logged.</param>
-        /// <remarks>
-        /// This method is intended mostly to avoid processing interpolated strings and tags
-        /// when the current log level prevents any log from being emitted, for better performance.
-        /// </remarks>
-        public static void LogInformation(this ILogger logger, Exception exception, string message, Action<LogTags> tagSetter = null)
-        {
-            logger.LogInternal(LogLevel.Information, exception: exception, message: message, tagSetter: tagSetter);
         }
 
         //---------------------------------------------------------------------
@@ -523,14 +463,14 @@ namespace Neon.Diagnostics
         /// <summary>
         /// Logs a debug message.
         /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="message">The message.</param>
+        /// <param name="logger">Specifies the logger.</param>
+        /// <param name="message">Specifies message.</param>
         /// <param name="tagSetter">Specifies an action that can be used to add tags to the event being logged.</param>
         /// <remarks>
         /// This method is intended mostly to avoid processing interpolated strings and tags
         /// when the current log level prevents any log from being emitted, for better performance.
         /// </remarks>
-        public static void LogDebug(this ILogger logger, string message, Action<LogTags> tagSetter)
+        public static void LogDebugEx(this ILogger logger, string message, Action<LogTags> tagSetter = null)
         {
             logger.LogInternal(LogLevel.Debug, message: message, tagSetter: tagSetter);
         }
@@ -538,14 +478,14 @@ namespace Neon.Diagnostics
         /// <summary>
         /// Logs a debug message retrieved via a message function.
         /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="messageFunc">The message function.</param>
+        /// <param name="logger">Specifies the logger.</param>
+        /// <param name="messageFunc">Specifies message function.</param>
         /// <param name="tagSetter">Optionally specifies an action that can be used to add tags to the event being logged.</param>
         /// <remarks>
         /// This method is intended mostly to avoid processing interpolated strings and tags
         /// when the current log level prevents any log from being emitted, for better performance.
         /// </remarks>
-        public static void LogDebug(this ILogger logger, Func<string> messageFunc, Action<LogTags> tagSetter = null)
+        public static void LogDebugEx(this ILogger logger, Func<string> messageFunc, Action<LogTags> tagSetter = null)
         {
             logger.LogInternal(LogLevel.Debug, messageFunc: messageFunc, tagSetter: tagSetter);
         }
@@ -553,48 +493,33 @@ namespace Neon.Diagnostics
         /// <summary>
         /// Logs a debug exception.
         /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="exception">The exception.</param>
+        /// <param name="logger">Specifies the logger.</param>
+        /// <param name="exception">Specifies exception.</param>
+        /// <param name="message">Optionally specifies the event message.</param>
         /// <param name="tagSetter">Optionally specifies an action that can be used to add tags to the event being logged.</param>
         /// <remarks>
         /// This method is intended mostly to avoid processing tags when the current 
         /// log level prevents any log from being emitted, for better performance.
         /// </remarks>
-        public static void LogDebug(this ILogger logger, Exception exception, Action<LogTags> tagSetter = null)
+        public static void LogDebugEx(this ILogger logger, Exception exception, string message = null, Action<LogTags> tagSetter = null)
         {
-            logger.LogInternal(LogLevel.Debug, exception: exception, tagSetter: tagSetter);
+            logger.LogInternal(LogLevel.Debug, exception: exception, message: message, tagSetter: tagSetter);
         }
 
         /// <summary>
         /// Logs a debug exception with a message returned by a custom message function..
         /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="exception">The exception.</param>
-        /// <param name="messageFunc">The message function.</param>
+        /// <param name="logger">Specifies the logger.</param>
+        /// <param name="exception">Specifies exception.</param>
+        /// <param name="messageFunc">Specifies message function.</param>
         /// <param name="tagSetter">Optionally specifies an action that can be used to add tags to the event being logged.</param>
         /// <remarks>
         /// This method is intended mostly to avoid processing tags when the current 
         /// log level prevents any log from being emitted, for better performance.
         /// </remarks>
-        public static void LogDebug(this ILogger logger, Exception exception, Func<string> messageFunc, Action<LogTags> tagSetter = null)
+        public static void LogDebugEx(this ILogger logger, Exception exception, Func<string> messageFunc, Action<LogTags> tagSetter = null)
         {
             logger.LogInternal(LogLevel.Debug, exception: exception, messageFunc: messageFunc, tagSetter: tagSetter);
-        }
-
-        /// <summary>
-        /// Logs a debug exception with a message.
-        /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="exception">The exception.</param>
-        /// <param name="message">The message.</param>
-        /// <param name="tagSetter">Optionally specifies an action that can be used to add tags to the event being logged.</param>
-        /// <remarks>
-        /// This method is intended mostly to avoid processing interpolated strings and tags
-        /// when the current log level prevents any log from being emitted, for better performance.
-        /// </remarks>
-        public static void LogDebug(this ILogger logger, Exception exception, string message, Action<LogTags> tagSetter = null)
-        {
-            logger.LogInternal(LogLevel.Debug, exception: exception, message: message, tagSetter: tagSetter);
         }
 
         //---------------------------------------------------------------------
@@ -603,14 +528,14 @@ namespace Neon.Diagnostics
         /// <summary>
         /// Logs a trace message.
         /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="message">The message.</param>
+        /// <param name="logger">Specifies the logger.</param>
+        /// <param name="message">Specifies message.</param>
         /// <param name="tagSetter">Specifies an action that can be used to add tags to the event being logged.</param>
         /// <remarks>
         /// This method is intended mostly to avoid processing interpolated strings and tags
         /// when the current log level prevents any log from being emitted, for better performance.
         /// </remarks>
-        public static void LogTrace(this ILogger logger, string message, Action<LogTags> tagSetter)
+        public static void LogTraceEx(this ILogger logger, string message, Action<LogTags> tagSetter = null)
         {
             logger.LogInternal(LogLevel.Trace, message: message, tagSetter: tagSetter);
         }
@@ -618,14 +543,14 @@ namespace Neon.Diagnostics
         /// <summary>
         /// Logs a trace message retrieved via a message function.
         /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="messageFunc">The message function.</param>
+        /// <param name="logger">Specifies the logger.</param>
+        /// <param name="messageFunc">Specifies message function.</param>
         /// <param name="tagSetter">Optionally specifies an action that can be used to add tags to the event being logged.</param>
         /// <remarks>
         /// This method is intended mostly to avoid processing interpolated strings and tags
         /// when the current log level prevents any log from being emitted, for better performance.
         /// </remarks>
-        public static void LogTrace(this ILogger logger, Func<string> messageFunc, Action<LogTags> tagSetter = null)
+        public static void LogTraceEx(this ILogger logger, Func<string> messageFunc, Action<LogTags> tagSetter = null)
         {
             logger.LogInternal(LogLevel.Trace, messageFunc: messageFunc, tagSetter: tagSetter);
         }
@@ -633,48 +558,33 @@ namespace Neon.Diagnostics
         /// <summary>
         /// Logs a trace exception.
         /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="exception">The exception.</param>
+        /// <param name="logger">Specifies the logger.</param>
+        /// <param name="exception">Specifies exception.</param>
+        /// <param name="message">Optionally specifies the event message.</param>
         /// <param name="tagSetter">Optionally specifies an action that can be used to add tags to the event being logged.</param>
         /// <remarks>
         /// This method is intended mostly to avoid processing tags when the current 
         /// log level prevents any log from being emitted, for better performance.
         /// </remarks>
-        public static void LogTrace(this ILogger logger, Exception exception, Action<LogTags> tagSetter = null)
-        {
-            logger.LogInternal(LogLevel.Trace, exception: exception, tagSetter: tagSetter);
-        }
-        /// <summary>
-        /// Logs a trace exception with a message returned by a custom message function..
-        /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="exception">The exception.</param>
-        /// <param name="messageFunc">The message function.</param>
-        /// <param name="tagSetter">Optionally specifies an action that can be used to add tags to the event being logged.</param>
-        /// <remarks>
-        /// This method is intended mostly to avoid processing tags when the current 
-        /// log level prevents any log from being emitted, for better performance.
-        /// </remarks>
-        public static void LogTrace(this ILogger logger, Exception exception, Func<string> messageFunc, Action<LogTags> tagSetter = null)
-        {
-            logger.LogInternal(LogLevel.Trace, exception: exception, messageFunc: messageFunc, tagSetter: tagSetter);
-        }
-
-        /// <summary>
-        /// Logs a trace exception with a message.
-        /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="exception">The exception.</param>
-        /// <param name="message">The message.</param>
-        /// <param name="tagSetter">Optionally specifies an action that can be used to add tags to the event being logged.</param>
-        /// <remarks>
-        /// This method is intended mostly to avoid processing interpolated strings and tags
-        /// when the current log level prevents any log from being emitted, for better performance.
-        /// </remarks>
-        public static void LogTraceal(this ILogger logger, Exception exception, string message, Action<LogTags> tagSetter = null)
+        public static void LogTraceEx(this ILogger logger, Exception exception, string message = null, Action<LogTags> tagSetter = null)
         {
             logger.LogInternal(LogLevel.Trace, exception: exception, message: message, tagSetter: tagSetter);
         }
 
+        /// <summary>
+        /// Logs a trace exception with a message returned by a custom message function..
+        /// </summary>
+        /// <param name="logger">Specifies the logger.</param>
+        /// <param name="exception">Specifies exception.</param>
+        /// <param name="messageFunc">Specifies message function.</param>
+        /// <param name="tagSetter">Optionally specifies an action that can be used to add tags to the event being logged.</param>
+        /// <remarks>
+        /// This method is intended mostly to avoid processing tags when the current 
+        /// log level prevents any log from being emitted, for better performance.
+        /// </remarks>
+        public static void LogTraceEx(this ILogger logger, Exception exception, Func<string> messageFunc, Action<LogTags> tagSetter = null)
+        {
+            logger.LogInternal(LogLevel.Trace, exception: exception, messageFunc: messageFunc, tagSetter: tagSetter);
+        }
     }
 }

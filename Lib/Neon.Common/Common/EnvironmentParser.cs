@@ -387,7 +387,7 @@ namespace Neon.Common
         {
             if (logger != null)
             {
-                logger.LogError(() => $"[{variable}] environment variable does not exist.");
+                logger.LogErrorEx(() => $"[{variable}] environment variable does not exist.");
             }
         }
 
@@ -408,7 +408,7 @@ namespace Neon.Common
 
             if (logger != null)
             {
-                logger.LogError(() => $"[{variable}={value}]: {error}");
+                logger.LogErrorEx(() => $"[{variable}={value}]: {error}");
             }
         }
 
@@ -430,7 +430,7 @@ namespace Neon.Common
 
             if (logger != null)
             {
-                logger.LogError(() => $"[{variable}={value}]: {error}  Defaulting to [{def}].");
+                logger.LogErrorEx(() => $"[{variable}={value}]: {error}  Defaulting to [{def}].");
             }
         }
 
@@ -449,7 +449,7 @@ namespace Neon.Common
 
             if (logger != null)
             {
-                logger.LogInformation(() => $"{variable}={value}");
+                logger.LogInformationEx(() => $"{variable}={value}");
             }
         }
 

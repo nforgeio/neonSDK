@@ -736,7 +736,7 @@ namespace Neon.Cadence
             }
             catch (CadenceException e)
             {
-                logger.LogError(e);
+                logger.LogErrorEx(e);
 
                 await WaitForPendingWorkflowOperations(workflow);
 
@@ -747,7 +747,7 @@ namespace Neon.Cadence
             }
             catch (Exception e)
             {
-                logger.LogError(e);
+                logger.LogErrorEx(e);
 
                 await WaitForPendingWorkflowOperations(workflow);
 
@@ -884,7 +884,7 @@ namespace Neon.Cadence
             }
             catch (Exception e)
             {
-                logger.LogError(e);
+                logger.LogErrorEx(e);
 
                 return new WorkflowSignalInvokeReply()
                 {
@@ -1025,7 +1025,7 @@ namespace Neon.Cadence
                                     }
                                     else
                                     {
-                                        logger.LogError(exception);
+                                        logger.LogErrorEx(exception);
 
                                         syncSignalStatus.Error = SyncSignalException.GetError(exception);
                                     }
@@ -1065,7 +1065,7 @@ namespace Neon.Cadence
             }
             catch (Exception e)
             {
-                logger.LogError(e);
+                logger.LogErrorEx(e);
 
                 return new WorkflowSignalInvokeReply()
                 {
@@ -1202,7 +1202,7 @@ namespace Neon.Cadence
             }
             catch (Exception e)
             {
-                logger.LogError(e);
+                logger.LogErrorEx(e);
 
                 return new WorkflowQueryInvokeReply()
                 {
@@ -1266,7 +1266,7 @@ namespace Neon.Cadence
             }
             catch (Exception e)
             {
-                logger.LogError(e);
+                logger.LogErrorEx(e);
 
                 return new ActivityInvokeLocalReply()
                 {

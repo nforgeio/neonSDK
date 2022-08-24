@@ -27,7 +27,7 @@
         {
             try
             {
-                Activity.Logger.LogDebug("GetEmailListAsync: started");
+                Activity.Logger.LogDebugEx("GetEmailListAsync: started");
 
                 // Pretend that this activity is querying a database or REST API to
                 // obtain the email list.
@@ -43,12 +43,12 @@
             }
             catch (Exception e)
             {
-                Activity.Logger.LogError(e);
+                Activity.Logger.LogErrorEx(e);
                 throw;
             }
             finally
             {
-                Activity.Logger.LogDebug("GetEmailListAsync: finished");
+                Activity.Logger.LogDebugEx("GetEmailListAsync: finished");
             }
         }
 
@@ -56,7 +56,7 @@
         {
             try
             {
-                Activity.Logger.LogDebug("SendMessageAsync: started");
+                Activity.Logger.LogDebugEx("SendMessageAsync: started");
 
                 var smtp = new SmtpClient("mail.my-company.com");
                 var message = new MailMessage("bot@my-company.com", email);
@@ -69,12 +69,12 @@
             }
             catch (Exception e)
             {
-                Activity.Logger.LogError(e);
+                Activity.Logger.LogErrorEx(e);
                 throw;
             }
             finally
             {
-                Activity.Logger.LogDebug("SendMessageAsync: finished");
+                Activity.Logger.LogDebugEx("SendMessageAsync: finished");
             }
         }
     }
@@ -93,7 +93,7 @@
         {
             try
             {
-                Workflow.Logger.LogInformation("SendMessagesAsync: started");
+                Workflow.Logger.LogInformationEx("SendMessagesAsync: started");
 
                 var activityStub = Workflow.NewActivityStub<IEmailActivity>();
                 var emailList    = await activityStub.GetEmailListAsync();
@@ -105,12 +105,12 @@
             }
             catch (Exception e)
             {
-                Workflow.Logger.LogError(e);
+                Workflow.Logger.LogErrorEx(e);
                 throw;
             }
             finally
             {
-                Workflow.Logger.LogInformation("SendMessagesAsync: finished");
+                Workflow.Logger.LogInformationEx("SendMessagesAsync: finished");
             }
         }
     }
@@ -126,7 +126,7 @@
             TelemetryHub.ParseLogLevel("info");
 
             logger = TelemetryHub.CreateLogger("");
-            logger.LogInformation("Starting workflow service");
+            logger.LogInformationEx("Starting workflow service");
 
             try
             {
@@ -157,11 +157,11 @@
             }
             catch (Exception e)
             {
-                logger.LogError(e);
+                logger.LogErrorEx(e);
             }
             finally
             {
-                logger.LogInformation("Exiting workflow service");
+                logger.LogInformationEx("Exiting workflow service");
             }
         }
     }

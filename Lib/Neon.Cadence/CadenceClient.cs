@@ -771,11 +771,11 @@ namespace Neon.Cadence
                         {
                             if (File.Exists(binaryPath))
                             {
-                                logger.LogWarning($"[cadence-proxy] binary [{binaryPath}] already exists and is probably read-only.", e);
+                                logger.LogWarningEx(e, () => $"[cadence-proxy] binary [{binaryPath}] already exists and is probably read-only.");
                             }
                             else
                             {
-                                logger.LogWarning($"[cadence-proxy] binary [{binaryPath}] cannot be written.", e);
+                                logger.LogWarningEx(e, () => $"[cadence-proxy] binary [{binaryPath}] cannot be written.");
                             }
                         }
 
@@ -1063,12 +1063,12 @@ namespace Neon.Cadence
             }
             catch (FormatException e)
             {
-                logger.LogError(e);
+                logger.LogErrorEx(e);
                 response.StatusCode = 400;  // BadRequest
             }
             catch (Exception e)
             {
-                logger.LogError(e);
+                logger.LogErrorEx(e);
                 response.StatusCode = 500;  // InternalServerError
             }
         }
@@ -1148,12 +1148,12 @@ namespace Neon.Cadence
             }
             catch (FormatException e)
             {
-                logger.LogError(e);
+                logger.LogErrorEx(e);
                 response.StatusCode = StatusCodes.Status400BadRequest;
             }
             catch (Exception e)
             {
-                logger.LogError(e);
+                logger.LogErrorEx(e);
                 response.StatusCode = StatusCodes.Status500InternalServerError;
             }
         }
@@ -1240,7 +1240,7 @@ namespace Neon.Cadence
                 }
                 else
                 {
-                    logger.LogWarning(() => $"Reply [type={reply.Type}, requestId={reply.RequestId}] does not map to a pending operation and will be ignored.");
+                    logger.LogWarningEx(() => $"Reply [type={reply.Type}, requestId={reply.RequestId}] does not map to a pending operation and will be ignored.");
 
                     httpReply.StatusCode = 400;     // BadRequest;
                     httpReply.Message    = $"[cadence-client] does not have a pending operation with [requestId={reply.RequestId}].";
@@ -1273,32 +1273,32 @@ namespace Neon.Cadence
 
                     case LogLevel.Critical:
 
-                        cadenceLogger.LogCritical(logRequest.LogMessage);
+                        cadenceLogger.LogCriticalEx(logRequest.LogMessage);
                         break;
 
                     case LogLevel.Error:
 
-                        cadenceLogger.LogError(logRequest.LogMessage);
+                        cadenceLogger.LogErrorEx(logRequest.LogMessage);
                         break;
 
                     case LogLevel.Warning:
 
-                        cadenceLogger.LogWarning(logRequest.LogMessage);
+                        cadenceLogger.LogWarningEx(logRequest.LogMessage);
                         break;
 
                     case LogLevel.Information:
 
-                        cadenceLogger.LogInformation(logRequest.LogMessage);
+                        cadenceLogger.LogInformationEx(logRequest.LogMessage);
                         break;
 
                     case LogLevel.Debug:
 
-                        cadenceLogger.LogDebug(logRequest.LogMessage);
+                        cadenceLogger.LogDebugEx(logRequest.LogMessage);
                         break;
 
                     case LogLevel.Trace:
 
-                        cadenceLogger.LogDebug(logRequest.LogMessage);
+                        cadenceLogger.LogDebugEx(logRequest.LogMessage);
                         break;
                 }
             }
@@ -1313,32 +1313,32 @@ namespace Neon.Cadence
 
                     case LogLevel.Critical:
 
-                        cadenceProxyLogger.LogCritical(logRequest.LogMessage);
+                        cadenceProxyLogger.LogCriticalEx(logRequest.LogMessage);
                         break;
 
                     case LogLevel.Error:
 
-                        cadenceProxyLogger.LogError(logRequest.LogMessage);
+                        cadenceProxyLogger.LogErrorEx(logRequest.LogMessage);
                         break;
 
                     case LogLevel.Warning:
 
-                        cadenceProxyLogger.LogWarning(logRequest.LogMessage);
+                        cadenceProxyLogger.LogWarningEx(logRequest.LogMessage);
                         break;
 
                     case LogLevel.Information:
 
-                        cadenceProxyLogger.LogInformation(logRequest.LogMessage);
+                        cadenceProxyLogger.LogInformationEx(logRequest.LogMessage);
                         break;
 
                     case LogLevel.Debug:
 
-                        cadenceProxyLogger.LogDebug(logRequest.LogMessage);
+                        cadenceProxyLogger.LogDebugEx(logRequest.LogMessage);
                         break;
 
                     case LogLevel.Trace:
 
-                        cadenceProxyLogger.LogDebug(logRequest.LogMessage);
+                        cadenceProxyLogger.LogTraceEx(logRequest.LogMessage);
                         break;
                 }
             }
@@ -2008,7 +2008,7 @@ namespace Neon.Cadence
                 pendingException  = e;
                 closingConnection = true;
 
-                logger.LogCritical(e);
+                logger.LogCriticalEx(e);
                 throw;
             }
         }
@@ -2059,7 +2059,7 @@ namespace Neon.Cadence
                 pendingException  = e;
                 closingConnection = true;
 
-                logger.LogCritical(e);
+                logger.LogCriticalEx(e);
                 throw;
             }
         }
@@ -2098,7 +2098,7 @@ namespace Neon.Cadence
                                 }
                                 catch (Exception e)
                                 {
-                                    logger.LogError("Heartbeat check failed.  Closing Cadence connection.", e);
+                                    logger.LogErrorEx(e, "Heartbeat check failed.  Closing Cadence connection.");
 
                                     exception = new TimeoutException("[cadence-proxy] heartbeat failure.", e);
 
@@ -2119,7 +2119,7 @@ namespace Neon.Cadence
                         if (!closingConnection || !e.Contains<TaskCanceledException>())
                         {
                             exception = e;
-                            logger.LogError(e);
+                            logger.LogErrorEx(e);
                         }
                     }
 
@@ -2197,7 +2197,7 @@ namespace Neon.Cadence
                             // run in parallel rather than waiting for them to complete
                             // one-by-one.
 
-                            logger.LogWarning(() => $"Request Timeout: [request={operation.Request.GetType().Name}, started={operation.StartTimeUtc.ToString(NeonHelper.DateFormat100NsTZ)}, timeout={operation.Timeout}].");
+                            logger.LogWarningEx(() => $"Request Timeout: [request={operation.Request.GetType().Name}, started={operation.StartTimeUtc.ToString(NeonHelper.DateFormat100NsTZ)}, timeout={operation.Timeout}].");
 
                             // $todo(jefflill):
                             //
@@ -2229,7 +2229,7 @@ namespace Neon.Cadence
                 if (!closingConnection || !(e is TaskCanceledException))
                 {
                     exception = e;
-                    logger.LogError(e);
+                    logger.LogErrorEx(e);
                 }
             }
 

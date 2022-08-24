@@ -187,7 +187,7 @@ namespace Neon.Time
             }
             catch (Exception e)
             {
-                logger.LogError(e);
+                logger.LogErrorEx(e);
             }
 
             lock (syncLock)

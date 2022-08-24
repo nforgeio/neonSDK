@@ -332,7 +332,7 @@ namespace Neon.Service
                 return;     // Already terminating.
             }
 
-            logger?.LogInformation(() => $"Emulated stop request: [timeout={GracefulShutdownTimeout}]");
+            logger?.LogInformationEx(() => $"Emulated stop request: [timeout={GracefulShutdownTimeout}]");
 
             cts.Cancel();
 
@@ -349,11 +349,11 @@ namespace Neon.Service
             try
             {
                 NeonHelper.WaitFor(() => readyToExit, GracefulShutdownTimeout);
-                logger?.LogInformation(() => "Process stopped gracefully.");
+                logger?.LogInformationEx(() => "Process stopped gracefully.");
             }
             catch (TimeoutException)
             {
-                logger?.LogWarning(() => $"Process did not stop within [{GracefulShutdownTimeout}].");
+                logger?.LogWarningEx(() => $"Process did not stop within [{GracefulShutdownTimeout}].");
                 throw;
             }
         }
@@ -393,11 +393,11 @@ namespace Neon.Service
 
             if (explicitTermination)
             {
-                logger?.LogInformation(() => $"INTERNAL stop request: [timeout={GracefulShutdownTimeout}]");
+                logger?.LogInformationEx(() => $"INTERNAL stop request: [timeout={GracefulShutdownTimeout}]");
             }
             else
             {
-                logger?.LogInformation(() => $"SIGTERM received: Stopping process [timeout={GracefulShutdownTimeout}]");
+                logger?.LogInformationEx(() => $"SIGTERM received: Stopping process [timeout={GracefulShutdownTimeout}]");
             }
 
             cts.Cancel();
@@ -425,11 +425,11 @@ namespace Neon.Service
             try
             {
                 NeonHelper.WaitFor(() => readyToExit, GracefulShutdownTimeout);
-                logger?.LogInformation(() => "Process stopped gracefully.");
+                logger?.LogInformationEx(() => "Process stopped gracefully.");
             }
             catch (TimeoutException)
             {
-                logger?.LogWarning(() => $"Process did not signal a graceful stop by calling [{nameof(ReadyToExit)}()] within [{GracefulShutdownTimeout}].");
+                logger?.LogWarningEx(() => $"Process did not signal a graceful stop by calling [{nameof(ReadyToExit)}()] within [{GracefulShutdownTimeout}].");
             }
 
             if (!DisableProcessExit)

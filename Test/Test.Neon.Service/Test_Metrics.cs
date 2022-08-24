@@ -101,11 +101,11 @@ namespace TestNeonService
             {
                 var logger = TelemetryHub.CreateLogger(this.Name);
 
-                logger.LogDebug("debug event");
-                logger.LogInformation("info event");
-                logger.LogWarning("warn event");
-                logger.LogError("error event");
-                logger.LogCritical("critical event");
+                logger.LogDebugEx("debug event");
+                logger.LogInformationEx("info event");
+                logger.LogWarningEx("warn event");
+                logger.LogErrorEx("error event");
+                logger.LogCriticalEx("critical event");
 
                 // Increment the test counter.
 
@@ -176,11 +176,11 @@ namespace TestNeonService
                 
                 var logger = TelemetryHub.CreateLogger(this.Name);
 
-                logger.LogDebug("debug event");
-                logger.LogInformation("info event");
-                logger.LogWarning("warn event");
-                logger.LogError("error event");
-                logger.LogCritical("critical event");
+                logger.LogDebugEx("debug event");
+                logger.LogInformationEx("info event");
+                logger.LogWarningEx("warn event");
+                logger.LogErrorEx("error event");
+                logger.LogCriticalEx("critical event");
 
                 // Signal to the test case that the service has done its thing
                 // and is ready to exit.

@@ -559,7 +559,7 @@ namespace TestCadence
         {
             public async Task RunAsync()
             {
-                Activity.Logger.LogInformation("Hello World!");
+                Activity.Logger.LogInformationEx("Hello World!");
                 await Task.CompletedTask;
             }
         }

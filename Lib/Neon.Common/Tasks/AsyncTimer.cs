@@ -299,7 +299,7 @@ namespace Neon.Tasks
                     }
                     catch (Exception e)
                     {
-                        logger.LogError(e);
+                        logger.LogErrorEx(e);
                     }
 
                     if (!delayFirstTick)

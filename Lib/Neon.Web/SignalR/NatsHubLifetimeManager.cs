@@ -118,7 +118,7 @@ namespace Neon.Web.SignalR
 
                 nats.Flush();
 
-                logger?.LogDebug("Connected to NATS.");
+                logger?.LogDebugEx("Connected to NATS.");
             }
             finally
             {
@@ -382,7 +382,7 @@ namespace Neon.Web.SignalR
             
             await EnsureNatsServerConnection();
 
-            logger?.LogDebug($"Publishing message to NATS subject. [Subject={subject}].");
+            logger?.LogDebugEx($"Publishing message to NATS subject. [Subject={subject}].");
 
             nats.Publish(subject, payload);
         }
@@ -410,7 +410,7 @@ namespace Neon.Web.SignalR
                 {
                     await SyncContext.Clear;
 
-                    logger?.LogDebug($"Received message from NATS subject. [Subject={connectionSubject}].");
+                    logger?.LogDebugEx($"Received message from NATS subject. [Subject={connectionSubject}].");
 
                     try
                     {
@@ -421,8 +421,8 @@ namespace Neon.Web.SignalR
                     }
                     catch (Exception e)
                     {
-                        logger?.LogError(e);
-                        logger?.LogDebug($"Failed writing message. [Subject={connectionSubject}] [Connection{connection.ConnectionId}]");
+                        logger?.LogErrorEx(e);
+                        logger?.LogDebugEx($"Failed writing message. [Subject={connectionSubject}] [Connection{connection.ConnectionId}]");
                     }
                 };
 
@@ -458,7 +458,7 @@ namespace Neon.Web.SignalR
                 {
                     await SyncContext.Clear;
 
-                    logger?.LogDebug($"Received message from NATS subject. [Subject={userSubject}].");
+                    logger?.LogDebugEx($"Received message from NATS subject. [Subject={userSubject}].");
 
                     try
                     {
@@ -475,8 +475,8 @@ namespace Neon.Web.SignalR
                     }
                     catch (Exception e)
                     {
-                        logger?.LogError(e);
-                        logger?.LogDebug($"Failed writing message. [Subject={userSubject}].");
+                        logger?.LogErrorEx(e);
+                        logger?.LogDebugEx($"Failed writing message. [Subject={userSubject}].");
                     }
                 };
 
@@ -496,7 +496,7 @@ namespace Neon.Web.SignalR
             {
                 await SyncContext.Clear;
 
-                logger?.LogDebug($"Received message from NATS subject. [Subject={groupSubject}].");
+                logger?.LogDebugEx($"Received message from NATS subject. [Subject={groupSubject}].");
 
                 try
                 {
@@ -518,8 +518,8 @@ namespace Neon.Web.SignalR
                 }
                 catch (Exception e)
                 {
-                    logger?.LogError(e);
-                    logger?.LogDebug($"Failed writing message. [Subject={groupSubject}].");
+                    logger?.LogErrorEx(e);
+                    logger?.LogDebugEx($"Failed writing message. [Subject={groupSubject}].");
                 }
             };
 
@@ -579,7 +579,7 @@ namespace Neon.Web.SignalR
         {
             await SyncContext.Clear;
 
-            logger?.LogDebug($"Publishing message to NATS subject. [Subject={subjects.GroupManagement}].");
+            logger?.LogDebugEx($"Publishing message to NATS subject. [Subject={subjects.GroupManagement}].");
 
             try
             {
@@ -593,8 +593,8 @@ namespace Neon.Web.SignalR
             }
             catch (Exception e)
             {
-                logger?.LogError(e);
-                logger?.LogDebug($"Ack timed out. [Connection={connectionId}] [Group={groupName}]");
+                logger?.LogErrorEx(e);
+                logger?.LogDebugEx($"Ack timed out. [Connection={connectionId}] [Group={groupName}]");
             }
         }
 
@@ -604,13 +604,13 @@ namespace Neon.Web.SignalR
 
             await EnsureNatsServerConnection();
 
-            logger?.LogDebug($"Subscribing to subject: [Subject={subjects.All}].");
+            logger?.LogDebugEx($"Subscribing to subject: [Subject={subjects.All}].");
 
             EventHandler<MsgHandlerEventArgs> handler = async (sender, args) =>
             {
                 await SyncContext.Clear;
 
-                logger?.LogDebug($"Received message from NATS subject. [Subject={subjects.All}].");
+                logger?.LogDebugEx($"Received message from NATS subject. [Subject={subjects.All}].");
 
                 try
                 {
@@ -631,8 +631,8 @@ namespace Neon.Web.SignalR
                 }
                 catch (Exception e)
                 {
-                    logger?.LogError(e);
-                    logger?.LogDebug($"Failed writing message. [Subject={subjects.All}].");
+                    logger?.LogErrorEx(e);
+                    logger?.LogDebugEx($"Failed writing message. [Subject={subjects.All}].");
                 }
             };
 
@@ -655,13 +655,13 @@ namespace Neon.Web.SignalR
             {
                 await SyncContext.Clear;
 
-                logger?.LogDebug($"Received message from NATS subject. [Subject={subjects.GroupManagement}].");
+                logger?.LogDebugEx($"Received message from NATS subject. [Subject={subjects.GroupManagement}].");
 
                 try
                 {
                     var groupMessage = GroupCommand.Read(args.Message.Data);
+                    var connection   = hubConnections[groupMessage.ConnectionId];
 
-                    var connection = hubConnections[groupMessage.ConnectionId];
                     if (connection == null)
                     {
                         // user not on this server
@@ -686,8 +686,8 @@ namespace Neon.Web.SignalR
                 }
                 catch (Exception e)
                 {
-                    logger?.LogError(e);
-                    logger?.LogDebug($"Error processing message for internal server message. [Subject={subjects.GroupManagement}]");
+                    logger?.LogErrorEx(e);
+                    logger?.LogDebugEx($"Error processing message for internal server message. [Subject={subjects.GroupManagement}]");
                 }
             };
 

@@ -46,7 +46,10 @@ namespace TelemetryTest
             {
                 span.AddEvent("test-event");
 
-                logger.LogInformation("{tag-0}{tag-1}", "0", "1", "2", "3");
+                logger.LogInformationEx("Hello World!", tagSetter: tags => tags.Add("foo", "bar"));
+
+
+                //logger.LogInformationEx("{tag-0}{tag-1}", "0", "1", "2", "3");
             }
         }
     }

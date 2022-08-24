@@ -144,7 +144,7 @@ namespace Test.Neon.SignalR
 
             if (string.IsNullOrEmpty(NatsServerUri))
             {
-                Logger.LogCritical("Invalid configuration: [NATS_URI] environment variable is missing or invalid.");
+                Logger.LogCriticalEx("Invalid configuration: [NATS_URI] environment variable is missing or invalid.");
                 Exit(1);
             }
 

@@ -104,7 +104,7 @@ namespace TestApiService
 
             if (!int.TryParse(portVariable, out var port) || !NetHelper.IsValidPort(port))
             {
-                Logger.LogCritical(() => $"[PORT={port}] environment variable is not valid.");
+                Logger.LogCriticalEx(() => $"[PORT={port}] environment variable is not valid.");
                 return 1;
             }
 

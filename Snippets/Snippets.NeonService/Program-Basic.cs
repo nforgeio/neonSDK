@@ -75,7 +75,7 @@ namespace Service_Basic
             // Use this base class property to log things.  These will be picked up
             // automatically by Kubernetes and Docker.
 
-            Logger.LogInformation("HELLO WORLD!");
+            Logger.LogInformationEx("HELLO WORLD!");
 
             // This is where your service does its thing: like starting a webapp,
             // process data from queues, implementing a database, or whatever.
