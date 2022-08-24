@@ -20,13 +20,69 @@ using System;
 namespace Neon.Diagnostics
 {
     /// <summary>
-    /// The built-in Neon related log names.
+    /// Defines tag names used to emit log records.
     /// </summary>
     public class LogTagNames
     {
+        //---------------------------------------------------------------------
+        // These are the names we use for exporting the built-in LogRecord properties.
+
+        /// <summary>
+        /// Identifies the message body.
+        /// </summary>
+        public const string Body = "body";
+
+        /// <summary>
+        /// Identifies the event category name.
+        /// </summary>
+        public const string CategoryName = "categoryName";
+
+        /// <summary>
+        /// Identifies a related exception.
+        /// </summary>
+        public const string Exception = "exception";
+
+        /// <summary>
+        /// Identifies the event labels (also know as tags or attributes).
+        /// </summary>
+        public const string Labels = "labels";
+
+        /// <summary>
+        /// Identifies resources related to the event.
+        /// </summary>
+        public const string Resources = "resources";
+
+        /// <summary>
+        /// Identifies the event severity by OpenTelemetry secerity name.
+        /// </summary>
+        public const string Severity = "severity";
+
+        /// <summary>
+        /// Identifies the event severity by OpenTelemetry severity number.
+        /// </summary>
+        public const string SeverityNumber = "severityNumber";
+
+        /// <summary>
+        /// Identifies the current span.
+        /// </summary>
+        public const string SpanId = "spanid";
+
+        /// <summary>
+        /// Identifies the event timetamp formatted as Unix Epoc nanoseconds.
+        /// </summary>
+        public const string TsNs = "tsNs";
+
+        /// <summary>
+        /// Identifies the current trace.
+        /// </summary>
+        public const string TraceId = "traceid";
+
+        //---------------------------------------------------------------------
+        // These are tag names reserved by NeonSDK and other Neon related repositories.
+
         /// <summary>
         /// <b>bool:</b> Indicates that the log event is related to a transient error.
         /// </summary>
-        public const string IsTransient = "neon.is-transient";
+        public const string NeonTransient = "neon.transient";
     }
 }

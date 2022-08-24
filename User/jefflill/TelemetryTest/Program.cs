@@ -35,7 +35,7 @@ namespace TelemetryTest
                             options.IncludeFormattedMessage = false;
                             options.ParseStateValues = true;
                             options.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(serviceName: ServiceName, serviceVersion: ServiceVersion));
-                            options.AddConsoleExporter();
+                            options.AddConsoleJsonExporter(options => options.SingleLine = false);
                         });
                 });
 

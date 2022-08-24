@@ -110,7 +110,7 @@ namespace Neon.Retry
         {
             if (OnTransient == null)
             {
-                logger?.LogWarningEx(e, "Transient error", tags => tags.Add(LogTagNames.IsTransient, true));
+                logger?.LogWarningEx(e, "Transient error", tags => tags.Add(LogTagNames.NeonTransient, true));
             }
             else
             {
@@ -126,7 +126,7 @@ namespace Neon.Retry
                     }
                 }
 
-                logger?.LogWarningEx(e, "Transient Error", tags => tags.Add(LogTagNames.IsTransient, true));
+                logger?.LogWarningEx(e, "Transient Error", tags => tags.Add(LogTagNames.NeonTransient, true));
             }
         }
 

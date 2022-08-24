@@ -144,12 +144,12 @@ namespace Neon.Diagnostics
 
                 if (!string.IsNullOrEmpty(message))
                 {
-                    attributes[nextIndex++] = new KeyValuePair<string, object>("body", message);
+                    attributes[nextIndex++] = new KeyValuePair<string, object>(LogTagNames.Body, message);
                 }
 
                 if (logRecord.Exception != null)
                 {
-                    attributes[nextIndex++] = new KeyValuePair<string, object>("exception", NeonHelper.ExceptionError(logRecord.Exception));
+                    attributes[nextIndex++] = new KeyValuePair<string, object>(LogTagNames.Exception, logRecord.Exception);
                 }
 
                 // Add the the log record attributes.
