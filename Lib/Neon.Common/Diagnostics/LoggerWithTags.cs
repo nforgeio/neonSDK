@@ -30,9 +30,27 @@ using Neon.Common;
 namespace Neon.Diagnostics
 {
     /// <summary>
+    /// <para>
     /// Used for holding a collection of tags to be included in all logged events.
     /// This is a very convienient way to ensure that all events logged will share
     /// a common set of tags.  This comes with at a performance cost (see the remarks).
+    /// </para>
+    /// <note>
+    /// <para>
+    /// <b>IMPORTANT:</b> You must use the extended <see cref="ILogger"/> logging extensions
+    /// like <see cref="LoggerExtensions.LogInformationEx(ILogger, Func{string}, Action{LogTags})"/>
+    /// for any tags added to a <see cref="LoggerWithTags"/> instance to be included in the
+    /// log output
+    /// </para>
+    /// <para>
+    /// We recommend that developers consider switch to using our extended logging methods
+    /// from the stock .NET extensions <see cref="Microsoft.Extensions.Logging.LoggerExtensions"/>.
+    /// Not only do the NeonSDK <see cref="Neon.Diagnostics.LoggerExtensions"/> interoperate
+    /// with the <see cref="LoggerWithTags"/>, we believe our extensions are easier to use,
+    /// especially when specifying attributes.  We also have overrides that make it efficient
+    /// to use string interpolation for generating log messages.
+    /// </para>
+    /// </note>
     /// </summary>
     /// <remarks>
     /// <para>
@@ -67,9 +85,15 @@ namespace Neon.Diagnostics
         /// </summary>
         /// <param name="logger">Specifies the logger being wrapped.</param>
         /// <param name="tags">Specifies to tags to be included in events logged to the instance.</param>
+        /// <remarks>
+        /// <note>
+        /// We do not support wrapping another <see cref="LoggerWithTags"/> instance.
+        /// </note>
+        /// </remarks>
         public LoggerWithTags(ILogger logger, LogTags tags)
         {
             Covenant.Requires<ArgumentNullException>(logger != null, nameof(logger));
+            Covenant.Requires<ArgumentException>(!(logger is LoggerWithTags), $"A [{nameof(LoggerWithTags)}] cannot wrap another [{nameof(LoggerWithTags)}] instance.", nameof(logger));
             Covenant.Requires<ArgumentNullException>(tags != null, nameof(tags));
 
             this.logger = logger;

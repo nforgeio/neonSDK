@@ -26,6 +26,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.Logging;
+using Neon.Common;
 
 namespace Neon.Diagnostics
 {
@@ -131,6 +132,11 @@ namespace Neon.Diagnostics
 
                 logTags.Add("body", message);
 
+                if (message == null && messageFunc != null)
+                {
+                    message = messageFunc();
+                }
+
                 if (tagSetter != null)
                 {
                     tagSetter.Invoke(logTags);
@@ -141,6 +147,14 @@ namespace Neon.Diagnostics
 
                 tagArgs    = DiagnosticPools.GetTagArgs(logTags.Count + taggedLoggerCount);
                 sbArgNames = DiagnosticPools.GetStringBuilder();
+
+                // Generate a log message from an exception when the user didn't
+                // specify a message.
+
+                if (exception != null && message == null)
+                {
+                    message = NeonHelper.ExceptionError(exception);
+                }
 
                 // We need to generate a formatted message with the tag names
                 // and then fill the tag argument array with the tag values in
@@ -170,12 +184,12 @@ namespace Neon.Diagnostics
 
                 switch (logLevel)
                 {
-                    case LogLevel.Critical:     logger.LogCritical(exception, argNames, argValues);     break;
-                    case LogLevel.Error:        logger.LogError(exception, argNames, argValues);        break;
-                    case LogLevel.Warning:      logger.LogWarning(exception, argNames, argValues);      break;
-                    case LogLevel.Information:  logger.LogInformation(exception, argNames, argValues);  break;
-                    case LogLevel.Debug:        logger.LogDebug(exception, argNames, argValues);        break;
-                    case LogLevel.Trace:        logger.LogTrace(exception, argNames, argValues);        break;
+                    case LogLevel.Critical:     logger.LogCritical(exception, message, argNames, argValues);    break;
+                    case LogLevel.Error:        logger.LogError(exception, message, argNames, argValues);       break;
+                    case LogLevel.Warning:      logger.LogWarning(exception, message, argNames, argValues);     break;
+                    case LogLevel.Information:  logger.LogInformation(exception, message, argNames, argValues); break;
+                    case LogLevel.Debug:        logger.LogDebug(exception, message, argNames, argValues);       break;
+                    case LogLevel.Trace:        logger.LogTrace(exception, message, argNames, argValues);       break;
                 }
             }
             finally

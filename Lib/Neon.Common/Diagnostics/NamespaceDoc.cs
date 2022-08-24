@@ -46,6 +46,31 @@ namespace Neon.Diagnostics
     /// </para>
     /// <list type="table">
     /// <item>
+    ///     <term><see cref="LoggerExtensions"/></term>
+    ///     <description>
+    ///     <para>
+    ///     This namespace defines several <b><i>extended</i></b> <see cref="ILogger"/> extension methods
+    ///     whose names end with <b>"Ex"</b>, like <see cref="LoggerExtensions.LogInformationEx(ILogger, Exception, string, Action{LogTags})"/>.
+    ///     </para>
+    ///     <para>
+    ///     We recommend that developers consider switch to using our extended logging methods
+    ///     from the stock .NET extensions <see cref="Microsoft.Extensions.Logging.LoggerExtensions"/>.
+    ///     Not only do the NeonSDK <see cref="Neon.Diagnostics.LoggerExtensions"/> interoperate
+    ///     with the <see cref="LoggerWithTags"/>, we believe our extensions are easier to use,
+    ///     especially when specifying attributes.  We also have overrides that make it efficient
+    ///     to use string interpolation for generating log messages.
+    ///     </para>
+    ///     </description>
+    /// </item>
+    /// <item>
+    ///     <term><b><see cref="LoggerWithTags"/></b></term>
+    ///     <description>
+    ///     This is an extended <see cref="ILogger"/> that may include tags that will be automatically
+    ///     added to all events submitted to the logger.  Typically, you'll use the <see cref="LoggerExtensions.CreateLoggerWithTags(ILogger, LogTags)"/>
+    ///     method to construct one of these that wraps another logger.
+    ///     </description>
+    /// </item>
+    /// <item>
     ///     <term><see cref="TelemetryHub"/></term>
     ///     <description>
     ///     <para>
@@ -64,33 +89,21 @@ namespace Neon.Diagnostics
     ///     </description>
     /// </item>
     /// <item>
-    ///     <term><b></b></term>
+    ///     <term><see cref="LogAsTraceProcessor"/></term>
     ///     <description>
+    ///     This processor can be used to forward logged events to the current trace span, if there is
+    ///     one.  I understand that OpenTelemetry may convere log and trace events at somepoint in the
+    ///     future, but in the meantime, adding a <see cref="LogAsTraceProcessor"/> to your OpenTelemetry
+    ///     log pipeline is a reasonable alternative.
     ///     </description>
     /// </item>
     /// <item>
-    ///     <term><b></b></term>
+    ///     <term><see cref="Covenant"/></term>
     ///     <description>
-    ///     </description>
-    /// </item>
-    /// <item>
-    ///     <term><b></b></term>
-    ///     <description>
-    ///     </description>
-    /// </item>
-    /// <item>
-    ///     <term><b></b></term>
-    ///     <description>
-    ///     </description>
-    /// </item>
-    /// <item>
-    ///     <term><b></b></term>
-    ///     <description>
-    ///     </description>
-    /// </item>
-    /// <item>
-    ///     <term><b></b></term>
-    ///     <description>
+    ///     This is basically a clone of <see cref="System.Diagnostics.Contracts"/>.  We started using
+    ///     <see cref="System.Diagnostics.Contracts"/> years ago and liked it, but unforunately I ran
+    ///     into trouble (with building projects, I believe).  So I cloned the API and put it in the
+    ///     <see cref="System.Diagnostics"/> namespace so it would be easy access and easier to revert.
     ///     </description>
     /// </item>
     /// </list>
