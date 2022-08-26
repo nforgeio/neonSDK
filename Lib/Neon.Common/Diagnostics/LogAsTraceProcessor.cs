@@ -79,28 +79,31 @@ namespace Neon.Diagnostics
         //---------------------------------------------------------------------
         // Instance members
 
-        private LogLevel logLevel;
+        private LogAsTraceProviderOptions   options;
+        private LogLevel                    logLevel;
 
         /// <summary>
         /// Constructs a processor that forwards logged events to the current
-        /// trace as trace events.  <paramref name="logLevel"/> controls which
-        /// log events will be forwarded.  This defaults to <see cref="LogLevel.Information"/>.
+        /// trace as trace events.
         /// </summary>
-        /// <param name="logLevel">
-        /// Used to filter the log events that are forwarded.  Only events with 
-        /// log levels greater than or equal to this value will be forwarded .
+        /// <param name="options">
+        /// Optionally specifies the processor options.  This is used to filter the
+        /// events logged to as trace events by <see cref="LogLevel"/>.  This defaults
+        /// to forwarding events with log levels greater than or equal to 
+        /// <see cref="LogLevel.Information"/>.
         /// </param>
         /// <remarks>
         /// <para>
         /// All log events added as events in the current span will have their name
         /// set to <see cref="TelemetrySpanEventNames.Log"/> and will also include
         /// the log event tags but with their names prefixed by "neon.log." to avoid
-        /// conflicts with other 
+        /// conflicts with unrelated tags.
         /// </para>
         /// </remarks>
-        public LogAsTraceProcessor(LogLevel logLevel = LogLevel.Information)
+        public LogAsTraceProcessor(LogAsTraceProviderOptions options)
         {
-            this.logLevel = logLevel;
+            this.options  = options ?? new LogAsTraceProviderOptions();
+            this.logLevel = options.LogLevel;
         }
 
         /// <summary>
@@ -118,48 +121,51 @@ namespace Neon.Diagnostics
                 // Compute the number of attributes we'll be adding to the span so we can
                 // construct the array.
 
-                var spanAttributeCount = 3;     // All events will include severity and severity-number attributes
-                var message            = logRecord.FormattedMessage;
+                var spanTagCount = 3;       // All events will include severity and severity-number tags
+                var message      = logRecord.FormattedMessage;
 
                 if (!string.IsNullOrEmpty(message))
                 {
-                    spanAttributeCount++;
+                    spanTagCount++;
                 }
 
                 if (logRecord.Exception != null)
                 {
-                    spanAttributeCount++;
+                    spanTagCount++;
                 }
 
-                var attributes = new KeyValuePair<string, object>[spanAttributeCount + logRecord.StateValues.Count];
+                var tags       = new KeyValuePair<string, object>[spanTagCount + (logRecord.StateValues?.Count ?? 0)];
                 var nextIndex  = 0;
 
                 // Add the required attributes.
 
-                attributes[nextIndex++] = new KeyValuePair<string, object>("category-name", logRecord.CategoryName);
-                attributes[nextIndex++] = new KeyValuePair<string, object>("severity", levelToSeverityName[(int)logLevel]);
-                attributes[nextIndex++] = new KeyValuePair<string, object>("severity-number", levelToSeverityName[(int)logLevel]);
+                tags[nextIndex++] = new KeyValuePair<string, object>("category-name", logRecord.CategoryName);
+                tags[nextIndex++] = new KeyValuePair<string, object>("severity", levelToSeverityName[(int)logLevel]);
+                tags[nextIndex++] = new KeyValuePair<string, object>("severity-number", levelToSeverityName[(int)logLevel]);
 
                 // Add additional log record properties as attributes if present.
 
                 if (!string.IsNullOrEmpty(message))
                 {
-                    attributes[nextIndex++] = new KeyValuePair<string, object>(LogTagNames.Body, message);
+                    tags[nextIndex++] = new KeyValuePair<string, object>(LogTagNames.Body, message);
                 }
 
                 if (logRecord.Exception != null)
                 {
-                    attributes[nextIndex++] = new KeyValuePair<string, object>(LogTagNames.Exception, logRecord.Exception);
+                    tags[nextIndex++] = new KeyValuePair<string, object>(LogTagNames.Exception, logRecord.Exception);
                 }
 
                 // Add the the log record attributes.
 
-                foreach (var item in logRecord.StateValues)
+                if (logRecord.StateValues != null)
                 {
-                    attributes[nextIndex++] = item;
+                    foreach (var item in logRecord.StateValues)
+                    {
+                        tags[nextIndex++] = item;
+                    }
                 }
 
-                Tracer.CurrentSpan?.AddEvent(TelemetrySpanEventNames.Log, logRecord.Timestamp, new SpanAttributes(attributes));
+                Tracer.CurrentSpan?.AddEvent(TelemetrySpanEventNames.Log, logRecord.Timestamp, new SpanAttributes(tags));
             }
 
             base.OnEnd(logRecord);

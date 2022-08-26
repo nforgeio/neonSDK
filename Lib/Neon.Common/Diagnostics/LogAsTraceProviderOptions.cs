@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:	    BuilderExtensions.cs
+// FILE:	    LogAsTraceProviderOptions.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright (c) 2005-2022 by neonFORGE LLC.  All rights reserved.
 //
@@ -33,27 +33,27 @@ using OpenTelemetry.Trace;
 namespace Neon.Diagnostics
 {
     /// <summary>
-    /// Implements extension methods used for configuring <see cref="Neon.Diagnostics"/> related 
-    /// exporters and processors.
+    /// Specifies the options used to configure a <see cref="LogAsTraceProcessor"/>.
     /// </summary>
-    public static class BuilderExtensions
+    public class LogAsTraceProviderOptions
     {
         /// <summary>
-        /// Adds a <see cref="ConsoleJsonLogExporter"/> to a <see cref="OpenTelemetryLoggerOptions"/> instance
-        /// when configuring a OpenTelemetry pipeline.
+        /// Constructs an instance with reasonable settings.
         /// </summary>
-        /// <param name="loggerOptions"><see cref="OpenTelemetryLoggerOptions"/> options to where the exporter will be added.</param>
-        /// <param name="configure">Exporter configuration options.</param>
-        /// <returns>The <paramref name="loggerOptions"/> to enable fluent style programming.</returns>
-        public static OpenTelemetryLoggerOptions AddConsoleJsonExporter(this OpenTelemetryLoggerOptions loggerOptions, Action<ConsoleJsonLogExporterOptions> configure = null)
+        public LogAsTraceProviderOptions()
         {
-            Covenant.Requires<ArgumentNullException>(loggerOptions != null, nameof(loggerOptions));
-
-            var options = new ConsoleJsonLogExporterOptions();
-
-            configure?.Invoke(options);
-
-            return loggerOptions.AddProcessor(new SimpleLogRecordExportProcessor(new ConsoleJsonLogExporter(options)));
         }
+
+        /// <summary>
+        /// <para>
+        /// Used to filter the log events that are forwarded.  Only events with 
+        /// log levels greater than or equal to this value will be also logged
+        /// as trace events.
+        /// </para>
+        /// <para>
+        /// This defaults to <see cref="LogLevel.Information"/>.
+        /// </para>
+        /// </summary>
+        public LogLevel LogLevel { get; set; } = LogLevel.Information;
     }
 }

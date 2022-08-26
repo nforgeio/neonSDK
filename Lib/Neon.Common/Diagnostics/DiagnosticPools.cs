@@ -73,9 +73,7 @@ namespace Neon.Diagnostics
         /// </summary>
         internal const int TagArgsArrayLength = 64;
 
-        private static ObjectPool<LogTags>          tagsPool;
-        private static ObjectPool<StringBuilder>    stringBuilderPool;
-        private static ObjectPool<TagArgs>          tagArgsPool;
+        private static ObjectPool<LogTags>   tagsPool;
 
         /// <summary>
         /// Default constructor.
@@ -98,9 +96,7 @@ namespace Neon.Diagnostics
                 logPoolLimit = DefaultPoolLimit;
             }
 
-            tagsPool          = new DefaultObjectPool<LogTags>(new DefaultPooledObjectPolicy<LogTags>(), logPoolLimit);
-            stringBuilderPool = new DefaultObjectPool<StringBuilder>(new DefaultPooledObjectPolicy<StringBuilder>(), logPoolLimit);
-            tagArgsPool       = new DefaultObjectPool<TagArgs>(new DefaultPooledObjectPolicy<TagArgs>(), logPoolLimit);
+            tagsPool = new DefaultObjectPool<LogTags>(new DefaultPooledObjectPolicy<LogTags>(), logPoolLimit);
         }
 
         /// <summary>
@@ -130,85 +126,6 @@ namespace Neon.Diagnostics
         internal static void ReturnLogTags(LogTags tags)
         {
             tagsPool.Return(tags);
-        }
-
-        /// <summary>
-        /// <para>
-        /// Returns a <see cref="StringBuilder"/> instance from the underlying object pool.
-        /// </para>
-        /// <note>
-        /// Be sure to return the instance by passing it to <see cref="ReturnStringBuilder(StringBuilder)"/>
-        /// when you are finished with it.
-        /// </note>
-        /// </summary>
-        /// <returns>A <see cref="StringBuilder"/> instance.</returns>
-        internal static StringBuilder GetStringBuilder()
-        {
-            var sb = stringBuilderPool.Get();
-
-            sb.Clear();
-
-            return sb;
-        }
-
-        /// <summary>
-        /// Returns a <see cref="LogTags"/> instance obtained via <see cref="GetStringBuilder()"/>
-        /// to the underlying pool so it can be reused.
-        /// </summary>
-        /// <param name="builder">The string builder being returned to the pool.</param>
-        internal static void ReturnStringBuilder(StringBuilder builder)
-        {
-            stringBuilderPool.Return(builder);
-        }
-
-        /// <summary>
-        /// <para>
-        /// Returns a <see cref="TagArgs"/> instance from the pool including a <see cref="TagArgs.Values"/>
-        /// array with at least <paramref name="length"/> elements.
-        /// </para>
-        /// <note>
-        /// You must eventually pass the result to <see cref="ReturnTagArgs(TagArgs)"/> so that
-        /// it will be returned to the pool.
-        /// </note>
-        /// </summary>
-        /// <param name="length">The minimum length of the <see cref="TagArgs.Values"/> array to be returned.</param>
-        /// <returns>A <see cref="TagArgs"/> instance.</returns>
-        /// <remarks>
-        /// Note that the pool for this allocates argument arrays with <see cref="TagArgsArrayLength"/> elements.
-        /// This means that when <paramref name="length"/> is &lt;= <see cref="TagArgsArrayLength"/> then the
-        /// result will be retrieved from the pool.  For lengths large than this, this method allocate a new
-        /// <see cref="TagArgs"/> with the <see cref="TagArgs.Values"/> array length matching the length passed.
-        /// </remarks>
-        internal static TagArgs GetTagArgs(int length)
-        {
-            if (length > TagArgsArrayLength)
-            {
-                return new TagArgs(length);
-            }
-            else
-            {
-                // $note(jefflill):
-                //
-                // We could clear the array by setting everything to NULL here,
-                // but that's really not necessary, so we're not going to do this
-                // to improve performance.
-
-                return tagArgsPool.Get();
-            }
-        }
-
-        /// <summary>
-        /// Returns <paramref name="tagArgs"/> back to the pool as long as its <see cref="TagArgs.Values"/>
-        /// array has <see cref="TagArgsArrayLength"/> elements.  This method does nothing when the 
-        /// array length is not the same, leaving those instances to eventually be garbage collected.
-        /// </summary>
-        /// <param name="tagArgs">The arguments being returned.</param>
-        internal static void ReturnTagArgs(TagArgs tagArgs)
-        {
-            if (tagArgs.Values.Length == TagArgsArrayLength)
-            {
-                tagArgsPool.Return(tagArgs);
-            }
         }
     }
 }

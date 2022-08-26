@@ -31,16 +31,24 @@ namespace TelemetryTest
                     builder.AddOpenTelemetry(
                         options =>
                         {
-                            options.IncludeScopes = true;
-                            options.IncludeFormattedMessage = false;
                             options.ParseStateValues = true;
                             options.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(serviceName: ServiceName, serviceVersion: ServiceVersion));
+                            options.AddLogAsTraceProcessor(options => options.LogLevel = LogLevel.Information);
                             options.AddConsoleJsonExporter(options => options.SingleLine = false);
                         });
                 });
 
             var logger = loggerFactory.CreateLogger("TEST-LOGGER");
             var tracer = tracerProvider.GetTracer(ServiceName, ServiceVersion);
+
+            try
+            {
+                throw new Exception("Help Me!");
+            }
+            catch (Exception e)
+            {
+                //logger.LogError(e, "My Exception");
+            }
 
             using (var span = tracer.StartSpan("test"))
             {

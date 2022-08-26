@@ -33,7 +33,7 @@ using OpenTelemetry.Trace;
 namespace Neon.Diagnostics
 {
     /// <summary>
-    /// Specifies options used to configure a <see cref="ConsoleJsonLogExporter"/>.
+    /// Specifies the options used to configure a <see cref="ConsoleJsonLogExporter"/>.
     /// </summary>
     public class ConsoleJsonLogExporterOptions
     {
@@ -63,7 +63,7 @@ namespace Neon.Diagnostics
 
         /// <summary>
         /// <para>
-        /// Specifies whether thw log event JSON written to the console should be formatted as single 
+        /// Specifies whether the log event JSON written to the console should be formatted as single 
         /// lines of JSON (the default) or render these as indented multi-line JSON separated by
         /// a blank line.
         /// </para>
@@ -72,5 +72,17 @@ namespace Neon.Diagnostics
         /// </note>
         /// </summary>
         public bool SingleLine { get; set; } = true;
+
+        /// <summary>
+        /// Specifies whether exception stack traces should be included in logged events.
+        /// This defaults to <c>true</c>.
+        /// </summary>
+        public bool ExceptionStackTraces { get; set; } = true;
+
+        /// <summary>
+        /// Specifies whether inner exceptions should be included in logged events.
+        /// This defaults to <c>false</c>.
+        /// </summary>
+        public bool InnerExceptions { get; set; } = false;
     }
 }

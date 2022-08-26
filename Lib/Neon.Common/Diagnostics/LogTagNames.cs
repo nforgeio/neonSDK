@@ -28,9 +28,9 @@ namespace Neon.Diagnostics
         // These are the names we use for exporting the built-in LogRecord properties.
 
         /// <summary>
-        /// Identifies the message body.
+        /// Identifies the message body. 
         /// </summary>
-        public const string Body = "body";
+        public const string Body = "{body}";
 
         /// <summary>
         /// Identifies the event category name.

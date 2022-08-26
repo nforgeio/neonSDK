@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Net;
@@ -30,20 +31,11 @@ using Microsoft.Extensions.Logging;
 using Neon.Common;
 
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
  
 using OpenTelemetry;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
-
-// $todo(jefflill):
-//
-// This exporter uses NewtonSoft to render the log lines and we're allocating a ton of
-// objects to do this.  We should consider rolling our own JSON serialization code to
-// optimize this.  We could probably implement this with nearly zero allocations.
-//
-//      https://github.com/nforgeio/neonSDK/issues/23
 
 namespace Neon.Diagnostics
 {
@@ -58,19 +50,81 @@ namespace Neon.Diagnostics
     /// etc. where logs are captured from the program output.
     /// </para>
     /// </summary>
+    /// <remarks>
+    /// <para>
+    /// <b>IMPORTANT:</b> To enable the inclusion of log tags in the output JSON, you must
+    /// set <see cref="OpenTelemetryLoggerOptions.ParseStateValues"/><c>=true</c> when
+    /// configuring your OpenTelemetry options.  This is is <c>false</c> by default.
+    /// </para>
+    /// <code language="C#">
+    /// var loggerFactory = LoggerFactory.Create(
+    ///     builder =>
+    ///     {
+    ///         builder.AddOpenTelemetry(
+    ///             options =>
+    ///             {
+    ///                 options.ParseStateValues = true;    // &lt;--- SET THIS TO TRUE
+    ///                 
+    ///                 options.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(serviceName: ServiceName, serviceVersion: ServiceVersion));
+    ///                 options.AddProcessor(new LogAsTraceProcessor());
+    ///                 options.AddConsoleJsonExporter(options => options.SingleLine = false);
+    ///             });
+    ///     });
+    /// </code>
+    /// </remarks>
     public class ConsoleJsonLogExporter : BaseExporter<LogRecord>
     {
+        //---------------------------------------------------------------------
+        // Private types
+
+        /// <summary>
+        /// Used for serializing the log records to JSON.
+        /// </summary>
+        private class JsonEvent
+        {
+            [JsonProperty(PropertyName = "tsNs")]
+            public long TsNs { get; set; }
+
+            [JsonProperty(PropertyName = "severity", DefaultValueHandling = DefaultValueHandling.Ignore)]
+            [DefaultValue(null)]
+            public string Severity { get; set; }
+
+            [JsonProperty(PropertyName = "body", DefaultValueHandling = DefaultValueHandling.Ignore)]
+            [DefaultValue(null)]
+            public string Body { get; set; }
+
+            [JsonProperty(PropertyName = "categoryName", DefaultValueHandling = DefaultValueHandling.Ignore)]
+            [DefaultValue(null)]
+            public string CategoryName { get; set; }
+
+            [JsonProperty(PropertyName = "severityNumber", DefaultValueHandling = DefaultValueHandling.Ignore)]
+            [DefaultValue(-1)]
+            public int SeverityNumber { get; set; }
+
+            [JsonProperty(PropertyName = "labels", DefaultValueHandling = DefaultValueHandling.Ignore)]
+            [DefaultValue(null)]
+            public Dictionary<string, object> Labels { get; set; } = new Dictionary<string, object>();
+
+            [JsonProperty(PropertyName = "resources", DefaultValueHandling = DefaultValueHandling.Ignore)]
+            [DefaultValue(null)]
+            public Dictionary<string, object> Resources { get; set; } = new Dictionary<string, object>();
+
+            [JsonProperty(PropertyName = "spanId", DefaultValueHandling = DefaultValueHandling.Ignore)]
+            [DefaultValue(null)]
+            public string SpanId { get; set; }
+
+            [JsonProperty(PropertyName = "traceId", DefaultValueHandling = DefaultValueHandling.Ignore)]
+            [DefaultValue(null)]
+            public string TraceId { get; set; }
+        }
+
+        //---------------------------------------------------------------------
+        // Implementation
+
         private ConsoleJsonLogExporterOptions   options;
-        private JObject                         logObject;
-        private JProperty                       bodyProperty;
-        private JProperty                       categoryNameProperty;
-        private JProperty                       labelsProperty;
-        private JProperty                       resourcesProperty;
-        private JProperty                       severityProperty;
-        private JProperty                       severityNumberProperty;
-        private JProperty                       spanIdProperty;
-        private JProperty                       traceIdProperty;
-        private JProperty                       tsNsProperty;
+        private JsonEvent                       jsonRecord = new JsonEvent();
+        private Dictionary<string, object>      labels     = new Dictionary<string, object>();
+        private Dictionary<string, object>      resources  = new Dictionary<string, object>();
 
         /// <summary>
         /// Constructs a log exporter that writes log records to standard output and/or
@@ -80,40 +134,6 @@ namespace Neon.Diagnostics
         public ConsoleJsonLogExporter(ConsoleJsonLogExporterOptions options = null)
         {
             this.options = options ?? new ConsoleJsonLogExporterOptions();
-
-            // We're going to reuse a [JObject] for rendering the log record as JSON
-            // to avoid some memory allocations.  We're going to initialze this with
-            // the top-level properties that we'll always emit and save references to
-            // these, so they'll be easy to set in Export().
-
-            logObject = new JObject();
-
-            bodyProperty = new JProperty(LogTagNames.Body, new JValue(String.Empty));
-            logObject.Add(bodyProperty);
-
-            categoryNameProperty = new JProperty(LogTagNames.CategoryName, new JValue(String.Empty));
-            logObject.Add(categoryNameProperty);
-
-            labelsProperty = new JProperty(LogTagNames.Labels, new JObject());
-            logObject.Add(labelsProperty);
-
-            resourcesProperty = new JProperty(LogTagNames.Resources, new JObject());
-            logObject.Add(resourcesProperty);
-
-            severityProperty = new JProperty(LogTagNames.Severity, new JValue(String.Empty));
-            logObject.Add(severityProperty);
-
-            severityNumberProperty = new JProperty(LogTagNames.SeverityNumber, new JValue(0));
-            logObject.Add(severityNumberProperty);
-
-            spanIdProperty = new JProperty(LogTagNames.SpanId, new JValue(String.Empty));
-            logObject.Add(spanIdProperty);
-
-            traceIdProperty = new JProperty(LogTagNames.TraceId, new JValue(String.Empty));
-            logObject.Add(traceIdProperty);
-
-            tsNsProperty = new JProperty(LogTagNames.TsNs, new JValue(0L));
-            logObject.Add(tsNsProperty);
         }
 
         /// <inheritdoc/>
@@ -123,75 +143,80 @@ namespace Neon.Diagnostics
             {
                 var severityInfo = DiagnosticsHelper.GetSeverityInfo(record.LogLevel);
 
-                categoryNameProperty.Value   = new JValue(record.CategoryName);
-                severityProperty.Value       = new JValue(severityInfo.Name);
-                severityNumberProperty.Value = new JValue(severityInfo.Number);
-                spanIdProperty.Value         = record.SpanId != default ? new JValue(record.SpanId.ToHexString()) : new JValue((object)null);
-                traceIdProperty.Value        = record.TraceId != default ? new JValue(record.TraceId.ToHexString()) : new JValue((object)null);
-                tsNsProperty.Value           = new JValue(record.Timestamp.ToUnixEpochNanoseconds());
+                jsonRecord.CategoryName   = record.CategoryName;
+                jsonRecord.Severity       = severityInfo.Name;
+                jsonRecord.SeverityNumber = severityInfo.Number;
+                jsonRecord.SpanId         = record.SpanId == default ? null : record.SpanId.ToHexString();
+                jsonRecord.TraceId        = record.TraceId == default ? null : record.TraceId.ToHexString();
+                jsonRecord.TsNs           = record.Timestamp.ToUnixEpochNanoseconds();
 
-                // Clear and then set the resource properties.
+                resources.Clear();
 
-                resourcesProperty.Value = new JObject();
+                var resource = this.ParentProvider.GetResource();
 
-                // Clear and then set the label propeties.
-
-                labelsProperty.Value = new JObject();
-
-                // Make sure we clear the body property before potentially extracting the 
-                // body from the state.
-                //
-                // We're going to special case the situation where there is no "body"
-                // property in the state and use the "{OriginalFormat}" value as the
-                // body instead if it's present.  We'll see this when user use the
-                // standard MSFT ILogger extensions.
-
-                bodyProperty.Value = (JToken)null;
-
-                var originalFormat = (object)null;
-
-                foreach (var item in record.StateValues)
+                if (resource != Resource.Empty)
                 {
-                    // We're going to ignore the "{OriginalFormat}" tag because that's only
-                    // going to include the weird tag names and we explicitly set the event
-                    // body as the "body" property.
-
-                    if (item.Key == "{OriginalFormat}")
+                    foreach (var tag in resource.Attributes)
                     {
-                        originalFormat = item.Value;
-                        continue;
-                    }
-
-                    // Special case the "body" property.
-
-                    if (item.Key == LogTagNames.Body)
-                    {
-                        bodyProperty.Value = (JToken)item.Value;
-                        continue;
-                    }
-
-                    // Add all other tags to the property.
-
-                    ((JObject)labelsProperty.Value).Add(item.Key, JToken.FromObject(item.Value));
-
-                    // Handle the related resource information.
-
-                    resourcesProperty.Value = new JObject();
-
-                    var resource = this.ParentProvider.GetResource();
-
-                    if (resource != Resource.Empty)
-                    {
-                        foreach (var tag in resource.Attributes)
-                        {
-                            ((JObject)resourcesProperty.Value).Add(tag.Key, JToken.FromObject(tag.Value));
-                        }
+                        resources[tag.Key] = tag.Value;
                     }
                 }
 
-                if (bodyProperty.Value.Type == JTokenType.Null && originalFormat != null)
+                if (resources.Count > 0)
                 {
-                    bodyProperty.Value = new JValue(originalFormat);
+                    jsonRecord.Resources = resources;
+                }
+                else
+                {
+                    jsonRecord.Resources = null;
+                }
+
+                labels.Clear();
+
+                if (record.StateValues != null && record.StateValues.Count > 0)
+                {
+                    // We're going to special case the situation where there is no "body"
+                    // property in the state and use the "{OriginalFormat}" value as the
+                    // body instead if it's present.  We'll see this when user use the
+                    // standard MSFT ILogger extensions.
+
+                    var originalFormat = (object)null;
+
+                    foreach (var item in record.StateValues)
+                    {
+                        // We're going to ignore the "{OriginalFormat}" tag because that's only
+                        // going to include the weird tag names and we explicitly set the event
+                        // body as the "body" property.
+
+                        if (item.Key == "{OriginalFormat}")
+                        {
+                            originalFormat = item.Value;
+                            continue;
+                        }
+
+                        // Special case the "_body_" property.
+
+                        if (item.Key == LogTagNames.Body)
+                        {
+                            jsonRecord.Body = item.Value as string;
+                            continue;
+                        }
+
+                        // Add all other tags to the property.
+
+                        labels[item.Key] = item.Value;
+                    }
+
+                    if (string.IsNullOrEmpty(jsonRecord.Body) && originalFormat != null)
+                    {
+                        jsonRecord.Body = originalFormat as string;
+                    }
+
+                    jsonRecord.Labels = labels.Count > 0 ? labels : null;
+                }
+                else
+                {
+                    jsonRecord.Labels = null;
                 }
 
                 // Write the JSON formatted record on a single line to stdout or stderr depending
@@ -199,7 +224,7 @@ namespace Neon.Diagnostics
 
                 if (options.SingleLine)
                 {
-                    var jsonText = logObject.ToString(Formatting.None);
+                    var jsonText = JsonConvert.SerializeObject(jsonRecord, Formatting.None);
 
                     if ((int)record.LogLevel >= (int)options.StandardErrorLevel)
                     {
@@ -212,7 +237,7 @@ namespace Neon.Diagnostics
                 }
                 else
                 {
-                    var jsonText = logObject.ToString(Formatting.Indented);
+                    var jsonText = JsonConvert.SerializeObject(jsonRecord, Formatting.Indented);
 
                     if ((int)record.LogLevel >= (int)options.StandardErrorLevel)
                     {

@@ -27,6 +27,7 @@ using System.Threading.Tasks;
 
 using Microsoft.Extensions.Logging;
 using Neon.Common;
+using YamlDotNet.Core.Tokens;
 
 namespace Neon.Diagnostics
 {
@@ -96,7 +97,7 @@ namespace Neon.Diagnostics
             // that users would see in their logs.  This can be included as a "formatted message",
             // but that functionality is disabled by default.  I'm not entirely sure why MSFT
             // implemented logging like this, but I suspect that this may be just old code or
-            // perhaps this can reduce the number of memory allocations required for logging.
+            // perhaps this reduces the number of memory allocations required for logging.
             //
             // We're going to handle this by decoupling our concept of message text from MSFT's
             // concept by persisting the user's message passed as an explicit [body] tag and
@@ -122,20 +123,18 @@ namespace Neon.Diagnostics
             // to go ahead with this otherwise the C# compiler will allocate [params] arrays for
             // every call.
 
-            LogTags         logTags    = null;
-            StringBuilder   sbArgNames = null;
-            TagArgs         tagArgs    = null;
+            LogTags logTags = null;
 
             try
             {
                 logTags = DiagnosticPools.GetLogTags();
 
-                logTags.Add("body", message);
-
                 if (message == null && messageFunc != null)
                 {
                     message = messageFunc();
                 }
+
+                logTags.Add(LogTagNames.Body, message);
 
                 if (tagSetter != null)
                 {
@@ -145,9 +144,6 @@ namespace Neon.Diagnostics
                 var taggedLogger      = logger as LoggerWithTags;
                 var taggedLoggerCount = taggedLogger == null ? 0 : taggedLogger.Tags.Count;
 
-                tagArgs    = DiagnosticPools.GetTagArgs(logTags.Count + taggedLoggerCount);
-                sbArgNames = DiagnosticPools.GetStringBuilder();
-
                 // Generate a log message from an exception when the user didn't
                 // specify a message.
 
@@ -156,57 +152,19 @@ namespace Neon.Diagnostics
                     message = NeonHelper.ExceptionError(exception);
                 }
 
-                // We need to generate a formatted message with the tag names
-                // and then fill the tag argument array with the tag values in
-                // the same order.
-
-                var index = 0;
-
-                foreach (var tag in logTags.Tags)
-                {
-                    sbArgNames.Append($"{{{tag.Key}}}");
-                    tagArgs.Values[index++] = tag.Value;
-                }
-
-                if (taggedLogger != null)
-                {
-                    foreach (var tag in logTags.Tags)
-                    {
-                        sbArgNames.Append($"{{{tag.Key}}}");
-                        tagArgs.Values[index++] = tag.Value;
-                    }
-                }
-
-                var argNames  = sbArgNames.ToString();
-                var argValues = tagArgs.Values;
-
                 // Use stock [ILogger] to log the event.
 
-                switch (logLevel)
-                {
-                    case LogLevel.Critical:     logger.LogCritical(exception, message, argNames, argValues);    break;
-                    case LogLevel.Error:        logger.LogError(exception, message, argNames, argValues);       break;
-                    case LogLevel.Warning:      logger.LogWarning(exception, message, argNames, argValues);     break;
-                    case LogLevel.Information:  logger.LogInformation(exception, message, argNames, argValues); break;
-                    case LogLevel.Debug:        logger.LogDebug(exception, message, argNames, argValues);       break;
-                    case LogLevel.Trace:        logger.LogTrace(exception, message, argNames, argValues);       break;
-                }
+                logger.Log(logLevel, default(EventId), logTags.Tags, exception,
+                    (state, exception) =>
+                    {
+                        return message;
+                    });
             }
             finally
             {
                 if (logTags != null)
                 {
                     DiagnosticPools.ReturnLogTags(logTags);
-                }
-
-                if (sbArgNames != null)
-                {
-                    DiagnosticPools.ReturnStringBuilder(sbArgNames);
-                }
-
-                if (tagArgs != null)
-                {
-                    DiagnosticPools.ReturnTagArgs(tagArgs);
                 }
             }
         }
