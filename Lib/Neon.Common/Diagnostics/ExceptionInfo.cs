@@ -42,7 +42,7 @@ namespace Neon.Diagnostics
     /// <summary>
     /// Used for serializing exception information.
     /// </summary>
-    internal class ExceptionInfo
+    public class ExceptionInfo
     {
         /// <summary>
         /// The fully qualified exception name.

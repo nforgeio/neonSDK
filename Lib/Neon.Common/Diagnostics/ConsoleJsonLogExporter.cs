@@ -74,61 +74,10 @@ namespace Neon.Diagnostics
     /// </remarks>
     public class ConsoleJsonLogExporter : BaseExporter<LogRecord>
     {
-        //---------------------------------------------------------------------
-        // Private types
-
-        /// <summary>
-        /// Used for serializing the log records to JSON.
-        /// </summary>
-        private class JsonEvent
-        {
-            [JsonProperty(PropertyName = "tsNs")]
-            public long TsNs { get; set; }
-
-            [JsonProperty(PropertyName = "severity", DefaultValueHandling = DefaultValueHandling.Ignore)]
-            [DefaultValue(null)]
-            public string Severity { get; set; }
-
-            [JsonProperty(PropertyName = "body", DefaultValueHandling = DefaultValueHandling.Ignore)]
-            [DefaultValue(null)]
-            public string Body { get; set; }
-
-            [JsonProperty(PropertyName = "categoryName", DefaultValueHandling = DefaultValueHandling.Ignore)]
-            [DefaultValue(null)]
-            public string CategoryName { get; set; }
-
-            [JsonProperty(PropertyName = "severityNumber", DefaultValueHandling = DefaultValueHandling.Ignore)]
-            [DefaultValue(-1)]
-            public int SeverityNumber { get; set; }
-
-            [JsonProperty(PropertyName = "labels", DefaultValueHandling = DefaultValueHandling.Ignore)]
-            [DefaultValue(null)]
-            public Dictionary<string, object> Labels { get; set; } = new Dictionary<string, object>();
-
-            [JsonProperty(PropertyName = "resources", DefaultValueHandling = DefaultValueHandling.Ignore)]
-            [DefaultValue(null)]
-            public Dictionary<string, object> Resources { get; set; } = new Dictionary<string, object>();
-
-            [JsonProperty(PropertyName = "spanId", DefaultValueHandling = DefaultValueHandling.Ignore)]
-            [DefaultValue(null)]
-            public string SpanId { get; set; }
-
-            [JsonProperty(PropertyName = "traceId", DefaultValueHandling = DefaultValueHandling.Ignore)]
-            [DefaultValue(null)]
-            public string TraceId { get; set; }
-
-            [JsonProperty(PropertyName = "exception", DefaultValueHandling = DefaultValueHandling.Ignore)]
-            [DefaultValue(null)]
-            public ExceptionInfo Exception { get; set; }
-        }
-
-        //---------------------------------------------------------------------
-        // Implementation
-
         private ConsoleJsonLogExporterOptions   options;
-        private JsonEvent                       jsonRecord = new JsonEvent();
-        private Dictionary<string, object>      labels     = new Dictionary<string, object>();
-        private Dictionary<string, object>      resources  = new Dictionary<string, object>();
+        private LogEvent                        logEvent  = new LogEvent();
+        private Dictionary<string, object>      labels    = new Dictionary<string, object>();
+        private Dictionary<string, object>      resources = new Dictionary<string, object>();
 
         /// <summary>
         /// Constructs a log exporter that writes log records to standard output and/or
@@ -147,12 +96,12 @@ namespace Neon.Diagnostics
             {
                 var severityInfo = DiagnosticsHelper.GetSeverityInfo(record.LogLevel);
 
-                jsonRecord.CategoryName   = record.CategoryName;
-                jsonRecord.Severity       = severityInfo.Name;
-                jsonRecord.SeverityNumber = severityInfo.Number;
-                jsonRecord.SpanId         = record.SpanId == default ? null : record.SpanId.ToHexString();
-                jsonRecord.TraceId        = record.TraceId == default ? null : record.TraceId.ToHexString();
-                jsonRecord.TsNs           = record.Timestamp.ToUnixEpochNanoseconds();
+                logEvent.CategoryName   = record.CategoryName;
+                logEvent.Severity       = severityInfo.Name;
+                logEvent.SeverityNumber = severityInfo.Number;
+                logEvent.SpanId         = record.SpanId == default ? null : record.SpanId.ToHexString();
+                logEvent.TraceId        = record.TraceId == default ? null : record.TraceId.ToHexString();
+                logEvent.TsNs           = record.Timestamp.ToUnixEpochNanoseconds();
 
                 //-------------------------------------------------------------
                 // Exception information
@@ -195,11 +144,11 @@ namespace Neon.Diagnostics
                         exceptionInfo.InnerExceptions = innerExceptionList;
                     }
 
-                    jsonRecord.Exception = exceptionInfo;
+                    logEvent.Exception = exceptionInfo;
                 }
                 else
                 {
-                    jsonRecord.Exception = null;
+                    logEvent.Exception = null;
                 }
 
                 //-------------------------------------------------------------
@@ -219,11 +168,11 @@ namespace Neon.Diagnostics
 
                 if (resources.Count > 0)
                 {
-                    jsonRecord.Resources = resources;
+                    logEvent.Resources = resources;
                 }
                 else
                 {
-                    jsonRecord.Resources = null;
+                    logEvent.Resources = null;
                 }
 
                 //-------------------------------------------------------------
@@ -265,7 +214,7 @@ namespace Neon.Diagnostics
                         {
                             if (item.Key == LogTagNames.InternalBody)
                             {
-                                jsonRecord.Body = item.Value as string;
+                                logEvent.Body = item.Value as string;
                                 continue;
                             }
                         }
@@ -283,15 +232,20 @@ namespace Neon.Diagnostics
 
                     if (record.FormattedMessage != null)
                     {
-                        jsonRecord.Body = record.FormattedMessage;
+                        logEvent.Body = record.FormattedMessage;
                     }
 
-                    jsonRecord.Labels = labels.Count > 0 ? labels : null;
+                    logEvent.Labels = labels.Count > 0 ? labels : null;
                 }
                 else
                 {
-                    jsonRecord.Labels = null;
+                    logEvent.Labels = null;
                 }
+
+                //-------------------------------------------------------------
+                // Give any interceptor a chance to see and/or modify the event.
+
+                options.LogEventInterceptor?.Invoke(logEvent);
 
                 //-------------------------------------------------------------
                 // Write the JSON formatted record on a single line to STDOUT or STDERR
@@ -299,7 +253,7 @@ namespace Neon.Diagnostics
 
                 if (options.SingleLine)
                 {
-                    var jsonText = JsonConvert.SerializeObject(jsonRecord, Formatting.None);
+                    var jsonText = JsonConvert.SerializeObject(logEvent, Formatting.None);
 
                     if ((int)record.LogLevel >= (int)options.StandardErrorLevel)
                     {
@@ -312,7 +266,7 @@ namespace Neon.Diagnostics
                 }
                 else
                 {
-                    var jsonText = JsonConvert.SerializeObject(jsonRecord, Formatting.Indented);
+                    var jsonText = JsonConvert.SerializeObject(logEvent, Formatting.Indented);
 
                     if ((int)record.LogLevel >= (int)options.StandardErrorLevel)
                     {

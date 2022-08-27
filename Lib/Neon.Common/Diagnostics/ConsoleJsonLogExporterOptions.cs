@@ -84,5 +84,12 @@ namespace Neon.Diagnostics
         /// This defaults to <c>false</c>.
         /// </summary>
         public bool InnerExceptions { get; set; } = false;
+
+        /// <summary>
+        /// Used to intercept log events just before they are emitted by the exporter.  You can
+        /// use this for implementing logging related unit tests, dynamically changing event log
+        /// levels, or modifying other event properties like the timestamp, labels, tags, etc.
+        /// </summary>
+        public LogEventInterceptor LogEventInterceptor { get; set; } = null;
     }
 }
