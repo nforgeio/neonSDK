@@ -27,6 +27,7 @@ using System.Threading.Tasks;
 
 using Microsoft.Extensions.Logging;
 using Neon.Common;
+using OpenTelemetry.Trace;
 using YamlDotNet.Core.Tokens;
 
 namespace Neon.Diagnostics
@@ -129,6 +130,8 @@ namespace Neon.Diagnostics
             {
                 logTags = DiagnosticPools.GetLogTags();
 
+                // Process the event message.
+
                 if (message == null && messageFunc != null)
                 {
                     message = messageFunc();
@@ -141,9 +144,6 @@ namespace Neon.Diagnostics
                     tagSetter.Invoke(logTags);
                 }
 
-                var taggedLogger      = logger as LoggerWithTags;
-                var taggedLoggerCount = taggedLogger == null ? 0 : taggedLogger.Tags.Count;
-
                 // Generate a log message from an exception when the user didn't
                 // specify a message.
 
@@ -151,6 +151,11 @@ namespace Neon.Diagnostics
                 {
                     message = NeonHelper.ExceptionError(exception);
                 }
+
+                // Append any tags held by [LoggerWithTags] loggers.
+
+                var taggedLogger      = logger as LoggerWithTags;
+                var taggedLoggerCount = taggedLogger == null ? 0 : taggedLogger.Tags.Count;
 
                 // Use stock [ILogger] to log the event.
 

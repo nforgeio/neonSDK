@@ -114,9 +114,9 @@ namespace Neon.Diagnostics
         {
             Covenant.Requires<ArgumentNullException>(logRecord != null, nameof(logRecord));
 
-            var span = Tracer.CurrentSpan;
+            var activity = Activity.Current;
 
-            if (span != null && logRecord.LogLevel >= logLevel)
+            if (activity != null && logRecord.LogLevel >= logLevel)
             {
                 // Compute the number of attributes we'll be adding to the span so we can
                 // construct the array.
@@ -165,7 +165,21 @@ namespace Neon.Diagnostics
                     }
                 }
 
-                Tracer.CurrentSpan?.AddEvent(TelemetrySpanEventNames.Log, logRecord.Timestamp, new SpanAttributes(tags));
+                if (logRecord.StateValues != null && logRecord.StateValues.Count > 0)
+                {
+                    var activityTags = new ActivityTagsCollection();
+
+                    foreach (var tag in logRecord.StateValues)
+                    {
+                        activityTags.Add(tag);
+                    }
+
+                    activity.AddEvent(new ActivityEvent(logRecord.FormattedMessage, logRecord.Timestamp, activityTags));
+                }
+                else
+                {
+                    activity.AddEvent(new ActivityEvent(logRecord.FormattedMessage, logRecord.Timestamp));
+                }
             }
 
             base.OnEnd(logRecord);

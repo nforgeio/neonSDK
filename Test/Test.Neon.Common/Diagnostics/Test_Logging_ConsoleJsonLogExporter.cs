@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.IO;
 using System.Net;
@@ -26,7 +27,10 @@ using System.Threading.Tasks;
 
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+
+using OpenTelemetry;
 using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 
 using Neon.Common;
 using Neon.Diagnostics;
@@ -60,6 +64,11 @@ namespace TestCommon
             var interceptedStdErr = new List<string>();
             var utcNow            = DateTime.UtcNow;
 
+            using var tracerProvider = Sdk.CreateTracerProviderBuilder()
+                .AddSource(serviceName)
+                .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(serviceName: serviceName, serviceVersion: serviceVersion))
+                .Build();
+
             using var loggerFactory = LoggerFactory.Create(
                 builder =>
                 {
@@ -87,6 +96,17 @@ namespace TestCommon
                 });
 
             var logger = loggerFactory.CreateLogger(categoryName);
+
+            using var activityListener = new ActivityListener()
+            {
+                ShouldListenTo      = s => true,
+                SampleUsingParentId = (ref ActivityCreationOptions<string> activityOptions) => ActivitySamplingResult.AllData,
+                Sample              = (ref ActivityCreationOptions<ActivityContext> activityOptions) => ActivitySamplingResult.AllData
+            };
+
+            ActivitySource.AddActivityListener(activityListener);
+
+            using var activitySource = new ActivitySource("");
 
             //-----------------------------------------------------------------
             // Local method to clear intercepted stuff and other locals to
@@ -245,6 +265,28 @@ namespace TestCommon
 
             Assert.NotNull(stdErrEvent0);
             Assert.Equal("warning", stdErrEvent0.Body);
+
+            //-----------------------------------------------------------------
+            // Verify that we include the trace and span IDs when logging within
+            // a span.
+
+            Clear();
+
+            var activity = activitySource.StartActivity();
+
+            Assert.NotNull(activity);
+
+            using (activity)
+            {
+                logger.LogInformationEx("information");
+            }
+
+            Assert.NotEmpty(interceptedEvents);
+
+            logEvent = interceptedEvents.Single();
+
+            Assert.NotEmpty(logEvent.TraceId);
+            Assert.NotEmpty(logEvent.SpanId);
         }
 
         [Fact]
@@ -295,6 +337,17 @@ namespace TestCommon
                 });
 
             var logger = loggerFactory.CreateLogger(categoryName);
+
+            using var activityListener = new ActivityListener()
+            {
+                ShouldListenTo      = s => true,
+                SampleUsingParentId = (ref ActivityCreationOptions<string> activityOptions) => ActivitySamplingResult.AllData,
+                Sample              = (ref ActivityCreationOptions<ActivityContext> activityOptions) => ActivitySamplingResult.AllData
+            };
+
+            ActivitySource.AddActivityListener(activityListener);
+
+            using var activitySource = new ActivitySource("");
 
             //-----------------------------------------------------------------
             // Local method to clear intercepted stuff and other locals to
@@ -453,6 +506,28 @@ namespace TestCommon
 
             Assert.NotNull(stdErrEvent0);
             Assert.Equal("warning", stdErrEvent0.Body);
+
+            //-----------------------------------------------------------------
+            // Verify that we include the trace and span IDs when logging within
+            // a span.
+
+            Clear();
+
+            var activity = activitySource.StartActivity();
+
+            Assert.NotNull(activity);
+
+            using (activity)
+            {
+                logger.LogInformationEx("information");
+            }
+
+            Assert.NotEmpty(interceptedEvents);
+
+            logEvent = interceptedEvents.Single();
+
+            Assert.NotEmpty(logEvent.TraceId);
+            Assert.NotEmpty(logEvent.SpanId);
         }
     }
 }

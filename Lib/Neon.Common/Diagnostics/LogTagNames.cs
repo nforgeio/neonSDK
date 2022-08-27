@@ -30,10 +30,10 @@ namespace Neon.Diagnostics
         /// <summary>
         /// Identifies our internal message body. 
         /// </summary>
-        public const string InternalBody = "{body}";
+        public const string InternalBody = "{Body}";
 
         /// <summary>
-        /// Identifies MSFT logger implementation's tag that holds the message format string.
+        /// Identifies the MSFT logger implementation's tag that holds the message format string.
         /// </summary>
         public const string InternalOriginalFormat = "{OriginalFormat}";
 
