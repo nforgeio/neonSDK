@@ -24,6 +24,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
 
 namespace Neon.Diagnostics
 {
@@ -161,6 +162,15 @@ namespace Neon.Diagnostics
         public int Count => _list.Count;
 
         /// <summary>
+        /// Clears the collection.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Clear()
+        {
+            _list.Clear();
+        }
+
+        /// <summary>
         /// Adds a tag with the provided key and value to the collection.
         /// This collection doesn't allow adding two tags with the same key.
         /// </summary>
@@ -201,9 +211,6 @@ namespace Neon.Diagnostics
 
             _list.Add(item);
         }
-
-        /// <inheritdoc/>
-        public void Clear() => _list.Clear();
 
         /// <inheritdoc/>
         public bool Contains(KeyValuePair<string, object> item) => _list.Contains(item);

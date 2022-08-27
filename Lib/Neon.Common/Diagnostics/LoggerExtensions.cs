@@ -134,7 +134,7 @@ namespace Neon.Diagnostics
                     message = messageFunc();
                 }
 
-                logTags.Add(LogTagNames.Body, message);
+                logTags.Add(LogTagNames.InternalBody, message);
 
                 if (tagSetter != null)
                 {

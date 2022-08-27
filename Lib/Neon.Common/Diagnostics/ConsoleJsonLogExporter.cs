@@ -116,6 +116,10 @@ namespace Neon.Diagnostics
             [JsonProperty(PropertyName = "traceId", DefaultValueHandling = DefaultValueHandling.Ignore)]
             [DefaultValue(null)]
             public string TraceId { get; set; }
+
+            [JsonProperty(PropertyName = "exception", DefaultValueHandling = DefaultValueHandling.Ignore)]
+            [DefaultValue(null)]
+            public ExceptionInfo Exception { get; set; }
         }
 
         //---------------------------------------------------------------------
@@ -150,6 +154,57 @@ namespace Neon.Diagnostics
                 jsonRecord.TraceId        = record.TraceId == default ? null : record.TraceId.ToHexString();
                 jsonRecord.TsNs           = record.Timestamp.ToUnixEpochNanoseconds();
 
+                //-------------------------------------------------------------
+                // Exception information
+
+                if (record.Exception != null)
+                {
+                    var exception     = record.Exception;
+                    var exceptionInfo = DiagnosticPools.GetExceptionInfo();
+
+                    exceptionInfo.Name       = exception.GetType().FullName;
+                    exceptionInfo.StackTrace = exception.StackTrace;
+
+                    if (options.InnerExceptions && exception != null)
+                    {
+                        var innerExceptionList = DiagnosticPools.GetExceptionInfoList();
+
+                        if (exception is AggregateException aggregateException)
+                        {
+                            foreach (var innerException in aggregateException.InnerExceptions)
+                            {
+                                var innerExceptionInfo = DiagnosticPools.GetExceptionInfo();
+
+                                innerExceptionInfo.Name       = innerException.GetType().FullName;
+                                innerExceptionInfo.StackTrace = innerException.StackTrace;
+
+                                innerExceptionList.Add(innerExceptionInfo);
+                            }
+                        }
+                        else if (exception.InnerException != null)
+                        {
+                            var innerException     = exception.InnerException;
+                            var innerExceptionInfo = DiagnosticPools.GetExceptionInfo();
+
+                            innerExceptionInfo.Name       = innerException.GetType().FullName;
+                            innerExceptionInfo.StackTrace = innerException.StackTrace;
+
+                            innerExceptionList.Add(innerExceptionInfo);
+                        }
+
+                        exceptionInfo.InnerExceptions = innerExceptionList;
+                    }
+
+                    jsonRecord.Exception = exceptionInfo;
+                }
+                else
+                {
+                    jsonRecord.Exception = null;
+                }
+
+                //-------------------------------------------------------------
+                // Resource information
+
                 resources.Clear();
 
                 var resource = this.ParentProvider.GetResource();
@@ -171,45 +226,64 @@ namespace Neon.Diagnostics
                     jsonRecord.Resources = null;
                 }
 
+                //-------------------------------------------------------------
+                // Labels
+
                 labels.Clear();
 
                 if (record.StateValues != null && record.StateValues.Count > 0)
                 {
-                    // We're going to special case the situation where there is no "body"
-                    // property in the state and use the "{OriginalFormat}" value as the
-                    // body instead if it's present.  We'll see this when user use the
-                    // standard MSFT ILogger extensions.
-
-                    var originalFormat = (object)null;
-
                     foreach (var item in record.StateValues)
                     {
-                        // We're going to ignore the "{OriginalFormat}" tag because that's only
-                        // going to include the weird tag names and we explicitly set the event
-                        // body as the "body" property.
+                        // Ignore tags without a name to be safe.
 
-                        if (item.Key == "{OriginalFormat}")
+                        if (string.IsNullOrEmpty(item.Key))
                         {
-                            originalFormat = item.Value;
                             continue;
                         }
 
-                        // Special case the "_body_" property.
+                        // We need to special case the [Body] property.  Our [ILogger] extensions persist
+                        // the log message in as the [LogTagNames.InternalBody] whereas the stock MSFT
+                        // logger methods set [FormattedMessage] to the formatted message when enabled 
+                        // and also save the non-formatted message as the "{OriginalFormat}" tag.
+                        //
+                        // We're going to honor [FormattedMessage] if present so that events logged with 
+                        // the MSFT logger extensions will continue to work as always and when this is
+                        // not present and our [LogTags.Body] tag is present, we're going to use our body
+                        // as the message.
+                        //
+                        // I don't believe it makes a lot of sense to ever include the "{OriginalFormat}"
+                        // as a label so we're not doing to emit it as a label.  I guess there could be
+                        // a scenerio where the user has disabled message formatting when using the MSFT
+                        // extensions but still wants to see the "{OriginalFormat}", but I think MSFT
+                        // wouldn't have named the label like that if they intended it to be public.
+                        //
+                        // We're going take care of this by ignoring tags with names starting with "{"
+                        // in case there are other situations where internal tags are generated.
 
-                        if (item.Key == LogTagNames.Body)
+                        if (string.IsNullOrEmpty(record.FormattedMessage))
                         {
-                            jsonRecord.Body = item.Value as string;
-                            continue;
+                            if (item.Key == LogTagNames.InternalBody)
+                            {
+                                jsonRecord.Body = item.Value as string;
+                                continue;
+                            }
                         }
 
-                        // Add all other tags to the property.
+                        if (item.Key.StartsWith("{"))
+                        {
+                            continue;
+                        }
 
                         labels[item.Key] = item.Value;
                     }
 
-                    if (string.IsNullOrEmpty(jsonRecord.Body) && originalFormat != null)
+                    // Use the formatted message if present.  This will be set when the user uses 
+                    // the base MSFT logger extensions.
+
+                    if (record.FormattedMessage != null)
                     {
-                        jsonRecord.Body = originalFormat as string;
+                        jsonRecord.Body = record.FormattedMessage;
                     }
 
                     jsonRecord.Labels = labels.Count > 0 ? labels : null;
@@ -219,8 +293,9 @@ namespace Neon.Diagnostics
                     jsonRecord.Labels = null;
                 }
 
-                // Write the JSON formatted record on a single line to stdout or stderr depending
-                // on the event's log level and the exporter options.
+                //-------------------------------------------------------------
+                // Write the JSON formatted record on a single line to STDOUT or STDERR
+                // depending on the event's log level and the exporter options.
 
                 if (options.SingleLine)
                 {

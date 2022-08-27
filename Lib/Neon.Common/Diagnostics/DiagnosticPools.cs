@@ -64,7 +64,7 @@ namespace Neon.Diagnostics
     public static class DiagnosticPools
     {
         /// <summary>
-        /// Specifies the maximum number of items to be retained in all diagnostic pools.
+        /// Specifies the default maximum number of items to be retained in all diagnostic pools.
         /// </summary>
         internal const int DefaultPoolLimit = 64;
 
@@ -73,7 +73,9 @@ namespace Neon.Diagnostics
         /// </summary>
         internal const int TagArgsArrayLength = 64;
 
-        private static ObjectPool<LogTags>   tagsPool;
+        private static ObjectPool<LogTags>              tagsPool;
+        private static ObjectPool<ExceptionInfo>        exceptionInfoPool;
+        private static ObjectPool<List<ExceptionInfo>>  exceptionInfoListPool;
 
         /// <summary>
         /// Default constructor.
@@ -96,7 +98,9 @@ namespace Neon.Diagnostics
                 logPoolLimit = DefaultPoolLimit;
             }
 
-            tagsPool = new DefaultObjectPool<LogTags>(new DefaultPooledObjectPolicy<LogTags>(), logPoolLimit);
+            tagsPool              = new DefaultObjectPool<LogTags>(new DefaultPooledObjectPolicy<LogTags>(), logPoolLimit);
+            exceptionInfoPool     = new DefaultObjectPool<ExceptionInfo>(new DefaultPooledObjectPolicy<ExceptionInfo>(), logPoolLimit * 8);     // Allowing for up to 8 inner exceptions per log event
+            exceptionInfoListPool = new DefaultObjectPool<List<ExceptionInfo>>(new DefaultPooledObjectPolicy<List<ExceptionInfo>>(), logPoolLimit);
         }
 
         /// <summary>
@@ -109,13 +113,10 @@ namespace Neon.Diagnostics
         /// </note>
         /// </summary>
         /// <returns>A <see cref="LogTags"/> instance.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static LogTags GetLogTags()
         {
-            var logTags = tagsPool.Get();
-
-            logTags.Tags.Clear();
-
-            return logTags;
+            return tagsPool.Get();
         }
 
         /// <summary>
@@ -123,9 +124,70 @@ namespace Neon.Diagnostics
         /// to the underlying pool so it can be reused.
         /// </summary>
         /// <param name="tags">The tags being returned to the pool.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void ReturnLogTags(LogTags tags)
         {
+            tags.Clear();
+
             tagsPool.Return(tags);
+        }
+
+        /// <summary>
+        /// <para>
+        /// Returns an <see cref="ExceptionInfo"/> to be used for rendering exception information.
+        /// </para>
+        /// <note>
+        /// Be sure to return the instance by passing it to <see cref="ReturnExceptionInfo(ExceptionInfo)"/>
+        /// when you are finished with it.
+        /// </note>
+        /// </summary>
+        /// <returns>The <see cref="ExceptionInfo"/> instance.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static ExceptionInfo GetExceptionInfo()
+        {
+            return exceptionInfoPool.Get();
+        }
+
+        /// <summary>
+        /// Returns a <see cref="LogTags"/> instance obtained via <see cref="GetExceptionInfo()"/>
+        /// to the underlying pool so it can be reused.
+        /// </summary>
+        /// <param name="info">The exception information being returned to the pool.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static void ReturnExceptionInfo(ExceptionInfo info)
+        {
+            info.Clear();
+
+            exceptionInfoPool.Return(info);
+        }
+
+        /// <summary>
+        /// <para>
+        /// Returns a list to be used for rendering exception information.
+        /// </para>
+        /// <note>
+        /// Be sure to return the instance by passing it to <see cref="ReturnExceptionInfoList(List{ExceptionInfo})"/>
+        /// when you are finished with it.
+        /// </note>
+        /// </summary>
+        /// <returns>The <see cref="ExceptionInfo"/> list.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static List<ExceptionInfo> GetExceptionInfoList()
+        {
+            return exceptionInfoListPool.Get();
+        }
+
+        /// <summary>
+        /// Returns a <see cref="LogTags"/> instance obtained via <see cref="GetExceptionInfoList()"/>
+        /// to the underlying pool so it can be reused.
+        /// </summary>
+        /// <param name="list">The list being returned to the pool.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static void ReturnExceptionInfoList(List<ExceptionInfo> list)
+        {
+            list.Clear();
+
+            exceptionInfoListPool.Return(list);
         }
     }
 }

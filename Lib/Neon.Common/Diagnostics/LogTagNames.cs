@@ -28,9 +28,14 @@ namespace Neon.Diagnostics
         // These are the names we use for exporting the built-in LogRecord properties.
 
         /// <summary>
-        /// Identifies the message body. 
+        /// Identifies our internal message body. 
         /// </summary>
-        public const string Body = "{body}";
+        public const string InternalBody = "{body}";
+
+        /// <summary>
+        /// Identifies MSFT logger implementation's tag that holds the message format string.
+        /// </summary>
+        public const string InternalOriginalFormat = "{OriginalFormat}";
 
         /// <summary>
         /// Identifies the event category name.

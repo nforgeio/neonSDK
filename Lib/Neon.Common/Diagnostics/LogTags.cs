@@ -81,6 +81,15 @@ namespace Neon.Diagnostics
         public int Count => Tags.Count;
 
         /// <summary>
+        /// Clears the tags collection.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Clear()
+        {
+            Tags.Clear();
+        }
+
+        /// <summary>
         /// Adds a <c>long</c> tags.
         /// </summary>
         /// <param name="key">Tag key.</param>

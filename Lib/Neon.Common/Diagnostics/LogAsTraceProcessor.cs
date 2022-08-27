@@ -147,7 +147,7 @@ namespace Neon.Diagnostics
 
                 if (!string.IsNullOrEmpty(message))
                 {
-                    tags[nextIndex++] = new KeyValuePair<string, object>(LogTagNames.Body, message);
+                    tags[nextIndex++] = new KeyValuePair<string, object>(LogTagNames.InternalBody, message);
                 }
 
                 if (logRecord.Exception != null)
