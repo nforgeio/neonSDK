@@ -45,6 +45,18 @@ namespace Neon.Diagnostics
         }
 
         /// <summary>
+        /// <para>
+        /// Used to disable writing events to the output stream.  This can be useful for
+        /// unit testing.
+        /// </para>
+        /// <note>
+        /// Any configured <see cref="LogEventInterceptor"/> actions will still be called
+        /// event when <see cref="Emit"/> is configured as <c>false</c>.
+        /// </note>
+        /// </summary>
+        public bool Emit { get; set; } = true;
+
+        /// <summary>
         /// Used to direct log output for events to <b>standard error</b> based on the
         /// event log level.
         /// </summary>
@@ -87,9 +99,19 @@ namespace Neon.Diagnostics
 
         /// <summary>
         /// Used to intercept log events just before they are emitted by the exporter.  You can
-        /// use this for implementing logging related unit tests, dynamically changing event log
-        /// levels, or modifying other event properties like the timestamp, labels, tags, etc.
+        /// use this for implementing logging related unit tests or modifying other event properties 
+        /// like the timestamp, labels, tags, etc.
         /// </summary>
         public LogEventInterceptor LogEventInterceptor { get; set; } = null;
+
+        /// <summary>
+        /// Used internally by unit tests to intercept JSON records emitted to <b>standard output</b>.
+        /// </summary>
+        internal Action<string> StdOutInterceptor { get; set; } = null;
+
+        /// <summary>
+        /// Used internally by unit tests to intercept JSON records emitted to <b>standard error</b>.
+        /// </summary>
+        internal Action<string> StdErrInterceptor { get; set; } = null;
     }
 }

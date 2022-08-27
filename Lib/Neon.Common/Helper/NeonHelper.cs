@@ -143,7 +143,7 @@ namespace Neon.Common
         /// <summary>
         /// Returns the Unix epoch time: 01-01-1970 (UTC).
         /// </summary>
-        public static readonly DateTime UnixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        public static readonly DateTime UnixEpoch = new DateTime(1970, 1, 1, 0, 0, 0).ToUniversalTime();
 
         /// <summary>
         /// Returns the prefix to be used for Neon related Prometheus names.
@@ -223,6 +223,26 @@ namespace Neon.Common
                 Encoding.RegisterProvider(new SpecialUtf8EncodingProvider());
                 specialUtf8EncodingProvider = true;
             }
+        }
+
+        /// <summary>
+        /// Converts the number of nanoseconds from the Unix Epoch (1/1/1970 12:00:00am)
+        /// into a UTC cref="DateTime"/> (UTC).
+        /// </summary>
+        /// <returns>The converted <see cref="DateTime"/>.</returns>
+        public static DateTime UnixEpochNanosecondsToDateTimeUtc(long nanoseconds)
+        {
+            return UnixEpoch + TimeSpan.FromTicks(nanoseconds / 100);
+        }
+
+        /// <summary>
+        /// Converts the number of milliseconds from the Unix Epoch (1/1/1970 12:00:00am)
+        /// into a UTC cref="DateTime"/> (UTC).
+        /// </summary>
+        /// <returns>The converted <see cref="DateTime"/>.</returns>
+        public static DateTime UnixEpochMillisecondsToDateTimeUtc(long milliseconds)
+        {
+            return UnixEpoch + TimeSpan.FromMilliseconds(milliseconds);
         }
     }
 }

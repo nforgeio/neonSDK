@@ -55,7 +55,7 @@ namespace Neon.Diagnostics
         /// </summary>
         [JsonProperty(PropertyName = "severity", DefaultValueHandling = DefaultValueHandling.Ignore)]
         [DefaultValue(null)]
-        public string Severity { get; set; }
+        public string Severity { get; internal set; }
 
         /// <summary>
         /// The event message.
@@ -76,7 +76,7 @@ namespace Neon.Diagnostics
         /// </summary>
         [JsonProperty(PropertyName = "severityNumber", DefaultValueHandling = DefaultValueHandling.Ignore)]
         [DefaultValue(-1)]
-        public int SeverityNumber { get; set; }
+        public int SeverityNumber { get; internal set; }
 
         /// <summary>
         /// The event labels (tags).

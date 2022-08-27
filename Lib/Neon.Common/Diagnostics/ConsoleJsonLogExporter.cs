@@ -257,11 +257,21 @@ namespace Neon.Diagnostics
 
                     if ((int)record.LogLevel >= (int)options.StandardErrorLevel)
                     {
-                        Console.Error.WriteLine(jsonText);
+                        options.StdErrInterceptor?.Invoke(jsonText + Environment.NewLine);
+
+                        if (options.Emit)
+                        {
+                            Console.Error.WriteLine(jsonText);
+                        }
                     }
                     else
                     {
-                        Console.Out.WriteLine(jsonText);
+                        options.StdOutInterceptor?.Invoke(jsonText + Environment.NewLine);
+
+                        if (options.Emit)
+                        {
+                            Console.Out.WriteLine(jsonText);
+                        }
                     }
                 }
                 else
@@ -270,13 +280,23 @@ namespace Neon.Diagnostics
 
                     if ((int)record.LogLevel >= (int)options.StandardErrorLevel)
                     {
-                        Console.Error.WriteLine(jsonText);
-                        Console.Error.WriteLine();
+                        options.StdErrInterceptor?.Invoke(jsonText + Environment.NewLine + Environment.NewLine);
+
+                        if (options.Emit)
+                        {
+                            Console.Error.WriteLine(jsonText);
+                            Console.Error.WriteLine();
+                        }
                     }
                     else
                     {
-                        Console.Out.WriteLine(jsonText);
-                        Console.Out.WriteLine();
+                        options.StdOutInterceptor?.Invoke(jsonText + Environment.NewLine + Environment.NewLine);
+
+                        if (options.Emit)
+                        {
+                            Console.Out.WriteLine(jsonText);
+                            Console.Out.WriteLine();
+                        }
                     }
                 }
             }

@@ -29,8 +29,7 @@ namespace Neon.Diagnostics
     /// <para>
     /// You can configure an interceptor in <see cref="ConsoleJsonLogExporterOptions"/> or
     /// the options for other log exporters in the <see cref="Neon.Diagnostics"/> namespace.
-    /// This is useful for unit tests that verify that code is logging events correctly
-    /// or changing an event's log level at runtime. 
+    /// This is useful for unit tests that verify that code is logging events correctly.
     /// </para>
     /// <para>
     /// You can also use this to modify the event in other ways like modifing the body,
