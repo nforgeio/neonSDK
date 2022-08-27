@@ -25,7 +25,7 @@ using System.Threading.Tasks;
 
 using Neon.Common;
 
-namespace System
+namespace Neon.Common
 {
     /// <summary>
     /// Implements a weak event listener that allows the owner to be garbage

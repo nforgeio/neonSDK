@@ -25,6 +25,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
+using Neon.Common;
 using Neon.Net;
 
 namespace Neon.Retry

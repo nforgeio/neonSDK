@@ -19,7 +19,7 @@ using System;
 using System.Diagnostics.Contracts;
 using System.Linq;
 
-namespace System
+namespace Neon.Common
 {
     /// <summary>
     /// <see cref="Exception"/> extensions.

@@ -28,8 +28,9 @@ using System.Threading.Tasks;
 using ICSharpCode.SharpZipLib.Zip;
 
 using Neon.Common;
+using Neon.IO;
 
-namespace Neon.IO
+namespace Neon.Common
 {
     /// <summary>
     /// Enumerates the ZIP options for <see cref="IStaticDirectoryExtensions.Zip(IStaticDirectory, Stream, string, SearchOption, StaticZipOptions)"/> and

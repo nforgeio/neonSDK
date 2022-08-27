@@ -29,7 +29,7 @@ using System.Threading.Tasks;
 using Neon.Common;
 using Neon.IO;
 
-namespace System.Reflection
+namespace Neon.Common
 {
     /// <summary>
     /// Implements custom <see cref="Assembly"/> extension methods.

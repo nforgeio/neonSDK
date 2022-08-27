@@ -27,7 +27,7 @@ using System.Threading.Tasks;
 
 using Neon.Tasks;
 
-namespace System.IO
+namespace Neon.Common
 {
     /// <summary>
     /// Implements I/O related class extensions.

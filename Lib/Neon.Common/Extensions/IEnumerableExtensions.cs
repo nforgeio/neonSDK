@@ -26,7 +26,7 @@ using System.Threading.Tasks;
 
 using Neon.Common;
 
-namespace System.Collections.Generic
+namespace Neon.Common
 {
     /// <summary>
     /// <see cref="IEnumerable{T}"/> extension methods.

@@ -285,5 +285,25 @@ namespace TestCommon
             Assert.Equal(new byte[] { 0, 1, 2, 3 }, NeonHelper.Base64UrlDecode("AAECAw=="));
             Assert.Equal(new byte[] { 0, 1, 2, 3, 4 }, NeonHelper.Base64UrlDecode("AAECAwQ="));
         }
+
+        [Fact]
+        public void UnixEpoch()
+        {
+            var unixEpoch = new DateTime(1970, 1, 1).ToUniversalTime();
+
+            Assert.Equal(unixEpoch, NeonHelper.UnixEpoch);
+        }
+
+        [Fact]
+        public void UnixEpochNanoseconds()
+        {
+            Assert.Equal(NeonHelper.UnixEpoch, NeonHelper.UnixEpochNanosecondsToDateTimeUtc(NeonHelper.UnixEpoch.ToUnixEpochNanoseconds()));
+        }
+
+        [Fact]
+        public void UnixEpochMilliseconds()
+        {
+            Assert.Equal(NeonHelper.UnixEpoch, NeonHelper.UnixEpochMillisecondsToDateTimeUtc(NeonHelper.UnixEpoch.ToUnixEpochMilliseconds()));
+        }
     }
 }

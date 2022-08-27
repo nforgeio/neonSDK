@@ -34,7 +34,7 @@ using Neon.Diagnostics;
 using Neon.Net;
 using Neon.Tasks;
 
-namespace System.Net.Http
+namespace Neon.Common
 {
     public static partial class HttpClientExtensions
     {

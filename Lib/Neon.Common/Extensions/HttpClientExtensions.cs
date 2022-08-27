@@ -32,7 +32,7 @@ using Neon.Collections;
 using Neon.Tasks;
 using System.Runtime.CompilerServices;
 
-namespace System.Net.Http
+namespace Neon.Common
 {
     /// <summary>
     /// <see cref="HttpClient"/> extension methods, mostly related to easily supporting custom headers.

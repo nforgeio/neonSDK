@@ -24,7 +24,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace System
+namespace Neon.Common
 {
     /// <summary>
     /// <see cref="Enum"/> extensions.

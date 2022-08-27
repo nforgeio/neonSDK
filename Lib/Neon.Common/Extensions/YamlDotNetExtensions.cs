@@ -21,8 +21,9 @@ using System.IO;
 using System.Text;
 
 using YamlDotNet;
+using YamlDotNet.RepresentationModel;
 
-namespace YamlDotNet.RepresentationModel
+namespace Neon.Common
 {
     /// <summary>
     /// YamlDotNet related class extensions.

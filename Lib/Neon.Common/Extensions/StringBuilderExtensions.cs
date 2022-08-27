@@ -23,7 +23,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace System.Text
+namespace Neon.Common
 {
     /// <summary>
     /// System class extensions.

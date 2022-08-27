@@ -25,7 +25,10 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Newtonsoft.Json.Linq
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
+namespace Neon.Common
 {
     /// <summary>
     /// Newtonsoft JSON Linq extensions.
