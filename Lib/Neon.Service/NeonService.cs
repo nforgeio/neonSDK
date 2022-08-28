@@ -623,8 +623,8 @@ namespace Neon.Service
         //---------------------------------------------------------------------
         // Instance members
 
-        private readonly object                 syncLock       = new object();
-        private readonly AsyncMutex             asyncMutex     = new AsyncMutex();
+        private readonly object                 syncLock   = new object();
+        private readonly AsyncMutex             asyncMutex = new AsyncMutex();
         private readonly Counter                runtimeCount;
         private readonly Counter                unhealthyCount;
         private bool                            isRunning;
@@ -645,7 +645,7 @@ namespace Neon.Service
         /// <summary>
         /// Constructor.
         /// </summary>
-        /// <param name="name">The name of this service within <see cref="ServiceMap"/>.</param>
+        /// <param name="name">The name of this service.</param>
         /// <param name="version">
         /// Optionally specifies the version of your service formatted as a valid <see cref="SemanticVersion"/>.
         /// This will default to <b>"unknown"</b> when not set or when the value passed is invalid.
@@ -701,17 +701,17 @@ namespace Neon.Service
         /// </param>
         /// <exception cref="KeyNotFoundException">
         /// Thrown if there is no service description for <paramref name="name"/>
-        /// within the <see cref="ServiceMap"/>.
+        /// within the <see cref="ServiceMap"/> when a service map is specified.
         /// </exception>
         public NeonService(
-            string                  name, 
-            string                  version                 = null,
-            string                  metricsPrefix           = null,
-            string                  healthFolder            = null,
-            ServiceMap              serviceMap              = null,
-            string                  terminationMessagePath  = null,
-            TimeSpan                gracefulShutdownTimeout = default,
-            TimeSpan                minShutdownTime         = default)
+            string          name, 
+            string          version                 = null,
+            string          metricsPrefix           = null,
+            string          healthFolder            = null,
+            ServiceMap      serviceMap              = null,
+            string          terminationMessagePath  = null,
+            TimeSpan        gracefulShutdownTimeout = default,
+            TimeSpan        minShutdownTime         = default)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(name), nameof(name));
 
@@ -784,7 +784,7 @@ namespace Neon.Service
             // fail with a [NullReferenceException].  Note that we don't recommend
             // logging from within the constructor.
 
-            // $todo(jefflill): IMPLEMENT THIS!
+            // $todo(jefflill): DO WE STILL NEED THIS?
 
 #if DISABLED
             var telemetryHub = new TelemetryHub(parseLogLevel: false, logFilter: logFilter);

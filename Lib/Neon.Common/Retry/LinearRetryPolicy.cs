@@ -213,7 +213,7 @@ namespace Neon.Retry
         {
             if (transientDetector == null)
             {
-                // The class is invariant we can safely return ourself
+                // The class is invariant so we can safely return ourself
                 // when we're retaining the current transient detector.
 
                 return this;

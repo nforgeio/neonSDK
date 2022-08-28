@@ -35,7 +35,6 @@ using Microsoft.Extensions.Options;
 using Neon.Common;
 using Neon.Data;
 using Neon.Diagnostics;
-using Prometheus;
 
 namespace Neon.Web
 {
