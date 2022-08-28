@@ -15,7 +15,7 @@ param
 )
 
 $appname      = "neon-blazor-proxy"
-$organization = KubeSetupRegistryOrg
+$organization = SdkRegistryOrg
 
 # Copy the common scripts.
 
@@ -42,7 +42,7 @@ ThrowOnExitCode
 
 # Build the image.
 
-$result = Invoke-CaptureStreams "docker build -t ${registry}:${tag} --build-arg `"APPNAME=$appname`" ." -interleave
+$result = Invoke-CaptureStreams "docker build -t ${registry}:${tag} --build-arg `"APPNAME=$appname`" --build-arg `"ORGANIZATION=$organization`" ." -interleave
 
 # Clean up
 
