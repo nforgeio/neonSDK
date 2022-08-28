@@ -35,11 +35,14 @@ namespace Neon.Diagnostics
     /// <summary>
     /// This OpenTelemetry processor submits any logged events that satisfy
     /// a log level as trace events to the current trace span (if any).  This
-    /// is an easy way to converge logging ang tracing while we're waiting for
+    /// is an easy way to converge logging any tracing while we're waiting for
     /// the OpenTelemetry folks support this natively.
     /// </summary>
     /// <remarks>
     /// <para>
+    /// This is very easy to use.  Simply call <see cref="ConfigExtensions.AddLogAsTraceProcessor(OpenTelemetryLoggerOptions, Action{LogAsTraceProcessorOptions})"/>,
+    /// optionally passing options that specify the log level for events to be
+    /// added as trace events.
     /// </para>
     /// </remarks>
     public class LogAsTraceProcessor : BaseProcessor<LogRecord>
@@ -79,7 +82,7 @@ namespace Neon.Diagnostics
         //---------------------------------------------------------------------
         // Instance members
 
-        private LogAsTraceProviderOptions   options;
+        private LogAsTraceProcessorOptions   options;
         private LogLevel                    logLevel;
 
         /// <summary>
@@ -100,9 +103,9 @@ namespace Neon.Diagnostics
         /// conflicts with unrelated tags.
         /// </para>
         /// </remarks>
-        public LogAsTraceProcessor(LogAsTraceProviderOptions options)
+        public LogAsTraceProcessor(LogAsTraceProcessorOptions options)
         {
-            this.options  = options ?? new LogAsTraceProviderOptions();
+            this.options  = options ?? new LogAsTraceProcessorOptions();
             this.logLevel = options.LogLevel;
         }
 
@@ -167,14 +170,21 @@ namespace Neon.Diagnostics
 
                 if (logRecord.StateValues != null && logRecord.StateValues.Count > 0)
                 {
-                    var activityTags = new ActivityTagsCollection();
+                    var activityTags = DiagnosticPools.GetActivityTags();
 
-                    foreach (var tag in logRecord.StateValues)
+                    try
                     {
-                        activityTags.Add(tag);
-                    }
+                        foreach (var tag in logRecord.StateValues)
+                        {
+                            activityTags.Add(tag);
+                        }
 
-                    activity.AddEvent(new ActivityEvent(logRecord.FormattedMessage, logRecord.Timestamp, activityTags));
+                        activity.AddEvent(new ActivityEvent(logRecord.FormattedMessage, logRecord.Timestamp, activityTags));
+                    }
+                    finally
+                    {
+                        DiagnosticPools.ReturnActivityTags(activityTags);
+                    }
                 }
                 else
                 {

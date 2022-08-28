@@ -54,9 +54,9 @@ namespace Neon.Diagnostics
         /// <summary>
         /// The stack trace.
         /// </summary>
-        [JsonProperty(PropertyName = "stackTrace", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [JsonProperty(PropertyName = "stack", DefaultValueHandling = DefaultValueHandling.Ignore)]
         [DefaultValue(null)]
-        public string StackTrace { get; set; }
+        public string Stack { get; set; }
 
         /// <summary>
         /// Describes any inner exceptions when enabled.
@@ -72,7 +72,7 @@ namespace Neon.Diagnostics
         public void Clear()
         {
             Name            = null;
-            StackTrace      = null;
+            Stack           = null;
             InnerExceptions = null;
         }
     }

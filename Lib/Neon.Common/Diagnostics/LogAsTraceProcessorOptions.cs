@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:	    LogAsTraceProviderOptions.cs
+// FILE:	    LogAsTraceProcessorOptions.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright (c) 2005-2022 by neonFORGE LLC.  All rights reserved.
 //
@@ -35,12 +35,12 @@ namespace Neon.Diagnostics
     /// <summary>
     /// Specifies the options used to configure a <see cref="LogAsTraceProcessor"/>.
     /// </summary>
-    public class LogAsTraceProviderOptions
+    public class LogAsTraceProcessorOptions
     {
         /// <summary>
         /// Constructs an instance with reasonable settings.
         /// </summary>
-        public LogAsTraceProviderOptions()
+        public LogAsTraceProcessorOptions()
         {
         }
 

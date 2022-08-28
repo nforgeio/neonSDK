@@ -98,9 +98,8 @@ namespace Neon.Diagnostics
                 logPoolLimit = DefaultPoolLimit;
             }
 
-            tagsPool              = new DefaultObjectPool<LogTags>(new DefaultPooledObjectPolicy<LogTags>(), logPoolLimit);
-            exceptionInfoPool     = new DefaultObjectPool<ExceptionInfo>(new DefaultPooledObjectPolicy<ExceptionInfo>(), logPoolLimit * 8);     // Allowing for up to 8 inner exceptions per log event
-            exceptionInfoListPool = new DefaultObjectPool<List<ExceptionInfo>>(new DefaultPooledObjectPolicy<List<ExceptionInfo>>(), logPoolLimit);
+            tagsPool          = new DefaultObjectPool<LogTags>(new DefaultPooledObjectPolicy<LogTags>(), logPoolLimit);
+            exceptionInfoPool = new DefaultObjectPool<ExceptionInfo>(new DefaultPooledObjectPolicy<ExceptionInfo>(), logPoolLimit * 8);     // Allowing for up to 8 inner exceptions per log event
         }
 
         /// <summary>
@@ -159,35 +158,6 @@ namespace Neon.Diagnostics
             info.Clear();
 
             exceptionInfoPool.Return(info);
-        }
-
-        /// <summary>
-        /// <para>
-        /// Returns a list to be used for rendering exception information.
-        /// </para>
-        /// <note>
-        /// Be sure to return the instance by passing it to <see cref="ReturnExceptionInfoList(List{ExceptionInfo})"/>
-        /// when you are finished with it.
-        /// </note>
-        /// </summary>
-        /// <returns>The <see cref="ExceptionInfo"/> list.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static List<ExceptionInfo> GetExceptionInfoList()
-        {
-            return exceptionInfoListPool.Get();
-        }
-
-        /// <summary>
-        /// Returns a <see cref="LogTags"/> instance obtained via <see cref="GetExceptionInfoList()"/>
-        /// to the underlying pool so it can be reused.
-        /// </summary>
-        /// <param name="list">The list being returned to the pool.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void ReturnExceptionInfoList(List<ExceptionInfo> list)
-        {
-            list.Clear();
-
-            exceptionInfoListPool.Return(list);
         }
     }
 }

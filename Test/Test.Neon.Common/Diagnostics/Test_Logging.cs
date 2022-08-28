@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:	    Test_Logging_ConsoleJsonLogExporter.cs
+// FILE:	    Test_Logging.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright (c) 2005-2022 by neonFORGE LLC.  All rights reserved.
 //
@@ -37,6 +37,7 @@ using Neon.Diagnostics;
 using Neon.Xunit;
 
 using Xunit;
+using OpenTelemetry.Logs;
 
 namespace TestCommon
 {
@@ -290,7 +291,7 @@ namespace TestCommon
         }
 
         [Fact]
-        public void JsonConsoleExporter_WithExtendedLogger()
+        public void JsonConsoleExporter_WithNeonLogger()
         {
             // Verify that our extended MSFT [ILogger] implementation is compatible with
             // our JSON exporter.  We're going to do this by intercepting the log events
@@ -508,6 +509,30 @@ namespace TestCommon
             Assert.Equal("warning", stdErrEvent0.Body);
 
             //-----------------------------------------------------------------
+            // Verify that exception logging works.
+
+            Clear();
+
+            // Without an explict message.
+
+            try
+            {
+                throw new Exception("Test-Exception");
+            }
+            catch (Exception e)
+            {
+                logger.LogErrorEx(e);
+
+                var exceptionEventText = interceptedStdErr.ElementAtOrDefault(0);
+                var exceptionEvent     = JsonConvert.DeserializeObject<LogEvent>(exceptionEventText);
+
+                Assert.Equal(NeonHelper.ExceptionError(e), exceptionEvent.Body);
+
+                Assert.Equal(typeof(Exception).FullName, exceptionEvent.Labels["exception.name"]);
+                Assert.NotNull(exceptionEvent.Labels["exception.stack"]);
+            }
+
+            //-----------------------------------------------------------------
             // Verify that we include the trace and span IDs when logging within
             // a span.
 
@@ -528,6 +553,86 @@ namespace TestCommon
 
             Assert.NotEmpty(logEvent.TraceId);
             Assert.NotEmpty(logEvent.SpanId);
+        }
+
+        [Fact]
+        public void LogInterceptProcessor()
+        {
+            // Verify that [LogInterceptProcessor] works.
+
+            const string serviceName    = "my-service";
+            const string serviceVersion = "1.2.3";
+            const string categoryName   = "my-category";
+
+            var interceptedRecords = new List<LogRecord>();
+
+            using var loggerFactory = LoggerFactory.Create(
+                builder =>
+                {
+                    builder
+                        .SetMinimumLevel(LogLevel.Debug)
+                        .AddOpenTelemetry(
+                            options =>
+                            {
+                                options.ParseStateValues        = true;
+                                options.IncludeFormattedMessage = true;
+                                options.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(serviceName: serviceName, serviceVersion: serviceVersion));
+                                options.AddLogInterceptProcessor(logRecord => interceptedRecords.Add(logRecord));
+                            });
+                });
+
+            var logger = loggerFactory.CreateLogger(categoryName);
+
+            //-----------------------------------------------------------------
+            // Local method to clear intercepted stuff and other locals to
+            // prepare for another test.
+
+            void Clear()
+            {
+                interceptedRecords.Clear();
+            }
+
+            //-----------------------------------------------------------------
+            // Verify that this works for events logged with the stock MSFT extensions.
+
+            Clear();
+
+            logger.LogCritical("critical");
+            logger.LogWarning("warning");
+            logger.LogInformation("information");
+
+            Assert.Equal(3, interceptedRecords.Count);
+            Assert.Equal("critical", interceptedRecords[0].FormattedMessage);
+            Assert.Equal("warning", interceptedRecords[1].FormattedMessage);
+            Assert.Equal("information", interceptedRecords[2].FormattedMessage);
+
+            //-----------------------------------------------------------------
+            // Verify that this works for events logged with the Neon extensions.
+
+            Clear();
+
+            logger.LogCritical("critical");
+            logger.LogWarning("warning");
+            logger.LogInformation("information");
+
+            Assert.Equal(3, interceptedRecords.Count);
+            Assert.Equal("critical", interceptedRecords[0].FormattedMessage);
+            Assert.Equal("warning", interceptedRecords[1].FormattedMessage);
+            Assert.Equal("information", interceptedRecords[2].FormattedMessage);
+
+            //-----------------------------------------------------------------
+            // Verify that this works for events logged with the stock MSFT extensions.
+
+            Clear();
+
+            logger.LogCriticalEx("critical");
+            logger.LogWarningEx("warning");
+            logger.LogInformationEx("information");
+
+            Assert.Equal(3, interceptedRecords.Count);
+            Assert.Equal("critical", interceptedRecords[0].FormattedMessage);
+            Assert.Equal("warning", interceptedRecords[1].FormattedMessage);
+            Assert.Equal("information", interceptedRecords[2].FormattedMessage);
         }
     }
 }

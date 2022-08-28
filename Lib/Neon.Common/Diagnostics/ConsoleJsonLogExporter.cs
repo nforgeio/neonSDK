@@ -31,7 +31,7 @@ using Microsoft.Extensions.Logging;
 using Neon.Common;
 
 using Newtonsoft.Json;
- 
+using Newtonsoft.Json.Linq;
 using OpenTelemetry;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Resources;
@@ -66,8 +66,8 @@ namespace Neon.Diagnostics
     ///                 options.ParseStateValues = true;    // &lt;--- SET THIS TO TRUE
     ///                 
     ///                 options.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(serviceName: ServiceName, serviceVersion: ServiceVersion));
-    ///                 options.AddProcessor(new LogAsTraceProcessor());
-    ///                 options.AddConsoleJsonExporter(options => options.SingleLine = false);
+    ///                 options.AddLogAsTraceProcessor(options => options.LogLevel = LogLevel.Warning);
+    ///                 options.AddConsoleJsonExporter();
     ///             });
     ///     });
     /// </code>
@@ -106,49 +106,48 @@ namespace Neon.Diagnostics
                 //-------------------------------------------------------------
                 // Exception information
 
+                ExceptionInfo       exceptionInfo      = null;
+                ExceptionInfo       innerExceptionInfo = null;
+                List<ExceptionInfo> innerExceptionList = null;
+
                 if (record.Exception != null)
                 {
-                    var exception     = record.Exception;
-                    var exceptionInfo = DiagnosticPools.GetExceptionInfo();
-
-                    exceptionInfo.Name       = exception.GetType().FullName;
-                    exceptionInfo.StackTrace = exception.StackTrace;
+                    var exception = record.Exception;
+                    
+                    exceptionInfo       = DiagnosticPools.GetExceptionInfo();
+                    exceptionInfo.Name  = exception.GetType().FullName;
+                    exceptionInfo.Stack = exception.StackTrace;
 
                     if (options.InnerExceptions && exception != null)
                     {
-                        var innerExceptionList = DiagnosticPools.GetExceptionInfoList();
-
-                        if (exception is AggregateException aggregateException)
+                        if (exception is AggregateException aggregateException && aggregateException.InnerExceptions.Count > 0)
                         {
+                            innerExceptionList = new List<ExceptionInfo>();
+
                             foreach (var innerException in aggregateException.InnerExceptions)
                             {
-                                var innerExceptionInfo = DiagnosticPools.GetExceptionInfo();
+                                var inner = new ExceptionInfo();
 
-                                innerExceptionInfo.Name       = innerException.GetType().FullName;
-                                innerExceptionInfo.StackTrace = innerException.StackTrace;
+                                inner.Name  = innerException.GetType().FullName;
+                                inner.Stack = innerException.StackTrace;
 
-                                innerExceptionList.Add(innerExceptionInfo);
+                                innerExceptionList.Add(inner);
                             }
                         }
                         else if (exception.InnerException != null)
                         {
                             var innerException     = exception.InnerException;
-                            var innerExceptionInfo = DiagnosticPools.GetExceptionInfo();
+                            
+                            innerExceptionInfo = new ExceptionInfo();
 
-                            innerExceptionInfo.Name       = innerException.GetType().FullName;
-                            innerExceptionInfo.StackTrace = innerException.StackTrace;
+                            innerExceptionInfo.Name  = innerException.GetType().FullName;
+                            innerExceptionInfo.Stack = innerException.StackTrace;
 
                             innerExceptionList.Add(innerExceptionInfo);
                         }
 
                         exceptionInfo.InnerExceptions = innerExceptionList;
                     }
-
-                    logEvent.Exception = exceptionInfo;
-                }
-                else
-                {
-                    logEvent.Exception = null;
                 }
 
                 //-------------------------------------------------------------
@@ -180,51 +179,54 @@ namespace Neon.Diagnostics
 
                 labels.Clear();
 
-                if (record.StateValues != null && record.StateValues.Count > 0)
+                if ((record.StateValues != null && record.StateValues.Count > 0) || exceptionInfo != null)
                 {
-                    foreach (var item in record.StateValues)
+                    if (record.StateValues != null)
                     {
-                        // Ignore tags without a name to be safe.
-
-                        if (string.IsNullOrEmpty(item.Key))
+                        foreach (var item in record.StateValues)
                         {
-                            continue;
-                        }
+                            // Ignore tags without a name to be safe.
 
-                        // We need to special case the [Body] property.  Our [ILogger] extensions persist
-                        // the log message in as the [LogTagNames.InternalBody] whereas the stock MSFT
-                        // logger methods set [FormattedMessage] to the formatted message when enabled 
-                        // and also save the non-formatted message as the "{OriginalFormat}" tag.
-                        //
-                        // We're going to honor [FormattedMessage] if present so that events logged with 
-                        // the MSFT logger extensions will continue to work as always and when this is
-                        // not present and our [LogTags.Body] tag is present, we're going to use our body
-                        // as the message.
-                        //
-                        // I don't believe it makes a lot of sense to ever include the "{OriginalFormat}"
-                        // as a label so we're not doing to emit it as a label.  I guess there could be
-                        // a scenerio where the user has disabled message formatting when using the MSFT
-                        // extensions but still wants to see the "{OriginalFormat}", but I think MSFT
-                        // wouldn't have named the label like that if they intended it to be public.
-                        //
-                        // We're going take care of this by ignoring tags with names starting with "{"
-                        // in case there are other situations where internal tags are generated.
-
-                        if (string.IsNullOrEmpty(record.FormattedMessage))
-                        {
-                            if (item.Key == LogTagNames.InternalBody)
+                            if (string.IsNullOrEmpty(item.Key))
                             {
-                                logEvent.Body = item.Value as string;
                                 continue;
                             }
-                        }
 
-                        if (item.Key.StartsWith("{"))
-                        {
-                            continue;
-                        }
+                            // We need to special case the [Body] property.  Our [ILogger] extensions persist
+                            // the log message in as the [LogTagNames.InternalBody] whereas the stock MSFT
+                            // logger methods set [FormattedMessage] to the formatted message when enabled 
+                            // and also save the non-formatted message as the "{OriginalFormat}" tag.
+                            //
+                            // We're going to honor [FormattedMessage] if present so that events logged with 
+                            // the MSFT logger extensions will continue to work as always and when this is
+                            // not present and our [LogTags.Body] tag is present, we're going to use our body
+                            // as the message.
+                            //
+                            // I don't believe it makes a lot of sense to ever include the "{OriginalFormat}"
+                            // as a label so we're not doing to emit it as a label.  I guess there could be
+                            // a scenerio where the user has disabled message formatting when using the MSFT
+                            // extensions but still wants to see the "{OriginalFormat}", but I think MSFT
+                            // wouldn't have named the label like that if they intended it to be public.
+                            //
+                            // We're going take care of this by ignoring tags with names starting with "{"
+                            // in case there are other situations where internal tags are generated.
 
-                        labels[item.Key] = item.Value;
+                            if (string.IsNullOrEmpty(record.FormattedMessage))
+                            {
+                                if (item.Key == LogTagNames.InternalBody)
+                                {
+                                    logEvent.Body = item.Value as string;
+                                    continue;
+                                }
+                            }
+
+                            if (item.Key.StartsWith("{"))
+                            {
+                                continue;
+                            }
+
+                            labels[item.Key] = item.Value;
+                        }
                     }
 
                     // Use the formatted message if present.  This will be set when the user uses 
@@ -235,11 +237,37 @@ namespace Neon.Diagnostics
                         logEvent.Body = record.FormattedMessage;
                     }
 
+                    // Add any exception information.
+
+                    if (exceptionInfo != null)
+                    {
+                        labels.Add("exception.name", exceptionInfo.Name);
+
+                        if (options.ExceptionStackTraces)
+                        {
+                            labels.Add("exception.stack", exceptionInfo.Stack);
+                        }
+
+                        if (innerExceptionList.Count > 0 && options.InnerExceptions)
+                        {
+                            labels.Add("exception.inner", innerExceptionList);
+                        }
+                    }
+
                     logEvent.Labels = labels.Count > 0 ? labels : null;
                 }
                 else
                 {
                     logEvent.Labels = null;
+                }
+
+                //-------------------------------------------------------------
+                // We can return this to its source pools now.
+
+                if (exceptionInfo != null)
+                {
+                    DiagnosticPools.ReturnExceptionInfo(exceptionInfo);
+                    exceptionInfo = null;
                 }
 
                 //-------------------------------------------------------------

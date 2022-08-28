@@ -137,19 +137,21 @@ namespace Neon.Diagnostics
                     message = messageFunc();
                 }
 
-                logTags.Add(LogTagNames.InternalBody, message);
-
-                if (tagSetter != null)
-                {
-                    tagSetter.Invoke(logTags);
-                }
-
                 // Generate a log message from an exception when the user didn't
                 // specify a message.
 
                 if (exception != null && message == null)
                 {
                     message = NeonHelper.ExceptionError(exception);
+                }
+
+                // Temporarily persist the message as a tag.
+
+                logTags.Add(LogTagNames.InternalBody, message);
+
+                if (tagSetter != null)
+                {
+                    tagSetter.Invoke(logTags);
                 }
 
                 // Append any tags held by [LoggerWithTags] loggers.

@@ -105,12 +105,5 @@ namespace Neon.Diagnostics
         [JsonProperty(PropertyName = "traceId", DefaultValueHandling = DefaultValueHandling.Ignore)]
         [DefaultValue(null)]
         public string TraceId { get; set; }
-
-        /// <summary>
-        /// Event exception details.
-        /// </summary>
-        [JsonProperty(PropertyName = "exception", DefaultValueHandling = DefaultValueHandling.Ignore)]
-        [DefaultValue(null)]
-        public ExceptionInfo Exception { get; set; }
     }
 }

@@ -63,15 +63,29 @@ namespace Neon.Diagnostics
         /// <param name="loggerOptions">The <see cref="OpenTelemetryLoggerOptions"/> options to where the exporter will be added.</param>
         /// <param name="configure">Exporter configuration options.</param>
         /// <returns>The <paramref name="loggerOptions"/> to enable fluent style programming.</returns>
-        public static OpenTelemetryLoggerOptions AddLogAsTraceProcessor(this OpenTelemetryLoggerOptions loggerOptions, Action<LogAsTraceProviderOptions> configure = null)
+        public static OpenTelemetryLoggerOptions AddLogAsTraceProcessor(this OpenTelemetryLoggerOptions loggerOptions, Action<LogAsTraceProcessorOptions> configure = null)
         {
             Covenant.Requires<ArgumentNullException>(loggerOptions != null, nameof(loggerOptions));
 
-            var options = new LogAsTraceProviderOptions();
+            var options = new LogAsTraceProcessorOptions();
 
             configure?.Invoke(options);
 
             return loggerOptions.AddProcessor(new LogAsTraceProcessor(options));
+        }
+
+        /// <summary>
+        /// Adds a <see cref="LogInterceptProcessor"/> to a <see cref="OpenTelemetryLoggerOptions"/> instance
+        /// when configuring a OpenTelemetry pipeline.
+        /// </summary>
+        /// <param name="loggerOptions">The <see cref="OpenTelemetryLoggerOptions"/> options to where the exporter will be added.</param>
+        /// <param name="interceptor">The interceptor delegate that will be called for processed log records.</param>
+        /// <returns>The <paramref name="loggerOptions"/> to enable fluent style programming.</returns>
+        public static OpenTelemetryLoggerOptions AddLogInterceptProcessor(this OpenTelemetryLoggerOptions loggerOptions, LogRecordInterceptor interceptor)
+        {
+            Covenant.Requires<ArgumentNullException>(interceptor != null, nameof(interceptor));
+
+            return loggerOptions.AddProcessor(new LogInterceptProcessor(interceptor));
         }
     }
 }
