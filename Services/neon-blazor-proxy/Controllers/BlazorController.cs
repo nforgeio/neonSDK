@@ -39,6 +39,7 @@ using Neon.Tasks;
 using Neon.Web;
 
 using DnsClient;
+using DnsClient.Protocol;
 
 using Newtonsoft.Json;
 
@@ -59,7 +60,7 @@ namespace NeonBlazorProxy.Controllers
         private HttpMessageInvoker     httpClient;
         private IHttpForwarder         forwarder;
         private SessionTransformer     transformer;
-        private IDistributedCache      cache;
+        private CacheHelper            cache;
         private AesCipher              cipher;
         private LookupClient           dnsClient;
         private ForwarderRequestConfig forwarderRequestConfig;
@@ -80,7 +81,7 @@ namespace NeonBlazorProxy.Controllers
             ProxyConfig                  config,
             HttpMessageInvoker           httpClient,
             IHttpForwarder               forwarder,
-            IDistributedCache            cache,
+            CacheHelper                  cache,
             AesCipher                    aesCipher,
             LookupClient                 dnsClient,
             SessionTransformer           sessionTransformer,
@@ -138,13 +139,13 @@ namespace NeonBlazorProxy.Controllers
 
             var cookie    = HttpContext.Request.Cookies.Where(c => c.Key == Service.SessionCookieName).First();
             var sessionId = cipher.DecryptStringFrom(cookie.Value);
-            var session   = NeonHelper.JsonDeserialize<Session>(await cache.GetAsync(sessionId));
+            var session   = await cache.GetAsync<Session>(sessionId);
 
             Logger.LogDebugEx(() => NeonHelper.JsonSerialize(session));
 
             session.ConnectionId = HttpContext.Connection.Id;
 
-            await cache.SetAsync(session.Id, NeonHelper.JsonSerializeToBytes(session));
+            await cache.SetAsync(session.Id, session);
             
             WebsocketMetrics.CurrentConnections.Inc();
             WebsocketMetrics.ConnectionsEstablished.Inc();
@@ -181,30 +182,17 @@ namespace NeonBlazorProxy.Controllers
 
             if (dns.HasError || dns.Answers.IsEmpty())
             {
-                Logger.LogDebugEx(() => $"Dns error: [{NeonHelper.JsonSerialize(dns)}]");
+                Logger.LogDebugEx(() => $"DNS error: [{NeonHelper.JsonSerialize(dns)}]");
                 return host;
             }
 
             var srv = dns.Answers.SrvRecords().Where(r => r.Port == config.Backend.Port).ToList();
 
             Logger.LogDebugEx(() => $"SRV: [{NeonHelper.JsonSerialize(srv)}]");
+            
+            host = srv.SelectRandom<SrvRecord>(1).First().Target.Value;
 
-            lock (Service.ServerLock)
-            {
-                DnsMetrics.DnsLookupsRequested += 1;
-
-                var index = srv.FindIndex(r => r.Target.Value == Service.LastServer) + 1;
-
-                if (index >= srv.Count() || index < 0)
-                {
-                    index = 0;
-                }
-
-                Service.LastServer = srv.ElementAt(index).Target.Value;
-                host               = Service.LastServer.Trim('.');
-            }
-
-            Logger.LogDebugEx(() => $"Dns host: [{host}]");
+            Logger.LogDebugEx(() => $"DNS host: [{host}]");
 
             return host;
         }

@@ -68,7 +68,7 @@ namespace NeonBlazorProxy
         public async Task InvokeAsync(
             HttpContext                     context,
             Service                         service,
-            IDistributedCache               cache, 
+            CacheHelper                     cache, 
             AesCipher                       cipher,
             DistributedCacheEntryOptions    cacheOptions,
             ILogger                         logger)
@@ -81,11 +81,11 @@ namespace NeonBlazorProxy
             {
                 var cookie    = context.Request.Cookies.Where(c => c.Key == Service.SessionCookieName).First();
                 var sessionId = cipher.DecryptStringFrom(cookie.Value);
-                var session   = NeonHelper.JsonDeserialize<Session>(await cache.GetAsync(sessionId));
+                var session   = await cache.GetAsync<Session>(sessionId);
 
                 if (session.ConnectionId == context.Connection.Id)
                 {
-                    await cache.SetAsync(session.Id, NeonHelper.JsonSerializeToBytes(session), cacheOptions);
+                    await cache.SetAsync(session.Id, session, cacheOptions);
                     WebsocketMetrics.CurrentConnections.Dec();
                     service.CurrentConnections.Remove(context.Connection.Id);
                 }

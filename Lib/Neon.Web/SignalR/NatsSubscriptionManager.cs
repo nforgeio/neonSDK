@@ -62,7 +62,7 @@ namespace Neon.Web.SignalR
         {
             await @lock.WaitAsync();
 
-            logger?.LogDebugEx($"Subscribing to subject [Subject={id}].");
+            logger?.LogDebugEx($"Subscribing to subject: [Subject={id}]");
 
             try
             {
@@ -90,7 +90,7 @@ namespace Neon.Web.SignalR
             catch (Exception e)
             {
                 logger?.LogErrorEx(e);
-                logger?.LogDebugEx($"Subscribing failed. [Subject={id}] [Connection={connection.ConnectionId}]");
+                logger?.LogDebugEx($"Subscribing failed: [Subject={id}] [Connection={connection.ConnectionId}]");
             }
             finally
             {
@@ -109,7 +109,7 @@ namespace Neon.Web.SignalR
         {
             await @lock.WaitAsync();
 
-            logger?.LogDebugEx($"Unsubscribing from NATS subject. [Subject={id}] [Connection={connection.ConnectionId}]");
+            logger?.LogDebugEx($"Unsubscribing from NATS subject: [Subject={id}] [Connection={connection.ConnectionId}]");
 
             try
             {
@@ -135,7 +135,7 @@ namespace Neon.Web.SignalR
             catch (Exception e)
             {
                 logger?.LogErrorEx(e);
-                logger?.LogDebugEx($"Unubscribing failed. [Subject={id}] [Connection={connection.ConnectionId}]");
+                logger?.LogDebugEx($"Unubscribing failed: [Subject={id}] [Connection={connection.ConnectionId}]");
             }
             finally
             {

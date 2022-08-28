@@ -1,0 +1,12 @@
+﻿@namespace Neon.Blazor
+
+<HtmlElement id="@Id"
+             PreventDefaultOn="@(new() { "ontouchstart", "ontouchend", "ontouchmove" })"
+             StopPropagationOn="@(new() { "ontouchstart", "ontouchend", "ontouchmove" })"
+             @ontouchstart="HandleTouchStart"
+             @ontouchend="HandleTouchEnd"
+             @ontouchmove="HandleTouchMove"
+             @attributes="AdditionalAttributes"
+             @ref="rootElement">
+    @ChildContent?.Invoke(this)
+</HtmlElement>

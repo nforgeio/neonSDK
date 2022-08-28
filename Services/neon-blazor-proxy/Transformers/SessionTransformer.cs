@@ -40,7 +40,7 @@ namespace NeonBlazorProxy
 {
     public class SessionTransformer : HttpTransformer
     {
-        private IDistributedCache               cache;
+        private CacheHelper                     cache;
         private ILogger                         logger;
         private DistributedCacheEntryOptions    cacheOptions;
         private AesCipher                       cipher;
@@ -52,10 +52,10 @@ namespace NeonBlazorProxy
         /// <param name="logger"></param>
         /// <param name="logger"></param>
         public SessionTransformer(
-            IDistributedCache cache,
-            ILogger logger,
+            CacheHelper                  cache,
+            ILogger                      logger,
             DistributedCacheEntryOptions cacheOptions,
-            AesCipher cipher)
+            AesCipher                    cipher)
         {
             this.cache        = cache;
             this.logger       = logger;
@@ -108,7 +108,7 @@ namespace NeonBlazorProxy
                 httpContext.Response.Cookies.Append(Service.SessionCookieName, cipher.EncryptToBase64($"{session.Id}"));
             }
 
-            await cache.SetAsync(session.Id, NeonHelper.JsonSerializeToBytes(session));
+            await cache.SetAsync(session.Id, session);
 
             return true;
         }

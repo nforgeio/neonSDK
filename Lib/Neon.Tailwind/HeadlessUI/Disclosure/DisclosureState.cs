@@ -1,5 +1,5 @@
-﻿@*//-----------------------------------------------------------------------------
-// FILE:	      HeadlessMenuItem.razor
+﻿//-----------------------------------------------------------------------------
+// FILE:	    MenuState.cs
 // CONTRIBUTOR: Marcus Bowyer
 // COPYRIGHT:  	Copyright (c) 2005-2022 by neonFORGE LLC.  All rights reserved.
 //
@@ -13,18 +13,14 @@
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
-// limitations under the License.*@
+// limitations under the License.
 
-@namespace Neon.Tailwind
 
-<HtmlElement TagName="@TagName"
-                PreventDefaultOn="@(new() { "onclick", "onfocus" })"
-                @onclick="HandleClick"
-                @onfocus="HandleFocus"
-                @onmouseover="HandleMouseEnter"
-                @onmouseout="HandleMouseOut"
-                @attributes="AdditionalAttributes"
-                Id="@Id"
-                role="menuitem">
-    @ChildContent?.Invoke(this)
-</HtmlElement>
+namespace Neon.Tailwind
+{
+    public enum DisclosureState
+    {
+        Closed,
+        Open
+    }
+}

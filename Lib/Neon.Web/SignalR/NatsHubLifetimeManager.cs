@@ -382,7 +382,7 @@ namespace Neon.Web.SignalR
             
             await EnsureNatsServerConnection();
 
-            logger?.LogDebugEx($"Publishing message to NATS subject. [Subject={subject}].");
+            logger?.LogDebugEx($"Publishing message to NATS subject: [Subject={subject}].");
 
             nats.Publish(subject, payload);
         }
@@ -410,7 +410,7 @@ namespace Neon.Web.SignalR
                 {
                     await SyncContext.Clear;
 
-                    logger?.LogDebugEx($"Received message from NATS subject. [Subject={connectionSubject}].");
+                    logger?.LogDebugEx($"Received message from NATS subject: [Subject={connectionSubject}].");
 
                     try
                     {
@@ -422,7 +422,7 @@ namespace Neon.Web.SignalR
                     catch (Exception e)
                     {
                         logger?.LogErrorEx(e);
-                        logger?.LogDebugEx($"Failed writing message. [Subject={connectionSubject}] [Connection{connection.ConnectionId}]");
+                        logger?.LogDebugEx($"Failed writing message: [Subject={connectionSubject}] [Connection{connection.ConnectionId}]");
                     }
                 };
 
@@ -458,7 +458,7 @@ namespace Neon.Web.SignalR
                 {
                     await SyncContext.Clear;
 
-                    logger?.LogDebugEx($"Received message from NATS subject. [Subject={userSubject}].");
+                    logger?.LogDebugEx($"Received message from NATS subject: [Subject={userSubject}].");
 
                     try
                     {
@@ -476,7 +476,7 @@ namespace Neon.Web.SignalR
                     catch (Exception e)
                     {
                         logger?.LogErrorEx(e);
-                        logger?.LogDebugEx($"Failed writing message. [Subject={userSubject}].");
+                        logger?.LogDebugEx($"Failed writing message: [Subject={userSubject}].");
                     }
                 };
 
@@ -496,7 +496,7 @@ namespace Neon.Web.SignalR
             {
                 await SyncContext.Clear;
 
-                logger?.LogDebugEx($"Received message from NATS subject. [Subject={groupSubject}].");
+                logger?.LogDebugEx($"Received message from NATS subject: [Subject={groupSubject}].");
 
                 try
                 {
@@ -519,7 +519,7 @@ namespace Neon.Web.SignalR
                 catch (Exception e)
                 {
                     logger?.LogErrorEx(e);
-                    logger?.LogDebugEx($"Failed writing message. [Subject={groupSubject}].");
+                    logger?.LogDebugEx($"Failed writing message: [Subject={groupSubject}].");
                 }
             };
 
@@ -579,7 +579,7 @@ namespace Neon.Web.SignalR
         {
             await SyncContext.Clear;
 
-            logger?.LogDebugEx($"Publishing message to NATS subject. [Subject={subjects.GroupManagement}].");
+            logger?.LogDebugEx($"Publishing message to NATS subject: [Subject={subjects.GroupManagement}].");
 
             try
             {
@@ -594,7 +594,7 @@ namespace Neon.Web.SignalR
             catch (Exception e)
             {
                 logger?.LogErrorEx(e);
-                logger?.LogDebugEx($"Ack timed out. [Connection={connectionId}] [Group={groupName}]");
+                logger?.LogDebugEx($"Ack timed out: [Connection={connectionId}] [Group={groupName}]");
             }
         }
 
@@ -610,7 +610,7 @@ namespace Neon.Web.SignalR
             {
                 await SyncContext.Clear;
 
-                logger?.LogDebugEx($"Received message from NATS subject. [Subject={subjects.All}].");
+                logger?.LogDebugEx($"Received message from NATS subject: [Subject={subjects.All}].");
 
                 try
                 {
@@ -632,7 +632,7 @@ namespace Neon.Web.SignalR
                 catch (Exception e)
                 {
                     logger?.LogErrorEx(e);
-                    logger?.LogDebugEx($"Failed writing message. [Subject={subjects.All}].");
+                    logger?.LogDebugEx($"Failed writing message: [Subject={subjects.All}].");
                 }
             };
 
@@ -649,13 +649,13 @@ namespace Neon.Web.SignalR
 
             await EnsureNatsServerConnection();
 
-            logger?.LogDebug($"Subscribing to subject. [Subject={subjects.GroupManagement}].");
+            logger?.LogDebug($"Subscribing to subject: [Subject={subjects.GroupManagement}].");
 
             EventHandler<MsgHandlerEventArgs> handler = async (sender, args) =>
             {
                 await SyncContext.Clear;
 
-                logger?.LogDebugEx($"Received message from NATS subject. [Subject={subjects.GroupManagement}].");
+                logger?.LogDebugEx($"Received message from NATS subject: [Subject={subjects.GroupManagement}].");
 
                 try
                 {
@@ -678,7 +678,7 @@ namespace Neon.Web.SignalR
                         await AddGroupAsyncCore(connection, groupMessage.GroupName);
                     }
 
-                    logger?.LogDebug($"Publishing message to NATS subject. [Subject={subjects.GroupManagement}].");
+                    logger?.LogDebug($"Publishing message to NATS subject: [Subject={subjects.GroupManagement}].");
 
                     // Send an ack to the server that sent the original command.
 
@@ -687,7 +687,7 @@ namespace Neon.Web.SignalR
                 catch (Exception e)
                 {
                     logger?.LogErrorEx(e);
-                    logger?.LogDebugEx($"Error processing message for internal server message. [Subject={subjects.GroupManagement}]");
+                    logger?.LogDebugEx($"Error processing message for internal server message: [Subject={subjects.GroupManagement}]");
                 }
             };
 

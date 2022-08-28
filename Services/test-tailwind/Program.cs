@@ -21,6 +21,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
+using Neon.Blazor;
 using Neon.Common;
 using Neon.Tailwind;
 
@@ -36,6 +37,7 @@ namespace TestTailwind
             builder.Services.AddRazorPages();
             builder.Services.AddServerSideBlazor();
             builder.Services.AddTailwind();
+            builder.Services.AddNeonBlazor();
 
             var app = builder.Build();
 

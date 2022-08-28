@@ -57,7 +57,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="CouchbaseNetClient" Version="2.7.26" />
+		<PackageReference Include="CouchbaseNetClient" Version="2.7.27" />
 		<PackageReference Include="GitInfo" Version="2.2.0">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
@@ -78,7 +78,7 @@
 
 		<!-- Include the PDB in the nuget so stack traces can include line numbers -->
 
-		<Content Include="bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).pdb" PackagePath="contentFiles\any\$(TargetFramework)\$(AssemblyName).pdb" PackageCopyToOutput="true" Pack="true"/>
+		<Content Include="bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).pdb" PackagePath="contentFiles\any\$(TargetFramework)\$(AssemblyName).pdb" PackageCopyToOutput="true" Pack="true" />
 	</ItemGroup>
 
 </Project>

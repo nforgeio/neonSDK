@@ -17,6 +17,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Lib\Neon.Blazor\Neon.Blazor.csproj" />
     <ProjectReference Include="..\..\Lib\Neon.Common\Neon.Common.csproj" />
     <ProjectReference Include="..\..\Lib\Neon.Tailwind\Neon.Tailwind.csproj" />
   </ItemGroup>
@@ -24,6 +25,10 @@
   <ItemGroup>
     <Watch Include="**\*.razor" />
     <Watch Include="**\*.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Watch Remove="Components\Disclosure.razor" />
   </ItemGroup>
 
   <ItemGroup>

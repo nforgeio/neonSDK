@@ -322,6 +322,7 @@ if (-not $?)
 # implicit package dependencies will work for external projects importing
 # these packages.
 
+SetVersion Neon.Blazor                      $neonSdkVersion
 SetVersion Neon.Cadence                     $neonSdkVersion
 SetVersion Neon.Cassandra                   $neonSdkVersion
 SetVersion Neon.Common                      $neonSdkVersion
@@ -351,6 +352,7 @@ SetVersion Neon.YugaByte                    $neonSdkVersion
 
 # Build and publish the projects.
 
+Publish Neon.Blazor                         $neonSdkVersion
 Publish Neon.Cadence                        $neonSdkVersion
 Publish Neon.Cassandra                      $neonSdkVersion
 Publish Neon.Common                         $neonSdkVersion
@@ -380,6 +382,7 @@ Publish Neon.YugaByte                       $neonSdkVersion
 
 # Restore the project versions
 
+RestoreVersion Neon.Blazor
 RestoreVersion Neon.Cadence
 RestoreVersion Neon.Cassandra
 RestoreVersion Neon.Common

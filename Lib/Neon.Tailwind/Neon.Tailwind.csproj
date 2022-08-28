@@ -53,6 +53,9 @@
   <ItemGroup>
 	  <None Include="..\nuget-icon.png" Pack="true" PackagePath="" />
 	  <None Include="..\..\LICENSE" Pack="true" PackagePath="" />
+	  <None Include="wwwroot\clickoffhandler.js" />
+	  <None Include="wwwroot\common.js" />
+	  <None Include="wwwroot\keydownhandler.js" />
   </ItemGroup>
 
   <ItemGroup>
@@ -60,11 +63,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="6.0.6" />
-    <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="6.0.6" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="6.0.7" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="6.0.7" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Neon.Blazor\Neon.Blazor.csproj" />
     <ProjectReference Include="..\Neon.Common\Neon.Common.csproj" />
   </ItemGroup>
 

@@ -430,7 +430,7 @@ namespace Neon.Common
 
             if (logger != null)
             {
-                logger.LogErrorEx(() => $"[{variable}={value}]: {error}  Defaulting to [{def}].");
+                logger.LogErrorEx(() => $"[{variable}={value}]: {error}  Defaulting to: [{def}].");
             }
         }
 

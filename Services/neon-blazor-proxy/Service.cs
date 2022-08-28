@@ -91,6 +91,26 @@ namespace NeonBlazorProxy
         /// </summary>
         public static string LastServer { get; set; }
 
+        public static readonly Counter CacheLookupsRequested = Metrics.CreateCounter(
+            "neonblazorproxy_cache_lookups_total",
+            "Number of Cache lookups requested"
+            );
+
+        public static readonly Counter CacheItemsStored = Metrics.CreateCounter(
+            "neonblazorproxy_cache_items_stored_total",
+            "Number of items stored in the Cache"
+            );
+
+        public static readonly Counter CacheHits = Metrics.CreateCounter(
+            "neonblazorproxy_cache_hits_total",
+            "Number of Cache hits"
+            );
+
+        public static readonly Counter CacheMisses = Metrics.CreateCounter(
+            "neonblazorproxy_cache_misses_total",
+            "Number of Cache misses"
+            );
+
         // private fields
         private IWebHost webHost;
 
@@ -158,7 +178,7 @@ namespace NeonBlazorProxy
 
             _ = webHost.RunAsync();
 
-            Logger.LogInformationEx(() => $"Listening on {IPAddress.Any}:{Config.Port}");
+            Logger.LogInformationEx(() => $"Listening on: {IPAddress.Any}:{Config.Port}");
 
             // Indicate that the service is ready for business.
 

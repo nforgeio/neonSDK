@@ -69,8 +69,6 @@ namespace Neon.Tailwind
             builder.AddAttribute(1, "id", Name);
             builder.AddContent(2, content);
             builder.CloseElement();
-
-
         }
     }
 }
