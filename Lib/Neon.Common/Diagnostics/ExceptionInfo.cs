@@ -42,7 +42,7 @@ namespace Neon.Diagnostics
     /// <summary>
     /// Used for serializing exception information.
     /// </summary>
-    public class ExceptionInfo
+    public struct ExceptionInfo
     {
         /// <summary>
         /// The fully qualified exception name.
@@ -52,28 +52,17 @@ namespace Neon.Diagnostics
         public string Name { get; set; }
 
         /// <summary>
+        /// The fully qualified exception name.
+        /// </summary>
+        [JsonProperty(PropertyName = "message", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [DefaultValue(null)]
+        public string Message { get; set; }
+
+        /// <summary>
         /// The stack trace.
         /// </summary>
         [JsonProperty(PropertyName = "stack", DefaultValueHandling = DefaultValueHandling.Ignore)]
         [DefaultValue(null)]
         public string Stack { get; set; }
-
-        /// <summary>
-        /// Describes any inner exceptions when enabled.
-        /// </summary>
-        [JsonProperty(PropertyName = "inner", DefaultValueHandling = DefaultValueHandling.Ignore)]
-        [DefaultValue(null)]
-        public List<ExceptionInfo> InnerExceptions { get; set; }
-
-        /// <summary>
-        /// Clears the instance fields.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Clear()
-        {
-            Name            = null;
-            Stack           = null;
-            InnerExceptions = null;
-        }
     }
 }

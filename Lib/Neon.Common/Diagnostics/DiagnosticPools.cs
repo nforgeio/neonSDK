@@ -17,9 +17,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using System.Text;
+
 using Microsoft.Extensions.ObjectPool;
 
 using Neon.Common;
@@ -73,9 +75,8 @@ namespace Neon.Diagnostics
         /// </summary>
         internal const int TagArgsArrayLength = 64;
 
-        private static ObjectPool<LogTags>              tagsPool;
-        private static ObjectPool<ExceptionInfo>        exceptionInfoPool;
-        private static ObjectPool<List<ExceptionInfo>>  exceptionInfoListPool;
+        private static ObjectPool<LogTags>                  tagsPool;
+        private static ObjectPool<ActivityTagsCollection>   activityTagsPool;
 
         /// <summary>
         /// Default constructor.
@@ -98,8 +99,8 @@ namespace Neon.Diagnostics
                 logPoolLimit = DefaultPoolLimit;
             }
 
-            tagsPool          = new DefaultObjectPool<LogTags>(new DefaultPooledObjectPolicy<LogTags>(), logPoolLimit);
-            exceptionInfoPool = new DefaultObjectPool<ExceptionInfo>(new DefaultPooledObjectPolicy<ExceptionInfo>(), logPoolLimit * 8);     // Allowing for up to 8 inner exceptions per log event
+            tagsPool         = new DefaultObjectPool<LogTags>(new DefaultPooledObjectPolicy<LogTags>(), logPoolLimit);
+            activityTagsPool = new DefaultObjectPool<ActivityTagsCollection>(new DefaultPooledObjectPolicy<ActivityTagsCollection>(), logPoolLimit);
         }
 
         /// <summary>
@@ -133,31 +134,31 @@ namespace Neon.Diagnostics
 
         /// <summary>
         /// <para>
-        /// Returns an <see cref="ExceptionInfo"/> to be used for rendering exception information.
+        /// Returns a <see cref="LogTags"/> instance from the underlying object pool.
         /// </para>
         /// <note>
-        /// Be sure to return the instance by passing it to <see cref="ReturnExceptionInfo(ExceptionInfo)"/>
+        /// Be sure to return the instance by passing it to <see cref="ReturnActivityTags(ActivityTagsCollection)"/>
         /// when you are finished with it.
         /// </note>
         /// </summary>
-        /// <returns>The <see cref="ExceptionInfo"/> instance.</returns>
+        /// <returns>A <see cref="ActivityTagsCollection"/> instance.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static ExceptionInfo GetExceptionInfo()
+        internal static ActivityTagsCollection GetActivityTags()
         {
-            return exceptionInfoPool.Get();
+            return activityTagsPool.Get();
         }
 
         /// <summary>
-        /// Returns a <see cref="LogTags"/> instance obtained via <see cref="GetExceptionInfo()"/>
+        /// Returns a <see cref="LogTags"/> instance obtained via <see cref="GetActivityTags()"/>
         /// to the underlying pool so it can be reused.
         /// </summary>
-        /// <param name="info">The exception information being returned to the pool.</param>
+        /// <param name="tags">The tags being returned to the pool.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void ReturnExceptionInfo(ExceptionInfo info)
+        internal static void ReturnActivityTags(ActivityTagsCollection tags)
         {
-            info.Clear();
+            tags.Clear();
 
-            exceptionInfoPool.Return(info);
+            activityTagsPool.Return(tags);
         }
     }
 }

@@ -27,8 +27,10 @@ using System.Threading.Tasks;
 
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 using OpenTelemetry;
+using OpenTelemetry.Logs;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
@@ -37,7 +39,6 @@ using Neon.Diagnostics;
 using Neon.Xunit;
 
 using Xunit;
-using OpenTelemetry.Logs;
 
 namespace TestCommon
 {
@@ -142,7 +143,6 @@ namespace TestCommon
             Assert.Equal((int)SeverityNumber.SEVERITY_NUMBER_INFO, logEvent.SeverityNumber);
             Assert.Null(logEvent.SpanId);
             Assert.Null(logEvent.TraceId);
-            Assert.Null(logEvent.Exception);
             Assert.Null(logEvent.Labels);
             Assert.NotNull(logEvent.Resources);
             Assert.Equal(serviceName, logEvent.Resources.Single(item => item.Key == "service.name").Value);
@@ -169,7 +169,6 @@ namespace TestCommon
             Assert.Equal((int)SeverityNumber.SEVERITY_NUMBER_INFO, logEvent.SeverityNumber);
             Assert.Null(logEvent.SpanId);
             Assert.Null(logEvent.TraceId);
-            Assert.Null(logEvent.Exception);
             Assert.NotNull(logEvent.Resources);
             Assert.Equal(serviceName, logEvent.Resources.Single(item => item.Key == "service.name").Value);
             Assert.Equal(serviceVersion, logEvent.Resources.Single(item => item.Key == "service.version").Value);
@@ -216,7 +215,6 @@ namespace TestCommon
             Assert.Equal((int)SeverityNumber.SEVERITY_NUMBER_FATAL, logEvent.SeverityNumber);
             Assert.Null(logEvent.SpanId);
             Assert.Null(logEvent.TraceId);
-            Assert.Null(logEvent.Exception);
             Assert.Null(logEvent.Labels);
             Assert.NotNull(logEvent.Resources);
             Assert.Equal(serviceName, logEvent.Resources.Single(item => item.Key == "service.name").Value);
@@ -266,6 +264,67 @@ namespace TestCommon
 
             Assert.NotNull(stdErrEvent0);
             Assert.Equal("warning", stdErrEvent0.Body);
+
+
+            // [AggregeteException] with multiple inner exceptions.
+
+            Clear();
+
+            try
+            {
+                Exception e0;
+                Exception e1;
+
+                try
+                {
+                    throw new Exception("exception-0");
+                }
+                catch (Exception e)
+                {
+                    e0 = e;
+                }
+
+                try
+                {
+                    throw new FormatException("exception-1");
+                }
+                catch (Exception e)
+                {
+                    e1 = e;
+                }
+
+                var aggregeteException = new AggregateException("There be an exception!", new Exception[] { e0, e1 });
+
+                throw aggregeteException;
+            }
+            catch (AggregateException e)
+            {
+                logger.LogError(e, "There be an exception!");
+
+                var exceptionEventText = interceptedStdErr.ElementAtOrDefault(0);
+                var exceptionEvent = JsonConvert.DeserializeObject<LogEvent>(exceptionEventText);
+
+                Assert.Equal("There be an exception!", exceptionEvent.Body);
+
+                Assert.Equal(typeof(AggregateException).FullName, exceptionEvent.Labels["exception.name"]);
+                Assert.NotNull(exceptionEvent.Labels["exception.stack"]);
+                Assert.StartsWith("at ", (string)exceptionEvent.Labels["exception.stack"]);
+
+                var jArray = (JArray)exceptionEvent.Labels["exception.inner"];
+                var innerArray = JsonConvert.DeserializeObject<ExceptionInfo[]>(jArray.ToString());
+
+                Assert.Equal(2, innerArray.Length);
+
+                Assert.Contains("exception-0", innerArray.Select(item => item.Message));
+                Assert.Contains(typeof(Exception).FullName, innerArray.Select(item => item.Name));
+
+                Assert.Contains("exception-1", innerArray.Select(item => item.Message));
+                Assert.Contains(typeof(FormatException).FullName, innerArray.Select(item => item.Name));
+            }
+            catch (Exception e)
+            {
+                Assert.True(false, $"Expected an AggregateException, not a [{e.GetType().FullName}]");
+            }
 
             //-----------------------------------------------------------------
             // Verify that we include the trace and span IDs when logging within
@@ -383,7 +442,6 @@ namespace TestCommon
             Assert.Equal((int)SeverityNumber.SEVERITY_NUMBER_INFO, logEvent.SeverityNumber);
             Assert.Null(logEvent.SpanId);
             Assert.Null(logEvent.TraceId);
-            Assert.Null(logEvent.Exception);
             Assert.NotNull(logEvent.Labels);
             Assert.NotNull(logEvent.Resources);
             Assert.Equal(serviceName, logEvent.Resources.Single(item => item.Key == "service.name").Value);
@@ -410,7 +468,6 @@ namespace TestCommon
             Assert.Equal((int)SeverityNumber.SEVERITY_NUMBER_INFO, logEvent.SeverityNumber);
             Assert.Null(logEvent.SpanId);
             Assert.Null(logEvent.TraceId);
-            Assert.Null(logEvent.Exception);
             Assert.NotNull(logEvent.Resources);
             Assert.Equal(serviceName, logEvent.Resources.Single(item => item.Key == "service.name").Value);
             Assert.Equal(serviceVersion, logEvent.Resources.Single(item => item.Key == "service.version").Value);
@@ -457,7 +514,6 @@ namespace TestCommon
             Assert.Equal((int)SeverityNumber.SEVERITY_NUMBER_FATAL, logEvent.SeverityNumber);
             Assert.Null(logEvent.SpanId);
             Assert.Null(logEvent.TraceId);
-            Assert.Null(logEvent.Exception);
             Assert.Null(logEvent.Labels);
             Assert.NotNull(logEvent.Resources);
             Assert.Equal(serviceName, logEvent.Resources.Single(item => item.Key == "service.name").Value);
@@ -511,9 +567,9 @@ namespace TestCommon
             //-----------------------------------------------------------------
             // Verify that exception logging works.
 
-            Clear();
-
             // Without an explict message.
+
+            Clear();
 
             try
             {
@@ -530,6 +586,89 @@ namespace TestCommon
 
                 Assert.Equal(typeof(Exception).FullName, exceptionEvent.Labels["exception.name"]);
                 Assert.NotNull(exceptionEvent.Labels["exception.stack"]);
+                Assert.StartsWith("at ", (string)exceptionEvent.Labels["exception.stack"]);
+            }
+
+            // With an explict message.
+
+            Clear();
+
+            try
+            {
+                throw new Exception("Test-Exception");
+            }
+            catch (Exception e)
+            {
+                logger.LogErrorEx(e, "There be an exception!");
+
+                var exceptionEventText = interceptedStdErr.ElementAtOrDefault(0);
+                var exceptionEvent     = JsonConvert.DeserializeObject<LogEvent>(exceptionEventText);
+
+                Assert.Equal("There be an exception!", exceptionEvent.Body);
+
+                Assert.Equal(typeof(Exception).FullName, exceptionEvent.Labels["exception.name"]);
+                Assert.NotNull(exceptionEvent.Labels["exception.stack"]);
+                Assert.StartsWith("at ", (string)exceptionEvent.Labels["exception.stack"]);
+            }
+
+            // [AggregeteException] with multiple inner exceptions.
+
+            Clear();
+
+            try
+            {
+                Exception e0;
+                Exception e1;
+
+                try
+                {
+                    throw new Exception("exception-0");
+                }
+                catch (Exception e)
+                {
+                    e0 = e;
+                }
+
+                try
+                {
+                    throw new FormatException("exception-1");
+                }
+                catch (Exception e)
+                {
+                    e1 = e;
+                }
+
+                var aggregeteException = new AggregateException("There be an exception!", new Exception[] { e0, e1 });
+
+                throw aggregeteException;
+            }
+            catch (AggregateException e)
+            {
+                logger.LogErrorEx(e, "There be an exception!");
+
+                var exceptionEventText = interceptedStdErr.ElementAtOrDefault(0);
+                var exceptionEvent     = JsonConvert.DeserializeObject<LogEvent>(exceptionEventText);
+
+                Assert.Equal("There be an exception!", exceptionEvent.Body);
+
+                Assert.Equal(typeof(AggregateException).FullName, exceptionEvent.Labels["exception.name"]);
+                Assert.NotNull(exceptionEvent.Labels["exception.stack"]);
+                Assert.StartsWith("at ", (string)exceptionEvent.Labels["exception.stack"]);
+
+                var jArray     = (JArray)exceptionEvent.Labels["exception.inner"];
+                var innerArray = JsonConvert.DeserializeObject<ExceptionInfo[]>(jArray.ToString());
+
+                Assert.Equal(2, innerArray.Length);
+
+                Assert.Contains("exception-0", innerArray.Select(item => item.Message));
+                Assert.Contains(typeof(Exception).FullName, innerArray.Select(item => item.Name));
+
+                Assert.Contains("exception-1", innerArray.Select(item => item.Message));
+                Assert.Contains(typeof(FormatException).FullName, innerArray.Select(item => item.Name));
+            }
+            catch (Exception e)
+            {
+                Assert.True(false, $"Expected an AggregateException, not a [{e.GetType().FullName}]");
             }
 
             //-----------------------------------------------------------------

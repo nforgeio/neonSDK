@@ -106,17 +106,17 @@ namespace Neon.Diagnostics
                 //-------------------------------------------------------------
                 // Exception information
 
-                ExceptionInfo       exceptionInfo      = null;
-                ExceptionInfo       innerExceptionInfo = null;
+                ExceptionInfo       exceptionInfo      = new ExceptionInfo();
+                ExceptionInfo       innerExceptionInfo = new ExceptionInfo();
                 List<ExceptionInfo> innerExceptionList = null;
 
                 if (record.Exception != null)
                 {
                     var exception = record.Exception;
                     
-                    exceptionInfo       = DiagnosticPools.GetExceptionInfo();
-                    exceptionInfo.Name  = exception.GetType().FullName;
-                    exceptionInfo.Stack = exception.StackTrace;
+                    exceptionInfo.Name    = exception.GetType().FullName;
+                    exceptionInfo.Message = exception.Message;
+                    exceptionInfo.Stack   = exception.StackTrace.TrimStart();
 
                     if (options.InnerExceptions && exception != null)
                     {
@@ -128,25 +128,23 @@ namespace Neon.Diagnostics
                             {
                                 var inner = new ExceptionInfo();
 
-                                inner.Name  = innerException.GetType().FullName;
-                                inner.Stack = innerException.StackTrace;
+                                inner.Name    = innerException.GetType().FullName;
+                                inner.Message = innerException.Message;
+                                inner.Stack   = innerException.StackTrace.TrimStart();
 
                                 innerExceptionList.Add(inner);
                             }
                         }
                         else if (exception.InnerException != null)
                         {
-                            var innerException     = exception.InnerException;
+                            var innerException = exception.InnerException;
                             
                             innerExceptionInfo = new ExceptionInfo();
 
-                            innerExceptionInfo.Name  = innerException.GetType().FullName;
-                            innerExceptionInfo.Stack = innerException.StackTrace;
-
-                            innerExceptionList.Add(innerExceptionInfo);
+                            innerExceptionInfo.Name    = innerException.GetType().FullName;
+                            innerExceptionInfo.Message = innerException.Message;
+                            innerExceptionInfo.Stack   = innerException.StackTrace.TrimStart();
                         }
-
-                        exceptionInfo.InnerExceptions = innerExceptionList;
                     }
                 }
 
@@ -179,7 +177,7 @@ namespace Neon.Diagnostics
 
                 labels.Clear();
 
-                if ((record.StateValues != null && record.StateValues.Count > 0) || exceptionInfo != null)
+                if ((record.StateValues != null && record.StateValues.Count > 0) || record.Exception != null)
                 {
                     if (record.StateValues != null)
                     {
@@ -239,16 +237,17 @@ namespace Neon.Diagnostics
 
                     // Add any exception information.
 
-                    if (exceptionInfo != null)
+                    if (record.Exception != null)
                     {
                         labels.Add("exception.name", exceptionInfo.Name);
+                        labels.Add("exception.message", exceptionInfo.Message);
 
                         if (options.ExceptionStackTraces)
                         {
                             labels.Add("exception.stack", exceptionInfo.Stack);
                         }
 
-                        if (innerExceptionList.Count > 0 && options.InnerExceptions)
+                        if (innerExceptionList != null && innerExceptionList.Count > 0 && options.InnerExceptions)
                         {
                             labels.Add("exception.inner", innerExceptionList);
                         }
@@ -259,15 +258,6 @@ namespace Neon.Diagnostics
                 else
                 {
                     logEvent.Labels = null;
-                }
-
-                //-------------------------------------------------------------
-                // We can return this to its source pools now.
-
-                if (exceptionInfo != null)
-                {
-                    DiagnosticPools.ReturnExceptionInfo(exceptionInfo);
-                    exceptionInfo = null;
                 }
 
                 //-------------------------------------------------------------
