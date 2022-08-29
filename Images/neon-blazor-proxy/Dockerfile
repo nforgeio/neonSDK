@@ -15,7 +15,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM        mcr.microsoft.com/dotnet/aspnet:6.0.6-jammy-amd64
+ARG         ORGANIZATION
+FROM        ${ORGANIZATION}/aspnet:6.0.6-jammy-amd64
 MAINTAINER  marcus@neonforge.com
 STOPSIGNAL  SIGTERM
 ARG         APPNAME
@@ -43,11 +44,9 @@ RUN echo **NEW LAYER**
 COPY bin/__app              /usr/bin/$APPNAME.dotnet/
 COPY docker-entrypoint.sh   /
 
-RUN chmod 700 /*.sh \
+RUN chmod 700 /docker-entrypoint.sh \
     && echo "exec dotnet /usr/bin/$APPNAME.dotnet/$APPNAME.dll \"\$@\"" >> /usr/bin/$APPNAME \
-    && chmod 770 /usr/bin/$APPNAME \
-    && ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone \
-    && sed -i 's!^#precedence ::ffff:0:0/96  10$!precedence ::ffff:0:0/96  100!g' /etc/gai.conf
+    && chmod 770 /usr/bin/$APPNAME
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 

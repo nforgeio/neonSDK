@@ -54,11 +54,8 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 COPY bin/__app              /usr/bin/$APPNAME.dotnet/
 COPY docker-entrypoint.sh   /
 
-RUN chmod 700 /*.sh \
-    && echo "#!/bin/sh" > /usr/bin/$APPNAME \ 
+RUN chmod 700 /docker-entrypoint.sh \
     && echo "exec dotnet /usr/bin/$APPNAME.dotnet/$APPNAME.dll \"\$@\"" >> /usr/bin/$APPNAME \
-    && chmod 770 /usr/bin/$APPNAME \
-    && ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone \
-    && sed -i 's!^#precedence ::ffff:0:0/96  10$!precedence ::ffff:0:0/96  100!g' /etc/gai.conf
+    && chmod 770 /usr/bin/$APPNAME
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
