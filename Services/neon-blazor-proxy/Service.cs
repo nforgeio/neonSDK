@@ -158,7 +158,7 @@ namespace NeonBlazorProxy
 #else
                 true;
 #endif
-            AesCipher = new AesCipher(GetEnvironmentVariable("COOKIE_CIPHER", AesCipher.GenerateKey(), redacted: redact));
+            AesCipher = new AesCipher(GetEnvironmentVariable("COOKIE_CIPHER", AesCipher.GenerateKey(), redact: redact));
 
             CurrentConnections = new HashSet<string>();
 

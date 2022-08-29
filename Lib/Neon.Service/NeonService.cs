@@ -1914,13 +1914,13 @@ namespace Neon.Service
         /// </summary>
         /// <param name="name">The environment variable name (case sensitive).</param>
         /// <param name="def">The value to be returned when the environment variable doesn't exist (defaults to <c>null</c>).</param>
-        /// <param name="redacted">Optionally redact log output of the variable.</param>
+        /// <param name="redact">Optionally redact log output of the variable.</param>
         /// <returns>The variable value or <paramref name="def"/> if the variable doesn't exist.</returns>
-        public string GetEnvironmentVariable(string name, string def = null, bool redacted = false)
+        public string GetEnvironmentVariable(string name, string def = null, bool redact = false)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(name), nameof(name));
 
-            return Environment.Get(name, def, redacted: redacted);
+            return Environment.Get(name, def, redact: redact);
         }
 
         /// <summary>

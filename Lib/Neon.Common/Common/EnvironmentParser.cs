@@ -32,10 +32,27 @@ using Neon.Diagnostics;
 namespace Neon.Common
 {
     /// <summary>
+    /// <para>
     /// Handles parsing of environment variables by default or optionally variables
     /// from a custom source.  This has built-in methods for parsing: <c>int</c>,
     /// <c>long</c>, <c>double</c>, <c>TimeSpan</c>, <c>string</c> and <c>enum</c>
     /// variables as well as mechanisms to parse custom types.
+    /// </para>
+    /// <note>
+    /// <para>
+    /// This class logs details about parsed variables.  By default, these logs include 
+    /// actual value that could not be parsed.  This may not be desirable for variables
+    /// defining secrets.  Pass <c>redact: true</c> for these cases.
+    /// </para>
+    /// <para>
+    /// When debugging, it's useful to ignore <c>redact</c> arguments and include 
+    /// these values in any logged events anyway.  You can accomplish this by setting 
+    /// the <c>NEON_REDACT_OVERRIDE=1</c> environment variable.
+    /// </para>
+    /// <para>
+    /// <b>IMPORTANT:</b> Never set <c>NEON_REDACT_OVERRIDE=1</c> for production.
+    /// </para>
+    /// </note>
     /// </summary>
     public class EnvironmentParser
     {
@@ -387,7 +404,7 @@ namespace Neon.Common
         {
             if (logger != null)
             {
-                logger.LogErrorEx(() => $"[{variable}] environment variable does not exist.");
+                logger.LogWarningEx(() => $"[{variable}] environment variable does not exist.");
             }
         }
 
@@ -408,7 +425,7 @@ namespace Neon.Common
 
             if (logger != null)
             {
-                logger.LogErrorEx(() => $"[{variable}={value}]: {error}");
+                logger.LogWarningEx(() => $"[{variable}={value}]: {error}");
             }
         }
 
@@ -430,7 +447,7 @@ namespace Neon.Common
 
             if (logger != null)
             {
-                logger.LogErrorEx(() => $"[{variable}={value}]: {error}  Defaulting to: [{def}].");
+                logger.LogWarningEx(() => $"[{variable}={value}]: {error}  Defaulting to: [{def}].");
             }
         }
 
@@ -439,12 +456,34 @@ namespace Neon.Common
         /// </summary>
         /// <param name="variable">The variable name.</param>
         /// <param name="value">The invalid variable value.</param>
-        /// <param name="redacted">Whether to redact the log output.</param>
-        private void LogVariable(string variable, string value, bool redacted = false)
+        /// <param name="redact">Whether to redact the log output.</param>
+        /// <remarks>
+        /// <note>
+        /// <para>
+        /// This class logs details about parsed variables.  By default, these logs include 
+        /// actual value that could not be parsed.  This may not be desirable for variables
+        /// defining secrets.  Pass <c>redact: true</c> for these cases.
+        /// </para>
+        /// <para>
+        /// When debugging, it's useful to ignore <c>redact</c> arguments and include 
+        /// these values in any logged events anyway.  You can accomplish this by setting 
+        /// the <c>NEON_REDACT_OVERRIDE=1</c> environment variable.
+        /// </para>
+        /// <para>
+        /// <b>IMPORTANT:</b> Never set <c>NEON_REDACT_OVERRIDE=1</c> for production.
+        /// </para>
+        /// </note>
+        /// </remarks>
+        private void LogVariable(string variable, string value, bool redact = false)
         {
-            if (redacted)
+            if (Environment.GetEnvironmentVariable("NEON_REDACT_OVERRIDE") == "1")
             {
-                value = "REDACTED";
+                redact = false;
+            }
+
+            if (redact)
+            {
+                value = "***REDACTED***";
             }
 
             if (logger != null)
@@ -472,11 +511,28 @@ namespace Neon.Common
         /// <param name="required">Optionally specifies that the variable is required to exist.</param>
         /// <param name="parser">The parser function.</param>
         /// <param name="validator">Optional validation function.</param>
-        /// <param name="redacted">Optionally redact log output of the variable.</param>
+        /// <param name="redact">Optionally redact log output of the variable.</param>
         /// <returns>The parsed value.</returns>
         /// <exception cref="KeyNotFoundException">Thrown if the variable does not exists and <paramref name="required"/>=<c>true</c>.</exception>
         /// <exception cref="FormatException">Thrown if the variable could not be parsed or the <paramref name="validator"/> returned an error.</exception>
-        public T Parse<T>(string variable, string defaultInput, Parser<T> parser, bool required = false, Validator<T> validator = null, bool redacted = false)
+        /// <remarks>
+        /// <note>
+        /// <para>
+        /// This class logs details about parsed variables.  By default, these logs include 
+        /// actual value that could not be parsed.  This may not be desirable for variables
+        /// defining secrets.  Pass <c>redact: true</c> for these cases.
+        /// </para>
+        /// <para>
+        /// When debugging, it's useful to ignore <c>redact</c> arguments and include 
+        /// these values in any logged events anyway.  You can accomplish this by setting 
+        /// the <c>NEON_REDACT_OVERRIDE=1</c> environment variable.
+        /// </para>
+        /// <para>
+        /// <b>IMPORTANT:</b> Never set <c>NEON_REDACT_OVERRIDE=1</c> for production.
+        /// </para>
+        /// </note>
+        /// </remarks>
+        public T Parse<T>(string variable, string defaultInput, Parser<T> parser, bool required = false, Validator<T> validator = null, bool redact = false)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(variable), nameof(variable));
             Covenant.Requires<ArgumentNullException>(parser != null, nameof(parser));
@@ -510,7 +566,7 @@ namespace Neon.Common
                 input = defaultInput;
             }
 
-            LogVariable(variable, input, redacted);
+            LogVariable(variable, input, redact);
 
             if (!parser(input, out var value, out error))
             {
@@ -560,13 +616,30 @@ namespace Neon.Common
         /// value is valid.  This should return <c>null</c> for valid values and an error
         /// message for invalid ones.
         /// </param>
-        /// <param name="redacted">Optionally redact log output of the variable.</param>
+        /// <param name="redact">Optionally redact log output of the variable.</param>
         /// <returns>The parsed value.</returns>
         /// <exception cref="KeyNotFoundException">Thrown if the variable does not exists and <paramref name="required"/>=<c>true</c>.</exception>
         /// <exception cref="FormatException">Thrown if the variable could not be parsed or the <paramref name="validator"/> returned an error.</exception>
-        public string Get(string variable, string defaultInput, bool required = false, Validator<string> validator = null, bool redacted = false)
+        /// <remarks>
+        /// <note>
+        /// <para>
+        /// This class logs details about parsed variables.  By default, these logs include 
+        /// actual value that could not be parsed.  This may not be desirable for variables
+        /// defining secrets.  Pass <c>redact: true</c> for these cases.
+        /// </para>
+        /// <para>
+        /// When debugging, it's useful to ignore <c>redact</c> arguments and include 
+        /// these values in any logged events anyway.  You can accomplish this by setting 
+        /// the <c>NEON_REDACT_OVERRIDE=1</c> environment variable.
+        /// </para>
+        /// <para>
+        /// <b>IMPORTANT:</b> Never set <c>NEON_REDACT_OVERRIDE=1</c> for production.
+        /// </para>
+        /// </note>
+        /// </remarks>
+        public string Get(string variable, string defaultInput, bool required = false, Validator<string> validator = null, bool redact = false)
         {
-            return Parse<string>(variable, defaultInput, StringParser, required, validator, redacted);
+            return Parse<string>(variable, defaultInput, StringParser, required, validator, redact);
         }
 
         /// <summary>
