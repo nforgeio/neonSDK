@@ -16,9 +16,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Publishes DEBUG builds of the NeonForge Nuget packages to the repo
-# at http://nuget-dev.neoncloud.io so intermediate builds can be shared 
-# by maintainers.
+# This file includes common veriably definitions and functions used while
+# building and publishing neonSDK nuget packages.
 #
 # NOTE: This is script works only for maintainers with proper credentials.
 
@@ -130,7 +129,7 @@ function IsRelease
 
 #------------------------------------------------------------------------------
 # Returns $true if images built from the current Git branch should be tagged
-# with [:latest] when pushed to Docker Hub.  This will return $true for any
+# with [:latest] when pushed to Docker Hub.  This will return [$true] for any
 # release branch starting with "release-" as well as the MASTER branch.
 #
 # This has the effect of tagging release builds with [:latest] in [ghcr.io/neonrelease]
