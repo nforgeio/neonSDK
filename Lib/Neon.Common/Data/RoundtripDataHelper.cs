@@ -48,7 +48,7 @@ namespace Neon.Data
 
         /// <summary>
         /// The error message used when <see cref="object.GetHashCode()"/> is called on
-        /// a generated data model that has bo properties tagged with [HashSource].
+        /// a generated data model that has no properties tagged with [HashSource].
         /// </summary>
         public const string NoHashPropertiesError = "At least one data model property must be tagged by [HashSourceAttribute].";
 
