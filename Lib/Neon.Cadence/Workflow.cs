@@ -896,6 +896,7 @@ namespace Neon.Cadence
         /// <returns>The new <see cref="Guid"/>.</returns>
         /// <exception cref="ObjectDisposedException">Thrown if the associated Cadence client is disposed.</exception>
         /// <exception cref="NotSupportedException">Thrown when this is called outside of a workflow entry point method.</exception>
+        [Obsolete("WARNING: This API doesn't appear to be idempotent.  Use a custom activity instead.")]
         public async Task<Guid> NewGuidAsync()
         {
             await SyncContext.Clear;
@@ -925,6 +926,7 @@ namespace Neon.Cadence
         /// will generally see different sequences of random numbers.
         /// </note>
         /// </remarks>
+        [Obsolete("WARNING: This API doesn't appear to be idempotent.  Use a custom activity instead.")]
         public async Task<double> NextRandomDoubleAsync()
         {
             await SyncContext.Clear;
@@ -953,6 +955,7 @@ namespace Neon.Cadence
         /// will generally see different sequences of random numbers.
         /// </note>
         /// </remarks>
+        [Obsolete("WARNING: This API doesn't appear to be idempotent.  Use a custom activity instead.")]
         public async Task<int> NextRandomAsync()
         {
             await SyncContext.Clear;
@@ -982,6 +985,7 @@ namespace Neon.Cadence
         /// will generally see different sequences of random numbers.
         /// </note>
         /// </remarks>
+        [Obsolete("WARNING: This API doesn't appear to be idempotent.  Use a custom activity instead.")]
         public async Task<int> NextRandomAsync(int maxValue)
         {
             await SyncContext.Clear;
@@ -1014,6 +1018,7 @@ namespace Neon.Cadence
         /// will generally see different sequences of random numbers.
         /// </note>
         /// </remarks>
+        [Obsolete("WARNING: This API doesn't appear to be idempotent.  Use a custom activity instead.")]
         public async Task<int> NextRandomAsync(int minValue, int maxValue)
         {
             await SyncContext.Clear;
@@ -1044,6 +1049,7 @@ namespace Neon.Cadence
         /// will generally see different sequences of random numbers.
         /// </note>
         /// </remarks>
+        [Obsolete("WARNING: This API doesn't appear to be idempotent.  Use a custom activity instead.")]
         public async Task<byte[]> NextRandomBytesAsync(int size)
         {
             await SyncContext.Clear;
@@ -1101,6 +1107,7 @@ namespace Neon.Cadence
         /// </para>
         /// </note>
         /// </remarks>
+        [Obsolete("WARNING: This API doesn't appear to be idempotent.  Use a custom activity instead.")]
         public async Task<T> SideEffectAsync<T>(Func<T> function)
         {
             await SyncContext.Clear;
