@@ -88,10 +88,10 @@ namespace Neon.Deployment
             {
                 // $hack(jefflill):
                 //
-                // Replace any potential secret values with "***" to avoid having these
+                // Replace any potential secret values with "***REDACTED***" to avoid having these
                 // end up in test or other logs.
 
-                const string redacted = "***";
+                const string redacted = "***REDACTED***";
 
                 if (request.Args.ContainsKey("pat"))
                 {
