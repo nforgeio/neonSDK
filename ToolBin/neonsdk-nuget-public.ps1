@@ -59,7 +59,7 @@ function SetVersion
     )
 
     "$project"
-	neon-build pack-version "$env:NF_ROOT\Lib\Neon.Common\Build.cs" NeonSDKVersion "$env:NF_ROOT\Lib\$project\$project.csproj"
+	neon-build pack-version "$env:NF_ROOT\Lib\Neon.Common\Build.cs" NeonSdkVersion "$env:NF_ROOT\Lib\$project\$project.csproj"
     ThrowOnExitCode
 }
 
@@ -102,15 +102,14 @@ function Publish
 
 # Load the library and neonKUBE versions.
 
-$msbuild         = $env:MSBUILDPATH
-$nfRoot          = "$env:NF_ROOT"
-$nfSolution      = "$nfRoot\neonSDK.sln"
-$nfBuild         = "$env:NF_BUILD"
-$nfLib           = "$nfRoot\Lib"
-$nfTools         = "$nfRoot\Tools"
-$nfToolBin       = "$nfRoot\ToolBin"
-$neonSdkVersion  = $(& "$nfToolBin\neon-build" read-version "$nfLib/Neon.Common/Build.cs" NeonSDKVersion)
-$neonkubeVersion = $(& "$nfToolBin\neon-build" read-version "$nfLib/Neon.Kube/KubeVersions.cs" NeonKube)
+$msbuild        = $env:MSBUILDPATH
+$nfRoot         = "$env:NF_ROOT"
+$nfSolution     = "$nfRoot\neonSDK.sln"
+$nfBuild        = "$env:NF_BUILD"
+$nfLib          = "$nfRoot\Lib"
+$nfTools        = "$nfRoot\Tools"
+$nfToolBin      = "$nfRoot\ToolBin"
+$neonSdkVersio  = $(& "$nfToolBin\neon-build" read-version "$nfLib/Neon.Common/Build.cs" NeonSdkVersion)
 
 # We need to do a release solution build to ensure that any tools or other
 # dependencies are built before we build and publish the individual packages.
