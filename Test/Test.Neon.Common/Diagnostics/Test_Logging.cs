@@ -143,7 +143,7 @@ namespace TestCommon
             Assert.Equal((int)SeverityNumber.SEVERITY_NUMBER_INFO, logEvent.SeverityNumber);
             Assert.Null(logEvent.SpanId);
             Assert.Null(logEvent.TraceId);
-            Assert.Null(logEvent.Tags);
+            Assert.NotNull(logEvent.Tags);
             Assert.NotNull(logEvent.Resources);
             Assert.Equal(serviceName, logEvent.Resources.Single(item => item.Key == "service.name").Value);
             Assert.Equal(serviceVersion, logEvent.Resources.Single(item => item.Key == "service.version").Value);
@@ -215,7 +215,7 @@ namespace TestCommon
             Assert.Equal((int)SeverityNumber.SEVERITY_NUMBER_FATAL, logEvent.SeverityNumber);
             Assert.Null(logEvent.SpanId);
             Assert.Null(logEvent.TraceId);
-            Assert.Null(logEvent.Tags);
+            Assert.NotNull(logEvent.Tags);
             Assert.NotNull(logEvent.Resources);
             Assert.Equal(serviceName, logEvent.Resources.Single(item => item.Key == "service.name").Value);
             Assert.Equal(serviceVersion, logEvent.Resources.Single(item => item.Key == "service.version").Value);
@@ -306,20 +306,9 @@ namespace TestCommon
 
                 Assert.Equal("There be an exception!", exceptionEvent.Body);
 
-                Assert.Equal(typeof(AggregateException).FullName, exceptionEvent.Tags["exception.name"]);
-                Assert.NotNull(exceptionEvent.Tags["exception.stack"]);
-                Assert.StartsWith("at ", (string)exceptionEvent.Tags["exception.stack"]);
-
-                var jArray = (JArray)exceptionEvent.Tags["exception.inner"];
-                var innerArray = JsonConvert.DeserializeObject<ExceptionInfo[]>(jArray.ToString());
-
-                Assert.Equal(2, innerArray.Length);
-
-                Assert.Contains("exception-0", innerArray.Select(item => item.Message));
-                Assert.Contains(typeof(Exception).FullName, innerArray.Select(item => item.Type));
-
-                Assert.Contains("exception-1", innerArray.Select(item => item.Message));
-                Assert.Contains(typeof(FormatException).FullName, innerArray.Select(item => item.Type));
+                Assert.Equal(typeof(AggregateException).FullName, exceptionEvent.Tags["exception.type"]);
+                Assert.NotNull(exceptionEvent.Tags["exception.stacktrace"]);
+                Assert.StartsWith("at ", (string)exceptionEvent.Tags["exception.stacktrace"]);
             }
             catch (Exception e)
             {
@@ -514,7 +503,8 @@ namespace TestCommon
             Assert.Equal((int)SeverityNumber.SEVERITY_NUMBER_FATAL, logEvent.SeverityNumber);
             Assert.Null(logEvent.SpanId);
             Assert.Null(logEvent.TraceId);
-            Assert.Null(logEvent.Tags);
+            Assert.NotNull(logEvent.Tags);
+            Assert.Equal(categoryName, logEvent.Tags[LogTagNames.CategoryName]);
             Assert.NotNull(logEvent.Resources);
             Assert.Equal(serviceName, logEvent.Resources.Single(item => item.Key == "service.name").Value);
             Assert.Equal(serviceVersion, logEvent.Resources.Single(item => item.Key == "service.version").Value);
@@ -584,9 +574,9 @@ namespace TestCommon
 
                 Assert.Equal(NeonHelper.ExceptionError(e), exceptionEvent.Body);
 
-                Assert.Equal(typeof(Exception).FullName, exceptionEvent.Tags["exception.name"]);
-                Assert.NotNull(exceptionEvent.Tags["exception.stack"]);
-                Assert.StartsWith("at ", (string)exceptionEvent.Tags["exception.stack"]);
+                Assert.Equal(typeof(Exception).FullName, exceptionEvent.Tags["exception.type"]);
+                Assert.NotNull(exceptionEvent.Tags["exception.stacktrace"]);
+                Assert.StartsWith("at ", (string)exceptionEvent.Tags["exception.stacktrace"]);
             }
 
             // With an explict message.
@@ -606,9 +596,9 @@ namespace TestCommon
 
                 Assert.Equal("There be an exception!", exceptionEvent.Body);
 
-                Assert.Equal(typeof(Exception).FullName, exceptionEvent.Tags["exception.name"]);
-                Assert.NotNull(exceptionEvent.Tags["exception.stack"]);
-                Assert.StartsWith("at ", (string)exceptionEvent.Tags["exception.stack"]);
+                Assert.Equal(typeof(Exception).FullName, exceptionEvent.Tags["exception.type"]);
+                Assert.NotNull(exceptionEvent.Tags["exception.stacktrace"]);
+                Assert.StartsWith("at ", (string)exceptionEvent.Tags["exception.stacktrace"]);
             }
 
             // [AggregeteException] with multiple inner exceptions.
@@ -651,20 +641,9 @@ namespace TestCommon
 
                 Assert.Equal("There be an exception!", exceptionEvent.Body);
 
-                Assert.Equal(typeof(AggregateException).FullName, exceptionEvent.Tags["exception.name"]);
-                Assert.NotNull(exceptionEvent.Tags["exception.stack"]);
-                Assert.StartsWith("at ", (string)exceptionEvent.Tags["exception.stack"]);
-
-                var jArray     = (JArray)exceptionEvent.Tags["exception.inner"];
-                var innerArray = JsonConvert.DeserializeObject<ExceptionInfo[]>(jArray.ToString());
-
-                Assert.Equal(2, innerArray.Length);
-
-                Assert.Contains("exception-0", innerArray.Select(item => item.Message));
-                Assert.Contains(typeof(Exception).FullName, innerArray.Select(item => item.Type));
-
-                Assert.Contains("exception-1", innerArray.Select(item => item.Message));
-                Assert.Contains(typeof(FormatException).FullName, innerArray.Select(item => item.Type));
+                Assert.Equal(typeof(AggregateException).FullName, exceptionEvent.Tags["exception.type"]);
+                Assert.NotNull(exceptionEvent.Tags["exception.stacktrace"]);
+                Assert.StartsWith("at ", (string)exceptionEvent.Tags["exception.stacktrace"]);
             }
             catch (Exception e)
             {
@@ -692,6 +671,127 @@ namespace TestCommon
 
             Assert.NotEmpty(logEvent.TraceId);
             Assert.NotEmpty(logEvent.SpanId);
+        }
+
+        [Fact]
+        public void LoggerWithTags()
+        {
+            // Verify that [LoggerWithTags] actually adds tags to logged events.
+
+            const string serviceName    = "my-service";
+            const string serviceVersion = "1.2.3";
+            const string categoryName   = "my-category";
+
+            var interceptedEvents = new List<LogEvent>();
+            var interceptedStdOut = new List<string>();
+            var interceptedStdErr = new List<string>();
+            var utcNow            = DateTime.UtcNow;
+
+            using var loggerFactory = LoggerFactory.Create(
+                builder =>
+                {
+                    builder
+                        .SetMinimumLevel(LogLevel.Debug)
+                        .AddOpenTelemetry(
+                            options =>
+                            {
+                                options.ParseStateValues        = true;
+                                options.IncludeFormattedMessage = true;
+                                options.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(serviceName: serviceName, serviceVersion: serviceVersion));
+                                options.AddConsoleJsonExporter(
+                                    options =>
+                                    {
+                                        options.SingleLine           = true;
+                                        options.Emit                 = false;
+                                        options.ExceptionStackTraces = true;
+                                        options.StandardErrorLevel   = LogLevel.Warning;
+                                        options.InnerExceptions      = true;
+                                        options.LogEventInterceptor  = logEvent => interceptedEvents.Add(logEvent);
+                                        options.StdErrInterceptor    = text => interceptedStdErr.Add(text);
+                                        options.StdOutInterceptor    = text => interceptedStdOut.Add(text);
+                                    });
+                            });
+                });
+
+            var logger = loggerFactory.CreateLogger(categoryName)
+                .AddTags(
+                    tags =>
+                    {
+                        tags.Add("default-0", "0");
+                        tags.Add("default-1", "1");
+                    });
+
+            using var activityListener = new ActivityListener()
+            {
+                ShouldListenTo      = s => true,
+                SampleUsingParentId = (ref ActivityCreationOptions<string> activityOptions) => ActivitySamplingResult.AllData,
+                Sample              = (ref ActivityCreationOptions<ActivityContext> activityOptions) => ActivitySamplingResult.AllData
+            };
+
+            ActivitySource.AddActivityListener(activityListener);
+
+            using var activitySource = new ActivitySource("");
+
+            //-----------------------------------------------------------------
+            // Local method to clear intercepted stuff and other locals to
+            // prepare for another test.
+
+            void Clear()
+            {
+                utcNow = DateTime.UtcNow;
+
+                interceptedEvents.Clear();
+                interceptedStdErr.Clear();
+                interceptedStdOut.Clear();
+            }
+
+            //-----------------------------------------------------------------
+            // Verify that logged events include the default tags added to the logger.
+
+            Clear();
+
+            logger.LogInformationEx("test message", tags => tags.Add("foo", "bar"));
+
+            Assert.Single(interceptedEvents);
+            Assert.Single(interceptedStdOut);
+            Assert.Empty(interceptedStdErr);
+
+            var logEvent = interceptedEvents.Single();
+
+            Assert.True(utcNow <= NeonHelper.UnixEpochNanosecondsToDateTimeUtc(logEvent.TsNs));
+            Assert.Equal("test message", logEvent.Body);
+            Assert.Equal(categoryName, logEvent.CategoryName);
+            Assert.Equal("Information", logEvent.Severity);
+            Assert.Equal("0", logEvent.Tags["default-0"]);
+            Assert.Equal("1", logEvent.Tags["default-1"]);
+            Assert.Equal("bar", logEvent.Tags["foo"]);
+
+            //-----------------------------------------------------------------
+            // Verify that tags explicitly included in logged events override any
+            // tags held by the [ILogger].
+
+            Clear();
+
+            logger.LogInformationEx("test message", 
+                tags =>
+                    {
+                        tags.Add("foo", "bar");
+                        tags.Add("default-0", "OVERRIDDEN!");
+                    });
+
+            Assert.Single(interceptedEvents);
+            Assert.Single(interceptedStdOut);
+            Assert.Empty(interceptedStdErr);
+
+            logEvent = interceptedEvents.Single();
+
+            Assert.True(utcNow <= NeonHelper.UnixEpochNanosecondsToDateTimeUtc(logEvent.TsNs));
+            Assert.Equal("test message", logEvent.Body);
+            Assert.Equal(categoryName, logEvent.CategoryName);
+            Assert.Equal("Information", logEvent.Severity);
+            Assert.Equal("OVERRIDDEN!", logEvent.Tags["default-0"]);
+            Assert.Equal("1", logEvent.Tags["default-1"]);
+            Assert.Equal("bar", logEvent.Tags["foo"]);
         }
 
         [Fact]

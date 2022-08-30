@@ -42,11 +42,19 @@ namespace Neon.Diagnostics
         /// to every logged event.
         /// </summary>
         /// <param name="logger">The logger being wrapped.</param>
-        /// <param name="tags">The tags to be included in all events logged from the wrapping logger returned.</param>
+        /// <param name="tagSetter">Action used to add tags to the logger.</param>
         /// <returns>An <see cref="ILogger"/> that will include the tags in every event it logs.</returns>
-        public static ILogger CreateLoggerWithTags(this ILogger logger, LogTags tags)
+        /// <remarks>
+        /// This method returns a new logger that includes the tags added by the
+        /// <paramref name="tagSetter"/> action.
+        /// </remarks>
+        public static ILogger AddTags(this ILogger logger, Action<LogTags> tagSetter)
         {
             Covenant.Requires<ArgumentNullException>(logger != null, nameof(logger));
+
+            var tags = new LogTags();
+
+            tagSetter?.Invoke(tags);
 
             if (logger is LoggerWithTags loggerWithTags)
             {
@@ -137,6 +145,19 @@ namespace Neon.Diagnostics
                     message = messageFunc();
                 }
 
+                // Append any tags held by [LoggerWithTags] loggers.
+
+                var loggerWithTags = logger as LoggerWithTags;
+                var loggerTagCount = loggerWithTags == null ? 0 : loggerWithTags.Tags.Count;
+
+                if (loggerTagCount > 0)
+                {
+                    foreach (var tag in loggerWithTags.Tags.Tags)
+                    {
+                        logTags.Add(tag.Key, tag.Value);
+                    }
+                }
+
                 // Generate a log message from an exception when the user didn't
                 // specify a message.
 
@@ -153,11 +174,6 @@ namespace Neon.Diagnostics
                 {
                     tagSetter.Invoke(logTags);
                 }
-
-                // Append any tags held by [LoggerWithTags] loggers.
-
-                var taggedLogger      = logger as LoggerWithTags;
-                var taggedLoggerCount = taggedLogger == null ? 0 : taggedLogger.Tags.Count;
 
                 // Use stock [ILogger] to log the event.
 

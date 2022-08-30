@@ -106,9 +106,7 @@ namespace Neon.Diagnostics
                 //-------------------------------------------------------------
                 // Exception information
 
-                ExceptionInfo       exceptionInfo      = new ExceptionInfo();
-                ExceptionInfo       innerExceptionInfo = new ExceptionInfo();
-                List<ExceptionInfo> innerExceptionList = null;
+                var exceptionInfo = new ExceptionInfo();
 
                 if (record.Exception != null)
                 {
@@ -117,35 +115,6 @@ namespace Neon.Diagnostics
                     exceptionInfo.Type    = exception.GetType().FullName;
                     exceptionInfo.Message = exception.Message;
                     exceptionInfo.Stack   = exception.StackTrace.TrimStart();
-
-                    if (options.InnerExceptions && exception != null)
-                    {
-                        if (exception is AggregateException aggregateException && aggregateException.InnerExceptions.Count > 0)
-                        {
-                            innerExceptionList = new List<ExceptionInfo>();
-
-                            foreach (var innerException in aggregateException.InnerExceptions)
-                            {
-                                var inner = new ExceptionInfo();
-
-                                inner.Type    = innerException.GetType().FullName;
-                                inner.Message = innerException.Message;
-                                inner.Stack   = innerException.StackTrace.TrimStart();
-
-                                innerExceptionList.Add(inner);
-                            }
-                        }
-                        else if (exception.InnerException != null)
-                        {
-                            var innerException = exception.InnerException;
-                            
-                            innerExceptionInfo = new ExceptionInfo();
-
-                            innerExceptionInfo.Type    = innerException.GetType().FullName;
-                            innerExceptionInfo.Message = innerException.Message;
-                            innerExceptionInfo.Stack   = innerException.StackTrace.TrimStart();
-                        }
-                    }
                 }
 
                 //-------------------------------------------------------------

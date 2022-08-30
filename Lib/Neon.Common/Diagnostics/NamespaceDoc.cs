@@ -66,7 +66,7 @@ namespace Neon.Diagnostics
     ///     <term><b><see cref="LoggerWithTags"/></b></term>
     ///     <description>
     ///     This is an extended <see cref="ILogger"/> that may include tags that will be automatically
-    ///     added to all events submitted to the logger.  Typically, you'll use the <see cref="LoggerExtensions.CreateLoggerWithTags(ILogger, LogTags)"/>
+    ///     added to all events submitted to the logger.  Typically, you'll use the <see cref="LoggerExtensions.AddTags(ILogger, LogTags)"/>
     ///     method to construct one of these that wraps another logger.
     ///     </description>
     /// </item>

@@ -140,7 +140,14 @@ namespace Neon.Diagnostics
 
                 if (tags != null && tags.Count > 0)
                 {
-                    logger = logger.CreateLoggerWithTags(tags);
+                    logger = logger.AddTags(
+                        _tags =>
+                        {
+                            foreach (var tag in _tags.Tags)
+                            {
+                                _tags.Add(tag.Key, tag.Value);
+                            }
+                        });
                 }
 
                 return logger;
