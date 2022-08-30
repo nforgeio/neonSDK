@@ -7,7 +7,7 @@
 		<LangVersion>latest</LangVersion>
 		<RootNamespace>TestCommon</RootNamespace>
 		<AssemblyName>Test.Neon.Common</AssemblyName>
-		<Configurations>Debug;Release;CodeDoc</Configurations>
+		<Configurations>Debug;Release</Configurations>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<GenerateDocumentationFile>false</GenerateDocumentationFile>
 		<AnalysisLevel>5.0</AnalysisLevel>
@@ -21,12 +21,6 @@
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-		<TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-		<WarningsAsErrors>NU1605</WarningsAsErrors>
-		<NoWarn></NoWarn>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='CodeDoc|AnyCPU'">
 		<TreatWarningsAsErrors>false</TreatWarningsAsErrors>
 		<WarningsAsErrors>NU1605</WarningsAsErrors>
 		<NoWarn></NoWarn>

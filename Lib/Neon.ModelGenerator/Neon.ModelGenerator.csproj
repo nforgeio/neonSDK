@@ -24,7 +24,7 @@
 		<PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
 		<AssemblyVersion>0.0.0.0</AssemblyVersion>
 		<FileVersion>0.0.0.0</FileVersion>
-		<Configurations>Debug;Release;CodeDoc</Configurations>
+		<Configurations>Debug;Release</Configurations>
 		<DevelopmentDependency>true</DevelopmentDependency>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<GenerateTargetFrameworkAttribute>true</GenerateTargetFrameworkAttribute>
@@ -39,11 +39,6 @@
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-		<NoWarn>1701;1702;NU5100</NoWarn>
-		<DefineConstants />
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='CodeDoc|AnyCPU'">
 		<NoWarn>1701;1702;NU5100</NoWarn>
 		<DefineConstants />
 	</PropertyGroup>

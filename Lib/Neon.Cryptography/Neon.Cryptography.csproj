@@ -21,7 +21,7 @@
 		<RepositoryUrl>https://github.com/nforgeio/neonSDK</RepositoryUrl>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
-		<Configurations>Debug;Release;CodeDoc</Configurations>
+		<Configurations>Debug;Release</Configurations>
 		<PackageIcon>nuget-icon.png</PackageIcon>
 		<PackageTags>cryptography utilities</PackageTags>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
@@ -43,17 +43,6 @@
 		<TreatWarningsAsErrors>false</TreatWarningsAsErrors>
 		<WarningsAsErrors>NU1605</WarningsAsErrors>
 		<NoWarn></NoWarn>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='CodeDoc|AnyCPU'">
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-		<WarningsAsErrors>NU1605</WarningsAsErrors>
-		<NoWarn></NoWarn>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='CodeDoc|net5.0|AnyCPU'">
-		<DefineConstants />
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net5.0|AnyCPU'">

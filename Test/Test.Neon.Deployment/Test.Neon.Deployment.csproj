@@ -8,7 +8,7 @@
 		<RootNamespace>TestDeployment</RootNamespace>
 		<AssemblyName>Test.Neon.Deployment</AssemblyName>
 		<IsPackable>false</IsPackable>
-		<Configurations>Debug;Release;CodeDoc</Configurations>
+		<Configurations>Debug;Release</Configurations>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<GenerateTargetFrameworkAttribute>true</GenerateTargetFrameworkAttribute>
 		<GenerateDocumentationFile>false</GenerateDocumentationFile>
@@ -26,12 +26,6 @@
 		<WarningsAsErrors>;NU1605;xUnit1006</WarningsAsErrors>
 		<NoWarn>1701;1702;xUnit1026</NoWarn>
 		<PlatformTarget>x64</PlatformTarget>
-		<DefineConstants />
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='CodeDoc|AnyCPU'">
-		<WarningsAsErrors>;NU1605;xUnit1006</WarningsAsErrors>
-		<NoWarn>1701;1702;xUnit1026</NoWarn>
 		<DefineConstants />
 	</PropertyGroup>
 

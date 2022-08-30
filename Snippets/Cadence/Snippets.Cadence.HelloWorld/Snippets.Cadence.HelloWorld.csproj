@@ -4,13 +4,8 @@
 		<OutputType>Exe</OutputType>
 		<TargetFramework>net6.0</TargetFramework>
 		<StartupObject>HelloWorld.Program</StartupObject>
-		<Configurations>Debug;Release;CodeDoc</Configurations>
+		<Configurations>Debug;Release</Configurations>
 		<AnalysisLevel>5.0</AnalysisLevel>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='CodeDoc|AnyCPU'">
-		<NoWarn>1701;1702;1998</NoWarn>
-		<DefineConstants />
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

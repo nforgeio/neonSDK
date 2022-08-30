@@ -7,7 +7,7 @@
 		<LangVersion>latest</LangVersion>
 		<RootNamespace>TestCommon</RootNamespace>
 		<AssemblyName>Test.Neon.Common</AssemblyName>
-		<Configurations>Debug;Release;CodeDoc</Configurations>
+		<Configurations>Debug;Release</Configurations>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<GenerateDocumentationFile>false</GenerateDocumentationFile>
 		<AnalysisLevel>5.0</AnalysisLevel>
@@ -26,22 +26,12 @@
 		<NoWarn></NoWarn>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='CodeDoc|AnyCPU'">
-		<TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-		<WarningsAsErrors>NU1605</WarningsAsErrors>
-		<NoWarn></NoWarn>
-	</PropertyGroup>
-
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net48|AnyCPU'">
 		<PlatformTarget>x64</PlatformTarget>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net48|AnyCPU'">
 		<PlatformTarget>x64</PlatformTarget>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='CodeDoc|net5.0|AnyCPU'">
-		<DefineConstants />
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net5.0|AnyCPU'">

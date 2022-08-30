@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Configurations>Debug;Release;CodeDoc</Configurations>
+    <Configurations>Debug;Release</Configurations>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <GenerateTargetFrameworkAttribute>true</GenerateTargetFrameworkAttribute>
   </PropertyGroup>
@@ -17,13 +17,6 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <WarningsAsErrors>NU1605</WarningsAsErrors>
-    <NoWarn></NoWarn>
-    <DefineConstants />
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='CodeDoc|AnyCPU'">
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <WarningsAsErrors>NU1605</WarningsAsErrors>
     <NoWarn></NoWarn>

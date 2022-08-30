@@ -19,7 +19,7 @@
 		<RepositoryUrl>https://github.com/nforgeio/neonSDK</RepositoryUrl>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
-		<Configurations>Debug;Release;CodeDoc</Configurations>
+		<Configurations>Debug;Release</Configurations>
 		<PackageIcon>nuget-icon.png</PackageIcon>
 		<PackageTags>xunit couchbase</PackageTags>
 		<Copyright>Copyright © 2005-2022 by neonFORGE LLC.  All rights reserved.</Copyright>
@@ -40,16 +40,6 @@
 		<TreatWarningsAsErrors>false</TreatWarningsAsErrors>
 		<WarningsAsErrors>NU1605</WarningsAsErrors>
 		<NoWarn></NoWarn>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='CodeDoc|AnyCPU'">
-		<TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-		<WarningsAsErrors>NU1605</WarningsAsErrors>
-		<NoWarn></NoWarn>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='CodeDoc|net5.0|AnyCPU'">
-		<DefineConstants />
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net5.0|AnyCPU'">

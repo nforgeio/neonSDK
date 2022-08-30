@@ -4,7 +4,7 @@
 		<TargetFramework>net6.0</TargetFramework>
 		<IsPackable>false</IsPackable>
 		<LangVersion>latest</LangVersion>
-		<Configurations>Debug;Release;CodeDoc</Configurations>
+		<Configurations>Debug;Release</Configurations>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<GenerateTargetFrameworkAttribute>true</GenerateTargetFrameworkAttribute>
 		<GenerateDocumentationFile>false</GenerateDocumentationFile>
@@ -21,10 +21,6 @@
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net5.0|AnyCPU'">
 		<DefineConstants></DefineConstants>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='CodeDoc|net5.0|AnyCPU'">
-		<DefineConstants />
 	</PropertyGroup>
 
 	<ItemGroup>
