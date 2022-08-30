@@ -79,11 +79,11 @@ namespace Neon.Diagnostics
         public int SeverityNumber { get; internal set; }
 
         /// <summary>
-        /// The event labels (tags).
+        /// The event tags.
         /// </summary>
         [JsonProperty(PropertyName = "labels", DefaultValueHandling = DefaultValueHandling.Ignore)]
         [DefaultValue(null)]
-        public IReadOnlyDictionary<string, object> Labels { get; internal set; }
+        public IReadOnlyDictionary<string, object> Tags { get; internal set; }
 
         /// <summary>
         /// The related event resources.

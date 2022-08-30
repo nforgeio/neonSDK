@@ -143,7 +143,7 @@ namespace TestCommon
             Assert.Equal((int)SeverityNumber.SEVERITY_NUMBER_INFO, logEvent.SeverityNumber);
             Assert.Null(logEvent.SpanId);
             Assert.Null(logEvent.TraceId);
-            Assert.Null(logEvent.Labels);
+            Assert.Null(logEvent.Tags);
             Assert.NotNull(logEvent.Resources);
             Assert.Equal(serviceName, logEvent.Resources.Single(item => item.Key == "service.name").Value);
             Assert.Equal(serviceVersion, logEvent.Resources.Single(item => item.Key == "service.version").Value);
@@ -174,8 +174,8 @@ namespace TestCommon
             Assert.Equal(serviceVersion, logEvent.Resources.Single(item => item.Key == "service.version").Value);
             Assert.NotEmpty((string)logEvent.Resources.Single(item => item.Key == "service.instance.id").Value);
 
-            Assert.NotNull(logEvent.Labels);
-            Assert.Equal("bar", logEvent.Labels["foo"]);
+            Assert.NotNull(logEvent.Tags);
+            Assert.Equal("bar", logEvent.Tags["foo"]);
 
             //-----------------------------------------------------------------
             // Verify that a single line of JSON is emitted and that when parsed, it
@@ -215,7 +215,7 @@ namespace TestCommon
             Assert.Equal((int)SeverityNumber.SEVERITY_NUMBER_FATAL, logEvent.SeverityNumber);
             Assert.Null(logEvent.SpanId);
             Assert.Null(logEvent.TraceId);
-            Assert.Null(logEvent.Labels);
+            Assert.Null(logEvent.Tags);
             Assert.NotNull(logEvent.Resources);
             Assert.Equal(serviceName, logEvent.Resources.Single(item => item.Key == "service.name").Value);
             Assert.Equal(serviceVersion, logEvent.Resources.Single(item => item.Key == "service.version").Value);
@@ -306,20 +306,20 @@ namespace TestCommon
 
                 Assert.Equal("There be an exception!", exceptionEvent.Body);
 
-                Assert.Equal(typeof(AggregateException).FullName, exceptionEvent.Labels["exception.name"]);
-                Assert.NotNull(exceptionEvent.Labels["exception.stack"]);
-                Assert.StartsWith("at ", (string)exceptionEvent.Labels["exception.stack"]);
+                Assert.Equal(typeof(AggregateException).FullName, exceptionEvent.Tags["exception.name"]);
+                Assert.NotNull(exceptionEvent.Tags["exception.stack"]);
+                Assert.StartsWith("at ", (string)exceptionEvent.Tags["exception.stack"]);
 
-                var jArray = (JArray)exceptionEvent.Labels["exception.inner"];
+                var jArray = (JArray)exceptionEvent.Tags["exception.inner"];
                 var innerArray = JsonConvert.DeserializeObject<ExceptionInfo[]>(jArray.ToString());
 
                 Assert.Equal(2, innerArray.Length);
 
                 Assert.Contains("exception-0", innerArray.Select(item => item.Message));
-                Assert.Contains(typeof(Exception).FullName, innerArray.Select(item => item.Name));
+                Assert.Contains(typeof(Exception).FullName, innerArray.Select(item => item.Type));
 
                 Assert.Contains("exception-1", innerArray.Select(item => item.Message));
-                Assert.Contains(typeof(FormatException).FullName, innerArray.Select(item => item.Name));
+                Assert.Contains(typeof(FormatException).FullName, innerArray.Select(item => item.Type));
             }
             catch (Exception e)
             {
@@ -442,7 +442,7 @@ namespace TestCommon
             Assert.Equal((int)SeverityNumber.SEVERITY_NUMBER_INFO, logEvent.SeverityNumber);
             Assert.Null(logEvent.SpanId);
             Assert.Null(logEvent.TraceId);
-            Assert.NotNull(logEvent.Labels);
+            Assert.NotNull(logEvent.Tags);
             Assert.NotNull(logEvent.Resources);
             Assert.Equal(serviceName, logEvent.Resources.Single(item => item.Key == "service.name").Value);
             Assert.Equal(serviceVersion, logEvent.Resources.Single(item => item.Key == "service.version").Value);
@@ -473,8 +473,8 @@ namespace TestCommon
             Assert.Equal(serviceVersion, logEvent.Resources.Single(item => item.Key == "service.version").Value);
             Assert.NotEmpty((string)logEvent.Resources.Single(item => item.Key == "service.instance.id").Value);
 
-            Assert.NotNull(logEvent.Labels);
-            Assert.Equal("bar", logEvent.Labels["foo"]);
+            Assert.NotNull(logEvent.Tags);
+            Assert.Equal("bar", logEvent.Tags["foo"]);
 
             //-----------------------------------------------------------------
             // Verify that a single line of JSON is emitted and that when parsed, it
@@ -514,7 +514,7 @@ namespace TestCommon
             Assert.Equal((int)SeverityNumber.SEVERITY_NUMBER_FATAL, logEvent.SeverityNumber);
             Assert.Null(logEvent.SpanId);
             Assert.Null(logEvent.TraceId);
-            Assert.Null(logEvent.Labels);
+            Assert.Null(logEvent.Tags);
             Assert.NotNull(logEvent.Resources);
             Assert.Equal(serviceName, logEvent.Resources.Single(item => item.Key == "service.name").Value);
             Assert.Equal(serviceVersion, logEvent.Resources.Single(item => item.Key == "service.version").Value);
@@ -584,9 +584,9 @@ namespace TestCommon
 
                 Assert.Equal(NeonHelper.ExceptionError(e), exceptionEvent.Body);
 
-                Assert.Equal(typeof(Exception).FullName, exceptionEvent.Labels["exception.name"]);
-                Assert.NotNull(exceptionEvent.Labels["exception.stack"]);
-                Assert.StartsWith("at ", (string)exceptionEvent.Labels["exception.stack"]);
+                Assert.Equal(typeof(Exception).FullName, exceptionEvent.Tags["exception.name"]);
+                Assert.NotNull(exceptionEvent.Tags["exception.stack"]);
+                Assert.StartsWith("at ", (string)exceptionEvent.Tags["exception.stack"]);
             }
 
             // With an explict message.
@@ -606,9 +606,9 @@ namespace TestCommon
 
                 Assert.Equal("There be an exception!", exceptionEvent.Body);
 
-                Assert.Equal(typeof(Exception).FullName, exceptionEvent.Labels["exception.name"]);
-                Assert.NotNull(exceptionEvent.Labels["exception.stack"]);
-                Assert.StartsWith("at ", (string)exceptionEvent.Labels["exception.stack"]);
+                Assert.Equal(typeof(Exception).FullName, exceptionEvent.Tags["exception.name"]);
+                Assert.NotNull(exceptionEvent.Tags["exception.stack"]);
+                Assert.StartsWith("at ", (string)exceptionEvent.Tags["exception.stack"]);
             }
 
             // [AggregeteException] with multiple inner exceptions.
@@ -651,20 +651,20 @@ namespace TestCommon
 
                 Assert.Equal("There be an exception!", exceptionEvent.Body);
 
-                Assert.Equal(typeof(AggregateException).FullName, exceptionEvent.Labels["exception.name"]);
-                Assert.NotNull(exceptionEvent.Labels["exception.stack"]);
-                Assert.StartsWith("at ", (string)exceptionEvent.Labels["exception.stack"]);
+                Assert.Equal(typeof(AggregateException).FullName, exceptionEvent.Tags["exception.name"]);
+                Assert.NotNull(exceptionEvent.Tags["exception.stack"]);
+                Assert.StartsWith("at ", (string)exceptionEvent.Tags["exception.stack"]);
 
-                var jArray     = (JArray)exceptionEvent.Labels["exception.inner"];
+                var jArray     = (JArray)exceptionEvent.Tags["exception.inner"];
                 var innerArray = JsonConvert.DeserializeObject<ExceptionInfo[]>(jArray.ToString());
 
                 Assert.Equal(2, innerArray.Length);
 
                 Assert.Contains("exception-0", innerArray.Select(item => item.Message));
-                Assert.Contains(typeof(Exception).FullName, innerArray.Select(item => item.Name));
+                Assert.Contains(typeof(Exception).FullName, innerArray.Select(item => item.Type));
 
                 Assert.Contains("exception-1", innerArray.Select(item => item.Message));
-                Assert.Contains(typeof(FormatException).FullName, innerArray.Select(item => item.Name));
+                Assert.Contains(typeof(FormatException).FullName, innerArray.Select(item => item.Type));
             }
             catch (Exception e)
             {

@@ -76,7 +76,7 @@ namespace Neon.Diagnostics
     {
         private ConsoleJsonLogExporterOptions   options;
         private LogEvent                        logEvent  = new LogEvent();
-        private Dictionary<string, object>      labels    = new Dictionary<string, object>();
+        private Dictionary<string, object>      tags      = new Dictionary<string, object>();
         private Dictionary<string, object>      resources = new Dictionary<string, object>();
 
         /// <summary>
@@ -114,7 +114,7 @@ namespace Neon.Diagnostics
                 {
                     var exception = record.Exception;
                     
-                    exceptionInfo.Name    = exception.GetType().FullName;
+                    exceptionInfo.Type    = exception.GetType().FullName;
                     exceptionInfo.Message = exception.Message;
                     exceptionInfo.Stack   = exception.StackTrace.TrimStart();
 
@@ -128,7 +128,7 @@ namespace Neon.Diagnostics
                             {
                                 var inner = new ExceptionInfo();
 
-                                inner.Name    = innerException.GetType().FullName;
+                                inner.Type    = innerException.GetType().FullName;
                                 inner.Message = innerException.Message;
                                 inner.Stack   = innerException.StackTrace.TrimStart();
 
@@ -141,7 +141,7 @@ namespace Neon.Diagnostics
                             
                             innerExceptionInfo = new ExceptionInfo();
 
-                            innerExceptionInfo.Name    = innerException.GetType().FullName;
+                            innerExceptionInfo.Type    = innerException.GetType().FullName;
                             innerExceptionInfo.Message = innerException.Message;
                             innerExceptionInfo.Stack   = innerException.StackTrace.TrimStart();
                         }
@@ -173,9 +173,16 @@ namespace Neon.Diagnostics
                 }
 
                 //-------------------------------------------------------------
-                // Labels
+                // Tags
 
-                labels.Clear();
+                tags.Clear();
+
+                logEvent.CategoryName = record.CategoryName;
+
+                if (!string.IsNullOrEmpty(record.CategoryName))
+                {
+                    tags.Add(LogTagNames.CategoryName, logEvent.CategoryName);
+                }
 
                 if ((record.StateValues != null && record.StateValues.Count > 0) || record.Exception != null)
                 {
@@ -223,7 +230,7 @@ namespace Neon.Diagnostics
                                 continue;
                             }
 
-                            labels[item.Key] = item.Value;
+                            tags[item.Key] = item.Value;
                         }
                     }
 
@@ -239,25 +246,20 @@ namespace Neon.Diagnostics
 
                     if (record.Exception != null)
                     {
-                        labels.Add("exception.name", exceptionInfo.Name);
-                        labels.Add("exception.message", exceptionInfo.Message);
+                        tags.Add("exception.type", exceptionInfo.Type);
+                        tags.Add("exception.message", exceptionInfo.Message);
 
                         if (options.ExceptionStackTraces)
                         {
-                            labels.Add("exception.stack", exceptionInfo.Stack);
-                        }
-
-                        if (innerExceptionList != null && innerExceptionList.Count > 0 && options.InnerExceptions)
-                        {
-                            labels.Add("exception.inner", innerExceptionList);
+                            tags.Add("exception.stacktrace", exceptionInfo.Stack);
                         }
                     }
 
-                    logEvent.Labels = labels.Count > 0 ? labels : null;
+                    logEvent.Tags = tags.Count > 0 ? tags : null;
                 }
                 else
                 {
-                    logEvent.Labels = null;
+                    logEvent.Tags = null;
                 }
 
                 //-------------------------------------------------------------

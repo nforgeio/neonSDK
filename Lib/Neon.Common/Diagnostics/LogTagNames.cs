@@ -38,9 +38,9 @@ namespace Neon.Diagnostics
         public const string InternalOriginalFormat = "{OriginalFormat}";
 
         /// <summary>
-        /// Identifies the event category name.
+        /// Identifies the MSFT logger implementation's tag that holds the category name.
         /// </summary>
-        public const string CategoryName = "categoryName";
+        public const string CategoryName = "dotnet.ilogger.category";
 
         /// <summary>
         /// Identifies a related exception.

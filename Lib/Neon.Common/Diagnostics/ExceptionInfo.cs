@@ -45,11 +45,11 @@ namespace Neon.Diagnostics
     public struct ExceptionInfo
     {
         /// <summary>
-        /// The fully qualified exception name.
+        /// The fully qualified exception type name.
         /// </summary>
-        [JsonProperty(PropertyName = "name", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [JsonProperty(PropertyName = "type", DefaultValueHandling = DefaultValueHandling.Ignore)]
         [DefaultValue(null)]
-        public string Name { get; set; }
+        public string Type { get; set; }
 
         /// <summary>
         /// The fully qualified exception name.
