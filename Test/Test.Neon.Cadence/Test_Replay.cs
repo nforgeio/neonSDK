@@ -15,6 +15,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#pragma warning disable CS0618  // Disable warnings from side-effect related deprecations
+
 using System;
 using System.Collections.Generic;
 using System.IO;
