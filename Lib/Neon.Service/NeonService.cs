@@ -620,7 +620,7 @@ namespace Neon.Service
             {
                 if (options.AppendGitInfo && !string.IsNullOrEmpty(ThisAssembly.Git.Branch))
                 {
-                    version += $"-{ThisAssembly.Git.Branch}-{ThisAssembly.Git.Commit}";
+                    version += $"+{ThisAssembly.Git.Branch}.{ThisAssembly.Git.Commit}";
                 }
             }
             catch
