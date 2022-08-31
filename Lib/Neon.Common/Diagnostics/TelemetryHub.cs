@@ -39,9 +39,9 @@ namespace Neon.Diagnostics
     /// Provides a standard global place where libraries and applications can gain access to
     /// the application's <see cref="ActivitySource"/> and <see cref="LoggerFactory"/> for 
     /// recording traces and logs.  Applications that enable tracing and logging and want 
-    /// to enable logging and tracing by Neon libraries will need to call <see cref="Initialize(ILoggerFactory, ActivitySource)"/>
-    /// immediately after configuring telemetry using the <b>OpenTelemetry</b> and <b>Microsoft.Extensions.Logging</b>
-    /// APIs.
+    /// to enable logging and tracing by Neon libraries set <see cref="LoggerFactory"/>
+    /// and <see cref="ActivitySource"/> immediately after configuring telemetry using 
+    /// the <b>OpenTelemetry</b> and <b>Microsoft.Extensions.Logging</b> APIs.
     /// </para>
     /// <note>
     /// The <b>Neon.Service.NeonService</b> class initializes these properties by default when
@@ -58,48 +58,19 @@ namespace Neon.Diagnostics
     /// </summary>
     public static class TelemetryHub
     {
-        private static bool isInitialized = false;
-
         /// <summary>
         /// Holds the global activity source used by Neon and perhaps other libraries for emitting
         /// traces.  This defaults to <c>null</c> which means that libraries won't emit any
         /// traces by default.  Programs should set this after configuring tracing.
         /// </summary>
-        public static ActivitySource ActivitySource { get; private set; } = null;
+        public static ActivitySource ActivitySource { get; set; } = null;
 
         /// <summary>
         /// Holds the global <see cref="ILoggerFactory"/> used by the Neon and perhaps other libraries
         /// for emitting logs.  This defaults to <c>null</c> which means that libraries won't emit any
         /// logs by default.  Programs should set this after configuring logging.
         /// </summary>
-        public static ILoggerFactory LoggerFactory { get; private set; } = null;
-
-        /// <summary>
-        /// <para>
-        /// Initializes <see cref="TelemetryHub"/> by setting the <see cref="ActivitySource"/> and/or <see cref="LoggerFactory"/>
-        /// properties.  These enable tracing and logging for neonSDK and other Neon related libraries.  You should call this 
-        /// immediately after configuring telemetry using the <b>OpenTelemetry</b> and <b>Microsoft.Extensions.Logging</b> APIs
-        /// to enable logging from Neon libraries.
-        /// </para>
-        /// <note>
-        /// You may only call this once per application process.
-        /// </note>
-        /// </summary>
-        /// <param name="loggerFactory"></param>
-        /// <param name="activitySource"></param>
-        /// <exception cref="InvalidOperationException">Thrown when this is call multiple times for a process.</exception>
-        public static void Initialize(ILoggerFactory loggerFactory = null, ActivitySource activitySource = null)
-        {
-            if (isInitialized)
-            {
-                throw new InvalidOperationException($"[{nameof(TelemetryHub)}.{nameof(Initialize)}] cannot be called more than once per process.");
-            }
-
-            isInitialized = true;
-
-            LoggerFactory  = loggerFactory;
-            ActivitySource = activitySource;
-        }
+        public static ILoggerFactory LoggerFactory { get; set; } = null;
 
         /// <summary>
         /// Returns an <see cref="ILogger"/> using the fully qualified name of the <typeparamref name="T"/>

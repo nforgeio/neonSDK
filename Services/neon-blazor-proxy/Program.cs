@@ -55,8 +55,6 @@ namespace NeonBlazorProxy
         /// <param name="args">The command line arguments.</param>
         public static async Task Main(string[] args)
         {
-            NeonService.Initialize();
-
             var options = Parser.Default.ParseArguments<Options>(args).Value;
 
             try

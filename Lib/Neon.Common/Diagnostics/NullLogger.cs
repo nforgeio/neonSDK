@@ -31,7 +31,7 @@ namespace Neon.Diagnostics
     /// <summary>
     /// Implements a <b>do-nothing</b> <see cref="ILogger"/>.
     /// </summary>
-    internal class NullLogger : ILogger
+    public class NullLogger : ILogger
     {
         //---------------------------------------------------------------------
 
@@ -45,16 +45,16 @@ namespace Neon.Diagnostics
         //---------------------------------------------------------------------
         // Implementation
 
+        /// <inheritdoc/>
         public IDisposable BeginScope<TState>(TState state)
         {
             return new NullScope();
         }
 
-        public bool IsEnabled(LogLevel logLevel)
-        {
-            return false;
-        }
+        /// <inheritdoc/>
+        public bool IsEnabled(LogLevel logLevel) => false;
 
+        /// <inheritdoc/>
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
         }

@@ -66,7 +66,7 @@ namespace Neon.Diagnostics
     ///     <term><b><see cref="LoggerWithTags"/></b></term>
     ///     <description>
     ///     This is an extended <see cref="ILogger"/> that may include tags that will be automatically
-    ///     added to all events submitted to the logger.  Typically, you'll use the <see cref="LoggerExtensions.AddTags(ILogger, LogTags)"/>
+    ///     added to all events submitted to the logger.  Typically, you'll use the <see cref="LoggerExtensions.AddTags(ILogger, Action{LogTags})"/>
     ///     method to construct one of these that wraps another logger.
     ///     </description>
     /// </item>
@@ -82,9 +82,9 @@ namespace Neon.Diagnostics
     ///     <note>
     ///     <b>IMPORTANT:</b> <b>NeonSDK</b> and other Neon libraries won't emit logs or traces unless the
     ///     <see cref="TelemetryHub.LoggerFactory"/> and <see cref="TelemetryHub.ActivitySource"/>
-    ///     properties are initialized.  Your applications will need call <see cref="TelemetryHub.Initialize(ILoggerFactory, System.Diagnostics.ActivitySource)"/>
-    ///     immediately after configuring telemetry using the <b>OpenTelemetry</b> and <b>Microsoft.Extensions.Logging</b> APIs
-    ///     to enable logging from Neon libraries.
+    ///     properties are initialized.  Your applications will need set <see cref="TelemetryHub.LoggerFactory"/>
+    ///     and <see cref="TelemetryHub.ActivitySource"/> immediately after configuring telemetry using the 
+    ///     <b>OpenTelemetry</b> and <b>Microsoft.Extensions.Logging</b> APIs to enable logging by Neon libraries.
     ///     </note>
     ///     </description>
     /// </item>

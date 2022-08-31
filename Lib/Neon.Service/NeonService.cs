@@ -43,6 +43,8 @@ using Neon.Windows;
 
 using DnsClient;
 using Prometheus;
+using Microsoft.Extensions.DependencyInjection;
+using OpenTelemetry.Resources;
 
 namespace Neon.Service
 {
@@ -72,7 +74,7 @@ namespace Neon.Service
     /// you call <see cref="StartedAsync(NeonServiceStatus)"/>.  Any logging performed in the constructor
     /// will be handled by a default console logger because the regular logger isn't initialized until
     /// <see cref="RunAsync(bool)"/> is called to start the service.  We recommend that you avoid any
-    /// logging from within the constructor.
+    /// logging from within your constructor.
     /// </note>
     /// <note>
     /// Note that calling <see cref="StartedAsync(NeonServiceStatus)"/> after your service has initialized is important
@@ -100,12 +102,6 @@ namespace Neon.Service
     /// or <see cref="InDevelopment"/> properties to check this.
     /// </note>
     /// <code source="..\..\Snippets\Snippets.NeonService\Program-Basic.cs" language="c#" title="Simple example showing a basic service implementation:"/>
-    /// <para><b>INITIALIZATION</b></para>
-    /// <para>
-    /// We recommend that all service applications call the <c>static </c><see cref="Initialize()"/>
-    /// at the very top of the main program entry point.  This ensures that the execution 
-    /// environment is configured properly for some scenarios.
-    /// </para>
     /// <para><b>CONFIGURATION</b></para>
     /// <para>
     /// Services are generally configured using environment variables and/or configuration
@@ -211,37 +207,26 @@ namespace Neon.Service
     /// </note>
     /// <para><b>LOGGING</b></para>
     /// <para>
-    /// Each <see cref="NeonService"/> instance maintains its own <see cref="TelemetryHub"/>
-    /// instance with the a default logger created at <see cref="Logger"/>.  The log manager
-    /// is initialized using the <b>LOG_LEVEL</b> environment variable value which defaults
-    /// to <b>info</b> when not present.  <see cref="LogLevel"/> for the possible values.
+    /// The <see cref="NeonService"/> constructor initializes the OpenTelemetry logging pipeline
+    /// by default, initializing the <see cref="Logger"/> property as well as initializing 
+    /// <see cref="TelemetryHub.LoggerFactory"/> and adding the logger factor and logger to
+    /// <see cref="NeonHelper.ServiceContainer"/>, making them available to neonSDK libraries
+    /// so they may emit logs.  The logger created by <see cref="NeonService"/> in this case
+    /// will be configured to write JSON formatted logs to the process standard output stream.
     /// </para>
     /// <para>
-    /// Note that the <see cref="Neon.Diagnostics.TelemetryHub"/> log manager will
-    /// also be initialized with the log level when the service is running in a production
-    /// environment so that logging in production works completely as expected.
+    /// <see cref="NeonService"/> parses the current log level from the <b>LOG_LEVEL</b> 
+    /// environment variable, defaulting to <see cref="LogLevel.Information"/> when this
+    /// variable is present or cannot be parsed.  The possible log levels are: <b>CRITICAL</b>,
+    /// <b>ERROR</b>, <b>WARNING</b>, <b>WARN</b>, <b>INFORMATION</b>, <b>INFO</b>, <b>DEBUG</b>
+    /// or <b>TRACE</b> (case insensitive).
     /// </para>
     /// <para>
-    /// For development environments, the <see cref="TelemetryHub"/>
-    /// instance's log level will not be modified.  This means that loggers created from
-    /// <see cref="TelemetryHub"/> may not use the same log
-    /// level as the service itself.  This means that library classes that create their
-    /// own loggers won't honor the service log level.  This is an unfortunate consequence
-    /// of running emulated services in the same process.
+    /// If you need to customize the OpenTelemetry logging pipeline, you may do this by
+    /// configuring the pipeline first, creating an <see cref="ILoggerFactory"/> and setting
+    /// the <see cref="NeonServiceOptions.LoggerFactory"/> to this factory and then passing
+    /// the options to the <see cref="NeonService"/> constructor.
     /// </para>
-    /// <para>
-    /// There are two ways to mitigate this.  First, any source code defined within the 
-    /// service project should be designed to create loggers from the service's <see cref="TelemetryHub"/>
-    /// rather than using the global one.  Second, you can configure your unit test to
-    /// set the desired log level like:
-    /// </para>
-    /// <code language="C#">
-    /// TelemetryHub.SetLogLevel(LogLevel.Debug));
-    /// </code>
-    /// <note>
-    /// Setting the global default log level like this will impact loggers created for all
-    /// emulated services, but this shouldn't be a problem for more situations.
-    /// </note>
     /// <para><b>HEALTH PROBES</b></para>
     /// <note>
     /// Health probes are supported only on Linux running as AMD64.  This is not supported
@@ -468,9 +453,8 @@ namespace Neon.Service
 
         private const string disableHealthChecks = "DISABLED";
 
-        private static bool                 isInitalized = false;
-        private static readonly char[]      equalArray   = new char[] { '=' };
-        private static readonly Gauge       infoGauge    = Metrics.CreateGauge("neon_service_info", "Describes your service version.", "version");
+        private static readonly char[]      equalArray = new char[] { '=' };
+        private static readonly Gauge       infoGauge  = Metrics.CreateGauge("neon_service_info", "Describes your service version.", "version");
 
         // WARNING:
         //
@@ -480,44 +464,6 @@ namespace Neon.Service
         private static string   testFolder;
         private static string   cachedNeonKubeUserFolder;
         private static string   cachedPasswordsFolder;
-
-        /// <summary>
-        /// Call this at the top of your service's main program entry point to
-        /// ensure that the current execution environment is properly initialized.
-        /// </summary>
-        /// <remarks>
-        /// This method currently dds a listener to the <see cref="AppDomain.UnhandledException"/> 
-        /// event and logs information about any unhandled exceptions.  Note that this doesn't 
-        /// interfere with any other listeners that may be present.
-        /// </remarks>
-        public static void Initialize()
-        {
-            if (isInitalized)
-            {
-                return;
-            }
-
-            // Detect unhandled application exceptions and log them.
-
-            AppDomain.CurrentDomain.UnhandledException +=
-                (s, a) =>
-                {
-                    // $todo(jefflill): IMPLEMENT THIS!
-#if DISABLED
-                    // $hack(jefflill):
-                    //
-                    // We're just going to use the default logger here because the service
-                    // instance hasn't been created yet.  This isn't ideal.
-
-                    var exception = (Exception)a.ExceptionObject;
-                    var logger    = Neon.Diagnostics.TelemetryHub.CreateLogger();
-
-                    Logger.LogCriticalEx(() => $"Unhandled exception [terminating={a.IsTerminating}]", exception);
-#endif
-                };
-
-            isInitalized = true;
-        }
 
         /// <summary>
         /// Returns <c>true</c> if the service is running in test mode.
@@ -625,6 +571,7 @@ namespace Neon.Service
 
         private readonly object                 syncLock   = new object();
         private readonly AsyncMutex             asyncMutex = new AsyncMutex();
+        private readonly NeonServiceOptions     options;
         private readonly Counter                runtimeCount;
         private readonly Counter                unhealthyCount;
         private bool                            isRunning;
@@ -650,78 +597,44 @@ namespace Neon.Service
         /// Optionally specifies the version of your service formatted as a valid <see cref="SemanticVersion"/>.
         /// This will default to <b>"unknown"</b> when not set or when the value passed is invalid.
         /// </param>
-        /// <param name="metricsPrefix">
-        /// Optionally specifies prefix to be used by metrics counters, overridding a prefix based on the
-        /// service name.  This prefix may include only alphanumeric characters and underscores.  By default,
-        /// this will be set to the service name with any non-alphanumeric characters converted to underscores.
-        /// In either case, the class will add a trailing underscore when not already present.
-        /// </param>
-        /// <param name="healthFolder">
-        /// <para>
-        /// Optionally specifies the folder path where the service will maintain the <b>health-status</b>
-        /// file and deploy the <b>health-check</b> and <b>ready-check</b> binaries.  See the class 
-        /// documentation for more information: <see cref="Neon.Service"/>.
-        /// </para>
-        /// <para>
-        /// This defaults to: <b>/</b> to make it easy to configure the Kubernetes probes.
-        /// You can disable this feature by passing <b>"DISABLED"</b> instead.
-        /// </para>
-        /// <note>
-        /// Health status generation only works on Linux.  This feature is dsabled on Windows and OS/X.
-        /// </note>
-        /// </param>
-        /// <param name="serviceMap">
-        /// Optionally specifies a service map describing this service and potentially other services.
-        /// Service maps can be used to run services locally on developer workstations via <b>Neon.Xunit.NeonServiceFixture</b>
-        /// or other means to avoid port conflicts or to emulate a cluster of services without Kubernetes
-        /// or containers.  This is a somewhat advanced topic that needs documentation.
-        /// </param>
-        /// <param name="gracefulShutdownTimeout">
-        /// Optionally specifies the termination timeout (defaults to <see cref="ProcessTerminator.DefaultGracefulTimeout"/>).  
-        /// See <see cref="ProcessTerminator"/> for more information.
-        /// </param>
-        /// <param name="minShutdownTime">
-        /// Optionally specifies the minimum time to wait before allowing termination to proceed.
-        /// This defaults to <see cref="ProcessTerminator.DefaultMinShutdownTime"/>.  See 
-        /// <see cref="ProcessTerminator"/> for more information.
-        /// </param>
-        /// <param name="terminationMessagePath">
-        /// <para>
-        /// Optionally specifies the path where Kubernetes may write a termination message
-        /// before terminating the pod hosting the message.  The <see cref="NeonService"/>
-        /// class will check for this file when it receives a termination signal when 
-        /// running on Linux and write the file contents to the log before terminating.
-        /// </para>
-        /// <para>
-        /// This defaults to: <b>/dev/termination-log</b>
-        /// </para>
-        /// <note>
-        /// This is ignored for all platforms besides Linux.
-        /// </note>
-        /// </param>
+        /// <param name="options">Optionally specifies <see cref="NeonService"/> options.</param>
         /// <exception cref="KeyNotFoundException">
         /// Thrown if there is no service description for <paramref name="name"/>
         /// within the <see cref="ServiceMap"/> when a service map is specified.
         /// </exception>
         public NeonService(
-            string          name, 
-            string          version                 = null,
-            string          metricsPrefix           = null,
-            string          healthFolder            = null,
-            ServiceMap      serviceMap              = null,
-            string          terminationMessagePath  = null,
-            TimeSpan        gracefulShutdownTimeout = default,
-            TimeSpan        minShutdownTime         = default)
+            string              name, 
+            string              version = null,
+            NeonServiceOptions  options = null)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(name), nameof(name));
 
-            Initialize();
+            this.options = options ??= new NeonServiceOptions();
 
-            Version = version ?? string.Empty;
+            // Configure the service version.
+            
+            version ??= "0.0.0";
 
-            if (serviceMap != null)
+            try
             {
-                if (!serviceMap.TryGetValue(name, out var description))
+                if (options.AppendGitInfo && !string.IsNullOrEmpty(ThisAssembly.Git.Branch))
+                {
+                    version += $"-{ThisAssembly.Git.Branch}-{ThisAssembly.Git.Commit}";
+                }
+            }
+            catch
+            {
+                // $note(jefflill):
+                //
+                // I'm not sure what GitInfo does when the project isn't in a git repo, so
+                // we'll catch and ignore any exceptions just to be safe.
+            }
+
+            // Check the service map, if one was passed.
+
+            if (options.ServiceMap != null)
+            {
+                if (!options.ServiceMap.TryGetValue(name, out var description))
                 {
                     throw new KeyNotFoundException($"The service map does not include a service definition for [{name}].");
                 }
@@ -736,30 +649,77 @@ namespace Neon.Service
                 }
             }
 
+            // Initialize the service environment.
+
             this.environmentVariables = new Dictionary<string, string>();
 
             LoadEnvironmentVariables();
 
+            // Initialize service members.
+
             this.Name                   = name;
-            this.ServiceMap             = serviceMap;
+            this.ServiceMap             = options.ServiceMap;
             this.InProduction           = !NeonHelper.IsDevWorkstation;
-            this.Terminator             = new ProcessTerminator(gracefulShutdownTimeout: gracefulShutdownTimeout, minShutdownTime: minShutdownTime);
+            this.Terminator             = new ProcessTerminator(gracefulShutdownTimeout: options.GracefulShutdownTimeout, minShutdownTime: options.MinShutdownTime);
             this.Version                = version;
             this.Environment            = new EnvironmentParser(null, VariableSource);  // Temporarily setting a NULL logger until we create the service logger below
             this.configFiles            = new Dictionary<string, FileInfo>();
-            this.healthFolder           = healthFolder ?? "/";
-            this.terminationMessagePath = terminationMessagePath ?? "/dev/termination-log";
+            this.healthFolder           = options.HealthFolder ?? "/";
+            this.terminationMessagePath = options.TerminationMessagePath ?? "/dev/termination-log";
+
+            // Configure the OpenTelemetry logging pipeline.
+
+            if (options.LoggerFactory != null)
+            {
+                // The logging pipeline is already configured.
+
+                NeonHelper.ServiceContainer.Add(new ServiceDescriptor(typeof(ILoggerFactory), options.LoggerFactory));
+
+                TelemetryHub.LoggerFactory = options.LoggerFactory;
+                this.Logger                = options.LoggerFactory.CreateLogger<NeonService>();
+            }
+            else
+            {
+                // Configure the logging pipeline here.
+
+                var loggerFactory = LoggerFactory.Create(
+                    builder =>
+                    {
+                        builder.AddOpenTelemetry(
+                            options =>
+                            {
+                                options.ParseStateValues        = true;
+                                options.IncludeFormattedMessage = true;
+                                options.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(serviceName: Name, serviceVersion: Version));
+
+                                // $todo(jefflill): Uncomment this after we port to MSFT activity tracing.
+
+                                //options.AddLogAsTraceProcessor(
+                                //    options =>
+                                //    {
+                                //        options.LogLevel = LogLevel.Information;
+                                //    });
+
+                                options.AddConsoleJsonExporter();
+                            });
+                    });
+
+                NeonHelper.ServiceContainer.Add(new ServiceDescriptor(typeof(ILoggerFactory), loggerFactory));
+
+                TelemetryHub.LoggerFactory = loggerFactory;
+                this.Logger                = loggerFactory.CreateLogger<NeonService>();
+            }
 
             // Initialize the metrics prefix and counters.
 
             var normalizedPrefix = string.Empty;
 
-            if (string.IsNullOrEmpty(metricsPrefix))
+            if (string.IsNullOrEmpty(options.MetricsPrefix))
             {
-                metricsPrefix = this.Name;
+                options.MetricsPrefix = this.Name;
             }
 
-            foreach (var ch in metricsPrefix)
+            foreach (var ch in options.MetricsPrefix)
             {
                 if (char.IsLetterOrDigit(ch) || ch == '_')
                 {
@@ -795,6 +755,18 @@ namespace Neon.Service
 
             Environment.SetLogger(Logger);
 #endif
+
+            // Capture unhandled application exceptions and log them.
+
+            // Detect unhandled application exceptions and log them.
+
+            AppDomain.CurrentDomain.UnhandledException +=
+                (s, a) =>
+                {
+                    var exception = (Exception)a.ExceptionObject;
+
+                    Logger.LogCriticalEx(exception, () => $"Unhandled exception [terminating={a.IsTerminating}]");
+                };
 
             // Update the Prometheus metrics port from the service description if present.
 
@@ -925,13 +897,6 @@ namespace Neon.Service
         /// Returns the service description for this service (if any).
         /// </summary>
         public ServiceDescription Description { get; private set; }
-
-        /// <summary>
-        /// Returns GIT branch and commit the service was built from as
-        /// well as an optional indication the the build branch had 
-        /// uncomitted changes (e.g. was dirty).
-        /// </summary>
-        public string GitVersion { get; private set; }
 
         /// <summary>
         /// Controls whether any Istio sidecars (Envoy) will be terminated automatically

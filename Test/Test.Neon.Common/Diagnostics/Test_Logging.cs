@@ -89,7 +89,6 @@ namespace TestCommon
                                         options.Emit                 = false;
                                         options.ExceptionStackTraces = true;
                                         options.StandardErrorLevel   = LogLevel.Warning;
-                                        options.InnerExceptions      = true;
                                         options.LogEventInterceptor  = logEvent => interceptedEvents.Add(logEvent);
                                         options.StdErrInterceptor    = text => interceptedStdErr.Add(text);
                                         options.StdOutInterceptor    = text => interceptedStdOut.Add(text);
@@ -377,7 +376,6 @@ namespace TestCommon
                                         options.Emit                 = false;
                                         options.ExceptionStackTraces = true;
                                         options.StandardErrorLevel   = LogLevel.Warning;
-                                        options.InnerExceptions      = true;
                                         options.LogEventInterceptor  = logEvent => interceptedEvents.Add(logEvent);
                                         options.StdErrInterceptor    = text => interceptedStdErr.Add(text);
                                         options.StdOutInterceptor    = text => interceptedStdOut.Add(text);
@@ -705,7 +703,6 @@ namespace TestCommon
                                         options.Emit                 = false;
                                         options.ExceptionStackTraces = true;
                                         options.StandardErrorLevel   = LogLevel.Warning;
-                                        options.InnerExceptions      = true;
                                         options.LogEventInterceptor  = logEvent => interceptedEvents.Add(logEvent);
                                         options.StdErrInterceptor    = text => interceptedStdErr.Add(text);
                                         options.StdOutInterceptor    = text => interceptedStdOut.Add(text);

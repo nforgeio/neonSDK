@@ -29,6 +29,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 
+using Neon;
 using Neon.Common;
 using Neon.Cryptography;
 using Neon.Diagnostics;
@@ -119,7 +120,7 @@ namespace NeonBlazorProxy
         /// </summary>
         /// <param name="name">The service name.</param>
         public Service(string name)
-             : base(name, version: "0.1", metricsPrefix: "neonblazorproxy")
+             : base(name, version: Build.NeonSdkVersion, options: new NeonServiceOptions() { MetricsPrefix = "neonblazorproxy" })
         {
         }
 

@@ -105,7 +105,7 @@ namespace TestNeonService
         /// <param name="name">The service name.</param>
         /// <param name="serviceMap">Optionally specifies the service map.</param>
         public ComplexService(string name, ServiceMap serviceMap = null)
-            : base(name, serviceMap: serviceMap)
+            : base(name, options: new NeonServiceOptions() { ServiceMap = serviceMap })
         {
         }
 

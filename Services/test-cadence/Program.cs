@@ -73,8 +73,6 @@ namespace CadenceService
         /// <returns>The tracking <see cref="Task"/>.</returns>
         public static async Task Main(string[] args)
         {
-            NeonService.Initialize();
-
             try
             {
                 Service = new Service("test-cadence");

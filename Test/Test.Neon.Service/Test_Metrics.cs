@@ -78,7 +78,7 @@ namespace TestNeonService
             private readonly Counter TestCounter = Metrics.CreateCounter("test_counter", "my test counter");
 
             public TestService()
-                : base("test-service", version: "1.0", serviceMap: CreateServiceMap())
+                : base("test-service", version: "1.0", options: new NeonServiceOptions() { ServiceMap = CreateServiceMap() })
             {
             }
 
@@ -149,7 +149,7 @@ namespace TestNeonService
             private readonly Counter TestCounter = Metrics.CreateCounter("test_counter", "my test counter");
 
             public TestServiceWithRuntimeMetrics()
-                : base("test-service", serviceMap: CreateServiceMap())
+                : base("test-service", options: new NeonServiceOptions() { ServiceMap = CreateServiceMap() })
             {
             }
 

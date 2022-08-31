@@ -80,7 +80,8 @@ namespace Neon.Diagnostics
         /// a blank line.
         /// </para>
         /// <note>
-        /// This may be useful for debugging but should probably never be used for production.
+        /// This may be useful for debugging but should probably never be used for production.  This
+        /// defaults to <c>true</c>.
         /// </note>
         /// </summary>
         public bool SingleLine { get; set; } = true;
@@ -90,12 +91,6 @@ namespace Neon.Diagnostics
         /// This defaults to <c>true</c>.
         /// </summary>
         public bool ExceptionStackTraces { get; set; } = true;
-
-        /// <summary>
-        /// Specifies whether inner exceptions should be included in logged events.
-        /// This defaults to <c>false</c>.
-        /// </summary>
-        public bool InnerExceptions { get; set; } = false;
 
         /// <summary>
         /// Used to intercept log events just before they are emitted by the exporter.  You can
