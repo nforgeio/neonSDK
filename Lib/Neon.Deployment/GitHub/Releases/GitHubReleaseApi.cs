@@ -375,7 +375,7 @@ namespace Neon.Deployment
         /// This method creates a file named [<paramref name="sourcePath"/>.md5] with the MD5 hash for the entire
         /// uploaded file by default.  You may override this behavior by passing <paramref name="noMd5File"/>=<c>true</c>.
         /// </param>
-        /// <param name="maxPartSize">Optionally overrides the maximum part size (defailts to 100 MiB).</param>d
+        /// <param name="maxPartSize">Optionally overrides the maximum part size (defaults to 25 MiB).</param>d
         /// <returns>The <see cref="DownloadManifest"/>.</returns>
         /// <remarks>
         /// <para>
@@ -394,7 +394,7 @@ namespace Neon.Deployment
             string      name        = null,
             string      filename    = null,
             bool        noMd5File   = false,
-            long        maxPartSize = (long)(100 * ByteUnits.MebiBytes))
+            long        maxPartSize = (long)(25 * ByteUnits.MebiBytes))
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(repo), nameof(repo));
             Covenant.Requires<ArgumentNullException>(release != null, nameof(release));
