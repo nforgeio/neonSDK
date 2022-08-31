@@ -156,7 +156,7 @@ namespace TestCadence
         [Fact(Timeout = CadenceTestHelper.TestTimeout)]
         public void Error_ActivityDuplicateDuplicateDefaultEntryPoints()
         {
-            // Verify that we detect duplicate entrypoint methods
+            // Verify that we detect duplicate entry point methods
             // with the default name.
 
             Assert.Throws<ActivityTypeException>(() => StubManager.NewActivityStub<IDuplicateDefaultEntryPointsActivity>(client, new DummyWorkflow().Workflow));
@@ -176,7 +176,7 @@ namespace TestCadence
         [Fact(Timeout = CadenceTestHelper.TestTimeout)] 
         public void Error_ActivityDuplicateDuplicateEntryPoints()
         {
-            // Verify that we detect duplicate entrypoint methods
+            // Verify that we detect duplicate entry point methods
             // with explicit names.
 
             Assert.Throws<ActivityTypeException>(() => StubManager.NewActivityStub<IDuplicateEntryPointsActivity>(client, new DummyWorkflow().Workflow));

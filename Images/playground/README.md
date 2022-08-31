@@ -10,7 +10,7 @@ handy utilities:
 * net-tools 
 * tcpdump
 
-The image entrypoint just sleeps for a year.  The idea is that you'll deploy this as a pod
+The image entry point just sleeps for a year.  The idea is that you'll deploy this as a pod
 and then exec into it manually via something like:
 
 ```

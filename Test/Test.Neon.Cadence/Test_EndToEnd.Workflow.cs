@@ -1983,7 +1983,7 @@ namespace TestCadence
 
             // Verify that we can run a child workflow via a future that 
             // accepts no args and doesn't return a result.  This also tests
-            // calling the the workflow entrypoint with the default entrypoint
+            // calling the the workflow entry point with the default entry point
             // method name (null).
 
             WorkflowChild.Reset();

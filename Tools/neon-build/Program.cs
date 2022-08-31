@@ -26,7 +26,7 @@ using Neon.Common;
 namespace NeonBuild
 {
     /// <summary>
-    /// Hosts the program entrypoint.
+    /// Hosts the program entry point.
     /// </summary>
     public static partial class Program
     {
@@ -269,7 +269,7 @@ ARGUMENTS:
         private static CommandLine commandLine;
 
         /// <summary>
-        /// This is the program entrypoint.
+        /// This is the program entry point.
         /// </summary>
         /// <param name="args">The command line arguments.</param>
         public static void Main(string[] args)

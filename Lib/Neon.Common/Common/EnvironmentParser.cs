@@ -374,17 +374,6 @@ namespace Neon.Common
         }
 
         /// <summary>
-        /// Used for (rare) situations where we need to start without a logger because we're
-        /// using the <see cref="EnvironmentParser"/> to read the log settings first, create the
-        /// logger and then initialize the logger parser here.
-        /// </summary>
-        /// <param name="logger">The logger or <c>null</c> to disable logging.</param>
-        public void SetLogger(ILogger logger)
-        {
-            this.logger = logger;
-        }
-
-        /// <summary>
         /// Implements the default environment variable based source.
         /// </summary>
         /// <param name="variable">The variable name.</param>

@@ -48,7 +48,7 @@ namespace WslUtil
         public static CommandLine CommandLine { get; private set; }
 
         /// <summary>
-        /// Main entrypoint.
+        /// Main entry point.
         /// </summary>
         /// <param name="args">Command line arguments.</param>
         public static async Task<int> Main(string[] args)

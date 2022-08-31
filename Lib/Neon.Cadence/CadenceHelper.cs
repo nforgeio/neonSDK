@@ -332,7 +332,7 @@ namespace Neon.Cadence.Internal
                 throw new WorkflowTypeException($"Workflow interface [{workflowInterface.FullName}] cannot not be tagged with [Workflow] because that is valid only for activity implementation classes.");
             }
 
-            // Validate the entrypoint method names and result types.
+            // Validate the entry point method names and result types.
 
             var workflowNames = new HashSet<string>();
 
@@ -347,24 +347,24 @@ namespace Neon.Cadence.Internal
 
                 if (method.IsGenericMethod)
                 {
-                    throw new WorkflowTypeException($"Workflow entrypoint method [{workflowInterface.FullName}.{method.Name}()] is generic.  Generic methods are not supported by Cadence.");
+                    throw new WorkflowTypeException($"Workflow entry point method [{workflowInterface.FullName}.{method.Name}()] is generic.  Generic methods are not supported by Cadence.");
                 }
 
                 if (!(CadenceHelper.IsTask(method.ReturnType) || CadenceHelper.IsTaskT(method.ReturnType)))
                 {
-                    throw new WorkflowTypeException($"Workflow entrypoint method [{workflowInterface.FullName}.{method.Name}()] must return a Task.");
+                    throw new WorkflowTypeException($"Workflow entry point method [{workflowInterface.FullName}.{method.Name}()] must return a Task.");
                 }
 
                 var name = workflowMethodAttribute.Name ?? string.Empty;
 
                 if (name == string.Empty && workflowMethodAttribute.IsFullName)
                 {
-                    throw new WorkflowTypeException($"Workflow entrypoint method [{workflowInterface.FullName}.{method.Name}()] specifies [WorkflowMethod(Name = \"\", IsFullName=true)].  Fully qualified names cannot be NULL or blank.");
+                    throw new WorkflowTypeException($"Workflow entry point method [{workflowInterface.FullName}.{method.Name}()] specifies [WorkflowMethod(Name = \"\", IsFullName=true)].  Fully qualified names cannot be NULL or blank.");
                 }
 
                 if (workflowNames.Contains(name))
                 {
-                    throw new WorkflowTypeException($"Multiple workflow entrypoint [{workflowInterface.FullName}] methods are tagged by [WorkflowMethod(Name = \"{name}\")].");
+                    throw new WorkflowTypeException($"Multiple workflow entry point [{workflowInterface.FullName}] methods are tagged by [WorkflowMethod(Name = \"{name}\")].");
                 }
 
                 workflowNames.Add(name);
@@ -1126,7 +1126,7 @@ namespace Neon.Cadence.Internal
 
             if (string.IsNullOrEmpty(methodName))
             {
-                // Look for the entrypoint method with a null or empty method name.
+                // Look for the entry point method with a null or empty method name.
 
                 foreach (var method in activityInterface.GetMethods())
                 {
@@ -1144,7 +1144,7 @@ namespace Neon.Cadence.Internal
             }
             else
             {
-                // Look for the entrypoint method with the matching method name.
+                // Look for the entry point method with the matching method name.
 
                 foreach (var method in activityInterface.GetMethods())
                 {
@@ -1207,7 +1207,7 @@ namespace Neon.Cadence.Internal
 
             if (string.IsNullOrEmpty(methodName))
             {
-                // Look for the entrypoint method with a null or empty method name.
+                // Look for the entry point method with a null or empty method name.
 
                 foreach (var method in workflowInterface.GetMethods())
                 {
@@ -1225,7 +1225,7 @@ namespace Neon.Cadence.Internal
             }
             else
             {
-                // Look for the entrypoint method with the matching method name.
+                // Look for the entry point method with the matching method name.
 
                 foreach (var method in workflowInterface.GetMethods())
                 {

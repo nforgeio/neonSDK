@@ -50,7 +50,7 @@ namespace NeonBlazorProxy
         }
 
         /// <summary>
-        /// The program entrypoint.
+        /// The program entry point.
         /// </summary>
         /// <param name="args">The command line arguments.</param>
         public static async Task Main(string[] args)

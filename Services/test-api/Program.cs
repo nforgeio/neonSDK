@@ -30,7 +30,7 @@ using Neon.Common;
 namespace TestApiService
 {
     /// <summary>
-    /// Hosts the program entrypoint.
+    /// Hosts the program entry point.
     /// </summary>
     public static class Program
     {
@@ -40,14 +40,14 @@ namespace TestApiService
         public static Service Service { get; private set; }
 
         /// <summary>
-        /// The program entrypoint.
+        /// The program entry point.
         /// </summary>
         /// <param name="args">The command line arguments.</param>
         public static async Task Main(string[] args)
         {
             try
             {
-                Service = new Service("test-api", version: "0.0.0");
+                Service = new Service("test-api");
 
                 Environment.Exit(await Service.RunAsync());
             }

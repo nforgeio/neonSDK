@@ -53,7 +53,9 @@ namespace Neon.Diagnostics
     /// </para>
     /// <para>
     /// The <see cref="ParseLogLevel(string, LogLevel)"/> utility can be used to parse a log level
-    /// string obtained from an environment variable or elsewhere.
+    /// string obtained from an environment variable or elsewhere.  This returns the parsed log level
+    /// and also sets the <b>Logging__LogLevel__Microsoft</b> environment variable which will be
+    /// honored by any created loggers.
     /// </para>
     /// </summary>
     public static class TelemetryHub
@@ -126,54 +128,63 @@ namespace Neon.Diagnostics
         }
 
         /// <summary>
-        /// Parses a <see cref="LogLevel"/> from a string.
+        /// Parses a <see cref="LogLevel"/> from a string and also sets the 
+        /// <b>Logging__LogLevel__Microsoft</b> environment variable which
+        /// is honored by any created <see cref="ILogger"/> instance.
         /// </summary>
         /// <param name="input">The input string.</param>
         /// <param name="default">The default value to return when <paramref name="input"/> is <c>null</c> or invalid.</param>
-        /// <returns></returns>
+        /// <returns>The parsed <see cref="LogLevel"/>.</returns>
         public static LogLevel ParseLogLevel(string input, LogLevel @default = LogLevel.Information)
         {
-            if (input == null)
+            var logLevel = @default;
+
+            if (input != null)
             {
-                return @default;
+                switch (input.ToUpperInvariant())
+                {
+                    case "CRITICAL":
+
+                        logLevel = LogLevel.Critical;
+                        break;
+
+                    case "ERROR":
+
+                        logLevel = LogLevel.Error;
+                        break;
+
+                    case "WARN":    // Backwards compatibility
+                    case "WARNING":
+
+                        logLevel = LogLevel.Warning;
+                        break;
+
+                    case "INFO":    // Backwards compatibility
+                    case "INFORMATION":
+
+                        logLevel = LogLevel.Information; ;
+                        break;
+
+                    case "DEBUG":
+
+                        logLevel = LogLevel.Debug;
+                        break;
+
+                    case "TRACE":
+
+                        logLevel = LogLevel.Trace;
+                        break;
+
+                    case "NONE":
+
+                        logLevel = LogLevel.None;
+                        break;
+                }
             }
 
-            switch (input.ToUpperInvariant())
-            {
-                case "CRITICAL":
+            Environment.SetEnvironmentVariable("Logging__LogLevel__Microsoft", logLevel.ToString());
 
-                    return LogLevel.Critical;
-
-                case "ERROR":
-
-                    return LogLevel.Error;
-
-                case "WARN":    // Backwards compatibility
-                case "WARNING":
-
-                    return LogLevel.Warning;
-
-                case "INFO":    // Backwards compatibility
-                case "INFORMATION":
-
-                    return LogLevel.Information; ;
-
-                case "DEBUG":
-
-                    return LogLevel.Debug;
-
-                case "TRACE":
-
-                    return LogLevel.Trace;
-
-                case "NONE":
-
-                    return LogLevel.None;
-
-                default:
-
-                    return @default;
-            }
+            return logLevel;
         }
     }
 }

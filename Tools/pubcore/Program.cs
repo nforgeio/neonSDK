@@ -43,7 +43,7 @@ namespace pubcore
         public const string Version = "2.2";
 
         /// <summary>
-        /// Program entrypoint.
+        /// Program entry point.
         /// </summary>
         /// <param name="args">Command line arguments.</param>
         public static void Main(string[] args)

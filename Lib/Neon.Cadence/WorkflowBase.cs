@@ -58,7 +58,7 @@ namespace Neon.Cadence
 
             /// <summary>
             /// The current task is executing within the context of
-            /// a workflow entrypoint.
+            /// a workflow entry point.
             /// </summary>
             Entrypoint,
 
@@ -170,7 +170,7 @@ namespace Neon.Cadence
         // may looks like:
         // 
         //      1::my-workflow                  -- clientId = 1, workflow type name = my-workflow
-        //      1::my-workflow::my-entrypoint   -- clientId = 1, workflow type name = my-workflow, entrypoint = my-entrypoint
+        //      1::my-workflow::my-entry point   -- clientId = 1, workflow type name = my-workflow, entry point = my-entry point
 
         private static Dictionary<string, WorkflowRegistration> nameToRegistration = new Dictionary<string, WorkflowRegistration>();
 

@@ -118,7 +118,7 @@ namespace Neon.Cadence
         /// </summary>
         /// <remarks>
         /// <note>
-        /// Queues may be disposed only from within workflow entrypoint or signal methods.
+        /// Queues may be disposed only from within workflow entry point or signal methods.
         /// </note>
         /// </remarks>
         public void Dispose()
@@ -191,7 +191,7 @@ namespace Neon.Cadence
         /// </remarks>
         /// <remarks>
         /// <note>
-        /// Items may be added to queues only within workflow entrypoint or signal methods.
+        /// Items may be added to queues only within workflow entry point or signal methods.
         /// </note>
         /// </remarks>
         public async Task EnqueueAsync(T item)
@@ -241,7 +241,7 @@ namespace Neon.Cadence
         /// </remarks>
         /// <remarks>
         /// <note>
-        /// Items may be added to queues only within workflow entrypoint or signal methods.
+        /// Items may be added to queues only within workflow entry point or signal methods.
         /// </note>
         /// </remarks>
         public async Task<bool> TryEnqueueAsync(T item)
@@ -283,7 +283,7 @@ namespace Neon.Cadence
         /// <exception cref="WorkflowQueueClosedException">Thrown if the the queue is closed.</exception>
         /// <remarks>
         /// <note>
-        /// Items may be read from queues only from within workflow entrypoint methods.
+        /// Items may be read from queues only from within workflow entry point methods.
         /// </note>
         /// </remarks>
         public async Task<T> DequeueAsync(TimeSpan timeout = default)
@@ -324,7 +324,7 @@ namespace Neon.Cadence
         /// <exception cref="ObjectDisposedException">Thrown if the queue is disposed.</exception>
         /// <remarks>
         /// <note>
-        /// Queues may be closed only from within workflow entrypoint or signal methods.
+        /// Queues may be closed only from within workflow entry point or signal methods.
         /// </note>
         /// </remarks>
         public async Task CloseAsync()

@@ -25,7 +25,7 @@ using Neon.Service;
 namespace CadenceService
 {
     /// <summary>
-    /// The program entrypoint.
+    /// The program entry point.
     /// </summary>
     /// <param name="args">The command line arguments.</param>
     /// <remarks>

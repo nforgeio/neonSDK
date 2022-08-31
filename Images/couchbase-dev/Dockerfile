@@ -34,7 +34,7 @@ ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
 
 # Configure
 
-COPY entrypoint.sh      /
+COPY entry point.sh      /
 COPY init-cluster.sh    /
 
 RUN chmod 700 /*.sh \

@@ -54,7 +54,7 @@ namespace Neon.Common
     /// <remarks>
     /// <para>
     /// This class is designed to simulate running a single executable
-    /// by calling its main entrypoint.  To accomplish this, use the
+    /// by calling its main entry point.  To accomplish this, use the
     /// default constructor to create a <see cref="ProgramRunner"/> 
     /// instance.  The constructor will set <see cref="Current"/> to
     /// itself and then you can call <see cref="Execute(ProgramEntrypoint, string[])"/>

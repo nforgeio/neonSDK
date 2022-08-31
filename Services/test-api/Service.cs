@@ -75,9 +75,8 @@ namespace TestApiService
         /// Constructor.
         /// </summary>
         /// <param name="name">The service name.</param>
-        /// <param name="version">Specifies the service version.</param>
-        public Service(string name, string version)
-            : base(name, version: version)
+        public Service(string name)
+            : base(name)
         {
         }
 

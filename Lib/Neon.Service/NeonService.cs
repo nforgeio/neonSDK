@@ -609,6 +609,7 @@ namespace Neon.Service
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(name), nameof(name));
 
+            this.Name    = name;
             this.options = options ??= new NeonServiceOptions();
 
             // Configure the service version.
@@ -630,6 +631,8 @@ namespace Neon.Service
                 // we'll catch and ignore any exceptions just to be safe.
             }
 
+            this.Version = version;
+
             // Check the service map, if one was passed.
 
             if (options.ServiceMap != null)
@@ -648,24 +651,6 @@ namespace Neon.Service
                     this.Description = description;
                 }
             }
-
-            // Initialize the service environment.
-
-            this.environmentVariables = new Dictionary<string, string>();
-
-            LoadEnvironmentVariables();
-
-            // Initialize service members.
-
-            this.Name                   = name;
-            this.ServiceMap             = options.ServiceMap;
-            this.InProduction           = !NeonHelper.IsDevWorkstation;
-            this.Terminator             = new ProcessTerminator(gracefulShutdownTimeout: options.GracefulShutdownTimeout, minShutdownTime: options.MinShutdownTime);
-            this.Version                = version;
-            this.Environment            = new EnvironmentParser(null, VariableSource);  // Temporarily setting a NULL logger until we create the service logger below
-            this.configFiles            = new Dictionary<string, FileInfo>();
-            this.healthFolder           = options.HealthFolder ?? "/";
-            this.terminationMessagePath = options.TerminationMessagePath ?? "/dev/termination-log";
 
             // Configure the OpenTelemetry logging pipeline.
 
@@ -710,6 +695,24 @@ namespace Neon.Service
                 this.Logger                = loggerFactory.CreateLogger<NeonService>();
             }
 
+            // Initialize the service environment.
+
+            this.environmentVariables = new Dictionary<string, string>();
+
+            LoadEnvironmentVariables();
+
+            // Initialize service members.
+
+            this.Name                   = name;
+            this.ServiceMap             = options.ServiceMap;
+            this.InProduction           = !NeonHelper.IsDevWorkstation;
+            this.Terminator             = new ProcessTerminator(gracefulShutdownTimeout: options.GracefulShutdownTimeout, minShutdownTime: options.MinShutdownTime);
+            this.Version                = version;
+            this.Environment            = new EnvironmentParser(Logger, VariableSource);  // Temporarily setting a NULL logger until we create the service logger below
+            this.configFiles            = new Dictionary<string, FileInfo>();
+            this.healthFolder           = options.HealthFolder ?? "/";
+            this.terminationMessagePath = options.TerminationMessagePath ?? "/dev/termination-log";
+
             // Initialize the metrics prefix and counters.
 
             var normalizedPrefix = string.Empty;
@@ -739,24 +742,6 @@ namespace Neon.Service
             this.MetricsPrefix  = normalizedPrefix;
             this.runtimeCount   = Metrics.CreateCounter($"{MetricsPrefix}_runtime_seconds", "Service runtime in seconds.");
             this.unhealthyCount = Metrics.CreateCounter($"{MetricsPrefix}_unhealthy_transitions", "Service [unhealthy] transitions.");
-
-            // Set a default logger so logging calls in the service constructor won't 
-            // fail with a [NullReferenceException].  Note that we don't recommend
-            // logging from within the constructor.
-
-            // $todo(jefflill): DO WE STILL NEED THIS?
-
-#if DISABLED
-            var telemetryHub = new TelemetryHub(parseLogLevel: false, logFilter: logFilter);
-
-            telemetryHub.ParseLogLevel(GetEnvironmentVariable("LOG_LEVEL", "info"));
-
-            Logger = telemetryHub.CreateLogger();
-
-            Environment.SetLogger(Logger);
-#endif
-
-            // Capture unhandled application exceptions and log them.
 
             // Detect unhandled application exceptions and log them.
 

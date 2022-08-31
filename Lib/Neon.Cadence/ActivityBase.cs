@@ -126,7 +126,7 @@ namespace Neon.Cadence
         // may looks like:
         // 
         //      1::my-activity                  -- clientId = 1, activity type name = my-activity
-        //      1::my-activity::my-entrypoint   -- clientId = 1, activity type name = my-activity, entrypoint = my-entrypoint
+        //      1::my-activity::my-entry point   -- clientId = 1, activity type name = my-activity, entry point = my-entry point
 
         private static Dictionary<string, ActivityRegistration> nameToRegistration = new Dictionary<string, ActivityRegistration>();
 

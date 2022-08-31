@@ -203,10 +203,10 @@ namespace Neon.Cadence
         /// <summary>
         /// <para>
         /// Returns the underlying <typeparamref name="TWorkflowInterface"/> stub for the child workflow.
-        /// This includes all the workflow entrypoint, query and signal methods.
+        /// This includes all the workflow entry point, query and signal methods.
         /// </para>
         /// <note>
-        /// The entrypoint methods won't work because the workflow will already be running but you can
+        /// The entry point methods won't work because the workflow will already be running but you can
         /// interact with the child workflow using any query and signal methods.       
         /// </note>
         /// </summary>

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# This script is invoked just before the main image entrypoint
+# This script is invoked just before the main image entry point
 # script starts Couchbase.  This script will attempt to initialize 
 # the cluster, retrying until the Couchbase is ready.
 
