@@ -93,7 +93,7 @@ namespace TelemetryTest
             {
                 span.AddEvent("test-event");
 
-                logger.LogInformationEx("Hello World!", tagSetter: tags => tags.Add("foo", "bar"));
+                logger.LogInformationEx("Hello World!", attributeSetter: attributes => attributes.Add("foo", "bar"));
             }
         }
     }

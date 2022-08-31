@@ -50,23 +50,23 @@ namespace Neon.Diagnostics
     ///     <description>
     ///     <para>
     ///     This namespace defines several <b><i>extended</i></b> <see cref="ILogger"/> extension methods
-    ///     whose names end with <b>"Ex"</b>, like <see cref="LoggerExtensions.LogInformationEx(ILogger, Exception, string, Action{LogTags})"/>.
+    ///     whose names end with <b>"Ex"</b>, like <see cref="LoggerExtensions.LogInformationEx(ILogger, Exception, string, Action{LogAttributes})"/>.
     ///     </para>
     ///     <para>
     ///     We recommend that developers consider switch to using our extended logging methods
     ///     from the stock .NET extensions <see cref="Microsoft.Extensions.Logging.LoggerExtensions"/>.
     ///     Not only do the NeonSDK <see cref="Neon.Diagnostics.LoggerExtensions"/> interoperate
-    ///     with the <see cref="LoggerWithTags"/>, we believe our extensions are easier to use,
+    ///     with the <see cref="AttributeLogger"/>, we believe our extensions are easier to use,
     ///     especially when specifying attributes.  We also have overrides that make it efficient
     ///     to use string interpolation for generating log messages.
     ///     </para>
     ///     </description>
     /// </item>
     /// <item>
-    ///     <term><b><see cref="LoggerWithTags"/></b></term>
+    ///     <term><b><see cref="AttributeLogger"/></b></term>
     ///     <description>
     ///     This is an extended <see cref="ILogger"/> that may include tags that will be automatically
-    ///     added to all events submitted to the logger.  Typically, you'll use the <see cref="LoggerExtensions.AddTags(ILogger, Action{LogTags})"/>
+    ///     added to all events submitted to the logger.  Typically, you'll use the <see cref="LoggerExtensions.AddAttributes(ILogger, Action{LogAttributes})"/>
     ///     method to construct one of these that wraps another logger.
     ///     </description>
     /// </item>

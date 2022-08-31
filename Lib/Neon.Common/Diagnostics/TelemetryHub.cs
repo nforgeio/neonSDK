@@ -48,7 +48,7 @@ namespace Neon.Diagnostics
     /// used by programs.
     /// </note>
     /// <para>
-    /// <see cref="CreateLogger{T}(LogTags, bool)"/> and <see cref="CreateLogger(string, LogTags, bool)"/>
+    /// <see cref="CreateLogger{T}(LogAttributes, bool)"/> and <see cref="CreateLogger(string, LogAttributes, bool)"/>
     /// are helper methods for obtaining loggers.
     /// </para>
     /// <para>
@@ -79,22 +79,22 @@ namespace Neon.Diagnostics
         /// type as the logger's category name.
         /// </summary>
         /// <typeparam name="T">Identifies the type whose fully-qualified name is to be used as the logger's category name.</typeparam>
-        /// <param name="tags">Optionally specifies tags to be included in every event logged.</param>
+        /// <param name="attributes">Optionally specifies attributes to be included in every event logged.</param>
         /// <param name="nullLogger">Optionally specifies that a do-nothing logger should be returned.  This defaults to <c>false</c>.</param>
         /// <returns>The <see cref="ILogger"/>.</returns>
-        public static ILogger CreateLogger<T>(LogTags tags = null, bool nullLogger = false)
+        public static ILogger CreateLogger<T>(LogAttributes attributes = null, bool nullLogger = false)
         {
-            return CreateLogger(typeof(T).FullName, tags, nullLogger);
+            return CreateLogger(typeof(T).FullName, attributes, nullLogger);
         }
 
         /// <summary>
         /// Returns an <see cref="ILogger"/> using the category name passed.
         /// </summary>
         /// <param name="categoryName">Specifies the logger's category name.</param>
-        /// <param name="tags">Optionally specifies tags to be included in every event logged.</param>
+        /// <param name="attributes">Optionally specifies attributes to be included in every event logged.</param>
         /// <param name="nullLogger">Optionally specifies that a do-nothing logger should be returned.  This defaults to <c>false</c>.</param>
         /// <returns>The <see cref="ILogger"/>.</returns>
-        public static ILogger CreateLogger(string categoryName, LogTags tags = null, bool nullLogger = false)
+        public static ILogger CreateLogger(string categoryName, LogAttributes attributes = null, bool nullLogger = false)
         {
             if (nullLogger)
             {
@@ -111,14 +111,14 @@ namespace Neon.Diagnostics
             {
                 var logger = LoggerFactory.CreateLogger(categoryName); ;
 
-                if (tags != null && tags.Count > 0)
+                if (attributes != null && attributes.Count > 0)
                 {
-                    logger = logger.AddTags(
-                        _tags =>
+                    logger = logger.AddAttributes(
+                        _attributes =>
                         {
-                            foreach (var tag in _tags.Tags)
+                            foreach (var attributes in _attributes.Attributes)
                             {
-                                _tags.Add(tag.Key, tag.Value);
+                                _attributes.Add(attributes.Key, attributes.Value);
                             }
                         });
                 }

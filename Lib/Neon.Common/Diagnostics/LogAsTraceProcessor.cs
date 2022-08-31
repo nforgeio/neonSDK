@@ -150,12 +150,12 @@ namespace Neon.Diagnostics
 
                 if (!string.IsNullOrEmpty(message))
                 {
-                    tags[nextIndex++] = new KeyValuePair<string, object>(LogTagNames.InternalBody, message);
+                    tags[nextIndex++] = new KeyValuePair<string, object>(LogAttributeNames.InternalBody, message);
                 }
 
                 if (logRecord.Exception != null)
                 {
-                    tags[nextIndex++] = new KeyValuePair<string, object>(LogTagNames.Exception, logRecord.Exception);
+                    tags[nextIndex++] = new KeyValuePair<string, object>(LogAttributeNames.Exception, logRecord.Exception);
                 }
 
                 // Add the the log record attributes.
@@ -170,20 +170,20 @@ namespace Neon.Diagnostics
 
                 if (logRecord.StateValues != null && logRecord.StateValues.Count > 0)
                 {
-                    var activityTags = DiagnosticPools.GetActivityTags();
+                    var activityTags = DiagnosticPools.GetActivityAttributes();
 
                     try
                     {
-                        foreach (var tag in logRecord.StateValues)
+                        foreach (var attribute in logRecord.StateValues)
                         {
-                            activityTags.Add(tag);
+                            activityTags.Add(attribute);
                         }
 
                         activity.AddEvent(new ActivityEvent(logRecord.FormattedMessage, logRecord.Timestamp, activityTags));
                     }
                     finally
                     {
-                        DiagnosticPools.ReturnActivityTags(activityTags);
+                        DiagnosticPools.ReturnActivityAttributes(activityTags);
                     }
                 }
                 else

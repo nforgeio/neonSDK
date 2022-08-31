@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:	    LoggerWithTags.cs
+// FILE:	    AttributeLogger.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright (c) 2005-2022 by neonFORGE LLC.  All rights reserved.
 //
@@ -31,22 +31,22 @@ namespace Neon.Diagnostics
 {
     /// <summary>
     /// <para>
-    /// Used for holding a collection of tags to be included in all logged events.
+    /// Used for holding a collection of attributes to be included in all logged events.
     /// This is a very convienient way to ensure that all events logged will share
-    /// a common set of tags.  This comes with at a performance cost (see the remarks).
+    /// a common set of attributes.  This comes with at a performance cost (see the remarks).
     /// </para>
     /// <note>
     /// <para>
     /// <b>IMPORTANT:</b> You must use the extended <see cref="ILogger"/> logging extensions
-    /// like <see cref="LoggerExtensions.LogInformationEx(ILogger, Func{string}, Action{LogTags})"/>
-    /// for any tags added to a <see cref="LoggerWithTags"/> instance to be included in the
+    /// like <see cref="LoggerExtensions.LogInformationEx(ILogger, Func{string}, Action{LogAttributes})"/>
+    /// for any attributes added to a <see cref="AttributeLogger"/> instance to be included in the
     /// log output
     /// </para>
     /// <para>
     /// We recommend that developers consider switch to using our extended logging methods
     /// from the stock .NET extensions <see cref="Microsoft.Extensions.Logging.LoggerExtensions"/>.
     /// Not only do the NeonSDK <see cref="Neon.Diagnostics.LoggerExtensions"/> interoperate
-    /// with the <see cref="LoggerWithTags"/>, we believe our extensions are easier to use,
+    /// with the <see cref="AttributeLogger"/>, we believe our extensions are easier to use,
     /// especially when specifying attributes.  We also have overrides that make it efficient
     /// to use string interpolation for generating log messages.
     /// </para>
@@ -56,27 +56,27 @@ namespace Neon.Diagnostics
     /// <para>
     /// This functionally potentially comes at the cost of extra memory allocations
     /// which could bog down applications that do a lot of logging.  This problem
-    /// surfaces when combining tags associated with a <see cref="LoggerWithTags"/>
-    /// instance with event tags.  This won't be an issue if either the logger or
-    /// logged events don't have any tags.
+    /// surfaces when combining attributes associated with a <see cref="AttributeLogger"/>
+    /// instance with event attributes.  This won't be an issue if either the logger or
+    /// logged events don't have any attributes.
     /// </para>
     /// <para>
-    /// When tags need to be merged and a <b>null formatter</b> is passed, then this method
-    /// will perform one additional allocation for the combined tag list.
+    /// When attributes need to be merged and a <b>null formatter</b> is passed, then this method
+    /// will perform one additional allocation for the combined attribute list.
     /// </para>
     /// <para>
-    /// When tags need to be merged and a <b>non-null formatter</b> is passed, then this method
-    /// will perform three additional allocations: one for the combined tag list, one
+    /// When attributes need to be merged and a <b>non-null formatter</b> is passed, then this method
+    /// will perform three additional allocations: one for the combined attribute list, one
     /// one for a wrapped formatter function, and one for a closure within thew wrapped
     /// function.
     /// </para>
     /// <para>
     /// I'd bet that custom formatters are pretty rare in the wild, so this means that
-    /// combining tags will generally require only a single additional allocation, which
-    /// isn't too bad.
+    /// combining attributes will generally require only a single additional allocation,
+    /// which isn't too bad.
     /// </para>
     /// </remarks>
-    internal class LoggerWithTags : ILogger
+    internal class AttributeLogger : ILogger
     {
         private ILogger     logger;
 
@@ -84,26 +84,26 @@ namespace Neon.Diagnostics
         /// Constructor.
         /// </summary>
         /// <param name="logger">Specifies the logger being wrapped.</param>
-        /// <param name="tags">Specifies to tags to be included in events logged to the instance.</param>
+        /// <param name="attributes">Specifies to attributes to be included in events logged to the instance.</param>
         /// <remarks>
         /// <note>
-        /// We do not support wrapping another <see cref="LoggerWithTags"/> instance.
+        /// We do not support wrapping another <see cref="AttributeLogger"/> instance.
         /// </note>
         /// </remarks>
-        public LoggerWithTags(ILogger logger, LogTags tags)
+        public AttributeLogger(ILogger logger, LogAttributes attributes)
         {
             Covenant.Requires<ArgumentNullException>(logger != null, nameof(logger));
-            Covenant.Requires<ArgumentException>(!(logger is LoggerWithTags), $"A [{nameof(LoggerWithTags)}] cannot wrap another [{nameof(LoggerWithTags)}] instance.", nameof(logger));
-            Covenant.Requires<ArgumentNullException>(tags != null, nameof(tags));
+            Covenant.Requires<ArgumentException>(!(logger is AttributeLogger), $"A [{nameof(AttributeLogger)}] cannot wrap another [{nameof(AttributeLogger)}] instance.", nameof(logger));
+            Covenant.Requires<ArgumentNullException>(attributes != null, nameof(attributes));
 
-            this.logger = logger;
-            this.Tags   = tags;
+            this.logger     = logger;
+            this.Attributes = attributes;
         }
 
         /// <summary>
-        /// Returns the tags associated with the logger..
+        /// Returns the attributes associated with the logger..
         /// </summary>
-        internal LogTags Tags { get; private set; }
+        internal LogAttributes Attributes { get; private set; }
 
         //---------------------------------------------------------------------
         // ILogger implementation

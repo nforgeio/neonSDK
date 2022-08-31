@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:	    LogTagsCollection.cs
+// FILE:	    LogAttributesCollection.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright (c) 2005-2022 by neonFORGE LLC.  All rights reserved.
 //
@@ -44,14 +44,14 @@ namespace Neon.Diagnostics
     /// Adapted from .NET Foundation code under their MIT license: 
     /// https://github.com/dotnet/runtime/blob/215b39abf947da7a40b0cb137eab4bceb24ad3e3/src/libraries/System.Diagnostics.DiagnosticSource/src/System/Diagnostics/ActivityTagsCollection.cs
     /// </remarks>
-    internal class LogTagsCollection : IDictionary<string, object>
+    internal class LogAttributesCollection : IDictionary<string, object>
     {
         private List<KeyValuePair<string, object>> _list = new List<KeyValuePair<string, object>>();
 
         /// <summary>
         /// Create a new instance of the collection.
         /// </summary>
-        public LogTagsCollection()
+        public LogAttributesCollection()
         {
         }
 
@@ -59,7 +59,7 @@ namespace Neon.Diagnostics
         /// Create a new instance of the collection and store the input list items in the collection.
         /// </summary>
         /// <param name="list">Initial list to store in the collection.</param>
-        public LogTagsCollection(IEnumerable<KeyValuePair<string, object>> list)
+        public LogAttributesCollection(IEnumerable<KeyValuePair<string, object>> list)
         {
             if (list == null)
             {
@@ -171,11 +171,11 @@ namespace Neon.Diagnostics
         }
 
         /// <summary>
-        /// Adds a tag with the provided key and value to the collection.
-        /// This collection doesn't allow adding two tags with the same key.
+        /// Adds an attribute with the provided key and value to the collection.
+        /// This collection doesn't allow adding two attributes with the same key.
         /// </summary>
-        /// <param name="key">The tag key.</param>
-        /// <param name="value">The tag value.</param>
+        /// <param name="key">The attribute key.</param>
+        /// <param name="value">The attribute value.</param>
         public void Add(string key, object value)
         {
             if (key == null)
@@ -195,7 +195,7 @@ namespace Neon.Diagnostics
         /// <summary>
         /// Adds an item to the collection
         /// </summary>
-        /// <param name="item">Key and value pair of the tag to add to the collection.</param>
+        /// <param name="item">Key and value pair of the attribute to add to the collection.</param>
         public void Add(KeyValuePair<string, object> item)
         {
             if (item.Key == null)

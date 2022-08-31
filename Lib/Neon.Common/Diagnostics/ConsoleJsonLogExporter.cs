@@ -126,9 +126,9 @@ namespace Neon.Diagnostics
 
                 if (resource != Resource.Empty)
                 {
-                    foreach (var tag in resource.Attributes)
+                    foreach (var attribute in resource.Attributes)
                     {
-                        resources[tag.Key] = tag.Value;
+                        resources[attribute.Key] = attribute.Value;
                     }
                 }
 
@@ -150,7 +150,7 @@ namespace Neon.Diagnostics
 
                 if (!string.IsNullOrEmpty(record.CategoryName))
                 {
-                    tags.Add(LogTagNames.CategoryName, logEvent.CategoryName);
+                    tags.Add(LogAttributeNames.CategoryName, logEvent.CategoryName);
                 }
 
                 if ((record.StateValues != null && record.StateValues.Count > 0) || record.Exception != null)
@@ -169,12 +169,12 @@ namespace Neon.Diagnostics
                             // We need to special case the [Body] property.  Our [ILogger] extensions persist
                             // the log message in as the [LogTagNames.InternalBody] whereas the stock MSFT
                             // logger methods set [FormattedMessage] to the formatted message when enabled 
-                            // and also save the non-formatted message as the "{OriginalFormat}" tag.
+                            // and also save the non-formatted message as the "{OriginalFormat}" attribute.
                             //
                             // We're going to honor [FormattedMessage] if present so that events logged with 
                             // the MSFT logger extensions will continue to work as always and when this is
-                            // not present and our [LogTags.Body] tag is present, we're going to use our body
-                            // as the message.
+                            // not present and our [LogTags.Body] attribute is present, we're going to use
+                            // our body as the message.
                             //
                             // I don't believe it makes a lot of sense to ever include the "{OriginalFormat}"
                             // as a label so we're not doing to emit it as a label.  I guess there could be
@@ -187,7 +187,7 @@ namespace Neon.Diagnostics
 
                             if (string.IsNullOrEmpty(record.FormattedMessage))
                             {
-                                if (item.Key == LogTagNames.InternalBody)
+                                if (item.Key == LogAttributeNames.InternalBody)
                                 {
                                     logEvent.Body = item.Value as string;
                                     continue;
@@ -224,11 +224,11 @@ namespace Neon.Diagnostics
                         }
                     }
 
-                    logEvent.Tags = tags.Count > 0 ? tags : null;
+                    logEvent.Attributes = tags.Count > 0 ? tags : null;
                 }
                 else
                 {
-                    logEvent.Tags = null;
+                    logEvent.Attributes = null;
                 }
 
                 //-------------------------------------------------------------

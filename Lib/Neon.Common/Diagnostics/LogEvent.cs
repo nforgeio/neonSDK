@@ -81,9 +81,9 @@ namespace Neon.Diagnostics
         /// <summary>
         /// The event tags.
         /// </summary>
-        [JsonProperty(PropertyName = "labels", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [JsonProperty(PropertyName = "attributes", DefaultValueHandling = DefaultValueHandling.Ignore)]
         [DefaultValue(null)]
-        public IReadOnlyDictionary<string, object> Tags { get; internal set; }
+        public IReadOnlyDictionary<string, object> Attributes { get; internal set; }
 
         /// <summary>
         /// The related event resources.

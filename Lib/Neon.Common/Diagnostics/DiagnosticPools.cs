@@ -35,7 +35,7 @@ namespace Neon.Diagnostics
     /// <remarks>
     /// <para>
     /// Currently this class maintains an internal pool of collections to cache internal
-    /// logging related tag collections to improve performance by reusing these collections
+    /// logging related attribute collections to improve performance by reusing these collections
     /// to avoid unnecessary allocations and GC pressure.  The defauilt settings should
     /// work for most applications, but it's possible to configure some settings via
     /// environment variables.
@@ -70,13 +70,8 @@ namespace Neon.Diagnostics
         /// </summary>
         internal const int DefaultPoolLimit = 64;
 
-        /// <summary>
-        /// Specifies the size of pooled tag value arrays.
-        /// </summary>
-        internal const int TagArgsArrayLength = 64;
-
-        private static ObjectPool<LogTags>                  tagsPool;
-        private static ObjectPool<ActivityTagsCollection>   activityTagsPool;
+        private static ObjectPool<LogAttributes>            logAttributesPool;
+        private static ObjectPool<ActivityTagsCollection>   activityAttributesPool;
 
         /// <summary>
         /// Default constructor.
@@ -99,66 +94,66 @@ namespace Neon.Diagnostics
                 logPoolLimit = DefaultPoolLimit;
             }
 
-            tagsPool         = new DefaultObjectPool<LogTags>(new DefaultPooledObjectPolicy<LogTags>(), logPoolLimit);
-            activityTagsPool = new DefaultObjectPool<ActivityTagsCollection>(new DefaultPooledObjectPolicy<ActivityTagsCollection>(), logPoolLimit);
+            logAttributesPool      = new DefaultObjectPool<LogAttributes>(new DefaultPooledObjectPolicy<LogAttributes>(), logPoolLimit);
+            activityAttributesPool = new DefaultObjectPool<ActivityTagsCollection>(new DefaultPooledObjectPolicy<ActivityTagsCollection>(), logPoolLimit);
         }
 
         /// <summary>
         /// <para>
-        /// Returns a <see cref="LogTags"/> instance from the underlying object pool.
+        /// Returns a <see cref="LogAttributes"/> instance from the underlying object pool.
         /// </para>
         /// <note>
-        /// Be sure to return the instance by passing it to <see cref="ReturnLogTags(LogTags)"/>
+        /// Be sure to return the instance by passing it to <see cref="ReturnLogAttributes(LogAttributes)"/>
         /// when you are finished with it.
         /// </note>
         /// </summary>
-        /// <returns>A <see cref="LogTags"/> instance.</returns>
+        /// <returns>A <see cref="LogAttributes"/> instance.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static LogTags GetLogTags()
+        internal static LogAttributes GetLogAttributes()
         {
-            return tagsPool.Get();
+            return logAttributesPool.Get();
         }
 
         /// <summary>
-        /// Returns a <see cref="LogTags"/> instance obtained via <see cref="GetLogTags()"/>
+        /// Returns a <see cref="LogAttributes"/> instance obtained via <see cref="GetLogAttributes()"/>
         /// to the underlying pool so it can be reused.
         /// </summary>
         /// <param name="tags">The tags being returned to the pool.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void ReturnLogTags(LogTags tags)
+        internal static void ReturnLogAttributes(LogAttributes tags)
         {
             tags.Clear();
 
-            tagsPool.Return(tags);
+            logAttributesPool.Return(tags);
         }
 
         /// <summary>
         /// <para>
-        /// Returns a <see cref="LogTags"/> instance from the underlying object pool.
+        /// Returns a <see cref="ActivityTagsCollection"/> instance from the underlying object pool.
         /// </para>
         /// <note>
-        /// Be sure to return the instance by passing it to <see cref="ReturnActivityTags(ActivityTagsCollection)"/>
+        /// Be sure to return the instance by passing it to <see cref="ReturnActivityAttributes(ActivityTagsCollection)"/>
         /// when you are finished with it.
         /// </note>
         /// </summary>
         /// <returns>A <see cref="ActivityTagsCollection"/> instance.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static ActivityTagsCollection GetActivityTags()
+        internal static ActivityTagsCollection GetActivityAttributes()
         {
-            return activityTagsPool.Get();
+            return activityAttributesPool.Get();
         }
 
         /// <summary>
-        /// Returns a <see cref="LogTags"/> instance obtained via <see cref="GetActivityTags()"/>
+        /// Returns a <see cref="ActivityTagsCollection"/> instance obtained via <see cref="GetActivityAttributes()"/>
         /// to the underlying pool so it can be reused.
         /// </summary>
         /// <param name="tags">The tags being returned to the pool.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void ReturnActivityTags(ActivityTagsCollection tags)
+        internal static void ReturnActivityAttributes(ActivityTagsCollection tags)
         {
             tags.Clear();
 
-            activityTagsPool.Return(tags);
+            activityAttributesPool.Return(tags);
         }
     }
 }

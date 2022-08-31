@@ -142,7 +142,7 @@ namespace TestCommon
             Assert.Equal((int)SeverityNumber.SEVERITY_NUMBER_INFO, logEvent.SeverityNumber);
             Assert.Null(logEvent.SpanId);
             Assert.Null(logEvent.TraceId);
-            Assert.NotNull(logEvent.Tags);
+            Assert.NotNull(logEvent.Attributes);
             Assert.NotNull(logEvent.Resources);
             Assert.Equal(serviceName, logEvent.Resources.Single(item => item.Key == "service.name").Value);
             Assert.Equal(serviceVersion, logEvent.Resources.Single(item => item.Key == "service.version").Value);
@@ -173,8 +173,8 @@ namespace TestCommon
             Assert.Equal(serviceVersion, logEvent.Resources.Single(item => item.Key == "service.version").Value);
             Assert.NotEmpty((string)logEvent.Resources.Single(item => item.Key == "service.instance.id").Value);
 
-            Assert.NotNull(logEvent.Tags);
-            Assert.Equal("bar", logEvent.Tags["foo"]);
+            Assert.NotNull(logEvent.Attributes);
+            Assert.Equal("bar", logEvent.Attributes["foo"]);
 
             //-----------------------------------------------------------------
             // Verify that a single line of JSON is emitted and that when parsed, it
@@ -214,7 +214,7 @@ namespace TestCommon
             Assert.Equal((int)SeverityNumber.SEVERITY_NUMBER_FATAL, logEvent.SeverityNumber);
             Assert.Null(logEvent.SpanId);
             Assert.Null(logEvent.TraceId);
-            Assert.NotNull(logEvent.Tags);
+            Assert.NotNull(logEvent.Attributes);
             Assert.NotNull(logEvent.Resources);
             Assert.Equal(serviceName, logEvent.Resources.Single(item => item.Key == "service.name").Value);
             Assert.Equal(serviceVersion, logEvent.Resources.Single(item => item.Key == "service.version").Value);
@@ -305,9 +305,9 @@ namespace TestCommon
 
                 Assert.Equal("There be an exception!", exceptionEvent.Body);
 
-                Assert.Equal(typeof(AggregateException).FullName, exceptionEvent.Tags["exception.type"]);
-                Assert.NotNull(exceptionEvent.Tags["exception.stacktrace"]);
-                Assert.StartsWith("at ", (string)exceptionEvent.Tags["exception.stacktrace"]);
+                Assert.Equal(typeof(AggregateException).FullName, exceptionEvent.Attributes["exception.type"]);
+                Assert.NotNull(exceptionEvent.Attributes["exception.stacktrace"]);
+                Assert.StartsWith("at ", (string)exceptionEvent.Attributes["exception.stacktrace"]);
             }
             catch (Exception e)
             {
@@ -414,7 +414,7 @@ namespace TestCommon
 
             Clear();
 
-            logger.LogInformationEx("test message", tags => tags.Add("foo", "bar"));
+            logger.LogInformationEx("test message", attributes => attributes.Add("foo", "bar"));
 
             Assert.Single(interceptedEvents);
             Assert.Single(interceptedStdOut);
@@ -429,7 +429,7 @@ namespace TestCommon
             Assert.Equal((int)SeverityNumber.SEVERITY_NUMBER_INFO, logEvent.SeverityNumber);
             Assert.Null(logEvent.SpanId);
             Assert.Null(logEvent.TraceId);
-            Assert.NotNull(logEvent.Tags);
+            Assert.NotNull(logEvent.Attributes);
             Assert.NotNull(logEvent.Resources);
             Assert.Equal(serviceName, logEvent.Resources.Single(item => item.Key == "service.name").Value);
             Assert.Equal(serviceVersion, logEvent.Resources.Single(item => item.Key == "service.version").Value);
@@ -440,7 +440,7 @@ namespace TestCommon
 
             Clear();
 
-            logger.LogInformationEx("test message", tags => tags.Add("foo", "bar"));
+            logger.LogInformationEx("test message", attributes => attributes.Add("foo", "bar"));
 
             Assert.Single(interceptedEvents);
             Assert.Single(interceptedStdOut);
@@ -460,8 +460,8 @@ namespace TestCommon
             Assert.Equal(serviceVersion, logEvent.Resources.Single(item => item.Key == "service.version").Value);
             Assert.NotEmpty((string)logEvent.Resources.Single(item => item.Key == "service.instance.id").Value);
 
-            Assert.NotNull(logEvent.Tags);
-            Assert.Equal("bar", logEvent.Tags["foo"]);
+            Assert.NotNull(logEvent.Attributes);
+            Assert.Equal("bar", logEvent.Attributes["foo"]);
 
             //-----------------------------------------------------------------
             // Verify that a single line of JSON is emitted and that when parsed, it
@@ -501,8 +501,8 @@ namespace TestCommon
             Assert.Equal((int)SeverityNumber.SEVERITY_NUMBER_FATAL, logEvent.SeverityNumber);
             Assert.Null(logEvent.SpanId);
             Assert.Null(logEvent.TraceId);
-            Assert.NotNull(logEvent.Tags);
-            Assert.Equal(categoryName, logEvent.Tags[LogTagNames.CategoryName]);
+            Assert.NotNull(logEvent.Attributes);
+            Assert.Equal(categoryName, logEvent.Attributes[LogAttributeNames.CategoryName]);
             Assert.NotNull(logEvent.Resources);
             Assert.Equal(serviceName, logEvent.Resources.Single(item => item.Key == "service.name").Value);
             Assert.Equal(serviceVersion, logEvent.Resources.Single(item => item.Key == "service.version").Value);
@@ -572,9 +572,9 @@ namespace TestCommon
 
                 Assert.Equal(NeonHelper.ExceptionError(e), exceptionEvent.Body);
 
-                Assert.Equal(typeof(Exception).FullName, exceptionEvent.Tags["exception.type"]);
-                Assert.NotNull(exceptionEvent.Tags["exception.stacktrace"]);
-                Assert.StartsWith("at ", (string)exceptionEvent.Tags["exception.stacktrace"]);
+                Assert.Equal(typeof(Exception).FullName, exceptionEvent.Attributes["exception.type"]);
+                Assert.NotNull(exceptionEvent.Attributes["exception.stacktrace"]);
+                Assert.StartsWith("at ", (string)exceptionEvent.Attributes["exception.stacktrace"]);
             }
 
             // With an explict message.
@@ -594,9 +594,9 @@ namespace TestCommon
 
                 Assert.Equal("There be an exception!", exceptionEvent.Body);
 
-                Assert.Equal(typeof(Exception).FullName, exceptionEvent.Tags["exception.type"]);
-                Assert.NotNull(exceptionEvent.Tags["exception.stacktrace"]);
-                Assert.StartsWith("at ", (string)exceptionEvent.Tags["exception.stacktrace"]);
+                Assert.Equal(typeof(Exception).FullName, exceptionEvent.Attributes["exception.type"]);
+                Assert.NotNull(exceptionEvent.Attributes["exception.stacktrace"]);
+                Assert.StartsWith("at ", (string)exceptionEvent.Attributes["exception.stacktrace"]);
             }
 
             // [AggregeteException] with multiple inner exceptions.
@@ -639,9 +639,9 @@ namespace TestCommon
 
                 Assert.Equal("There be an exception!", exceptionEvent.Body);
 
-                Assert.Equal(typeof(AggregateException).FullName, exceptionEvent.Tags["exception.type"]);
-                Assert.NotNull(exceptionEvent.Tags["exception.stacktrace"]);
-                Assert.StartsWith("at ", (string)exceptionEvent.Tags["exception.stacktrace"]);
+                Assert.Equal(typeof(AggregateException).FullName, exceptionEvent.Attributes["exception.type"]);
+                Assert.NotNull(exceptionEvent.Attributes["exception.stacktrace"]);
+                Assert.StartsWith("at ", (string)exceptionEvent.Attributes["exception.stacktrace"]);
             }
             catch (Exception e)
             {
@@ -711,11 +711,11 @@ namespace TestCommon
                 });
 
             var logger = loggerFactory.CreateLogger(categoryName)
-                .AddTags(
-                    tags =>
+                .AddAttributes(
+                    attributes =>
                     {
-                        tags.Add("default-0", "0");
-                        tags.Add("default-1", "1");
+                        attributes.Add("default-0", "0");
+                        attributes.Add("default-1", "1");
                     });
 
             using var activityListener = new ActivityListener()
@@ -747,7 +747,7 @@ namespace TestCommon
 
             Clear();
 
-            logger.LogInformationEx("test message", tags => tags.Add("foo", "bar"));
+            logger.LogInformationEx("test message", attributes => attributes.Add("foo", "bar"));
 
             Assert.Single(interceptedEvents);
             Assert.Single(interceptedStdOut);
@@ -759,9 +759,9 @@ namespace TestCommon
             Assert.Equal("test message", logEvent.Body);
             Assert.Equal(categoryName, logEvent.CategoryName);
             Assert.Equal("Information", logEvent.Severity);
-            Assert.Equal("0", logEvent.Tags["default-0"]);
-            Assert.Equal("1", logEvent.Tags["default-1"]);
-            Assert.Equal("bar", logEvent.Tags["foo"]);
+            Assert.Equal("0", logEvent.Attributes["default-0"]);
+            Assert.Equal("1", logEvent.Attributes["default-1"]);
+            Assert.Equal("bar", logEvent.Attributes["foo"]);
 
             //-----------------------------------------------------------------
             // Verify that tags explicitly included in logged events override any
@@ -770,10 +770,10 @@ namespace TestCommon
             Clear();
 
             logger.LogInformationEx("test message", 
-                tags =>
+                attributes =>
                     {
-                        tags.Add("foo", "bar");
-                        tags.Add("default-0", "OVERRIDDEN!");
+                        attributes.Add("foo", "bar");
+                        attributes.Add("default-0", "OVERRIDDEN!");
                     });
 
             Assert.Single(interceptedEvents);
@@ -786,9 +786,9 @@ namespace TestCommon
             Assert.Equal("test message", logEvent.Body);
             Assert.Equal(categoryName, logEvent.CategoryName);
             Assert.Equal("Information", logEvent.Severity);
-            Assert.Equal("OVERRIDDEN!", logEvent.Tags["default-0"]);
-            Assert.Equal("1", logEvent.Tags["default-1"]);
-            Assert.Equal("bar", logEvent.Tags["foo"]);
+            Assert.Equal("OVERRIDDEN!", logEvent.Attributes["default-0"]);
+            Assert.Equal("1", logEvent.Attributes["default-1"]);
+            Assert.Equal("bar", logEvent.Attributes["foo"]);
         }
 
         [Fact]

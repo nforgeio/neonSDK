@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:	    LogTagNames.cs
+// FILE:	    LogAttributeNames.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright (c) 2005-2022 by neonFORGE LLC.  All rights reserved.
 //
@@ -20,9 +20,9 @@ using System;
 namespace Neon.Diagnostics
 {
     /// <summary>
-    /// Defines tag names used to emit log records.
+    /// Defines attributes names used when emitting log records.
     /// </summary>
-    public class LogTagNames
+    public class LogAttributeNames
     {
         //---------------------------------------------------------------------
         // These are the names we use for exporting the built-in LogRecord properties.
@@ -33,12 +33,12 @@ namespace Neon.Diagnostics
         public const string InternalBody = "{Body}";
 
         /// <summary>
-        /// Identifies the MSFT logger implementation's tag that holds the message format string.
+        /// Identifies the MSFT logger implementation's attribute that holds the message format string.
         /// </summary>
         public const string InternalOriginalFormat = "{OriginalFormat}";
 
         /// <summary>
-        /// Identifies the MSFT logger implementation's tag that holds the category name.
+        /// Identifies the MSFT logger implementation's attribute that holds the category name.
         /// </summary>
         public const string CategoryName = "dotnet.ilogger.category";
 
@@ -83,7 +83,7 @@ namespace Neon.Diagnostics
         public const string TraceId = "traceid";
 
         //---------------------------------------------------------------------
-        // These are tag names reserved by NeonSDK and other Neon related repositories.
+        // These are attribute names reserved by NeonSDK and other Neon related repositories.
 
         /// <summary>
         /// <b>bool:</b> Indicates that the log event is related to a transient error.

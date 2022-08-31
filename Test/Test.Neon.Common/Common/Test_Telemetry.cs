@@ -47,15 +47,15 @@ namespace TestCommon
         [Fact]
         public void LogAttributes()
         {
-            var logAttibutes = new LogTags();
+            var logAttibutes = new LogAttributes();
 
             // Attributes starts out empty.
 
-            Assert.Empty(logAttibutes.Tags);
+            Assert.Empty(logAttibutes.Attributes);
 
             // Verify that we can add attributes with different value types.
 
-            logAttibutes = new LogTags();
+            logAttibutes = new LogAttributes();
 
             logAttibutes.Add("bool-true", true);
             logAttibutes.Add("bool-false", false);
@@ -67,23 +67,23 @@ namespace TestCommon
             logAttibutes.Add("object-null", null);
             logAttibutes.Add("object-value", new TestObject("test", 123));
 
-            Assert.NotEmpty(logAttibutes.Tags);
-            Assert.True((bool)logAttibutes.Tags["bool-true"]);
-            Assert.False((bool)logAttibutes.Tags["bool-false"]);
-            Assert.Equal(1234L, logAttibutes.Tags["long"]);
-            Assert.Equal("Hello World!", logAttibutes.Tags["string-hello"]);
-            Assert.Null(logAttibutes.Tags["string-null"]);
-            Assert.Empty((string)logAttibutes.Tags["string-empty"]);
-            Assert.Null(logAttibutes.Tags["object-null"]);
+            Assert.NotEmpty(logAttibutes.Attributes);
+            Assert.True((bool)logAttibutes.Attributes["bool-true"]);
+            Assert.False((bool)logAttibutes.Attributes["bool-false"]);
+            Assert.Equal(1234L, logAttibutes.Attributes["long"]);
+            Assert.Equal("Hello World!", logAttibutes.Attributes["string-hello"]);
+            Assert.Null(logAttibutes.Attributes["string-null"]);
+            Assert.Empty((string)logAttibutes.Attributes["string-empty"]);
+            Assert.Null(logAttibutes.Attributes["object-null"]);
 
-            var obj = (TestObject)logAttibutes.Tags["object-value"];
+            var obj = (TestObject)logAttibutes.Attributes["object-value"];
 
             Assert.Equal("test", obj.Field1);
             Assert.Equal(123, obj.Field2);
 
             // Attribute names cannot be NULL or empty.
 
-            logAttibutes = new LogTags();
+            logAttibutes = new LogAttributes();
 
             Assert.Throws<ArgumentNullException>(() => logAttibutes.Add(null, "Hello World!"));
             Assert.Throws<ArgumentNullException>(() => logAttibutes.Add(String.Empty, "Hello World!"));

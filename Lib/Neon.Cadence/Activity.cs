@@ -54,13 +54,13 @@ namespace Neon.Cadence
 
             // We're going to include some tags in every event logged by the workflow.
 
-            var tags = new LogTags();
+            var attributes = new LogAttributes();
 
-            tags.Add(CadenceLogTags.ActivityId, parent.ActivityTask.ActivityId);
-            tags.Add(CadenceLogTags.ActivityTypeName, parent.ActivityTask.ActivityTypeName);
-            tags.Add(CadenceLogTags.ActivityIsLocal, parent.IsLocal);
+            attributes.Add(CadenceLogTags.ActivityId, parent.ActivityTask.ActivityId);
+            attributes.Add(CadenceLogTags.ActivityTypeName, parent.ActivityTask.ActivityTypeName);
+            attributes.Add(CadenceLogTags.ActivityIsLocal, parent.IsLocal);
 
-            this.Logger = TelemetryHub.CreateLogger(categoryName: Client.Settings.ClientIdentity, tags: tags, nullLogger: !Client.Settings.LogDuringReplay);
+            this.Logger = TelemetryHub.CreateLogger(categoryName: Client.Settings.ClientIdentity, attributes: attributes, nullLogger: !Client.Settings.LogDuringReplay);
         }
 
         /// <summary>
