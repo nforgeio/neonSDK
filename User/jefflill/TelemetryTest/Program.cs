@@ -42,7 +42,7 @@ namespace TelemetryTest
                             options.AddConsoleJsonExporter(
                                 options =>
                                 {
-                                    options.SingleLine = false;
+                                    options.EmitSingleLine = false;
                                 });
                         });
                 });

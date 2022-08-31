@@ -47,43 +47,8 @@ namespace Neon.Diagnostics
         /// </summary>
         public const string Exception = "exception";
 
-        /// <summary>
-        /// Identifies the event labels (also know as tags or attributes).
-        /// </summary>
-        public const string Labels = "labels";
-
-        /// <summary>
-        /// Identifies resources related to the event.
-        /// </summary>
-        public const string Resources = "resources";
-
-        /// <summary>
-        /// Identifies the event severity by OpenTelemetry secerity name.
-        /// </summary>
-        public const string Severity = "severity";
-
-        /// <summary>
-        /// Identifies the event severity by OpenTelemetry severity number.
-        /// </summary>
-        public const string SeverityNumber = "severityNumber";
-
-        /// <summary>
-        /// Identifies the current span.
-        /// </summary>
-        public const string SpanId = "spanid";
-
-        /// <summary>
-        /// Identifies the event timetamp formatted as Unix Epoc nanoseconds.
-        /// </summary>
-        public const string TsNs = "tsNs";
-
-        /// <summary>
-        /// Identifies the current trace.
-        /// </summary>
-        public const string TraceId = "traceid";
-
         //---------------------------------------------------------------------
-        // These are attribute names reserved by NeonSDK and other Neon related repositories.
+        // These are attribute names reserved by NeonSDK and other Neon related projects.
 
         /// <summary>
         /// <b>bool:</b> Indicates that the log event is related to a transient error.

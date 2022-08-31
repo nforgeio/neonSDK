@@ -88,7 +88,7 @@ namespace Neon.Diagnostics
         {
             this.options = options ?? new ConsoleJsonLogExporterOptions();
         }
-
+        
         /// <inheritdoc/>
         public override ExportResult Export(in Batch<LogRecord> batch)
         {
@@ -98,7 +98,7 @@ namespace Neon.Diagnostics
 
                 logEvent.CategoryName   = record.CategoryName;
                 logEvent.Severity       = severityInfo.Name;
-                logEvent.SeverityNumber = severityInfo.Number;
+                logEvent.SeverityNumber = options.EmitSeverityNumber ? severityInfo.Number : -1;
                 logEvent.SpanId         = record.SpanId == default ? null : record.SpanId.ToHexString();
                 logEvent.TraceId        = record.TraceId == default ? null : record.TraceId.ToHexString();
                 logEvent.TsNs           = record.Timestamp.ToUnixEpochNanoseconds();
@@ -240,7 +240,7 @@ namespace Neon.Diagnostics
                 // Write the JSON formatted record on a single line to STDOUT or STDERR
                 // depending on the event's log level and the exporter options.
 
-                if (options.SingleLine)
+                if (options.EmitSingleLine)
                 {
                     var jsonText = JsonConvert.SerializeObject(logEvent, Formatting.None);
 

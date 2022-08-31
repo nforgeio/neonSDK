@@ -85,7 +85,7 @@ namespace TestCommon
                                 options.AddConsoleJsonExporter(
                                     options =>
                                     {
-                                        options.SingleLine           = true;
+                                        options.EmitSingleLine           = true;
                                         options.Emit                 = false;
                                         options.ExceptionStackTraces = true;
                                         options.StandardErrorLevel   = LogLevel.Warning;
@@ -372,7 +372,7 @@ namespace TestCommon
                                 options.AddConsoleJsonExporter(
                                     options =>
                                     {
-                                        options.SingleLine           = true;
+                                        options.EmitSingleLine           = true;
                                         options.Emit                 = false;
                                         options.ExceptionStackTraces = true;
                                         options.StandardErrorLevel   = LogLevel.Warning;
@@ -699,7 +699,7 @@ namespace TestCommon
                                 options.AddConsoleJsonExporter(
                                     options =>
                                     {
-                                        options.SingleLine           = true;
+                                        options.EmitSingleLine           = true;
                                         options.Emit                 = false;
                                         options.ExceptionStackTraces = true;
                                         options.StandardErrorLevel   = LogLevel.Warning;

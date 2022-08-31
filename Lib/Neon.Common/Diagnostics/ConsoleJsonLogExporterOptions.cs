@@ -57,6 +57,70 @@ namespace Neon.Diagnostics
         public bool Emit { get; set; } = true;
 
         /// <summary>
+        /// <para>
+        /// Specifies whether the log event JSON written to the console should be formatted as single 
+        /// lines of JSON (the default) or render these as indented multi-line JSON separated by
+        /// a blank line.
+        /// </para>
+        /// <note>
+        /// This may be useful for debugging but should probably never be used for production.  This
+        /// defaults to <c>true</c>.
+        /// </note>
+        /// </summary>
+        public bool EmitSingleLine { get; set; } = true;
+
+        /// <summary>
+        /// <para>
+        /// Specifies whether the OpenTelemetry <b>severityNumber</b> attribute should be included the the emitted
+        /// logs.  OpenTelemetry defines a standard set of [severity numbers](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/logs/data-model.md#field-severitynumber)
+        /// that are more expansive (0..24) than the ordinal values assigned to the <see cref="LogLevel"/> enum values (0..6).
+        /// </para>
+        /// <para>
+        /// This defaults to <c>false</c>.
+        /// </para>
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// We're logging the OpenTelemetry severity number in the hope that OpenTelemetry eventually becomes
+        /// the de-facto logging standard so querying logs based on severity number would make sense.
+        /// </para>
+        /// <para>
+        /// Here's the mapping between <see cref="LogLevel"/> values and OpenTelemetry severity numbers:
+        /// </para>
+        /// <list type="table">
+        /// <item>
+        ///     <term><see cref="LogLevel.None"/></term>
+        ///     <description><b>0</b> (UNSPECIFIED)</description>
+        /// </item>
+        /// <item>
+        ///     <term><see cref="LogLevel.Trace"/></term>
+        ///     <description><b>1</b> (TRACE)</description>
+        /// </item>
+        /// <item>
+        ///     <term><see cref="LogLevel.Debug"/></term>
+        ///     <description><b>5</b> (DEBUG)</description>
+        /// </item>
+        /// <item>
+        ///     <term><see cref="LogLevel.Information"/></term>
+        ///     <description><b>9</b> (INFORMATION)</description>
+        /// </item>
+        /// <item>
+        ///     <term><see cref="LogLevel.Critical"/></term>
+        ///     <description><b>13</b> (WARN)</description>
+        /// </item>
+        /// <item>
+        ///     <term><see cref="LogLevel.Error"/></term>
+        ///     <description><b>17</b> (ERROR)</description>
+        /// </item>
+        /// <item>
+        ///     <term><see cref="LogLevel.Critical"/></term>
+        ///     <description><b>21</b> (FATAL)</description>
+        /// </item>
+        /// </list>
+        /// </remarks>
+        public bool EmitSeverityNumber { get; set; } = true;
+
+        /// <summary>
         /// Used to direct log output for events to <b>standard error</b> based on the
         /// event log level.
         /// </summary>
@@ -72,19 +136,6 @@ namespace Neon.Diagnostics
         /// </para>
         /// </remarks>
         public LogLevel StandardErrorLevel { get; set; } = LogLevel.None;
-
-        /// <summary>
-        /// <para>
-        /// Specifies whether the log event JSON written to the console should be formatted as single 
-        /// lines of JSON (the default) or render these as indented multi-line JSON separated by
-        /// a blank line.
-        /// </para>
-        /// <note>
-        /// This may be useful for debugging but should probably never be used for production.  This
-        /// defaults to <c>true</c>.
-        /// </note>
-        /// </summary>
-        public bool SingleLine { get; set; } = true;
 
         /// <summary>
         /// Specifies whether exception stack traces should be included in logged events.
