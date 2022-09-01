@@ -29,6 +29,7 @@ using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 using Neon.Common;
 using Neon.Cryptography;
@@ -40,14 +41,11 @@ using DnsClient;
 using Enyim;
 using Enyim.Caching;
 
-using Prometheus;
-
 using StackExchange.Redis;
 
 using Yarp;
 using Yarp.Telemetry.Consumption;
 using Yarp.ReverseProxy.Forwarder;
-using Microsoft.Extensions.Logging;
 
 namespace NeonBlazorProxy
 {
@@ -185,14 +183,7 @@ namespace NeonBlazorProxy
             }
 
             app.UseRouting();
-            app.UseHttpMetrics(options =>
-            {
-                // This identifies the page when using Razor Pages.
-                options.AddRouteParameter("page");
-            });
-
             app.UseConnectionHandler();
-
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapHealthChecks("/healthz");

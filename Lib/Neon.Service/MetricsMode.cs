@@ -39,30 +39,16 @@ namespace Neon.Service
     public enum MetricsMode
     {
         /// <summary>
-        /// Metrics publishing is disabled.
+        /// Prevents <see cref="NeonService"/> from configuring the OpenTelemetry metrics pipeline.
+        /// This can be used to disable metrics or when you want to configure the pipeline yourself.
         /// </summary>
-        Disabled = 0,
+        None = 0,
 
         /// <summary>
-        /// Metrics will be scraped by Prometheus.
+        /// <see cref="NeonService"/> will configure the OpenTelemetry metrics pipeline to export
+        /// metrics via the standard Prometheus scrape protocol on the port specified by 
+        /// <see cref="NeonServiceOptions.MetricsPort"/>.
         /// </summary>
-        Scrape,
-
-        /// <summary>
-        /// <para>
-        /// Metrics will scraped by Prometheus but any port conflicts or any endpoint
-        /// registration errors thrown by <b>HttpListener</b> on Windows will be ignored.
-        /// </para>
-        /// <note>
-        /// This mode is really intended for test environments where these errors aren't
-        /// relavent.  We don't recommend this for production deployments.
-        /// </note>
-        /// </summary>
-        ScrapeIgnoreErrors,
-
-        /// <summary>
-        /// Metrics will be pushed to a Prometheus <b>Pushgateway</b>.
-        /// </summary>
-        Push
+        Prometheus
     }
 }

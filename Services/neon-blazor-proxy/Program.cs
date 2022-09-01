@@ -69,18 +69,6 @@ namespace NeonBlazorProxy
                     }
                 }
 
-                if (!NeonHelper.IsDevWorkstation)
-                {
-                    Service.MetricsOptions.Mode         = MetricsMode.Scrape;
-                    Service.MetricsOptions.GetCollector =
-                        () =>
-                        {
-                            return DotNetRuntimeStatsBuilder
-                                .Default()
-                                .StartCollecting();
-                        };
-                }   
-
                 Environment.Exit(await Service.RunAsync());
             }
             catch (Exception e)

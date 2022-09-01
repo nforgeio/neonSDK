@@ -36,8 +36,6 @@ using Neon.Service;
 using Neon.Tasks;
 using Neon.Xunit;
 
-using Prometheus;
-
 using Xunit;
 
 namespace TestNeonService

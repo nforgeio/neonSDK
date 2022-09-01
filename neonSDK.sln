@@ -82,6 +82,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "neon-build", "Tools\neon-bu
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neon.Service", "Lib\Neon.Service\Neon.Service.csproj", "{A26FC706-862F-4690-A626-B83A988A9411}"
+	ProjectSection(ProjectDependencies) = postProject
+		{776E985C-E4C6-428A-8259-A29DF873A84E} = {776E985C-E4C6-428A-8259-A29DF873A84E}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Neon.Cryptography", "Test\Test.Neon.Cryptography\Test.Neon.Cryptography.csproj", "{274B582D-10B8-4030-9F0C-3337C5509D03}"
 EndProject
@@ -1027,7 +1030,7 @@ Global
 		{CDCDC40F-1612-4902-982C-2BE56EE58A9D}.Release|x64.ActiveCfg = Release|Any CPU
 		{CDCDC40F-1612-4902-982C-2BE56EE58A9D}.Release|x64.Build.0 = Release|Any CPU
 		{CDCDC40F-1612-4902-982C-2BE56EE58A9D}.Release|x86.ActiveCfg = Release|Any CPU
-		{CDCDC40F-1612-4902-982C-2BE56EE58A9D}.Release|x86.Build.0 = Release|Any CPUU
+		{CDCDC40F-1612-4902-982C-2BE56EE58A9D}.Release|x86.Build.0 = Release|Any CPU
 		{3171702A-8FED-4D97-8254-E44E56D51642}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3171702A-8FED-4D97-8254-E44E56D51642}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3171702A-8FED-4D97-8254-E44E56D51642}.Debug|x64.ActiveCfg = Debug|Any CPU

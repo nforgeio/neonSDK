@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
+using System.Diagnostics.Metrics;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -186,5 +187,18 @@ namespace Neon.Diagnostics
 
             return logLevel;
         }
+
+        /// <summary>
+        /// <para>
+        /// Used by neonSDK and other libraries to create metric instruments like
+        /// counters, guages, etc.  This is initialized with a default instance 
+        /// but may be customized by applications during startup.
+        /// </para>
+        /// <para>
+        /// For example, <b>NeonService</b> initializes this using the service name
+        /// and version for applications based on <b>NeonService</b>.
+        /// </para>
+        /// </summary>
+        public static Meter Meter { get; set; } = new Meter("neonsdk", Build.NeonSdkVersion);
     }
 }

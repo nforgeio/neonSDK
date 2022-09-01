@@ -17,8 +17,6 @@
 
 using Prometheus;
 
-using Yarp.Telemetry.Consumption;
-
 namespace NeonBlazorProxy
 {
     /// <inheritdoc/>

@@ -37,9 +37,6 @@ using Neon.Service;
 
 using DnsClient;
 
-using Prometheus;
-using Prometheus.DotNetRuntime;
-
 namespace NeonBlazorProxy
 {
     /// <summary>
@@ -120,7 +117,7 @@ namespace NeonBlazorProxy
         /// </summary>
         /// <param name="name">The service name.</param>
         public Service(string name)
-             : base(name, version: Build.NeonSdkVersion, options: new NeonServiceOptions() { MetricsPrefix = "neonblazorproxy" })
+             : base(name, version: Build.NeonSdkVersion)
         {
         }
 

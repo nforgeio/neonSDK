@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
+using System.Diagnostics.Metrics;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -30,6 +31,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 using Neon.Common;
@@ -42,9 +44,10 @@ using Neon.Tasks;
 using Neon.Windows;
 
 using DnsClient;
-using Prometheus;
-using Microsoft.Extensions.DependencyInjection;
+
+using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
+using OpenTelemetry;
 
 namespace Neon.Service
 {
@@ -370,45 +373,26 @@ namespace Neon.Service
     /// <para>
     /// https://github.com/nforgeio/neonKUBE/issues/1233
     /// </para>
-    /// <para><b>PROMETHEUS METRICS</b></para>
+    /// <para><b>METRICS</b></para>
     /// <para>
     /// <see cref="NeonService"/> can enable services to publish Prometheus metrics with a
-    /// single line of code; simply set <see cref="NeonService.MetricsOptions"/>.<see cref="MetricsOptions.Mode"/> to
-    /// <see cref="MetricsMode.Scrape"/> before calling <see cref="RunAsync(bool)"/>.  This configures
-    /// your service to publish metrics via HTTP via <b>http://0.0.0.0:</b><see cref="NetworkPorts.PrometheusMetrics"/><b>/metrics/</b>.
-    /// We've resistered port <see cref="NetworkPorts.PrometheusMetrics"/> with Prometheus as a standard port
-    /// to be used for micro services running in Kubernetes or on other container platforms to make it 
-    /// easy configure scraping for a cluster.
+    /// single line of code; simply set <see cref="NeonServiceOptions.MetricsMode"/> to
+    /// <see cref="MetricsMode.Prometheus"/> before calling <see cref="RunAsync(bool)"/>.  
+    /// This configures your service to publish metrics via HTTP via <b>http://*:9762/metrics/</b>,
+    /// which is the standard Prometheus port.  You can customize the port via <see cref="NeonServiceOptions.MetricsPort"/>
+    /// or by setting a metrics port for the service in the optional service map.
     /// </para>
     /// <para>
-    /// You can also configure a custom port and path or configure metrics push to a Prometheus
-    /// Pushgateway using other <see cref="MetricsOptions"/> properties.  You can also fully customize
-    /// your Prometheus configuration by leaving this disabled in <see cref="NeonService.MetricsOptions"/>
-    /// and setting things up using the standard <b>prometheus-net</b> mechanisms before calling
-    /// <see cref="RunAsync(bool)"/>.
-    /// </para>
-    /// <code source="..\..\Snippets\Snippets.NeonService\Program-Dependencies.cs" language="c#" title="Waiting for service dependencies:"/>
-    /// <para><b>NETCORE Runtime METRICS</b></para>
-    /// <para>
-    /// We highly recommend that you also enable .NET Runtime related metrics for services targeting
-    /// .NET Core 3.1 or greater.
+    /// .NET runtime instrumentation is enabled by default.  This tracks things like heap size, GCs
+    /// exceptions thrown, etc.  You can disable this by setting <see cref="NeonServiceOptions.RuntimeInstrumentation"/>=<c>false</c>.
     /// </para>
     /// <para>
-    /// Adding support for this is easy, simply add a reference to the <a href="https://www.nuget.org/packages/prometheus-net.DotNetRuntime">prometheus-net.DotNetRuntime</a>
-    /// package to your service project and then assign a function callback to <see cref="MetricsOptions.GetCollector"/>
-    /// that configures runtime metrics collection, like:
+    /// For ASPNETCORE applications, we enable ASP.NET instrumentation by default.  You can disable this by setting 
+    /// <see cref="NeonServiceOptions.AspNetRuntimeInstrumentation"/>=<c>false</c>.
     /// </para>
-    /// <code source="..\..\Snippets\Snippets.NeonService\Program-Metrics.cs" language="c#" title="Service metrics example:"/>
-    /// <para>
-    /// You can also customize the the runtime metrics emitted like this:
-    /// </para>
-    /// <code source="..\..\Snippets\Snippets.NeonService\Program-RuntimeMetrics.cs" language="c#" title="Service and .NET Runtime metrics:"/>
-    /// <para><b>SERVICE: FULL MEAL DEAL!</b></para>
-    /// <para>
-    /// Here's a reasonable template you can use to begin implementing your service projects with 
-    /// all features enabled:
-    /// </para>
-    /// <code source="..\..\Snippets\Snippets.NeonService\Program-FullMealDeal.cs" language="c#" title="Full Neon.Service template:"/>
+    /// <note>
+    /// <see cref="NeonServiceOptions.AspNetRuntimeInstrumentation"/> is ignored for .NET Framework applications.
+    /// </note>
     /// </remarks>
     public abstract class NeonService : IDisposable
     {
@@ -453,8 +437,7 @@ namespace Neon.Service
 
         private const string disableHealthChecks = "DISABLED";
 
-        private static readonly char[]      equalArray = new char[] { '=' };
-        private static readonly Gauge       infoGauge  = Metrics.CreateGauge("neon_service_info", "Describes your service version.", "version");
+        private static readonly char[]  equalArray = new char[] { '=' };
 
         // WARNING:
         //
@@ -572,8 +555,9 @@ namespace Neon.Service
         private readonly object                 syncLock   = new object();
         private readonly AsyncMutex             asyncMutex = new AsyncMutex();
         private readonly NeonServiceOptions     options;
-        private readonly Counter                runtimeCount;
-        private readonly Counter                unhealthyCount;
+        private MeterProvider                   meterProvider;
+        private readonly Counter<long>          runtimeCount;
+        private readonly Counter<long>          unhealthyCount;
         private bool                            isRunning;
         private bool                            isDisposed;
         private bool                            stopPending;
@@ -584,9 +568,6 @@ namespace Neon.Service
         private string                          healthCheckPath;
         private string                          readyCheckPath;
         private IRetryPolicy                    healthRetryPolicy = new LinearRetryPolicy(e => e is IOException, maxAttempts: 10, retryInterval: TimeSpan.FromMilliseconds(100));
-        private MetricServer                    metricServer;
-        private MetricPusher                    metricPusher;
-        private IDisposable                     metricCollector;
         private string                          terminationMessagePath;
 
         /// <summary>
@@ -612,8 +593,9 @@ namespace Neon.Service
             this.Name    = name;
             this.options = options ??= new NeonServiceOptions();
 
+            //-----------------------------------------------------------------
             // Configure the service version.
-            
+
             version ??= "0.0.0";
 
             try
@@ -633,6 +615,7 @@ namespace Neon.Service
 
             this.Version = version;
 
+            //-----------------------------------------------------------------
             // Check the service map, if one was passed.
 
             if (options.ServiceMap != null)
@@ -652,6 +635,7 @@ namespace Neon.Service
                 }
             }
 
+            //-----------------------------------------------------------------
             // Configure the OpenTelemetry logging pipeline.
 
             if (options.LoggerFactory != null)
@@ -695,6 +679,79 @@ namespace Neon.Service
                 this.Logger                = loggerFactory.CreateLogger<NeonService>();
             }
 
+            //-----------------------------------------------------------------
+            // Configure metrics.
+
+            TelemetryHub.Meter = Meter = new Meter(Name, Version);
+
+            switch (options.MetricsMode)
+            {
+                case MetricsMode.None:
+
+                    break;
+
+                case MetricsMode.Prometheus:
+
+                    var builder = OpenTelemetry.Sdk.CreateMeterProviderBuilder();
+
+                    builder.AddMeter(Meter.Name);
+
+#if DISABLED
+                    if (options.RuntimeInstrumentation)
+                    {
+                        builder.AddRuntimeInstrumentation();
+                    }
+
+                    if (options.AspNetRuntimeInstrumentation)
+                    {
+                        builder.AddAspNetInstrumentation();
+                    }
+
+                    builder.AddPrometheusExporter(
+                        options =>
+                        {
+                            options.StartHttpListener = true;
+
+                            // $todo(jefflill):
+                            //
+                            // The [PrometheusExporterOptions] class has a bug before v1.4.0
+                            // where it's not possible to configure the listener to listen on
+                            // all interfaces, or any interface besides [localhost].
+                            //
+                            // We're going to hack around this by reflecting the type and
+                            // setting the backing field, as described here:
+                            //
+                            //      https://github.com/open-telemetry/opentelemetry-dotnet/issues/2840
+                            //
+                            // This has been fixed for v1.4.0, but that nuget package hasn't 
+                            // been published yet.  We'll need to remove this hack once v1.4.0
+                            // is published to nuget.org.
+
+                            // options.HttpListenerPrefixes = new string[] { $"http://*:{this.options.MetricsPort}" };
+
+                            var field = options.GetType().GetField("httpListenerPrefixes", BindingFlags.NonPublic | BindingFlags.Instance);
+
+                            if (field == null)
+                            {
+                                throw new Exception("Cannot configure [PrometheusExporter]: You can probably fix this by uncommenting the line above and removing this hack.");
+                            }
+
+                            field.SetValue(options, $"http://*:{this.options.MetricsPort}");
+                        });
+
+                    meterProvider = builder.Build();
+#endif
+                    break;
+
+                default:
+
+                    throw new NotImplementedException();
+            }
+
+            runtimeCount   = Meter.CreateCounter<long>("runtime", "seconds", "Indicates how long the service has been running.");
+            unhealthyCount = Meter.CreateCounter<long>("unhealthy-transitions", "count", "Indicates how many times the service has transitioned into an unhealthy state.");
+
+            //-----------------------------------------------------------------
             // Initialize the service environment.
 
             this.environmentVariables = new Dictionary<string, string>();
@@ -713,36 +770,7 @@ namespace Neon.Service
             this.healthFolder           = options.HealthFolder ?? "/";
             this.terminationMessagePath = options.TerminationMessagePath ?? "/dev/termination-log";
 
-            // Initialize the metrics prefix and counters.
-
-            var normalizedPrefix = string.Empty;
-
-            if (string.IsNullOrEmpty(options.MetricsPrefix))
-            {
-                options.MetricsPrefix = this.Name;
-            }
-
-            foreach (var ch in options.MetricsPrefix)
-            {
-                if (char.IsLetterOrDigit(ch) || ch == '_')
-                {
-                    normalizedPrefix += ch;
-                }
-                else
-                {
-                    normalizedPrefix += '_';
-                }
-            }
-
-            while (normalizedPrefix.Contains("__"))
-            {
-                normalizedPrefix = normalizedPrefix.Replace("__", "_");
-            }
-
-            this.MetricsPrefix  = normalizedPrefix;
-            this.runtimeCount   = Metrics.CreateCounter($"{MetricsPrefix}_runtime_seconds", "Service runtime in seconds.");
-            this.unhealthyCount = Metrics.CreateCounter($"{MetricsPrefix}_unhealthy_transitions", "Service [unhealthy] transitions.");
-
+            //-----------------------------------------------------------------
             // Detect unhandled application exceptions and log them.
 
             AppDomain.CurrentDomain.UnhandledException +=
@@ -757,12 +785,8 @@ namespace Neon.Service
 
             if (Description != null)
             {
-                MetricsOptions.Port = Description.MetricsPort;
+                options.MetricsPort = Description.MetricsPort;
             }
-
-            // Initialize the [neon_service_info] gauge.
-
-            infoGauge.WithLabels(Version).Set(1);
         }
 
         /// <summary>
@@ -815,6 +839,12 @@ namespace Neon.Service
 
             lock(syncLock)
             {
+                if (meterProvider != null)
+                {
+                    meterProvider.Dispose();
+                    meterProvider = null;
+                }
+
                 foreach (var item in configFiles.Values)
                 {
                     item.Dispose();
@@ -851,18 +881,6 @@ namespace Neon.Service
         /// Returns the service version or <b>"unknown"</b>.
         /// </summary>
         public string Version { get; private set; }
-
-        /// <summary>
-        /// <para>
-        /// Returns the prefix to be used when creating metrics counters for this service.
-        /// This will be set to the prefix passed to the constructor or one derived from
-        /// the service name.
-        /// </para>
-        /// <note>
-        /// The prefix returned includes a trailing underscore.
-        /// </note>
-        /// </summary>
-        public string MetricsPrefix { get; private set; }
 
         /// <summary>
         /// Provides support for retrieving environment variables as well as
@@ -959,21 +977,15 @@ namespace Neon.Service
         }
 
         /// <summary>
-        /// <para>
-        /// Prometheus metrics options.  To enable metrics collection for non-ASPNET applications,
-        /// we recommend that you simply set <see cref="MetricsOptions.Mode"/><c>==</c><see cref="MetricsMode.Scrape"/>
-        /// before calling <see cref="OnRunAsync"/>.
-        /// </para>
-        /// <para>
-        /// See <see cref="MetricsOptions"/> for more details.
-        /// </para>
-        /// </summary>
-        public MetricsOptions MetricsOptions { get; set; } = new MetricsOptions();
-
-        /// <summary>
         /// Returns the service's default Logger.
         /// </summary>
         public ILogger Logger { get; private set; }
+
+        /// <summary>
+        /// Returns the service's metrics <see cref="Meter"/>.  This can be used to
+        /// create metrics instruments.
+        /// </summary>
+        public Meter Meter { get; private set; }
 
         /// <summary>
         /// Returns the service's <see cref="ProcessTerminator"/>.  This can be used
@@ -1026,7 +1038,7 @@ namespace Neon.Service
 
                 if (newStatus == NeonServiceStatus.Unhealthy)
                 {
-                    unhealthyCount.Inc();
+                    unhealthyCount.Add(1);
                     Logger.LogWarningEx(() => $"[{Name}] health status: [{newStatusString}]");
                 }
                 else
@@ -1170,15 +1182,7 @@ namespace Neon.Service
                 Terminator.DisableProcessExit = true;
             }
 
-            // $todo(jefflill): IMPLEMENT THIS!
-#if DISABLED
-            // Initialize the default log manager, when one isn't already assigned.
-
-            TelemetryHub.Default = new TelemetryHub(parseLogLevel: true, logFilter: logFilter);
-            TelemetryHub.ActivitySource = new ActivitySource(Name, Version);
-            TelemetryHub.ParseLogLevel(GetEnvironmentVariable("LOG_LEVEL", "info"));
-
-            Logger = TelemetryHub.CreateLogger();
+            // Log service start information.
 
             if (!string.IsNullOrEmpty(Version))
             {
@@ -1188,7 +1192,6 @@ namespace Neon.Service
             {
                 Logger.LogInformationEx(() => $"Starting [{Name}]");
             }
-#endif
 
             // Initialize the health status paths when enabled on Linux and
             // deploy the health and ready check tools.  We'll log any
@@ -1291,54 +1294,6 @@ namespace Neon.Service
                 healthFolder = null;
             }
 
-            // Initialize Prometheus metrics when enabled.
-
-            MetricsOptions = MetricsOptions ?? new MetricsOptions();
-            MetricsOptions.Validate();
-
-            try
-            {
-                switch (MetricsOptions.Mode)
-                {
-                    case MetricsMode.Disabled:
-
-                        break;
-
-                    case MetricsMode.Scrape:
-                    case MetricsMode.ScrapeIgnoreErrors:
-
-                        metricServer = new MetricServer(MetricsOptions.Port, MetricsOptions.Path);
-                        metricServer.Start();
-                        break;
-
-                    case MetricsMode.Push:
-
-                        metricPusher = new MetricPusher(MetricsOptions.PushUrl, job: Name, intervalMilliseconds: (long)MetricsOptions.PushInterval.TotalMilliseconds, additionalLabels: MetricsOptions.PushLabels);
-                        metricPusher.Start();
-                        break;
-
-                    default:
-
-                        throw new NotImplementedException();
-                }
-
-                if (MetricsOptions.GetCollector != null)
-                {
-                    metricCollector = MetricsOptions.GetCollector();
-                }
-            }
-            catch (NotImplementedException)
-            {
-                throw;
-            }
-            catch
-            {
-                if (MetricsOptions.Mode != MetricsMode.ScrapeIgnoreErrors)
-                {
-                    throw;
-                }
-            }
-
             // Verify that any required service dependencies are ready.
 
             var dnsOptions = new LookupClientOptions()
@@ -1433,25 +1388,13 @@ namespace Neon.Service
 
                 Logger.LogErrorEx(notReadyException, () => $"Service Dependency: [{notReadyUri}] is still not ready after waiting [{Dependencies.Timeout}].");
 
-                if (metricServer != null)
+                if (meterProvider != null)
                 {
-                    await metricServer.StopAsync();
-                    metricServer = null;
+                    meterProvider.Dispose();
+                    meterProvider = null;
                 }
 
-                if (metricPusher != null)
-                {
-                    await metricPusher.StopAsync();
-                    metricPusher = null;
-                }
-
-                if (metricCollector != null)
-                {
-                    metricCollector.Dispose();
-                    metricCollector = null;
-                }
-
-                TerminateAnySidecars();
+                TerminateSidecars();
 
                 return ExitCode = 1;
             }
@@ -1504,7 +1447,7 @@ namespace Neon.Service
                     ExitCode = e.ExitCode;
                 }
 
-                TerminateAnySidecars();
+                TerminateSidecars();
             }
             catch (Exception e)
             {
@@ -1518,7 +1461,7 @@ namespace Neon.Service
                 ExitCode      = 1;
 
                 Logger.LogErrorEx(e);
-                TerminateAnySidecars();
+                TerminateSidecars();
             }
 
             // Perform last rights for the service before it passes away.
@@ -1528,22 +1471,10 @@ namespace Neon.Service
             runtimerCts.Cancel();
             await runtimerTask;
 
-            if (metricServer != null)
+            if (meterProvider != null)
             {
-                await metricServer.StopAsync();
-                metricServer = null;
-            }
-
-            if (metricPusher != null)
-            {
-                await metricPusher.StopAsync();
-                metricPusher = null;
-            }
-
-            if (metricCollector != null)
-            {
-                metricCollector.Dispose();
-                metricCollector = null;
+                meterProvider.Dispose();
+                meterProvider = null;
             }
 
             Terminator.ReadyToExit();
@@ -1565,12 +1496,14 @@ namespace Neon.Service
         {
             await SyncContext.Clear;
 
+            // $todo(jefflill): Replace this with an [ObservableCounter]?
+
             var second = TimeSpan.FromSeconds(1);
 
             while (!cancellationToken.IsCancellationRequested)
             {
                 await Task.Delay(second);
-                runtimeCount.Inc();
+                runtimeCount.Add(1);
             }
         }
 
@@ -1619,7 +1552,7 @@ namespace Neon.Service
         /// https://github.com/nforgeio/neonKUBE/issues/1233
         /// </para>
         /// </summary>
-        private void TerminateAnySidecars()
+        private void TerminateSidecars()
         {
             if (!AutoTerminateIstioSidecar)
             {

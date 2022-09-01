@@ -364,8 +364,7 @@ namespace Neon.WSL
         private Dictionary<string, string>  cachedOsRelease   = null;
 
         /// <summary>
-        /// Constructs a proxy connected to a specific WSL2 distribution, starting the
-        /// distribution by default of it's not already running.
+        /// Constructs a proxy connected to a specific WSL2 distribution.
         /// </summary>
         /// <param name="name">Identifies the target WSL2 distribution.</param>
         /// <param name="user">Optionally connect as a non-root user.</param>

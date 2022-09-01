@@ -19,6 +19,9 @@ using System;
 
 using Microsoft.Extensions.Logging;
 
+using Neon.Common;
+using Neon.Net;
+
 namespace Neon.Service
 {
     /// <summary>
@@ -54,12 +57,34 @@ namespace Neon.Service
         public ILoggerFactory LoggerFactory { get; set; } = null;
 
         /// <summary>
-        /// Optionally specifies prefix to be used by metrics counters, overridding a prefix based on the
-        /// service name.  This prefix may include only alphanumeric characters and underscores.  By default,
-        /// this will be set to the service name with any non-alphanumeric characters converted to underscores.
-        /// In either case, the class will add a trailing underscore when not already present.
+        /// Indicates how <see cref="NeonService"/> should configure the OpenTelemetry metrics pipeline.
+        /// Specify <see cref="MetricsMode.Prometheus"/> (the default) to enable a Prometheus compatible
+        /// exporter on <see cref="MetricsPort"/> or <see cref="MetricsMode.None"/> to disable metrics
+        /// exporting or when you wish to configure the metrics pipeline yourself.
         /// </summary>
-        public string MetricsPrefix { get; set; } = null;
+        public MetricsMode MetricsMode { get; set; } = MetricsMode.Prometheus;
+
+        /// <summary>
+        /// Indicates whether instrumentation for the .NET runtime should be enabled. This defaults to <c>true</c>,
+        /// </summary>
+        public bool RuntimeInstrumentation { get; set; } = true;
+
+        /// <summary>
+        /// <para>
+        /// Indicates whether instrumentation for ASP.NET should be enabled. This defaults to <c>true</c>,
+        /// </para>
+        /// <note>
+        /// This property is ignored for .NET Framework applications.
+        /// </note>
+        /// </summary>
+        public bool AspNetRuntimeInstrumentation { get; set; } = true;
+
+        /// <summary>
+        /// Specifies the port where <see cref="NeonService"/> will expose the standard Prometheus scrape
+        /// endpoint when <see cref="MetricsMode"/>==<see cref="MetricsMode.Prometheus"/>.  This defaults
+        /// to the standard port.
+        /// </summary>
+        public int MetricsPort { get; set; } = NetworkPorts.PrometheusMetrics;
 
         /// <summary>
         /// <para>
