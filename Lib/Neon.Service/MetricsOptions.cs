@@ -71,32 +71,33 @@ namespace Neon.Service
     /// is quite easy to configure.
     /// </para>
     /// </note>
-    /// <note>
+    /// <para><b>.NET CORE RUNTIME METRICS</b></para>
     /// <para>
-    /// For ASPNET applications, you have some choices:
+    /// For .NET Core apps, you'll also need to add a reference to the <b>prometheus-net.DotNetRuntime</b>
+    /// nuget package and set <see cref="GetCollector"/> to a function that returns the  the collector to be used.
+    /// This will look like:
     /// </para>
-    /// <list type="number">
-    /// <item>
-    /// Leave metrics disabled here and configure middleware to handle the metrics; this will
-    /// automatically much more detailed web related metrics.  You can use the standard 
-    /// <b>prometheus-net</b> middleware builder extension.
-    /// </item>
-    /// <item>
-    /// Enable metrics here and optionally set <see cref="GetCollector"/> to a function that
-    /// returns the 
-    /// </item>
-    /// <item>
-    /// </item>
-    /// </list>
-    /// 
-    /// 
-    /// 
-    /// 
-    /// 
-    /// , we recommend that you leave metrics collection disabled here and 
-    /// configure middleware to handle the metrics; this will automatically much more detailed web
-    /// related metrics.  You can use the standard <b>prometheus-net</b> middleware builder extension.
-    /// </note>
+    /// <code language="C#">
+    /// Service.MetricsOptions.GetCollector =
+    ///     () =>
+    ///     {
+    ///         return DotNetRuntimeStatsBuilder
+    ///             .Default()
+    ///             .StartCollecting();
+    ///     };
+    /// </code>
+    /// <para><b>ASPNETCORE METRICS:</b></para>
+    /// <para>
+    /// For ASPNETCORE metrics, you'll need to add the <b>prometheus-net.AspNetCore</b> nuget package and
+    /// then add the collector when configuring your application in the <b>Startup</b> class, like:
+    /// </para>
+    /// <code language="C#">
+    /// public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    /// {
+    ///     app.UseRouting();
+    ///     app.UseHttpMetrics();           // &lt;--- add this
+    /// }    
+    /// </code>
     /// </remarks>
     public class MetricsOptions
     {
@@ -139,9 +140,9 @@ namespace Neon.Service
         /// Optionally configures a callback that can return a custom metrics collector for the service.
         /// </para>
         /// <para>
-        /// We recommend that you configure this to return the standard .NET Runtime or ASP.NET runtime metrics
-        /// collector so your services will report those as well.  The code to configure the .NET Runtime metrics
-        /// looks like this:
+        /// For non-ASPNETCORE applications, we recommend that you configure this to return the standard .NET Runtime
+        /// metrics collector so your services will report those as well.  You'll need to install the <b>prometheus-net.DotNetRuntime</b>
+        /// nugeyt package and the code to configure looks like this:
         /// </para>
         /// <code language="C#">
         /// Service.MetricsOptions.GetCollector =
@@ -151,9 +152,24 @@ namespace Neon.Service
         ///             .Default()
         ///             .StartCollecting();
         ///     };
-    /// </code>
-    /// </summary>
-    public Func<IDisposable> GetCollector { get; set; }
+        /// </code>
+        /// <para>
+        /// For ASP.NET applications, we recommend that you add metrics collection middleware by adding
+        /// the <b>Prometheus.AspNetCore</b> nuget package and configure your middleware in your <c>Startup</c>
+        /// class like:
+        /// </para>
+        /// <code language="C#">
+        /// public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        /// {
+        ///     app.UseHttpMetrics();           // &lt;-- Enable ASPNETCORE metrics
+        ///     app.UseEndpoints(endpoints =>
+        ///     {
+        ///         endpoints.MapControllers();
+        ///     });
+        /// }
+        /// </code>
+        /// </summary>
+        public Func<IDisposable> GetCollector { get; set; }
 
         /// <summary>
         /// Validates the options.

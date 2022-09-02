@@ -377,7 +377,7 @@ namespace Neon.Service
     /// <see cref="MetricsMode.Scrape"/> before calling <see cref="RunAsync(bool)"/>.  This configures
     /// your service to publish metrics via HTTP via <b>http://0.0.0.0:</b><see cref="NetworkPorts.PrometheusMetrics"/><b>/metrics/</b>.
     /// We've resistered port <see cref="NetworkPorts.PrometheusMetrics"/> with Prometheus as a standard port
-    /// to be used for micro services running in Kubernetes or on other container platforms to make it 
+    /// to be used for microservices running in Kubernetes or on other container platforms to make it 
     /// easy configure scraping for a cluster.
     /// </para>
     /// <para>
@@ -387,28 +387,33 @@ namespace Neon.Service
     /// and setting things up using the standard <b>prometheus-net</b> mechanisms before calling
     /// <see cref="RunAsync(bool)"/>.
     /// </para>
-    /// <code source="..\..\Snippets\Snippets.NeonService\Program-Dependencies.cs" language="c#" title="Waiting for service dependencies:"/>
-    /// <para><b>NETCORE Runtime METRICS</b></para>
+    /// <para><b>.NET CORE RUNTIME METRICS</b></para>
     /// <para>
-    /// We highly recommend that you also enable .NET Runtime related metrics for services targeting
-    /// .NET Core 3.1 or greater.
+    /// For .NET Core apps, you'll also need to add a reference to the <b>prometheus-net.DotNetRuntime</b>
+    /// nuget package and set <see cref="MetricsOptions.GetCollector"/> to a function that returns the  the
+    /// collector to be used.  This will look like:
     /// </para>
+    /// <code language="C#">
+    /// Service.MetricsOptions.GetCollector =
+    ///     () =>
+    ///     {
+    ///         return DotNetRuntimeStatsBuilder
+    ///             .Default()
+    ///             .StartCollecting();
+    ///     };
+    /// </code>
+    /// <para><b>ASPNETCORE METRICS:</b></para>
     /// <para>
-    /// Adding support for this is easy, simply add a reference to the <a href="https://www.nuget.org/packages/prometheus-net.DotNetRuntime">prometheus-net.DotNetRuntime</a>
-    /// package to your service project and then assign a function callback to <see cref="MetricsOptions.GetCollector"/>
-    /// that configures runtime metrics collection, like:
+    /// For ASPNETCORE metrics, you'll need to add the <b>prometheus-net.AspNetCore</b> nuget package and
+    /// then add the collector when configuring your application in the <b>Startup</b> class, like:
     /// </para>
-    /// <code source="..\..\Snippets\Snippets.NeonService\Program-Metrics.cs" language="c#" title="Service metrics example:"/>
-    /// <para>
-    /// You can also customize the the runtime metrics emitted like this:
-    /// </para>
-    /// <code source="..\..\Snippets\Snippets.NeonService\Program-RuntimeMetrics.cs" language="c#" title="Service and .NET Runtime metrics:"/>
-    /// <para><b>SERVICE: FULL MEAL DEAL!</b></para>
-    /// <para>
-    /// Here's a reasonable template you can use to begin implementing your service projects with 
-    /// all features enabled:
-    /// </para>
-    /// <code source="..\..\Snippets\Snippets.NeonService\Program-FullMealDeal.cs" language="c#" title="Full Neon.Service template:"/>
+    /// <code language="C#">
+    /// public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    /// {
+    ///     app.UseRouting();
+    ///     app.UseHttpMetrics();           // &lt;--- add this
+    /// }    
+    /// </code>
     /// </remarks>
     public abstract class NeonService : IDisposable
     {
