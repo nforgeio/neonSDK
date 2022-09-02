@@ -705,6 +705,11 @@ namespace Neon.Service
 
             LoadEnvironmentVariables();
 
+            // This environment variable disables the ASPNETCORE startup prompt
+            // so that won't pollute console logs.
+
+            System.Environment.SetEnvironmentVariable("ASPNETCORE_SUPPRESSSTATUSMESSAGES", "true");
+
             // Initialize service members.
 
             this.Name                   = name;
