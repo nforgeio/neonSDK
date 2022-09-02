@@ -236,74 +236,55 @@ namespace Neon.Diagnostics
             // We're going to handle this by decoupling our concept of message text from MSFT's
             // concept by persisting the user's message passed as an explicit [body] attribute and
             // then constructing a separate message used internally only for specifing attribute names.
-            //
-            // The MSFT logger implementation tries pretty hard to reduce the number of memory
-            // allocations via pooling, etc.  We're going to try to do the same by pooling
-            // [LogAttributes] collections and [StringBuilder]s.  We're going to try to do the same
-            // by using the [DiagnosticPools] to cache and reuse various objects:
-            // 
-            //      LogAttributes   - Used when calling user attribute-setter functions
-            //      StringBuilder   - Used for generating the formatted messages holding the attribute
-            //                        names we'll be passing to the underlying [ILogger].
 
-            LogAttributes logAttributes = null;
+            var logAttributes = new LogAttributes();    // $todo(jefflill): It would be really nice to be able to pool these: https://github.com/nforgeio/neonKUBE/issues/1668#issuecomment-1235696464
 
-            try
+            // Process the event message.
+
+            if (message == null && messageFunc != null)
             {
-                logAttributes = DiagnosticPools.GetLogAttributes();
-
-                // Process the event message.
-
-                if (message == null && messageFunc != null)
-                {
-                    message = messageFunc();
-                }
-
-                // Append any attributes held by [AttributeLogger] loggers.
-
-                var attributeLogger      = logger as AttributeLogger;
-                var loggerAttributeCount = attributeLogger == null ? 0 : attributeLogger.Attributes.Count;
-
-                if (loggerAttributeCount > 0)
-                {
-                    foreach (var attribute in attributeLogger.Attributes.Attributes)
-                    {
-                        logAttributes.Add(attribute.Key, attribute.Value);
-                    }
-                }
-
-                // Generate a log message from an exception when the user didn't
-                // specify a message.
-
-                if (exception != null && message == null)
-                {
-                    message = NeonHelper.ExceptionError(exception);
-                }
-
-                // Temporarily persist the message as an attribute.
-
-                logAttributes.Add(LogAttributeNames.InternalBody, message);
-
-                if (attributeSetter != null)
-                {
-                    attributeSetter.Invoke(logAttributes);
-                }
-
-                // Use stock [ILogger] to log the event.
-
-                logger.Log(logLevel, default(EventId), logAttributes.Attributes, exception,
-                    (state, exception) =>
-                    {
-                        return message;
-                    });
+                message = messageFunc();
             }
-            finally
+
+            // Append any attributes held by [AttributeLogger] loggers.
+
+            var attributeLogger      = logger as AttributeLogger;
+            var loggerAttributeCount = attributeLogger == null ? 0 : attributeLogger.Attributes.Count;
+
+            if (loggerAttributeCount > 0)
             {
-                if (logAttributes != null)
+                logAttributes ??= new LogAttributes();
+
+                foreach (var attribute in attributeLogger.Attributes.Attributes)
                 {
-                    DiagnosticPools.ReturnLogAttributes(logAttributes);
+                    logAttributes.Add(attribute.Key, attribute.Value);
                 }
             }
+
+            // Generate a log message from an exception when the user didn't
+            // specify a message.
+
+            if (exception != null && message == null)
+            {
+                message = NeonHelper.ExceptionError(exception);
+            }
+
+            // Temporarily persist the message as an attribute.
+
+            logAttributes.Add(LogAttributeNames.InternalBody, message);
+
+            if (attributeSetter != null)
+            {
+                attributeSetter.Invoke(logAttributes);
+            }
+
+            // Use stock [ILogger] to log the event.
+
+            logger.Log(logLevel, default(EventId), logAttributes.Attributes, exception,
+                (state, exception) =>
+                {
+                    return message;
+                });
         }
 
         //---------------------------------------------------------------------

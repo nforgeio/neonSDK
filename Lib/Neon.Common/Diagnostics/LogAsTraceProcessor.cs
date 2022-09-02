@@ -170,21 +170,14 @@ namespace Neon.Diagnostics
 
                 if (logRecord.StateValues != null && logRecord.StateValues.Count > 0)
                 {
-                    var activityTags = DiagnosticPools.GetActivityAttributes();
+                    var activityTags = new ActivityTagsCollection();    // $todo(jefflill): It would be really nice to be able to pool these: https://github.com/nforgeio/neonKUBE/issues/1668#issuecomment-1235696464
 
-                    try
+                    foreach (var attribute in logRecord.StateValues)
                     {
-                        foreach (var attribute in logRecord.StateValues)
-                        {
-                            activityTags.Add(attribute);
-                        }
+                        activityTags.Add(attribute);
+                    }
 
-                        activity.AddEvent(new ActivityEvent(logRecord.FormattedMessage, logRecord.Timestamp, activityTags));
-                    }
-                    finally
-                    {
-                        DiagnosticPools.ReturnActivityAttributes(activityTags);
-                    }
+                    activity.AddEvent(new ActivityEvent(logRecord.FormattedMessage, logRecord.Timestamp, activityTags));
                 }
                 else
                 {
