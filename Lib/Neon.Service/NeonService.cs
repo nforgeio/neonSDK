@@ -101,7 +101,6 @@ namespace Neon.Service
     /// defined for production environments.  You can use the <see cref="InProduction"/>
     /// or <see cref="InDevelopment"/> properties to check this.
     /// </note>
-    /// <code source="..\..\Snippets\Snippets.NeonService\Program-Basic.cs" language="c#" title="Simple example showing a basic service implementation:"/>
     /// <para><b>CONFIGURATION</b></para>
     /// <para>
     /// Services are generally configured using environment variables and/or configuration

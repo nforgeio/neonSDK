@@ -30,4 +30,8 @@
 		<Content Include="bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).pdb" PackagePath="contentFiles\any\$(TargetFramework)\$(AssemblyName).pdb" PackageCopyToOutput="true" Pack="true" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <PackageReference Include="prometheus-net.AspNetCore" Version="6.0.0" />
+	</ItemGroup>
+
 </Project>

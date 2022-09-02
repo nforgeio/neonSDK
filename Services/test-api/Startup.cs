@@ -35,6 +35,8 @@ using Neon.Service;
 using Neon.Web;
 using Neon.Xunit;
 
+using Prometheus;
+
 namespace TestApiService
 {
     /// <summary>
@@ -78,6 +80,8 @@ namespace TestApiService
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseHttpMetrics();
 
             app.UseRouting()
                 .UseEndpoints(endpoints =>
