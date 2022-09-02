@@ -246,6 +246,10 @@ namespace Neon.Diagnostics
                 message = messageFunc();
             }
 
+            // Add the index attribute.
+
+            logAttributes.Add(LogAttributeNames.NeonIndex, TelemetryHub.GetNextIndex());
+
             // Append any attributes held by [AttributeLogger] loggers.
 
             var attributeLogger      = logger as AttributeLogger;
@@ -253,8 +257,6 @@ namespace Neon.Diagnostics
 
             if (loggerAttributeCount > 0)
             {
-                logAttributes ??= new LogAttributes();
-
                 foreach (var attribute in attributeLogger.Attributes.Attributes)
                 {
                     logAttributes.Add(attribute.Key, attribute.Value);

@@ -89,5 +89,19 @@ namespace Neon.Diagnostics
         /// <b>bool:</b> Indicates that the log event is related to a transient error.
         /// </summary>
         public const string NeonTransient = "neon.transient";
+
+        /// <summary>
+        /// <para>
+        /// Indicates the position of the log event in the stream of logs emitted by the 
+        /// application.  The first event emitted by the application will have a zero
+        /// index, and then this is incremented after every logged event.
+        /// </para>
+        /// <para>
+        /// This attribute is useful for listing events in the order they were actually
+        /// logged.  Timestamps often don't have enough resolution to distinguish between
+        /// to events logged logged very quickly in sequence.
+        /// </para>
+        /// </summary>
+        public const string NeonIndex = "neon.index";
     }
 }

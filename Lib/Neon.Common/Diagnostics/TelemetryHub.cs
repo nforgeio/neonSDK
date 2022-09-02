@@ -22,6 +22,7 @@ using System.Diagnostics.Contracts;
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -60,6 +61,8 @@ namespace Neon.Diagnostics
     /// </summary>
     public static class TelemetryHub
     {
+        private static long index = 0;
+
         /// <summary>
         /// Holds the global activity source used by Neon and perhaps other libraries for emitting
         /// traces.  This defaults to <c>null</c> which means that libraries won't emit any
@@ -185,6 +188,17 @@ namespace Neon.Diagnostics
             Environment.SetEnvironmentVariable("Logging__LogLevel__Microsoft", logLevel.ToString());
 
             return logLevel;
+        }
+
+        /// <summary>
+        /// Returns the next logged event index.  This value will be included as the <see cref="LogAttributeNames.NeonIndex"/>
+        /// attribute for all events logged by the <see cref="LoggerExtensions"/> methods.
+        /// </summary>
+        /// <returns>The next index.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static long GetNextIndex()
+        {
+            return Interlocked.Increment(ref index);
         }
     }
 }
