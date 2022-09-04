@@ -32,10 +32,16 @@ using Neon.Net;
 namespace Neon.Service
 {
     /// <summary>
+    /// <para>
     /// Describes a collection of services deployed to Kubernetes or that run in
     /// a simulated unit test environment.  This is simply a dictionary mapping
     /// case sensitive service names to <see cref="ServiceDescription"/>
     /// records for each service.
+    /// </para>
+    /// <note>
+    /// <see cref="ServiceMap"/> is a somewhat dated concept that doesn't make a lot of sense in
+    /// the Kubernetes world.  We recommend that new code avoid this.
+    /// </note>
     /// </summary>
     public class ServiceMap : Dictionary<string, ServiceDescription>
     {

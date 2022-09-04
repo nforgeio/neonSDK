@@ -92,7 +92,7 @@ namespace Neon.Diagnostics
     ///     <term><see cref="LogAsTraceProcessor"/></term>
     ///     <description>
     ///     This processor can be used to forward logged events to the current trace span, if there is
-    ///     one.  I understand that OpenTelemetry may convere log and trace events at somepoint in the
+    ///     one.  I understand that OpenTelemetry may converge log and trace events at somepoint in the
     ///     future, but in the meantime, adding a <see cref="LogAsTraceProcessor"/> to your OpenTelemetry
     ///     log pipeline is a reasonable alternative.
     ///     </description>

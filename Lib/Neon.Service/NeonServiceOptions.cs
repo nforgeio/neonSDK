@@ -78,10 +78,16 @@ namespace Neon.Service
         public string HealthFolder { get; set; } = null;
 
         /// <summary>
+        /// <para>
         /// Optionally specifies a service map describing this service and potentially other services.
         /// Service maps can be used to run services locally on developer workstations via <b>Neon.Xunit.NeonServiceFixture</b>
         /// or other means to avoid port conflicts or to emulate a cluster of services without Kubernetes
         /// or containers.  This is a somewhat advanced topic that needs documentation.
+        /// </para>
+        /// <note>
+        /// <see cref="ServiceMap"/> is a somewhat dated concept that doesn't make a lot of sense in
+        /// the Kubernetes world.  We recommend that new code avoid this.
+        /// </note>
         /// </summary>
         public ServiceMap ServiceMap { get; set; } = null;
 

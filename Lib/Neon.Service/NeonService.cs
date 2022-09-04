@@ -30,6 +30,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 using Neon.Common;
@@ -39,11 +40,10 @@ using Neon.IO;
 using Neon.Net;
 using Neon.Retry;
 using Neon.Tasks;
-using Neon.Windows;
+using Neon.Time;
 
 using DnsClient;
 using Prometheus;
-using Microsoft.Extensions.DependencyInjection;
 using OpenTelemetry.Resources;
 
 namespace Neon.Service
@@ -226,6 +226,73 @@ namespace Neon.Service
     /// the <see cref="NeonServiceOptions.LoggerFactory"/> to this factory and then passing
     /// the options to the <see cref="NeonService"/> constructor.
     /// </para>
+    /// <para><b>TRACING</b></para>
+    /// <para>
+    /// <see cref="NeonService"/> also has limited support for configuring OpenTelemetry tracing
+    /// for targeting an OpenTelemetry Collector by URI.  This is controlled using two environment
+    /// variables:
+    /// </para>
+    /// <note>
+    /// <see cref="NeonService"/> only supports OpenTelemetry Collectors but you can always 
+    /// configure a custom OpenTelemetry pipeline before starting your <see cref="NeonService"/>
+    /// when you need to send traces elsewhere.
+    /// </note>
+    /// <list type="table">
+    /// <item>
+    ///     <term><b>TRACE_COLLECTOR_URI</b></term>
+    ///     <description>
+    ///     <para>
+    ///     When present and <see cref="NeonServiceOptions.LoggerFactory"/> is <c>null</c>, then
+    ///     this specifies the URI for the OpenTelemetry Collector where the traces 
+    ///     will be sent.
+    ///     </para>
+    ///     <note>
+    ///     Services deployed within neonKUBE clusters should consider setting this to
+    ///     <see cref="NeonHelper.NeonKubeOtelCollectorUri"/> (<b>http://neon-otel-collector</b>).
+    ///     This will forward traces to the the Kubernetes service in the same namespace where
+    ///     your service is running which then forwards the traces to the cluster's tempo
+    ///     installation.
+    ///     </note>
+    ///     <note>
+    ///     This is ignored when <see cref="NeonServiceOptions.LoggerFactory"/> is not <c>null</c>,
+    ///     which indicates that a custom OpenTelemetry pipeline has been configured.
+    ///     </note>
+    ///     </description>
+    /// </item>
+    /// <item>
+    ///     <term><b>TRACE_LOG_LEVEL</b></term>
+    ///     <description>
+    ///     <para>
+    ///     This optional environment variable configures the log level for events that will be
+    ///     also recorded as trace events.  You can also specify <b>TRACE_LOG_LEVEL=None</b> to
+    ///     disable automatic trace event submission completely.
+    ///     </para>
+    ///     <para>
+    ///     This defaults to the <c>LOG_LEVEL</c> environment variable when present or <see cref="LogLevel.Information"/>.
+    ///     </para>
+    ///     <note>
+    ///     This feature is disabled when <see cref="NeonServiceOptions.LoggerFactory"/> has been
+    ///     set, indicating that the OpenTelemetry pipeline has already been customized.
+    ///     </note>
+    ///     <note>
+    ///     <para>
+    ///     Only events logged at the current <c>LOG_LEVEL</b> or greater will ever be candidates
+    ///     for being recorded as trace events; <b>TRACE_LOG_LEVEL</b> is intended to be used for
+    ///     adding an additional constrain on trace events over and above the <b>LOG_LEVEL</b>.
+    ///     </para>
+    ///     <para>
+    ///     For example, by setting <c>LOG_LEVEL=Information</c> and <c>TRACE_LOG_LEVEL=Warning</c>,
+    ///     you'd be logging all events for <bInformation></b> and above, but only submit log events with
+    ///     for <b>Warning</b> or above as trace events.
+    ///     </para>
+    ///     <para>
+    ///     Setting <c>TRACE_LOG_LEVEL=Debug</c> in this example won't actually record debug events
+    ///     as trace events, because these events won't be logged due to <c>LOG_LEVEL=Information</c>.
+    ///     </para>
+    ///     </note>
+    ///     </description>
+    /// </item>
+    /// </list>
     /// <para><b>HEALTH PROBES</b></para>
     /// <note>
     /// Health probes are supported only on Linux running as AMD64.  This is not supported
@@ -588,6 +655,8 @@ namespace Neon.Service
         private string                          healthCheckPath;
         private string                          readyCheckPath;
         private IRetryPolicy                    healthRetryPolicy = new LinearRetryPolicy(e => e is IOException, maxAttempts: 10, retryInterval: TimeSpan.FromMilliseconds(100));
+        private string                          traceCollectorUri;
+        private string                          traceCollectorHost;
         private MetricServer                    metricServer;
         private MetricPusher                    metricPusher;
         private IDisposable                     metricCollector;
@@ -611,167 +680,197 @@ namespace Neon.Service
             string              version = null,
             NeonServiceOptions  options = null)
         {
-            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(name), nameof(name));
-
-            this.Name    = name;
-            this.options = options ??= new NeonServiceOptions();
-
-            // Configure the service version.
-            
-            version ??= "0.0.0";
-
             try
             {
-                if (options.AppendGitInfo && !string.IsNullOrEmpty(ThisAssembly.Git.Branch))
-                {
-                    version += $"+{ThisAssembly.Git.Branch}.{ThisAssembly.Git.Commit}";
-                }
-            }
-            catch
-            {
-                // $note(jefflill):
-                //
-                // I'm not sure what GitInfo does when the project isn't in a git repo, so
-                // we'll catch and ignore any exceptions just to be safe.
-            }
+                Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(name), nameof(name));
 
-            this.Version = version;
+                this.Name    = name;
+                this.options = options ??= new NeonServiceOptions();
 
-            // Check the service map, if one was passed.
+                // Configure the service version.
 
-            if (options.ServiceMap != null)
-            {
-                if (!options.ServiceMap.TryGetValue(name, out var description))
+                version ??= "0.0.0";
+
+                try
                 {
-                    throw new KeyNotFoundException($"The service map does not include a service definition for [{name}].");
-                }
-                else
-                {
-                    if (name != description.Name)
+                    if (options.AppendGitInfo && !string.IsNullOrEmpty(ThisAssembly.Git.Branch))
                     {
-                        throw new ArgumentException($"Service [name={name}] does not match [description.Name={description.Name}.");
+                        version += $"+{ThisAssembly.Git.Branch}.{ThisAssembly.Git.Commit}";
                     }
-
-                    this.Description = description;
                 }
-            }
-
-            // Configure the OpenTelemetry logging pipeline.
-
-            if (options.LoggerFactory != null)
-            {
-                // The logging pipeline is already configured.
-
-                NeonHelper.ServiceContainer.Add(new ServiceDescriptor(typeof(ILoggerFactory), options.LoggerFactory));
-
-                TelemetryHub.LoggerFactory = options.LoggerFactory;
-                this.Logger                = options.LoggerFactory.CreateLogger<NeonService>();
-            }
-            else
-            {
-                // Configure the logging pipeline here.
-
-                var loggerFactory = LoggerFactory.Create(
-                    builder =>
-                    {
-                        builder.AddOpenTelemetry(
-                            options =>
-                            {
-                                options.ParseStateValues        = true;
-                                options.IncludeFormattedMessage = true;
-                                options.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(serviceName: Name, serviceVersion: Version));
-
-                                // $todo(jefflill): Uncomment this after we port to MSFT activity tracing.
-
-                                //options.AddLogAsTraceProcessor(
-                                //    options =>
-                                //    {
-                                //        options.LogLevel = LogLevel.Information;
-                                //    });
-
-                                options.AddConsoleJsonExporter();
-                            });
-                    });
-
-                NeonHelper.ServiceContainer.Add(new ServiceDescriptor(typeof(ILoggerFactory), loggerFactory));
-
-                TelemetryHub.LoggerFactory = loggerFactory;
-                this.Logger                = loggerFactory.CreateLogger<NeonService>();
-            }
-
-            // Initialize the service environment.
-
-            this.environmentVariables = new Dictionary<string, string>();
-
-            LoadEnvironmentVariables();
-
-            // This environment variable disables the ASPNETCORE startup prompt
-            // so that won't pollute console logs.
-
-            System.Environment.SetEnvironmentVariable("ASPNETCORE_SUPPRESSSTATUSMESSAGES", "true");
-
-            // Initialize service members.
-
-            this.Name                   = name;
-            this.ServiceMap             = options.ServiceMap;
-            this.InProduction           = !NeonHelper.IsDevWorkstation;
-            this.Terminator             = new ProcessTerminator(gracefulShutdownTimeout: options.GracefulShutdownTimeout, minShutdownTime: options.MinShutdownTime);
-            this.Version                = version;
-            this.Environment            = new EnvironmentParser(Logger, VariableSource);  // Temporarily setting a NULL logger until we create the service logger below
-            this.configFiles            = new Dictionary<string, FileInfo>();
-            this.healthFolder           = options.HealthFolder ?? "/";
-            this.terminationMessagePath = options.TerminationMessagePath ?? "/dev/termination-log";
-
-            // Initialize the metrics prefix and counters.
-
-            var normalizedPrefix = string.Empty;
-
-            if (string.IsNullOrEmpty(options.MetricsPrefix))
-            {
-                options.MetricsPrefix = this.Name;
-            }
-
-            foreach (var ch in options.MetricsPrefix)
-            {
-                if (char.IsLetterOrDigit(ch) || ch == '_')
+                catch
                 {
-                    normalizedPrefix += ch;
+                    // $note(jefflill):
+                    //
+                    // I'm not sure what GitInfo does when the project isn't in a git repo, so
+                    // we'll catch and ignore any exceptions just to be safe.
+                }
+
+                this.Version = version;
+
+                // Check the service map, if one was passed.
+
+                if (options.ServiceMap != null)
+                {
+                    if (!options.ServiceMap.TryGetValue(name, out var description))
+                    {
+                        throw new KeyNotFoundException($"The service map does not include a service definition for [{name}].");
+                    }
+                    else
+                    {
+                        if (name != description.Name)
+                        {
+                            throw new ArgumentException($"Service [name={name}] does not match [description.Name={description.Name}.");
+                        }
+
+                        this.Description = description;
+                    }
+                }
+
+                // Initialize the service environment.
+
+                this.environmentVariables = new Dictionary<string, string>();
+
+                LoadEnvironmentVariables();
+
+                // This environment variable disables the ASPNETCORE startup prompt
+                // so that won't pollute console logs.
+
+                System.Environment.SetEnvironmentVariable("ASPNETCORE_SUPPRESSSTATUSMESSAGES", "true");
+
+                // Configure the OpenTelemetry logging pipeline.
+
+                if (options.LoggerFactory != null)
+                {
+                    // The logging pipeline is already configured.
+
+                    NeonHelper.ServiceContainer.Add(new ServiceDescriptor(typeof(ILoggerFactory), options.LoggerFactory));
+
+                    TelemetryHub.LoggerFactory = options.LoggerFactory;
+                    this.Logger                = options.LoggerFactory.CreateLogger<NeonService>();
                 }
                 else
                 {
-                    normalizedPrefix += '_';
+                    // Configure the logging pipeline here.
+
+                    TelemetryHub.ParseLogLevel(GetEnvironmentVariable("LOG_LEVEL", LogLevel.Information.ToString()));
+
+                    TelemetryHub.ActivitySource ??= new ActivitySource(Name, Version);
+
+                    var loggerFactory = LoggerFactory.Create(
+                        builder =>
+                        {
+                            builder.AddOpenTelemetry(
+                                options =>
+                                {
+                                    options.ParseStateValues        = true;
+                                    options.IncludeFormattedMessage = true;
+                                    options.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(serviceName: Name, serviceVersion: Version));
+
+                                    // Configure the trace pipeline when the [TRACE_COLLECTOR_URI] environment
+                                    // variable is present and valid.
+
+                                    var uriString = Environment.Get("TRACE_COLLECTOR_URI", (string)null);
+
+                                    if (!string.IsNullOrEmpty(uriString) && Uri.TryCreate(uriString, UriKind.Absolute, out var uri))
+                                    {
+                                        options.AddLogAsTraceProcessor(
+                                            options =>
+                                            {
+                                                options.LogLevel = Environment.Get("TRACE_LOG_LEVEL", LogLevel.Information);
+                                            });
+                                    }
+
+                                    options.AddConsoleJsonExporter();
+                                });
+                        });
+
+                    NeonHelper.ServiceContainer.Add(new ServiceDescriptor(typeof(ILoggerFactory), loggerFactory));
+
+                    TelemetryHub.LoggerFactory = loggerFactory;
+                    this.Logger = loggerFactory.CreateLogger<NeonService>();
                 }
-            }
 
-            while (normalizedPrefix.Contains("__"))
-            {
-                normalizedPrefix = normalizedPrefix.Replace("__", "_");
-            }
+                // Initialize service members.
 
-            this.MetricsPrefix  = normalizedPrefix;
-            this.runtimeCount   = Metrics.CreateCounter($"{MetricsPrefix}_runtime_seconds", "Service runtime in seconds.");
-            this.unhealthyCount = Metrics.CreateCounter($"{MetricsPrefix}_unhealthy_transitions", "Service [unhealthy] transitions.");
+                this.Name                   = name;
+                this.ServiceMap             = options.ServiceMap;
+                this.InProduction           = !NeonHelper.IsDevWorkstation;
+                this.Terminator             = new ProcessTerminator(gracefulShutdownTimeout: options.GracefulShutdownTimeout, minShutdownTime: options.MinShutdownTime);
+                this.Version                = version;
+                this.Environment            = new EnvironmentParser(Logger, VariableSource);  // Temporarily setting a NULL logger until we create the service logger below
+                this.configFiles            = new Dictionary<string, FileInfo>();
+                this.healthFolder           = options.HealthFolder ?? "/";
+                this.terminationMessagePath = options.TerminationMessagePath ?? "/dev/termination-log";
 
-            // Detect unhandled application exceptions and log them.
+                // Initialize the metrics prefix and counters.
 
-            AppDomain.CurrentDomain.UnhandledException +=
-                (s, a) =>
+                var normalizedPrefix = string.Empty;
+
+                if (string.IsNullOrEmpty(options.MetricsPrefix))
                 {
-                    var exception = (Exception)a.ExceptionObject;
+                    options.MetricsPrefix = this.Name;
+                }
 
-                    Logger.LogCriticalEx(exception, () => $"Unhandled exception [terminating={a.IsTerminating}]");
-                };
+                foreach (var ch in options.MetricsPrefix)
+                {
+                    if (char.IsLetterOrDigit(ch) || ch == '_')
+                    {
+                        normalizedPrefix += ch;
+                    }
+                    else
+                    {
+                        normalizedPrefix += '_';
+                    }
+                }
 
-            // Update the Prometheus metrics port from the service description if present.
+                while (normalizedPrefix.Contains("__"))
+                {
+                    normalizedPrefix = normalizedPrefix.Replace("__", "_");
+                }
 
-            if (Description != null)
-            {
-                MetricsOptions.Port = Description.MetricsPort;
+                this.MetricsPrefix  = normalizedPrefix;
+                this.runtimeCount   = Metrics.CreateCounter($"{MetricsPrefix}_runtime_seconds", "Service runtime in seconds.");
+                this.unhealthyCount = Metrics.CreateCounter($"{MetricsPrefix}_unhealthy_transitions", "Service [unhealthy] transitions.");
+
+                // Detect unhandled application exceptions and log them.
+
+                AppDomain.CurrentDomain.UnhandledException +=
+                    (s, a) =>
+                    {
+                        var exception = (Exception)a.ExceptionObject;
+
+                        Logger.LogCriticalEx(exception, () => $"Unhandled exception [terminating={a.IsTerminating}]");
+                    };
+
+                // Update the Prometheus metrics port from the service description if present.
+
+                if (Description != null)
+                {
+                    MetricsOptions.Port = Description.MetricsPort;
+                }
+
+                // Initialize the [neon_service_info] gauge.
+
+                infoGauge.WithLabels(Version).Set(1);
             }
+            catch (Exception e)
+            {
+                // We shouldn't see any exceptions here but we're going to log any we see to
+                // be defensive.  Note that it's possible that the exception happened before
+                // we initialized the logger; we're going to special case that situation.
 
-            // Initialize the [neon_service_info] gauge.
+                if (Logger != null)
+                {
+                    Logger.LogErrorEx(e, () => $"Error initializing [{nameof(NeonService)}].");
+                }
+                else
+                {
+                    Console.WriteLine($"{NeonHelper.ExceptionError(e)}: stacktrace: {e.StackTrace}");
+                }
 
-            infoGauge.WithLabels(Version).Set(1);
+                throw;
+            }
         }
 
         /// <summary>
@@ -784,7 +883,7 @@ namespace Neon.Service
         /// </para>
         /// <note>
         /// Service dependencies are currently waited for when the service status is <see cref="NeonServiceStatus.Starting"/>,
-        /// which means that they will need to complete before the startup or libeliness probes time out
+        /// which means that they will need to complete before the startup or liveliness probes time out
         /// resulting in service termination.  This behavior may change in the future: https://github.com/nforgeio/neonKUBE/issues/1361
         /// </note>
         /// </summary>
@@ -1179,16 +1278,6 @@ namespace Neon.Service
                 Terminator.DisableProcessExit = true;
             }
 
-            // $todo(jefflill): IMPLEMENT THIS!
-#if DISABLED
-            // Initialize the default log manager, when one isn't already assigned.
-
-            TelemetryHub.Default = new TelemetryHub(parseLogLevel: true, logFilter: logFilter);
-            TelemetryHub.ActivitySource = new ActivitySource(Name, Version);
-            TelemetryHub.ParseLogLevel(GetEnvironmentVariable("LOG_LEVEL", "info"));
-
-            Logger = TelemetryHub.CreateLogger();
-
             if (!string.IsNullOrEmpty(Version))
             {
                 Logger.LogInformationEx(() => $"Starting [{Name}:{Version}]");
@@ -1197,7 +1286,6 @@ namespace Neon.Service
             {
                 Logger.LogInformationEx(() => $"Starting [{Name}]");
             }
-#endif
 
             // Initialize the health status paths when enabled on Linux and
             // deploy the health and ready check tools.  We'll log any
@@ -1567,19 +1655,31 @@ namespace Neon.Service
         /// <param name="cancellationToken">Specifies the cancellation token used to stop the timer.</param>
         /// <returns>The tracking <see cref="Task"/>.</returns>
         /// <remarks>
-        /// This method loops, incrementing <see cref="runtimeCount"/> ince a second
+        /// This method loops, incrementing <see cref="runtimeCount"/> periodically
         /// until <paramref name="cancellationToken"/> requests a cancellation.
         /// </remarks>
         private async Task Runtimer(CancellationToken cancellationToken)
         {
             await SyncContext.Clear;
 
-            var second = TimeSpan.FromSeconds(1);
+            // We're going to loop and compute the runtime every 5 seconds.
+            // We could just add 5 seconds to the counter every time but 
+            // we're going to use [SysTime] instead for a tiny bit more
+            // accuracy.
+
+            var delay    = TimeSpan.FromSeconds(5);
+            var startSys = SysTime.Now;
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                await Task.Delay(second);
-                runtimeCount.Inc();
+                await Task.Delay(delay);
+
+                var runSeconds = Math.Floor((SysTime.Now - startSys).TotalSeconds);
+
+                if (runSeconds > runtimeCount.Value)
+                {
+                    runtimeCount.IncTo(runSeconds);
+                }
             }
         }
 
