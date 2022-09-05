@@ -290,6 +290,8 @@ namespace Neon.Diagnostics
                 }
             }
 
+            Console.Out.Flush();
+
             return ExportResult.Success;
         }
     }
