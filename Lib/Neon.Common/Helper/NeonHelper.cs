@@ -166,7 +166,7 @@ namespace Neon.Common
         /// The URI for Kubernetes <b>Services</b> deployed to namespaces for forwarding OTEL
         /// Collector log and trace information to the local Tempo installation or elsewhere.
         /// </summary>
-        public const string NeonKubeOtelCollectoUri = "http://neon-otel-collector";
+        public const string NeonKubeOtelCollectorUri = "http://neon-otel-collector";
 
         /// <summary>
         /// The <see cref="Neon.Common.ServiceContainer"/> instance returned by 

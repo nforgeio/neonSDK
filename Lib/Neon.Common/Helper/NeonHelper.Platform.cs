@@ -45,6 +45,7 @@ namespace Neon.Common
         private static bool             isOSX;
         private static bool?            is64BitBuild;
         private static bool             isARM;
+        private static CpuArchitecture? cpuArchitecture;
         private static bool?            isDevWorkstation;
         private static bool?            isMaintainer;
         private static bool?            isKubernetes;
@@ -147,6 +148,29 @@ namespace Neon.Common
         /// Returns <c>true</c> for 64-bit operating systems.
         /// </summary>
         public static bool Is64BitOS => Environment.Is64BitOperatingSystem;
+
+        /// <summary>
+        /// Returns the current CPU architecture.
+        /// </summary>
+        public static CpuArchitecture CpuArchitecture
+        {
+            get
+            {
+                if (!cpuArchitecture.HasValue)
+                {
+                    if (isARM)
+                    {
+                        cpuArchitecture = Is64BitOS ? CpuArchitecture.Arm64 : CpuArchitecture.Arm32;
+                    }
+                    else
+                    {
+                        cpuArchitecture = Is64BitOS ? CpuArchitecture.Amd64 : CpuArchitecture.Amd32;
+                    }
+                }
+
+                return cpuArchitecture.Value;
+            }
+        }
 
         /// <summary>
         /// Returns the .NET runtime description.
