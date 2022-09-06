@@ -276,13 +276,13 @@ namespace Neon.Service
     ///     </note>
     ///     <note>
     ///     <para>
-    ///     Only events logged at the current <c>LOG_LEVEL</b> or greater will ever be candidates
+    ///     Only events logged at the current <b>LOG_LEVEL</b> or greater will ever be candidates
     ///     for being recorded as trace events; <b>TRACE_LOG_LEVEL</b> is intended to be used for
     ///     adding an additional constrain on trace events over and above the <b>LOG_LEVEL</b>.
     ///     </para>
     ///     <para>
     ///     For example, by setting <c>LOG_LEVEL=Information</c> and <c>TRACE_LOG_LEVEL=Warning</c>,
-    ///     you'd be logging all events for <bInformation></b> and above, but only submit log events with
+    ///     you'd be logging all events for <b>Information></b> and above, but only submit log events with
     ///     for <b>Warning</b> or above as trace events.
     ///     </para>
     ///     <para>
