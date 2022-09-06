@@ -34,7 +34,7 @@ namespace NeonBlazorProxy
             "Number of proxy requests that failed"
             );
 
-        private static readonly Gauge _CurrentRequests = Metrics.CreateGauge(
+        private static readonly Gauge _currentRequests = Metrics.CreateGauge(
             "neonblazorproxy_proxy_current_requests",
             "Number of active proxy requests that have started but not yet completed or failed"
             );
@@ -46,7 +46,7 @@ namespace NeonBlazorProxy
         {
             _requestsStarted.IncTo(current.RequestsStarted);
             _requestsFailed.IncTo(current.RequestsFailed);
-            _CurrentRequests.Set(current.CurrentRequests);
+            _currentRequests.Set(current.CurrentRequests);
         }
     }
 }

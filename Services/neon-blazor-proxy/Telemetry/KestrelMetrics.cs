@@ -21,7 +21,6 @@ using Yarp.Telemetry.Consumption;
 
 namespace NeonBlazorProxy
 {
-
     /// <inheritdoc/>
     public sealed class KestrelMetrics : IMetricsConsumer<Yarp.Telemetry.Consumption.KestrelMetrics>
     {

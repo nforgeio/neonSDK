@@ -34,7 +34,6 @@ namespace NeonBlazorProxy
         /// </summary>
         public ProxyConfig()
         {
-
         }
 
         /// <summary>

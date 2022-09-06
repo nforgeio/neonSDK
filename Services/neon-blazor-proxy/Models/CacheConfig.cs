@@ -33,7 +33,6 @@ namespace NeonBlazorProxy
         /// </summary>
         public Cache()
         {
-
         }
 
         /// <summary>

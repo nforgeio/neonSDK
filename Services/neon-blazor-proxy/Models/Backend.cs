@@ -38,7 +38,6 @@ namespace NeonBlazorProxy
         /// </summary>
         public Backend()
         {
-
         }
 
         /// <summary>

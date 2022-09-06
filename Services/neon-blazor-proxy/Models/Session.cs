@@ -35,7 +35,6 @@ namespace NeonBlazorProxy
         /// </summary>
         public Session()
         {
-
         }
 
         /// <summary>
