@@ -753,7 +753,7 @@ namespace Neon.Service
                 {
                     // Configure the logging pipeline here.
 
-                    TelemetryHub.ParseLogLevel(GetEnvironmentVariable("LOG_LEVEL", LogLevel.Information.ToString()));
+                    TelemetryHub.ParseLogLevel(System.Environment.GetEnvironmentVariable("LOG_LEVEL") ?? LogLevel.Information.ToMemberString());
 
                     TelemetryHub.ActivitySource ??= new ActivitySource(Name, Version);
 
@@ -770,14 +770,21 @@ namespace Neon.Service
                                     // Configure the trace pipeline when the [TRACE_COLLECTOR_URI] environment
                                     // variable is present and valid.
 
-                                    var uriString = Environment.Get("TRACE_COLLECTOR_URI", (string)null);
+                                    var uriString = System.Environment.GetEnvironmentVariable("TRACE_COLLECTOR_URI");
 
                                     if (!string.IsNullOrEmpty(uriString) && Uri.TryCreate(uriString, UriKind.Absolute, out var uri))
                                     {
                                         options.AddLogAsTraceProcessor(
                                             options =>
                                             {
-                                                options.LogLevel = Environment.Get("TRACE_LOG_LEVEL", LogLevel.Information);
+                                                var traceLogLevelString = System.Environment.GetEnvironmentVariable("TRACE_LOG_LEVEL") ?? LogLevel.Information.ToMemberString();
+
+                                                if (!NeonHelper.TryParseEnum<LogLevel>(traceLogLevelString, out var traceLogLevel))
+                                                {
+                                                    traceLogLevel = LogLevel.Information;
+                                                }
+
+                                                options.LogLevel = traceLogLevel;
                                             });
                                     }
 
@@ -788,7 +795,7 @@ namespace Neon.Service
                     NeonHelper.ServiceContainer.Add(new ServiceDescriptor(typeof(ILoggerFactory), loggerFactory));
 
                     TelemetryHub.LoggerFactory = loggerFactory;
-                    this.Logger = loggerFactory.CreateLogger<NeonService>();
+                    this.Logger                = loggerFactory.CreateLogger<NeonService>();
                 }
 
                 // Initialize service members.
@@ -797,8 +804,7 @@ namespace Neon.Service
                 this.ServiceMap             = options.ServiceMap;
                 this.InProduction           = !NeonHelper.IsDevWorkstation;
                 this.Terminator             = new ProcessTerminator(gracefulShutdownTimeout: options.GracefulShutdownTimeout, minShutdownTime: options.MinShutdownTime);
-                this.Version                = version;
-                this.Environment            = new EnvironmentParser(Logger, VariableSource);  // Temporarily setting a NULL logger until we create the service logger below
+                this.Environment            = new EnvironmentParser(Logger, VariableSource);
                 this.configFiles            = new Dictionary<string, FileInfo>();
                 this.healthFolder           = options.HealthFolder ?? "/";
                 this.terminationMessagePath = options.TerminationMessagePath ?? "/dev/termination-log";
