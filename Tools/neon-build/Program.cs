@@ -30,11 +30,16 @@ namespace NeonBuild
     /// </summary>
     public static partial class Program
     {
-        private const string version = "1.5";
+        private const string version = "1.6";
 
         private static readonly string usage =
 $@"
 Internal neonSDK project build related utilities: v{version}
+
+---------------------------------------------------------------------
+neon-build version
+
+Outputs the tool's version number.
 
 -----------------------
 neon-build clean [-all] REPO-PATH
@@ -52,16 +57,13 @@ OPTIONS:
     --all           - Clears the [Build-cache] folder too.
 
 ---------------------------------------------------------------------
-neon-build version
+neon-build clean-generated-cs PROJECT-ROOT
 
-Outputs the tool's version number.
-
----------------------------------------------------------------------
-neon-build clean-attr REPO-PATH
-
-Deletes any [**/obj/**/*.AssemblyAttributes.cs] and [**/obj/**/*.AssemblyInfo.cs]
-files.  These can cause duplicate definition errors because Visual Studio seems
-to include these for all build configurations, not just the current config.
+Deletes any [**/obj/**/*.cs] files present in the project.  These files are generated
+for projects by custom build targets and may result in duplicate symbol definition
+compiler errors because the C# compiler include these for all build configurations, 
+not just the current config and unfortunately, solution-clean doesn't remove these
+files either.
 
 ---------------------------------------------------------------------
 neon-build gzip SOURCE TARGET
@@ -368,7 +370,7 @@ ARGUMENTS:
                         // $hack(jefflill):
                         // 
                         // This is a bit of a hack since only the neonCLOUD repo currently generates these files,
-                        // but this is somewhat carefully coded to not cause a problem for the other repos.  Just
+                        // but this is somewhat carefully coded to not cause problems for the other repos.  Just
                         // be sure that those repos don't include a root [$/Images] folder that has [.version]
                         // files used for other purposes.
 
@@ -383,44 +385,47 @@ ARGUMENTS:
                         }
                         break;
 
-                    case "clean-attr":
+                    case "clean-generated-cs":
 
-                        repoRoot = commandLine.Arguments.ElementAtOrDefault(1);
+                        var projectRoot = commandLine.Arguments.ElementAtOrDefault(1);
 
-                        if (string.IsNullOrEmpty(repoRoot))
+                        // Remove any trailing "/" or "\\".
+
+                        if (projectRoot.EndsWith('/') || projectRoot.EndsWith("\\"))
                         {
-                            Console.Error.WriteLine("*** ERROR: REPO-ROOT argument is required.");
+                            projectRoot = projectRoot.Substring(0, projectRoot.Length - 1);
+                        }
+
+                        if (string.IsNullOrEmpty(projectRoot))
+                        {
+                            Console.Error.WriteLine("*** ERROR: PROJECT-ROOT argument is required.");
                             Program.Exit(1);
                         }
 
-                        // Remove files named like:
-                        // 
-                        //      .NETStandard,Version=v2.0.AssemblyAttributes.cs
+                        // $hack(jefflill): Remove any double quotes (I'm not sure why these are being added to the EXEC args).
 
-                        var globPattern = GlobPattern.Parse("**/obj/**/*.AssemblyAttributes.cs", caseInsensitive: true);
+                        projectRoot = projectRoot.Replace("\"", string.Empty);
 
-                        foreach (var file in Directory.GetFiles(repoRoot, "*.cs", SearchOption.AllDirectories))
+                        // Normalize backslashes to forward slashes.
+
+                        projectRoot = projectRoot.Replace("\\", "/");
+
+                        // Delete matching files.
+
+                        var globPattern = GlobPattern.Parse($"{projectRoot}/obj/**/*.cs", caseInsensitive: true);
+
+                        foreach (var file in Directory.GetFiles(projectRoot, "*.cs", SearchOption.AllDirectories))
                         {
                             if (globPattern.IsMatch(file.Replace("\\", "/")))
                             {
+if (file.Contains("ObjectDictionary"))
+{
+    Console.WriteLine($"DELETE: {file}");
+    Console.WriteLine($"CMD:    {commandLine}");
+}
                                 File.Delete(file);
                             }
                         }
-
-                        // Remove files named like:
-                        // 
-                        //      Test.Neon.Models.AssemblyInfo.cs
-
-                        globPattern = GlobPattern.Parse("**/obj/**/*.AssemblyInfo.cs", caseInsensitive: true);
-
-                        foreach (var file in Directory.GetFiles(repoRoot, "*.cs", SearchOption.AllDirectories))
-                        {
-                            if (globPattern.IsMatch(file.Replace("\\", "/")))
-                            {
-                                File.Delete(file);
-                            }
-                        }
-
                         break;
 
                     case "copy":

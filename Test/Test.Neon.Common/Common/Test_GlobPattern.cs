@@ -21,7 +21,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using NATS.Client;
 using Neon.Common;
 using Neon.Xunit;
 
@@ -154,6 +154,18 @@ namespace TestCommon
             Assert.False(glob.IsMatch("test.jpg"));
             Assert.False(glob.IsMatch("bar/test.jpg"));
             Assert.False(glob.IsMatch("bar/foo/test.jpg"));
+        }
+
+        [Fact]
+        public void Combined()
+        {
+            var glob = GlobPattern.Parse("**/obj/*.cs");
+
+            Assert.True(glob.IsMatch("C:\\src\neonSDK\\Lib\\Neon.Commontest\\obj\\test.cs"));
+            Assert.True(glob.IsMatch("C:\\src\neonSDK\\Lib\\Neon.Commontest\\obj\\test.cs"));
+
+            Assert.False(glob.IsMatch("C:/src\neonSDK/Lib/Neon.Common/Collections/ObjectDictionary.cs"));
+            Assert.False(glob.IsMatch("C:/src\neonSDK/Lib/Neon.Common/Collections/ObjectDictionary.cs"));
         }
 
         [Fact]

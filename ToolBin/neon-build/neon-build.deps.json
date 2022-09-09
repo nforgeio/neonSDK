@@ -8,42 +8,42 @@
     ".NETCoreApp,Version=v6.0": {
       "neon-build/1.0.0": {
         "dependencies": {
-          "Neon.Common": "10000.0.2060-dev-marcus"
+          "Neon.Common": "3.0.0"
         },
         "runtime": {
           "neon-build.dll": {}
         }
       },
-      "Microsoft.Extensions.Configuration/3.1.9": {
+      "Microsoft.Extensions.Configuration/3.1.0": {
         "dependencies": {
-          "Microsoft.Extensions.Configuration.Abstractions": "3.1.9"
+          "Microsoft.Extensions.Configuration.Abstractions": "3.1.0"
         },
         "runtime": {
           "lib/netcoreapp3.1/Microsoft.Extensions.Configuration.dll": {
-            "assemblyVersion": "3.1.9.0",
-            "fileVersion": "3.100.920.47302"
+            "assemblyVersion": "3.1.0.0",
+            "fileVersion": "3.100.19.56504"
           }
         }
       },
-      "Microsoft.Extensions.Configuration.Abstractions/3.1.9": {
+      "Microsoft.Extensions.Configuration.Abstractions/3.1.0": {
         "dependencies": {
-          "Microsoft.Extensions.Primitives": "3.1.9"
+          "Microsoft.Extensions.Primitives": "3.1.0"
         },
         "runtime": {
           "lib/netcoreapp3.1/Microsoft.Extensions.Configuration.Abstractions.dll": {
-            "assemblyVersion": "3.1.9.0",
-            "fileVersion": "3.100.920.47302"
+            "assemblyVersion": "3.1.0.0",
+            "fileVersion": "3.100.19.56504"
           }
         }
       },
-      "Microsoft.Extensions.Configuration.Binder/3.1.9": {
+      "Microsoft.Extensions.Configuration.Binder/3.1.0": {
         "dependencies": {
-          "Microsoft.Extensions.Configuration": "3.1.9"
+          "Microsoft.Extensions.Configuration": "3.1.0"
         },
         "runtime": {
           "lib/netcoreapp3.1/Microsoft.Extensions.Configuration.Binder.dll": {
-            "assemblyVersion": "3.1.9.0",
-            "fileVersion": "3.100.920.47302"
+            "assemblyVersion": "3.1.0.0",
+            "fileVersion": "3.100.19.56504"
           }
         }
       },
@@ -67,30 +67,17 @@
           }
         }
       },
-      "Microsoft.Extensions.Http/3.1.9": {
+      "Microsoft.Extensions.Logging/3.1.0": {
         "dependencies": {
-          "Microsoft.Extensions.DependencyInjection.Abstractions": "6.0.0",
-          "Microsoft.Extensions.Logging": "3.1.9",
-          "Microsoft.Extensions.Options": "3.1.9"
-        },
-        "runtime": {
-          "lib/netcoreapp3.1/Microsoft.Extensions.Http.dll": {
-            "assemblyVersion": "3.1.9.0",
-            "fileVersion": "3.100.920.47302"
-          }
-        }
-      },
-      "Microsoft.Extensions.Logging/3.1.9": {
-        "dependencies": {
-          "Microsoft.Extensions.Configuration.Binder": "3.1.9",
+          "Microsoft.Extensions.Configuration.Binder": "3.1.0",
           "Microsoft.Extensions.DependencyInjection": "6.0.0",
           "Microsoft.Extensions.Logging.Abstractions": "6.0.0",
-          "Microsoft.Extensions.Options": "3.1.9"
+          "Microsoft.Extensions.Options": "3.1.0"
         },
         "runtime": {
           "lib/netcoreapp3.1/Microsoft.Extensions.Logging.dll": {
-            "assemblyVersion": "3.1.9.0",
-            "fileVersion": "3.100.920.47302"
+            "assemblyVersion": "3.1.0.0",
+            "fileVersion": "3.100.19.56504"
           }
         }
       },
@@ -102,23 +89,57 @@
           }
         }
       },
-      "Microsoft.Extensions.Options/3.1.9": {
+      "Microsoft.Extensions.Logging.Configuration/3.1.0": {
         "dependencies": {
-          "Microsoft.Extensions.DependencyInjection.Abstractions": "6.0.0",
-          "Microsoft.Extensions.Primitives": "3.1.9"
+          "Microsoft.Extensions.Logging": "3.1.0",
+          "Microsoft.Extensions.Options.ConfigurationExtensions": "3.1.0"
         },
         "runtime": {
-          "lib/netcoreapp3.1/Microsoft.Extensions.Options.dll": {
-            "assemblyVersion": "3.1.9.0",
-            "fileVersion": "3.100.920.47302"
+          "lib/netcoreapp3.1/Microsoft.Extensions.Logging.Configuration.dll": {
+            "assemblyVersion": "3.1.0.0",
+            "fileVersion": "3.100.19.56504"
           }
         }
       },
-      "Microsoft.Extensions.Primitives/3.1.9": {
+      "Microsoft.Extensions.ObjectPool/6.0.8": {
+        "runtime": {
+          "lib/net6.0/Microsoft.Extensions.ObjectPool.dll": {
+            "assemblyVersion": "6.0.0.0",
+            "fileVersion": "6.0.822.36316"
+          }
+        }
+      },
+      "Microsoft.Extensions.Options/3.1.0": {
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "6.0.0",
+          "Microsoft.Extensions.Primitives": "3.1.0"
+        },
+        "runtime": {
+          "lib/netcoreapp3.1/Microsoft.Extensions.Options.dll": {
+            "assemblyVersion": "3.1.0.0",
+            "fileVersion": "3.100.19.56504"
+          }
+        }
+      },
+      "Microsoft.Extensions.Options.ConfigurationExtensions/3.1.0": {
+        "dependencies": {
+          "Microsoft.Extensions.Configuration.Abstractions": "3.1.0",
+          "Microsoft.Extensions.Configuration.Binder": "3.1.0",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "6.0.0",
+          "Microsoft.Extensions.Options": "3.1.0"
+        },
+        "runtime": {
+          "lib/netcoreapp3.1/Microsoft.Extensions.Options.ConfigurationExtensions.dll": {
+            "assemblyVersion": "3.1.0.0",
+            "fileVersion": "3.100.19.56504"
+          }
+        }
+      },
+      "Microsoft.Extensions.Primitives/3.1.0": {
         "runtime": {
           "lib/netcoreapp3.1/Microsoft.Extensions.Primitives.dll": {
-            "assemblyVersion": "3.1.9.0",
-            "fileVersion": "3.100.920.47302"
+            "assemblyVersion": "3.1.0.0",
+            "fileVersion": "3.100.19.56504"
           }
         }
       },
@@ -145,18 +166,30 @@
           }
         }
       },
-      "prometheus-net/6.0.0": {
+      "OpenTelemetry/1.3.0": {
         "dependencies": {
-          "Microsoft.Extensions.Http": "3.1.9"
+          "Microsoft.Extensions.Logging": "3.1.0",
+          "Microsoft.Extensions.Logging.Configuration": "3.1.0",
+          "OpenTelemetry.Api": "1.3.0",
+          "System.Collections.Immutable": "1.4.0",
+          "System.Reflection.Emit.Lightweight": "4.7.0"
         },
         "runtime": {
-          "lib/net6.0/Prometheus.NetCore.dll": {
-            "assemblyVersion": "6.0.0.0",
-            "fileVersion": "6.0.0.0"
-          },
-          "lib/net6.0/Prometheus.NetStandard.dll": {
-            "assemblyVersion": "6.0.0.0",
-            "fileVersion": "6.0.0.0"
+          "lib/netstandard2.0/OpenTelemetry.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.3.0.519"
+          }
+        }
+      },
+      "OpenTelemetry.Api/1.3.0": {
+        "dependencies": {
+          "System.Diagnostics.DiagnosticSource": "6.0.0",
+          "System.Reflection.Emit.Lightweight": "4.7.0"
+        },
+        "runtime": {
+          "lib/netstandard2.0/OpenTelemetry.Api.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.3.0.519"
           }
         }
       },
@@ -231,6 +264,7 @@
           "System.Threading.Tasks": "4.3.0"
         }
       },
+      "System.Collections.Immutable/1.4.0": {},
       "System.Diagnostics.Contracts/4.3.0": {
         "dependencies": {
           "System.Runtime": "4.3.1"
@@ -243,13 +277,9 @@
           "System.Runtime": "4.3.1"
         }
       },
-      "System.Diagnostics.DiagnosticSource/4.3.0": {
+      "System.Diagnostics.DiagnosticSource/6.0.0": {
         "dependencies": {
-          "System.Collections": "4.3.0",
-          "System.Diagnostics.Tracing": "4.3.0",
-          "System.Reflection": "4.3.0",
-          "System.Runtime": "4.3.1",
-          "System.Threading": "4.3.0"
+          "System.Runtime.CompilerServices.Unsafe": "6.0.0"
         }
       },
       "System.Diagnostics.Process/4.3.0": {
@@ -349,7 +379,7 @@
           "Microsoft.NETCore.Platforms": "5.0.0",
           "System.Collections": "4.3.0",
           "System.Diagnostics.Debug": "4.3.0",
-          "System.Diagnostics.DiagnosticSource": "4.3.0",
+          "System.Diagnostics.DiagnosticSource": "6.0.0",
           "System.Diagnostics.Tracing": "4.3.0",
           "System.Globalization": "4.3.0",
           "System.Globalization.Extensions": "4.3.0",
@@ -391,6 +421,7 @@
           "System.Runtime": "4.3.1"
         }
       },
+      "System.Reflection.Emit.Lightweight/4.7.0": {},
       "System.Reflection.Primitives/4.3.0": {
         "dependencies": {
           "Microsoft.NETCore.Platforms": "5.0.0",
@@ -630,12 +661,14 @@
           }
         }
       },
-      "Neon.Common/10000.0.2060-dev-marcus": {
+      "Neon.Common/3.0.0": {
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection": "6.0.0",
           "Microsoft.Extensions.Logging.Abstractions": "6.0.0",
+          "Microsoft.Extensions.ObjectPool": "6.0.8",
           "Microsoft.Win32.Registry": "5.0.0",
           "Newtonsoft.Json": "13.0.1",
+          "OpenTelemetry": "1.3.0",
           "SharpZipLib.NETStandard": "1.0.7",
           "System.Diagnostics.Contracts": "4.3.0",
           "System.Diagnostics.Process": "4.3.0",
@@ -644,8 +677,7 @@
           "System.Runtime.Serialization.Primitives": "4.3.0",
           "System.Threading.Thread": "4.3.0",
           "System.ValueTuple": "4.5.0",
-          "YamlDotNet": "11.2.1",
-          "prometheus-net": "6.0.0"
+          "YamlDotNet": "11.2.1"
         },
         "runtime": {
           "Neon.Common.dll": {}
@@ -659,26 +691,26 @@
       "serviceable": false,
       "sha512": ""
     },
-    "Microsoft.Extensions.Configuration/3.1.9": {
+    "Microsoft.Extensions.Configuration/3.1.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-lqdkOGNeTMKG981Q7yWGlRiFbIlsRwTlMMiybT+WOzUCFBS/wc25tZgh7Wm/uRoBbWefgvokzmnea7ZjmFedmA==",
-      "path": "microsoft.extensions.configuration/3.1.9",
-      "hashPath": "microsoft.extensions.configuration.3.1.9.nupkg.sha512"
+      "sha512": "sha512-Lu41BWNmwhKr6LgyQvcYBOge0pPvmiaK8R5UHXX4//wBhonJyWcT2OK1mqYfEM5G7pTf31fPrpIHOT6sN7EGOA==",
+      "path": "microsoft.extensions.configuration/3.1.0",
+      "hashPath": "microsoft.extensions.configuration.3.1.0.nupkg.sha512"
     },
-    "Microsoft.Extensions.Configuration.Abstractions/3.1.9": {
+    "Microsoft.Extensions.Configuration.Abstractions/3.1.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-vOJxPKczaHpXeZFrxARxYwsEulhEouXc5aZGgMdkhV/iEXX9/pfjqKk76rTG+4CsJjHV+G/4eMhvOIaQMHENNA==",
-      "path": "microsoft.extensions.configuration.abstractions/3.1.9",
-      "hashPath": "microsoft.extensions.configuration.abstractions.3.1.9.nupkg.sha512"
+      "sha512": "sha512-ESz6bVoDQX7sgWdKHF6G9Pq672T8k+19AFb/txDXwdz7MoqaNQj2/in3agm/3qae9V+WvQZH86LLTNVo0it8vQ==",
+      "path": "microsoft.extensions.configuration.abstractions/3.1.0",
+      "hashPath": "microsoft.extensions.configuration.abstractions.3.1.0.nupkg.sha512"
     },
-    "Microsoft.Extensions.Configuration.Binder/3.1.9": {
+    "Microsoft.Extensions.Configuration.Binder/3.1.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-BG6HcT7tARYakftqfQu+cLksgIWG1NdxMY+igI12hdZrUK+WjS973NiRyuao/U9yyTeM9NPwRnC61hCmG3G3jg==",
-      "path": "microsoft.extensions.configuration.binder/3.1.9",
-      "hashPath": "microsoft.extensions.configuration.binder.3.1.9.nupkg.sha512"
+      "sha512": "sha512-o9eELDBfNkR7sUtYysFZ1Q7BQ1mYt27DMkups/3vu7xgPyOpMD+iAfrBZFzUXT2iw0fmFb8s1gfNBZS+IgjKdQ==",
+      "path": "microsoft.extensions.configuration.binder/3.1.0",
+      "hashPath": "microsoft.extensions.configuration.binder.3.1.0.nupkg.sha512"
     },
     "Microsoft.Extensions.DependencyInjection/6.0.0": {
       "type": "package",
@@ -694,19 +726,12 @@
       "path": "microsoft.extensions.dependencyinjection.abstractions/6.0.0",
       "hashPath": "microsoft.extensions.dependencyinjection.abstractions.6.0.0.nupkg.sha512"
     },
-    "Microsoft.Extensions.Http/3.1.9": {
+    "Microsoft.Extensions.Logging/3.1.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-sRyrkBJGS+8ucKak+RmAPkAiIm6amA5ztpIkp0zrPn5+kDX2j8XJdRARr4Eh003RIGQxzvNGQ+j/voAhlPoXyw==",
-      "path": "microsoft.extensions.http/3.1.9",
-      "hashPath": "microsoft.extensions.http.3.1.9.nupkg.sha512"
-    },
-    "Microsoft.Extensions.Logging/3.1.9": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-+V3i0jCQCO6IIOf6e+fL0SqrZd2x/Krug9EEL1JHa9R03RsbEpltCtjVY5hxedyuyuQKwvLoR12sCfu/9XEUAw==",
-      "path": "microsoft.extensions.logging/3.1.9",
-      "hashPath": "microsoft.extensions.logging.3.1.9.nupkg.sha512"
+      "sha512": "sha512-P+8sKQ8L4ooL79sxxqwFPxGGC3aBrUDLB/dZqhs4J0XjTyrkeeyJQ4D4nzJB6OnAhy78HIIgQ/RbD6upOXLynw==",
+      "path": "microsoft.extensions.logging/3.1.0",
+      "hashPath": "microsoft.extensions.logging.3.1.0.nupkg.sha512"
     },
     "Microsoft.Extensions.Logging.Abstractions/6.0.0": {
       "type": "package",
@@ -715,19 +740,40 @@
       "path": "microsoft.extensions.logging.abstractions/6.0.0",
       "hashPath": "microsoft.extensions.logging.abstractions.6.0.0.nupkg.sha512"
     },
-    "Microsoft.Extensions.Options/3.1.9": {
+    "Microsoft.Extensions.Logging.Configuration/3.1.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-EIb3G1DL+Rl9MvJR7LjI1wCy2nfTN4y8MflbOftn1HLYQBj/Rwl8kUbGTrSFE01c99Wm4ETjWVsjqKcpFvhPng==",
-      "path": "microsoft.extensions.options/3.1.9",
-      "hashPath": "microsoft.extensions.options.3.1.9.nupkg.sha512"
+      "sha512": "sha512-yW3nIoNM3T5iZg8bRViiCN4+vIU/02l+mlWSvKqWnr0Fd5Uk1zKdT9jBWKEcJhRIWKVWWSpFWXnM5yWoIAy1Eg==",
+      "path": "microsoft.extensions.logging.configuration/3.1.0",
+      "hashPath": "microsoft.extensions.logging.configuration.3.1.0.nupkg.sha512"
     },
-    "Microsoft.Extensions.Primitives/3.1.9": {
+    "Microsoft.Extensions.ObjectPool/6.0.8": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-IrHecH0eGG7/XoeEtv++oLg/sJHRNyeCqlA9RhAo6ig4GpOTjtDr32sBMYuuLtUq8ALahneWkrOzoBAwJ4L4iA==",
-      "path": "microsoft.extensions.primitives/3.1.9",
-      "hashPath": "microsoft.extensions.primitives.3.1.9.nupkg.sha512"
+      "sha512": "sha512-2oOTyJVVQM+HMZSI6vPeX/ZIRO0yT8HN4V3p7ipDUsbaEUlK4tCLCRNf5NChXxpXCKR3HL22XHIkDUBu7DJrnw==",
+      "path": "microsoft.extensions.objectpool/6.0.8",
+      "hashPath": "microsoft.extensions.objectpool.6.0.8.nupkg.sha512"
+    },
+    "Microsoft.Extensions.Options/3.1.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-9b6JHY7TAXrSfZ6EEGf+j8XnqKIiMPErfmaNXhJYSCb+BUW2H4RtzkNJvwLJzwgzqBP0wtTjyA6Uw4BPPdmkMw==",
+      "path": "microsoft.extensions.options/3.1.0",
+      "hashPath": "microsoft.extensions.options.3.1.0.nupkg.sha512"
+    },
+    "Microsoft.Extensions.Options.ConfigurationExtensions/3.1.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-tx6gMKE3rDspA1YZT8SlQJmyt1BaBSl6mNjB3g0ZO6m3NnoavCifXkGeBuDk9Ae4XjW8C+dty52p+0u38jPRIQ==",
+      "path": "microsoft.extensions.options.configurationextensions/3.1.0",
+      "hashPath": "microsoft.extensions.options.configurationextensions.3.1.0.nupkg.sha512"
+    },
+    "Microsoft.Extensions.Primitives/3.1.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-LEKAnX7lhUhSoIc2XraCTK3M4IU/LdVUzCe464Sa4+7F4ZJuXHHRzZli2mDbiT4xzAZhgqXbvfnb5+CNDcQFfg==",
+      "path": "microsoft.extensions.primitives/3.1.0",
+      "hashPath": "microsoft.extensions.primitives.3.1.0.nupkg.sha512"
     },
     "Microsoft.NETCore.Platforms/5.0.0": {
       "type": "package",
@@ -764,12 +810,19 @@
       "path": "newtonsoft.json/13.0.1",
       "hashPath": "newtonsoft.json.13.0.1.nupkg.sha512"
     },
-    "prometheus-net/6.0.0": {
+    "OpenTelemetry/1.3.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-rD6iXx1mKx6uy5E7YkktLxvBQKFTbNfe3qc43s+9ZuYWgEm41QMTlw/a+R+Hs86NkfHG3oHYAJuP7c7HQ+oj9Q==",
-      "path": "prometheus-net/6.0.0",
-      "hashPath": "prometheus-net.6.0.0.nupkg.sha512"
+      "sha512": "sha512-LvGjLM4SJVZXE4Fbj/n14SIGw74+ikAKc/t70z5Ps2z8AENpmTuDBhQN4SxDC8P3WfO7GpWr/A5Z+wpAIO1gAw==",
+      "path": "opentelemetry/1.3.0",
+      "hashPath": "opentelemetry.1.3.0.nupkg.sha512"
+    },
+    "OpenTelemetry.Api/1.3.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-qA/GJIKaFonMTxLv9x/+FXNGOP8MFvtWxAIVHxZyLJTtgmZjiEzexqTdzUqFCRTR9ZjanVW0+qDfVHo1iUKd4g==",
+      "path": "opentelemetry.api/1.3.0",
+      "hashPath": "opentelemetry.api.1.3.0.nupkg.sha512"
     },
     "runtime.debian.8-x64.runtime.native.System.Security.Cryptography.OpenSsl/4.3.2": {
       "type": "package",
@@ -897,6 +950,13 @@
       "path": "system.collections.concurrent/4.3.0",
       "hashPath": "system.collections.concurrent.4.3.0.nupkg.sha512"
     },
+    "System.Collections.Immutable/1.4.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-71hw5RUJRu5+q/geUY69gpXD8Upd12cH+F3MwpXV2zle7Bqqkrmc1JblOTuvUcgmdnUtQvBlV5e1d6RH+H2lvA==",
+      "path": "system.collections.immutable/1.4.0",
+      "hashPath": "system.collections.immutable.1.4.0.nupkg.sha512"
+    },
     "System.Diagnostics.Contracts/4.3.0": {
       "type": "package",
       "serviceable": true,
@@ -911,12 +971,12 @@
       "path": "system.diagnostics.debug/4.3.0",
       "hashPath": "system.diagnostics.debug.4.3.0.nupkg.sha512"
     },
-    "System.Diagnostics.DiagnosticSource/4.3.0": {
+    "System.Diagnostics.DiagnosticSource/6.0.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-tD6kosZnTAGdrEa0tZSuFyunMbt/5KYDnHdndJYGqZoNy00XVXyACd5d6KnE1YgYv3ne2CjtAfNXo/fwEhnKUA==",
-      "path": "system.diagnostics.diagnosticsource/4.3.0",
-      "hashPath": "system.diagnostics.diagnosticsource.4.3.0.nupkg.sha512"
+      "sha512": "sha512-frQDfv0rl209cKm1lnwTgFPzNigy2EKk1BS3uAvHvlBVKe5cymGyHO+Sj+NLv5VF/AhHsqPIUUwya5oV4CHMUw==",
+      "path": "system.diagnostics.diagnosticsource/6.0.0",
+      "hashPath": "system.diagnostics.diagnosticsource.6.0.0.nupkg.sha512"
     },
     "System.Diagnostics.Process/4.3.0": {
       "type": "package",
@@ -1001,6 +1061,13 @@
       "sha512": "sha512-KMiAFoW7MfJGa9nDFNcfu+FpEdiHpWgTcS2HdMpDvt9saK3y/G4GwprPyzqjFH9NTaGPQeWNHU+iDlDILj96aQ==",
       "path": "system.reflection/4.3.0",
       "hashPath": "system.reflection.4.3.0.nupkg.sha512"
+    },
+    "System.Reflection.Emit.Lightweight/4.7.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-a4OLB4IITxAXJeV74MDx49Oq2+PsF6Sml54XAFv+2RyWwtDBcabzoxiiJRhdhx+gaohLh4hEGCLQyBozXoQPqA==",
+      "path": "system.reflection.emit.lightweight/4.7.0",
+      "hashPath": "system.reflection.emit.lightweight.4.7.0.nupkg.sha512"
     },
     "System.Reflection.Primitives/4.3.0": {
       "type": "package",
@@ -1184,7 +1251,7 @@
       "path": "yamldotnet/11.2.1",
       "hashPath": "yamldotnet.11.2.1.nupkg.sha512"
     },
-    "Neon.Common/10000.0.2060-dev-marcus": {
+    "Neon.Common/3.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
