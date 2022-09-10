@@ -30,7 +30,7 @@ namespace NeonBuild
     /// </summary>
     public static partial class Program
     {
-        private const string version = "1.6";
+        private const string version = "1.7";
 
         private static readonly string usage =
 $@"
@@ -418,12 +418,18 @@ ARGUMENTS:
                         {
                             if (globPattern.IsMatch(file.Replace("\\", "/")))
                             {
-if (file.Contains("ObjectDictionary"))
-{
-    Console.WriteLine($"DELETE: {file}");
-    Console.WriteLine($"CMD:    {commandLine}");
-}
-                                File.Delete(file);
+                                try
+                                {
+                                    File.Delete(file);
+                                }
+                                catch
+                                {
+                                    // It seems that sometimes these files can be open at times (perhaps
+                                    // when another build task is generating them or perhaps an analyzer
+                                    // has it open.
+                                    //
+                                    // We're just going to ignore this and hope for the best.
+                                }
                             }
                         }
                         break;

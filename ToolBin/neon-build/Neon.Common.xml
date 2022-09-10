@@ -4721,6 +4721,11 @@
             </summary>
             <returns>The converted <see cref="T:System.DateTime"/>.</returns>
         </member>
+        <member name="P:Neon.Common.NeonHelper.UserHomeFolder">
+            <summary>
+            Returns the path to the current user's HOME folder.
+            </summary>
+        </member>
         <member name="M:Neon.Common.NeonHelper.EscapeCsv(System.String)">
             <summary>
             Escapes a string passed so that is suitable for writing to
@@ -17534,19 +17539,19 @@
             <summary>Repository URL: https://github.com/nforgeio/neonsdk.git</summary>
         </member>
         <member name="F:ThisAssembly.Git.Branch">
-            <summary>Branch: master</summary>
+            <summary>Branch: jeff</summary>
         </member>
         <member name="F:ThisAssembly.Git.Commit">
-            <summary>Commit: 5160e1c</summary>
+            <summary>Commit: b62e2f1</summary>
         </member>
         <member name="F:ThisAssembly.Git.Sha">
-            <summary>Sha: 5160e1cf8d4560a122162d8ce3cada359c952b2e</summary>
+            <summary>Sha: b62e2f1abfd05efea36df29d66ff051bf6c96df7</summary>
         </member>
         <member name="F:ThisAssembly.Git.CommitDate">
-            <summary>Commit date: 2022-09-08T12:46:32-07:00</summary>
+            <summary>Commit date: 2022-09-09T11:47:15-07:00</summary>
         </member>
         <member name="F:ThisAssembly.Git.Commits">
-            <summary>Commits on top of base version: 106</summary>
+            <summary>Commits on top of base version: 107</summary>
         </member>
         <member name="F:ThisAssembly.Git.Tag">
             <summary>Tag: </summary>
@@ -17576,7 +17581,7 @@
             <summary>Minor: 0</summary>
         </member>
         <member name="F:ThisAssembly.Git.SemVer.Patch">
-            <summary>Patch: 106</summary>
+            <summary>Patch: 107</summary>
         </member>
         <member name="F:ThisAssembly.Git.SemVer.Label">
             <summary>Label: </summary>
