@@ -574,26 +574,11 @@ namespace Neon.Service
                 return cachedNeonKubeUserFolder;
             }
 
-            if (NeonHelper.IsWindows)
-            {
-                var path = Path.Combine(global::System.Environment.GetEnvironmentVariable("USERPROFILE"), ".neonkube");
+            var path = Path.Combine(NeonHelper.UserHomeFolder, ".neonkube");
 
-                Directory.CreateDirectory(path);
+            Directory.CreateDirectory(path);
 
-                return cachedNeonKubeUserFolder = path;
-            }
-            else if (NeonHelper.IsLinux || NeonHelper.IsOSX)
-            {
-                var path = Path.Combine(global::System.Environment.GetEnvironmentVariable("HOME"), ".neonkube");
-
-                Directory.CreateDirectory(path);
-
-                return cachedNeonKubeUserFolder = path;
-            }
-            else
-            {
-                throw new NotImplementedException();
-            }
+            return cachedNeonKubeUserFolder = path;
         }
 
         /// <summary>

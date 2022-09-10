@@ -256,5 +256,27 @@ namespace Neon.Common
         {
             return UnixEpoch + TimeSpan.FromMilliseconds(milliseconds);
         }
+
+        /// <summary>
+        /// Returns the path to the current user's HOME folder.
+        /// </summary>
+        public static string UserHomeFolder
+        {
+            get
+            {
+                if (NeonHelper.IsWindows)
+                {
+                    return Environment.GetEnvironmentVariable("USERPROFILE");
+                }
+                else if (NeonHelper.IsLinux || NeonHelper.IsOSX)
+                {
+                    return System.Environment.GetEnvironmentVariable("HOME");
+                }
+                else
+                {
+                    throw new NotImplementedException();
+                }
+            }
+        }
     }
 }

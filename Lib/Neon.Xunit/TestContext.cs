@@ -123,24 +123,9 @@ namespace Neon.Xunit
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(passwordName), nameof(passwordName));
 
-            string neonKubeFolder;
+            var neonKubeFolder = Path.Combine(NeonHelper.UserHomeFolder, ".neonkube");
 
-            if (NeonHelper.IsWindows)
-            {
-                neonKubeFolder = Path.Combine(Environment.GetEnvironmentVariable("USERPROFILE"), ".neonkube");
-
-                Directory.CreateDirectory(neonKubeFolder);
-            }
-            else if (NeonHelper.IsLinux || NeonHelper.IsOSX)
-            {
-                neonKubeFolder = Path.Combine(Environment.GetEnvironmentVariable("HOME"), ".neonkube");
-
-                Directory.CreateDirectory(neonKubeFolder);
-            }
-            else
-            {
-                throw new NotImplementedException();
-            }
+            Directory.CreateDirectory(neonKubeFolder);
 
             var path = Path.Combine(neonKubeFolder, "passwords");
 
