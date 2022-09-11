@@ -76,7 +76,6 @@ namespace TestModelGen.ServiceModel
 
     [Target("Default")]
     [ServiceModel]
-    [Target("Default")]
     public interface EmptyServiceController
     {
     }

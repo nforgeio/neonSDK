@@ -27,6 +27,7 @@ using System.Threading.Tasks;
 using Neon.ModelGen;
 using Neon.Common;
 using Neon.Data;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 
 namespace Neon.Xunit
 {
@@ -332,7 +333,9 @@ namespace Neon.Xunit
                 }
             }
 
-            // Do a detailed comparision of the method return types and parameters.
+            // Do a detailed comparision of the method return types, parameters, and API versions.
+
+            var controllerVersions = controllerType.GetCustomAttributes<ApiVersionAttribute>().Select(attribute => attribute.Version).ToList();
 
             foreach (var clientMethod in clientMethods)
             {
@@ -340,6 +343,19 @@ namespace Neon.Xunit
                 {
                     var clientParams     = clientMethod.Value.GetParameters();
                     var controllerParams = controllerMethod.GetParameters();
+
+                    // Ensure that API version generated for the client method is actually
+                    // implemented by the target service.
+
+                    var controllerMethodVersions = controllerVersions.Union(controllerMethod.GetCustomAttributes<ApiVersionAttribute>().Select(attribute => attribute.Version)).ToList();
+                    var clientMethodAttribute    = clientMethod.Value.GetCustomAttribute<GeneratedMethodAttribute>();
+
+                    if (clientMethodAttribute != null && 
+                        !string.IsNullOrEmpty(clientMethodAttribute.ApiVersion) &&
+                        !controllerMethodVersions.Contains(ApiVersion.Parse(clientMethodAttribute.ApiVersion)))
+                    {
+                        errors.Error($"Service client method [{clientType.Name}.{clientMethod.Key}] references [api-version={clientMethodAttribute.ApiVersion}] which is not implemented by the target service.");
+                    }
 
                     // Note that we're using the controller parameter count rather than
                     // the client parameter count because the client methods were generated

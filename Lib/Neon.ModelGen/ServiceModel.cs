@@ -124,6 +124,12 @@ namespace Neon.ModelGen
         public string RouteTemplate { get; set; }
 
         /// <summary>
+        /// Lists any <see cref="ApiVersion"/> versions assigned to the service via <c>[ApiVersion]</c>
+        /// attributes.
+        /// </summary>
+        public List<ApiVersion> ApiVersions { get; private set; } = new List<ApiVersion>();
+
+        /// <summary>
         /// Lists the service.
         /// </summary>
         public List<ServiceMethod> Methods { get; private set; } = new List<ServiceMethod>();

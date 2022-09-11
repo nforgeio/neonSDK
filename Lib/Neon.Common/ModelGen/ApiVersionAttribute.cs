@@ -24,7 +24,7 @@ namespace Neon.ModelGen
 {
     /// <summary>
     /// <para>
-    /// Used to tag an ASP.NET controller or method with an API version.  Versions
+    /// Used to tag an ASP.NET controller interface or method with an API version.  Versions
     /// are formatted like:
     /// </para>
     /// <code>
@@ -41,7 +41,7 @@ namespace Neon.ModelGen
     /// <b>a-z</b>, <b>A-Z</b>, <b>0-9</b>, <b>"."</b> and <b>"-"</b>.
     /// </para>
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true, Inherited = false)]
+    [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Method, AllowMultiple = true, Inherited = false)]
     public class ApiVersionAttribute : Attribute
     {
         /// <summary>

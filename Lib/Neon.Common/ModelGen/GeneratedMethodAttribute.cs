@@ -56,5 +56,10 @@ namespace Neon.ModelGen
         /// The HTTP method for the endpoint.
         /// </summary>
         public string HttpMethod { get; set; }
+
+        /// <summary>
+        /// The API version used when calling this method or <c>null</c> when no version is specified.
+        /// </summary>
+        public string ApiVersion { get; set;}
     }
 }

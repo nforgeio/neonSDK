@@ -51,15 +51,15 @@ namespace TestModelGen
             var apiVersion   = ApiVersion.Parse("2022-09-11");
 
             Assert.Equal(versionGroup, apiVersion.VersionGroup);
-            Assert.Equal(0, apiVersion.Major);
-            Assert.Equal(0, apiVersion.Minor);
+            Assert.Equal(-1, apiVersion.Major);
+            Assert.Equal(-1, apiVersion.Minor);
             Assert.Empty(apiVersion.Status);
 
             apiVersion = ApiVersion.Parse("2022-09-11-alpha");
 
             Assert.Equal(versionGroup, apiVersion.VersionGroup);
-            Assert.Equal(0, apiVersion.Major);
-            Assert.Equal(0, apiVersion.Minor);
+            Assert.Equal(-1, apiVersion.Major);
+            Assert.Equal(-1, apiVersion.Minor);
             Assert.Equal("alpha", apiVersion.Status);
 
             apiVersion = ApiVersion.Parse("2022-09-112.3");
@@ -80,14 +80,14 @@ namespace TestModelGen
 
             Assert.Equal(versionGroup, apiVersion.VersionGroup);
             Assert.Equal(2, apiVersion.Major);
-            Assert.Equal(0, apiVersion.Minor);
+            Assert.Equal(-1, apiVersion.Minor);
             Assert.Empty(apiVersion.Status);
 
             apiVersion = ApiVersion.Parse("2022-09-112-alpha");
 
             Assert.Equal(versionGroup, apiVersion.VersionGroup);
             Assert.Equal(2, apiVersion.Major);
-            Assert.Equal(0, apiVersion.Minor);
+            Assert.Equal(-1, apiVersion.Minor);
             Assert.Equal("alpha", apiVersion.Status);
 
             apiVersion = ApiVersion.Parse("2022-09-1123.45");
@@ -171,6 +171,23 @@ namespace TestModelGen
             Assert.True(ApiVersion.Parse("2.3-alpha").CompareTo(ApiVersion.Parse("2.3-beta")) < 0);
             Assert.True(ApiVersion.Parse("2.3-alpha").CompareTo(ApiVersion.Parse("2.3")) < 0);
             Assert.True(ApiVersion.Parse("2.3").CompareTo(ApiVersion.Parse("2.3-alpha")) > 0);
+        }
+
+        [Fact]
+        public void Render_ToString()
+        {
+            Assert.Equal("2022-09-11", ApiVersion.Parse("2022-09-11").ToString());
+            Assert.Equal("2022-09-11-alpha", ApiVersion.Parse("2022-09-11-alpha").ToString());
+            Assert.Equal("2022-09-112", ApiVersion.Parse("2022-09-112").ToString());
+            Assert.Equal("2022-09-112-alpha", ApiVersion.Parse("2022-09-112-alpha").ToString());
+            Assert.Equal("2022-09-11.2.3", ApiVersion.Parse("2022-09-112.3").ToString());
+            Assert.Equal("2022-09-11.2.3-alpha", ApiVersion.Parse("2022-09-112.3-alpha").ToString());
+
+            Assert.Equal("2022-09-11.2.3", ApiVersion.Parse("2022-09-11.2.3").ToString());
+            Assert.Equal("2022-09-11.2.3-alpha", ApiVersion.Parse("2022-09-11.2.3-alpha").ToString());
+
+            Assert.Equal("2.3", ApiVersion.Parse("2.3").ToString());
+            Assert.Equal("2.3-alpha", ApiVersion.Parse("2.3-alpha").ToString());
         }
 
         [Fact]

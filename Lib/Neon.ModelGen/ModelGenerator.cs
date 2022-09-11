@@ -86,8 +86,7 @@ namespace Neon.ModelGen
             }
 
             Settings.TargetNamespace = Settings.TargetNamespace ?? "Neon.ModelGen.Output";
-
-            generateUx = settings.UxFramework == UxFrameworks.Xaml;
+            generateUx               = settings.UxFramework == UxFrameworks.Xaml;
 
             // Scan the [Neon.Common] assembly for JSON converters that implement [IEnhancedJsonConverter]
             // and initialize the [convertableTypes] hashset with the convertable types.  We'll need
@@ -358,6 +357,13 @@ namespace Neon.ModelGen
                 serviceModel.RouteTemplate = serviceRouteAttribute.Template;
             }
 
+            // Handle any [ApiVersion] attributes.
+
+            foreach (var apiVersionAttribute in serviceModelType.GetCustomAttributes<ApiVersionAttribute>(inherit: false))
+            {
+                serviceModel.ApiVersions.Add(apiVersionAttribute.Version);
+            }
+
             // Walk the service methods to load their metadata.
 
             foreach (var methodInfo in serviceModelType.GetMethods(BindingFlags.Public | BindingFlags.Instance))
@@ -464,6 +470,13 @@ namespace Neon.ModelGen
 
                         Output.Error($"[{serviceModelType.FullName}]: This data model defines method [{serviceMethod.Name}] that uses the unsupported HTTP [{serviceMethod.HttpMethod}].");
                         break;
+                }
+
+                // Handle any [ApiVersion] attributes.
+
+                foreach (var apiVersionAttribute in methodInfo.GetCustomAttributes<ApiVersionAttribute>(inherit: false))
+                {
+                    serviceMethod.ApiVersions.Add(apiVersionAttribute.Version);
                 }
 
                 // Read and normalize the method parameters.
@@ -2580,7 +2593,7 @@ namespace Neon.ModelGen
             var bodyParameter = parameters.FirstOrDefault(parameter => parameter.Pass == Pass.AsBody);
 
             //-----------------------------------------------------------------
-            // Common code that applies to both of the generated [save] and [unsafe] methods.
+            // Common code that applies to both of the generated [safe] and [unsafe] methods.
 
             // Generate the method parameter definition.
 
@@ -2647,7 +2660,7 @@ namespace Neon.ModelGen
             var sbArgGenerate      = new StringBuilder();   // This holds the code required to generate the arguments.
             var sbArguments        = new StringBuilder();   // This holds the arguments to be passed to the [JsonClient] method.
             var routeParameters    = new List<MethodParameter>();
-            var headerParameters   = parameters.Where(parameter => parameter.Pass == Pass.AsHeader);
+            var headerParameters   = parameters.Where(parameter => parameter.Pass == Pass.AsHeader).ToList();
             var endpointUriLiteral = $"$\"{ConcatRoutes(serviceMethod.ServiceModel.RouteTemplate, serviceMethod.RouteTemplate)}\"";
 
             foreach (var routeParameter in parameters.Where(parameter => parameter.Pass == Pass.AsRoute))
@@ -2657,12 +2670,10 @@ namespace Neon.ModelGen
 
             if (!string.IsNullOrEmpty(serviceMethod.RouteTemplate))
             {
-                // NOTE:
-                //
-                // When a service method has a [Route] attribute that defines a route template, 
-                // we're going to treat any parameter not tagged with a [FromXXX] attribute as
-                // if it is tagged by a [FromRoute] attribute when the parameter name matches
-                // a reference in the route template.
+                // NOTE: When a service method has a [Route] attribute that defines a route template, 
+                //       we're going to treat any parameter not tagged with a [FromXXX] attribute as
+                //       if it is tagged by a [FromRoute] attribute when the parameter name matches
+                //       a reference in the route template.
 
                 // Extract the parameter names from the route template.
 
@@ -2739,7 +2750,7 @@ namespace Neon.ModelGen
 
             // The query parameters include those that have [Pass.AsQuery].
 
-            var queryParameters = parameters.Where(parameter => parameter.Pass == Pass.AsQuery);
+            var queryParameters = parameters.Where(parameter => parameter.Pass == Pass.AsQuery).ToList();
 
             // We're ready to generate the method code.
 
@@ -2789,17 +2800,31 @@ namespace Neon.ModelGen
                 }
             }
 
-            if (queryParameters.Count() > 0)
+            // Determine the API version for the method (if any) by combining any versions from
+            // [ApiVersion] attributes tagging the controller class and the method and selecting
+            // the greatest version from these.
+
+            var combinedApiVersions = serviceMethod.ServiceModel.ApiVersions.Union(serviceMethod.ApiVersions).ToList();
+            var apiVersion          = (ApiVersion)null;
+
+            if (combinedApiVersions.Count > 0)
+            {
+                apiVersion = combinedApiVersions.Max();
+            }
+
+            // Generate the query parameters.
+
+            if (queryParameters.Count > 0 || apiVersion != null)
             {
                 if (sbArgGenerate.Length > 0)
                 {
                     sbArgGenerate.AppendLine();
                 }
 
-                var nonOptionalQueryParameters = queryParameters.Where(parameter => !parameter.IsOptional);
-                var optionalQueryParameters    = queryParameters.Where(parameter => parameter.IsOptional);
+                var nonOptionalQueryParameters = queryParameters.Where(parameter => !parameter.IsOptional).ToList();
+                var optionalQueryParameters    = queryParameters.Where(parameter => parameter.IsOptional).ToList();
 
-                if (nonOptionalQueryParameters.Count() == 0)
+                if (nonOptionalQueryParameters.Count == 0 && apiVersion == null)
                 {
                     sbArgGenerate.AppendLine($"{indent}            var _args = new ArgDictionary();");
                 }
@@ -2807,6 +2832,11 @@ namespace Neon.ModelGen
                 {
                     sbArgGenerate.AppendLine($"{indent}            var _args = new ArgDictionary()");
                     sbArgGenerate.AppendLine($"{indent}            {{");
+
+                    if (apiVersion != null)
+                    {
+                        sbArgGenerate.AppendLine($"{indent}                {{ \"api-version\", \"{apiVersion}\" }},");
+                    }
 
                     foreach (var parameter in nonOptionalQueryParameters)
                     {
@@ -2826,17 +2856,17 @@ namespace Neon.ModelGen
                 }
             }
 
-            if (headerParameters.Count() > 0)
+            if (headerParameters.Count > 0)
             {
                 if (sbArgGenerate.Length > 0)
                 {
                     sbArgGenerate.AppendLine();
                 }
 
-                var nonOptionalHeaderParameters = headerParameters.Where(parameter => !parameter.IsOptional);
-                var optionalHeaderParameters    = headerParameters.Where(parameter => parameter.IsOptional);
+                var nonOptionalHeaderParameters = headerParameters.Where(parameter => !parameter.IsOptional).ToList();
+                var optionalHeaderParameters    = headerParameters.Where(parameter => parameter.IsOptional).ToList();
 
-                if (nonOptionalHeaderParameters.Count() == 0)
+                if (nonOptionalHeaderParameters.Count == 0)
                 {
                     sbArgGenerate.AppendLine($"{indent}            var _headers = new ArgDictionary();");
                 }
@@ -2871,12 +2901,12 @@ namespace Neon.ModelGen
                 sbArguments.AppendWithSeparator($"document: RoundtripDataHelper.Serialize({bodyParameter.Name})", argSeparator);
             }
 
-            if (queryParameters.Count() > 0)
+            if (queryParameters.Count > 0 || apiVersion != null)
             {
                 sbArguments.AppendWithSeparator("args: _args", argSeparator);
             }
 
-            if (headerParameters.Count() > 0)
+            if (headerParameters.Count > 0)
             {
                 sbArguments.AppendWithSeparator("headers: _headers", argSeparator);
             }
@@ -2997,7 +3027,14 @@ namespace Neon.ModelGen
                 routeTemplate = serviceMethod.RouteTemplate;
             }
 
-            generatedMethodAttribute = $"[GeneratedMethod(DefinedAs = \"{serviceMethod.MethodInfo.Name}\", Returns = typeof({returnType}), RouteTemplate = \"{routeTemplate}\", HttpMethod = \"{serviceMethod.HttpMethod}\")]";
+            if (apiVersion == null)
+            {
+                generatedMethodAttribute = $"[GeneratedMethod(DefinedAs = \"{serviceMethod.MethodInfo.Name}\", Returns = typeof({returnType}), RouteTemplate = \"{routeTemplate}\", HttpMethod = \"{serviceMethod.HttpMethod}\")]";
+            }
+            else
+            {
+                generatedMethodAttribute = $"[GeneratedMethod(DefinedAs = \"{serviceMethod.MethodInfo.Name}\", Returns = typeof({returnType}), RouteTemplate = \"{routeTemplate}\", HttpMethod = \"{serviceMethod.HttpMethod}\", ApiVersion=\"{apiVersion}\")]";
+            }
 
             writer.WriteLine();
 

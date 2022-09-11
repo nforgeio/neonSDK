@@ -80,5 +80,12 @@ namespace Neon.ModelGen
         /// Returns the list of method parameters.
         /// </summary>
         public List<MethodParameter> Parameters { get; private set; }
+
+        /// <summary>
+        /// Lists any <see cref="ApiVersion"/> versions assigned to the method via <c>[ApiVersion]</c>
+        /// attributes.
+        /// </summary>
+        public List<ApiVersion> ApiVersions { get; private set; } = new List<ApiVersion>();
+
     }
 }
