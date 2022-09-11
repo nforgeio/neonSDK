@@ -41,6 +41,7 @@ namespace Neon.ModelGen
     /// <b>a-z</b>, <b>A-Z</b>, <b>0-9</b>, <b>"."</b> and <b>"-"</b>.
     /// </para>
     /// </summary>
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true, Inherited = false)]
     public class ApiVersionAttribute : Attribute
     {
         /// <summary>

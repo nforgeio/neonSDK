@@ -33,6 +33,8 @@ namespace Neon.ModelGen
         //---------------------------------------------------------------------
         // Static members
 
+        private static DateTime minVersionGroup = new DateTime(1, 1, 1).ToUniversalTime();
+
         /// <summary>
         /// Parses a <see cref="ApiVersion"/>.
         /// </summary>
@@ -181,27 +183,27 @@ namespace Neon.ModelGen
         /// didn't include a version group.
         /// </note>
         /// </summary>
-        public DateTime VersionGroup { get; private set; } = new DateTime(1, 1, 1);
+        public DateTime VersionGroup { get; private set; } = minVersionGroup;
 
         /// <summary>
         /// <para>
         /// Returns the major version number.
         /// </para>
         /// <note>
-        /// This returns as <b>zero</b> when the parsed version string didn't include a major version.
+        /// This returns as <b>-1</b> when the parsed version string didn't include a major version.
         /// </note>
         /// </summary>
-        public int Major { get; private set; } = 0;
+        public int Major { get; private set; } = -1;
 
         /// <summary>
         /// <para>
         /// Returns the minor version number.
         /// </para>
         /// <note>
-        /// This returns as <b>zero</b> when the parsed version string didn't include a minor version.
+        /// This returns as <b>-1</b> when the parsed version string didn't include a minor version.
         /// </note>
         /// </summary>
-        public int Minor { get; private set; } = 0;
+        public int Minor { get; private set; } = -1;
 
         /// <summary>
         /// <para>
@@ -261,6 +263,62 @@ namespace Neon.ModelGen
             }
 
             return string.Compare(this.Status, other.Status, StringComparison.InvariantCultureIgnoreCase);
+        }
+
+        /// <inheritdoc/>
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+
+            if (VersionGroup != minVersionGroup)
+            {
+                sb.Append(VersionGroup.ToString("yyyy-MM-dd"));
+
+                if (Major >= 0 && Minor >= 0)
+                {
+                    sb.Append('.');
+                    sb.Append(Major);
+                    sb.Append('.');
+                    sb.Append(Minor);
+                }
+                else if (Major >= 0)
+                {
+                    sb.Append(Major);
+
+                    if (Minor >= 0)
+                    {
+                        sb.Append('.');
+                        sb.Append(Minor);
+                    }
+                }
+            }
+            else
+            {
+                if (Major >= 0 && Minor >= 0)
+                {
+                    sb.Append(Major);
+                    sb.Append('.');
+                    sb.Append(Minor);
+                }
+                else if (Major >= 0)
+                {
+                    sb.Append(Major);
+
+                    if (Minor >= 0)
+                    {
+                        sb.Append('.');
+                        sb.Append(Minor);
+                    }
+                }
+            }
+
+            if (!string.IsNullOrEmpty(Status))
+            {
+                sb.Append('-');
+                sb.Append(Status);
+            }
+
+            return sb.ToString();
         }
     }
 }
