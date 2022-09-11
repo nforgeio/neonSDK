@@ -40,8 +40,7 @@ using Xunit;
 namespace TestModelGen
 {
     /// <summary>
-    /// Used to wrap a dynamically generated and compiled data model
-    /// class for testing purposes.
+    /// Used to wrap a dynamically generated and compiled data model class for testing purposes.
     /// </summary>
     public class DataWrapper
     {

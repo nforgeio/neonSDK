@@ -42,8 +42,7 @@ using Xunit;
 namespace TestModelGen
 {
     /// <summary>
-    /// Used to wrap a dynamically generated and compiled service
-    /// client class for testing purposes.
+    /// Used to wrap a dynamically generated and compiled service client class for testing purposes.
     /// </summary>
     [Collection(TestCollection.NonParallel)]
     [CollectionDefinition(TestCollection.NonParallel, DisableParallelization = true)]
