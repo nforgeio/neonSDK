@@ -7,8 +7,8 @@ using Microsoft.Extensions.Logging;
 
 using OpenTelemetry;
 using OpenTelemetry.Logs;
-using OpenTelemetry.Trace;
 using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 
 namespace TelemetryTest
 {
@@ -87,6 +87,12 @@ namespace TelemetryTest
             catch (Exception e)
             {
                 logger.LogError(e, "My Exception");
+            }
+
+            var activitySource = new ActivitySource(ServiceName, ServiceVersion);
+
+            using (activitySource.CreateActivity("my-activity", ActivityKind.Internal))
+            {
             }
 
             using (var span = tracer.StartSpan("test"))

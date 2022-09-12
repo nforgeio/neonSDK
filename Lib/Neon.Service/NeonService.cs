@@ -226,6 +226,24 @@ namespace Neon.Service
     /// the <see cref="NeonServiceOptions.LoggerFactory"/> to this factory and then passing
     /// the options to the <see cref="NeonService"/> constructor.
     /// </para>
+    /// <para>
+    /// Your service can use the service's <see cref="Logger"/> property or call <see cref="TelemetryHub.CreateLogger{T}(LogAttributes, bool)"/>
+    /// or <see cref="TelemetryHub.CreateLogger(string, LogAttributes, bool)"/> create loggers 
+    /// you can use to log events.  We recommend that you add a <c>using Neon.Diagnostics;</c> 
+    /// statement to your code and then use our <see cref="Neon.Diagnostics.LoggerExtensions"/> like:
+    /// </para>
+    /// <code language="C#">
+    /// using System;
+    /// using System.Diagnostics;
+    /// 
+    /// ...
+    /// 
+    /// var logger   = TelemetryHub.CreateLogger("my-logger");
+    /// var username = "Sally";
+    /// 
+    /// logger.LogDebugEx("this is a test");
+    /// logger.LogInformationEx(() => $"user: {username}");
+    /// </code>
     /// <para><b>TRACING</b></para>
     /// <para>
     /// <see cref="NeonService"/> also has limited support for configuring OpenTelemetry tracing
@@ -233,9 +251,9 @@ namespace Neon.Service
     /// variables:
     /// </para>
     /// <note>
-    /// <see cref="NeonService"/> only supports OpenTelemetry Collectors but you can always 
-    /// configure a custom OpenTelemetry pipeline before starting your <see cref="NeonService"/>
-    /// when you need to send traces elsewhere.
+    /// <see cref="NeonService"/> only supports exporting traces to an OpenTelemetry Collector via
+    /// and OTEL exporter, but you can always configure a custom OpenTelemetry pipeline before
+    /// starting your <see cref="NeonService"/> when you need to send traces elsewhere.
     /// </note>
     /// <list type="table">
     /// <item>
@@ -243,8 +261,7 @@ namespace Neon.Service
     ///     <description>
     ///     <para>
     ///     When present and <see cref="NeonServiceOptions.LoggerFactory"/> is <c>null</c>, then
-    ///     this specifies the URI for the OpenTelemetry Collector where the traces 
-    ///     will be sent.
+    ///     this specifies the URI for the OpenTelemetry Collector where the traces will be sent.
     ///     </para>
     ///     <note>
     ///     Services deployed within neonKUBE clusters should consider setting this to
@@ -292,6 +309,23 @@ namespace Neon.Service
     ///     </note>
     ///     </description>
     /// </item>
+    /// <para>
+    /// <see cref="ActivitySource"/> and <see cref="TelemetryHub.ActivitySource"/> will be set by
+    /// <see cref="NeonService"/> to the <see cref="System.Diagnostics.ActivitySource"/> you can
+    /// use to record traces like:
+    /// </para>
+    /// <code language="C#">
+    /// using System;
+    /// using System.Diagnostics;
+    /// using Neon.Diagnostics;
+    /// 
+    /// ...
+    /// 
+    /// using (activitySource.CreateActivity("my-activity", ActivityKind.Internal))
+    /// {
+    ///     // Perform your operation.
+    /// }
+    /// </code>
     /// </list>
     /// <para><b>HEALTH PROBES</b></para>
     /// <note>
@@ -426,16 +460,6 @@ namespace Neon.Service
     /// which means that they will need to complete before the startup or libeliness probes time out
     /// resulting in service termination.  This behavior may change in the future: https://github.com/nforgeio/neonKUBE/issues/1361
     /// </note>
-    /// <para><b>CRON JOBS</b></para>
-    /// <para>
-    /// <see cref="NeonService"/>s that implement Kubernetes CRON jobs should consider setting 
-    /// <see cref="AutoTerminateIstioSidecar"/><c>=true</c>.  This ensures that the pod scheduled
-    /// for the job is terminated cleanly when it has Istio injected sidecars.  This is generally
-    /// safe to set when running in a Kubernetes cluster.  Additional information:
-    /// </para>
-    /// <para>
-    /// https://github.com/nforgeio/neonKUBE/issues/1233
-    /// </para>
     /// <para><b>PROMETHEUS METRICS</b></para>
     /// <para>
     /// <see cref="NeonService"/> can enable services to publish Prometheus metrics with a
@@ -480,6 +504,16 @@ namespace Neon.Service
     ///     app.UseHttpMetrics();           // &lt;--- add this
     /// }    
     /// </code>
+    /// <para><b>CRON JOBS</b></para>
+    /// <para>
+    /// <see cref="NeonService"/>s that implement Kubernetes CRON jobs should consider setting 
+    /// <see cref="AutoTerminateIstioSidecar"/><c>=true</c>.  This ensures that the pod scheduled
+    /// for the job is terminated cleanly when it has Istio injected sidecars.  This is generally
+    /// safe to set when running in a Kubernetes cluster.  Additional information:
+    /// </para>
+    /// <para>
+    /// https://github.com/nforgeio/neonKUBE/issues/1233
+    /// </para>
     /// </remarks>
     public abstract class NeonService : IDisposable
     {
@@ -522,10 +556,10 @@ namespace Neon.Service
         //---------------------------------------------------------------------
         // Static members
 
-        private const string disableHealthChecks = "DISABLED";
+        private const string disableHealthChecks  = "DISABLED";
 
-        private static readonly char[]      equalArray = new char[] { '=' };
-        private static readonly Gauge       infoGauge  = Metrics.CreateGauge("neon_service_info", "Describes your service version.", "version");
+        private static readonly char[] equalArray = new char[] { '=' };
+        private static readonly Gauge infoGauge   = Metrics.CreateGauge("neon_service_info", "Describes your service version.", "version");
 
         // WARNING:
         //
@@ -661,7 +695,7 @@ namespace Neon.Service
         /// within the <see cref="ServiceMap"/> when a service map is specified.
         /// </exception>
         public NeonService(
-            string              name, 
+            string              name,
             string              version = null,
             NeonServiceOptions  options = null)
         {
@@ -912,7 +946,7 @@ namespace Neon.Service
 
             Stop();
 
-            lock(syncLock)
+            lock (syncLock)
             {
                 foreach (var item in configFiles.Values)
                 {
@@ -1070,9 +1104,26 @@ namespace Neon.Service
         public MetricsOptions MetricsOptions { get; set; } = new MetricsOptions();
 
         /// <summary>
-        /// Returns the service's default Logger.
+        /// <para>
+        /// Configured as the <see cref="ILogger"/> used by the service for logging.
+        /// </para>
+        /// <note>
+        /// You can create additional loggers via <see cref="TelemetryHub.CreateLogger(string, LogAttributes, bool)"/>
+        /// and <see cref="TelemetryHub.CreateLogger{T}(LogAttributes, bool)"/>.
+        /// </note>
         /// </summary>
-        public ILogger Logger { get; private set; }
+        public ILogger Logger { get; set; }
+
+        /// <summary>
+        /// <para>
+        /// Configured as the activity source used by the service for recording traces.
+        /// </para>
+        /// <note>
+        /// <see cref="NeonService"/> also sets the same value as <see cref="TelemetryHub.ActivitySource"/>
+        /// to enable tracing from library code.
+        /// </note>
+        /// </summary>
+        public ActivitySource ActivitySource { get; set; }
 
         /// <summary>
         /// Returns the service's <see cref="ProcessTerminator"/>.  This can be used
@@ -1494,7 +1545,7 @@ namespace Neon.Service
                                         {
                                             // Remember these so we can log something useful if we end up timing out.
 
-                                            notReadyUri = uri;
+                                            notReadyUri       = uri;
                                             notReadyException = e;
 
                                             return false;
