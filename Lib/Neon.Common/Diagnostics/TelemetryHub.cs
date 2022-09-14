@@ -46,11 +46,16 @@ namespace Neon.Diagnostics
     /// </para>
     /// <note>
     /// The <b>Neon.Service.NeonService</b> class initializes these properties by default when
-    /// used by programs.
+    /// used by applications based on this class.
     /// </note>
     /// <para>
-    /// <see cref="CreateLogger{T}(LogAttributes, bool)"/> and <see cref="CreateLogger(string, LogAttributes, bool)"/>
-    /// are helper methods for obtaining loggers.
+    /// <see cref="CreateLogger{T}(LogAttributes, bool, bool)"/>, <see cref="CreateLogger(Type, LogAttributes, bool, bool)"/>,
+    /// or <see cref="CreateLogger(string, LogAttributes, bool, bool)"/> are helper methods for obtaining loggers.
+    /// </para>
+    /// <para>
+    /// You can also set the <see cref="LogAttributes"/> property to attributes you'd like to include
+    /// in the loggers returned by the <c>CreateLogger()</c> methods.  This is a handy way to include
+    /// a common set of attributes with all logged events.
     /// </para>
     /// <para>
     /// The <see cref="ParseLogLevel(string, LogLevel)"/> utility can be used to parse a log level
@@ -78,16 +83,40 @@ namespace Neon.Diagnostics
         public static ILoggerFactory LoggerFactory { get; set; } = null;
 
         /// <summary>
+        /// Optionally holds any <see cref="LogAttributes"/> that will be added to <see cref="ILogger"/>
+        /// instances returned by <see cref="CreateLogger(string, LogAttributes, bool, bool)"/>, 
+        /// <see cref="CreateLogger(Type, LogAttributes, bool, bool)"/>, or <see cref="CreateLogger{T}(LogAttributes, bool, bool)"/>.
+        /// </summary>
+        public static LogAttributes Logttributes { get; set; } = null;
+
+        /// <summary>
         /// Returns an <see cref="ILogger"/> using the fully qualified name of the <typeparamref name="T"/>
         /// type as the logger's category name.
         /// </summary>
         /// <typeparam name="T">Identifies the type whose fully-qualified name is to be used as the logger's category name.</typeparam>
         /// <param name="attributes">Optionally specifies attributes to be included in every event logged.</param>
+        /// <param name="noAttributes">Optionally indicates that the <see cref="LogAttributes"/> <b>should not</b> be added to the logger returned.</param>
         /// <param name="nullLogger">Optionally specifies that a do-nothing logger should be returned.  This defaults to <c>false</c>.</param>
         /// <returns>The <see cref="ILogger"/>.</returns>
-        public static ILogger CreateLogger<T>(LogAttributes attributes = null, bool nullLogger = false)
+        public static ILogger CreateLogger<T>(LogAttributes attributes = null, bool noAttributes = false, bool nullLogger = false)
         {
-            return CreateLogger(typeof(T).FullName, attributes, nullLogger);
+            return CreateLogger(typeof(T).FullName, attributes, noAttributes, nullLogger);
+        }
+
+        /// <summary>
+        /// Returns an <see cref="ILogger"/> using the fully qualified name from <paramref name="type"/>.
+        /// type as the logger's category name.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="attributes">Optionally specifies attributes to be included in every event logged.</param>
+        /// <param name="noAttributes">Optionally indicates that the <see cref="LogAttributes"/> <b>should not</b> be added to the logger returned.</param>
+        /// <param name="nullLogger">Optionally specifies that a do-nothing logger should be returned.  This defaults to <c>false</c>.</param>
+        /// <returns>The <see cref="ILogger"/>.</returns>
+        public static ILogger CreateLogger(Type type, LogAttributes attributes = null, bool noAttributes = false, bool nullLogger = false)
+        {
+            Covenant.Requires<ArgumentNullException>(type != null, nameof(type));
+
+            return CreateLogger(type.FullName, attributes, noAttributes, nullLogger);
         }
 
         /// <summary>
@@ -95,9 +124,10 @@ namespace Neon.Diagnostics
         /// </summary>
         /// <param name="categoryName">Specifies the logger's category name.</param>
         /// <param name="attributes">Optionally specifies attributes to be included in every event logged.</param>
+        /// <param name="noAttributes">Optionally indicates that the <see cref="LogAttributes"/> <b>should not</b> be added to the logger returned.</param>
         /// <param name="nullLogger">Optionally specifies that a do-nothing logger should be returned.  This defaults to <c>false</c>.</param>
         /// <returns>The <see cref="ILogger"/>.</returns>
-        public static ILogger CreateLogger(string categoryName, LogAttributes attributes = null, bool nullLogger = false)
+        public static ILogger CreateLogger(string categoryName, LogAttributes attributes = null, bool noAttributes = false, bool nullLogger = false)
         {
             if (nullLogger)
             {
@@ -114,7 +144,7 @@ namespace Neon.Diagnostics
             {
                 var logger = LoggerFactory.CreateLogger(categoryName); ;
 
-                if (attributes != null && attributes.Count > 0)
+                if (!noAttributes && attributes != null && attributes.Count > 0)
                 {
                     logger = logger.AddAttributes(
                         _attributes =>
@@ -132,8 +162,8 @@ namespace Neon.Diagnostics
 
         /// <summary>
         /// Parses a <see cref="LogLevel"/> from a string and also sets the 
-        /// <b>Logging__LogLevel__Microsoft</b> environment variable which
-        /// is honored by any created <see cref="ILogger"/> instance.
+        /// <c>Logging__LogLevel__Microsoft</c> environment variable which
+        /// is honored by any created <see cref="ILogger"/> instances.
         /// </summary>
         /// <param name="input">The input string.</param>
         /// <param name="default">The default value to return when <paramref name="input"/> is <c>null</c> or invalid.</param>
