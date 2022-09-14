@@ -227,8 +227,8 @@ namespace Neon.Service
     /// the options to the <see cref="NeonService"/> constructor.
     /// </para>
     /// <para>
-    /// Your service can use the service's <see cref="Logger"/> property or call <see cref="TelemetryHub.CreateLogger{T}(LogAttributes, bool)"/>
-    /// or <see cref="TelemetryHub.CreateLogger(string, LogAttributes, bool)"/> create loggers 
+    /// Your service can use the service's <see cref="Logger"/> property or call <see cref="TelemetryHub.CreateLogger{T}(LogAttributes, bool, bool)"/>
+    /// or <see cref="TelemetryHub.CreateLogger(string, LogAttributes, bool, bool)"/> create loggers 
     /// you can use to log events.  We recommend that you add a <c>using Neon.Diagnostics;</c> 
     /// statement to your code and then use our <see cref="Neon.Diagnostics.LoggerExtensions"/> like:
     /// </para>
@@ -1108,8 +1108,8 @@ namespace Neon.Service
         /// Configured as the <see cref="ILogger"/> used by the service for logging.
         /// </para>
         /// <note>
-        /// You can create additional loggers via <see cref="TelemetryHub.CreateLogger(string, LogAttributes, bool)"/>
-        /// and <see cref="TelemetryHub.CreateLogger{T}(LogAttributes, bool)"/>.
+        /// You can create additional loggers via <see cref="TelemetryHub.CreateLogger(string, LogAttributes, bool, bool)"/>
+        /// and <see cref="TelemetryHub.CreateLogger{T}(LogAttributes, bool, bool)"/>.
         /// </note>
         /// </summary>
         public ILogger Logger { get; set; }
