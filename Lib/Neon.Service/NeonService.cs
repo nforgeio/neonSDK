@@ -321,7 +321,7 @@ namespace Neon.Service
     /// 
     /// ...
     /// 
-    /// using (activitySource.CreateActivity("my-activity", ActivityKind.Internal))
+    /// using (ActivitySource.CreateActivity("my-activity", ActivityKind.Internal))
     /// {
     ///     // Perform your operation.
     /// }

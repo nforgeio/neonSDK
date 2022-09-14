@@ -29,6 +29,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.Win32;
+using Neon.Windows;
 
 namespace Neon.Common
 {
@@ -46,6 +47,7 @@ namespace Neon.Common
         private static bool?            is64BitBuild;
         private static bool             isARM;
         private static CpuArchitecture? cpuArchitecture;
+        private static long?            memoryMib;
         private static bool?            isDevWorkstation;
         private static bool?            isMaintainer;
         private static bool?            isKubernetes;
@@ -70,7 +72,6 @@ namespace Neon.Common
                 isOSX                = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
                 isARM                = RuntimeInformation.OSArchitecture == Architecture.Arm ||
                                        RuntimeInformation.OSArchitecture == Architecture.Arm64;
-
                 if (isWindows)
                 {
                     // Examine registry to detect the Windows Edition.
@@ -169,6 +170,79 @@ namespace Neon.Common
                 }
 
                 return cpuArchitecture.Value;
+            }
+        }
+
+        /// <summary>
+        /// <para>
+        /// Returns the system RAM in MiB.
+        /// </para>
+        /// <note>
+        /// For applications running in containers, this will return information about
+        /// the RAM available to the container, not the host system RAM.
+        /// </note>
+        /// </summary>
+        public static long MemoryMib
+        {
+            get
+            {
+                if (memoryMib != null)
+                {
+                    return memoryMib.Value;
+                }
+
+                if (IsWindows)
+                {
+                    MEMORYSTATUSEX status = new MEMORYSTATUSEX();
+
+                    status.dwLength = (uint)Marshal.SizeOf(typeof(MEMORYSTATUSEX));
+
+                    if (!Win32.GlobalMemoryStatusEx(status))
+                    {
+                        throw new Exception("[Win32.GlobalMemoryStatusEx()] call failed.");
+                    }
+
+                    return (long)(status.ullTotalPhys/ByteUnits.MebiBytes);
+                }
+                else if (IsLinux || IsOSX)
+                {
+                    // We're going to get this by reading: /proc/meminfo
+
+                    var properties = new Dictionary<string, string>();
+
+                    using (var meminfoStream = new FileStream("/proc/meminfo", FileMode.Open, FileAccess.Read))
+                    {
+                        using (var reader = new StreamReader(meminfoStream))
+                        {
+                            foreach (var line in reader.Lines())
+                            {
+                                // Strip off any traling " kB"
+
+                                var fields = line.Split(':');
+                                var name   = fields[0];
+                                var value  = fields[1].Trim();
+
+                                if (value.EndsWith(" kB"))
+                                {
+                                    value = value.Substring(value.Length - 3);
+                                }
+
+                                properties.Add(name, value);
+                            }
+                        }
+                    }
+
+                    var memKbString = properties["MemTotal"];
+                    var memKb       = long.Parse(memKbString);
+
+                    memoryMib = memKb / 1024;
+
+                    return memoryMib.Value;
+                }
+                else
+                {
+                    throw new NotImplementedException();
+                }
             }
         }
 
