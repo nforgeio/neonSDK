@@ -37,7 +37,6 @@ COPY _common/*              /
 # Note that we used the [core-layers] tool to separate the binary files before
 # building the container.
 
-
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone \
     && sed -i 's!^#precedence ::ffff:0:0/96  10$!precedence ::ffff:0:0/96  100!g' /etc/gai.conf
 
