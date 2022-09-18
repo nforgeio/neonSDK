@@ -33,11 +33,21 @@ namespace Neon.Diagnostics
         /// <param name="span">The span.</param>
         /// <param name="name">The event name.</param>
         /// <param name="attributeSetter">The action that sets any tags.</param>
+        /// <remarks>
+        /// <note>
+        /// This method does nothing when the <paramref name="span"/> is not recording.
+        /// </note>
+        /// </remarks>
         public static void AddEvent(this TelemetrySpan span, string name, Action<SpanAttributes> attributeSetter)
         {
             Covenant.Requires<ArgumentNullException>(span != null, nameof(span));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(name), nameof(name));
             Covenant.Requires<ArgumentNullException>(attributeSetter != null, nameof(attributeSetter));
+
+            if (!span.IsRecording)
+            {
+                return;
+            }
 
             var attributes = new SpanAttributes();
 

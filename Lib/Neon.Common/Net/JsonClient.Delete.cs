@@ -46,7 +46,7 @@ namespace Neon.Net
         /// <summary>
         /// Performs an HTTP <b>DELETE</b> ensuring that a success code was returned.
         /// </summary>
-        /// <param name="uri">The URI</param>
+        /// <param name="uri">The target URI.</param>
         /// <param name="args">The optional query arguments.</param>
         /// <param name="headers">The Optional HTTP headers.</param>
         /// <param name="cancellationToken">The optional <see cref="CancellationToken"/>.</param>
@@ -94,7 +94,7 @@ namespace Neon.Net
         /// Performs an HTTP <b>DELETE</b> returning a specific type and ensuring that a success cxode was returned.
         /// </summary>
         /// <typeparam name="TResult">The desired result type.</typeparam>
-        /// <param name="uri">The URI</param>
+        /// <param name="uri">The target URI.</param>
         /// <param name="args">The optional query arguments.</param>
         /// <param name="headers">The Optional HTTP headers.</param>
         /// <param name="cancellationToken">The optional <see cref="CancellationToken"/>.</param>
@@ -145,7 +145,7 @@ namespace Neon.Net
         /// that a success code was returned.
         /// </summary>
         /// <param name="retryPolicy">The retry policy or <c>null</c> to disable retries.</param>
-        /// <param name="uri">The URI</param>
+        /// <param name="uri">The target URI.</param>
         /// <param name="args">The optional query arguments.</param>
         /// <param name="headers">The Optional HTTP headers.</param>
         /// <param name="cancellationToken">The optional <see cref="CancellationToken"/>.</param>
@@ -195,7 +195,7 @@ namespace Neon.Net
         /// <summary>
         /// Performs an HTTP <b>DELETE</b> without ensuring that a success code was returned.
         /// </summary>
-        /// <param name="uri">The URI</param>
+        /// <param name="uri">The target URI.</param>
         /// <param name="args">The optional query arguments.</param>
         /// <param name="headers">The Optional HTTP headers.</param>
         /// <param name="cancellationToken">The optional <see cref="CancellationToken"/>.</param>
@@ -240,7 +240,7 @@ namespace Neon.Net
         /// that a success code was returned.
         /// </summary>
         /// <param name="retryPolicy">The retry policy or <c>null</c> to disable retries.</param>
-        /// <param name="uri">The URI</param>
+        /// <param name="uri">The target URI.</param>
         /// <param name="args">The optional query arguments.</param>
         /// <param name="headers">The Optional HTTP headers.</param>
         /// <param name="cancellationToken">The optional <see cref="CancellationToken"/>.</param>
