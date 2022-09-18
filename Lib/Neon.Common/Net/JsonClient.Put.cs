@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Dynamic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -46,8 +47,12 @@ namespace Neon.Net
         /// <summary>
         /// Performs an HTTP <b>PUT</b> ensuring that a success code was returned.
         /// </summary>
-        /// <param name="uri">The URI</param>
-        /// <param name="document">The optional object to be uploaded as the request payload.</param>
+        /// <param name="uri">The target URI.</param>
+        /// <param name="document">
+        /// The optional object to be uploaded as the request payload.  This may be JSON text, a plain
+        /// old object that will be serialized as JSON or a <see cref="StreamDocument"/> to upload body
+        /// data from a <see cref="Stream"/>.
+        /// </param>
         /// <param name="args">The optional query arguments.</param>
         /// <param name="headers">The Optional HTTP headers.</param>
         /// <param name="cancellationToken">The optional <see cref="CancellationToken"/>.</param>
@@ -96,8 +101,12 @@ namespace Neon.Net
         /// Performs an HTTP <b>PUT</b> returning a specific type and ensuring that a success code was returned.
         /// </summary>
         /// <typeparam name="TResult">The desired result type.</typeparam>
-        /// <param name="uri">The URI</param>
-        /// <param name="document">The optional object to be uploaded as the request payload.</param>
+        /// <param name="uri">The target URI.</param>
+        /// <param name="document">
+        /// The optional object to be uploaded as the request payload.  This may be JSON text, a plain
+        /// old object that will be serialized as JSON or a <see cref="StreamDocument"/> to upload body
+        /// data from a <see cref="Stream"/>.
+        /// </param>
         /// <param name="args">The optional query arguments.</param>
         /// <param name="headers">The Optional HTTP headers.</param>
         /// <param name="cancellationToken">The optional <see cref="CancellationToken"/>.</param>
@@ -149,8 +158,12 @@ namespace Neon.Net
         /// success code was returned.
         /// </summary>
         /// <param name="retryPolicy">The retry policy or <c>null</c> to disable retries.</param>
-        /// <param name="uri">The URI</param>
-        /// <param name="document">The optional object to be uploaded as the request payload.</param>
+        /// <param name="uri">The target URI.</param>
+        /// <param name="document">
+        /// The optional object to be uploaded as the request payload.  This may be JSON text, a plain
+        /// old object that will be serialized as JSON or a <see cref="StreamDocument"/> to upload body
+        /// data from a <see cref="Stream"/>.
+        /// </param>
         /// <param name="args">The optional query arguments.</param>
         /// <param name="headers">The Optional HTTP headers.</param>
         /// <param name="cancellationToken">The optional <see cref="CancellationToken"/>.</param>
@@ -201,8 +214,12 @@ namespace Neon.Net
         /// <summary>
         /// Performs an HTTP <b>PUT</b> without ensuring that a success code was returned.
         /// </summary>
-        /// <param name="uri">The URI</param>
-        /// <param name="document">The optional object to be uploaded as the request payload.</param>
+        /// <param name="uri">The target URI.</param>
+        /// <param name="document">
+        /// The optional object to be uploaded as the request payload.  This may be JSON text, a plain
+        /// old object that will be serialized as JSON or a <see cref="StreamDocument"/> to upload body
+        /// data from a <see cref="Stream"/>.
+        /// </param>
         /// <param name="args">The optional query arguments.</param>
         /// <param name="headers">The Optional HTTP headers.</param>
         /// <param name="cancellationToken">The optional <see cref="CancellationToken"/>.</param>
@@ -248,8 +265,12 @@ namespace Neon.Net
         /// ensuring that a success code was returned.
         /// </summary>
         /// <param name="retryPolicy">The retry policy or <c>null</c> to disable retries.</param>
-        /// <param name="uri">The URI</param>
-        /// <param name="document">The optional object to be uploaded as the request payload.</param>
+        /// <param name="uri">The target URI.</param>
+        /// <param name="document">
+        /// The optional object to be uploaded as the request payload.  This may be JSON text, a plain
+        /// old object that will be serialized as JSON or a <see cref="StreamDocument"/> to upload body
+        /// data from a <see cref="Stream"/>.
+        /// </param>
         /// <param name="args">The optional query arguments.</param>
         /// <param name="headers">The Optional HTTP headers.</param>
         /// <param name="cancellationToken">The optional <see cref="CancellationToken"/>.</param>

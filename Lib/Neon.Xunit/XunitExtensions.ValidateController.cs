@@ -28,6 +28,7 @@ using Neon.ModelGen;
 using Neon.Common;
 using Neon.Data;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace Neon.Xunit
 {
@@ -547,6 +548,15 @@ namespace Neon.Xunit
                     {
                         continue;
                     }
+                }
+
+                if (firstParam && parameter.ParameterType.Implements<IStream>())
+                {
+                    // Ignore the first parameter when it's an [IStream] because the special
+                    // stream parameter generated for [BodyStream] tagged methods don't count
+                    // against the method signature.
+
+                    continue;
                 }
 
                 if (firstParam)

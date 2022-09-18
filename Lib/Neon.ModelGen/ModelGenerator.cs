@@ -825,6 +825,9 @@ namespace Neon.ModelGen
             // Ensure that all service method parameter and result types are either
             // a primitive .NET type, a supported types implemented within [mscorlib] 
             // or reference a loaded data model.
+            //
+            // We're also going to verify that no methods include both [FromBody] and
+            // [BodyStream] attributes (which wouldn't make any sense).
 
             foreach (var serviceModel in nameToServiceModel.Values)
             {
@@ -841,8 +844,17 @@ namespace Neon.ModelGen
                     {
                         if (!IsValidMethodType(parameter.ParameterInfo.ParameterType, parameter.Pass))
                         {
-                            Output.Error($"[{serviceModel.SourceType.FullName}]: Service model [{method.MethodInfo.Name}] has argument [{parameter.Name}:{parameter.ParameterInfo.ParameterType.FullName}] whose type is not a defined data model.");
+                            Output.Error($"[{serviceModel.SourceType.FullName}]: Service model [{method.MethodInfo.Name}] method has argument [{parameter.Name}:{parameter.ParameterInfo.ParameterType.FullName}] whose type is not a defined data model.");
                         }
+                    }
+
+                    // Verify that the method doesn't include both [FromBody] and [BodyStream]
+                    // attributes.
+
+                    if (method.MethodInfo.GetCustomAttribute<FromBodyAttribute>() != null &&
+                        method.MethodInfo.GetCustomAttribute<BodyStreamAttribute>() != null)
+                    {
+                        Output.Error($"[{serviceModel.SourceType.FullName}]: Service model [{method.MethodInfo.Name}] method is tagged with [FromBody] and [BodyStream] which is not allowed.");
                     }
                 }
             }
@@ -2589,8 +2601,9 @@ namespace Neon.ModelGen
                 Output.Error($"Service method [{serviceMethod.ServiceModel.SourceType.Name}.{serviceMethod.Name}(...)] returns unsupported type [{serviceMethod.MethodInfo.ReturnType}].");
             }
 
-            var parameters    = serviceMethod.Parameters;
-            var bodyParameter = parameters.FirstOrDefault(parameter => parameter.Pass == Pass.AsBody);
+            var parameters          = serviceMethod.Parameters;
+            var bodyParameter       = parameters.FirstOrDefault(parameter => parameter.Pass == Pass.AsBody);
+            var bodyStreamAttribute = serviceMethod.MethodInfo.GetCustomAttribute<BodyStreamAttribute>();
 
             //-----------------------------------------------------------------
             // Common code that applies to both of the generated [safe] and [unsafe] methods.
@@ -2599,6 +2612,11 @@ namespace Neon.ModelGen
 
             var argSeparator = ", ";
             var sbParameters = new StringBuilder();
+
+            if (bodyStreamAttribute != null)
+            {
+                sbParameters.AppendWithSeparator($"Stream stream", argSeparator);
+            }
 
             foreach (var parameter in serviceMethod.Parameters)
             {
@@ -2900,6 +2918,10 @@ namespace Neon.ModelGen
             {
                 sbArguments.AppendWithSeparator($"document: RoundtripDataHelper.Serialize({bodyParameter.Name})", argSeparator);
             }
+            else if (bodyStreamAttribute != null)
+            {
+                sbArguments.AppendWithSeparator($"document: new StreamDocument(stream) {{ ContentType = \"{ bodyStreamAttribute.ContentType }\", BufferSize = {bodyStreamAttribute.BufferSize} }}", argSeparator);
+            }
 
             if (queryParameters.Count > 0 || apiVersion != null)
             {
@@ -2913,9 +2935,8 @@ namespace Neon.ModelGen
 
             sbArguments.AppendWithSeparator("cancellationToken: _cancellationToken", argSeparator);
 
-            // Generate the safe and unsafe query method names and 
-            // verify that each method actually supports sending
-            // any [FromBody] object.
+            // Generate the safe and unsafe query method names and verify that each method actually
+            // supports sending any [FromBody] object.
 
             var methodReturnsContent = true;
             var safeQueryMethod      = string.Empty;
@@ -3048,6 +3069,11 @@ namespace Neon.ModelGen
             writer.WriteLine($"{indent}        {{");
             writer.WriteLine($"{indent}            await SyncContext.Clear;");
 
+            if (bodyStreamAttribute != null)
+            {
+                writer.WriteLine($"{indent}            Covenant.Requires<ArgumentNullException>(stream != null, nameof(stream));");
+            }
+
             if (sbArgGenerate.Length > 0)
             {
                 writer.WriteLine(sbArgGenerate);
@@ -3084,6 +3110,11 @@ namespace Neon.ModelGen
             writer.WriteLine($"{indent}        public async Task<JsonResponse> Unsafe{methodName}({sbParameters})");
             writer.WriteLine($"{indent}        {{");
             writer.WriteLine($"{indent}            await SyncContext.Clear;");
+
+            if (bodyStreamAttribute != null)
+            {
+                writer.WriteLine($"{indent}            Covenant.Requires<ArgumentNullException>(stream != null, nameof(stream));");
+            }
 
             if (sbArgGenerate.Length > 0)
             {

@@ -309,6 +309,11 @@ namespace Test.Neon.Models.Definitions
         //[HttpGet]
         //[Route("EchoDateTime")]
         //DateTime EchoDateTime([FromQuery] DateTime date);
+
+        [HttpPut]
+        [Route("PutStreamAsBody")]
+        [BodyStream]
+        byte[] PutStreamAsBody();
     }
 
     [ServiceModel]
@@ -410,6 +415,11 @@ namespace Test.Neon.Models.Definitions
         //[HttpGet]
         //[Route("EchoDateTime")]
         //DateTime EchoDateTime([FromQuery] DateTime date);
+
+        [HttpPut]
+        [Route("PutStreamAsBody")]
+        [BodyStream]
+        byte[] PutStreamAsBody();
     }
 
     [ServiceModel]
