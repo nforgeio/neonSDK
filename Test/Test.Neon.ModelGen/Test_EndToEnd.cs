@@ -41,6 +41,7 @@ using Test.Neon.Models;
 
 using Xunit;
 using Xunit.Abstractions;
+using System.Diagnostics.Contracts;
 
 namespace TestModelGen.AspNet
 {
@@ -263,6 +264,17 @@ namespace TestModelGen.AspNet
         //{
         //    return date;
         //}
+
+        [HttpPut]
+        [Route("PutStreamAsBody")]
+        public async Task<byte[]> PutStreamAsBody()
+        {
+            var memStream = new MemoryStream();
+
+            await Request.Body.CopyToAsync(memStream);
+
+            return memStream.ToArray();
+        }
     }
 
     public class Startup
@@ -423,6 +435,23 @@ namespace TestModelGen.AspNet
             Assert.Equal("Jeff", modified.Name);
             Assert.Equal(59, modified.Age);
             Assert.Equal(Gender.Male, modified.Gender);
+        }
+
+        [Fact]
+        public async Task PutStream()
+        {
+            var inputString = "Hello World!";
+
+            using (var memStream = new MemoryStream())
+            {
+                memStream.Write(Encoding.UTF8.GetBytes(inputString));
+                memStream.Position = 0;
+
+                var outputBytes  = await client.PutStreamAsBodyAsync(memStream);
+                var outputString = Encoding.UTF8.GetString(outputBytes);
+
+                Assert.Equal(inputString, outputString);
+            }
         }
 
         [Fact]

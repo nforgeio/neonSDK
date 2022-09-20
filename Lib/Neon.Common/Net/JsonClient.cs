@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Dynamic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -344,13 +345,39 @@ namespace Neon.Net
         /// as described in the <see cref="JsonClient"/> remarks.
         /// </note>
         /// </summary>
-        /// <param name="document">The document object or JSON text.</param>
+        /// <param name="document">
+        /// The optional object to be uploaded as the request payload.  This may be JSON text, a plain
+        /// old object that will be serialized as JSON or a <see cref="StreamDocument"/> to upload body
+        /// data from a <see cref="Stream"/>.
+        /// </param>
+        /// <param name="stream">
+        /// Optionally passed as the <see cref="Stream"/> being uploaded as the body.  If this stream
+        /// supports <see cref="Stream.CanSeek"/> then this method will compute the number of bytes
+        /// that will be uploaded and add a <b>Content-Length</b> header to the request when <paramref name="document"/>
+        /// is a <see cref="StreamDocument"/>.
+        /// </param>
         /// <returns>Tne <see cref="HttpContent"/>.</returns>
-        private HttpContent CreateContent(object document)
+        private HttpContent CreateContent(object document, Stream stream = null)
         {
             if (document == null)
             {
                 return null;
+            }
+
+            var streamDoc = document as StreamDocument;
+
+            if (streamDoc != null)
+            {
+                var content = new StreamContent(streamDoc.Stream, streamDoc.BufferSize);
+
+                content.Headers.ContentType = new MediaTypeHeaderValue(streamDoc.ContentType);
+
+                if (stream != null && stream.CanSeek)
+                {
+                    content.Headers.ContentLength = stream.Length - stream.Position;
+                }
+
+                return content;
             }
 
             var custom = document as JsonClientPayload;
