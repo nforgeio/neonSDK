@@ -17,13 +17,6 @@ param
 $appname      = "aspnet"
 $organization = SdkRegistryOrg
 
-# Copy the common scripts.
-
-DeleteFolder _common
-
-mkdir _common
-copy ..\_common\*.* .\_common
-
 # Build the image.
 
 $result = Invoke-CaptureStreams "docker build -t ${registry}:${version} --build-arg `"APPNAME=$appname`" --build-arg VERSION=$version ." -interleave
