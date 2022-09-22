@@ -68,10 +68,18 @@ function Build
 
 $noImagePush = $nopush
 
-if ($allVersions)
+try
 {
-	Build "6.0.9-jammy-amd64" -latest
+	if ($allVersions)
+	{
+		Build "6.0.9-jammy-amd64" -latest
+		Build "6.0.9-jammy-amd64" -latest
+	}
+
 	Build "6.0.9-jammy-amd64" -latest
 }
-
-Build "6.0.9-jammy-amd64" -latest
+catch
+{
+	Write-Exception $_
+	exit 1
+}

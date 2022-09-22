@@ -62,9 +62,17 @@ function Build
 
 $noImagePush = $nopush
 
-if ($allVersions)
+try
 {
-}
+	if ($allVersions)
+	{
+	}
 
-Build "1"
-Build "2" -latest
+	Build "1"
+	Build "2" -latest
+}
+catch
+{
+	Write-Exception $_
+	exit 1
+}
