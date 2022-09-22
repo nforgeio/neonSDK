@@ -152,7 +152,7 @@ REM smart enough to only add directories that actually exist.
 %NF_TOOLBIN%\pathtool -dedup -system -add "%ProgramFiles%\WinSCP"
 %NF_TOOLBIN%\pathtool -dedup -system -add "%ProgramFiles(x86)%\WinSCP"
 
-REM Perform additional implementation in via Powershell.
+REM Perform additional implementation via Powershell.
 
 pwsh -File "%NF_ROOT%\buildenv.ps1"
 
