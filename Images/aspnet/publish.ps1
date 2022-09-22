@@ -72,8 +72,6 @@ try
 {
 	if ($allVersions)
 	{
-		Build "6.0.9-jammy-amd64" -latest
-		Build "6.0.9-jammy-amd64" -latest
 	}
 
 	Build "6.0.9-jammy-amd64" -latest
