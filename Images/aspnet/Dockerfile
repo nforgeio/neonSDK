@@ -28,8 +28,6 @@ ENV DEBIAN_FRONTEND noninteractive
 ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
 ENV DOTNET_GCConserveMemory=7
 
-COPY _common/*              /
-
 # Add the application files in two layers.  The first will contain the dependencies
 # and the second will contain the application files.  This should result in more
 # efficient images because depdencies tend to be more stable than application files.

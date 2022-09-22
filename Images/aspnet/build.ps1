@@ -24,4 +24,3 @@ $result = Invoke-CaptureStreams "docker build -t ${registry}:${version} --build-
 # Clean up
 
 DeleteFolder bin
-DeleteFolder _common

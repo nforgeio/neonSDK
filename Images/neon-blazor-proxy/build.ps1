@@ -21,7 +21,7 @@ $organization = SdkRegistryOrg
 
 DeleteFolder bin
 
-mkdir bin
+$result = mkdir bin
 ThrowOnExitCode
 
 dotnet publish "$nfServices\$appname\$appname.csproj" -c Release -o "$pwd\bin"

@@ -184,7 +184,7 @@ try
 
     if ($base)
     {
-        # Base images: it's lonely here!
+        Publish "$image_root\aspnet"
     }
 
     if ($other)
