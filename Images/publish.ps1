@@ -129,7 +129,7 @@ try
     $nfLib          = "$nfRoot\Lib"
     $nfTools        = "$nfRoot\Tools"
     $nfToolBin      = "$nfRoot\ToolBin"
-    $neonSdkVersio  = $(& "$nfToolBin\neon-build" read-version "$nfLib/Neon.Common/Build.cs" NeonSdkVersion)
+    $neonSdkVersion = $(& "$nfToolBin\neon-build" read-version "$nfLib/Neon.Common/Build.cs" NeonSdkVersion)
 
     # We need to do a release solution build to ensure that any tools or other
     # dependencies are built before we build and publish the individual packages.

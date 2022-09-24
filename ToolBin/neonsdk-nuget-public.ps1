@@ -78,7 +78,7 @@ function Publish
 
     $projectPath = [io.path]::combine($env:NF_ROOT, "Lib", "$project", "$project" + ".csproj")
 
-	dotnet pack $projectPath -c Release -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg -o "$env:NF_BUILD\nuget"
+	dotnet pack $projectPath -c $config -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg -o "$env:NF_BUILD\nuget"
     ThrowOnExitCode
 
     if (Test-Path "$env:NF_ROOT\Lib\$project\prerelease.txt")
@@ -100,6 +100,10 @@ function Publish
     ThrowOnExitCode
 }
 
+# We're going to build the RELEASE configuration.
+
+$config = "Release"
+
 # Load the library and neonKUBE versions.
 
 $msbuild        = $env:MSBUILDPATH
@@ -109,7 +113,7 @@ $nfBuild        = "$env:NF_BUILD"
 $nfLib          = "$nfRoot\Lib"
 $nfTools        = "$nfRoot\Tools"
 $nfToolBin      = "$nfRoot\ToolBin"
-$neonSdkVersio  = $(& "$nfToolBin\neon-build" read-version "$nfLib/Neon.Common/Build.cs" NeonSdkVersion)
+$neonSdkVersion = $(& "$nfToolBin\neon-build" read-version "$nfLib/Neon.Common/Build.cs" NeonSdkVersion)
 
 # We need to do a release solution build to ensure that any tools or other
 # dependencies are built before we build and publish the individual packages.
@@ -120,7 +124,7 @@ Write-Info "***                            CLEAN SOLUTION                       
 Write-Info "********************************************************************************"
 Write-Info ""
 
-& "$msbuild" "$nfSolution" $buildConfig -t:Clean -m -verbosity:quiet
+& "$msbuild" "$nfSolution" -p:Configuration=$config -t:Clean -m -verbosity:quiet
 
 if (-not $?)
 {
@@ -141,7 +145,7 @@ Write-Info  "***                           BUILD SOLUTION                       
 Write-Info  "*******************************************************************************"
 Write-Info  ""
 
-& "$msbuild" "$nfSolution" -p:Configuration=Release -restore -m -verbosity:quiet
+& "$msbuild" "$nfSolution" -p:Configuration=$config -restore -m -verbosity:quiet
 
 if (-not $?)
 {

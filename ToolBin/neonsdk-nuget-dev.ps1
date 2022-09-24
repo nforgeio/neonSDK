@@ -100,7 +100,7 @@ if (!(Test-Path env:NC_ROOT))
 
 Request-AdminPermissions
 
-# We're going to build the Debug configuration so debugging will be easier.
+# We're going to build the DEBUG configuration for DEV packages so debugging will be easier.
 
 $config = "Debug"
 
@@ -290,7 +290,7 @@ Write-Info "***                            CLEAN SOLUTION                       
 Write-Info "********************************************************************************"
 Write-Info ""
 
-& "$msbuild" "$nfSolution" $buildConfig -t:Clean -m -verbosity:quiet
+& "$msbuild" "$nfSolution" -p:Configuration=$config -t:Clean -m -verbosity:quiet
 
 if (-not $?)
 {
