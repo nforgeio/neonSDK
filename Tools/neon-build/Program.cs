@@ -30,7 +30,7 @@ namespace NeonBuild
     /// </summary>
     public static partial class Program
     {
-        private const string version = "1.8";
+        private const string version = "1.9";
 
         private static readonly string usage =
 $@"
@@ -415,7 +415,7 @@ ARGUMENTS:
 
                         // Delete matching files.
 
-                        var globPattern = GlobPattern.Parse($"{targetFolder}/obj/**/*.cs", caseInsensitive: true);
+                        var globPattern = GlobPattern.Parse($"{targetFolder}/**/obj/**/*.cs", caseInsensitive: true);
 
                         foreach (var file in Directory.GetFiles(targetFolder, "*.cs", SearchOption.AllDirectories))
                         {
