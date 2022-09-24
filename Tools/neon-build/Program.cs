@@ -30,7 +30,7 @@ namespace NeonBuild
     /// </summary>
     public static partial class Program
     {
-        private const string version = "1.7";
+        private const string version = "1.8";
 
         private static readonly string usage =
 $@"
@@ -57,13 +57,16 @@ OPTIONS:
     --all           - Clears the [Build-cache] folder too.
 
 ---------------------------------------------------------------------
-neon-build clean-generated-cs PROJECT-ROOT
+neon-build clean-generated-cs TARGET-FOLDER
 
-Deletes any [**/obj/**/*.cs] files present in the project.  These files are generated
-for projects by custom build targets and may result in duplicate symbol definition
-compiler errors because the C# compiler include these for all build configurations, 
-not just the current config and unfortunately, solution-clean doesn't remove these
-files either.
+Deletes any [**/obj/**/*.cs] files present in a project or solution.
+
+Pass TARGET-FOLDER as the directory holding the project or solution.
+
+These files are generated for projects by custom build targets and may result in duplicate
+symbol definition compiler errors because the C# compiler include these for all build
+configurations, not just the current config and unfortunately, cleaning the solution or
+project doesn't remove these files either.
 
 ---------------------------------------------------------------------
 neon-build gzip SOURCE TARGET
@@ -387,34 +390,34 @@ ARGUMENTS:
 
                     case "clean-generated-cs":
 
-                        var projectRoot = commandLine.Arguments.ElementAtOrDefault(1);
+                        var targetFolder = commandLine.Arguments.ElementAtOrDefault(1);
 
                         // Remove any trailing "/" or "\\".
 
-                        if (projectRoot.EndsWith('/') || projectRoot.EndsWith("\\"))
+                        if (targetFolder.EndsWith('/') || targetFolder.EndsWith("\\"))
                         {
-                            projectRoot = projectRoot.Substring(0, projectRoot.Length - 1);
+                            targetFolder = targetFolder.Substring(0, targetFolder.Length - 1);
                         }
 
-                        if (string.IsNullOrEmpty(projectRoot))
+                        if (string.IsNullOrEmpty(targetFolder))
                         {
-                            Console.Error.WriteLine("*** ERROR: PROJECT-ROOT argument is required.");
+                            Console.Error.WriteLine("*** ERROR: TARGET-FOLDER argument is required.");
                             Program.Exit(1);
                         }
 
                         // $hack(jefflill): Remove any double quotes (I'm not sure why these are being added to the EXEC args).
 
-                        projectRoot = projectRoot.Replace("\"", string.Empty);
+                        targetFolder = targetFolder.Replace("\"", string.Empty);
 
                         // Normalize backslashes to forward slashes.
 
-                        projectRoot = projectRoot.Replace("\\", "/");
+                        targetFolder = targetFolder.Replace("\\", "/");
 
                         // Delete matching files.
 
-                        var globPattern = GlobPattern.Parse($"{projectRoot}/obj/**/*.cs", caseInsensitive: true);
+                        var globPattern = GlobPattern.Parse($"{targetFolder}/obj/**/*.cs", caseInsensitive: true);
 
-                        foreach (var file in Directory.GetFiles(projectRoot, "*.cs", SearchOption.AllDirectories))
+                        foreach (var file in Directory.GetFiles(targetFolder, "*.cs", SearchOption.AllDirectories))
                         {
                             if (globPattern.IsMatch(file.Replace("\\", "/")))
                             {
@@ -424,7 +427,7 @@ ARGUMENTS:
                                 }
                                 catch
                                 {
-                                    // It seems that sometimes these files can be open at times (perhaps
+                                    // It seems that sometimes these files can be open at times, perhaps
                                     // when another build task is generating them or perhaps an analyzer
                                     // has it open.
                                     //

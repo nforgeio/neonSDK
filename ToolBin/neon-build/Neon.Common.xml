@@ -5993,6 +5993,17 @@
             Returns the current CPU architecture.
             </summary>
         </member>
+        <member name="P:Neon.Common.NeonHelper.MemoryMib">
+            <summary>
+            <para>
+            Returns the system RAM in MiB.
+            </para>
+            <note>
+            For applications running in containers, this will return information about
+            the RAM available to the container, not the host system RAM.
+            </note>
+            </summary>
+        </member>
         <member name="P:Neon.Common.NeonHelper.FrameworkDescription">
             <summary>
             Returns the .NET runtime description.
@@ -9916,11 +9927,16 @@
             </para>
             <note>
             The <b>Neon.Service.NeonService</b> class initializes these properties by default when
-            used by programs.
+            used by applications based on this class.
             </note>
             <para>
-            <see cref="M:Neon.Diagnostics.TelemetryHub.CreateLogger``1(Neon.Diagnostics.LogAttributes,System.Boolean)"/> and <see cref="M:Neon.Diagnostics.TelemetryHub.CreateLogger(System.String,Neon.Diagnostics.LogAttributes,System.Boolean)"/>
-            are helper methods for obtaining loggers.
+            <see cref="M:Neon.Diagnostics.TelemetryHub.CreateLogger``1(Neon.Diagnostics.LogAttributes,System.Boolean,System.Boolean)"/>, <see cref="M:Neon.Diagnostics.TelemetryHub.CreateLogger(System.Type,Neon.Diagnostics.LogAttributes,System.Boolean,System.Boolean)"/>,
+            or <see cref="M:Neon.Diagnostics.TelemetryHub.CreateLogger(System.String,Neon.Diagnostics.LogAttributes,System.Boolean,System.Boolean)"/> are helper methods for obtaining loggers.
+            </para>
+            <para>
+            You can also set the <see cref="T:Neon.Diagnostics.LogAttributes"/> property to attributes you'd like to include
+            in the loggers returned by the <c>CreateLogger()</c> methods.  This is a handy way to include
+            a common set of attributes with all logged events.
             </para>
             <para>
             The <see cref="M:Neon.Diagnostics.TelemetryHub.ParseLogLevel(System.String,Microsoft.Extensions.Logging.LogLevel)"/> utility can be used to parse a log level
@@ -9944,30 +9960,50 @@
             logs by default.  Programs should set this after configuring logging.
             </summary>
         </member>
-        <member name="M:Neon.Diagnostics.TelemetryHub.CreateLogger``1(Neon.Diagnostics.LogAttributes,System.Boolean)">
+        <member name="P:Neon.Diagnostics.TelemetryHub.LogAttributes">
+            <summary>
+            Optionally holds any <see cref="T:Neon.Diagnostics.LogAttributes"/> that will be added to <see cref="T:Microsoft.Extensions.Logging.ILogger"/>
+            instances returned by <see cref="M:Neon.Diagnostics.TelemetryHub.CreateLogger(System.String,Neon.Diagnostics.LogAttributes,System.Boolean,System.Boolean)"/>, 
+            <see cref="M:Neon.Diagnostics.TelemetryHub.CreateLogger(System.Type,Neon.Diagnostics.LogAttributes,System.Boolean,System.Boolean)"/>, or <see cref="M:Neon.Diagnostics.TelemetryHub.CreateLogger``1(Neon.Diagnostics.LogAttributes,System.Boolean,System.Boolean)"/>.
+            </summary>
+        </member>
+        <member name="M:Neon.Diagnostics.TelemetryHub.CreateLogger``1(Neon.Diagnostics.LogAttributes,System.Boolean,System.Boolean)">
             <summary>
             Returns an <see cref="T:Microsoft.Extensions.Logging.ILogger"/> using the fully qualified name of the <typeparamref name="T"/>
             type as the logger's category name.
             </summary>
             <typeparam name="T">Identifies the type whose fully-qualified name is to be used as the logger's category name.</typeparam>
             <param name="attributes">Optionally specifies attributes to be included in every event logged.</param>
+            <param name="noAttributes">Optionally indicates that the <see cref="T:Neon.Diagnostics.LogAttributes"/> <b>should not</b> be added to the logger returned.</param>
             <param name="nullLogger">Optionally specifies that a do-nothing logger should be returned.  This defaults to <c>false</c>.</param>
             <returns>The <see cref="T:Microsoft.Extensions.Logging.ILogger"/>.</returns>
         </member>
-        <member name="M:Neon.Diagnostics.TelemetryHub.CreateLogger(System.String,Neon.Diagnostics.LogAttributes,System.Boolean)">
+        <member name="M:Neon.Diagnostics.TelemetryHub.CreateLogger(System.Type,Neon.Diagnostics.LogAttributes,System.Boolean,System.Boolean)">
+            <summary>
+            Returns an <see cref="T:Microsoft.Extensions.Logging.ILogger"/> using the fully qualified name from <paramref name="type"/>.
+            type as the logger's category name.
+            </summary>
+            <param name="type"></param>
+            <param name="attributes">Optionally specifies attributes to be included in every event logged.</param>
+            <param name="noAttributes">Optionally indicates that the <see cref="T:Neon.Diagnostics.LogAttributes"/> <b>should not</b> be added to the logger returned.</param>
+            <param name="nullLogger">Optionally specifies that a do-nothing logger should be returned.  This defaults to <c>false</c>.</param>
+            <returns>The <see cref="T:Microsoft.Extensions.Logging.ILogger"/>.</returns>
+        </member>
+        <member name="M:Neon.Diagnostics.TelemetryHub.CreateLogger(System.String,Neon.Diagnostics.LogAttributes,System.Boolean,System.Boolean)">
             <summary>
             Returns an <see cref="T:Microsoft.Extensions.Logging.ILogger"/> using the category name passed.
             </summary>
             <param name="categoryName">Specifies the logger's category name.</param>
             <param name="attributes">Optionally specifies attributes to be included in every event logged.</param>
+            <param name="noAttributes">Optionally indicates that the <see cref="T:Neon.Diagnostics.LogAttributes"/> <b>should not</b> be added to the logger returned.</param>
             <param name="nullLogger">Optionally specifies that a do-nothing logger should be returned.  This defaults to <c>false</c>.</param>
             <returns>The <see cref="T:Microsoft.Extensions.Logging.ILogger"/>.</returns>
         </member>
         <member name="M:Neon.Diagnostics.TelemetryHub.ParseLogLevel(System.String,Microsoft.Extensions.Logging.LogLevel)">
             <summary>
             Parses a <see cref="T:Microsoft.Extensions.Logging.LogLevel"/> from a string and also sets the 
-            <b>Logging__LogLevel__Microsoft</b> environment variable which
-            is honored by any created <see cref="T:Microsoft.Extensions.Logging.ILogger"/> instance.
+            <c>Logging__LogLevel__Microsoft</c> environment variable which
+            is honored by any created <see cref="T:Microsoft.Extensions.Logging.ILogger"/> instances.
             </summary>
             <param name="input">The input string.</param>
             <param name="default">The default value to return when <paramref name="input"/> is <c>null</c> or invalid.</param>
@@ -9990,6 +10026,24 @@
             The trace event originated as a logged event that was also emitted as trace
             event, probably via <see cref="T:Neon.Diagnostics.LogAsTraceProcessor"/> or a 
             </summary>
+        </member>
+        <member name="T:Neon.Diagnostics.TelemetrySpanExtensions">
+            <summary>
+            Extends the <see cref="T:OpenTelemetry.Trace.TelemetrySpan"/> class.
+            </summary>
+        </member>
+        <member name="M:Neon.Diagnostics.TelemetrySpanExtensions.AddEvent(OpenTelemetry.Trace.TelemetrySpan,System.String,System.Action{OpenTelemetry.Trace.SpanAttributes})">
+            <summary>
+            Adds an event with tags ti a <see cref="T:OpenTelemetry.Trace.TelemetrySpan"/>.
+            </summary>
+            <param name="span">The span.</param>
+            <param name="name">The event name.</param>
+            <param name="attributeSetter">The action that sets any tags.</param>
+            <remarks>
+            <note>
+            This method does nothing when the <paramref name="span"/> is not recording.
+            </note>
+            </remarks>
         </member>
         <member name="T:Neon.IO.BlockStream">
             <summary>
@@ -11695,6 +11749,159 @@
             </summary>
             <typeparam name="T">The type being returned.</typeparam>
         </member>
+        <member name="T:Neon.ModelGen.ApiVersion">
+            <summary>
+            Used to manage an API version.
+            </summary>
+        </member>
+        <member name="M:Neon.ModelGen.ApiVersion.Parse(System.String)">
+            <summary>
+            Parses a <see cref="T:Neon.ModelGen.ApiVersion"/>.
+            </summary>
+            <param name="version">The version string,</param>
+            <returns>The parsed <see cref="T:Neon.ModelGen.ApiVersion"/>.</returns>
+            <exception cref="T:System.FormatException">Thrown for invalid version strings.</exception>
+        </member>
+        <member name="M:Neon.ModelGen.ApiVersion.#ctor">
+            <summary>
+            Private constructor.
+            </summary>
+        </member>
+        <member name="P:Neon.ModelGen.ApiVersion.VersionGroup">
+            <summary>
+            <para>
+            Returns the version group date.
+            </para>
+            <note>
+            This returns as <b>0001-01-01</b> when the parsed version string
+            didn't include a version group.
+            </note>
+            </summary>
+        </member>
+        <member name="P:Neon.ModelGen.ApiVersion.Major">
+            <summary>
+            <para>
+            Returns the major version number.
+            </para>
+            <note>
+            This returns as <b>-1</b> when the parsed version string didn't include a major version.
+            </note>
+            </summary>
+        </member>
+        <member name="P:Neon.ModelGen.ApiVersion.Minor">
+            <summary>
+            <para>
+            Returns the minor version number.
+            </para>
+            <note>
+            This returns as <b>-1</b> when the parsed version string didn't include a minor version.
+            </note>
+            </summary>
+        </member>
+        <member name="P:Neon.ModelGen.ApiVersion.Status">
+            <summary>
+            <para>
+            Returns the status part.
+            </para>
+            <note>
+            This return an empty string when the parse version string didn't include status.
+            Note also that versions with a <see cref="P:Neon.ModelGen.ApiVersion.Status"/> are considered to be <b>greater</b>
+            than a version without a <see cref="P:Neon.ModelGen.ApiVersion.Status"/> when all other properties are the same.
+            </note>
+            </summary>
+        </member>
+        <member name="M:Neon.ModelGen.ApiVersion.CompareTo(Neon.ModelGen.ApiVersion)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Neon.ModelGen.ApiVersion.ToString">
+            <inheritdoc/>
+        </member>
+        <member name="T:Neon.ModelGen.ApiVersionAttribute">
+             <summary>
+             <para>
+             Used to tag an ASP.NET controller interface or method with an API version.  Versions
+             are formatted like:
+             </para>
+             <code>
+             [VERSIONGROUP.]MAJOR.MINOR[-STATUS]
+            
+             or:
+            
+             VERSIONGROUP[MAJOR[.MINOR]][-STATUS]
+             </code>
+             <para>
+             where <b>VERSIONGROUP</b> is a date formatted like <b>YYYY-MM-DD</b>, <b>MAJOR</b>
+             and <b>MINOR</b> are non-negative integers and <b>STATUS</b> is a string of like
+             <b>alphs</b>, <b>preview</b>, etc. consisting of the following characters:
+             <b>a-z</b>, <b>A-Z</b>, <b>0-9</b>, <b>"."</b> and <b>"-"</b>.
+             </para>
+             </summary>
+        </member>
+        <member name="M:Neon.ModelGen.ApiVersionAttribute.#ctor(System.String)">
+            <summary>
+            Constructor.
+            </summary>
+            <param name="version">Specifies the API version string.</param>
+        </member>
+        <member name="P:Neon.ModelGen.ApiVersionAttribute.Version">
+            <summary>
+            Returns parsed <see cref="T:Neon.ModelGen.ApiVersion"/>.
+            </summary>
+        </member>
+        <member name="T:Neon.ModelGen.BodyStreamAttribute">
+            <summary>
+            <para>
+            Used to indicate that clients generated by <b>Neon.ModelGen</b> should
+            include a <c>System.IO.Stream stream</c> parameter holding the data to 
+            be included as the body of the request to the remote service.
+            </para>
+            <note>
+            You may not combine <see cref="T:Neon.ModelGen.BodyStreamAttribute"/> and <see cref="T:Neon.ModelGen.FromBodyAttribute"/>
+            attributes on the same model method.
+            </note>
+            <para>
+            See the remarks for additional details.
+            </para>
+            </summary>
+            <remarks>
+            <para>
+            Model methods tagged with the <see cref="T:Neon.ModelGen.BodyStreamAttribute"/> will be generated
+            with <c>System.IO.Stream stream</c> as the first parameter and the generated client
+            method will transmit bytes from the current stream position up to the end of the 
+            stream up to the remote service.  By default, this will be accomplished using a
+            <b>8 KiB</b> buffer but this can be customized via <see cref="P:Neon.ModelGen.BodyStreamAttribute.BufferSize"/>.
+            </para>
+            <para>
+            By default the request <b>Content-Type</b> header will be set to <b>application/octet-stream</b>.
+            You can customize this via <see cref="P:Neon.ModelGen.BodyStreamAttribute.ContentType"/>.
+            </para>
+            <para>
+            For input streams that support <see cref="P:System.IO.Stream.CanSeek"/> the generated method will also include
+            the <b>Content-Length</b> header.  This will be computed by subtracting the current stream position
+            from the stream length.
+            </para>
+            <note>
+            For some situations, you may need to upload from a stream that doesn't support <see cref="P:System.IO.Stream.CanSeek"/>
+            but you already know how many bytes will be transmitted and the server method is expecting a 
+            <b>Content-Length</b> header.  In this case, you can wrap your stream with a <see cref="T:Neon.IO.SubStream"/>
+            configured with the starting and ending positions of the data in the original stream and then
+            pass the <see cref="T:Neon.IO.SubStream"/> as the service client method's <c>stream</c> argument.
+            </note>
+            </remarks>
+        </member>
+        <member name="P:Neon.ModelGen.BodyStreamAttribute.ContentType">
+            <summary>
+            Optionally overrides the uploaded content's MIME type.  This defaults 
+            to <b>application/octet-stream</b>.
+            </summary>
+        </member>
+        <member name="P:Neon.ModelGen.BodyStreamAttribute.BufferSize">
+            <summary>
+            Optionally specifies the size of the buffer in bytes that will be used
+            by the generated API method for uploading the source stream to the server.
+            This defaults to <b>8 KiB</b>.
+            </summary>
+        </member>
         <member name="T:Neon.ModelGen.ControllerValidationAttribute">
             <summary>
             <para>
@@ -11876,6 +12083,11 @@
         <member name="P:Neon.ModelGen.GeneratedMethodAttribute.HttpMethod">
             <summary>
             The HTTP method for the endpoint.
+            </summary>
+        </member>
+        <member name="P:Neon.ModelGen.GeneratedMethodAttribute.ApiVersion">
+            <summary>
+            The API version used when calling this method or <c>null</c> when no version is specified.
             </summary>
         </member>
         <member name="T:Neon.ModelGen.GeneratedParamAttribute">
@@ -12449,7 +12661,7 @@
             <param name="args">The query arguments.</param>
             <returns>The formatted URI.</returns>
         </member>
-        <member name="M:Neon.Net.JsonClient.CreateContent(System.Object)">
+        <member name="M:Neon.Net.JsonClient.CreateContent(System.Object,System.IO.Stream)">
             <summary>
             <para>
             Converts the object passed into JSON content suitable for transmitting in
@@ -12460,14 +12672,24 @@
             as described in the <see cref="T:Neon.Net.JsonClient"/> remarks.
             </note>
             </summary>
-            <param name="document">The document object or JSON text.</param>
+            <param name="document">
+            The optional object to be uploaded as the request payload.  This may be JSON text, a plain
+            old object that will be serialized as JSON or a <see cref="T:Neon.Net.StreamDocument"/> to upload body
+            data from a <see cref="T:System.IO.Stream"/>.
+            </param>
+            <param name="stream">
+            Optionally passed as the <see cref="T:System.IO.Stream"/> being uploaded as the body.  If this stream
+            supports <see cref="P:System.IO.Stream.CanSeek"/> then this method will compute the number of bytes
+            that will be uploaded and add a <b>Content-Length</b> header to the request when <paramref name="document"/>
+            is a <see cref="T:Neon.Net.StreamDocument"/>.
+            </param>
             <returns>Tne <see cref="T:System.Net.Http.HttpContent"/>.</returns>
         </member>
         <member name="M:Neon.Net.JsonClient.DeleteAsync(System.String,Neon.Collections.ArgDictionary,Neon.Collections.ArgDictionary,System.Threading.CancellationToken)">
             <summary>
             Performs an HTTP <b>DELETE</b> ensuring that a success code was returned.
             </summary>
-            <param name="uri">The URI</param>
+            <param name="uri">The target URI.</param>
             <param name="args">The optional query arguments.</param>
             <param name="headers">The Optional HTTP headers.</param>
             <param name="cancellationToken">The optional <see cref="T:System.Threading.CancellationToken"/>.</param>
@@ -12480,7 +12702,7 @@
             Performs an HTTP <b>DELETE</b> returning a specific type and ensuring that a success cxode was returned.
             </summary>
             <typeparam name="TResult">The desired result type.</typeparam>
-            <param name="uri">The URI</param>
+            <param name="uri">The target URI.</param>
             <param name="args">The optional query arguments.</param>
             <param name="headers">The Optional HTTP headers.</param>
             <param name="cancellationToken">The optional <see cref="T:System.Threading.CancellationToken"/>.</param>
@@ -12494,7 +12716,7 @@
             that a success code was returned.
             </summary>
             <param name="retryPolicy">The retry policy or <c>null</c> to disable retries.</param>
-            <param name="uri">The URI</param>
+            <param name="uri">The target URI.</param>
             <param name="args">The optional query arguments.</param>
             <param name="headers">The Optional HTTP headers.</param>
             <param name="cancellationToken">The optional <see cref="T:System.Threading.CancellationToken"/>.</param>
@@ -12506,7 +12728,7 @@
             <summary>
             Performs an HTTP <b>DELETE</b> without ensuring that a success code was returned.
             </summary>
-            <param name="uri">The URI</param>
+            <param name="uri">The target URI.</param>
             <param name="args">The optional query arguments.</param>
             <param name="headers">The Optional HTTP headers.</param>
             <param name="cancellationToken">The optional <see cref="T:System.Threading.CancellationToken"/>.</param>
@@ -12519,7 +12741,7 @@
             that a success code was returned.
             </summary>
             <param name="retryPolicy">The retry policy or <c>null</c> to disable retries.</param>
-            <param name="uri">The URI</param>
+            <param name="uri">The target URI.</param>
             <param name="args">The optional query arguments.</param>
             <param name="headers">The Optional HTTP headers.</param>
             <param name="cancellationToken">The optional <see cref="T:System.Threading.CancellationToken"/>.</param>
@@ -12530,7 +12752,7 @@
             <summary>
             Performs an HTTP <b>GET</b> ensuring that a success code was returned.
             </summary>
-            <param name="uri">The URI</param>
+            <param name="uri">The target URI.</param>
             <param name="args">The optional query arguments.</param>
             <param name="headers">The Optional HTTP headers.</param>
             <param name="cancellationToken">The optional <see cref="T:System.Threading.CancellationToken"/>.</param>
@@ -12543,7 +12765,7 @@
             Performs an HTTP <b>GET</b> returning a specific type and ensuring that a success code was returned.
             </summary>
             <typeparam name="TResult">The desired result type.</typeparam>
-            <param name="uri">The URI</param>
+            <param name="uri">The target URI.</param>
             <param name="args">The optional query arguments.</param>
             <param name="headers">The Optional HTTP headers.</param>
             <param name="cancellationToken">The optional <see cref="T:System.Threading.CancellationToken"/>.</param>
@@ -12557,7 +12779,7 @@
             that a success code was returned.
             </summary>
             <param name="retryPolicy">The retry policy or <c>null</c> to disable retries.</param>
-            <param name="uri">The URI</param>
+            <param name="uri">The target URI.</param>
             <param name="args">The optional query arguments.</param>
             <param name="headers">The Optional HTTP headers.</param>
             <param name="cancellationToken">The optional <see cref="T:System.Threading.CancellationToken"/>.</param>
@@ -12569,7 +12791,7 @@
             <summary>
             Performs an HTTP <b>GET</b> without ensuring that a success code was returned.
             </summary>
-            <param name="uri">The URI</param>
+            <param name="uri">The target URI.</param>
             <param name="args">The optional query arguments.</param>
             <param name="headers">The Optional HTTP headers.</param>
             <param name="cancellationToken">The optional <see cref="T:System.Threading.CancellationToken"/>.</param>
@@ -12582,7 +12804,7 @@
             without ensuring that a success code was returned.
             </summary>
             <param name="retryPolicy">The retry policy or <c>null</c> to disable retries.</param>
-            <param name="uri">The URI</param>
+            <param name="uri">The target URI.</param>
             <param name="args">The optional query arguments.</param>
             <param name="headers">The Optional HTTP headers.</param>
             <param name="cancellationToken">The optional <see cref="T:System.Threading.CancellationToken"/>.</param>
@@ -12593,8 +12815,12 @@
             <summary>
             Performs an HTTP <b>HEAD</b> ensuring that a success code was returned.
             </summary>
-            <param name="uri">The URI</param>
-            <param name="document">The optional object to be uploaded as the request payload.</param>
+            <param name="uri">The target URI.</param>
+            <param name="document">
+            The optional object to be uploaded as the request payload.  This may be JSON text, a plain
+            old object that will be serialized as JSON or a <see cref="T:Neon.Net.StreamDocument"/> to upload body
+            data from a <see cref="T:System.IO.Stream"/>.
+            </param>
             <param name="args">The optional query arguments.</param>
             <param name="headers">The Optional HTTP headers.</param>
             <param name="cancellationToken">The optional <see cref="T:System.Threading.CancellationToken"/>.</param>
@@ -12607,8 +12833,12 @@
             Performs an HTTP <b>HEAD</b> returning a specific type and ensuring that a success code was returned.
             </summary>
             <typeparam name="TResult">The desired result type.</typeparam>
-            <param name="uri">The URI</param>
-            <param name="document">Optional object to be uploaded as the request payload.</param>
+            <param name="uri">The target URI.</param>
+            <param name="document">
+            The optional object to be uploaded as the request payload.  This may be JSON text, a plain
+            old object that will be serialized as JSON or a <see cref="T:Neon.Net.StreamDocument"/> to upload body
+            data from a <see cref="T:System.IO.Stream"/>.
+            </param>
             <param name="args">The optional query arguments.</param>
             <param name="headers">The Optional HTTP headers.</param>
             <param name="cancellationToken">The optional <see cref="T:System.Threading.CancellationToken"/>.</param>
@@ -12622,8 +12852,12 @@
             a success code was returned.
             </summary>
             <param name="retryPolicy">The retry policy or <c>null</c> to disable retries.</param>
-            <param name="uri">The URI</param>
-            <param name="document">The optional object to be uploaded as the request payload.</param>
+            <param name="uri">The target URI.</param>
+            <param name="document">
+            The optional object to be uploaded as the request payload.  This may be JSON text, a plain
+            old object that will be serialized as JSON or a <see cref="T:Neon.Net.StreamDocument"/> to upload body
+            data from a <see cref="T:System.IO.Stream"/>.
+            </param>
             <param name="args">The optional query arguments.</param>
             <param name="headers">The Optional HTTP headers.</param>
             <param name="cancellationToken">The optional <see cref="T:System.Threading.CancellationToken"/>.</param>
@@ -12635,8 +12869,12 @@
             <summary>
             Performs an HTTP <b>HEAD</b> without ensuring that a success code was returned.
             </summary>
-            <param name="uri">The URI</param>
-            <param name="document">The optional object to be uploaded as the request payload.</param>
+            <param name="uri">The target URI.</param>
+            <param name="document">
+            The optional object to be uploaded as the request payload.  This may be JSON text, a plain
+            old object that will be serialized as JSON or a <see cref="T:Neon.Net.StreamDocument"/> to upload body
+            data from a <see cref="T:System.IO.Stream"/>.
+            </param>
             <param name="args">The optional query arguments.</param>
             <param name="headers">The Optional HTTP headers.</param>
             <param name="cancellationToken">The optional <see cref="T:System.Threading.CancellationToken"/>.</param>
@@ -12649,8 +12887,12 @@
             that a success code was returned.
             </summary>
             <param name="retryPolicy">The retry policy or <c>null</c> to disable retries.</param>
-            <param name="uri">The URI</param>
-            <param name="document">The optional object to be uploaded as the request payload.</param>
+            <param name="uri">The target URI.</param>
+            <param name="document">
+            The optional object to be uploaded as the request payload.  This may be JSON text, a plain
+            old object that will be serialized as JSON or a <see cref="T:Neon.Net.StreamDocument"/> to upload body
+            data from a <see cref="T:System.IO.Stream"/>.
+            </param>
             <param name="args">The optional query arguments.</param>
             <param name="headers">The Optional HTTP headers.</param>
             <param name="cancellationToken">The optional <see cref="T:System.Threading.CancellationToken"/>.</param>
@@ -12661,8 +12903,12 @@
             <summary>
             Performs an HTTP <b>OPTIONS</b> ensuring that a success code was returned.
             </summary>
-            <param name="uri">The URI</param>
-            <param name="document">The optional object to be uploaded as the request payload.</param>
+            <param name="uri">The target URI.</param>
+            <param name="document">
+            The optional object to be uploaded as the request payload.  This may be JSON text, a plain
+            old object that will be serialized as JSON or a <see cref="T:Neon.Net.StreamDocument"/> to upload body
+            data from a <see cref="T:System.IO.Stream"/>.
+            </param>
             <param name="args">The optional query arguments.</param>
             <param name="headers">The Optional HTTP headers.</param>
             <param name="cancellationToken">The optional <see cref="T:System.Threading.CancellationToken"/>.</param>
@@ -12675,8 +12921,12 @@
             Performs an HTTP <b>OPTIONS</b> returning a specific type and ensuring that a success code was returned.
             </summary>
             <typeparam name="TResult">The desired result type.</typeparam>
-            <param name="uri">The URI</param>
-            <param name="document">Optional object to be uploaded as the request payload.</param>
+            <param name="uri">The target URI.</param>
+            <param name="document">
+            The optional object to be uploaded as the request payload.  This may be JSON text, a plain
+            old object that will be serialized as JSON or a <see cref="T:Neon.Net.StreamDocument"/> to upload body
+            data from a <see cref="T:System.IO.Stream"/>.
+            </param>
             <param name="args">The optional query arguments.</param>
             <param name="headers">The Optional HTTP headers.</param>
             <param name="cancellationToken">The optional <see cref="T:System.Threading.CancellationToken"/>.</param>
@@ -12690,8 +12940,12 @@
             a success code was returned.
             </summary>
             <param name="retryPolicy">The retry policy or <c>null</c> to disable retries.</param>
-            <param name="uri">The URI</param>
-            <param name="document">The optional object to be uploaded as the request payload.</param>
+            <param name="uri">The target URI.</param>
+            <param name="document">
+            The optional object to be uploaded as the request payload.  This may be JSON text, a plain
+            old object that will be serialized as JSON or a <see cref="T:Neon.Net.StreamDocument"/> to upload body
+            data from a <see cref="T:System.IO.Stream"/>.
+            </param>
             <param name="args">The optional query arguments.</param>
             <param name="headers">The Optional HTTP headers.</param>
             <param name="cancellationToken">The optional <see cref="T:System.Threading.CancellationToken"/>.</param>
@@ -12703,8 +12957,12 @@
             <summary>
             Performs an HTTP <b>OPTIONS</b> without ensuring that a success code was returned.
             </summary>
-            <param name="uri">The URI</param>
-            <param name="document">The optional object to be uploaded as the request payload.</param>
+            <param name="uri">The target URI.</param>
+            <param name="document">
+            The optional object to be uploaded as the request payload.  This may be JSON text, a plain
+            old object that will be serialized as JSON or a <see cref="T:Neon.Net.StreamDocument"/> to upload body
+            data from a <see cref="T:System.IO.Stream"/>.
+            </param>
             <param name="args">The optional query arguments.</param>
             <param name="headers">The Optional HTTP headers.</param>
             <param name="cancellationToken">The optional <see cref="T:System.Threading.CancellationToken"/>.</param>
@@ -12717,8 +12975,12 @@
             that a success code was returned.
             </summary>
             <param name="retryPolicy">The retry policy or <c>null</c> to disable retries.</param>
-            <param name="uri">The URI</param>
-            <param name="document">The optional object to be uploaded as the request payload.</param>
+            <param name="uri">The target URI.</param>
+            <param name="document">
+            The optional object to be uploaded as the request payload.  This may be JSON text, a plain
+            old object that will be serialized as JSON or a <see cref="T:Neon.Net.StreamDocument"/> to upload body
+            data from a <see cref="T:System.IO.Stream"/>.
+            </param>
             <param name="args">The optional query arguments.</param>
             <param name="headers">The Optional HTTP headers.</param>
             <param name="cancellationToken">The optional <see cref="T:System.Threading.CancellationToken"/>.</param>
@@ -12729,8 +12991,12 @@
             <summary>
             Performs an HTTP <b>PATCH</b> ensuring that a success code was returned.
             </summary>
-            <param name="uri">The URI</param>
-            <param name="document">The optional object to be uploaded as the request payload.</param>
+            <param name="uri">The target URI.</param>
+            <param name="document">
+            The optional object to be uploaded as the request payload.  This may be JSON text, a plain
+            old object that will be serialized as JSON or a <see cref="T:Neon.Net.StreamDocument"/> to upload body
+            data from a <see cref="T:System.IO.Stream"/>.
+            </param>
             <param name="args">The optional query arguments.</param>
             <param name="headers">The Optional HTTP headers.</param>
             <param name="cancellationToken">The optional <see cref="T:System.Threading.CancellationToken"/>.</param>
@@ -12743,8 +13009,12 @@
             Performs an HTTP <b>PATCH</b> returning a specific type and ensuring that a success code was returned.
             </summary>
             <typeparam name="TResult">The desired result type.</typeparam>
-            <param name="uri">The URI</param>
-            <param name="document">Optional object to be uploaded as the request payload.</param>
+            <param name="uri">The target URI.</param>
+            <param name="document">
+            The optional object to be uploaded as the request payload.  This may be JSON text, a plain
+            old object that will be serialized as JSON or a <see cref="T:Neon.Net.StreamDocument"/> to upload body
+            data from a <see cref="T:System.IO.Stream"/>.
+            </param>
             <param name="args">The optional query arguments.</param>
             <param name="headers">The Optional HTTP headers.</param>
             <param name="cancellationToken">The optional <see cref="T:System.Threading.CancellationToken"/>.</param>
@@ -12758,8 +13028,12 @@
             a success code was returned.
             </summary>
             <param name="retryPolicy">The retry policy or <c>null</c> to disable retries.</param>
-            <param name="uri">The URI</param>
-            <param name="document">The optional object to be uploaded as the request payload.</param>
+            <param name="uri">The target URI.</param>
+            <param name="document">
+            The optional object to be uploaded as the request payload.  This may be JSON text, a plain
+            old object that will be serialized as JSON or a <see cref="T:Neon.Net.StreamDocument"/> to upload body
+            data from a <see cref="T:System.IO.Stream"/>.
+            </param>
             <param name="args">The optional query arguments.</param>
             <param name="headers">The Optional HTTP headers.</param>
             <param name="cancellationToken">The optional <see cref="T:System.Threading.CancellationToken"/>.</param>
@@ -12771,8 +13045,12 @@
             <summary>
             Performs an HTTP <b>PATCH</b> without ensuring that a success code was returned.
             </summary>
-            <param name="uri">The URI</param>
-            <param name="document">The optional object to be uploaded as the request payload.</param>
+            <param name="uri">The target URI.</param>
+            <param name="document">
+            The optional object to be uploaded as the request payload.  This may be JSON text, a plain
+            old object that will be serialized as JSON or a <see cref="T:Neon.Net.StreamDocument"/> to upload body
+            data from a <see cref="T:System.IO.Stream"/>.
+            </param>
             <param name="args">The optional query arguments.</param>
             <param name="headers">The Optional HTTP headers.</param>
             <param name="cancellationToken">The optional <see cref="T:System.Threading.CancellationToken"/>.</param>
@@ -12785,8 +13063,12 @@
             that a success code was returned.
             </summary>
             <param name="retryPolicy">The retry policy or <c>null</c> to disable retries.</param>
-            <param name="uri">The URI</param>
-            <param name="document">The optional object to be uploaded as the request payload.</param>
+            <param name="uri">The target URI.</param>
+            <param name="document">
+            The optional object to be uploaded as the request payload.  This may be JSON text, a plain
+            old object that will be serialized as JSON or a <see cref="T:Neon.Net.StreamDocument"/> to upload body
+            data from a <see cref="T:System.IO.Stream"/>.
+            </param>
             <param name="args">The optional query arguments.</param>
             <param name="headers">The Optional HTTP headers.</param>
             <param name="cancellationToken">The optional <see cref="T:System.Threading.CancellationToken"/>.</param>
@@ -12797,8 +13079,12 @@
             <summary>
             Performs an HTTP <b>POST</b> ensuring that a success code was returned.
             </summary>
-            <param name="uri">The URI</param>
-            <param name="document">The optional object to be uploaded as the request payload.</param>
+            <param name="uri">The target URI.</param>
+            <param name="document">
+            The optional object to be uploaded as the request payload.  This may be JSON text, a plain
+            old object that will be serialized as JSON or a <see cref="T:Neon.Net.StreamDocument"/> to upload body
+            data from a <see cref="T:System.IO.Stream"/>.
+            </param>
             <param name="args">The optional query arguments.</param>
             <param name="headers">The Optional HTTP headers.</param>
             <param name="cancellationToken">The optional <see cref="T:System.Threading.CancellationToken"/>.</param>
@@ -12811,8 +13097,12 @@
             Performs an HTTP <b>POST</b> returning a specific type and ensuring that a success code was returned.
             </summary>
             <typeparam name="TResult">The desired result type.</typeparam>
-            <param name="uri">The URI</param>
-            <param name="document">Optional object to be uploaded as the request payload.</param>
+            <param name="uri">The target URI.</param>
+            <param name="document">
+            The optional object to be uploaded as the request payload.  This may be JSON text, a plain
+            old object that will be serialized as JSON or a <see cref="T:Neon.Net.StreamDocument"/> to upload body
+            data from a <see cref="T:System.IO.Stream"/>.
+            </param>
             <param name="args">The optional query arguments.</param>
             <param name="headers">The Optional HTTP headers.</param>
             <param name="cancellationToken">The optional <see cref="T:System.Threading.CancellationToken"/>.</param>
@@ -12826,8 +13116,12 @@
             a success code was returned.
             </summary>
             <param name="retryPolicy">The retry policy or <c>null</c> to disable retries.</param>
-            <param name="uri">The URI</param>
-            <param name="document">The optional object to be uploaded as the request payload.</param>
+            <param name="uri">The target URI.</param>
+            <param name="document">
+            The optional object to be uploaded as the request payload.  This may be JSON text, a plain
+            old object that will be serialized as JSON or a <see cref="T:Neon.Net.StreamDocument"/> to upload body
+            data from a <see cref="T:System.IO.Stream"/>.
+            </param>
             <param name="args">The optional query arguments.</param>
             <param name="headers">The Optional HTTP headers.</param>
             <param name="cancellationToken">The optional <see cref="T:System.Threading.CancellationToken"/>.</param>
@@ -12839,8 +13133,12 @@
             <summary>
             Performs an HTTP <b>POST</b> without ensuring that a success code was returned.
             </summary>
-            <param name="uri">The URI</param>
-            <param name="document">The optional object to be uploaded as the request payload.</param>
+            <param name="uri">The target URI.</param>
+            <param name="document">
+            The optional object to be uploaded as the request payload.  This may be JSON text, a plain
+            old object that will be serialized as JSON or a <see cref="T:Neon.Net.StreamDocument"/> to upload body
+            data from a <see cref="T:System.IO.Stream"/>.
+            </param>
             <param name="args">The optional query arguments.</param>
             <param name="headers">The Optional HTTP headers.</param>
             <param name="cancellationToken">The optional <see cref="T:System.Threading.CancellationToken"/>.</param>
@@ -12853,8 +13151,12 @@
             that a success code was returned.
             </summary>
             <param name="retryPolicy">The retry policy or <c>null</c> to disable retries.</param>
-            <param name="uri">The URI</param>
-            <param name="document">The optional object to be uploaded as the request payload.</param>
+            <param name="uri">The target URI.</param>
+            <param name="document">
+            The optional object to be uploaded as the request payload.  This may be JSON text, a plain
+            old object that will be serialized as JSON or a <see cref="T:Neon.Net.StreamDocument"/> to upload body
+            data from a <see cref="T:System.IO.Stream"/>.
+            </param>
             <param name="args">The optional query arguments.</param>
             <param name="headers">The Optional HTTP headers.</param>
             <param name="cancellationToken">The optional <see cref="T:System.Threading.CancellationToken"/>.</param>
@@ -12865,8 +13167,12 @@
             <summary>
             Performs an HTTP <b>PUT</b> ensuring that a success code was returned.
             </summary>
-            <param name="uri">The URI</param>
-            <param name="document">The optional object to be uploaded as the request payload.</param>
+            <param name="uri">The target URI.</param>
+            <param name="document">
+            The optional object to be uploaded as the request payload.  This may be JSON text, a plain
+            old object that will be serialized as JSON or a <see cref="T:Neon.Net.StreamDocument"/> to upload body
+            data from a <see cref="T:System.IO.Stream"/>.
+            </param>
             <param name="args">The optional query arguments.</param>
             <param name="headers">The Optional HTTP headers.</param>
             <param name="cancellationToken">The optional <see cref="T:System.Threading.CancellationToken"/>.</param>
@@ -12879,8 +13185,12 @@
             Performs an HTTP <b>PUT</b> returning a specific type and ensuring that a success code was returned.
             </summary>
             <typeparam name="TResult">The desired result type.</typeparam>
-            <param name="uri">The URI</param>
-            <param name="document">The optional object to be uploaded as the request payload.</param>
+            <param name="uri">The target URI.</param>
+            <param name="document">
+            The optional object to be uploaded as the request payload.  This may be JSON text, a plain
+            old object that will be serialized as JSON or a <see cref="T:Neon.Net.StreamDocument"/> to upload body
+            data from a <see cref="T:System.IO.Stream"/>.
+            </param>
             <param name="args">The optional query arguments.</param>
             <param name="headers">The Optional HTTP headers.</param>
             <param name="cancellationToken">The optional <see cref="T:System.Threading.CancellationToken"/>.</param>
@@ -12894,8 +13204,12 @@
             success code was returned.
             </summary>
             <param name="retryPolicy">The retry policy or <c>null</c> to disable retries.</param>
-            <param name="uri">The URI</param>
-            <param name="document">The optional object to be uploaded as the request payload.</param>
+            <param name="uri">The target URI.</param>
+            <param name="document">
+            The optional object to be uploaded as the request payload.  This may be JSON text, a plain
+            old object that will be serialized as JSON or a <see cref="T:Neon.Net.StreamDocument"/> to upload body
+            data from a <see cref="T:System.IO.Stream"/>.
+            </param>
             <param name="args">The optional query arguments.</param>
             <param name="headers">The Optional HTTP headers.</param>
             <param name="cancellationToken">The optional <see cref="T:System.Threading.CancellationToken"/>.</param>
@@ -12907,8 +13221,12 @@
             <summary>
             Performs an HTTP <b>PUT</b> without ensuring that a success code was returned.
             </summary>
-            <param name="uri">The URI</param>
-            <param name="document">The optional object to be uploaded as the request payload.</param>
+            <param name="uri">The target URI.</param>
+            <param name="document">
+            The optional object to be uploaded as the request payload.  This may be JSON text, a plain
+            old object that will be serialized as JSON or a <see cref="T:Neon.Net.StreamDocument"/> to upload body
+            data from a <see cref="T:System.IO.Stream"/>.
+            </param>
             <param name="args">The optional query arguments.</param>
             <param name="headers">The Optional HTTP headers.</param>
             <param name="cancellationToken">The optional <see cref="T:System.Threading.CancellationToken"/>.</param>
@@ -12921,8 +13239,12 @@
             ensuring that a success code was returned.
             </summary>
             <param name="retryPolicy">The retry policy or <c>null</c> to disable retries.</param>
-            <param name="uri">The URI</param>
-            <param name="document">The optional object to be uploaded as the request payload.</param>
+            <param name="uri">The target URI.</param>
+            <param name="document">
+            The optional object to be uploaded as the request payload.  This may be JSON text, a plain
+            old object that will be serialized as JSON or a <see cref="T:Neon.Net.StreamDocument"/> to upload body
+            data from a <see cref="T:System.IO.Stream"/>.
+            </param>
             <param name="args">The optional query arguments.</param>
             <param name="headers">The Optional HTTP headers.</param>
             <param name="cancellationToken">The optional <see cref="T:System.Threading.CancellationToken"/>.</param>
@@ -13345,7 +13667,7 @@
             Computes the TCP maximum segment size for a given MTU, optionally taking a
             VXLAN wrapper headers into account.
             </summary>
-            <param name="mtu">Specifies the target MTU (defaults to 1500).</param>
+            <param name="mtu">Specifies the target MTU (defaults to <see cref="F:Neon.Net.NetConst.DefaultMTU"/>).</param>
             <param name="vxLan">Optionally indicates that traffic is routed via a VXLAN.</param>
             <returns>The maximum segment size in bytes.</returns>
         </member>
@@ -14117,6 +14439,50 @@
         <member name="F:Neon.Net.ReachableHostMode.ReturnNull">
             <summary>
             Return <c>null</c> when no hosts respond.
+            </summary>
+        </member>
+        <member name="T:Neon.Net.StreamDocument">
+            <summary>
+            <para>
+            Used by <b>ModelGen</b> generated service client methods to upload body data
+            from a stream as opposed to serializing a document as JSON for service model
+            methods tagged with <see cref="T:Neon.ModelGen.BodyStreamAttribute"/>.
+            </para>
+            <para>
+            <see cref="T:Neon.Net.StreamDocument"/> instances may be passed as the <c>document</c>
+            parameter to <see cref="T:Neon.Net.JsonClient"/> methods which recognizes these documents
+            as special by uploading the stream data instead of JSON.
+            </para>
+            <note>
+            You may also use special document directly in your code if necessary.
+            </note>
+            </summary>
+        </member>
+        <member name="M:Neon.Net.StreamDocument.#ctor(System.IO.Stream)">
+            <summary>
+            Default constructor.
+            </summary>
+            <param name="stream">
+            The stream whose contents from the current position to the end of the 
+            stream will be uploaded as the request body.
+            </param>
+        </member>
+        <member name="P:Neon.Net.StreamDocument.Stream">
+            <summary>
+            Returns the stream whose contents from the current position to the end of the 
+            stream will be uploaded as the request body.
+            </summary>
+        </member>
+        <member name="P:Neon.Net.StreamDocument.ContentType">
+            <summary>
+            Specifies the <b>Content-Type</b> to be used for the uploaded data. 
+            This default to <b>application/octet-stream</b>.
+            </summary>
+        </member>
+        <member name="P:Neon.Net.StreamDocument.BufferSize">
+            <summary>
+            Specifies the size of the buffer to be used for transmitting the
+            body data.  This defaults to <b>8 GiB</b>.
             </summary>
         </member>
         <member name="T:Neon.Retry.ExponentialRetryPolicy">
@@ -17542,16 +17908,16 @@
             <summary>Branch: jeff</summary>
         </member>
         <member name="F:ThisAssembly.Git.Commit">
-            <summary>Commit: b62e2f1</summary>
+            <summary>Commit: 9fe71fc</summary>
         </member>
         <member name="F:ThisAssembly.Git.Sha">
-            <summary>Sha: b62e2f1abfd05efea36df29d66ff051bf6c96df7</summary>
+            <summary>Sha: 9fe71fcbbf1ddafd995809d1659dd7b584d6d75d</summary>
         </member>
         <member name="F:ThisAssembly.Git.CommitDate">
-            <summary>Commit date: 2022-09-09T11:47:15-07:00</summary>
+            <summary>Commit date: 2022-09-23T19:18:39-07:00</summary>
         </member>
         <member name="F:ThisAssembly.Git.Commits">
-            <summary>Commits on top of base version: 107</summary>
+            <summary>Commits on top of base version: 133</summary>
         </member>
         <member name="F:ThisAssembly.Git.Tag">
             <summary>Tag: </summary>
@@ -17581,7 +17947,7 @@
             <summary>Minor: 0</summary>
         </member>
         <member name="F:ThisAssembly.Git.SemVer.Patch">
-            <summary>Patch: 107</summary>
+            <summary>Patch: 133</summary>
         </member>
         <member name="F:ThisAssembly.Git.SemVer.Label">
             <summary>Label: </summary>
