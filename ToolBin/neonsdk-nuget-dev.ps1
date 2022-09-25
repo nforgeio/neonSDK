@@ -290,7 +290,7 @@ Write-Info "***                            CLEAN SOLUTION                       
 Write-Info "********************************************************************************"
 Write-Info ""
 
-& neon-build clean-generated-cs $nfRoot
+# & neon-build clean-generated-cs $nfRoot
 & "$msbuild" "$nfSolution" -p:Configuration=$config -t:Clean -m -verbosity:quiet
 
 if (-not $?)
@@ -410,6 +410,11 @@ RestoreVersion Neon.Xunit.Cadence
 RestoreVersion Neon.Xunit.Couchbase
 RestoreVersion Neon.Xunit.YugaByte
 RestoreVersion Neon.YugaByte
+
+# Remove any generated C# files under project [obj] folders to
+# avoid duplicate symbol compilation errors after publishing.
+
+# & neon-build clean-generated-cs $nfRoot
 
 # Remove all of the generated nuget files so these don't accumulate.
 

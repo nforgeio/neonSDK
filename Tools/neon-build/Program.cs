@@ -419,11 +419,22 @@ ARGUMENTS:
 
                         foreach (var file in Directory.GetFiles(targetFolder, "*.cs", SearchOption.AllDirectories))
                         {
-                            if (globPattern.IsMatch(file.Replace("\\", "/")))
+                            var normalizedFile = file.Replace("\\", "/");
+
+                            // Note that the glob pattern will match files named like:
+                            //
+                            //      C:/src/neonSDK/Lib/Neon.Common/Collections/ObjectDictionary.cs
+                            //
+                            // which we don't want to remove.  We're going to mitigate this by 
+                            // ensuring that the file name includes an "/obj/" directory in
+                            // its path.  We're going to make this a case sensitive check since
+                            // .NET builds always names these folders in lowercase.
+
+                            if (globPattern.IsMatch(normalizedFile) && normalizedFile.Contains("/obj/"))
                             {
                                 try
                                 {
-                                    File.Delete(file);
+                                    File.Delete(normalizedFile);
                                 }
                                 catch
                                 {

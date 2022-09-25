@@ -211,6 +211,11 @@ Publish Neon.Xunit.Couchbase        $neonSdkVersion
 Publish Neon.Xunit.YugaByte         $neonSdkVersion
 Publish Neon.YugaByte               $neonSdkVersion
 
+# Remove any generated C# files under project [obj] folders to
+# avoid duplicate symbol compilation errors after publishing.
+
+& neon-build clean-generated-cs $nfRoot
+
 # Remove all of the generated nuget files so these don't accumulate.
 
 Remove-Item "$env:NF_BUILD\nuget\*"

@@ -17908,16 +17908,16 @@
             <summary>Branch: jeff</summary>
         </member>
         <member name="F:ThisAssembly.Git.Commit">
-            <summary>Commit: 9fe71fc</summary>
+            <summary>Commit: 2116d2c</summary>
         </member>
         <member name="F:ThisAssembly.Git.Sha">
-            <summary>Sha: 9fe71fcbbf1ddafd995809d1659dd7b584d6d75d</summary>
+            <summary>Sha: 2116d2cb58d37c366a8d3b1a2a252d03ee4b3d68</summary>
         </member>
         <member name="F:ThisAssembly.Git.CommitDate">
-            <summary>Commit date: 2022-09-23T19:18:39-07:00</summary>
+            <summary>Commit date: 2022-09-24T09:53:12-07:00</summary>
         </member>
         <member name="F:ThisAssembly.Git.Commits">
-            <summary>Commits on top of base version: 133</summary>
+            <summary>Commits on top of base version: 136</summary>
         </member>
         <member name="F:ThisAssembly.Git.Tag">
             <summary>Tag: </summary>
@@ -17947,7 +17947,7 @@
             <summary>Minor: 0</summary>
         </member>
         <member name="F:ThisAssembly.Git.SemVer.Patch">
-            <summary>Patch: 133</summary>
+            <summary>Patch: 136</summary>
         </member>
         <member name="F:ThisAssembly.Git.SemVer.Label">
             <summary>Label: </summary>
