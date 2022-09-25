@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>netstandard2.0</TargetFramework>
+		<TargetFrameworks>netstandard2.0; net6.0</TargetFrameworks>
 		<OutputType>Library</OutputType>
 		<RootNamespace>Neon.Service</RootNamespace>
 		<Version>3.0.0</Version>
@@ -37,12 +37,15 @@
 		<NoWarn></NoWarn>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net5.0|AnyCPU'">
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
 		<DefineConstants />
+		<TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+		<WarningsAsErrors>NU1605</WarningsAsErrors>
+		<NoWarn></NoWarn>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="DnsClient" Version="1.5.0" />
+		<PackageReference Include="DnsClient" Version="1.6.1" />
 		<PackageReference Include="GitInfo" Version="2.2.0">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -50,6 +53,11 @@
 		<PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
 		<PackageReference Include="prometheus-net" Version="6.0.0" />
 		<PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+		<PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.0.0-rc9.6" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.0.0-rc9.6" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -75,12 +83,29 @@
 	</ItemGroup>
 
 	<!--
+	NOTE(jefflill):
+	===============
+	
+	We used to build the Linux health probe executables here via WSL, and that worked
+	fine until we added a second target framework.  After that, we started seeing random
+	failures building these programs.  After thinking about it this is due to Visual Studio
+	building the project for target frameworks in parallel.
+	
+	The workaround is to build these manually and commit the binaries to GitHub.  These
+	executables are very simple and will need to be updated if ever.  If you do need to
+	rebuild these manually, execute these commands:
+	
+		wsl-util gcc "%NF_ROOT%\Lib\Neon.Service\health-probes\health-check" "%NF_ROOT%\Lib\Neon.Service\Resources\health-check"
+		wsl-util gcc "%NF_ROOT%\Lib\Neon.Service\health-probes\ready-check" "%NF_ROOT%\Lib\Neon.Service\Resources\ready-check"
+	
 	This target builds the [health-check] and [ready-check] probe binaries for Linux.
 	These need to be built before the Neon.Service library so they can be embedded
 	as resources.
 	
+	OLD TARGET:
+	===========
+	
 	These are C programs built via the [wsl-util gcc ...] command.
-	-->
 
 	<Target Name="BuildProbes" BeforeTargets="Build">
 		<Message Importance="high" Text="Building: health-check" />
@@ -89,5 +114,6 @@
 		<Message Importance="high" Text="Building: ready-check" />
 		<Exec Command="wsl-util gcc &quot;$(NF_ROOT)\Lib\Neon.Service\health-probes\ready-check&quot; &quot;$(NF_ROOT)\Lib\Neon.Service\Resources\ready-check&quot;" />
 	</Target>
+	-->
 
 </Project>

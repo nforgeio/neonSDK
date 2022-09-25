@@ -45,6 +45,8 @@ using Neon.Time;
 using DnsClient;
 using Prometheus;
 using OpenTelemetry.Resources;
+using OpenTelemetry.Logs;
+using OpenTelemetry.Trace;
 
 namespace Neon.Service
 {
@@ -757,7 +759,8 @@ namespace Neon.Service
 
                 System.Environment.SetEnvironmentVariable("ASPNETCORE_SUPPRESSSTATUSMESSAGES", "true");
 
-                // Configure the OpenTelemetry logging pipeline.
+                //-------------------------------------------------------------
+                // Configure the logging pipeline here.
 
                 if (options.LoggerFactory != null)
                 {
@@ -770,10 +773,7 @@ namespace Neon.Service
                 }
                 else
                 {
-                    // Configure the logging pipeline here.
-
                     TelemetryHub.ParseLogLevel(System.Environment.GetEnvironmentVariable("LOG_LEVEL") ?? LogLevel.Information.ToMemberString());
-
                     TelemetryHub.ActivitySource ??= new ActivitySource(Name, Version);
 
                     var loggerFactory = LoggerFactory.Create(
@@ -816,6 +816,11 @@ namespace Neon.Service
                     TelemetryHub.LoggerFactory = loggerFactory;
                     this.Logger                = loggerFactory.CreateLogger<NeonService>();
                 }
+
+                //-------------------------------------------------------------
+                // Configure the tracing pipeline.
+
+                // $todo(jefflill): Implement this.
 
                 // Initialize service members.
 
@@ -1142,6 +1147,47 @@ namespace Neon.Service
         /// to update the service status.
         /// </summary>
         public NeonServiceStatus Status { get; private set; }
+
+        /// <summary>
+        /// <para>
+        /// Called by the constructor, giving the derived service implementation a chance to
+        /// customize the logger configuration using the <paramref name="options"/> parameter.
+        /// This is a good place add log exporters and processors required by your service.
+        /// </para>
+        /// <para>
+        /// This is called <b>before</b> the base <see cref="NeonService"/> class performs
+        /// its default configuration.
+        /// </para>
+        /// </summary>
+        /// <param name="options">Passed as the logger options.</param>
+        /// <returns>
+        /// <c>false</c> when the base <see cref="NeonService"/> class should continue with
+        /// its default logger configuration or <c>true</c> to just use the configuration
+        /// set by the method implementation.  The base implementation does nothing and
+        /// returns <c>false</c>.
+        /// </returns>
+        protected virtual bool OnLoggerConfg(OpenTelemetryLoggerOptions options) => false;
+
+        /// <summary>
+        /// <para>
+        /// Called by the constructor, giving the derived service implementation a chance to
+        /// customize the tracer builder using the <paramref name="builder"/> parameter.
+        /// This is a good place to add <c>OpenTelemetry.Instrumentation.AspNetCore</c>
+        /// and other trace instrumentation required by your service.
+        /// </para>
+        /// <para>
+        /// This is called <b>before</b> the base <see cref="NeonService"/> class performs
+        /// its default configuration.
+        /// </para>
+        /// </summary>
+        /// <param name="builder">Passed as the tracer builder.</param>
+        /// <returns>
+        /// <c>false</c> when the base <see cref="NeonService"/> class should continue with
+        /// its default tracer configuration or <c>true</c> to just use the configuration
+        /// set by the method implementation.  The base implementation does nothing and
+        /// returns <c>false</c>.
+        /// </returns>
+        protected virtual bool OnTracerConfig(TracerProviderBuilder builder) => false;
 
         /// <summary>
         /// Updates the service status.  This is typically called internally by this

@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>netstandard2.0</TargetFramework>
+		<TargetFrameworks>netstandard2.0; net6.0</TargetFrameworks>
 		<OutputType>Library</OutputType>
 		<RootNamespace>Neon.Xunit</RootNamespace>
 		<Version>3.0.0</Version>
@@ -60,7 +60,7 @@
 		<ProjectReference Include="..\Neon.Common\Neon.Common.csproj" />
 		<ProjectReference Include="..\Neon.Cryptography\Neon.Cryptography.csproj" />
 		<ProjectReference Include="..\Neon.Docker\Neon.Docker.csproj" />
-		<ProjectReference Include="..\Neon.Service\Neon.Service.csproj" />
+		<ProjectReference Include="..\Neon.Service\Neon.Service.csproj" Condition="'$(TargetFramework)' == 'net6.0'" />
 	</ItemGroup>
 
 	<ItemGroup>

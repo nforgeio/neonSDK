@@ -15,6 +15,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// We're ignoring unresolved NeonService related comment references for
+// target frametworks less than NET6.0.
+
+#pragma warning disable CS1574
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -232,12 +237,14 @@ namespace Neon.Xunit
             Covenant.Requires<InvalidOperationException>(!subFixture.IsRunning, "A subfixture cannot be added after it has already been initialized.");
             Covenant.Requires<ArgumentException>(group >= -1, nameof(group));
 
+#if NET6_0_OR_GREATER
             var fixtureType = typeof(TFixture);
 
             if (fixtureType.IsGenericType && fixtureType.FullName == typeof(NeonServiceFixture<NeonService>).FullName)
             {
                 throw new InvalidOperationException($"This method doesn't work for [{nameof(NeonServiceFixture<NeonService>)}] fixtures.  Use [AddServiceFixture<TService>(...)] instead.");
             }
+#endif // NET6_0_OR_GREATER
 
             CheckDisposed();
             CheckWithinAction();
@@ -251,6 +258,7 @@ namespace Neon.Xunit
             }
         }
 
+#if NET6_0_OR_GREATER
         /// <summary>
         /// Adds a named <see cref="NeonServiceFixture{TService}"/> fixture.
         /// </summary>
@@ -298,6 +306,7 @@ namespace Neon.Xunit
                 subFixture.Start(serviceCreator, serviceMap);
             }
         }
+#endif  // NET6_0_OR_GREATER
 
         /// <summary>
         /// Starts the fixture if it hasn't already been started including invoking the optional

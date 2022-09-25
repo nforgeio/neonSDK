@@ -15,6 +15,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if NET6_0_OR_GREATER
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
@@ -503,3 +505,5 @@ namespace Neon.Xunit
         }
     }
 }
+
+#endif // NET6_0_OR_GREATER

@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>netstandard2.0</TargetFramework>
+		<TargetFrameworks>net48; netcoreapp3.1; net5.0; net6.0</TargetFrameworks>
 		<OutputType>Library</OutputType>
 		<LangVersion>latest</LangVersion>
 		<Version>3.0.0</Version>
@@ -27,11 +27,11 @@
 		<AnalysisLevel>5.0</AnalysisLevel>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net5.0|AnyCPU'">
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
 		<DefineConstants>DEBUG;TRACE</DefineConstants>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net5.0|AnyCPU'">
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
 		<DefineConstants />
 	</PropertyGroup>
 
@@ -52,7 +52,7 @@
 
 		<!-- Include the PDB in the nuget so stack traces can include line numbers -->
 
-		<Content Include="bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).pdb" PackagePath="contentFiles\any\$(TargetFramework)\$(AssemblyName).pdb" PackageCopyToOutput="true" Pack="true"/>
+		<Content Include="bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).pdb" PackagePath="contentFiles\any\$(TargetFramework)\$(AssemblyName).pdb" PackageCopyToOutput="true" Pack="true" />
 	</ItemGroup>
 
 </Project>

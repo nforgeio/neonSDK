@@ -45,10 +45,6 @@
 		<NoWarn></NoWarn>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net5.0|AnyCPU'">
-		<DefineConstants />
-	</PropertyGroup>
-
 	<ItemGroup>
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 		<PackageReference Include="System.Security.Cryptography.Cng" Version="5.0.0" />

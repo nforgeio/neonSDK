@@ -15,6 +15,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// We're ignoring unresolved NeonService related comment references for
+// target frametworks less than NET6.0.
+
+#pragma warning disable CS1574
+
 using System;
 using System.Collections;
 using System.Collections.Generic;

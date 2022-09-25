@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>netstandard2.0</TargetFramework>
+		<TargetFrameworks>net48; netcoreapp3.1; net5.0; net6.0</TargetFrameworks>
 		<OutputType>Library</OutputType>
 		<Version>3.0.0</Version>
 		<Authors>neonFORGE Team</Authors>
@@ -40,10 +40,6 @@
 		<TreatWarningsAsErrors>false</TreatWarningsAsErrors>
 		<WarningsAsErrors>NU1605</WarningsAsErrors>
 		<NoWarn></NoWarn>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net5.0|AnyCPU'">
-		<DefineConstants />
 	</PropertyGroup>
 
 	<ItemGroup>
