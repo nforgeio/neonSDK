@@ -47,6 +47,7 @@ using Prometheus;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Trace;
+using OpenTelemetry;
 
 namespace Neon.Service
 {
@@ -223,15 +224,42 @@ namespace Neon.Service
     /// or <b>TRACE</b> (case insensitive).
     /// </para>
     /// <para>
-    /// If you need to customize the OpenTelemetry logging pipeline, you may do this by
-    /// configuring the pipeline first, creating an <see cref="ILoggerFactory"/> and setting
-    /// the <see cref="NeonServiceOptions.LoggerFactory"/> to this factory and then passing
-    /// the options to the <see cref="NeonService"/> constructor.
+    /// If you need to customize the OpenTelemetry logging pipeline, you may accomplish this
+    /// two ways:
     /// </para>
+    /// <list type="bullet">
+    /// <item>
+    ///     <para>
+    ///     The easist way to tweak the logging configuration is to implement the protected
+    ///     <see cref="OnLoggerConfg(OpenTelemetryLoggerOptions)"/> method.  This is called 
+    ///     by the <see cref="NeonService"/> constructor before any built-in logging configuration
+    ///     has been done, giving your code the chance to modify the options.
+    ///     </para>
+    ///     <para>
+    ///     Your <see cref="OnLoggerConfg(OpenTelemetryLoggerOptions)"/> method can then return
+    ///     <c>false</c> when you want <see cref="NeonService"/> to continue with it's built-in
+    ///     configuration or <c>true</c> if the service ill use your configuration unchanged.
+    ///     </para>
+    /// </item>
+    /// <item>
+    ///     <para>
+    ///     You can configuring the pipeline before intantiating your service, by creating an
+    ///     <see cref="ILoggerFactory"/>, doing any configuration as desired, setting the
+    ///     <see cref="NeonServiceOptions.LoggerFactory"/> to this factory and then passing
+    ///     the options to the <see cref="NeonService"/> constructor.
+    ///     </para>
+    ///     <para>
+    ///     <see cref="OnLoggerConfg(OpenTelemetryLoggerOptions)"/> isn't called when a
+    ///     <see cref="NeonServiceOptions.LoggerFactory"/> instance is passed and the service 
+    ///     just use your configuration.
+    ///     </para>
+    /// </item>
+    /// </list>
     /// <para>
-    /// Your service can use the service's <see cref="Logger"/> property or call <see cref="TelemetryHub.CreateLogger{T}(LogAttributes, bool, bool)"/>
-    /// or <see cref="TelemetryHub.CreateLogger(string, LogAttributes, bool, bool)"/> create loggers 
-    /// you can use to log events.  We recommend that you add a <c>using Neon.Diagnostics;</c> 
+    /// Your service can use the base <see cref="NeonService"/>;s <see cref="Logger"/> property or 
+    /// call <see cref="TelemetryHub.CreateLogger{T}(LogAttributes, bool, bool)"/> or 
+    /// <see cref="TelemetryHub.CreateLogger(string, LogAttributes, bool, bool)"/> to create loggers 
+    /// you can use for logging events.  We then recommend that you add a <c>using Neon.Diagnostics;</c> 
     /// statement to your code and then use our <see cref="Neon.Diagnostics.LoggerExtensions"/> like:
     /// </para>
     /// <code language="C#">
@@ -262,19 +290,17 @@ namespace Neon.Service
     ///     <term><b>TRACE_COLLECTOR_URI</b></term>
     ///     <description>
     ///     <para>
-    ///     When present and <see cref="NeonServiceOptions.LoggerFactory"/> is <c>null</c>, then
+    ///     When present and <see cref="NeonServiceOptions.TracerProvider"/> is <c>null</c>, then
     ///     this specifies the URI for the OpenTelemetry Collector where the traces will be sent.
+    ///     If this environment variable is not present and the service is running in Kubernetes,
+    ///     then we're going to assume that you're running in a neonKUBE cluster and <see cref="NeonService"/>
+    ///     will default to sending traces to the <see cref="NeonHelper.NeonKubeOtelCollectorUri"/>
+    ///     (<b>http://neon-otel-collector</b>) service endpoint deployed to the same Kubernetes namespace.
     ///     </para>
     ///     <note>
-    ///     Services deployed within neonKUBE clusters should consider setting this to
-    ///     <see cref="NeonHelper.NeonKubeOtelCollectorUri"/> (<b>http://neon-otel-collector</b>).
-    ///     This will forward traces to the the Kubernetes service in the same namespace where
-    ///     your service is running which then forwards the traces to the cluster's tempo
-    ///     installation.
-    ///     </note>
-    ///     <note>
-    ///     This is ignored when <see cref="NeonServiceOptions.LoggerFactory"/> is not <c>null</c>,
-    ///     which indicates that a custom OpenTelemetry pipeline has been configured.
+    ///     This is ignored when <see cref="NeonServiceOptions.TracerProvider"/> is not <c>null</c>,
+    ///     which indicates that a custom OpenTelemetry tracing pipeline has already been configured
+    ///     or for services targeting the .NET Framework or .NET Core frameworks earlier than NET6.0.
     ///     </note>
     ///     </description>
     /// </item>
@@ -291,7 +317,7 @@ namespace Neon.Service
     ///     </para>
     ///     <note>
     ///     This feature is disabled when <see cref="NeonServiceOptions.LoggerFactory"/> has been
-    ///     set, indicating that the OpenTelemetry pipeline has already been customized.
+    ///     set, indicating that the OpenTelemetry logging pipeline has already been customized.
     ///     </note>
     ///     <note>
     ///     <para>
@@ -328,6 +354,17 @@ namespace Neon.Service
     ///     // Perform your operation.
     /// }
     /// </code>
+    /// <para>
+    /// By default, <see cref="NeonService"/> adds tracing instrumentation for <see cref="HttpClient"/>,
+    /// <see cref="WebRequest"/> via the <b>OpenTelemetry.Instrumentation.Http</b> package and for
+    /// ASPNETCORE via the <b>OpenTelemetry.Instrumentation.AspNetCore</b> package.  You can customize
+    /// this by implementing the protected <see cref="OnTracerConfig(TracerProviderBuilder)"/> method
+    /// or by configuring a <see cref="TracerProvider"/> before instantiating your service and passing 
+    /// your provider as <see cref="NeonServiceOptions.TracerProvider"/>.
+    /// </para>
+    /// <note>
+    /// <b>IMPORTANT:</b> Trace instrumentation is only supported for projects targeting .NET6.0 or greater.
+    /// </note>
     /// </list>
     /// <para><b>HEALTH PROBES</b></para>
     /// <note>
@@ -676,8 +713,7 @@ namespace Neon.Service
         private string                          healthCheckPath;
         private string                          readyCheckPath;
         private IRetryPolicy                    healthRetryPolicy = new LinearRetryPolicy(e => e is IOException, maxAttempts: 10, retryInterval: TimeSpan.FromMilliseconds(100));
-        private string                          traceCollectorUri;
-        private string                          traceCollectorHost;
+        private Uri                             traceCollectorUri;
         private MetricServer                    metricServer;
         private MetricPusher                    metricPusher;
         private IDisposable                     metricCollector;
@@ -748,6 +784,17 @@ namespace Neon.Service
                     }
                 }
 
+                // Initialize service members.
+
+                this.Name                   = name;
+                this.ServiceMap             = options.ServiceMap;
+                this.InProduction           = !NeonHelper.IsDevWorkstation;
+                this.Terminator             = new ProcessTerminator(gracefulShutdownTimeout: options.GracefulShutdownTimeout, minShutdownTime: options.MinShutdownTime);
+                this.Environment            = new EnvironmentParser(Logger, VariableSource);
+                this.configFiles            = new Dictionary<string, FileInfo>();
+                this.healthFolder           = options.HealthFolder ?? "/";
+                this.terminationMessagePath = options.TerminationMessagePath ?? "/dev/termination-log";
+
                 // Initialize the service environment.
 
                 this.environmentVariables = new Dictionary<string, string>();
@@ -759,12 +806,26 @@ namespace Neon.Service
 
                 System.Environment.SetEnvironmentVariable("ASPNETCORE_SUPPRESSSTATUSMESSAGES", "true");
 
+                // Parse the TRACE_COLLECTOR_URI environment variable when present.
+
+                var traceCollectorUriString = System.Environment.GetEnvironmentVariable("TRACE_COLLECTOR_URI");
+
+                if (!string.IsNullOrEmpty(traceCollectorUriString))
+                {
+                    Uri.TryCreate(traceCollectorUriString, UriKind.Absolute, out traceCollectorUri);
+                }
+
+                if (NeonHelper.IsKubernetes && traceCollectorUri == null)
+                {
+                    traceCollectorUri = new Uri(NeonHelper.NeonKubeOtelCollectorUri);
+                }
+
                 //-------------------------------------------------------------
-                // Configure the logging pipeline here.
+                // Configure the logging pipeline.
 
                 if (options.LoggerFactory != null)
                 {
-                    // The logging pipeline is already configured.
+                    // The logging pipeline has already been configured by the user.
 
                     NeonHelper.ServiceContainer.Add(new ServiceDescriptor(typeof(ILoggerFactory), options.LoggerFactory));
 
@@ -773,10 +834,11 @@ namespace Neon.Service
                 }
                 else
                 {
-                    TelemetryHub.ParseLogLevel(System.Environment.GetEnvironmentVariable("LOG_LEVEL") ?? LogLevel.Information.ToMemberString());
-                    TelemetryHub.ActivitySource ??= new ActivitySource(Name, Version);
+                    // Built-in logger configuration.
 
-                    var loggerFactory = LoggerFactory.Create(
+                    TelemetryHub.ParseLogLevel(System.Environment.GetEnvironmentVariable("LOG_LEVEL") ?? LogLevel.Information.ToMemberString());
+
+                    var loggerFactory = Microsoft.Extensions.Logging.LoggerFactory.Create(
                         builder =>
                         {
                             builder.AddOpenTelemetry(
@@ -784,30 +846,36 @@ namespace Neon.Service
                                 {
                                     options.ParseStateValues        = true;
                                     options.IncludeFormattedMessage = true;
-                                    options.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(serviceName: Name, serviceVersion: Version));
 
-                                    // Configure the trace pipeline when the [TRACE_COLLECTOR_URI] environment
-                                    // variable is present and valid.
+                                    // Give the derived service a chance to customize the logging configuration.
+                                    // This method returns FALSE to continue with the built-in configuration or
+                                    // TRUE when the derived class has full configured things.
 
-                                    var uriString = System.Environment.GetEnvironmentVariable("TRACE_COLLECTOR_URI");
-
-                                    if (!string.IsNullOrEmpty(uriString) && Uri.TryCreate(uriString, UriKind.Absolute, out var uri))
+                                    if (!OnLoggerConfg(options))
                                     {
-                                        options.AddLogAsTraceProcessor(
-                                            options =>
-                                            {
-                                                var traceLogLevelString = System.Environment.GetEnvironmentVariable("TRACE_LOG_LEVEL") ?? LogLevel.Information.ToMemberString();
+                                        options.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(serviceName: Name, serviceVersion: Version));
 
-                                                if (!NeonHelper.TryParseEnum<LogLevel>(traceLogLevelString, out var traceLogLevel))
+                                        // Configure the trace pipeline when the [TRACE_COLLECTOR_URI] environment
+                                        // variable is present and valid.
+
+                                        if (traceCollectorUri != null)
+                                        {
+                                            options.AddLogAsTraceProcessor(
+                                                options =>
                                                 {
-                                                    traceLogLevel = LogLevel.Information;
-                                                }
+                                                    var traceLogLevelString = System.Environment.GetEnvironmentVariable("TRACE_LOG_LEVEL") ?? LogLevel.Information.ToMemberString();
 
-                                                options.LogLevel = traceLogLevel;
-                                            });
+                                                    if (!NeonHelper.TryParseEnum<LogLevel>(traceLogLevelString, out var traceLogLevel))
+                                                    {
+                                                        traceLogLevel = LogLevel.Information;
+                                                    }
+
+                                                    options.LogLevel = traceLogLevel;
+                                                });
+                                        }
+
+                                        options.AddConsoleJsonExporter();
                                     }
-
-                                    options.AddConsoleJsonExporter();
                                 });
                         });
 
@@ -820,18 +888,42 @@ namespace Neon.Service
                 //-------------------------------------------------------------
                 // Configure the tracing pipeline.
 
-                // $todo(jefflill): Implement this.
+                TelemetryHub.ActivitySource ??= new ActivitySource(Name, Version);
+                this.ActivitySource           = TelemetryHub.ActivitySource;
 
-                // Initialize service members.
+                if (options.TracerProvider != null)
+                {
+                    // The tracing pipeline has already been configured by the user.
+                }
+                else
+                {
+                    // Built-in tracing configuration.
 
-                this.Name                   = name;
-                this.ServiceMap             = options.ServiceMap;
-                this.InProduction           = !NeonHelper.IsDevWorkstation;
-                this.Terminator             = new ProcessTerminator(gracefulShutdownTimeout: options.GracefulShutdownTimeout, minShutdownTime: options.MinShutdownTime);
-                this.Environment            = new EnvironmentParser(Logger, VariableSource);
-                this.configFiles            = new Dictionary<string, FileInfo>();
-                this.healthFolder           = options.HealthFolder ?? "/";
-                this.terminationMessagePath = options.TerminationMessagePath ?? "/dev/termination-log";
+                    var tracerProviderBuilder = Sdk.CreateTracerProviderBuilder()
+                        .AddSource(name, version)
+                        .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(name, version));
+
+                    // Give the derived service a chance to customize the trace pipeline.
+
+                    if (!OnTracerConfig(tracerProviderBuilder))
+                    {
+                        // Built-in configuration when the the derived class allows it.
+#if NET6_0_OR_GREATER
+                        tracerProviderBuilder.AddHttpClientInstrumentation();
+                        tracerProviderBuilder.AddAspNetCoreInstrumentation();
+                        tracerProviderBuilder.AddOtlpExporter(
+                            options =>
+                            {
+                                options.ExportProcessorType         = ExportProcessorType.Batch;
+                                options.BatchExportProcessorOptions = new BatchExportProcessorOptions<Activity>();
+                                options.Endpoint                    = traceCollectorUri;
+                                options.Protocol                    = OpenTelemetry.Exporter.OtlpExportProtocol.HttpProtobuf;
+                            });
+#endif
+                    }
+
+                    tracerProviderBuilder.Build();
+                }
 
                 // Initialize the metrics prefix and counters.
 
@@ -1109,6 +1201,13 @@ namespace Neon.Service
         public MetricsOptions MetricsOptions { get; set; } = new MetricsOptions();
 
         /// <summary>
+        /// Returns the <see cref="ILoggerFactory"/> used by the service.  This is used to create
+        /// the default service <see cref="Logger"/> and may also be used by user code to create
+        /// custom loggers when necessary.
+        /// </summary>
+        public ILoggerFactory LoggerFactory { get; private set; }
+
+        /// <summary>
         /// <para>
         /// Configured as the <see cref="ILogger"/> used by the service for logging.
         /// </para>
@@ -1166,6 +1265,13 @@ namespace Neon.Service
         /// set by the method implementation.  The base implementation does nothing and
         /// returns <c>false</c>.
         /// </returns>
+        /// <remarks>
+        /// <note>
+        /// This method is not called when the <see cref="NeonServiceOptions.LoggerFactory"/>
+        /// property is set when constructing the service, indicating that the logging pipeline
+        /// has already been configured.
+        /// </note>
+        /// </remarks>
         protected virtual bool OnLoggerConfg(OpenTelemetryLoggerOptions options) => false;
 
         /// <summary>
@@ -1187,6 +1293,13 @@ namespace Neon.Service
         /// set by the method implementation.  The base implementation does nothing and
         /// returns <c>false</c>.
         /// </returns>
+        /// <remarks>
+        /// <note>
+        /// This method is not called when the <see cref="NeonServiceOptions.TracerProvider"/>
+        /// property is set when constructing the service, indicating that the tracing pipeline
+        /// has already been configured.
+        /// </note>
+        /// </remarks>
         protected virtual bool OnTracerConfig(TracerProviderBuilder builder) => false;
 
         /// <summary>

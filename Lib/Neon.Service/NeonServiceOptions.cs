@@ -18,6 +18,7 @@
 using System;
 
 using Microsoft.Extensions.Logging;
+using OpenTelemetry.Trace;
 
 namespace Neon.Service
 {
@@ -47,11 +48,28 @@ namespace Neon.Service
         public bool AppendGitInfo { get; set; } = true;
 
         /// <summary>
+        /// <para>
         /// Optionally specifies the <see cref="ILoggerFactory"/> the service will use for logging purposes.
         /// When set to <c>null</c> (the default), the <see cref="NeonService"/> class will configure
-        /// the OpenTelemetry pipeline and configure a logger factory for the service and NeonSDK libraries.
+        /// the OpenTelemetry logging pipeline and configure a logger factory for the service and neonSDK libraries.
+        /// </para>
+        /// <para>
+        /// You can set this when you need a completely custom logging configuration.
+        /// </para>
         /// </summary>
         public ILoggerFactory LoggerFactory { get; set; } = null;
+
+        /// <summary>
+        /// <para>
+        /// Optionally specifies the <see cref="TracerProvider"/> the service will use for tracing purposes.
+        /// When set to <c>null</c> (the default), the <see cref="NeonService"/> class will configure the 
+        /// tracing pipeline for the service and neonSDK libraries.
+        /// </para>
+        /// <para>
+        /// You can set this when you need a completely custom tracing configuration.
+        /// </para>
+        /// </summary>
+        public TracerProvider TracerProvider { get; set; }
 
         /// <summary>
         /// Optionally specifies prefix to be used by metrics counters, overridding a prefix based on the
