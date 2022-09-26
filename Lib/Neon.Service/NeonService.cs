@@ -44,10 +44,11 @@ using Neon.Time;
 
 using DnsClient;
 using Prometheus;
-using OpenTelemetry.Resources;
-using OpenTelemetry.Logs;
-using OpenTelemetry.Trace;
+
 using OpenTelemetry;
+using OpenTelemetry.Logs;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 
 namespace Neon.Service
 {
@@ -901,6 +902,7 @@ namespace Neon.Service
 
                     var tracerProviderBuilder = Sdk.CreateTracerProviderBuilder()
                         .AddSource(name, version)
+                        .SetSampler(OltpCollectorChecker.Sampler)
                         .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(name, version));
 
                     // Give the derived service a chance to customize the trace pipeline.
@@ -924,6 +926,13 @@ namespace Neon.Service
 
                     tracerProviderBuilder.Build();
                 }
+
+                // Start the [OtlpCollectorChecker] which polls to ensure that the
+                // [neon-otel-collector] service is running in the same namespace
+                // as the service and then enables/disables trace sampling based
+                // as necessary to avoid trying to send traces to a black hole.
+
+                OltpCollectorChecker.Start();
 
                 // Initialize the metrics prefix and counters.
 
