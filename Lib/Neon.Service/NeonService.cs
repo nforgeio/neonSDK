@@ -807,7 +807,9 @@ namespace Neon.Service
 
                 System.Environment.SetEnvironmentVariable("ASPNETCORE_SUPPRESSSTATUSMESSAGES", "true");
 
-                // Parse the TRACE_COLLECTOR_URI environment variable when present.
+                // Parse the TRACE_COLLECTOR_URI environment variable when present otherwise
+                // this will default to [NeonHelper.NeonKubeOtelCollectorUri] when we're running
+                // in Kubernetes.
 
                 var traceCollectorUriString = System.Environment.GetEnvironmentVariable("TRACE_COLLECTOR_URI");
 
@@ -898,11 +900,25 @@ namespace Neon.Service
                 }
                 else
                 {
+                    // Start the [CollectorChecker] which polls to ensure that the
+                    // [neon-otel-collector] service is running in the same namespace
+                    // as the service and then enables/disables trace sampling based
+                    // as necessary to avoid trying to send traces to a black hole.
+
+                    if (traceCollectorUri != null)
+                    {
+                        OtlpCollectorChecker.Start(this, collectorUri: traceCollectorUri);
+                    }
+                    else
+                    {
+                        OtlpCollectorChecker.Start(this);
+                    }
+
                     // Built-in tracing configuration.
 
                     var tracerProviderBuilder = Sdk.CreateTracerProviderBuilder()
                         .AddSource(name, version)
-                        .SetSampler(OltpCollectorChecker.Sampler)
+                        .SetSampler(OtlpCollectorChecker.Sampler)
                         .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(name, version));
 
                     // Give the derived service a chance to customize the trace pipeline.
@@ -926,13 +942,6 @@ namespace Neon.Service
 
                     tracerProviderBuilder.Build();
                 }
-
-                // Start the [OtlpCollectorChecker] which polls to ensure that the
-                // [neon-otel-collector] service is running in the same namespace
-                // as the service and then enables/disables trace sampling based
-                // as necessary to avoid trying to send traces to a black hole.
-
-                OltpCollectorChecker.Start();
 
                 // Initialize the metrics prefix and counters.
 
