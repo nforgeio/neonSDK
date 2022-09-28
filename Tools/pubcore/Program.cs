@@ -40,7 +40,7 @@ namespace pubcore
         /// <summary>
         /// Tool version number.
         /// </summary>
-        public const string Version = "2.2";
+        public const string Version = "2.3";
 
         /// <summary>
         /// Program entry point.
@@ -125,8 +125,28 @@ then creates a CMD.EXE batch file named PUBLISH-DIR/TARGET-NAME.cmd that launche
 application, forwarding any command line arguments.
 
 The [--no-cmd] option prevents the CMD.EXE batch file from being created.
+
+DISABLING PUBLICATION
+
+Publishing an application can take some time and may not work in some situations
+due to Visual Studio keeping files open.  We try to mitigate the latter by retrying
+file delete/copy operations but sometimes these mitgations fail as well.
+
+You can set this environment variable to disable publication:
+
+    NEON_PUBCORE_DISABLE=true
+
+This tool does nothing when it sees this variable.  You can set this in build
+scripts or MSBUILD/CSPROJ files to quickly disable publication.
 ");
                     Environment.Exit(1);
+                }
+
+                // Abort when we see: NEON_PUBCORE_DISABLE=true
+
+                if ("true".Equals(Environment.GetEnvironmentVariable("NEON_PUBCORE_DISABLE"), StringComparison.InvariantCultureIgnoreCase))
+                {
+                    Environment.Exit(0);
                 }
 
                 // We need to examine/set an environment variable to prevent the [dotnet publish...]

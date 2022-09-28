@@ -196,230 +196,244 @@ function Publish
     }
 }
 
-$msbuild     = $env:MSBUILDPATH
-$nfRoot      = "$env:NF_ROOT"
-$nfSolution  = "$nfRoot\neonSDK.sln"
-$branch      = GitBranch $nfRoot
-
-if ($localVersion)
+try
 {
-    $local = $true
-}
+    $msbuild     = $env:MSBUILDPATH
+    $nfRoot      = "$env:NF_ROOT"
+    $nfSolution  = "$nfRoot\neonSDK.sln"
+    $branch      = GitBranch $nfRoot
 
-if ($localVersion)
-{
-    # EMERGENCY MODE: Use local counters.
-
-    $nfVersionPath = [System.IO.Path]::Combine($env:NC_NUGET_LOCAL, "neonSDK.version.txt")
-    $nkVersionPath = [System.IO.Path]::Combine($env:NC_NUGET_LOCAL, "neonKUBE.version.txt")
-
-    if (![System.IO.File]::Exists("$nfVersionPath") -or ![System.IO.File]::Exists("$nfVersionPath"))
+    if ($localVersion)
     {
-        Write-Error "You'll need to manually initialize the local version files at:" -ErrorAction continue
-        Write-Error ""                   -ErrorAction continue
-        Write-Error "    $nfVersionPath" -ErrorAction continue
-        Write-Error "    $nfVersionPath" -ErrorAction continue
-        Write-Error "" -ErrorAction continue
-        Write-Error "Create these files with the minor version number currently referenced" -ErrorAction continue
-        Write-Error "by your local neonCLOUD solution:" -ErrorAction continue
-        Write-Error "" -ErrorAction continue
-        Write-Error "The easiest way to do this is to open the [neonCLOUD/Tools/neon-cli/neon-cli.csproj]" -ErrorAction continue
-        Write-Error "file extract the minor version for the package references as described below:" -ErrorAction continue
-        Write-Error "" -ErrorAction continue
-        Write-Error "    neonSDK.version.txt:  from Neon.Common" -ErrorAction continue
-        Write-Error "    neonKUBE.version.txt: from Neon.Kube" -ErrorAction continue
-        Write-Error "" -ErrorAction continue
-        Write-Error "NOTE: These two version numbers are currently the same (Jan 2022), but they" -ErrorAction continue
-        Write-Error "      may diverge at any time and will definitely diverge after we separate " -ErrorAction continue
-        Write-Error "      neonSDK and neonKUBE." -ErrorAction continue
-        exit 1
+        $local = $true
     }
 
-    $version = [int](Get-Content -TotalCount 1 $nfVersionPath).Trim()
-    $version++
-    [System.IO.File]::WriteAllText($nfVersionPath, $version)
-    $neonSdkVersion = "10000.0.$version-dev-$branch"
+    if ($localVersion)
+    {
+        # EMERGENCY MODE: Use local counters.
 
-    $version = [int](Get-Content -TotalCount 1 $nfVersionPath).Trim()
-    $version++
-    [System.IO.File]::WriteAllText($nfVersionPath, $version)
-    $neonkubeVersion = "10000.0.$version-dev-$branch"
+        $nfVersionPath = [System.IO.Path]::Combine($env:NC_NUGET_LOCAL, "neonSDK.version.txt")
+        $nkVersionPath = [System.IO.Path]::Combine($env:NC_NUGET_LOCAL, "neonKUBE.version.txt")
+
+        if (![System.IO.File]::Exists("$nfVersionPath") -or ![System.IO.File]::Exists("$nfVersionPath"))
+        {
+            Write-Error "You'll need to manually initialize the local version files at:" -ErrorAction continue
+            Write-Error ""                   -ErrorAction continue
+            Write-Error "    $nfVersionPath" -ErrorAction continue
+            Write-Error "    $nfVersionPath" -ErrorAction continue
+            Write-Error "" -ErrorAction continue
+            Write-Error "Create these files with the minor version number currently referenced" -ErrorAction continue
+            Write-Error "by your local neonCLOUD solution:" -ErrorAction continue
+            Write-Error "" -ErrorAction continue
+            Write-Error "The easiest way to do this is to open the [neonCLOUD/Tools/neon-cli/neon-cli.csproj]" -ErrorAction continue
+            Write-Error "file extract the minor version for the package references as described below:" -ErrorAction continue
+            Write-Error "" -ErrorAction continue
+            Write-Error "    neonSDK.version.txt:  from Neon.Common" -ErrorAction continue
+            Write-Error "    neonKUBE.version.txt: from Neon.Kube" -ErrorAction continue
+            Write-Error "" -ErrorAction continue
+            Write-Error "NOTE: These two version numbers are currently the same (Jan 2022), but they" -ErrorAction continue
+            Write-Error "      may diverge at any time and will definitely diverge after we separate " -ErrorAction continue
+            Write-Error "      neonSDK and neonKUBE." -ErrorAction continue
+            exit 1
+        }
+
+        $version = [int](Get-Content -TotalCount 1 $nfVersionPath).Trim()
+        $version++
+        [System.IO.File]::WriteAllText($nfVersionPath, $version)
+        $neonSdkVersion = "10000.0.$version-dev-$branch"
+
+        $version = [int](Get-Content -TotalCount 1 $nfVersionPath).Trim()
+        $version++
+        [System.IO.File]::WriteAllText($nfVersionPath, $version)
+        $neonkubeVersion = "10000.0.$version-dev-$branch"
+    }
+    else
+    {
+        # We're going to call the neonCLOUD nuget versioner service to atomically increment the 
+        # dev package version counters for the solution and then generate the full version for
+        # the packages we'll be publishing.  We'll use separate counters for the neonSDK
+        # and neonKUBE packages.
+        #
+        # The package versions will also include the current branch appended to the preview tag
+        # so a typical package version will look like:
+        #
+        #       10000.0.VERSION-dev-master
+        #
+        # where we use major version 10000 as a value that will never be exceeded by a real
+        # release, VERSION is automatically incremented for every package published, [master]
+        # in this case is the current branch at the time of publishing and [-dev] indicates
+        # that this is a non-production release.
+
+        # Retrieve any necessary credentials.
+
+        $versionerKey  = Get-SecretValue "NUGET_VERSIONER_KEY" "group-devops"
+        $devFeedApiKey = Get-SecretValue "NUGET_DEVFEED_KEY"   "group-devops"
+
+        # Get the nuget versioner API key from the environment and convert it into a base-64 string.
+
+        $versionerKeyBase64 = [Convert]::ToBase64String(([System.Text.Encoding]::UTF8.GetBytes($versionerKey)))
+
+        # Submit PUTs request to the versioner service, specifying the counter name.  The service will
+        # atomically increment the counter and return the next value.
+
+        $reply           = Invoke-WebRequest -Uri "$env:NC_NUGET_VERSIONER/counter/neonSDK-dev" -Method 'PUT' -Headers @{ 'Authorization' = "Bearer $versionerKeyBase64" } 
+        $neonSdkVersion  = "10000.0.$reply-dev-$branch"
+
+        $reply           = Invoke-WebRequest -Uri "$env:NC_NUGET_VERSIONER/counter/neonKUBE-dev" -Method 'PUT' -Headers @{ 'Authorization' = "Bearer $versionerKeyBase64" } 
+        $neonkubeVersion = "10000.0.$reply-dev-$branch"
+    }
+
+    # Disable the [pubcore.exe] tool to avoid file locking conflicts with Visual Studio
+    # and also to speed this up a bit.
+
+    $env:NEON_PUBCORE_DISABLE = "true"
+
+    # We need to do a solution build to ensure that any tools or other dependencies 
+    # are built before we build and publish the individual packages.
+
+    Write-Info ""
+    Write-Info "********************************************************************************"
+    Write-Info "***                            CLEAN SOLUTION                                ***"
+    Write-Info "********************************************************************************"
+    Write-Info ""
+
+    # & neon-build clean-generated-cs $nfRoot
+    & "$msbuild" "$nfSolution" -p:Configuration=$config -t:Clean -m -verbosity:quiet
+
+    if (-not $?)
+    {
+        throw "ERROR: CLEAN FAILED"
+    }
+
+    Write-Info ""
+    Write-Info "********************************************************************************"
+    Write-Info "***                           RESTORE PACKAGES                               ***"
+    Write-Info "********************************************************************************"
+    Write-Info ""
+
+    & "$msbuild" "$nfSolution" -t:restore -verbosity:quiet
+
+    Write-Info  ""
+    Write-Info  "*******************************************************************************"
+    Write-Info  "***                           BUILD SOLUTION                                ***"
+    Write-Info  "*******************************************************************************"
+    Write-Info  ""
+
+    & "$msbuild" "$nfSolution" -p:Configuration=$config -restore -m -verbosity:quiet
+
+    if (-not $?)
+    {
+        throw "ERROR: BUILD FAILED"
+    }
+
+    # We need to set the version first in all of the project files so that
+    # implicit package dependencies will work for external projects importing
+    # these packages.
+
+    SetVersion Neon.Blazor                      $neonSdkVersion
+    SetVersion Neon.Cadence                     $neonSdkVersion
+    SetVersion Neon.Cassandra                   $neonSdkVersion
+    SetVersion Neon.Common                      $neonSdkVersion
+    SetVersion Neon.Couchbase                   $neonSdkVersion
+    SetVersion Neon.Cryptography                $neonSdkVersion
+    SetVersion Neon.CSharp                      $neonSdkVersion
+    SetVersion Neon.Deployment                  $neonSdkVersion
+    SetVersion Neon.Docker                      $neonSdkVersion
+    SetVersion Neon.JsonConverters              $neonSdkVersion
+    SetVersion Neon.HyperV                      $neonSdkVersion
+    SetVersion Neon.Service                     $neonSdkVersion
+    SetVersion Neon.ModelGen                    $neonSdkVersion
+    SetVersion Neon.ModelGenerator              $neonSdkVersion
+    SetVersion Neon.Nats                        $neonSdkVersion
+    SetVersion Neon.Postgres                    $neonSdkVersion
+    SetVersion Neon.SSH                         $neonSdkVersion
+    SetVersion Neon.Tailwind                    $neonSdkVersion
+    SetVersion Neon.Web                         $neonSdkVersion
+    SetVersion Neon.WinTTY                      $neonSdkVersion
+    SetVersion Neon.WSL                         $neonSdkVersion
+    SetVersion Neon.XenServer                   $neonSdkVersion
+    SetVersion Neon.Xunit                       $neonSdkVersion
+    SetVersion Neon.Xunit.Cadence               $neonSdkVersion
+    SetVersion Neon.Xunit.Couchbase             $neonSdkVersion
+    SetVersion Neon.Xunit.YugaByte              $neonSdkVersion
+    SetVersion Neon.YugaByte                    $neonSdkVersion
+
+    # Build and publish the projects.
+
+    Publish Neon.Blazor                         $neonSdkVersion
+    Publish Neon.Cadence                        $neonSdkVersion
+    Publish Neon.Cassandra                      $neonSdkVersion
+    Publish Neon.Common                         $neonSdkVersion
+    Publish Neon.Couchbase                      $neonSdkVersion
+    Publish Neon.Cryptography                   $neonSdkVersion
+    Publish Neon.CSharp                         $neonSdkVersion
+    Publish Neon.Deployment                     $neonSdkVersion
+    Publish Neon.Docker                         $neonSdkVersion
+    Publish Neon.JsonConverters                 $neonSdkVersion
+    Publish Neon.HyperV                         $neonSdkVersion
+    Publish Neon.Service                        $neonSdkVersion
+    Publish Neon.ModelGen                       $neonSdkVersion
+    Publish Neon.ModelGenerator                 $neonSdkVersion
+    Publish Neon.Nats                           $neonSdkVersion
+    Publish Neon.Postgres                       $neonSdkVersion
+    Publish Neon.SSH                            $neonSdkVersion
+    Publish Neon.Tailwind                       $neonSdkVersion
+    Publish Neon.Web                            $neonSdkVersion
+    Publish Neon.WinTTY                         $neonSdkVersion
+    Publish Neon.WSL                            $neonSdkVersion
+    Publish Neon.XenServer                      $neonSdkVersion
+    Publish Neon.Xunit                          $neonSdkVersion
+    Publish Neon.Xunit.Cadence                  $neonSdkVersion
+    Publish Neon.Xunit.Couchbase                $neonSdkVersion
+    Publish Neon.Xunit.YugaByte                 $neonSdkVersion
+    Publish Neon.YugaByte                       $neonSdkVersion
+
+    # Restore the project versions
+
+    RestoreVersion Neon.Blazor
+    RestoreVersion Neon.Cadence
+    RestoreVersion Neon.Cassandra
+    RestoreVersion Neon.Common
+    RestoreVersion Neon.Couchbase
+    RestoreVersion Neon.Cryptography
+    RestoreVersion Neon.CSharp
+    RestoreVersion Neon.Deployment
+    RestoreVersion Neon.Docker
+    RestoreVersion Neon.JsonConverters
+    RestoreVersion Neon.HyperV
+    RestoreVersion Neon.Service
+    RestoreVersion Neon.ModelGen
+    RestoreVersion Neon.ModelGenerator
+    RestoreVersion Neon.Nats
+    RestoreVersion Neon.Postgres
+    RestoreVersion Neon.SSH
+    RestoreVersion Neon.Tailwind
+    RestoreVersion Neon.Web
+    RestoreVersion Neon.WinTTY
+    RestoreVersion Neon.WSL
+    RestoreVersion Neon.XenServer
+    RestoreVersion Neon.Xunit
+    RestoreVersion Neon.Xunit.Cadence
+    RestoreVersion Neon.Xunit.Couchbase
+    RestoreVersion Neon.Xunit.YugaByte
+    RestoreVersion Neon.YugaByte
+
+    # Remove any generated C# files under project [obj] folders to
+    # avoid duplicate symbol compilation errors after publishing.
+
+    # & neon-build clean-generated-cs $nfRoot
+
+    # Remove all of the generated nuget files so these don't accumulate.
+
+    Remove-Item "$env:NF_BUILD\nuget\*"
+
+    ""
+    "** Package publication completed"
+    ""
 }
-else
+catch
 {
-    # We're going to call the neonCLOUD nuget versioner service to atomically increment the 
-    # dev package version counters for the solution and then generate the full version for
-    # the packages we'll be publishing.  We'll use separate counters for the neonSDK
-    # and neonKUBE packages.
-    #
-    # The package versions will also include the current branch appended to the preview tag
-    # so a typical package version will look like:
-    #
-    #       10000.0.VERSION-dev-master
-    #
-    # where we use major version 10000 as a value that will never be exceeded by a real
-    # release, VERSION is automatically incremented for every package published, [master]
-    # in this case is the current branch at the time of publishing and [-dev] indicates
-    # that this is a non-production release.
-
-    # Retrieve any necessary credentials.
-
-    $versionerKey  = Get-SecretValue "NUGET_VERSIONER_KEY" "group-devops"
-    $devFeedApiKey = Get-SecretValue "NUGET_DEVFEED_KEY"   "group-devops"
-
-    # Get the nuget versioner API key from the environment and convert it into a base-64 string.
-
-    $versionerKeyBase64 = [Convert]::ToBase64String(([System.Text.Encoding]::UTF8.GetBytes($versionerKey)))
-
-    # Submit PUTs request to the versioner service, specifying the counter name.  The service will
-    # atomically increment the counter and return the next value.
-
-    $reply           = Invoke-WebRequest -Uri "$env:NC_NUGET_VERSIONER/counter/neonSDK-dev" -Method 'PUT' -Headers @{ 'Authorization' = "Bearer $versionerKeyBase64" } 
-    $neonSdkVersion  = "10000.0.$reply-dev-$branch"
-
-    $reply           = Invoke-WebRequest -Uri "$env:NC_NUGET_VERSIONER/counter/neonKUBE-dev" -Method 'PUT' -Headers @{ 'Authorization' = "Bearer $versionerKeyBase64" } 
-    $neonkubeVersion = "10000.0.$reply-dev-$branch"
+    Write-Exception $_
+    exit 1
 }
 
-# We need to do a solution build to ensure that any tools or other dependencies 
-# are built before we build and publish the individual packages.
-
-Write-Info ""
-Write-Info "********************************************************************************"
-Write-Info "***                            CLEAN SOLUTION                                ***"
-Write-Info "********************************************************************************"
-Write-Info ""
-
-# & neon-build clean-generated-cs $nfRoot
-& "$msbuild" "$nfSolution" -p:Configuration=$config -t:Clean -m -verbosity:quiet
-
-if (-not $?)
-{
-    throw "ERROR: CLEAN FAILED"
-}
-
-Write-Info ""
-Write-Info "********************************************************************************"
-Write-Info "***                           RESTORE PACKAGES                               ***"
-Write-Info "********************************************************************************"
-Write-Info ""
-
-& "$msbuild" "$nfSolution" -t:restore -verbosity:quiet
-
-Write-Info  ""
-Write-Info  "*******************************************************************************"
-Write-Info  "***                           BUILD SOLUTION                                ***"
-Write-Info  "*******************************************************************************"
-Write-Info  ""
-
-& "$msbuild" "$nfSolution" -p:Configuration=$config -restore -m -verbosity:quiet
-
-if (-not $?)
-{
-    throw "ERROR: BUILD FAILED"
-}
-
-# We need to set the version first in all of the project files so that
-# implicit package dependencies will work for external projects importing
-# these packages.
-
-SetVersion Neon.Blazor                      $neonSdkVersion
-SetVersion Neon.Cadence                     $neonSdkVersion
-SetVersion Neon.Cassandra                   $neonSdkVersion
-SetVersion Neon.Common                      $neonSdkVersion
-SetVersion Neon.Couchbase                   $neonSdkVersion
-SetVersion Neon.Cryptography                $neonSdkVersion
-SetVersion Neon.CSharp                      $neonSdkVersion
-SetVersion Neon.Deployment                  $neonSdkVersion
-SetVersion Neon.Docker                      $neonSdkVersion
-SetVersion Neon.JsonConverters              $neonSdkVersion
-SetVersion Neon.HyperV                      $neonSdkVersion
-SetVersion Neon.Service                     $neonSdkVersion
-SetVersion Neon.ModelGen                    $neonSdkVersion
-SetVersion Neon.ModelGenerator              $neonSdkVersion
-SetVersion Neon.Nats                        $neonSdkVersion
-SetVersion Neon.Postgres                    $neonSdkVersion
-SetVersion Neon.SSH                         $neonSdkVersion
-SetVersion Neon.Tailwind                    $neonSdkVersion
-SetVersion Neon.Web                         $neonSdkVersion
-SetVersion Neon.WinTTY                      $neonSdkVersion
-SetVersion Neon.WSL                         $neonSdkVersion
-SetVersion Neon.XenServer                   $neonSdkVersion
-SetVersion Neon.Xunit                       $neonSdkVersion
-SetVersion Neon.Xunit.Cadence               $neonSdkVersion
-SetVersion Neon.Xunit.Couchbase             $neonSdkVersion
-SetVersion Neon.Xunit.YugaByte              $neonSdkVersion
-SetVersion Neon.YugaByte                    $neonSdkVersion
-
-# Build and publish the projects.
-
-Publish Neon.Blazor                         $neonSdkVersion
-Publish Neon.Cadence                        $neonSdkVersion
-Publish Neon.Cassandra                      $neonSdkVersion
-Publish Neon.Common                         $neonSdkVersion
-Publish Neon.Couchbase                      $neonSdkVersion
-Publish Neon.Cryptography                   $neonSdkVersion
-Publish Neon.CSharp                         $neonSdkVersion
-Publish Neon.Deployment                     $neonSdkVersion
-Publish Neon.Docker                         $neonSdkVersion
-Publish Neon.JsonConverters                 $neonSdkVersion
-Publish Neon.HyperV                         $neonSdkVersion
-Publish Neon.Service                        $neonSdkVersion
-Publish Neon.ModelGen                       $neonSdkVersion
-Publish Neon.ModelGenerator                 $neonSdkVersion
-Publish Neon.Nats                           $neonSdkVersion
-Publish Neon.Postgres                       $neonSdkVersion
-Publish Neon.SSH                            $neonSdkVersion
-Publish Neon.Tailwind                       $neonSdkVersion
-Publish Neon.Web                            $neonSdkVersion
-Publish Neon.WinTTY                         $neonSdkVersion
-Publish Neon.WSL                            $neonSdkVersion
-Publish Neon.XenServer                      $neonSdkVersion
-Publish Neon.Xunit                          $neonSdkVersion
-Publish Neon.Xunit.Cadence                  $neonSdkVersion
-Publish Neon.Xunit.Couchbase                $neonSdkVersion
-Publish Neon.Xunit.YugaByte                 $neonSdkVersion
-Publish Neon.YugaByte                       $neonSdkVersion
-
-# Restore the project versions
-
-RestoreVersion Neon.Blazor
-RestoreVersion Neon.Cadence
-RestoreVersion Neon.Cassandra
-RestoreVersion Neon.Common
-RestoreVersion Neon.Couchbase
-RestoreVersion Neon.Cryptography
-RestoreVersion Neon.CSharp
-RestoreVersion Neon.Deployment
-RestoreVersion Neon.Docker
-RestoreVersion Neon.JsonConverters
-RestoreVersion Neon.HyperV
-RestoreVersion Neon.Service
-RestoreVersion Neon.ModelGen
-RestoreVersion Neon.ModelGenerator
-RestoreVersion Neon.Nats
-RestoreVersion Neon.Postgres
-RestoreVersion Neon.SSH
-RestoreVersion Neon.Tailwind
-RestoreVersion Neon.Web
-RestoreVersion Neon.WinTTY
-RestoreVersion Neon.WSL
-RestoreVersion Neon.XenServer
-RestoreVersion Neon.Xunit
-RestoreVersion Neon.Xunit.Cadence
-RestoreVersion Neon.Xunit.Couchbase
-RestoreVersion Neon.Xunit.YugaByte
-RestoreVersion Neon.YugaByte
-
-# Remove any generated C# files under project [obj] folders to
-# avoid duplicate symbol compilation errors after publishing.
-
-# & neon-build clean-generated-cs $nfRoot
-
-# Remove all of the generated nuget files so these don't accumulate.
-
-Remove-Item "$env:NF_BUILD\nuget\*"
-
-""
-"** Package publication completed"
-""

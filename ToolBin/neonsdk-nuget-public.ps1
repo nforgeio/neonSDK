@@ -100,127 +100,140 @@ function Publish
     ThrowOnExitCode
 }
 
-# We're going to build the RELEASE configuration.
-
-$config = "Release"
-
-# Load the library and neonKUBE versions.
-
-$msbuild        = $env:MSBUILDPATH
-$nfRoot         = "$env:NF_ROOT"
-$nfSolution     = "$nfRoot\neonSDK.sln"
-$nfBuild        = "$env:NF_BUILD"
-$nfLib          = "$nfRoot\Lib"
-$nfTools        = "$nfRoot\Tools"
-$nfToolBin      = "$nfRoot\ToolBin"
-$neonSdkVersion = $(& "$nfToolBin\neon-build" read-version "$nfLib/Neon.Common/Build.cs" NeonSdkVersion)
-
-# We need to do a release solution build to ensure that any tools or other
-# dependencies are built before we build and publish the individual packages.
-
-Write-Info ""
-Write-Info "********************************************************************************"
-Write-Info "***                            CLEAN SOLUTION                                ***"
-Write-Info "********************************************************************************"
-Write-Info ""
-
-& neon-build clean-generated-cs $nfRoot
-& "$msbuild" "$nfSolution" -p:Configuration=$config -t:Clean -m -verbosity:quiet
-
-if (-not $?)
+try
 {
-    throw "ERROR: CLEAN FAILED"
+    # We're going to build the RELEASE configuration.
+
+    $config = "Release"
+
+    # Load the library and neonKUBE versions.
+
+    $msbuild        = $env:MSBUILDPATH
+    $nfRoot         = "$env:NF_ROOT"
+    $nfSolution     = "$nfRoot\neonSDK.sln"
+    $nfBuild        = "$env:NF_BUILD"
+    $nfLib          = "$nfRoot\Lib"
+    $nfTools        = "$nfRoot\Tools"
+    $nfToolBin      = "$nfRoot\ToolBin"
+    $neonSdkVersion = $(& "$nfToolBin\neon-build" read-version "$nfLib/Neon.Common/Build.cs" NeonSdkVersion)
+
+    # Disable the [pubcore.exe] tool to avoid file locking conflicts with Visual Studio
+    # and also to speed this up a bit.
+
+    $env:NEON_PUBCORE_DISABLE = "true"
+
+    # We need to do a release solution build to ensure that any tools or other
+    # dependencies are built before we build and publish the individual packages.
+
+    Write-Info ""
+    Write-Info "********************************************************************************"
+    Write-Info "***                            CLEAN SOLUTION                                ***"
+    Write-Info "********************************************************************************"
+    Write-Info ""
+
+    & neon-build clean-generated-cs $nfRoot
+    & "$msbuild" "$nfSolution" -p:Configuration=$config -t:Clean -m -verbosity:quiet
+
+    if (-not $?)
+    {
+        throw "ERROR: CLEAN FAILED"
+    }
+
+    Write-Info ""
+    Write-Info "********************************************************************************"
+    Write-Info "***                           RESTORE PACKAGES                               ***"
+    Write-Info "********************************************************************************"
+    Write-Info ""
+
+    & "$msbuild" "$nfSolution" -t:restore -verbosity:quiet
+
+    Write-Info  ""
+    Write-Info  "*******************************************************************************"
+    Write-Info  "***                           BUILD SOLUTION                                ***"
+    Write-Info  "*******************************************************************************"
+    Write-Info  ""
+
+    & "$msbuild" "$nfSolution" -p:Configuration=$config -restore -m -verbosity:quiet
+
+    if (-not $?)
+    {
+        throw "ERROR: BUILD FAILED"
+    }
+
+    # Update the project versions.
+
+    SetVersion Neon.Cadence             $neonSdkVersion
+    SetVersion Neon.Cassandra           $neonSdkVersion
+    SetVersion Neon.Common              $neonSdkVersion
+    SetVersion Neon.Couchbase           $neonSdkVersion
+    SetVersion Neon.Cryptography        $neonSdkVersion
+    SetVersion Neon.CSharp              $neonSdkVersion
+    SetVersion Neon.Deployment          $neonSdkVersion
+    SetVersion Neon.Docker              $neonSdkVersion
+    SetVersion Neon.JsonConverters      $neonSdkVersion
+    SetVersion Neon.HyperV              $neonSdkVersion
+    SetVersion Neon.Service             $neonSdkVersion
+    SetVersion Neon.ModelGen            $neonSdkVersion
+    SetVersion Neon.ModelGenerator      $neonSdkVersion
+    SetVersion Neon.Nats                $neonSdkVersion
+    SetVersion Neon.Postgres            $neonSdkVersion
+    SetVersion Neon.SSH                 $neonSdkVersion
+    SetVersion Neon.Tailwind            $neonSdkVersion
+    SetVersion Neon.Web                 $neonSdkVersion
+    SetVersion Neon.WinTTY              $neonSdkVersion
+    SetVersion Neon.WSL                 $neonSdkVersion
+    SetVersion Neon.XenServer           $neonSdkVersion
+    SetVersion Neon.Xunit               $neonSdkVersion
+    SetVersion Neon.Xunit.Cadence       $neonSdkVersion
+    SetVersion Neon.Xunit.Couchbase     $neonSdkVersion
+    SetVersion Neon.Xunit.YugaByte      $neonSdkVersion
+    SetVersion Neon.YugaByte            $neonSdkVersion
+
+    # Build and publish the projects.
+
+    Publish Neon.Cadence                $neonSdkVersion
+    Publish Neon.Cassandra              $neonSdkVersion
+    Publish Neon.Common                 $neonSdkVersion
+    Publish Neon.Couchbase              $neonSdkVersion
+    Publish Neon.Cryptography           $neonSdkVersion
+    Publish Neon.CSharp                 $neonSdkVersion
+    Publish Neon.Deployment             $neonSdkVersion
+    Publish Neon.Docker                 $neonSdkVersion
+    Publish Neon.JsonConverters         $neonSdkVersion
+    Publish Neon.HyperV                 $neonSdkVersion
+    Publish Neon.Service                $neonSdkVersion
+    Publish Neon.ModelGen               $neonSdkVersion
+    Publish Neon.ModelGenerator         $neonSdkVersion
+    Publish Neon.Nats                   $neonSdkVersion
+    Publish Neon.Postgres               $neonSdkVersion
+    Publish Neon.SSH                    $neonSdkVersion
+    Publish Neon.Tailwind               $neonSdkVersion
+    Publish Neon.Web                    $neonSdkVersion
+    Publish Neon.WinTTY                 $neonSdkVersion
+    Publish Neon.WSL                    $neonSdkVersion
+    Publish Neon.XenServer              $neonSdkVersion
+    Publish Neon.Xunit                  $neonSdkVersion
+    Publish Neon.Xunit.Cadence          $neonSdkVersion
+    Publish Neon.Xunit.Couchbase        $neonSdkVersion
+    Publish Neon.Xunit.YugaByte         $neonSdkVersion
+    Publish Neon.YugaByte               $neonSdkVersion
+
+    # Remove any generated C# files under project [obj] folders to
+    # avoid duplicate symbol compilation errors after publishing.
+
+    & neon-build clean-generated-cs $nfRoot
+
+    # Remove all of the generated nuget files so these don't accumulate.
+
+    Remove-Item "$env:NF_BUILD\nuget\*"
+
+    ""
+    "** Package publication completed"
+    ""
 }
-
-Write-Info ""
-Write-Info "********************************************************************************"
-Write-Info "***                           RESTORE PACKAGES                               ***"
-Write-Info "********************************************************************************"
-Write-Info ""
-
-& "$msbuild" "$nfSolution" -t:restore -verbosity:quiet
-
-Write-Info  ""
-Write-Info  "*******************************************************************************"
-Write-Info  "***                           BUILD SOLUTION                                ***"
-Write-Info  "*******************************************************************************"
-Write-Info  ""
-
-& "$msbuild" "$nfSolution" -p:Configuration=$config -restore -m -verbosity:quiet
-
-if (-not $?)
+catch
 {
-    throw "ERROR: BUILD FAILED"
+    Write-Exception $_
+    exit 1
 }
-
-# Update the project versions.
-
-SetVersion Neon.Cadence             $neonSdkVersion
-SetVersion Neon.Cassandra           $neonSdkVersion
-SetVersion Neon.Common              $neonSdkVersion
-SetVersion Neon.Couchbase           $neonSdkVersion
-SetVersion Neon.Cryptography        $neonSdkVersion
-SetVersion Neon.CSharp              $neonSdkVersion
-SetVersion Neon.Deployment          $neonSdkVersion
-SetVersion Neon.Docker              $neonSdkVersion
-SetVersion Neon.JsonConverters      $neonSdkVersion
-SetVersion Neon.HyperV              $neonSdkVersion
-SetVersion Neon.Service             $neonSdkVersion
-SetVersion Neon.ModelGen            $neonSdkVersion
-SetVersion Neon.ModelGenerator      $neonSdkVersion
-SetVersion Neon.Nats                $neonSdkVersion
-SetVersion Neon.Postgres            $neonSdkVersion
-SetVersion Neon.SSH                 $neonSdkVersion
-SetVersion Neon.Tailwind            $neonSdkVersion
-SetVersion Neon.Web                 $neonSdkVersion
-SetVersion Neon.WinTTY              $neonSdkVersion
-SetVersion Neon.WSL                 $neonSdkVersion
-SetVersion Neon.XenServer           $neonSdkVersion
-SetVersion Neon.Xunit               $neonSdkVersion
-SetVersion Neon.Xunit.Cadence       $neonSdkVersion
-SetVersion Neon.Xunit.Couchbase     $neonSdkVersion
-SetVersion Neon.Xunit.YugaByte      $neonSdkVersion
-SetVersion Neon.YugaByte            $neonSdkVersion
-
-# Build and publish the projects.
-
-Publish Neon.Cadence                $neonSdkVersion
-Publish Neon.Cassandra              $neonSdkVersion
-Publish Neon.Common                 $neonSdkVersion
-Publish Neon.Couchbase              $neonSdkVersion
-Publish Neon.Cryptography           $neonSdkVersion
-Publish Neon.CSharp                 $neonSdkVersion
-Publish Neon.Deployment             $neonSdkVersion
-Publish Neon.Docker                 $neonSdkVersion
-Publish Neon.JsonConverters         $neonSdkVersion
-Publish Neon.HyperV                 $neonSdkVersion
-Publish Neon.Service                $neonSdkVersion
-Publish Neon.ModelGen               $neonSdkVersion
-Publish Neon.ModelGenerator         $neonSdkVersion
-Publish Neon.Nats                   $neonSdkVersion
-Publish Neon.Postgres               $neonSdkVersion
-Publish Neon.SSH                    $neonSdkVersion
-Publish Neon.Tailwind               $neonSdkVersion
-Publish Neon.Web                    $neonSdkVersion
-Publish Neon.WinTTY                 $neonSdkVersion
-Publish Neon.WSL                    $neonSdkVersion
-Publish Neon.XenServer              $neonSdkVersion
-Publish Neon.Xunit                  $neonSdkVersion
-Publish Neon.Xunit.Cadence          $neonSdkVersion
-Publish Neon.Xunit.Couchbase        $neonSdkVersion
-Publish Neon.Xunit.YugaByte         $neonSdkVersion
-Publish Neon.YugaByte               $neonSdkVersion
-
-# Remove any generated C# files under project [obj] folders to
-# avoid duplicate symbol compilation errors after publishing.
-
-& neon-build clean-generated-cs $nfRoot
-
-# Remove all of the generated nuget files so these don't accumulate.
-
-Remove-Item "$env:NF_BUILD\nuget\*"
-
-""
-"** Package publication completed"
-""
 
