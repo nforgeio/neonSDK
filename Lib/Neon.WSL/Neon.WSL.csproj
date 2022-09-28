@@ -25,7 +25,7 @@
 		<PackageIcon>nuget-icon.png</PackageIcon>
 		<PackageTags>WSL</PackageTags>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-		<GenerateTargetFrameworkAttribute>true</GenerateTargetFrameworkAttribute>
+		<GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<AnalysisLevel>5.0</AnalysisLevel>

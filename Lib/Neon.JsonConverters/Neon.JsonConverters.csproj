@@ -25,8 +25,8 @@
 	  <PackageIcon>nuget-icon.png</PackageIcon>
 	  <PackageTags>utility classes</PackageTags>
 	  <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-	  <GenerateTargetFrameworkAttribute>true</GenerateTargetFrameworkAttribute>
-	  <GenerateDocumentationFile>true</GenerateDocumentationFile>
+	  <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+	  <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
 	  <AnalysisLevel>5.0</AnalysisLevel>
   </PropertyGroup>
 

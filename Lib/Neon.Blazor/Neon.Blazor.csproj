@@ -19,9 +19,9 @@
         <FileVersion>0.0.0.0</FileVersion>
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
         <Configurations>Debug;Release</Configurations>
-        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-        <GenerateTargetFrameworkAttribute>true</GenerateTargetFrameworkAttribute>
-        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
         <AnalysisLevel>5.0</AnalysisLevel>
         <Description>A Blazor Component Library.</Description>
         <PackageTags>blazor;aspnetcore</PackageTags>

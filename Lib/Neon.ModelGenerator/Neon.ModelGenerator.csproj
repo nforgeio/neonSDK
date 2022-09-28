@@ -27,7 +27,7 @@
 		<Configurations>Debug;Release</Configurations>
 		<DevelopmentDependency>true</DevelopmentDependency>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-		<GenerateTargetFrameworkAttribute>true</GenerateTargetFrameworkAttribute>
+		<GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<AnalysisLevel>5.0</AnalysisLevel>
 		<EnableNETAnalyzers>false</EnableNETAnalyzers>

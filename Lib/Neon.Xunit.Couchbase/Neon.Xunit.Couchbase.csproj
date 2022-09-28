@@ -24,7 +24,7 @@
 		<PackageTags>xunit couchbase</PackageTags>
 		<Copyright>Copyright © 2005-2022 by neonFORGE LLC.  All rights reserved.</Copyright>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-		<GenerateTargetFrameworkAttribute>true</GenerateTargetFrameworkAttribute>
+		<GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<AnalysisLevel>5.0</AnalysisLevel>
 	</PropertyGroup>
@@ -49,7 +49,7 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Linq2Couchbase" Version="1.4.2" />
-		<PackageReference Include="xunit.extensibility.core" Version="2.4.1" />
+		<PackageReference Include="xunit.extensibility.core" Version="2.4.2" />
 	</ItemGroup>
 
 	<ItemGroup>

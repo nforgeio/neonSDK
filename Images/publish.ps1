@@ -131,6 +131,11 @@ try
     $nfToolBin      = "$nfRoot\ToolBin"
     $neonSdkVersion = $(& "$nfToolBin\neon-build" read-version "$nfLib/Neon.Common/Build.cs" NeonSdkVersion)
 
+    # Disable the [pubcore.exe] tool to avoid file locking conflicts with Visual Studio
+    # and also to speed this up a bit.
+
+    $env:NEON_PUBCORE_DISABLE = "true"
+
     # We need to do a release solution build to ensure that any tools or other
     # dependencies are built before we build and publish the individual packages.
 
@@ -140,6 +145,7 @@ try
     Write-Info "********************************************************************************"
     Write-Info ""
 
+    neon-build clean-generated-cs $nfRoot
     & "$msbuild" "$nfSolution" $buildConfig -t:Clean -m -verbosity:quiet
 
     if (-not $?)
@@ -161,6 +167,7 @@ try
     Write-Info  "*******************************************************************************"
     Write-Info  ""
 
+    neon-build clean-generated-cs $nfRoot
     & "$msbuild" "$nfSolution" -p:Configuration=Release -restore -m -verbosity:quiet
 
     if (-not $?)
@@ -223,5 +230,10 @@ try
 catch
 {
     Write-Exception $_
-    throw
+
+    # Cleanup
+
+    neon-build clean-generated-cs $nfRoot
+
+    exit 1
 }

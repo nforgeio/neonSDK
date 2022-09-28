@@ -9,7 +9,7 @@
 		<ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
 		<Configurations>Debug;Release</Configurations>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-		<GenerateTargetFrameworkAttribute>true</GenerateTargetFrameworkAttribute>
+		<GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
 		<AnalysisLevel>5.0</AnalysisLevel>
 	</PropertyGroup>
 
