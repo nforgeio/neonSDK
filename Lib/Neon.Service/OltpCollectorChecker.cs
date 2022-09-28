@@ -60,10 +60,10 @@ namespace Neon.Service
     /// Kubernetes namespace where the service is running.
     /// </para>
     /// <para>
-    /// The idea is for the service call <see cref="Start(Uri, TimeSpan)"/> to start the
-    /// checker and then set the trace sampler to <see cref="Sampler"/> so that tracing
-    /// will be enabled when the collector relay service exists and disable tracing when
-    /// it doesn't.
+    /// The idea is for the service call <see cref="Start(NeonService, Uri, TimeSpan)"/> 
+    /// to start the checker and then set the trace sampler to <see cref="Sampler"/> so that 
+    /// tracing will be enabled when the collector relay service exists and disable tracing 
+    /// when it doesn't.
     /// </para>
     /// </summary>
     public static class OtlpCollectorChecker
