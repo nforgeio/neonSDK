@@ -182,6 +182,8 @@ namespace Neon.Service
         {
             var hostEntry = await dns.GetHostEntryAsync(collectorHostName);
 
+            service.Logger.LogDebugEx(() => $"DNS lookup results for [{collectorHostName}]. [{NeonHelper.JsonSerialize(hostEntry)}].");
+
             Ready = hostEntry.AddressList.Length > 0;
         }
 
