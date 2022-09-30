@@ -37,7 +37,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="6.0.0" />
-		<PackageReference Include="Npgsql" Version="6.0.2" />
+		<PackageReference Include="Npgsql" Version="6.0.7" />
 	</ItemGroup>
 
 	<ItemGroup>
