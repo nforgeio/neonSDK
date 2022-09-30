@@ -388,7 +388,7 @@ Hello World! Goodbye!
 
             await VerifyAsync(
 @"
----$<<NF_TEST_VARIABLE>>---
+---$<env:NF_TEST_VARIABLE>---
 ",
 @"
 ---Hello World!---
@@ -440,7 +440,7 @@ Hello World! Goodbye!
 
                 await VerifyAsync(
 @"
->>>${{NF_TEST_VARIABLE}}<<<
+>>>${env:NF_TEST_VARIABLE}<<<
 ",
 @"
 >>>Hello World!<<<
@@ -519,8 +519,8 @@ Hello World! Goodbye!
                 {
                     await VerifyAsync(
 @"
----$<<NF_TEST_VARIABLE>>---
----$<<NF_UNDEFINED_VARIABLE>>---
+---$<env:NF_TEST_VARIABLE>---
+---$<env:NF_UNDEFINED_VARIABLE>---
 ",
 @"
 ---Hello World!---
@@ -539,8 +539,8 @@ Hello World! Goodbye!
             {
                 await VerifyAsync(
 @"
----$<<NF_TEST_VARIABLE>>---
----$<<NF_UNDEFINED_VARIABLE>>---
+---$<env:NF_TEST_VARIABLE>---
+---$<env:NF_UNDEFINED_VARIABLE>---
 ",
 @"
 ---Hello World!---
@@ -562,8 +562,8 @@ Hello World! Goodbye!
             {
                 await VerifyAsync(
 @"
----$<<NF_TEST_VARIABLE>>---
----$<<NF_UNDEFINED_VARIABLE>>---
+---$<env:NF_TEST_VARIABLE>---
+---$<env:NF_UNDEFINED_VARIABLE>---
 ",
 @"
 ---Hello World!---
@@ -609,7 +609,7 @@ Hello World! Goodbye!
 
                 await VerifyAsync(
 @"
->>>$((NF_TEST_VARIABLE))<<<
+>>>$(env:NF_TEST_VARIABLE)<<<
 ",
 @"
 >>>Hello World!<<<
@@ -1413,57 +1413,57 @@ line2
                 //-------------------------------------------------------------
                 // Verify secret passwords
 
-                var source = "TEST = $<<<password:test>>>";
+                var source = "TEST = $<secret:password:test>";
                 var output = new PreprocessReader(source).ReadToEnd().Trim();
 
                 Assert.Equal("TEST = test-password", output);
 
-                source = "TEST = $<<<password:test:vault>>>";
+                source = "TEST = $<secret:password:test:vault>";
                 output = new PreprocessReader(source).ReadToEnd().Trim();
 
                 Assert.Equal("TEST = test-password-vault", output);
 
-                Assert.Throws<ProfileException>(() => new PreprocessReader("TEST = $<<<password:missing>>>").ReadToEnd());
+                Assert.Throws<ProfileException>(() => new PreprocessReader("TEST = $<secret:password:missing>").ReadToEnd());
 
                 //-------------------------------------------------------------
                 // Verify secret values
 
-                source = "TEST = $<<<secret:test>>>";
+                source = "TEST = $<secret:test>";
                 output = new PreprocessReader(source).ReadToEnd().Trim();
 
                 Assert.Equal("TEST = test-secret", output);
 
-                source = "TEST = $<<<secret:test:vault>>>";
+                source = "TEST = $<secret:test:vault>";
                 output = new PreprocessReader(source).ReadToEnd().Trim();
 
                 Assert.Equal("TEST = test-secret-vault", output);
 
-                Assert.Throws<ProfileException>(() => new PreprocessReader("TEST = $<<<secret:missing>>>").ReadToEnd());
+                Assert.Throws<ProfileException>(() => new PreprocessReader("TEST = $<secret:missing>").ReadToEnd());
 
                 //-------------------------------------------------------------
                 // Verify secret values targeting a specific property.
 
-                source = "TEST = $<<<secret:test[field]>>>";
+                source = "TEST = $<secret:test[field]>";
                 output = new PreprocessReader(source).ReadToEnd().Trim();
 
                 Assert.Equal("TEST = test[field]-secret", output);
 
-                source = "TEST = $<<<secret:test[field]:vault>>>";
+                source = "TEST = $<secret:test[field]:vault>";
                 output = new PreprocessReader(source).ReadToEnd().Trim();
 
                 Assert.Equal("TEST = test[field]-secret-vault", output);
 
-                Assert.Throws<ProfileException>(() => new PreprocessReader("TEST = $<<<secret:missing>>>").ReadToEnd());
+                Assert.Throws<ProfileException>(() => new PreprocessReader("TEST = $<secret:missing>").ReadToEnd());
 
                 //-------------------------------------------------------------
                 // Verify profile values
 
-                source = "TEST = $<<<profile:test>>>";
+                source = "TEST = $<profile:test>";
                 output = new PreprocessReader(source).ReadToEnd().Trim();
 
                 Assert.Equal("TEST = test-profile", output);
 
-                Assert.Throws<ProfileException>(() => new PreprocessReader("TEST = $<<<profile:missing>>>").ReadToEnd());
+                Assert.Throws<ProfileException>(() => new PreprocessReader("TEST = $<profile:missing>").ReadToEnd());
             }
             finally
             {
