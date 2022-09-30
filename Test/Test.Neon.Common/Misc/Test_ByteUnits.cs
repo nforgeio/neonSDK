@@ -61,12 +61,14 @@ namespace TestCommon
         {
             // Verify that the units are correct.
 
+#pragma warning disable xUnit2000
             Assert.Equal(Pow(2m, 10), ByteUnits.KibiBytes);
             Assert.Equal(Pow(2m, 20), ByteUnits.MebiBytes);
             Assert.Equal(Pow(2m, 30), ByteUnits.GibiBytes);
             Assert.Equal(Pow(2m, 40), ByteUnits.TebiBytes);
             Assert.Equal(Pow(2m, 50), ByteUnits.PebiBytes);
             Assert.Equal(Pow(2m, 60), ByteUnits.ExbiBytes);
+#pragma warning restore xUnit2000
 
             decimal value;
 
