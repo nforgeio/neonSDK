@@ -40,7 +40,7 @@ namespace Neon.Tasks
     /// <code language="cs">
     /// var mutex = new AsyncReentrantMutex();
     /// 
-    /// await mutex.AcquireAsync(
+    /// await mutex.ExecuteActionAsync(
     ///     async () =>
     ///     {
     ///         // Protected code

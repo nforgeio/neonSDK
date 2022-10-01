@@ -296,7 +296,7 @@ namespace Neon.Service
     ///     If this environment variable is not present and the service is running in Kubernetes,
     ///     then we're going to assume that you're running in a neonKUBE cluster and <see cref="NeonService"/>
     ///     will default to sending traces to the <see cref="NeonHelper.NeonKubeOtelCollectorUri"/>
-    ///     (<b>http://neon-otel-collector</b>) service endpoint deployed to the same Kubernetes namespace.
+    ///     (<b>http://grafana-agent-node.neon-monitor.svc.cluster.local</b>) service endpoint deployed to the same Kubernetes namespace.
     ///     </para>
     ///     <note>
     ///     This is ignored when <see cref="NeonServiceOptions.TracerProvider"/> is not <c>null</c>,
@@ -901,7 +901,7 @@ namespace Neon.Service
                 else
                 {
                     // Start the [CollectorChecker] which polls to ensure that the
-                    // [neon-otel-collector] service is running in the same namespace
+                    // OpenTelemetry Collector service is running in the same namespace
                     // as the service and then enables/disables trace sampling based
                     // as necessary to avoid trying to send traces to a black hole.
 

@@ -89,7 +89,7 @@ namespace Neon.Service
         //---------------------------------------------------------------------
         // Implementation
 
-        private static LookupClient     dns = new LookupClient();
+        private static LookupClient     dns;
         private static Uri              collectorUri;
         private static string           collectorHostName;
         private static TimeSpan         checkInterval;
@@ -134,6 +134,11 @@ namespace Neon.Service
             OtlpCollectorChecker.collectorUri     = collectorUri;
             OtlpCollectorChecker.unavailableCount = Metrics.CreateCounter($"{service.MetricsPrefix}_otlp_collector_unavailable", "Number of times the OTLP Collector service has transitioned to being unavailable.");
 
+            dns = new LookupClient(new LookupClientOptions()
+            {
+                UseCache            = false
+            });
+
             if (checkInterval == TimeSpan.Zero)
             {
                 OtlpCollectorChecker.checkInterval = TimeSpan.FromSeconds(60);
@@ -148,7 +153,7 @@ namespace Neon.Service
                 collectorHostName = collectorUri.Host;
 
                 // Configure the DNS client and then do an immediate check for the
-                // <b>neon-otel-collector</b> service before starting the status
+                // OpenTelemetry Collector service before starting the status
                 // polling loop.
 
                 CheckForCollectorAsync().Wait();
@@ -173,23 +178,31 @@ namespace Neon.Service
         }
 
         /// <summary>
-        /// Used to periodically check for the presence of a <b>neon-otel-collector</b> service
+        /// Used to periodically check for the presence of a OpenTelemetry Collector service
         /// in the current namespace.  This sets the <see cref="Ready"/> property to <c>true</c>
         /// when this service is present or <c>false</c> when it's not present.
         /// </summary>
         /// <returns>The tracking <see cref="Task"/>.</returns>
         private static async Task CheckForCollectorAsync()
         {
-            var hostEntry = await dns.GetHostEntryAsync(collectorHostName);
+            try
+            {
+                var lookup = await dns.QueryAsync(collectorHostName, QueryType.ANY);
 
-            service.Logger.LogDebugEx(() => $"DNS lookup results for [{collectorHostName}]. [{NeonHelper.JsonSerialize(hostEntry)}].");
+                service.Logger.LogDebugEx(() => $"DNS lookup results for [{collectorHostName}]. [{NeonHelper.JsonSerialize(lookup)}].");
 
-            Ready = hostEntry.AddressList.Length > 0;
+                Ready = !(lookup.HasError || lookup.Answers.IsEmpty());
+            }
+            catch (Exception e) 
+            {
+                service.Logger.LogErrorEx(e);
+                Ready = false;
+            }
         }
 
         /// <summary>
         /// Loops in the background, checking for the presence of a reachable
-        /// a <b>neon-otel-collector</b> service.
+        /// OpenTelemetry Collector service.
         /// </summary>
         /// <returns>The tracking <see cref="Task"/>.</returns>
         private static async Task CheckerLoopAsync()
