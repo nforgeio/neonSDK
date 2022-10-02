@@ -38,6 +38,9 @@ using Yarp.ReverseProxy.Transforms;
 
 namespace NeonBlazorProxy
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class SessionTransformer : HttpTransformer
     {
         private CacheHelper                     cache;
@@ -50,7 +53,8 @@ namespace NeonBlazorProxy
         /// </summary>
         /// <param name="cache"></param>
         /// <param name="logger"></param>
-        /// <param name="logger"></param>
+        /// <param name="cacheOptions"></param>
+        /// <param name="cipher"></param>
         public SessionTransformer(
             CacheHelper                  cache,
             ILogger                      logger,
@@ -69,9 +73,8 @@ namespace NeonBlazorProxy
         /// <param name="httpContext"></param>
         /// <param name="proxyRequest"></param>
         /// <param name="destinationPrefix"></param>
-        /// <returns></returns>
-        public override async ValueTask TransformRequestAsync(HttpContext httpContext,
-                HttpRequestMessage proxyRequest, string destinationPrefix)
+        /// <returns>The tracking <see cref="ValueTask"/>.</returns>
+        public override async ValueTask TransformRequestAsync(HttpContext httpContext, HttpRequestMessage proxyRequest, string destinationPrefix)
         {
             await SyncContext.Clear;
             
@@ -85,9 +88,8 @@ namespace NeonBlazorProxy
         /// </summary>
         /// <param name="httpContext">The HTTP Context.</param>
         /// <param name="proxyResponse">The Proxied Response.</param>
-        /// <returns></returns>
-        public override async ValueTask<bool> TransformResponseAsync(HttpContext httpContext,
-                HttpResponseMessage proxyResponse)
+        /// <returns>The tracking <see cref="ValueTask"/>.</returns>
+        public override async ValueTask<bool> TransformResponseAsync(HttpContext httpContext, HttpResponseMessage proxyResponse)
         {
             await SyncContext.Clear;
 
@@ -102,8 +104,7 @@ namespace NeonBlazorProxy
             var headers   = proxyResponse.Content.Headers;
             var mediaType = headers.ContentType?.MediaType ?? "";
 
-            if (!httpContext.Request.Cookies.ContainsKey(Service.SessionCookieName)
-                || (mediaType == "text/html" && httpContext.Response.StatusCode == 200))
+            if (!httpContext.Request.Cookies.ContainsKey(Service.SessionCookieName) || (mediaType == "text/html" && httpContext.Response.StatusCode == 200))
             {
                 httpContext.Response.Cookies.Append(Service.SessionCookieName, cipher.EncryptToBase64($"{session.Id}"));
             }

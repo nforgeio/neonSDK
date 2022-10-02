@@ -47,6 +47,9 @@ namespace NeonBlazorProxy
     /// </summary>
     public class Service : NeonService
     {
+        //---------------------------------------------------------------------
+        // Static members
+
         /// <summary>
         /// The Default <see cref="NeonService"/> name.
         /// </summary>
@@ -61,6 +64,53 @@ namespace NeonBlazorProxy
         /// Session cookie name.
         /// </summary>
         public const string SessionCookieName = ".Neon.Blazor.Proxy.Cookie";
+
+        /// <summary>
+        /// Lock used for updating the load balancer status.
+        /// </summary>
+        public static readonly object ServerLock = new object();
+
+        /// <summary>
+        /// The host name of the last server to be sent a request.
+        /// </summary>
+        public static string LastServer { get; set; }
+
+        /// <summary>
+        /// Counts cache lookups.
+        /// </summary>
+        public static readonly Counter CacheLookupsRequested = Metrics.CreateCounter(
+            "neonblazorproxy_cache_lookups_total",
+            "Number of Cache lookups requested"
+            );
+
+        /// <summary>
+        /// Counts the items persisted to the cache.
+        /// </summary>
+        public static readonly Counter CacheItemsStored = Metrics.CreateCounter(
+            "neonblazorproxy_cache_items_stored_total",
+            "Number of items stored in the Cache"
+            );
+
+        /// <summary>
+        /// Counts cache hits.
+        /// </summary>
+        public static readonly Counter CacheHits = Metrics.CreateCounter(
+            "neonblazorproxy_cache_hits_total",
+            "Number of Cache hits"
+            );
+
+        /// <summary>
+        /// Counts cache misses.
+        /// </summary>
+        public static readonly Counter CacheMisses = Metrics.CreateCounter(
+            "neonblazorproxy_cache_misses_total",
+            "Number of Cache misses"
+            );
+
+        //---------------------------------------------------------------------
+        // Instance members
+
+        private IWebHost webHost;
 
         /// <summary>
         /// Proxy Configuration.
@@ -81,39 +131,6 @@ namespace NeonBlazorProxy
         /// HashSet containing current open websocket connection IDs. 
         /// </summary>
         public HashSet<string> CurrentConnections;
-
-        /// <summary>
-        /// Lock used for updating the load balancer status.
-        /// </summary>
-        public static readonly object ServerLock = new object();
-
-        /// <summary>
-        /// The host name of the last server to be sent a request.
-        /// </summary>
-        public static string LastServer { get; set; }
-
-        public static readonly Counter CacheLookupsRequested = Metrics.CreateCounter(
-            "neonblazorproxy_cache_lookups_total",
-            "Number of Cache lookups requested"
-            );
-
-        public static readonly Counter CacheItemsStored = Metrics.CreateCounter(
-            "neonblazorproxy_cache_items_stored_total",
-            "Number of items stored in the Cache"
-            );
-
-        public static readonly Counter CacheHits = Metrics.CreateCounter(
-            "neonblazorproxy_cache_hits_total",
-            "Number of Cache hits"
-            );
-
-        public static readonly Counter CacheMisses = Metrics.CreateCounter(
-            "neonblazorproxy_cache_misses_total",
-            "Number of Cache misses"
-            );
-
-        // private fields
-        private IWebHost webHost;
 
         /// <summary>
         /// Constructor.

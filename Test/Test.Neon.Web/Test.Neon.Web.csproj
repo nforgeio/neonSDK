@@ -2,16 +2,11 @@
 
     <PropertyGroup>
         <TargetFrameworks>net6.0</TargetFrameworks>
-        <TargetLatestRuntimePatch>false</TargetLatestRuntimePatch>
         <IsPackable>false</IsPackable>
-        <LangVersion>latest</LangVersion>
         <RootNamespace>Test.Neon.Web</RootNamespace>
         <Configurations>Debug;Release</Configurations>
         <OutputType>Library</OutputType>
-        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-        <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
-        <GenerateDocumentationFile>false</GenerateDocumentationFile>
-        <AnalysisLevel>5.0</AnalysisLevel>
+		<GenerateDocumentationFile>false</GenerateDocumentationFile>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

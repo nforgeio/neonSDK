@@ -3,13 +3,8 @@
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<OutputType>Library</OutputType>
-		<LangVersion>latest</LangVersion>
 		<Version>3.0.0</Version>
-		<Authors>neonFORGE Team</Authors>
-		<Company>neonFORGE LLC</Company>
-		<Product>neonSDK</Product>
 		<Description>Yugabyte Cassandra .NET client related utilities and extensions</Description>
-		<Copyright>Copyright © 2005-2022 by neonFORGE LLC.  All rights reserved.</Copyright>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.Cassandra/README.md</PackageProjectUrl>
 		<PackageIcon>nuget-icon.png</PackageIcon>
@@ -17,14 +12,7 @@
 		<RepositoryType>git</RepositoryType>
 		<PackageTags>cassandra cassandradb yugabyte</PackageTags>
 		<PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
-		<AssemblyVersion>0.0.0.0</AssemblyVersion>
-		<FileVersion>0.0.0.0</FileVersion>
 		<Configurations>Debug;Release</Configurations>
-		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-		<GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
-		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<AnalysisLevel>5.0</AnalysisLevel>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

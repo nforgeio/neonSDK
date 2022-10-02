@@ -4,16 +4,11 @@
         <TargetFramework>net6.0</TargetFramework>
         <OutputType>Exe</OutputType>
         <IsPackable>false</IsPackable>
-        <LangVersion>latest</LangVersion>
         <RootNamespace>NeonBlazorProxy</RootNamespace>
-        <LangVersion>latest</LangVersion>
         <ServerGarbageCollection>true</ServerGarbageCollection>
         <ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
         <AssemblyName>neon-blazor-proxy</AssemblyName>
         <Configurations>Debug;Release</Configurations>
-        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-        <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
-        <AnalysisLevel>5.0</AnalysisLevel>
     </PropertyGroup>
 
     <ItemGroup>

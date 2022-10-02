@@ -27,6 +27,9 @@ using YamlDotNet.Serialization;
 
 namespace NeonBlazorProxy
 {
+    /// <summary>
+    /// Describes the proxy configuration.
+    /// </summary>
     public class ProxyConfig
     {
         /// <summary>

@@ -76,6 +76,7 @@ namespace NeonBlazorProxy.Controllers
         /// <param name="aesCipher">The <see cref="AesCipher"/> used for cookie encryption.</param>
         /// <param name="dnsClient">The <see cref="LookupClient"/> for service discovery.</param>
         /// <param name="sessionTransformer">The <see cref="SessionTransformer"/>.</param>
+        /// <param name="forwarderRequestConfig">The <see cref="ForwarderRequestConfig"/>.</param>
         public BlazorController(
             Service                      blazorProxyService,
             ProxyConfig                  config,

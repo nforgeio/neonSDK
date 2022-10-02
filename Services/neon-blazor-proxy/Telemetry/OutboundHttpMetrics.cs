@@ -69,6 +69,11 @@ namespace NeonBlazorProxy
                 Buckets = Histogram.ExponentialBuckets(10, CUBE_ROOT_10, 10)
             });
 
+        /// <summary>
+        /// Updates the metrics.
+        /// </summary>
+        /// <param name="previous">The previous metrics.</param>
+        /// <param name="current">The current metrics.</param>
         public void OnMetrics(HttpMetrics previous, HttpMetrics current)
         {
             _outboundRequestsStarted.IncTo(current.RequestsStarted);

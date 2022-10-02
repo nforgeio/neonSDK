@@ -5,29 +5,17 @@
 	  <OutputType>Library</OutputType>
 	  <RootNamespace>Neon.JsonConverters</RootNamespace>
 	  <Version>3.0.0</Version>
-	  <Company>neonFORGE LLC</Company>
-	  <Authors>neonFORGE Team</Authors>
 	  <Description>Common type converters for [System.Text.Json] based serialization.</Description>
 	  <PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
-	  <Copyright>Copyright © 2005-2022 by neonFORGE LLC.  All rights reserved.</Copyright>
-	  <AssemblyVersion>0.0.0.0</AssemblyVersion>
-	  <FileVersion>0.0.0.0</FileVersion>
-	  <Product>neonSDK</Product>
-	  <LangVersion>latest</LangVersion>
 	  <IsPackable>true</IsPackable>
 	  <PackageLicenseUrl></PackageLicenseUrl>
 	  <PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.JsonConverters/README.md</PackageProjectUrl>
 	  <RepositoryType>git</RepositoryType>
 	  <RepositoryUrl>https://github.com/nforgeio/neonSDK</RepositoryUrl>
-	  <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 	  <PackageLicenseFile>LICENSE</PackageLicenseFile>
 	  <Configurations>Debug;Release</Configurations>
 	  <PackageIcon>nuget-icon.png</PackageIcon>
 	  <PackageTags>utility classes</PackageTags>
-	  <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-	  <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-	  <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
-	  <AnalysisLevel>5.0</AnalysisLevel>
   </PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

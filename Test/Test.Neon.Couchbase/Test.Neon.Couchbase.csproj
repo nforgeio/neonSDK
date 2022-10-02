@@ -4,14 +4,9 @@
 		<TargetFrameworks>netcoreapp31; net5.0; net6.0</TargetFrameworks>
 		<OutputType>Library</OutputType>
 		<IsPackable>false</IsPackable>
-		<LangVersion>latest</LangVersion>
 		<RootNamespace>TestCouchbase</RootNamespace>
 		<Configurations>Debug;Release</Configurations>
-		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-		<GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
 		<GenerateDocumentationFile>false</GenerateDocumentationFile>
-		<AnalysisLevel>5.0</AnalysisLevel>
-		<EnableNETAnalyzers>false</EnableNETAnalyzers>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

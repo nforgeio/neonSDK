@@ -88,6 +88,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neon.ModelGen", "Lib\Neon.ModelGen\Neon.ModelGen.csproj", "{1DC33C50-461F-4793-88FA-637E16D9C563}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Neon.ModelGen", "Test\Test.Neon.ModelGen\Test.Neon.ModelGen.csproj", "{40496FF2-3343-476D-9BE6-29D4CDBC86C5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{DF8A6F39-7A8D-477F-8A19-8B467671B542} = {DF8A6F39-7A8D-477F-8A19-8B467671B542}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Neon.Models", "Test\Test.Neon.Models\Test.Neon.Models.csproj", "{DF8A6F39-7A8D-477F-8A19-8B467671B542}"
 	ProjectSection(ProjectDependencies) = postProject

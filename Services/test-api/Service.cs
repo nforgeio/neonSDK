@@ -51,7 +51,7 @@ namespace TestApiService
     /// This service simply listens on the port specified by the <b>PORT</b> environment variable
     /// if present or <b>port 80</b> by default and handles the following requests:
     /// </para>
-    /// <list type="table"
+    /// <list type="table">
     /// <item>
     ///     <term>/echo</term>
     ///     <description>

@@ -60,18 +60,17 @@ namespace NeonBlazorProxy
         /// </para>
         /// </summary>
         /// <param name="context">The <see cref="HttpContext"/>.</param>
+        /// <param name="service"></param>
         /// <param name="cache">The Cache.</param>
         /// <param name="cipher">The AES Cipher used to encrypt/decrypt cookies.</param>
         /// <param name="cacheOptions">The Cache options.</param>
-        /// <param name="logger">The <see cref="ILogger"/></param>
         /// <returns></returns>
         public async Task InvokeAsync(
             HttpContext                     context,
             Service                         service,
             CacheHelper                     cache, 
             AesCipher                       cipher,
-            DistributedCacheEntryOptions    cacheOptions,
-            ILogger                         logger)
+            DistributedCacheEntryOptions    cacheOptions)
         {
             await SyncContext.Clear;
 
@@ -99,12 +98,14 @@ namespace NeonBlazorProxy
     /// </summary>
     public static class ConnectionHandlerHelper
     {
-        public static IApplicationBuilder UseConnectionHandler(
-          this IApplicationBuilder builder)
+        /// <summary>
+        /// Adds a <see cref="ConnectionHandler"/> to the ASP.NET middleware.
+        /// </summary>
+        /// <param name="builder">The builder.</param>
+        /// <returns>The builder.</returns>
+        public static IApplicationBuilder UseConnectionHandler(this IApplicationBuilder builder)
         {
             return builder.UseMiddleware<ConnectionHandler>();
         }
     }
-
-
 }

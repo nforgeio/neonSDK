@@ -45,6 +45,9 @@ namespace NeonBlazorProxy
         /// </summary>
         public class Options
         {
+            /// <summary>
+            /// Optional <b>--config-file</b> command line option.
+            /// </summary>
             [Option('c', "config-file", Required = false, HelpText = "Set the config file.")]
             public string ConfigFile { get; set; }
         }

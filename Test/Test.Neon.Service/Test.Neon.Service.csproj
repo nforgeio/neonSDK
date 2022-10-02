@@ -3,14 +3,9 @@
 	<PropertyGroup>
 		<TargetFrameworks>net6.0</TargetFrameworks>
 		<IsPackable>false</IsPackable>
-		<LangVersion>latest</LangVersion>
 		<RootNamespace>TestNeonService</RootNamespace>
 		<Configurations>Debug;Release</Configurations>
-		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-		<GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
 		<GenerateDocumentationFile>false</GenerateDocumentationFile>
-		<AnalysisLevel>5.0</AnalysisLevel>
-		<EnableNETAnalyzers>false</EnableNETAnalyzers>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
