@@ -7,7 +7,6 @@
 		<Description>Xunit test fixture for Couchbase</Description>
 		<PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
 		<IsPackable>true</IsPackable>
-		<PackageLicenseUrl></PackageLicenseUrl>
 		<PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.Xunit.Couchbase/README.md</PackageProjectUrl>
 		<RepositoryType>git</RepositoryType>
 		<RepositoryUrl>https://github.com/nforgeio/neonSDK</RepositoryUrl>

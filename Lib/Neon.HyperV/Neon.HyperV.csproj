@@ -7,7 +7,6 @@
 		<Description>INTERNAL USE ONLY: Windows Hyper-V extensions</Description>
 		<PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
 		<PackageId>Neon.HyperV</PackageId>
-		<PackageLicenseUrl></PackageLicenseUrl>
 		<PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.HyperV/README.md</PackageProjectUrl>
 		<RepositoryType>git</RepositoryType>
 		<RepositoryUrl>https://github.com/nforgeio/neonSDK</RepositoryUrl>

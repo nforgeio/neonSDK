@@ -6,7 +6,6 @@
 		<Version>3.0.0</Version>
 		<Description>XenServer/XCP-ng client for .NET</Description>
 		<PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
-		<PackageLicenseUrl></PackageLicenseUrl>
 		<PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.XenServer/README.md</PackageProjectUrl>
 		<RepositoryType>git</RepositoryType>
 		<RepositoryUrl>https://github.com/nforgeio/neonSDK</RepositoryUrl>
