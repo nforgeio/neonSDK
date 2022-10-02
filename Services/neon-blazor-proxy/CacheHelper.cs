@@ -40,10 +40,15 @@ namespace NeonBlazorProxy
         private IDistributedCache               cache;
         private DistributedCacheEntryOptions    defaultCacheOptions;
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="cache">The cache.</param>
+        /// <param name="logger">The logger.</param>
         public CacheHelper(IDistributedCache cache, ILogger logger)
         {
-            this.logger = logger;
             this.cache  = cache;
+            this.logger = logger;
 
             defaultCacheOptions = new DistributedCacheEntryOptions()
             {
@@ -52,9 +57,9 @@ namespace NeonBlazorProxy
         }
 
         /// <summary>
-        /// Generate a cache key.
+        /// Generate a cache key by prepending a key6 value with the service name.
         /// </summary>
-        /// <param name="key"></param>
+        /// <param name="key">The key value.</param>
         /// <returns></returns>
         private string CreateKey(string key)
         {
@@ -62,11 +67,11 @@ namespace NeonBlazorProxy
         }
 
         /// <summary>
-        /// Add an <see cref="T"/> to the Cache.
+        /// Add a value to the cache.
         /// </summary>
-        /// <param name="key"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
+        /// <param name="key">The cache key.</param>
+        /// <param name="value">The value.</param>
+        /// <param name="cacheOptions">Optionally specifies cache options.</param>
         public void Set(string key, object value, DistributedCacheEntryOptions cacheOptions = null)
         {
             key = CreateKey(key);
@@ -77,11 +82,12 @@ namespace NeonBlazorProxy
         }
 
         /// <summary>
-        /// Add an <see cref="T"/> to the Cache.
+        /// Asynchronously adds a value to the cache.
         /// </summary>
-        /// <param name="key"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
+        /// <param name="key">The cache key.</param>
+        /// <param name="value">The value.</param>
+        /// <param name="cacheOptions">Optionally specifies cache options.</param>
+        /// <returns>The tracking <see cref="Task"/>.</returns>
         public async Task SetAsync(string key, object value, DistributedCacheEntryOptions cacheOptions = null)
         {
             await SyncContext.Clear;
@@ -94,11 +100,11 @@ namespace NeonBlazorProxy
         }
 
         /// <summary>
-        /// Get a <see cref="T"/> from the Cache.
+        /// Fetchs a value from the cache.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="key"></param>
-        /// <returns></returns>
+        /// <typeparam name="T">Specifies the object type.</typeparam>
+        /// <param name="key">The cache key.</param>
+        /// <returns>The cached item.</returns>
         public T Get<T>(string key)
         {
             Service.CacheLookupsRequested.Inc();
@@ -124,11 +130,11 @@ namespace NeonBlazorProxy
         }
 
         /// <summary>
-        /// Get a <see cref="T"/> the Cache.
+        /// Fetches an item from the cache asynchronously.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="key"></param>
-        /// <returns></returns>
+        /// <typeparam name="T">Specifies the object type.</typeparam>
+        /// <param name="key">The cache key.</param>
+        /// <returns>The cached item.</returns>
         public async Task<T> GetAsync<T>(string key)
         {
             await SyncContext.Clear;

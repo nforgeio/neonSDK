@@ -28,8 +28,8 @@ namespace TestTailwind.Components
 {
     public partial class TransitionDemo : ComponentBase
     {
-        private bool isShowing = true;
-        private Transition transition;
+        private bool            isShowing = true;
+        private Transition      transition;
 
         protected override void OnInitialized()
         {

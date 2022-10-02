@@ -4,12 +4,8 @@
 		<TargetFramework>net6.0</TargetFramework>
 		<IsPackable>false</IsPackable>
 		<RootNamespace>Test.ModelGenCli</RootNamespace>
-		<LangVersion>latest</LangVersion>
 		<Configurations>Debug;Release</Configurations>
-		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-		<GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
 		<GenerateDocumentationFile>false</GenerateDocumentationFile>
-		<AnalysisLevel>5.0</AnalysisLevel>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -56,6 +52,7 @@
 		<ProjectReference Include="..\..\Lib\Neon.Xunit\Neon.Xunit.csproj" />
 		<ProjectReference Include="..\..\Tools\neon-modelgen\neon-modelgen.csproj" />
 		<ProjectReference Include="..\Test.Neon.Models\Test.Neon.Models.csproj" />
+		<ProjectReference Include="..\Test.Neon.Postgres\Test.Neon.Postgres.csproj" />
 	</ItemGroup>
 
 </Project>

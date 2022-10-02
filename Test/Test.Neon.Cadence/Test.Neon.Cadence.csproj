@@ -2,16 +2,12 @@
 
 	<PropertyGroup>
 		<TargetFrameworks>net48; netcoreapp31; net5.0; net6.0</TargetFrameworks>
-		<TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
 		<IsPackable>false</IsPackable>
-		<LangVersion>latest</LangVersion>
 		<RootNamespace>TestCadence</RootNamespace>
 		<AssemblyName>Test.Neon.Cadence</AssemblyName>
 		<Configurations>Debug;Release</Configurations>
 		<EnableDefaultContentItems>false</EnableDefaultContentItems>
-		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<GenerateDocumentationFile>false</GenerateDocumentationFile>
-		<AnalysisLevel>5.0</AnalysisLevel>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

@@ -32,6 +32,9 @@ using Neon.Service;
 
 namespace CadenceService
 {
+    /// <summary>
+    /// Implements the test service.
+    /// </summary>
     public partial class Service : NeonService
     {
         /// <summary>

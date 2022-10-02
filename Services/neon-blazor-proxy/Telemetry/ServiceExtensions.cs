@@ -25,6 +25,9 @@ using Yarp.Telemetry.Consumption;
 
 namespace NeonBlazorProxy
 {
+    /// <summary>
+    /// <see cref="IServiceCollection"/> extensions.
+    /// </summary>
     public static class ServiceExtensions
     {
         /// <summary>

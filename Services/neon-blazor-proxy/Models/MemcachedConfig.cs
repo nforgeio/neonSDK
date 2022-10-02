@@ -26,6 +26,9 @@ using YamlDotNet.Serialization;
 
 namespace NeonBlazorProxy
 {
+    /// <summary>
+    /// Specifies the memcachd configuration.
+    /// </summary>
     public class MemcachedConfig
     {
         /// <summary>

@@ -2,15 +2,11 @@
 
 	<PropertyGroup>
 		<TargetFrameworks>net48; netcoreapp31; net5.0; net6.0</TargetFrameworks>
-		<TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
 		<IsPackable>false</IsPackable>
-		<LangVersion>latest</LangVersion>
 		<RootNamespace>TestCommon</RootNamespace>
 		<AssemblyName>Test.Neon.Common</AssemblyName>
 		<Configurations>Debug;Release</Configurations>
-		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<GenerateDocumentationFile>false</GenerateDocumentationFile>
-		<AnalysisLevel>5.0</AnalysisLevel>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

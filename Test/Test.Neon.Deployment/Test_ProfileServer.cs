@@ -43,13 +43,13 @@ namespace TestDeployment
         /// <summary>
         /// The profile server has the potential for race condition type bugs
         /// so we can use this constant to repeat the tests several times to
-        // gain more confidence.
+        /// gain more confidence.
         //// </summary>
         private const int repeatCount = 10;
 
         /// <summary>
-        // Use a unique pipe name so we won't conflict with the real profile
-        // server if it's running on this machine.
+        /// Use a unique pipe name so we won't conflict with the real profile
+        /// server if it's running on this machine.
         /// </summary>
         private const string pipeName = "9621a996-b35f-4f84-8c6c-7ff72cb69106";
 

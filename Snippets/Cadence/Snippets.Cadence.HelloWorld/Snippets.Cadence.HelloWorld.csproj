@@ -5,7 +5,7 @@
 		<TargetFramework>net6.0</TargetFramework>
 		<StartupObject>HelloWorld.Program</StartupObject>
 		<Configurations>Debug;Release</Configurations>
-		<AnalysisLevel>5.0</AnalysisLevel>
+		<GenerateDocumentationFile>false</GenerateDocumentationFile>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

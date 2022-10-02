@@ -5,17 +5,11 @@
 		<TargetFramework>net6.0</TargetFramework>
 		<RootNamespace>NeonBuild</RootNamespace>
 		<AssemblyName>neon-build</AssemblyName>
-		<LangVersion>latest</LangVersion>
 		<ServerGarbageCollection>false</ServerGarbageCollection>
 		<ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
 		<RuntimeIdentifiers>win10-x64</RuntimeIdentifiers>
-		<TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
 		<RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
 		<Configurations>Debug;Release</Configurations>
-		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-		<GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
-		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<AnalysisLevel>5.0</AnalysisLevel>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

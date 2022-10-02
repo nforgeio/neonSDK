@@ -3,11 +3,7 @@
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<OutputType>Library</OutputType>
-		<LangVersion>latest</LangVersion>
 		<Version>3.0.0</Version>
-		<Authors>neonFORGE Team</Authors>
-		<Company>neonFORGE LLC</Company>
-		<Product>neonSDK</Product>
 		<Description>
 			This namespace includes the LinuxSshProxy and related classes that wrap and extend the base SSH.NET library clients with additional support for managing remote Linux machines via SSH including executing commands, scripts, uploading/downloading files, and performing idempotent operations.  Remote command executions and their results can also be logged locally via a TextWriter (using a completely non-standard but still useful logging format).
 
@@ -15,21 +11,13 @@
 
 			NOTE: This package has been tested against remote machines running Ubuntu 18.04+ and will probably run fine on many other Debian-based distributions.  RedHat and other non-Debian distributions probably won't be compatible.
 		</Description>
-		<Copyright>Copyright © 2005-2022 by neonFORGE LLC.  All rights reserved.</Copyright>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.SSH/README.md</PackageProjectUrl>
 		<PackageIcon>nuget-icon.png</PackageIcon>
 		<RepositoryUrl>https://github.com/nforgeio/neonSDK</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
-		<AssemblyVersion>0.0.0.0</AssemblyVersion>
-		<FileVersion>0.0.0.0</FileVersion>
-		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 		<Configurations>Debug;Release</Configurations>
-		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-		<GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
-		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<AnalysisLevel>5.0</AnalysisLevel>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

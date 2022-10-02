@@ -29,6 +29,9 @@ using Neon.Web;
 
 namespace TestApiService
 {
+    /// <summary>
+    /// The test ASP.NET controller.
+    /// </summary>
     [Route("/")]
     [ApiController]
     public class TestController : NeonControllerBase

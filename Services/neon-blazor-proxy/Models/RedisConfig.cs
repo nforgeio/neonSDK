@@ -27,6 +27,9 @@ using YamlDotNet.Serialization;
 
 namespace NeonBlazorProxy
 {
+    /// <summary>
+    /// Specifies the Redis configuration.
+    /// </summary>
     public class RedisConfig
     {
         /// <summary>
