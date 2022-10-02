@@ -1,6 +1,17 @@
 <Project>
 
 	<!--
+	Default properties:
+	-->
+
+	<PropertyGroup>
+		<GenerateTargetFrameworkAttribute>true</GenerateTargetFrameworkAttribute>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<AnalysisLevel>5.0</AnalysisLevel>
+		<DebugType>pdbonly</DebugType>
+	</PropertyGroup>
+
+	<!--
 	Disable generation of attribute files in the project [obj/CONFIG] folders
 	because this can cause C# duplicate symbol errors when switching between
 	DEBUG and RELEASE builds.
