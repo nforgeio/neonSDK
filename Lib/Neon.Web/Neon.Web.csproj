@@ -7,7 +7,6 @@
 		<PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
 		<AssemblyVersion>0.0.0.0</AssemblyVersion>
 		<IsPackable>true</IsPackable>
-		<PackageLicenseUrl></PackageLicenseUrl>
 		<PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.Web/README.md</PackageProjectUrl>
 		<RepositoryType>git</RepositoryType>
 		<RepositoryUrl>https://github.com/nforgeio/neonSDK</RepositoryUrl>
