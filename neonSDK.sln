@@ -141,6 +141,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test-cadence", "Services\test-cadence\test-cadence.csproj", "{75ED3E48-DFC6-481B-8168-A184DDD19FFB}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Neon.Models.Cadence", "Test\Test.Neon.Models.Cadence\Test.Neon.Models.Cadence.csproj", "{F19FF67A-660D-4B3F-8590-01DE5F14744D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{FE55ED55-F4B5-45B0-AFF2-EBDCAACF691A} = {FE55ED55-F4B5-45B0-AFF2-EBDCAACF691A}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Snippets", "Snippets", "{CB2EDD47-A608-4284-96E3-08E9DC52EFEF}"
 	ProjectSection(SolutionItems) = preProject
