@@ -13,19 +13,12 @@
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<OutputPath>bin\Debug</OutputPath>
 		<DefineConstants>DEBUG;TRACE</DefineConstants>
-		<TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-		<WarningsAsErrors>NU1605</WarningsAsErrors>
-		<NoWarn></NoWarn>
+		<OutputPath>bin\Debug</OutputPath>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
 		<OutputPath>bin\Release</OutputPath>
-		<TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-		<WarningsAsErrors>NU1605</WarningsAsErrors>
-		<NoWarn></NoWarn>
-		<DefineConstants />
 	</PropertyGroup>
 
 	<ItemGroup>

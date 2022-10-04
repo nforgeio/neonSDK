@@ -8,6 +8,7 @@
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net48|AnyCPU'">
+		<DefineConstants>DEBUG;TRACE</DefineConstants>
 		<PlatformTarget>x64</PlatformTarget>
 	</PropertyGroup>
 
@@ -16,7 +17,7 @@
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net5.0|AnyCPU'">
-		<DefineConstants></DefineConstants>
+		<DefineConstants>DEBUG;TRACE</DefineConstants>
 	</PropertyGroup>
 
 	<ItemGroup>

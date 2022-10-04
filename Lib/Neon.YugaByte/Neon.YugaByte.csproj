@@ -20,7 +20,6 @@
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-		<DefineConstants />
 	</PropertyGroup>
 
 	<ItemGroup>
