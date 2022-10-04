@@ -83,7 +83,11 @@ function Publish
 
     $projectPath = [io.path]::combine($env:NF_ROOT, "Lib", "$project", "$project" + ".csproj")
 
-	dotnet pack $projectPath -c $config -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg -o "$env:NF_BUILD\nuget"
+    # Disabling symbol packages now that we're embedding PDB files.
+    #
+    # dotnet pack $projectPath -c $config -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg -o "$env:NF_BUILD\nuget"
+
+    dotnet pack $projectPath -c $config -o "$env:NF_BUILD\nuget"
     ThrowOnExitCode
 
     if (Test-Path "$env:NF_ROOT\Lib\$project\prerelease.txt")
