@@ -27,7 +27,8 @@
 # OPTIONS:
 #
 #       -local          - Publishes to C:\nc-nuget-local
-#       -localversion   - Use the local version number
+#       -localversion   - Use the local version number (emergeny only)
+#       -publicSource   - Use GitHub sources for SourceLink even if local repo is dirty
 #
 # Generally, you'll use this script without any options to publish to the private
 # feed in the neonCLOUD headend using the atomic counter there to update VERSION
@@ -74,8 +75,9 @@
 
 param 
 (
-    [switch]$local        = $false,
-    [switch]$localVersion = $false
+    [switch]$local        = $false,     # publish to local file system
+    [switch]$localVersion = $false,     # use a local version counter (emergency only)
+    [switch]$publicSource = $false      # use GitHub sources for SourceLink even if local repo is dirty
 )
 
 # Import the global solution include file.
@@ -290,6 +292,27 @@ try
 
         $reply           = Invoke-WebRequest -Uri "$env:NC_NUGET_VERSIONER/counter/neonKUBE-dev" -Method 'PUT' -Headers @{ 'Authorization' = "Bearer $versionerKeyBase64" } 
         $neonkubeVersion = "10000.0.$reply-dev-$branch"
+    }
+
+    # SourceLink configuration: We need to decide whether to set the environment variable 
+    # [NEON_PUBLIC_SOURCELINK=true] to enable SourceLink references to our GitHub repos.
+
+    $publicSourceLink = $true
+    $gitDirty         = IsGitDirty
+
+    if ($local -or $gitDirty)
+    {
+        $publicSourceLink = $false
+    }
+
+    if ($publicSource)
+    {
+        $publicSourceLink = $true
+    }
+
+    if ($publicSourceLink)
+    {
+        $env:NEON_PUBLIC_SOURCELINK = "true"
     }
 
     # Disable the [pubcore.exe] tool to avoid file locking conflicts with Visual Studio
