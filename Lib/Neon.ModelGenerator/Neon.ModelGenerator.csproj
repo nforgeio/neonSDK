@@ -18,7 +18,7 @@
 		<PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
 		<Configurations>Debug;Release</Configurations>
 		<DevelopmentDependency>true</DevelopmentDependency>
-		<NoWarn>1701;1702;NU2008;NU5100</NoWarn>
+		<NoWarn>1701;1702;CS2008;NU5100</NoWarn>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
