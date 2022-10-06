@@ -16,6 +16,7 @@
 // limitations under the License.
 
 using System;
+using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
@@ -30,7 +31,7 @@ namespace NeonBuild
     /// </summary>
     public static partial class Program
     {
-        private const string version = "1.10";
+        private const string version = "1.11";
 
         private static readonly string usage =
 $@"
@@ -67,6 +68,16 @@ These files are generated for projects by custom build targets and may result in
 symbol definition compiler errors because the C# compiler include these for all build
 configurations, not just the current config and unfortunately, cleaning the solution or
 project doesn't remove these files either.
+
+---------------------------------------------------------------------
+neon-build kill-vs
+
+Kills any Visual Studio (devenv.exe) processes.  This is useful because
+some devenv processes run for maybe a minute after Visual Studio is closed,
+and waiting for this to happen before running build/nuget related scripts
+is annoying.
+
+WARNING! Any unsaved changes in VS will be lost.
 
 ---------------------------------------------------------------------
 neon-build gzip SOURCE TARGET
@@ -444,6 +455,22 @@ ARGUMENTS:
                                     //
                                     // We're just going to ignore this and hope for the best.
                                 }
+                            }
+                        }
+                        break;
+
+                    case "kill-vs":
+
+                        foreach (var process in Process.GetProcessesByName("devenv"))
+                        {
+                            try
+                            {
+                                process.Kill(entireProcessTree: true);
+                            }
+                            catch
+                            {
+                                // Ignore any errors here because processes may have
+                                // already exited before we had the chance to kill them.
                             }
                         }
                         break;
