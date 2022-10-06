@@ -211,6 +211,19 @@ try
 
         Write-Info ""
         Write-Info "*******************************************************************************"
+        Write-Info "***                           RESTORE PACKAGES                              ***"
+        Write-Info "*******************************************************************************"
+        Write-Info ""
+
+        & "$msbuild" "$nfSolution" -t:restore -verbosity:minimal
+
+        if (-not $?)
+        {
+            throw "ERROR: RESTORE FAILED"
+        }
+
+        Write-Info ""
+        Write-Info "*******************************************************************************"
         Write-Info "***                           CLEAN SOLUTION                                ***"
         Write-Info "*******************************************************************************"
         Write-Info ""
@@ -220,21 +233,6 @@ try
         if (-not $?)
         {
             throw "ERROR: CLEAN FAILED"
-        }
-
-        Write-Info ""
-        Write-Info "*******************************************************************************"
-        Write-Info "***                           RESTORE PACKAGES                              ***"
-        Write-Info "*******************************************************************************"
-        Write-Info ""
-
-        dotnet restore
-
-        & "$msbuild" "$nfSolution" -t:restore -verbosity:minimal
-
-        if (-not $?)
-        {
-            throw "ERROR: RESTORE FAILED"
         }
 
         Write-Info ""

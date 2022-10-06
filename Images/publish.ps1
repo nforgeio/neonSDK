@@ -146,6 +146,19 @@ try
 
     Write-Info ""
     Write-Info "********************************************************************************"
+    Write-Info "***                           RESTORE PACKAGES                               ***"
+    Write-Info "********************************************************************************"
+    Write-Info ""
+
+    & "$msbuild" "$nfSolution" -t:restore -verbosity:quiet
+
+    if (-not $?)
+    {
+        throw "ERROR: RESTORE FAILED"
+    }
+
+    Write-Info ""
+    Write-Info "********************************************************************************"
     Write-Info "***                            CLEAN SOLUTION                                ***"
     Write-Info "********************************************************************************"
     Write-Info ""
@@ -157,14 +170,6 @@ try
     {
         throw "ERROR: CLEAN FAILED"
     }
-
-    Write-Info ""
-    Write-Info "********************************************************************************"
-    Write-Info "***                           RESTORE PACKAGES                               ***"
-    Write-Info "********************************************************************************"
-    Write-Info ""
-
-    & "$msbuild" "$nfSolution" -t:restore -verbosity:quiet
 
     Write-Info  ""
     Write-Info  "*******************************************************************************"
