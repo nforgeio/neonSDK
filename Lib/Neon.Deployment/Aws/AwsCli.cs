@@ -513,8 +513,8 @@ namespace Neon.Deployment
         /// <summary>
         /// <para>
         /// Uploads a file in multiple parts from the local workstation to S3, returning the
-        /// <see cref="DownloadManifest"/> details. required by <see cref="DeploymentHelper.DownloadMultiPart(DownloadManifest, string, DownloadProgressDelegate, IRetryPolicy, TimeSpan)"/>
-        /// and <see cref="DeploymentHelper.DownloadMultiPartAsync(DownloadManifest, string, DownloadProgressDelegate, TimeSpan, IRetryPolicy, System.Threading.CancellationToken)"/>
+        /// <see cref="DownloadManifest"/> details. required by <see cref="DeploymentHelper.DownloadMultiPart(DownloadManifest, string, DownloadProgressDelegate, IRetryPolicy, TimeSpan, bool)"/>
+        /// and <see cref="DeploymentHelper.DownloadMultiPartAsync(DownloadManifest, string, DownloadProgressDelegate, TimeSpan, IRetryPolicy, bool, System.Threading.CancellationToken)"/>
         /// to actually download the entire file.  The URI to the uploaded <see cref="DownloadManifest"/> details is also returned.
         /// </para>
         /// <para>
@@ -554,8 +554,8 @@ namespace Neon.Deployment
         /// </para>
         /// <para>
         /// The <see cref="DownloadManifest"/> details returned include all of the information required by
-        /// <see cref="DeploymentHelper.DownloadMultiPart(DownloadManifest, string, DownloadProgressDelegate, IRetryPolicy, TimeSpan)"/> and
-        /// <see cref="DeploymentHelper.DownloadMultiPartAsync(DownloadManifest, string, DownloadProgressDelegate, TimeSpan, IRetryPolicy, System.Threading.CancellationToken)"/>
+        /// <see cref="DeploymentHelper.DownloadMultiPart(DownloadManifest, string, DownloadProgressDelegate, IRetryPolicy, TimeSpan, bool)"/> and
+        /// <see cref="DeploymentHelper.DownloadMultiPartAsync(DownloadManifest, string, DownloadProgressDelegate, TimeSpan, IRetryPolicy, bool, System.Threading.CancellationToken)"/>
         /// to actually download the entire file and the URI returned references these msame details as
         /// uploaded to S3.
         /// </para>

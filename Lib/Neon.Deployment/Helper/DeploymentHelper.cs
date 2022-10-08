@@ -85,18 +85,35 @@ namespace Neon.Deployment
         /// <param name="progressAction">Optionally specifies an action to be called with the the percentage downloaded.</param>
         /// <param name="retry">Optionally specifies the retry policy.  This defaults to a reasonable policy.</param>
         /// <param name="partTimeout">Optionally specifies the HTTP download timeout for each part (defaults to 10 minutes).</param>
+        /// <param name="strictCheck">
+        /// <para>
+        /// Optionally used to enable a slow but more comprehensive check of any existing file.
+        /// When this is enabled and the download file already exists along with its MD5 hash file,
+        /// the method will assume that the existing file matches when the file size is the same
+        /// as specified in the manifest and manifest overall MD5 matches the local MD5 file.
+        /// </para>
+        /// <para>
+        /// Otherwise, this method will need to compute the MD5 hashes for the existing file parts
+        /// and compare those to the part MD5 hashes in the manifest, which can take quite a while
+        /// for large files.
+        /// </para>
+        /// <para>
+        /// This defaults to <c>false</c>.
+        /// </para>
+        /// </param>
         /// <exception cref="IOException">Thrown when the download is corrupt.</exception>
         /// <exception cref="SocketException">Thrown for network errors.</exception>
         /// <exception cref="HttpException">Thrown for HTTP network errors.</exception>
         /// <exception cref="OperationCanceledException">Thrown when the operation was cancelled.</exception>
         public static void DownloadMultiPart(
-            DownloadManifest                    download, 
+            DownloadManifest            download, 
             string                      targetPath, 
             DownloadProgressDelegate    progressAction = null, 
             IRetryPolicy                retry          = null,
-            TimeSpan                    partTimeout    = default)
+            TimeSpan                    partTimeout    = default,
+            bool                        strictCheck    = false)
         {
-            DownloadMultiPartAsync(download, targetPath, progressAction, partTimeout, retry).WaitWithoutAggregate();
+            DownloadMultiPartAsync(download, targetPath, progressAction, partTimeout, retry, strictCheck).WaitWithoutAggregate();
         }
 
         /// <summary>
@@ -107,6 +124,22 @@ namespace Neon.Deployment
         /// <param name="progressAction">Optionally specifies an action to be called with the the percentage downloaded.</param>
         /// <param name="retry">Optionally specifies the retry policy.  This defaults to a reasonable policy.</param>
         /// <param name="partTimeout">Optionally specifies the HTTP download timeout for each part (defaults to 10 minutes).</param>
+        /// <param name="strictCheck">
+        /// <para>
+        /// Optionally used to enable a slow but more comprehensive check of any existing file.
+        /// When this is enabled and the download file already exists along with its MD5 hash file,
+        /// the method will assume that the existing file matches when the file size is the same
+        /// as specified in the manifest and manifest overall MD5 matches the local MD5 file.
+        /// </para>
+        /// <para>
+        /// Otherwise, this method will need to compute the MD5 hashes for the existing file parts
+        /// and compare those to the part MD5 hashes in the manifest, which can take quite a while
+        /// for large files.
+        /// </para>
+        /// <para>
+        /// This defaults to <c>false</c>.
+        /// </para>
+        /// </param>
         /// <exception cref="IOException">Thrown when the download is corrupt.</exception>
         /// <exception cref="SocketException">Thrown for network errors.</exception>
         /// <exception cref="HttpException">Thrown for HTTP network errors.</exception>
@@ -117,9 +150,10 @@ namespace Neon.Deployment
             string                      targetPath,
             DownloadProgressDelegate    progressAction = null,
             IRetryPolicy                retry          = null,
-            TimeSpan                    partTimeout    = default)
+            TimeSpan                    partTimeout    = default,
+            bool                        strictCheck    = false)
         {
-            DownloadMultiPartAsync(uri, targetPath, progressAction, partTimeout, retry).WaitWithoutAggregate();
+            DownloadMultiPartAsync(uri, targetPath, progressAction, partTimeout, retry, strictCheck).WaitWithoutAggregate();
         }
 
         /// <summary>
@@ -130,6 +164,22 @@ namespace Neon.Deployment
         /// <param name="progressAction">Optionally specifies an action to be called with the the percentage downloaded.</param>
         /// <param name="partTimeout">Optionally specifies the HTTP download timeout for each part (defaults to 10 minutes).</param>
         /// <param name="retry">Optionally specifies the retry policy.  This defaults to a reasonable policy.</param>
+        /// <param name="strictCheck">
+        /// <para>
+        /// Optionally used to enable a slow but more comprehensive check of any existing file.
+        /// When this is enabled and the download file already exists along with its MD5 hash file,
+        /// the method will assume that the existing file matches when the file size is the same
+        /// as specified in the manifest and manifest overall MD5 matches the local MD5 file.
+        /// </para>
+        /// <para>
+        /// Otherwise, this method will need to compute the MD5 hashes for the existing file parts
+        /// and compare those to the part MD5 hashes in the manifest, which can take quite a while
+        /// for large files.
+        /// </para>
+        /// <para>
+        /// This defaults to <c>false</c>.
+        /// </para>
+        /// </param>
         /// <param name="cancellationToken">Optionally specifies the operation cancellation token.</param>
         /// <returns>The path to the downloaded file.</returns>
         /// <exception cref="IOException">Thrown when the download is corrupt.</exception>
@@ -159,6 +209,7 @@ namespace Neon.Deployment
             DownloadProgressDelegate    progressAction    = null, 
             TimeSpan                    partTimeout       = default, 
             IRetryPolicy                retry             = null,
+            bool                        strictCheck       = false,
             CancellationToken           cancellationToken = default)
         {
             await SyncContext.Clear;
@@ -178,31 +229,47 @@ namespace Neon.Deployment
 
             var targetMd5Path  = Path.Combine(Path.GetDirectoryName(targetPath), Path.GetFileName(targetPath) + ".md5");
             var nextPartNumber = 0;
+            var existingSize   = File.Exists(targetPath) ? new FileInfo(targetPath).Length : 0;
 
-            // If the target file already exists along with its MD5 hash file:
+            // When we're not doing strict checks, and the target file already exists
+            // along with its MD5 hash file:
             //
             //      1. Compare the manifest MD5 with the local MD5 hash file and
             //         quickly continue with the download when these don't match.
             //
-            //      2. When the MD5 files match, compute the MD5 of the downloaded
-            //         file and compare that with the manifest and continue with
-            //         the download when these don't match.
+            //      2. When the MD5 files match and the download file's length equals
+            //         the overall length specified by the manifest, we're going to
+            //         assume that the rest of the file is OK, to speed things up
+            //         because computing hashes on large files is slow.
+            //
+            //      3. Otherwise, we'll validate the file and download any missing 
+            //         parts.
 
-            if (File.Exists(targetPath) && File.Exists(targetMd5Path) && File.ReadAllText(targetMd5Path).Trim() == manifest.Md5)
+            if (!strictCheck)
             {
-                if (File.ReadAllText(targetMd5Path).Trim() == manifest.Md5)
+                if (File.Exists(targetPath) && File.Exists(targetMd5Path) && File.ReadAllText(targetMd5Path).Trim() == manifest.Md5 && manifest.Size == existingSize)
                 {
-                    using (var downloadStream = File.OpenRead(targetPath))
-                    {
-                        if (CryptoHelper.ComputeMD5String(downloadStream) == manifest.Md5)
-                        {
-                            return targetPath;
-                        }
-                    }
+                    return targetPath;
                 }
             }
 
-            NeonHelper.DeleteFile(targetMd5Path);   // We'll recompute this below
+            // We'll recompute this below
+
+            NeonHelper.DeleteFile(targetMd5Path);
+
+            // Delete the existing file when its size is greater than the overall download
+            // size specified by the manifest.  This should never happen in production and
+            // is probably a sign that the existing file is corrupt.
+            //
+            // When the existing size is less that or equal to the manifest size, we'll verify
+            // what's been downloaded so far and try to continue downloading the remaining parts
+            // below.
+
+            if (existingSize > manifest.Size)
+            {
+                NeonHelper.DeleteFile(targetPath);
+                existingSize = 0;
+            }
 
             // Validate the parts of any existing target file to determine where
             // to start downloading missing parts.
@@ -217,8 +284,8 @@ namespace Neon.Deployment
                     {
                         progressAction?.Invoke(DownloadProgressType.Check, (int)((double)pos / (double)manifest.Size * 100.0));
 
-                        // Handle a partially downloaded part.  We're going to truncate the file to
-                        // remove the partial part and then break to start re-downloading the part.
+                        // Handle a partially downloaded part.  We're going to truncate the file to remove
+                        // the partial part and then break to start re-downloading from that part.
 
                         if (output.Length < pos + part.Size)
                         {
@@ -352,6 +419,22 @@ namespace Neon.Deployment
         /// <param name="progressAction">Optionally specifies an action to be called with the the percentage downloaded.</param>
         /// <param name="partTimeout">Optionally specifies the HTTP download timeout for each part (defaults to 10 minutes).</param>
         /// <param name="retry">Optionally specifies the retry policy.  This defaults to a reasonable policy.</param>
+        /// <param name="strictCheck">
+        /// <para>
+        /// Optionally used to enable a slow but more comprehensive check of any existing file.
+        /// When this is enabled and the download file already exists along with its MD5 hash file,
+        /// the method will assume that the existing file matches when the file size is the same
+        /// as specified in the manifest and manifest overall MD5 matches the local MD5 file.
+        /// </para>
+        /// <para>
+        /// Otherwise, this method will need to compute the MD5 hashes for the existing file parts
+        /// and compare those to the part MD5 hashes in the manifest, which can take quite a while
+        /// for large files.
+        /// </para>
+        /// <para>
+        /// This defaults to <c>false</c>.
+        /// </para>
+        /// </param>
         /// <param name="cancellationToken">Optionally specifies the operation cancellation token.</param>
         /// <returns>The path to the downloaded file.</returns>
         /// <exception cref="IOException">Thrown when the download is corrupt.</exception>
@@ -382,6 +465,7 @@ namespace Neon.Deployment
             DownloadProgressDelegate    progressAction    = null, 
             TimeSpan                    partTimeout       = default, 
             IRetryPolicy                retry             = null,
+            bool                        strictCheck       = false,
             CancellationToken           cancellationToken = default)
         {
             await SyncContext.Clear;
@@ -400,7 +484,7 @@ namespace Neon.Deployment
                 manifest = NeonHelper.JsonDeserialize<DownloadManifest>(await response.Content.ReadAsStringAsync());
             }
 
-            return await DownloadMultiPartAsync(manifest, targetPath, progressAction, partTimeout, retry, cancellationToken);
+            return await DownloadMultiPartAsync(manifest, targetPath, progressAction, partTimeout, retry, strictCheck, cancellationToken);
         }
     }
 }
