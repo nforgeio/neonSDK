@@ -17,6 +17,7 @@
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 		<WarningsAsErrors>NU1605</WarningsAsErrors>
 		<TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+		<ImplicitUsings>disable</ImplicitUsings>
 		
 		<!-- Debugging related: -->
 		
