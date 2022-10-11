@@ -2161,7 +2161,7 @@ namespace Neon.Common
         /// be the fully qualified pathj to <b>docker.exe</b> on Windows and just <b>docker</b>
         /// on Linux and OS/X.
         /// </summary>
-        /// <exception cref="FileNotFoundException">Thrown when the Docker client could  not be located.</exception>
+        /// <returns>The path to the Docker CLI or <c>null</c> when it couldn't be located.</returns>
         public static string DockerCli
         {
             get
@@ -2191,10 +2191,15 @@ namespace Neon.Common
                         }
                     }
 
-                    throw new FileNotFoundException("Cannot locate the docker CLI.");
+                    return null;
                 }
                 else
                 {
+                    // $todo(jefflill):
+                    //
+                    // We need to verify that Docker is actually installed and is on the
+                    // PATH here, and return NULL when it's not present.
+
                     return dockerCliPath = "docker";
                 }
             }
