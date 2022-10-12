@@ -72,9 +72,10 @@ try
 {
 	if ($allVersions)
 	{
+		Build "6.0.9-jammy-amd64"
 	}
 
-	Build "6.0.9-jammy-amd64" -latest
+	Build "6.0.10-jammy-amd64" -latest
 }
 catch
 {
