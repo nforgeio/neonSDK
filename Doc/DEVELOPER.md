@@ -122,7 +122,7 @@ Follow the steps below to configure a development or test workstation:
    * Install **.NET 5.0 SDK 5.0.408** from [here](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-5.0.403-windows-x64-installer) (.NET SDK x64 installer)
    * Install **.NET 6.0 SDK 6.0.301** from [here](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-6.0.301-windows-x64-installer) (.NET SDK x64 installer)
    * Install **.NET 6.0 SDK 6.0.402** from [here](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-6.0.402-windows-x64-installer) (.NET SDK x64 installer)
-   * Install **.NET 6.0 SDK 6.0.402** from [here](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-6.0.402-windows-x86-installer) (.NET SDK x68 installer) **NOTE:** It seems like the **x86** version is required to run unit tests
+   * Install **.NET 6.0 SDK 6.0.402** from [here](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-6.0.402-windows-x86-installer) (.NET SDK x86 installer) **NOTE:** It seems like the **x86** version is required to run unit tests
 
 16. **Clone** the https://github.com/nforgeio/neonSDK.git repository to your workstation:
 
