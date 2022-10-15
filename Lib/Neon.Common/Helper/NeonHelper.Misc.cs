@@ -1604,10 +1604,12 @@ namespace Neon.Common
             int     pos;
 
             path = NeonHelper.StripFileScheme(assembly.Location);
+            pos  = path.LastIndexOfAny(new char[] { '/', '\\' });
 
-            pos = path.LastIndexOfAny(new char[] { '/', '\\' });
             if (pos == -1)
+            {
                 throw new InvalidOperationException("Helper.GetAssemblyFolder() works only for assemblies loaded from disk.");
+            }
 
             return path.Substring(0, pos + 1);
         }
