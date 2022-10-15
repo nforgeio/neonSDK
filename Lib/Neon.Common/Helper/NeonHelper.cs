@@ -160,7 +160,7 @@ namespace Neon.Common
         /// The URI for Kubernetes <b>Services</b> deployed to namespaces for forwarding OTEL
         /// Collector log and trace information to the local Tempo installation or elsewhere.
         /// </summary>
-        public const string NeonKubeOtelCollectorUri = "http://grafana-agent-node.neon-monitor.svc.cluster.local";
+        public const string NeonKubeOtelCollectorUri = "http://grafana-agent-node.neon-monitor.svc.cluster.local:4317";
 
         /// <summary>
         /// The <see cref="Neon.Common.ServiceContainer"/> instance returned by 

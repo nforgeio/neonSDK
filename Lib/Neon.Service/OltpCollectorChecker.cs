@@ -77,7 +77,7 @@ namespace Neon.Service
         /// </summary>
         private class ReadySampler : Sampler
         {
-            private SamplingResult enabled  = new SamplingResult(SamplingDecision.RecordOnly);
+            private SamplingResult enabled  = new SamplingResult(SamplingDecision.RecordAndSample);
             private SamplingResult disabled = new SamplingResult(SamplingDecision.Drop);
 
             public override SamplingResult ShouldSample(in SamplingParameters samplingParameters)
@@ -156,11 +156,18 @@ namespace Neon.Service
                 // OpenTelemetry Collector service before starting the status
                 // polling loop.
 
-                CheckForCollectorAsync().Wait();
+                try
+                {
+                    CheckForCollectorAsync().Wait();
+                }
+                catch (Exception e)
+                {
+                    service.Logger.LogErrorEx(e.Message);
+                }
 
                 if (!Ready)
                 {
-                    service.Logger.LogWarningEx(() => $"DNS lookup failed for [{collectorUri}].  Tracing is disabled.");
+                    service.Logger.LogWarningEx(() => $"DNS lookup failed for [{collectorHostName}].  Tracing is disabled.");
                 }
 
                 // Start the collector checker loop.  Note that we're not awaiting
@@ -185,19 +192,9 @@ namespace Neon.Service
         /// <returns>The tracking <see cref="Task"/>.</returns>
         private static async Task CheckForCollectorAsync()
         {
-            try
-            {
-                var lookup = await dns.QueryAsync(collectorHostName, QueryType.ANY);
-
-                service.Logger.LogDebugEx(() => $"DNS lookup results for [{collectorHostName}]. [{NeonHelper.JsonSerialize(lookup)}].");
-
-                Ready = !(lookup.HasError || lookup.Answers.IsEmpty());
-            }
-            catch (Exception e) 
-            {
-                service.Logger.LogErrorEx(e);
-                Ready = false;
-            }
+            var lookup = await dns.QueryAsync(collectorHostName, QueryType.A);
+            
+            Ready = !(lookup.HasError || lookup.Answers.IsEmpty());
         }
 
         /// <summary>
