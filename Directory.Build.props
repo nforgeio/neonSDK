@@ -18,6 +18,8 @@
 		<WarningsAsErrors>NU1605</WarningsAsErrors>
 		<TreatWarningsAsErrors>false</TreatWarningsAsErrors>
 		<ImplicitUsings>disable</ImplicitUsings>
+		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+		<GenerateTargetFrameworkAttribute>true</GenerateTargetFrameworkAttribute>
 		
 		<!-- Debugging related: -->
 		
@@ -35,18 +37,6 @@
 		<ContinuousIntegrationBuild  Condition="'$(NEON_PUBLIC_SOURCELINK)' == 'true'">true</ContinuousIntegrationBuild>
 		
 	</PropertyGroup>
-
-	<!--
-	Disable generation of attribute files in the project [obj/CONFIG] folders
-	because this can cause C# duplicate symbol errors when switching between
-	DEBUG and RELEASE builds.
-	-->
-
-	<PropertyGroup>
-		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-		<GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
-	</PropertyGroup>
-
 
 	<!-- 
 	Remove generated [**/obj/**/*.cs] files to avoid duplicate symbol compilation 
