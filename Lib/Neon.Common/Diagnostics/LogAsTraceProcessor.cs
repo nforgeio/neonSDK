@@ -138,8 +138,8 @@ namespace Neon.Diagnostics
                     spanTagCount++;
                 }
 
-                var tags       = new KeyValuePair<string, object>[spanTagCount + (logRecord.StateValues?.Count ?? 0)];
-                var nextIndex  = 0;
+                var tags      = new KeyValuePair<string, object>[spanTagCount + (logRecord.StateValues?.Count ?? 0)];
+                var nextIndex = 0;
 
                 // Add the required attributes.
 
