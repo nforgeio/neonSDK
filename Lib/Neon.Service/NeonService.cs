@@ -935,7 +935,7 @@ namespace Neon.Service
                                 options.ExportProcessorType         = ExportProcessorType.Batch;
                                 options.BatchExportProcessorOptions = new BatchExportProcessorOptions<Activity>();
                                 options.Endpoint                    = traceCollectorUri;
-                                options.Protocol                    = OpenTelemetry.Exporter.OtlpExportProtocol.HttpProtobuf;
+                                options.Protocol                    = OpenTelemetry.Exporter.OtlpExportProtocol.Grpc;
                             });
 #endif
                     }

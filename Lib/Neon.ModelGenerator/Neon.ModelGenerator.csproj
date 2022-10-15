@@ -76,7 +76,7 @@
 
 		<!-- Clear the [modelgen] tool platform target folders -->
 
-		<RemoveDir Directories="$(NF_ROOT)\Lib\Neon.ModelGenerator\linux-x64;$(NF_ROOT)\Lib\Neon.ModelGenerator\osx-x64;$(NF_ROOT)\Lib\Neon.ModelGenerator\win-x64" />
+		<!--<RemoveDir Directories="$(NF_ROOT)\Lib\Neon.ModelGenerator\linux-x64;$(NF_ROOT)\Lib\Neon.ModelGenerator\osx-x64;$(NF_ROOT)\Lib\Neon.ModelGenerator\win-x64" />-->
 
 		<!-- Build the [modelgen] tool for the supported platforms -->
 

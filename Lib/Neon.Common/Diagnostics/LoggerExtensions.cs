@@ -249,6 +249,14 @@ namespace Neon.Diagnostics
             // Add the index attribute.
 
             logAttributes.Add(LogAttributeNames.NeonIndex, TelemetryHub.GetNextIndex());
+            
+            // Add the trace attributes
+
+            if (Tracer.CurrentSpan?.Context != null)
+            {
+                logAttributes.Add(LogAttributeNames.TraceId, Tracer.CurrentSpan.Context.TraceId.ToString());
+                logAttributes.Add(LogAttributeNames.SpanId, Tracer.CurrentSpan.Context.SpanId.ToString());
+            }
 
             // Append any attributes held by [AttributeLogger] loggers.
 
