@@ -927,8 +927,6 @@ namespace Neon.Service
                     {
                         // Built-in configuration when the the derived class allows it.
 #if NET6_0_OR_GREATER
-                        tracerProviderBuilder.AddHttpClientInstrumentation();
-                        tracerProviderBuilder.AddAspNetCoreInstrumentation();
                         tracerProviderBuilder.AddOtlpExporter(
                             options =>
                             {
