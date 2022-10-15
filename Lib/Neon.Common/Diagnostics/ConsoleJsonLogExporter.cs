@@ -292,6 +292,7 @@ namespace Neon.Diagnostics
             }
 
             Console.Out.Flush();
+            Console.Error.Flush();
 
             return ExportResult.Success;
         }
