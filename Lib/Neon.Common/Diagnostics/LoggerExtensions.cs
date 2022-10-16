@@ -252,10 +252,12 @@ namespace Neon.Diagnostics
             
             // Add the trace attributes
 
-            if (Tracer.CurrentSpan?.Context != null)
+            if (Activity.Current != null)
             {
-                logAttributes.Add(LogAttributeNames.TraceId, Tracer.CurrentSpan.Context.TraceId.ToString());
-                logAttributes.Add(LogAttributeNames.SpanId, Tracer.CurrentSpan.Context.SpanId.ToString());
+                var context = Activity.Current.Context;
+
+                logAttributes.Add(LogAttributeNames.TraceId, context.TraceId.ToString());
+                logAttributes.Add(LogAttributeNames.SpanId, context.SpanId.ToString());
             }
 
             // Append any attributes held by [AttributeLogger] loggers.
