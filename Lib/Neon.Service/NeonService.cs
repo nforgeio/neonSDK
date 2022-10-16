@@ -356,12 +356,15 @@ namespace Neon.Service
     /// }
     /// </code>
     /// <para>
-    /// By default, <see cref="NeonService"/> adds tracing instrumentation for <see cref="HttpClient"/>,
-    /// <see cref="WebRequest"/> via the <b>OpenTelemetry.Instrumentation.Http</b> package and for
-    /// ASPNETCORE via the <b>OpenTelemetry.Instrumentation.AspNetCore</b> package.  You can customize
-    /// this by implementing the protected <see cref="OnTracerConfig(TracerProviderBuilder)"/> method
-    /// or by configuring a <see cref="TracerProvider"/> before instantiating your service and passing 
-    /// your provider as <see cref="NeonServiceOptions.TracerProvider"/>.
+    /// By default, <see cref="NeonService"/> <b>DOES NOT</b> any and tracing instrumentation.  You
+    /// can instrument by implementing the protected <see cref="OnTracerConfig(TracerProviderBuilder)"/>
+    /// method.  Instrument <see cref="HttpClient"/> and <see cref="WebRequest"/> via the 
+    /// <b>OpenTelemetry.Instrumentation.Http</b> package and ASPNETCORE via the <b>OpenTelemetry.Instrumentation.AspNetCore</b>
+    /// package for websites and REST services.  Other trace instrumentation is available.
+    /// </para>
+    /// <para>
+    /// You can also customize this by configuring a <see cref="TracerProvider"/> before instantiating 
+    /// your service and passing your provider as <see cref="NeonServiceOptions.TracerProvider"/>.
     /// </para>
     /// <note>
     /// <b>IMPORTANT:</b> Trace instrumentation is only supported for projects targeting .NET6.0 or greater.
