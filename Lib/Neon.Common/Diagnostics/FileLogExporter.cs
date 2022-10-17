@@ -86,7 +86,7 @@ namespace Neon.Diagnostics
     /// defaults to retain <b>10</b> log files.
     /// </para>
     /// <para>
-    /// The rotated files will be named like "LOGFILENAME-yyyy-MM-ddTHH-mm-ss.fffZ.EXT", where <b>LOGFILENAME</b> is the
+    /// The rotated files will be named like "LOGFILENAME-YYYY-MM-ddTHH-mm-ss.fffZ.EXT", where <b>LOGFILENAME</b> is the
     /// filename part of <see cref="FileLogExporterOptions.LogFileName"/> and <b>EXT</b> is the extension.
     /// </para>
     /// <para>
