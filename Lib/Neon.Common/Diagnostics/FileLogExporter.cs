@@ -77,21 +77,30 @@ namespace Neon.Diagnostics
     ///             });
     ///     });
     /// </code>
-    /// <note>
-    /// This exporter is currently somewhat limited.  It overwrites any existing log file
-    /// when the exporter is instantiated and then just writes logs to the file without 
-    /// limiting the file size ordoing any file rotation.  We'll likely implement rotation
-    /// and size limits in the future.
-    /// </note>
+    /// <para>
+    /// This exporter supports log file rotation.  This is controlled by the <see cref="FileLogExporterOptions.FileLimit"/>
+    /// and <see cref="FileLogExporterOptions.MaxLogFiles"/> options.  When the current log file's size equals or exceeds
+    /// <see cref="FileLogExporterOptions.FileLimit"/> after writing a log event, the exporter will close and rename the
+    /// current file by appending a timestamp and start logging to a new file named <see cref="FileLogExporterOptions.LogFileName"/>.
+    /// <see cref="FileLogExporterOptions.FileLimit"/> defaults to <b>10 MiB</b> and <see cref="FileLogExporterOptions.MaxLogFiles"/>
+    /// defaults to retain <b>10</b> log files.
+    /// </para>
+    /// <para>
+    /// The rotated files will be named like "LOGFILENAME-yyyy-MM-ddTHH-mm-ss.fffZ.EXT", where <b>LOGFILENAME</b> is the
+    /// filename part of <see cref="FileLogExporterOptions.LogFileName"/> and <b>EXT</b> is the extension.
+    /// </para>
+    /// <para>
+    /// <see cref="FileLogExporterOptions.MaxLogFiles"/> controls how many log files will be retained.
+    /// </para>
     /// </remarks>
     public class FileLogExporter : BaseExporter<LogRecord>
     {
-        private readonly FileLogExporterOptions     options;
-        private readonly FileStream                 logStream;
-        private readonly StreamWriter               logWriter;
-        private readonly LogEvent                   logEvent  = new LogEvent();
-        private readonly Dictionary<string, object> tags      = new Dictionary<string, object>();
-        private readonly Dictionary<string, object> resources = new Dictionary<string, object>();
+        private readonly FileLogExporterOptions         options;
+        private readonly FileStream                     logStream;
+        private StreamWriter                            logWriter;
+        private readonly LogEvent                       logEvent  = new LogEvent();
+        private readonly Dictionary<string, object>     tags      = new Dictionary<string, object>();
+        private readonly Dictionary<string, object>     resources = new Dictionary<string, object>();
 
         /// <summary>
         /// Constructs a log exporter that writes log records to standard output and/or
@@ -116,8 +125,8 @@ namespace Neon.Diagnostics
 
             try
             {
-                logStream = new FileStream(Path.Combine(options.LogFolder, options.LogFileName), FileMode.Create, FileAccess.Write, FileShare.Read);
-                logWriter = new StreamWriter(logStream);
+                logStream = new FileStream(Path.Combine(options.LogFolder, options.LogFileName), FileMode.Create, FileAccess.ReadWrite, FileShare.Read);
+                logWriter = new StreamWriter(logStream, Encoding.UTF8, bufferSize: 8192, leaveOpen: true);
             }
             catch (IOException)
             {
@@ -309,6 +318,91 @@ namespace Neon.Diagnostics
             if (options.FlushAgressively)
             {
                 logWriter.Flush();
+            }
+
+            //-----------------------------------------------------------------
+            // Handle log file rotation:
+            //
+            //      1. Check to see if the current file size equals or exceeds the limit.
+            //      2. Just return when we're below the threshold
+            //      3. Flush the current file and then create a new rotated log file by
+            //         adding a timestamp to the log file name.
+            //      4. Copy the contents of the current file to the rotated one.
+            //      5. Clear the current log file.
+
+            // $note(jefflill):
+            //
+            // This approach never closes the current log file so anything tailing the
+            // file will continue to work.  The cost is having to do the file copy instead
+            // of just renaming the current file and creating a new one.
+            //
+            // Note also that the file size computation may be lower that what will actually
+            // be written when agressive flusing is disabled.  This means it may take more
+            // than one event to be logged after the limit is exceeded before we'll actually
+            // detect it.  This isn't really a big deal, especially since agressive flushing
+            // is enabled by default.
+
+            if (logStream.Length >= options.FileLimit)
+            {
+                // Flush current writer, leaving the output stream alone.  We're not going
+                // to dispose the writer though, because that closes the underlying stream.
+
+                logWriter.Flush();
+
+                // Create a new rotated log file using a timestamp and then copy the contents
+                // of the current log file to the rotated file.
+
+                var logFileWithoutExtension = Path.GetFileNameWithoutExtension(options.LogFileName);
+                var extension               = Path.GetExtension(options.LogFileName);
+
+                // Generate the rotated file name including a timestamp, converting colons
+                // in the timestamp to dashes to be compatiable with the Windows filesystem.
+
+                var rotatedFileName = $"{logFileWithoutExtension}-{DateTime.UtcNow.ToString(NeonHelper.DateFormatTZ)}{extension}";
+
+                rotatedFileName = rotatedFileName.Replace(':', '-');
+
+                // Rotate the log file.
+
+                using (var rotatedStream = File.Create(Path.Combine(options.LogFolder, rotatedFileName)))
+                {
+                    logStream.Position = 0;
+                    logStream.CopyTo(rotatedStream);
+
+                    // Clear the current log file and recreate the output stream.
+
+                    logStream.SetLength(0);
+                    logWriter = new StreamWriter(logStream);
+
+                    // Count the number of log files present and delete the oldest files
+                    // to get back to the limit, when necessary.
+
+                    var logFilePaths = new List<string>();
+
+                    logFilePaths.Add(Path.Combine(options.LogFolder, options.LogFileName));
+
+                    foreach (var logPath in Directory.GetFiles(options.LogFolder, $"{logFileWithoutExtension}-*{extension}", SearchOption.TopDirectoryOnly)
+                        .OrderByDescending(path => path))
+                    {
+                        logFilePaths.Add(logPath);
+                    }
+
+                    // $note(jefflill):
+                    //
+                    // The list will hold the names of all of the log files from the current log file
+                    // to the oldest one, in that order.  We'll remove files from the end of the list
+                    // until we get back to the limit.
+
+                    if (logFilePaths.Count > options.MaxLogFiles)
+                    {
+                        logFilePaths.Reverse();
+
+                        for (int i = 0; i < logFilePaths.Count - options.MaxLogFiles; i++)
+                        {
+                            NeonHelper.DeleteFile(logFilePaths[i]);
+                        }
+                    }
+                }
             }
 
             return ExportResult.Success;

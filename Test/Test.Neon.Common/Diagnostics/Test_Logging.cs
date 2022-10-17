@@ -41,6 +41,7 @@ using Neon.Xunit;
 
 using Xunit;
 using Neon.IO;
+using Microsoft.AspNetCore.Mvc;
 
 namespace TestCommon
 {
@@ -999,6 +1000,91 @@ namespace TestCommon
                             Assert.Equal(NeonHelper.JsonSerialize(interceptedEvent), NeonHelper.JsonSerialize(fileEvent));
                         }
                     }
+                }
+            }
+        }
+
+        [Fact]
+        public void FileLogExporter_Rotation()
+        {
+            // Verify that file log rotation works.
+            //
+            // We're going to do this by reducing the max log file size to 10 KiB
+            // and setting the maximum number of retained log files to 10 and then
+            // writing log events while watching and confirming the rotation behavior.
+
+            // Confirm that the FileLogExporter works for the JSON format.
+
+            const string serviceName    = "my-service";
+            const string serviceVersion = "1.2.3";
+            const string categoryName   = "my-category";
+            const string logFileName    = "test.log";
+
+            var utcNow            = DateTime.UtcNow;
+            var interceptedEvents = new List<LogEvent>();
+
+            using (var tempFolder = new TempFolder())
+            {
+                var logFilePath = Path.Combine(tempFolder.Path, logFileName);
+
+                using var loggerFactory = LoggerFactory.Create(
+                    builder =>
+                    {
+                        builder
+                            .SetMinimumLevel(LogLevel.Debug)
+                            .AddOpenTelemetry(
+                                options =>
+                                {
+                                    options.ParseStateValues        = true;
+                                    options.IncludeFormattedMessage = true;
+                                    options.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(serviceName: serviceName, serviceVersion: serviceVersion));
+                                    options.AddFileExporter(
+                                        options =>
+                                        {
+                                            options.Format              = FileLogExporterFormat.Json;
+                                            options.LogFolder           = tempFolder.Path;
+                                            options.LogFileName         = logFileName;
+                                            options.FileLimit           = (long)(10 * ByteUnits.KibiBytes);
+                                            options.MaxLogFiles         = 10;
+                                            options.LogEventInterceptor = logEvent => interceptedEvents.Add(logEvent.Clone());
+                                        });
+                                });
+                    });
+
+                var logger = loggerFactory.CreateLogger(categoryName)
+                    .AddAttributes(
+                        attributes =>
+                        {
+                            attributes.Add("default-0", "0");
+                            attributes.Add("default-1", "1");
+                        });
+
+                // Write 150 log entries with 1 KiB character messages.  This should result in 
+                // 10 log files, but no more.  We'll confirm this as well as confirm that
+                // all log files besides the current one are at least 10 KiB in size.
+
+                var message = new string('x', 1024);
+
+                for (int i = 0; i < 150; i++)
+                {
+                    logger.LogInformationEx(message);
+                }
+
+                // Verify that the current log file exists.
+
+                Assert.True(File.Exists(logFilePath));
+
+                // Verify that we have 9 rotated files and that they're
+                // all at or over the size limit.
+
+                var rotatedPaths = Directory.GetFiles(tempFolder.Path, "test-*.log", SearchOption.TopDirectoryOnly);
+
+                Assert.Equal(9, rotatedPaths.Length);
+
+                foreach (var rotatedPath in rotatedPaths)
+                {
+                    Assert.True(File.Exists(rotatedPath));
+                    Assert.True(new FileInfo(rotatedPath).Length >= (long)(10 * ByteUnits.KibiBytes));
                 }
             }
         }

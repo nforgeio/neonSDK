@@ -38,6 +38,9 @@ namespace Neon.Diagnostics
     /// </summary>
     public class FileLogExporterOptions
     {
+        private long    fileLimit   = (long)(10 * ByteUnits.MebiBytes);
+        private int     maxLogFiles = 10;
+
         /// <summary>
         /// Constructs an instance with reasonable settings.
         /// </summary>
@@ -59,6 +62,52 @@ namespace Neon.Diagnostics
         /// Specifies the export format.  This defaults to <see cref="FileLogExporterFormat.Human"/>.
         /// </summary>
         public FileLogExporterFormat Format { get; set; } = FileLogExporterFormat.Human;
+
+        /// <summary>
+        /// Used to limit the size of log files.  The current log file will be
+        /// rotated when its size reaches or exceeds this value.  This defaults
+        /// to <b>10 MiB</b> and cannot be less than <b>10KiB</b>
+        /// </summary>
+        public long FileLimit
+        {
+            get => fileLimit;
+
+            set
+            {
+                if (value < (long)(10 * ByteUnits.KibiBytes))
+                {
+                    throw new ArgumentException($"{nameof(FileLimit)} cannot be < 10 KiB", nameof(FileLimit));
+                }
+
+                fileLimit = value;
+            }
+        }
+
+        /// <summary>
+        /// <para>
+        /// Used to limit how many log files are retained.  This must be greater than zero.
+        /// A value of one indicates that log rotation will be disabled and the current 
+        /// log file will simply be cleared when its size exceeds <see cref="FileLimit"/>,
+        /// effectively starting over.
+        /// </para>
+        /// <para>
+        /// This defaults to <b>10</b> log files.
+        /// </para>
+        /// </summary>
+        public int MaxLogFiles
+        {
+            get => maxLogFiles;
+
+            set
+            {
+                if (value < 1)
+                {
+                    throw new ArgumentException($"{nameof(MaxLogFiles)} cannot be < 1", nameof(MaxLogFiles));
+                }
+
+                maxLogFiles = value;
+            }
+        }
 
         /// <summary>
         /// Controls whether the target log file will be flushed to disk after writing
