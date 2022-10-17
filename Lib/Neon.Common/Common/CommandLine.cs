@@ -166,7 +166,7 @@ namespace Neon.Common
 
                 set
                 {
-                    Covenant.Requires<ArgumentNullException>(value != null, nameof(value));
+                    Covenant.Requires<ArgumentNullException>(value != null, nameof(Default));
 
                     def = value;
                 }

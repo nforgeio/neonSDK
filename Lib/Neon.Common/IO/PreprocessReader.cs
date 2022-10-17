@@ -498,7 +498,7 @@ namespace Neon.IO
 
             set
             {
-                Covenant.Requires<ArgumentNullException>(value != null, nameof(value));
+                Covenant.Requires<ArgumentNullException>(value != null, nameof(VariableExpansionRegex));
 
                 variableExpansionRegex = value;
             }
@@ -572,7 +572,7 @@ namespace Neon.IO
 
             set
             {
-                Covenant.Requires<ArgumentException>(value >= 0, nameof(value));
+                Covenant.Requires<ArgumentException>(value >= 0, nameof(TabStop));
 
                 tabStop = value;
             }
@@ -587,7 +587,7 @@ namespace Neon.IO
 
             set
             {
-                Covenant.Requires<ArgumentException>(value >= 0, nameof(value));
+                Covenant.Requires<ArgumentException>(value >= 0, nameof(Indent));
 
                 indent = new string(' ', value);
             }

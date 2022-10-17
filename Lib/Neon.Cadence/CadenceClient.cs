@@ -1847,7 +1847,7 @@ namespace Neon.Cadence
 
             set
             {
-                Covenant.Requires<ArgumentNullException>(value != null, nameof(value));
+                Covenant.Requires<ArgumentNullException>(value != null, nameof(SyncSignalRetry));
 
                 syncSignalRetry = value.Clone(e => true);
             }

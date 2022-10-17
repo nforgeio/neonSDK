@@ -94,8 +94,8 @@ namespace Neon.Xunit
 
             set
             {
-                Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(value), nameof(value));
-                Covenant.Requires<ArgumentException>(NetHelper.TryParseIPv4Address(value, out var address) && address.AddressFamily == AddressFamily.InterNetwork, nameof(value), $"[{value}] is not a valid IPv4 address.");
+                Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(value), nameof(DefaultHostInterface));
+                Covenant.Requires<ArgumentException>(NetHelper.TryParseIPv4Address(value, out var address) && address.AddressFamily == AddressFamily.InterNetwork, nameof(DefaultHostInterface), $"[{value}] is not a valid IPv4 address.");
                 
                 defaultHostInterface = value;
             }

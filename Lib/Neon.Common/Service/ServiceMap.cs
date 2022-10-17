@@ -98,7 +98,7 @@ namespace Neon.Service
 
             set
             {
-                Covenant.Requires<ArgumentNullException>(value != null, nameof(value));
+                Covenant.Requires<ArgumentNullException>(value != null, nameof(ServiceDescription));
 
                 base[name] = value;
 

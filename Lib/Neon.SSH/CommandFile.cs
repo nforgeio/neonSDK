@@ -53,8 +53,8 @@ namespace Neon.SSH
 
             set
             {
-                Covenant.Requires<ArgumentNullException>(!string.IsNullOrWhiteSpace(value), nameof(value));
-                Covenant.Requires<ArgumentException>(value[0] != '/', nameof(value), "Only relative file paths are allowed.");
+                Covenant.Requires<ArgumentNullException>(!string.IsNullOrWhiteSpace(value), nameof(Path));
+                Covenant.Requires<ArgumentException>(value[0] != '/', nameof(Path), "Only relative file paths are allowed.");
 
                 path = value;
             }

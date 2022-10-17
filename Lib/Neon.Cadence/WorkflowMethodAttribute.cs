@@ -128,7 +128,7 @@ namespace Neon.Cadence
 
             set
             {
-                Covenant.Requires<ArgumentException>(value <= 60, nameof(value), $"[{nameof(DecisionTaskTimeoutSeconds)}={value}] cannot exceed 60 seconds.");
+                Covenant.Requires<ArgumentException>(value <= 60, nameof(DecisionTaskTimeoutSeconds), $"[{nameof(DecisionTaskTimeoutSeconds)}={value}] cannot exceed 60 seconds.");
 
                 decisionTaskTimeoutSeconds = Math.Max(value, 0);
             }
