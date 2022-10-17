@@ -21,6 +21,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
@@ -46,7 +47,13 @@ namespace Neon.Diagnostics
     /// </summary>
     /// <remarks>
     /// <para>
-    /// <b>IMPORTANT:</b> To enable the inclusion of log tags in the output JSON, you must
+    /// This exporter currently supports writing logs as JSON or a bespoke human readable 
+    /// format (the default).  You can customize this by using options with the 
+    /// <see cref="FileLogExporterOptions.Format"/> to one of the <see cref="FileLogExporterFormat"/>
+    /// values (as shown below).
+    /// </para>
+    /// <para>
+    /// <b>IMPORTANT:</b> To enable the inclusion of log tags in the output, you must
     /// set <see cref="OpenTelemetryLoggerOptions.ParseStateValues"/><c>=true</c> when
     /// configuring your OpenTelemetry options.  This is is <c>false</c> by default.
     /// </para>
@@ -71,20 +78,20 @@ namespace Neon.Diagnostics
     ///     });
     /// </code>
     /// <note>
-    /// This exporter is currently somewhat limited.  It deletes any existing log file and
-    /// then just writes logs to the file without limiting the log file size or rotating
-    /// the log files.  We'll probably implement that functionality in the future.
+    /// This exporter is currently somewhat limited.  It overwrites any existing log file
+    /// when the exporter is instantiated and then just writes logs to the file without 
+    /// limiting the file size ordoing any file rotation.  We'll likely implement rotation
+    /// and size limits in the future.
     /// </note>
     /// </remarks>
     public class FileLogExporter : BaseExporter<LogRecord>
     {
-        private FileLogExporterOptions      options;
-        private FileStream                  logStream;
-        private StreamWriter                logWriter;
-        private LogEvent                    logEvent  = new LogEvent();
-        private Dictionary<string, object>  tags      = new Dictionary<string, object>();
-        private Dictionary<string, object>  resources = new Dictionary<string, object>();
-        private StringBuilder               sb        = new StringBuilder();
+        private readonly FileLogExporterOptions     options;
+        private readonly FileStream                 logStream;
+        private readonly StreamWriter               logWriter;
+        private readonly LogEvent                   logEvent  = new LogEvent();
+        private readonly Dictionary<string, object> tags      = new Dictionary<string, object>();
+        private readonly Dictionary<string, object> resources = new Dictionary<string, object>();
 
         /// <summary>
         /// Constructs a log exporter that writes log records to standard output and/or
@@ -109,7 +116,7 @@ namespace Neon.Diagnostics
 
             try
             {
-                logStream = File.Create(Path.Combine(options.LogFolder, options.LogFileName));
+                logStream = new FileStream(Path.Combine(options.LogFolder, options.LogFileName), FileMode.Create, FileAccess.Write, FileShare.Read);
                 logWriter = new StreamWriter(logStream);
             }
             catch (IOException)
@@ -163,140 +170,21 @@ namespace Neon.Diagnostics
                 return ExportResult.Failure;
             }
 
+            const string indent1 = "    ";
+            const string indent2 = indent1 + indent1;
+
+            LogEvent logEvent                     = new LogEvent();
+            Dictionary<string, object>  tags      = new Dictionary<string, object>();
+            Dictionary<string, object>  resources = new Dictionary<string, object>();
+
             foreach (var record in batch)
             {
-                var severityInfo = DiagnosticsHelper.GetSeverityInfo(record.LogLevel);
-
-                logEvent.CategoryName   = record.CategoryName;
-                logEvent.Severity       = severityInfo.Name;
-                logEvent.SeverityNumber = severityInfo.Number;
-                logEvent.SpanId         = record.SpanId == default ? null : record.SpanId.ToHexString();
-                logEvent.TraceId        = record.TraceId == default ? null : record.TraceId.ToHexString();
-                logEvent.TsNs           = record.Timestamp.ToUnixEpochNanoseconds();
-
                 //-------------------------------------------------------------
-                // Exception information
+                // Convert the LogRecord into a LogEvent which we'll use to render
+                // the LogRecord into JSON.  Note that we're using some preallocated
+                // objects here to reduce GC pressure.
 
-                var exceptionInfo = new ExceptionInfo();
-
-                if (record.Exception != null)
-                {
-                    var exception = record.Exception;
-
-                    exceptionInfo.Type    = exception.GetType().FullName;
-                    exceptionInfo.Message = exception.Message;
-                    exceptionInfo.Stack   = exception.StackTrace.TrimStart();
-                }
-
-                //-------------------------------------------------------------
-                // Resource information
-
-                resources.Clear();
-
-                var resource = this.ParentProvider.GetResource();
-
-                if (resource != Resource.Empty)
-                {
-                    foreach (var attribute in resource.Attributes)
-                    {
-                        resources[attribute.Key] = attribute.Value;
-                    }
-                }
-
-                if (resources.Count > 0)
-                {
-                    logEvent.Resources = resources;
-                }
-                else
-                {
-                    logEvent.Resources = null;
-                }
-
-                //-------------------------------------------------------------
-                // Tags
-
-                tags.Clear();
-
-                logEvent.CategoryName = record.CategoryName;
-
-                if (!string.IsNullOrEmpty(record.CategoryName))
-                {
-                    tags.Add(LogAttributeNames.CategoryName, logEvent.CategoryName);
-                }
-
-                if ((record.StateValues != null && record.StateValues.Count > 0) || record.Exception != null)
-                {
-                    if (record.StateValues != null)
-                    {
-                        foreach (var item in record.StateValues)
-                        {
-                            // Ignore tags without a name to be safe.
-
-                            if (string.IsNullOrEmpty(item.Key))
-                            {
-                                continue;
-                            }
-
-                            // We need to special case the [Body] property.  Our [ILogger] extensions persist
-                            // the log message in as the [LogTagNames.InternalBody] whereas the stock MSFT
-                            // logger methods set [FormattedMessage] to the formatted message when enabled 
-                            // and also save the non-formatted message as the "{OriginalFormat}" attribute.
-                            //
-                            // We're going to honor [FormattedMessage] if present so that events logged with 
-                            // the MSFT logger extensions will continue to work as always and when this is
-                            // not present and our [LogTags.Body] attribute is present, we're going to use
-                            // our body as the message.
-                            //
-                            // I don't believe it makes a lot of sense to ever include the "{OriginalFormat}"
-                            // as a label so we're not doing to emit it as a label.  I guess there could be
-                            // a scenerio where the user has disabled message formatting when using the MSFT
-                            // extensions but still wants to see the "{OriginalFormat}", but I think MSFT
-                            // wouldn't have named the label like that if they intended it to be public.
-                            //
-                            // We're going take care of this by ignoring tags with names starting with "{"
-                            // in case there are other situations where internal tags are generated.
-
-                            if (string.IsNullOrEmpty(record.FormattedMessage))
-                            {
-                                if (item.Key == LogAttributeNames.InternalBody)
-                                {
-                                    logEvent.Body = item.Value as string;
-                                    continue;
-                                }
-                            }
-
-                            if (item.Key.StartsWith("{"))
-                            {
-                                continue;
-                            }
-
-                            tags[item.Key] = item.Value;
-                        }
-                    }
-
-                    // Use the formatted message if present.  This will be set when the user uses 
-                    // the base MSFT logger extensions.
-
-                    if (record.FormattedMessage != null)
-                    {
-                        logEvent.Body = record.FormattedMessage;
-                    }
-
-                    // Add any exception information for non-Human formats.
-
-                    if (options.Format != FileLogExporterFormat.Human && record.Exception != null)
-                    {
-                        tags.Add("exception.type", exceptionInfo.Type);
-                        tags.Add("exception.message", exceptionInfo.Message);
-                        tags.Add("exception.stacktrace", exceptionInfo.Stack);
-                    }
-
-                    logEvent.Attributes = tags.Count > 0 ? tags : null;
-                }
-                else
-                {
-                    logEvent.Attributes = null;
-                }
+                DiagnosticsHelper.SetLogEvent(this, includeStackTrace: true, record, tags, resources, logEvent);
 
                 //-------------------------------------------------------------
                 // Give any interceptor a chance to see and/or modify the event.
@@ -304,108 +192,123 @@ namespace Neon.Diagnostics
                 options.LogEventInterceptor?.Invoke(logEvent);
 
                 //-------------------------------------------------------------
-                // Output the log record.
+                // Write the log record.
 
-                switch (options.Format)
+                try
                 {
-                    case FileLogExporterFormat.Human:
+                    switch (options.Format)
+                    {
+                        case FileLogExporterFormat.Human:
 
-                        sb.Clear();
-                        sb.AppendWithSeparator(new DateTime(logEvent.TsNs / 100).ToString(NeonHelper.DateFormatMicroTZ));
-                        sb.AppendWithSeparator(logEvent.Severity);
+                            logWriter.Write("[");
+                            logWriter.Write(NeonHelper.UnixEpochNanosecondsToDateTimeUtc(logEvent.TsNs).ToString(NeonHelper.DateFormatTZ));
+                            logWriter.Write("]: ");
+                            logWriter.WriteLine(logEvent.Body);
 
-                        if (!string.IsNullOrEmpty(logEvent.CategoryName))
-                        {
-                            sb.AppendWithSeparator($"[category={logEvent.CategoryName}]");
-                        }
+                            logWriter.Write($"{indent1}SEVERITY: ");
+                            logWriter.WriteLine(logEvent.Severity);
 
-                        sb.AppendWithSeparator($"[body={logEvent.Body}]");
-
-                        if (!string.IsNullOrEmpty(logEvent.TraceId))
-                        {
-                            sb.AppendWithSeparator($"[traceId={logEvent.TraceId}]");
-                        }
-
-                        if (!string.IsNullOrEmpty(logEvent.SpanId))
-                        {
-                            sb.AppendWithSeparator($"[spanId={logEvent.SpanId}]");
-                        }
-
-                        if (logEvent.Resources?.Count > 0)
-                        {
-                            sb.Append("[resources=");
-
-                            foreach (var item in logEvent.Resources)
+                            if (!string.IsNullOrEmpty(logEvent.CategoryName))
                             {
-                                sb.AppendWithSeparator($"({item.Key}={item.Value})");
+                                logWriter.Write($"{indent1}CATEGORY: ");
+                                logWriter.WriteLine(logEvent.CategoryName);
                             }
 
-                            sb.Append(']');
-                        }
-
-                        // We're going to write any exception information on indented lines.
-
-                        if (logEvent.Attributes?.Count > 0)
-                        {
-                            sb.Append("[attributes=");
-
-                            foreach (var item in logEvent.Attributes)
+                            if (!string.IsNullOrEmpty(logEvent.TraceId))
                             {
-                                sb.AppendWithSeparator($"({item.Key}={item.Value})");
+                                logWriter.Write($"{indent1}TRACE-ID: ");
+                                logWriter.WriteLine(logEvent.TraceId);
                             }
 
-                            sb.Append(']');
-                        }
+                            if (!string.IsNullOrEmpty(logEvent.SpanId))
+                            {
+                                logWriter.Write($"{indent1}SPAN-ID: ");
+                                logWriter.WriteLine(logEvent.SpanId);
+                            }
 
-                        try
-                        {
-                            logWriter.WriteLine(sb);
+                            if (logEvent.Resources?.Count > 0)
+                            {
+                                logWriter.WriteLine($"{indent1}RESOURCES:");
 
-                            // Write any exception information indented under the log line.
+                                foreach (var item in logEvent.Resources)
+                                {
+                                    logWriter.Write(indent2);
+                                    logWriter.Write(item.Key);
+                                    logWriter.Write(": ");
+                                    logWriter.WriteLine(item.Value?.ToString());
+                                }
+                            }
+
+                            if (logEvent.Attributes?.Count > 0)
+                            {
+                                logWriter.WriteLine($"{indent1}ATTRIBUTES:");
+
+                                foreach (var item in logEvent.Attributes)
+                                {
+                                    // We're going to ignore any exception related attributes
+                                    // here because we call those out below.
+
+                                    if (item.Key.StartsWith("exception."))
+                                    {
+                                        continue;
+                                    }
+
+                                    logWriter.Write(indent2);
+                                    logWriter.Write(item.Key);
+                                    logWriter.Write(": ");
+                                    logWriter.WriteLine(item.Value?.ToString());
+                                }
+                            }
+
+                            // Write any exception information indented under the log line,
+                            // when enabled.
 
                             if (record.Exception != null)
                             {
-                                const string indent1 = "    ";
-                                const string indent2 = indent1 + indent1;
-
                                 var exception = record.Exception;
 
-                                logWriter.WriteLine($"{indent1}TYPE={exception.GetType().FullName} MESSAGE={exception.Message}");
-                                logWriter.WriteLine($"{indent1}STACKTRACE:");
+                                logWriter.Write($"{indent1}EXCEPTION.TYPE: ");
+                                logWriter.WriteLine(exception.GetType().FullName);
+                                logWriter.Write($"{indent1}EXCEPTION.MESSAGE: ");
+                                logWriter.WriteLine(exception.Message);
+                                logWriter.WriteLine($"{indent1}EXCEPTION.STACKTRACE:");
 
                                 using (var reader = new StringReader(exception.StackTrace))
                                 {
                                     foreach (var line in reader.Lines())
                                     {
-                                        logWriter.WriteLine($"{indent2}{line}");
+                                        logWriter.Write(indent1);
+                                        logWriter.WriteLine(line);
                                     }
                                 }
                             }
-                        }
-                        catch
-                        {
-                            return ExportResult.Failure;
-                        }
-                        break;
 
-                    case FileLogExporterFormat.Json:
+                            logWriter.WriteLine();
+                            break;
 
-                        // Write the JSON formatted record as a single line.
+                        case FileLogExporterFormat.Json:
 
-                        try
-                        {
+                            // Write the JSON formatted record as a single line.
+
                             logWriter.WriteLine(JsonConvert.SerializeObject(logEvent, Formatting.None));
-                        }
-                        catch
-                        {
-                            return ExportResult.Failure;
-                        }
-                        break;
+                            break;
 
-                    default:
+                        default:
 
-                        throw new NotImplementedException();
+                            throw new NotImplementedException();
+                    }
                 }
+                catch
+                {
+                    // It's possible that we can't write to the log file for some reason.
+
+                    return ExportResult.Failure;
+                }
+            }
+
+            if (options.FlushAgressively)
+            {
+                logWriter.Flush();
             }
 
             return ExportResult.Success;

@@ -61,6 +61,12 @@ namespace Neon.Diagnostics
         public FileLogExporterFormat Format { get; set; } = FileLogExporterFormat.Human;
 
         /// <summary>
+        /// Controls whether the target log file will be flushed to disk after writing
+        /// log event batch.  This defaults to <c>true</c>.
+        /// </summary>
+        public bool FlushAgressively { get; set; } = true;
+
+        /// <summary>
         /// Used to intercept log events just before they are emitted by the exporter.  You can
         /// use this for implementing logging related unit tests or modifying other event properties 
         /// like the timestamp, labels, tags, etc.

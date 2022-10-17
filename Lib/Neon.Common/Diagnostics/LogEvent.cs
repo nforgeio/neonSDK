@@ -105,5 +105,50 @@ namespace Neon.Diagnostics
         [JsonProperty(PropertyName = "traceId", DefaultValueHandling = DefaultValueHandling.Ignore)]
         [DefaultValue(null)]
         public string TraceId { get; set; }
+
+        /// <summary>
+        /// Clones the current instance.  This is used internally when passing instances to a
+        /// <see cref="LogEventInterceptor"/> because our logging code reused <see cref="LogEvent"/>
+        /// instances to reduce GC pressure.
+        /// </summary>
+        /// <returns>The cloned instance.</returns>
+        public LogEvent Clone()
+        {
+            Dictionary<string, object> clonedAttributes = null;
+            Dictionary<string, object> clonedResources  = null;
+
+            if (this.Attributes != null)
+            {
+                clonedAttributes = new Dictionary<string, object>();
+
+                foreach (var item in this.Attributes)
+                {
+                    clonedAttributes.Add(item.Key, item.Value);
+                }
+            }
+
+            if (this.Resources != null)
+            {
+                clonedResources = new Dictionary<string, object>();
+
+                foreach (var item in this.Resources)
+                {
+                    clonedResources.Add(item.Key, item.Value);
+                }
+            }
+
+            return new LogEvent()
+            {
+                TsNs           = this.TsNs,
+                Severity       = this.Severity,
+                Body           = this.Body,
+                CategoryName   = this.CategoryName,
+                SeverityNumber = this.SeverityNumber,
+                Attributes     = clonedAttributes,
+                Resources      = clonedResources,
+                SpanId         = this.SpanId,
+                TraceId        = this.TraceId
+            };
+        }
     }
 }

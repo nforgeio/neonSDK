@@ -94,9 +94,16 @@ namespace Neon.Diagnostics
         public bool ExceptionStackTraces { get; set; } = true;
 
         /// <summary>
+        /// <para>
         /// Used to intercept log events just before they are emitted by the exporter.  You can
         /// use this for implementing logging related unit tests or modifying other event properties 
         /// like the timestamp, labels, tags, etc.
+        /// </para>
+        /// <note>
+        /// <b>IMPORTANT:</b> <see cref="LogEvent"/> record instances are reused by the Neon telemetry
+        /// code, so you'll need to call <see cref="LogEvent.Clone()"/> when you're using the interceptor
+        /// to collected logged events for later analysis (i.e. when unit testing).
+        /// </note>
         /// </summary>
         public LogEventInterceptor LogEventInterceptor { get; set; } = null;
 

@@ -26,6 +26,11 @@ namespace Neon.Diagnostics
     /// </summary>
     /// <param name="logEvent">The log event.</param>
     /// <remarks>
+    /// <note>
+    /// <b>IMPORTANT:</b> <see cref="LogEvent"/> record instances are reused by the Neon telemetry
+    /// code, so you'll need to call <see cref="LogEvent.Clone()"/> when you're using the interceptor
+    /// to collected logged events for later analysis (i.e. when unit testing).
+    /// </note>
     /// <para>
     /// You can configure an interceptor in <see cref="ConsoleJsonLogExporterOptions"/> or
     /// the options for other log exporters in the <see cref="Neon.Diagnostics"/> namespace.

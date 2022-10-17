@@ -22,6 +22,7 @@ using System.Diagnostics.Contracts;
 using System.IO;
 using System.Net;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -39,6 +40,7 @@ using Neon.Diagnostics;
 using Neon.Xunit;
 
 using Xunit;
+using Neon.IO;
 
 namespace TestCommon
 {
@@ -89,7 +91,7 @@ namespace TestCommon
                                         options.Emit                 = false;
                                         options.ExceptionStackTraces = true;
                                         options.StandardErrorLevel   = LogLevel.Warning;
-                                        options.LogEventInterceptor  = logEvent => interceptedEvents.Add(logEvent);
+                                        options.LogEventInterceptor  = logEvent => interceptedEvents.Add(logEvent.Clone());
                                         options.StdErrInterceptor    = text => interceptedStdErr.Add(text);
                                         options.StdOutInterceptor    = text => interceptedStdOut.Add(text);
                                     });
@@ -264,7 +266,6 @@ namespace TestCommon
             Assert.NotNull(stdErrEvent0);
             Assert.Equal("warning", stdErrEvent0.Body);
 
-
             // [AggregeteException] with multiple inner exceptions.
 
             Clear();
@@ -376,7 +377,7 @@ namespace TestCommon
                                         options.Emit                 = false;
                                         options.ExceptionStackTraces = true;
                                         options.StandardErrorLevel   = LogLevel.Warning;
-                                        options.LogEventInterceptor  = logEvent => interceptedEvents.Add(logEvent);
+                                        options.LogEventInterceptor  = logEvent => interceptedEvents.Add(logEvent.Clone());
                                         options.StdErrInterceptor    = text => interceptedStdErr.Add(text);
                                         options.StdOutInterceptor    = text => interceptedStdOut.Add(text);
                                     });
@@ -561,7 +562,7 @@ namespace TestCommon
 
             try
             {
-                throw new Exception("Test-Exception");
+                ThrowException("Test-Exception");
             }
             catch (Exception e)
             {
@@ -583,7 +584,7 @@ namespace TestCommon
 
             try
             {
-                throw new Exception("Test-Exception");
+                ThrowException("Test-Exception");
             }
             catch (Exception e)
             {
@@ -672,9 +673,9 @@ namespace TestCommon
         }
 
         [Fact]
-        public void LoggerWithTags()
+        public void LoggerWithAttributes()
         {
-            // Verify that [LoggerWithTags] actually adds tags to logged events.
+            // Verify that [LoggerWithAttributes] actually adds tags to logged events.
 
             const string serviceName    = "my-service";
             const string serviceVersion = "1.2.3";
@@ -703,7 +704,7 @@ namespace TestCommon
                                         options.Emit                 = false;
                                         options.ExceptionStackTraces = true;
                                         options.StandardErrorLevel   = LogLevel.Warning;
-                                        options.LogEventInterceptor  = logEvent => interceptedEvents.Add(logEvent);
+                                        options.LogEventInterceptor  = logEvent => interceptedEvents.Add(logEvent.Clone());
                                         options.StdErrInterceptor    = text => interceptedStdErr.Add(text);
                                         options.StdOutInterceptor    = text => interceptedStdOut.Add(text);
                                     });
@@ -792,83 +793,224 @@ namespace TestCommon
         }
 
         [Fact]
-        public void LogInterceptProcessor()
+        public void FileLogExporter_Human()
         {
-            // Verify that [LogInterceptProcessor] works.
+            // Confirm that the FileLogExporter works for our bespoke Human format.
 
             const string serviceName    = "my-service";
             const string serviceVersion = "1.2.3";
             const string categoryName   = "my-category";
+            const string logFileName    = "test.log";
 
-            var interceptedRecords = new List<LogRecord>();
+            var utcNow            = DateTime.UtcNow;
+            var interceptedEvents = new List<LogEvent>();
 
-            using var loggerFactory = LoggerFactory.Create(
-                builder =>
-                {
-                    builder
-                        .SetMinimumLevel(LogLevel.Debug)
-                        .AddOpenTelemetry(
-                            options =>
-                            {
-                                options.ParseStateValues        = true;
-                                options.IncludeFormattedMessage = true;
-                                options.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(serviceName: serviceName, serviceVersion: serviceVersion));
-                                options.AddLogInterceptProcessor(logRecord => interceptedRecords.Add(logRecord));
-                            });
-                });
-
-            var logger = loggerFactory.CreateLogger(categoryName);
-
-            //-----------------------------------------------------------------
-            // Local method to clear intercepted stuff and other locals to
-            // prepare for another test.
-
-            void Clear()
+            using (var tempFolder = new TempFolder())
             {
-                interceptedRecords.Clear();
+                var logFilePath = Path.Combine(tempFolder.Path, logFileName);
+
+                using var loggerFactory = LoggerFactory.Create(
+                    builder =>
+                    {
+                        builder
+                            .SetMinimumLevel(LogLevel.Debug)
+                            .AddOpenTelemetry(
+                                options =>
+                                {
+                                    options.ParseStateValues        = true;
+                                    options.IncludeFormattedMessage = true;
+                                    options.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(serviceName: serviceName, serviceVersion: serviceVersion));
+                                    options.AddFileExporter(
+                                        options =>
+                                        {
+                                            options.Format              = FileLogExporterFormat.Human;
+                                            options.LogFolder           = tempFolder.Path;
+                                            options.LogFileName         = logFileName;
+                                            options.LogEventInterceptor = logEvent => interceptedEvents.Add(logEvent.Clone());
+                                        });
+                                });
+                    });
+
+                var logger = loggerFactory.CreateLogger(categoryName)
+                    .AddAttributes(
+                        attributes =>
+                        {
+                            attributes.Add("default-0", "0");
+                            attributes.Add("default-1", "1");
+                        });
+
+                Exception testException = null;
+
+                try
+                {
+                    ThrowException("Test-Exception");
+                }
+                catch (Exception e)
+                {
+                    testException = e;
+                }
+
+                // Log two events.
+
+                logger.LogInformationEx("event #0",
+                    attributes =>
+                    {
+                        attributes.Add("tag-1", "ONE");
+                        attributes.Add("tag-2", "TWO");
+                    });
+
+                logger.LogErrorEx(testException, "event #1",
+                    attributes =>
+                    {
+                        attributes.Add("tag-1", "ONE");
+                        attributes.Add("tag-2", "TWO");
+                    });
+
+                // Ensure that we intercepted the events that we logged.
+
+                Assert.Equal(2, interceptedEvents.Count);
+
+                Assert.Equal("event #0", interceptedEvents[0].Body);
+                Assert.Equal("event #1", interceptedEvents[1].Body);
+
+                // Ensure that that event times are reasonable.
+
+                foreach (var @event in interceptedEvents)
+                {
+                    Assert.True(NeonHelper.UnixEpochNanosecondsToDateTimeUtc(@event.TsNs) >= utcNow);
+                }
+
+                // $todo(jefflill):
+                //
+                // I've manually confirmed that the logs look OK but we're not doing to
+                // try parsing and verifying the human readable format at this time.
             }
+        }
 
-            //-----------------------------------------------------------------
-            // Verify that this works for events logged with the stock MSFT extensions.
+        [Fact]
+        public void FileLogExporter_Json()
+        {
+            // Confirm that the FileLogExporter works for the JSON format.
 
-            Clear();
+            const string serviceName    = "my-service";
+            const string serviceVersion = "1.2.3";
+            const string categoryName   = "my-category";
+            const string logFileName    = "test.log";
 
-            logger.LogCritical("critical");
-            logger.LogWarning("warning");
-            logger.LogInformation("information");
+            var utcNow            = DateTime.UtcNow;
+            var interceptedEvents = new List<LogEvent>();
 
-            Assert.Equal(3, interceptedRecords.Count);
-            Assert.Equal("critical", interceptedRecords[0].FormattedMessage);
-            Assert.Equal("warning", interceptedRecords[1].FormattedMessage);
-            Assert.Equal("information", interceptedRecords[2].FormattedMessage);
+            using (var tempFolder = new TempFolder())
+            {
+                var logFilePath = Path.Combine(tempFolder.Path, logFileName);
 
-            //-----------------------------------------------------------------
-            // Verify that this works for events logged with the Neon extensions.
+                using var loggerFactory = LoggerFactory.Create(
+                    builder =>
+                    {
+                        builder
+                            .SetMinimumLevel(LogLevel.Debug)
+                            .AddOpenTelemetry(
+                                options =>
+                                {
+                                    options.ParseStateValues        = true;
+                                    options.IncludeFormattedMessage = true;
+                                    options.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(serviceName: serviceName, serviceVersion: serviceVersion));
+                                    options.AddFileExporter(
+                                        options =>
+                                        {
+                                            options.Format              = FileLogExporterFormat.Json;
+                                            options.LogFolder           = tempFolder.Path;
+                                            options.LogFileName         = logFileName;
+                                            options.LogEventInterceptor = logEvent => interceptedEvents.Add(logEvent.Clone());
+                                        });
+                                });
+                    });
 
-            Clear();
+                var logger = loggerFactory.CreateLogger(categoryName)
+                    .AddAttributes(
+                        attributes =>
+                        {
+                            attributes.Add("default-0", "0");
+                            attributes.Add("default-1", "1");
+                        });
 
-            logger.LogCritical("critical");
-            logger.LogWarning("warning");
-            logger.LogInformation("information");
+                Exception testException = null;
 
-            Assert.Equal(3, interceptedRecords.Count);
-            Assert.Equal("critical", interceptedRecords[0].FormattedMessage);
-            Assert.Equal("warning", interceptedRecords[1].FormattedMessage);
-            Assert.Equal("information", interceptedRecords[2].FormattedMessage);
+                try
+                {
+                    ThrowException("Test-Exception");
+                }
+                catch (Exception e)
+                {
+                    testException = e;
+                }
 
-            //-----------------------------------------------------------------
-            // Verify that this works for events logged with the stock MSFT extensions.
+                // Log two events.
 
-            Clear();
+                logger.LogInformationEx("event #0",
+                    attributes =>
+                    {
+                        attributes.Add("tag-1", "ONE");
+                        attributes.Add("tag-2", "TWO");
+                    });
 
-            logger.LogCriticalEx("critical");
-            logger.LogWarningEx("warning");
-            logger.LogInformationEx("information");
+                logger.LogErrorEx(testException, "event #1",
+                    attributes =>
+                    {
+                        attributes.Add("tag-1", "ONE");
+                        attributes.Add("tag-2", "TWO");
+                    });
 
-            Assert.Equal(3, interceptedRecords.Count);
-            Assert.Equal("critical", interceptedRecords[0].FormattedMessage);
-            Assert.Equal("warning", interceptedRecords[1].FormattedMessage);
-            Assert.Equal("information", interceptedRecords[2].FormattedMessage);
+                // Ensure that we intercepted the events that we logged.
+
+                Assert.Equal(2, interceptedEvents.Count);
+
+                Assert.Equal("event #0", interceptedEvents[0].Body);
+                Assert.Equal("event #1", interceptedEvents[1].Body);
+
+                // Ensure that that event times are reasonable.
+
+                foreach (var @event in interceptedEvents)
+                {
+                    Assert.True(NeonHelper.UnixEpochNanosecondsToDateTimeUtc(@event.TsNs) >= utcNow);
+                }
+
+                // Open the log file and confirm that the events were logged as JSON.
+
+                Assert.True(File.Exists(logFilePath));
+
+                using (var logStream = new FileStream(logFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                {
+                    using (var reader = new StreamReader(logStream))
+                    {
+                        for (int i = 0; i < interceptedEvents.Count; i++)
+                        {
+                            LogEvent interceptedEvent;
+                            LogEvent fileEvent;
+
+                            var line = reader.ReadLine();
+
+                            Assert.NotNull(line);
+                            Assert.NotEmpty(line);
+
+                            interceptedEvent = interceptedEvents[i];
+                            fileEvent        = NeonHelper.JsonDeserialize<LogEvent>(line);
+
+                            Assert.Equal(NeonHelper.JsonSerialize(interceptedEvent), NeonHelper.JsonSerialize(fileEvent));
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Used to throw an exception with multiple frames in the stack trace
+        /// to test how these are formatted.
+        /// </summary>
+        /// <param name="message">The exception message.</param>
+        private void ThrowException(string message)
+        {
+            throw new Exception(message);
         }
     }
 }

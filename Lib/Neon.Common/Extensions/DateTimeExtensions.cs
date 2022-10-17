@@ -15,7 +15,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Neon.Common;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
@@ -33,10 +32,13 @@ namespace Neon.Common
     public static class DateTimeExtensions
     {
         /// <summary>
-        /// Rounds a <see cref="DateTime"/> up to the nearest specified interval.
-        /// 
-        /// var date = new DateTime(2010, 02, 05, 10, 35, 25, 450); // 2010/02/05 10:35:25
-        /// var roundedUp = date.RoundUp(TimeSpan.FromMinutes(15)); // 2010/02/05 10:45:00
+        /// <para>
+        /// Rounds a <see cref="DateTime"/> up to the nearest specified interval, like:
+        /// </para>
+        /// <code language="c#">
+        /// var date      = new DateTime(2010, 02, 05, 10, 35, 25, 450); // 2010/02/05 10:35:25
+        /// var roundedUp = date.RoundUp(TimeSpan.FromMinutes(15));      // 2010/02/05 10:45:00
+        /// </code>
         /// </summary>
         /// <param name="dt">The datetime to be rounded.</param>
         /// <param name="interval">The time interval to be rounded to.</param>
@@ -46,15 +48,19 @@ namespace Neon.Common
             Covenant.Requires<ArgumentException>(interval > TimeSpan.Zero, nameof(interval));
 
             var modTicks = dt.Ticks % interval.Ticks;
-            var delta = modTicks != 0 ? interval.Ticks - modTicks : 0;
+            var delta    = modTicks != 0 ? interval.Ticks - modTicks : 0;
+
             return new DateTime(dt.Ticks + delta, dt.Kind);
         }
 
         /// <summary>
-        /// Rounds a <see cref="DateTime"/> down to the nearest specified interval.
-        /// 
-        /// var date = new DateTime(2010, 02, 05, 10, 35, 25, 450);     // 2010/02/05 10:35:25
-        /// var roundedDown = date.RoundDown(TimeSpan.FromMinutes(15)); // 2010/02/05 10:30:00
+        /// <para>
+        /// Rounds a <see cref="DateTime"/> down to the nearest specified interval, like:
+        /// </para>
+        /// <code language="c#">
+        /// var date        = new DateTime(2010, 02, 05, 10, 35, 25, 450); // 2010/02/05 10:35:25
+        /// var roundedDown = date.RoundDown(TimeSpan.FromMinutes(15));    // 2010/02/05 10:30:00
+        /// </code>
         /// </summary>
         /// <param name="dt">The datetime to be rounded.</param>
         /// <param name="interval">The time interval to be rounded to.</param>
@@ -64,14 +70,18 @@ namespace Neon.Common
             Covenant.Requires<ArgumentException>(interval > TimeSpan.Zero, nameof(interval));
 
             var delta = dt.Ticks % interval.Ticks;
+
             return new DateTime(dt.Ticks - delta, dt.Kind);
         }
 
         /// <summary>
-        /// Rounds a <see cref="DateTime"/> to the nearest specified interval.
-        /// 
-        /// var date = new DateTime(2010, 02, 05, 10, 35, 25, 450);               // 2010/02/05 10:35:25
+        /// <para>
+        /// Rounds a <see cref="DateTime"/> to the nearest specified interval, like:
+        /// </para>
+        /// <code language="c#">
+        /// var date             = new DateTime(2010, 02, 05, 10, 35, 25, 450);   // 2010/02/05 10:35:25
         /// var roundedToNearest = date.RoundToNearest(TimeSpan.FromMinutes(15)); // 2010/02/05 10:30:00
+        /// </code>
         /// </summary>
         /// <param name="dt">The datetime to be rounded.</param>
         /// <param name="interval">The time interval to be rounded to.</param>
@@ -80,9 +90,9 @@ namespace Neon.Common
         {
             Covenant.Requires<ArgumentException>(interval > TimeSpan.Zero, nameof(interval));
 
-            var delta    = dt.Ticks % interval.Ticks;
-            bool roundUp = delta >= interval.Ticks / 2;
-            var offset   = roundUp ? interval.Ticks : 0;
+            var delta   = dt.Ticks % interval.Ticks;
+            var roundUp = delta >= interval.Ticks / 2;
+            var offset  = roundUp ? interval.Ticks : 0;
 
             return new DateTime(dt.Ticks + offset - delta, dt.Kind);
         }
