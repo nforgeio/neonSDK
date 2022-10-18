@@ -145,7 +145,7 @@ namespace Neon.Diagnostics
                 var exception = record.Exception;
 
                 exceptionInfo.Type    = exception.GetType().FullName;
-                exceptionInfo.Message = exception.Message;
+                exceptionInfo.Message = CleanExceptionMessage(exception);
                 exceptionInfo.Stack   = exception.StackTrace.TrimStart();
             }
 
@@ -261,6 +261,36 @@ namespace Neon.Diagnostics
             else
             {
                 logEvent.Attributes = null;
+            }
+        }
+
+        /// <summary>
+        /// Returns an exception's message cleaned of extraneous things like 
+        /// stack traces.
+        /// </summary>
+        /// <param name="e">The source exception.</param>
+        /// <returns>The cleaned message.</returns>
+        /// <remarks>
+        /// Some exceptions include extra stuff in their message text.  This method
+        /// removes that and returns just the message.
+        /// </remarks>
+        internal static string CleanExceptionMessage(Exception e)
+        {
+            Covenant.Requires<ArgumentNullException>(e != null, nameof(e));
+
+            int pos;
+
+            switch (e.GetType().FullName)
+            {
+                case "Grpc.Core.RpcException":
+
+                    pos = e.Message.IndexOf("\r\n --->");
+
+                    return pos < 0 ? e.Message : e.Message.Substring(0, pos);
+
+                default:
+
+                    return e.Message;
             }
         }
     }

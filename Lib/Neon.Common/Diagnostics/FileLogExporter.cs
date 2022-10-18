@@ -98,9 +98,10 @@ namespace Neon.Diagnostics
         private readonly FileLogExporterOptions         options;
         private readonly FileStream                     logStream;
         private StreamWriter                            logWriter;
-        private readonly LogEvent                       logEvent  = new LogEvent();
-        private readonly Dictionary<string, object>     tags      = new Dictionary<string, object>();
-        private readonly Dictionary<string, object>     resources = new Dictionary<string, object>();
+        private readonly string                         logSeparator = new string('=', 80);
+        private readonly LogEvent                       logEvent     = new LogEvent();
+        private readonly Dictionary<string, object>     tags         = new Dictionary<string, object>();
+        private readonly Dictionary<string, object>     resources    = new Dictionary<string, object>();
 
         /// <summary>
         /// Constructs a log exporter that writes log records to standard output and/or
@@ -121,11 +122,15 @@ namespace Neon.Diagnostics
                 throw new ArgumentException($"[{nameof(FileLogExporterOptions)}.{nameof(FileLogExporterOptions.LogFileName)}] must be specified.");
             }
 
-            // Create the log output stream.  This will overwrite any existing file.
+            // Ensure that the log folder exists.
+
+            Directory.CreateDirectory(options.LogFolder);
+
+            // Create or open the log output stream.
 
             try
             {
-                logStream = new FileStream(Path.Combine(options.LogFolder, options.LogFileName), FileMode.Create, FileAccess.ReadWrite, FileShare.Read);
+                logStream = new FileStream(Path.Combine(options.LogFolder, options.LogFileName), FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read);
                 logWriter = new StreamWriter(logStream, Encoding.UTF8, bufferSize: 8192, leaveOpen: true);
             }
             catch (IOException)
@@ -179,8 +184,7 @@ namespace Neon.Diagnostics
                 return ExportResult.Failure;
             }
 
-            const string indent1 = "    ";
-            const string indent2 = indent1 + indent1;
+            const string indent = "  ";
 
             LogEvent logEvent                     = new LogEvent();
             Dictionary<string, object>  tags      = new Dictionary<string, object>();
@@ -209,39 +213,40 @@ namespace Neon.Diagnostics
                     {
                         case FileLogExporterFormat.Human:
 
+                            logWriter.WriteLine(logSeparator);
                             logWriter.Write("[");
                             logWriter.Write(NeonHelper.UnixEpochNanosecondsToDateTimeUtc(logEvent.TsNs).ToString(NeonHelper.DateFormatTZ));
                             logWriter.Write("]: ");
                             logWriter.WriteLine(logEvent.Body);
 
-                            logWriter.Write($"{indent1}SEVERITY: ");
+                            logWriter.Write($"SEVERITY: ");
                             logWriter.WriteLine(logEvent.Severity);
 
                             if (!string.IsNullOrEmpty(logEvent.CategoryName))
                             {
-                                logWriter.Write($"{indent1}CATEGORY: ");
+                                logWriter.Write($"CATEGORY: ");
                                 logWriter.WriteLine(logEvent.CategoryName);
                             }
 
                             if (!string.IsNullOrEmpty(logEvent.TraceId))
                             {
-                                logWriter.Write($"{indent1}TRACE-ID: ");
+                                logWriter.Write($"TRACE-ID: ");
                                 logWriter.WriteLine(logEvent.TraceId);
                             }
 
                             if (!string.IsNullOrEmpty(logEvent.SpanId))
                             {
-                                logWriter.Write($"{indent1}SPAN-ID: ");
+                                logWriter.Write($"SPAN-ID: ");
                                 logWriter.WriteLine(logEvent.SpanId);
                             }
 
                             if (logEvent.Resources?.Count > 0)
                             {
-                                logWriter.WriteLine($"{indent1}RESOURCES:");
+                                logWriter.WriteLine($"RESOURCES:");
 
                                 foreach (var item in logEvent.Resources)
                                 {
-                                    logWriter.Write(indent2);
+                                    logWriter.Write(indent);
                                     logWriter.Write(item.Key);
                                     logWriter.Write(": ");
                                     logWriter.WriteLine(item.Value?.ToString());
@@ -250,7 +255,7 @@ namespace Neon.Diagnostics
 
                             if (logEvent.Attributes?.Count > 0)
                             {
-                                logWriter.WriteLine($"{indent1}ATTRIBUTES:");
+                                logWriter.WriteLine($"ATTRIBUTES:");
 
                                 foreach (var item in logEvent.Attributes)
                                 {
@@ -262,7 +267,7 @@ namespace Neon.Diagnostics
                                         continue;
                                     }
 
-                                    logWriter.Write(indent2);
+                                    logWriter.Write(indent);
                                     logWriter.Write(item.Key);
                                     logWriter.Write(": ");
                                     logWriter.WriteLine(item.Value?.ToString());
@@ -276,18 +281,18 @@ namespace Neon.Diagnostics
                             {
                                 var exception = record.Exception;
 
-                                logWriter.Write($"{indent1}EXCEPTION.TYPE: ");
+                                logWriter.Write($"EXCEPTION.TYPE: ");
                                 logWriter.WriteLine(exception.GetType().FullName);
-                                logWriter.Write($"{indent1}EXCEPTION.MESSAGE: ");
-                                logWriter.WriteLine(exception.Message);
-                                logWriter.WriteLine($"{indent1}EXCEPTION.STACKTRACE:");
+                                logWriter.Write($"EXCEPTION.MESSAGE: ");
+                                logWriter.WriteLine(DiagnosticsHelper.CleanExceptionMessage(exception));
+                                logWriter.WriteLine($"EXCEPTION.STACKTRACE:");
 
                                 using (var reader = new StringReader(exception.StackTrace))
                                 {
                                     foreach (var line in reader.Lines())
                                     {
-                                        logWriter.Write(indent1);
-                                        logWriter.WriteLine(line);
+                                        logWriter.Write(indent);
+                                        logWriter.WriteLine(line.TrimStart());
                                     }
                                 }
                             }

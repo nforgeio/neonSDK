@@ -278,7 +278,7 @@ namespace Neon.Diagnostics
 
             if (exception != null && message == null)
             {
-                message = NeonHelper.ExceptionError(exception);
+                message = $"[{exception.GetType().FullName}]: {DiagnosticsHelper.CleanExceptionMessage(exception)}";
             }
 
             // Temporarily persist the message as an attribute.
