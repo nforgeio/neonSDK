@@ -12,7 +12,7 @@
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<LangVersion>latest</LangVersion>
 		<Nullable>disable</Nullable>
-		<AnalysisLevel>5.0</AnalysisLevel>
+		<EnableNETAnalyzers>true</EnableNETAnalyzers>
 		<TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 		<WarningsAsErrors>NU1605</WarningsAsErrors>
@@ -20,6 +20,7 @@
 		<ImplicitUsings>disable</ImplicitUsings>
 		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
 		<GenerateTargetFrameworkAttribute>true</GenerateTargetFrameworkAttribute>
+		<NoWarn>1701;1702;NETSDK1138;CS8892</NoWarn>
 
 		<!-- Debugging related: -->
 

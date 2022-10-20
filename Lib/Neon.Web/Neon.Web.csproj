@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-        <TargetFrameworks>net5.0; net6.0</TargetFrameworks>
+        <TargetFrameworks>net5.0; net6.0; net7.0</TargetFrameworks>
         <OutputType>Library</OutputType>
 		<Version>3.0.0</Version>
 		<PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
@@ -47,6 +47,14 @@
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.9" />
+		<PackageReference Include="Microsoft.AspNetCore.TestHost" Version="6.0.9" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="6.0.9" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="6.0.9" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.NewtonsoftJson" Version="6.0.9" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.9" />
 		<PackageReference Include="Microsoft.AspNetCore.TestHost" Version="6.0.9" />
 		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="6.0.9" />

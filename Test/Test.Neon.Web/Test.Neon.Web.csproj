@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net6.0</TargetFrameworks>
+        <TargetFrameworks>net6.0; net7.0</TargetFrameworks>
         <IsPackable>false</IsPackable>
         <RootNamespace>Test.Neon.Web</RootNamespace>
         <Configurations>Debug;Release</Configurations>
@@ -14,15 +14,6 @@
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp3.1|AnyCPU'">
-		<DefineConstants>DEBUG;TRACE</DefineConstants>
-        <PlatformTarget>x64</PlatformTarget>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp3.1|AnyCPU'">
-        <PlatformTarget>x64</PlatformTarget>
     </PropertyGroup>
 
     <ItemGroup>
@@ -61,6 +52,11 @@
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.9" />
+		<PackageReference Include="Microsoft.AspNetCore.TestHost" Version="6.0.9" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.9" />
 		<PackageReference Include="Microsoft.AspNetCore.TestHost" Version="6.0.9" />
 	</ItemGroup>

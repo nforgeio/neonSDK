@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFrameworks>net6.0; net7.0</TargetFrameworks>
         <OutputType>Library</OutputType>
         <Version>3.0.0</Version>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
@@ -13,7 +13,7 @@
         <Configurations>Debug;Release</Configurations>
         <Description>A Blazor Component Library.</Description>
         <PackageTags>blazor aspnetcore</PackageTags>
-        <NoWarn>1591</NoWarn>
+		<NoWarn>$(NoWarn);1591</NoWarn>
 	</PropertyGroup>
 
     <ItemGroup>

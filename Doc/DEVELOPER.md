@@ -122,20 +122,26 @@ Follow the steps below to configure a development or test workstation:
    * Install **.NET 5.0 SDK 5.0.408** from [here](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-5.0.403-windows-x64-installer) (.NET SDK x64 installer)
    * Install **.NET 6.0 SDK 6.0.301** from [here](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-6.0.301-windows-x64-installer) (.NET SDK x64 installer)
    * Install **.NET 6.0 SDK 6.0.402 x64** from [here](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-6.0.402-windows-x64-installer) (.NET SDK x64 installer)
-   * Install **.NET 6.0 SDK 6.0.402 x86** from [here](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-6.0.402-windows-x86-installer) (.NET SDK x86 installer) **NOTE:** It seems like the **x86** version is required to run unit tests
+   * Install **.NET 7.0 SDK 7.0.100-rc.2 x64** from [here](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-7.0.100-rc.2-windows-x64-installer) (.NET SDK x64 installer)
+   
+16. **Visual Studio:** Enable preview .NET SDKs:
+    * Open Visual Studio
+    * Goto: **Tools/Options/Environment/Preview Features**
+    * Check: **Use previews of the .NET SDK (requires restart)
+    * Restart all Visual Studio instances
 
-16. **Clone** the https://github.com/nforgeio/neonSDK.git repository to your workstation:
+17. **Clone** the https://github.com/nforgeio/neonSDK.git repository to your workstation:
 
     * **IMPORTANT:** All neonFORGE related repositories must be cloned within the same parent directory and their folder names must be the same as the repo names.
 
-17. Configure the build **environment variables**:
+18. Configure the build **environment variables**:
 
     * Open **File Explorer**
     * Navigate to the directory holding the cloned repository
     * **Right-click** on **buildenv.cmd** and then **Run as adminstrator**
     * Press ENTER to close the CMD window when the script is finished
   
-18. **Clone** the related neonSDK repos to the same parent directory as **neonSDK** using the repo names for the folders:
+19. **Clone** the related neonSDK repos to the same parent directory as **neonSDK** using the repo names for the folders:
 
     * https://github.com/nforgeio/cadence-samples.git
     * https://github.com/nforgeio/nforgeio.github.io.git
@@ -152,14 +158,14 @@ Follow the steps below to configure a development or test workstation:
     git clone https://github.com/nforgeio/cadence-samples.git
     ```
 
-19. **Close** any running instances of **Visual Studio**
+20. **Close** any running instances of **Visual Studio**
 
-20. Install **7-Zip (32-bit)** (using the Windows *.msi* installer) from [here](http://www.7-zip.org/download.html)
+21. Install **7-Zip (32-bit)** (using the Windows *.msi* installer) from [here](http://www.7-zip.org/download.html)
 
-21. Install **Cygwin - setup-x86-64.exe** (all packages and default path) from: [here](https://www.cygwin.com/setup-x86_64.exe)
+22. Install **Cygwin - setup-x86-64.exe** (all packages and default path) from: [here](https://www.cygwin.com/setup-x86_64.exe)
     then run this in a command window to add it to the PATH.
 
-22. *Optional:* Many server components are deployed to Linux, so you’ll need terminal and file management programs.  We’re currently 
+23. *Optional:* Many server components are deployed to Linux, so you’ll need terminal and file management programs.  We’re currently 
     standardizing on **PuTTY** for the terminal and **WinSCP** for file transfer.  Install both programs to their default
     directories:
 
@@ -173,18 +179,18 @@ Follow the steps below to configure a development or test workstation:
     
       ![WinSCP Hidden Files](Images/Developer/WinSCPHiddenFiles.png?raw=true)
 
-23. Confirm that the solution builds:
+24. Confirm that the solution builds:
 
     * Restart **Visual Studio** as **administrator** (to pick up the new environment variables)
     * Open **$/neonSDK.sln** (where **$** is the repo root directory)
     * Click the **Install** link at the top of the solution explorer panel when there's a warning about a missing SDK.
     * Select **Build/Rebuild** Solution
 
-24. *Optional:* Install **Notepad++** from [here](https://notepad-plus-plus.org/download)
+25. *Optional:* Install **Notepad++** from [here](https://notepad-plus-plus.org/download)
 
-25. *Optional:* Install **Postman** REST API tool from [here](https://www.getpostman.com/postman)
+26. *Optional:* Install **Postman** REST API tool from [here](https://www.getpostman.com/postman)
 
-26. *Optional:* Install **Cmdr/Mini** command shell:
+27. *Optional:* Install **Cmdr/Mini** command shell:
 
   * **IMPORTANT: Don't install the Full version** to avoid installing Linux command line tools that might conflict with the Cygwin tools installed earlier.
   * Download the ZIP archive from: [here](http://cmder.net/)
@@ -195,7 +201,7 @@ Follow the steps below to configure a development or test workstation:
 
 27. *Optional:* Install the latest version of **XCP-ng Center** from [here](https://github.com/xcp-ng/xenadmin/releases) if you'll need to manage Virtual Machines hosted on XCP-ng.
 
-28. *Optional:* Maintainers who will be publishing releases will need to:
+27. *Optional:* Maintainers who will be publishing releases will need to:
 
     * **Download:** the latest recommended (at least **v6.3.0**) **nuget.exe** from [here](https://www.nuget.org/downloads) and put this somewhere in your `PATH`
 
@@ -205,7 +211,7 @@ Follow the steps below to configure a development or test workstation:
 	
     * **Install:** GitHub CLI (amd64) v1.9.2 or greater from: https://github.com/cli/cli/releases
 
-29. *Optional:* Disable **Visual Studio Complete Line Intellicode**.  I (jefflill) personally find this distracting.  This blog post agrees and describes how to disable this:
+30. *Optional:* Disable **Visual Studio Complete Line Intellicode**.  I (jefflill) personally find this distracting.  This blog post agrees and describes how to disable this:
 
     https://dotnetcoretutorials.com/2021/11/27/turning-off-visual-studio-2022-intellicode-complete-line-intellisense/
 
@@ -213,7 +219,7 @@ Follow the steps below to configure a development or test workstation:
     b. **Show whole line completions**
     c. **Show whole line completions on new lines**
 
-30. *Optional:* Create the **EDITOR** environment variable and point it to `C:\Program Files\Notepad++\notepad++.exe` or your favorite text editor executable.
+31. *Optional:* Create the **EDITOR** environment variable and point it to `C:\Program Files\Notepad++\notepad++.exe` or your favorite text editor executable.
 
 32: *Optional:* Maintainers will need to install **AWS client version 2** from: [here](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2-windows.html)
 

@@ -1,20 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
+		<TargetFrameworks>net6.0; net7.0</TargetFrameworks>
 		<IsPackable>false</IsPackable>
 		<RootNamespace>TestYugaByte</RootNamespace>
 		<Configurations>Debug;Release</Configurations>
 		<GenerateDocumentationFile>false</GenerateDocumentationFile>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net48|AnyCPU'">
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework))'=='Debug|AnyCPU'">
 		<DefineConstants>DEBUG;TRACE</DefineConstants>
-		<PlatformTarget>x64</PlatformTarget>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net48|AnyCPU'">
-		<PlatformTarget>x64</PlatformTarget>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework))'=='Release|AnyCPU'">
 	</PropertyGroup>
 
 	<ItemGroup>
