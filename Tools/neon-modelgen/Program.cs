@@ -120,13 +120,13 @@ style design conventions.  See this GitHub issue for more information:
             if (commandLine.HasHelpOption)
             {
                 Help();
-                Program.Exit(0);
+                Environment.Exit(0);
             }
 
             if (commandLine.Arguments.Length == 0)
             {
                 Help();
-                Program.Exit(1);
+                Environment.Exit(1);
             }
 
             logPath          = commandLine.GetOption("--log");
