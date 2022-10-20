@@ -77,8 +77,8 @@ OPTIONS:
 
     --debug-allow-stepinto      - Indicates that generated class methods will
                                   not include the [DebuggerStepThrough]
-                                  attribute allowing the debugger to step
-                                  into the generated methods.
+                                  attribute.  This will allow the debugger to
+                                  step into the generated methods.
 
     --v1compatible              - Generates models using the v1.x compatible
                                   ""__T"" property name rather than ""T$$""
