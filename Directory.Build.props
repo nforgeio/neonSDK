@@ -22,9 +22,8 @@
 		<GenerateTargetFrameworkAttribute>true</GenerateTargetFrameworkAttribute>
 		<NoWarn>1701;1702;NETSDK1138;CS8892</NoWarn>
 
-		<!-- Debugging related: -->
+		<!-- Debugging -->
 
-		<Optimize>false</Optimize>
 		<DebugType>embedded</DebugType>
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
 		<EmbedUntrackedSources>true</EmbedUntrackedSources>
@@ -37,6 +36,14 @@
 
 		<ContinuousIntegrationBuild  Condition="'$(NEON_PUBLIC_SOURCELINK)' == 'true'">true</ContinuousIntegrationBuild>
 
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<Optimize>false</Optimize>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<Optimize>true</Optimize>
 	</PropertyGroup>
 
 	<!-- 

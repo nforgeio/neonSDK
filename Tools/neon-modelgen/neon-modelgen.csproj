@@ -7,7 +7,9 @@
 		<RootNamespace>NeonModelGen</RootNamespace>
 		<RuntimeIdentifiers>win-x64;linux-x64;osx-x64</RuntimeIdentifiers>
 		<NoWarn>$(NoWarn);NU5100</NoWarn>
-		<DebugType>portable</DebugType>
+		<DebugType>embedded</DebugType>
+		<SelfContained>true</SelfContained>
+		<PublishTrimmed>false</PublishTrimmed>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
