@@ -24,7 +24,7 @@
 
 		<!-- Debugging related: -->
 
-		<Optimize>False</Optimize>
+		<Optimize>false</Optimize>
 		<DebugType>embedded</DebugType>
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
 		<EmbedUntrackedSources>true</EmbedUntrackedSources>
