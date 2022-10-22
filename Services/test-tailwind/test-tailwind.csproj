@@ -6,8 +6,6 @@
 		<RootNamespace>TestTailwind</RootNamespace>
 		<OutputType>Exe</OutputType>
 		<IsPackable>false</IsPackable>
-		<ServerGarbageCollection>true</ServerGarbageCollection>
-		<ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
 		<Configurations>Debug;Release</Configurations>
 		<GenerateDocumentationFile>false</GenerateDocumentationFile>
 	</PropertyGroup>

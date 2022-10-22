@@ -4,8 +4,6 @@
 		<TargetFrameworks>net6.0; net7.0</TargetFrameworks>
 		<OutputType>Exe</OutputType>
 		<RootNamespace>CadenceService</RootNamespace>
-		<ServerGarbageCollection>true</ServerGarbageCollection>
-		<ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
 		<Configurations>Debug;Release</Configurations>
 		<GenerateDocumentationFile>false</GenerateDocumentationFile>
 	</PropertyGroup>
