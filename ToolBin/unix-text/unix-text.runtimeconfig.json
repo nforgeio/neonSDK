@@ -1,12 +1,10 @@
 {
   "runtimeOptions": {
-    "tfm": "net6.0",
-    "includedFrameworks": [
-      {
-        "name": "Microsoft.NETCore.App",
-        "version": "6.0.1"
-      }
-    ],
+    "tfm": "net7.0",
+    "framework": {
+      "name": "Microsoft.NETCore.App",
+      "version": "7.0.0-rc.2.22472.3"
+    },
     "configProperties": {
       "System.Reflection.Metadata.MetadataUpdater.IsSupported": false
     }

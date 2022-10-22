@@ -469,7 +469,7 @@
         </member>
         <member name="P:Neon.SSH.ILinuxSshProxy.Address">
             <summary>
-            The cluster private IP address to used for connecting to the remote machine.
+            The IP address to used for connecting to the remote machine.
             </summary>
         </member>
         <member name="P:Neon.SSH.ILinuxSshProxy.SshPort">
@@ -1228,7 +1228,10 @@
             <summary>
             Lists information about the disks on the remote machine.
             </summary>
-            <param name="includeFloppy">Optionally include floppy disks.</param>
+            <param name="fixedDisksOnly">
+            Optionally specifies that non-fixed disks should be returned as well 
+            (defaults to <c>true</c>).
+            </param>
             <returns>
             A <see cref="T:System.Collections.Generic.Dictionary`2"/> relating the case sensitive 
             disk name to a <see cref="T:Neon.SSH.LinuxDiskInfo"/> including information
@@ -1356,14 +1359,13 @@
             Holds information about a Linux disk partition.
             </summary>
         </member>
-        <member name="M:Neon.SSH.LinuxDiskPartition.#ctor(System.Int32,System.String,System.Int64,System.String)">
+        <member name="M:Neon.SSH.LinuxDiskPartition.#ctor(System.Int32,System.String,System.Int64)">
             <summary>
             Constructor.
             </summary>
             <param name="partition">The partition number.</param>
             <param name="partitionName">The partition name.</param>
             <param name="partitionSize">The partition size in bytes.</param>
-            <param name="mountPoint">The partition mount point or <c>null</c>.</param>
         </member>
         <member name="P:Neon.SSH.LinuxDiskPartition.Partition">
             <summary>
@@ -1378,11 +1380,6 @@
         <member name="P:Neon.SSH.LinuxDiskPartition.PartitionSize">
             <summary>
             Returns the partition size in bytes.
-            </summary>
-        </member>
-        <member name="P:Neon.SSH.LinuxDiskPartition.MountPoint">
-            <summary>
-            Returns the current partition mount point or <c>null</c>.
             </summary>
         </member>
         <member name="T:Neon.SSH.LinuxSshProxy">

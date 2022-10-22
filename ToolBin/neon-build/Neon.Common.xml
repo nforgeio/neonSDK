@@ -2804,10 +2804,13 @@
         </member>
         <member name="M:Neon.Common.DateTimeExtensions.RoundUp(System.DateTime,System.TimeSpan)">
             <summary>
-            Rounds a <see cref="T:System.DateTime"/> up to the nearest specified interval.
-            
-            var date = new DateTime(2010, 02, 05, 10, 35, 25, 450); // 2010/02/05 10:35:25
-            var roundedUp = date.RoundUp(TimeSpan.FromMinutes(15)); // 2010/02/05 10:45:00
+            <para>
+            Rounds a <see cref="T:System.DateTime"/> up to the nearest specified interval, like:
+            </para>
+            <code language="c#">
+            var date      = new DateTime(2010, 02, 05, 10, 35, 25, 450); // 2010/02/05 10:35:25
+            var roundedUp = date.RoundUp(TimeSpan.FromMinutes(15));      // 2010/02/05 10:45:00
+            </code>
             </summary>
             <param name="dt">The datetime to be rounded.</param>
             <param name="interval">The time interval to be rounded to.</param>
@@ -2815,10 +2818,13 @@
         </member>
         <member name="M:Neon.Common.DateTimeExtensions.RoundDown(System.DateTime,System.TimeSpan)">
             <summary>
-            Rounds a <see cref="T:System.DateTime"/> down to the nearest specified interval.
-            
-            var date = new DateTime(2010, 02, 05, 10, 35, 25, 450);     // 2010/02/05 10:35:25
-            var roundedDown = date.RoundDown(TimeSpan.FromMinutes(15)); // 2010/02/05 10:30:00
+            <para>
+            Rounds a <see cref="T:System.DateTime"/> down to the nearest specified interval, like:
+            </para>
+            <code language="c#">
+            var date        = new DateTime(2010, 02, 05, 10, 35, 25, 450); // 2010/02/05 10:35:25
+            var roundedDown = date.RoundDown(TimeSpan.FromMinutes(15));    // 2010/02/05 10:30:00
+            </code>
             </summary>
             <param name="dt">The datetime to be rounded.</param>
             <param name="interval">The time interval to be rounded to.</param>
@@ -2826,10 +2832,13 @@
         </member>
         <member name="M:Neon.Common.DateTimeExtensions.RoundToNearest(System.DateTime,System.TimeSpan)">
             <summary>
-            Rounds a <see cref="T:System.DateTime"/> to the nearest specified interval.
-            
-            var date = new DateTime(2010, 02, 05, 10, 35, 25, 450);               // 2010/02/05 10:35:25
+            <para>
+            Rounds a <see cref="T:System.DateTime"/> to the nearest specified interval, like:
+            </para>
+            <code language="c#">
+            var date             = new DateTime(2010, 02, 05, 10, 35, 25, 450);   // 2010/02/05 10:35:25
             var roundedToNearest = date.RoundToNearest(TimeSpan.FromMinutes(15)); // 2010/02/05 10:30:00
+            </code>
             </summary>
             <param name="dt">The datetime to be rounded.</param>
             <param name="interval">The time interval to be rounded to.</param>
@@ -5873,7 +5882,7 @@
             be the fully qualified pathj to <b>docker.exe</b> on Windows and just <b>docker</b>
             on Linux and OS/X.
             </summary>
-            <exception cref="T:System.IO.FileNotFoundException">Thrown when the Docker client could  not be located.</exception>
+            <returns>The path to the Docker CLI or <c>null</c> when it couldn't be located.</returns>
         </member>
         <member name="P:Neon.Common.NeonHelper.DockerComposeCli">
             <summary>
@@ -8705,6 +8714,15 @@
             <param name="configure">Exporter configuration options.</param>
             <returns>The <paramref name="loggerOptions"/> to enable fluent style programming.</returns>
         </member>
+        <member name="M:Neon.Diagnostics.ConfigExtensions.AddFileExporter(OpenTelemetry.Logs.OpenTelemetryLoggerOptions,System.Action{Neon.Diagnostics.FileLogExporterOptions})">
+            <summary>
+            Adds a <see cref="T:Neon.Diagnostics.FileLogExporter"/> to a <see cref="T:OpenTelemetry.Logs.OpenTelemetryLoggerOptions"/> instance
+            when configuring a OpenTelemetry pipeline.
+            </summary>
+            <param name="loggerOptions">The <see cref="T:OpenTelemetry.Logs.OpenTelemetryLoggerOptions"/> options to where the exporter will be added.</param>
+            <param name="configure">Exporter configuration options.</param>
+            <returns>The <paramref name="loggerOptions"/> to enable fluent style programming.</returns>
+        </member>
         <member name="M:Neon.Diagnostics.ConfigExtensions.AddLogAsTraceProcessor(OpenTelemetry.Logs.OpenTelemetryLoggerOptions,System.Action{Neon.Diagnostics.LogAsTraceProcessorOptions})">
             <summary>
             Adds a <see cref="T:Neon.Diagnostics.ConsoleJsonLogExporter"/> to a <see cref="T:OpenTelemetry.Logs.OpenTelemetryLoggerOptions"/> instance
@@ -8712,15 +8730,6 @@
             </summary>
             <param name="loggerOptions">The <see cref="T:OpenTelemetry.Logs.OpenTelemetryLoggerOptions"/> options to where the exporter will be added.</param>
             <param name="configure">Exporter configuration options.</param>
-            <returns>The <paramref name="loggerOptions"/> to enable fluent style programming.</returns>
-        </member>
-        <member name="M:Neon.Diagnostics.ConfigExtensions.AddLogInterceptProcessor(OpenTelemetry.Logs.OpenTelemetryLoggerOptions,Neon.Diagnostics.LogRecordInterceptor)">
-            <summary>
-            Adds a <see cref="T:Neon.Diagnostics.LogInterceptProcessor"/> to a <see cref="T:OpenTelemetry.Logs.OpenTelemetryLoggerOptions"/> instance
-            when configuring a OpenTelemetry pipeline.
-            </summary>
-            <param name="loggerOptions">The <see cref="T:OpenTelemetry.Logs.OpenTelemetryLoggerOptions"/> options to where the exporter will be added.</param>
-            <param name="interceptor">The interceptor delegate that will be called for processed log records.</param>
             <returns>The <paramref name="loggerOptions"/> to enable fluent style programming.</returns>
         </member>
         <member name="T:Neon.Diagnostics.ConsoleJsonLogExporter">
@@ -8828,9 +8837,16 @@
         </member>
         <member name="P:Neon.Diagnostics.ConsoleJsonLogExporterOptions.LogEventInterceptor">
             <summary>
+            <para>
             Used to intercept log events just before they are emitted by the exporter.  You can
             use this for implementing logging related unit tests or modifying other event properties 
             like the timestamp, labels, tags, etc.
+            </para>
+            <note>
+            <b>IMPORTANT:</b> <see cref="T:Neon.Diagnostics.LogEvent"/> record instances are reused by the Neon telemetry
+            code, so you'll need to call <see cref="M:Neon.Diagnostics.LogEvent.Clone"/> when you're using the interceptor
+            to collected logged events for later analysis (i.e. when unit testing).
+            </note>
             </summary>
         </member>
         <member name="P:Neon.Diagnostics.ConsoleJsonLogExporterOptions.StdOutInterceptor">
@@ -8883,6 +8899,32 @@
             <param name="logLevel">The .NET log level.</param>
             <returns>A <see cref="T:Neon.Diagnostics.DiagnosticsHelper.SeverityInfo"/> with the OpenTelemetry information.</returns>
         </member>
+        <member name="M:Neon.Diagnostics.DiagnosticsHelper.SetLogEvent(OpenTelemetry.BaseExporter{OpenTelemetry.Logs.LogRecord},System.Boolean,OpenTelemetry.Logs.LogRecord,System.Collections.Generic.Dictionary{System.String,System.Object},System.Collections.Generic.Dictionary{System.String,System.Object},Neon.Diagnostics.LogEvent)">
+            <summary>
+            Converts a <see cref="T:OpenTelemetry.Logs.LogRecord"/> into a <see cref="T:Neon.Diagnostics.LogEvent"/>.  This is used
+            internally by our custom log exporters.  This method is designed to be called
+            within a batch export loop and reuses a <see cref="T:Neon.Diagnostics.LogEvent"/> instances as well
+            as tag and resource dictionaries to reduce GC pressure.
+            </summary>
+            <param name="exporter">The exporter.</param>
+            <param name="includeStackTrace">Controls whether exception stack traces are include.</param>
+            <param name="record">The input record.</param>
+            <param name="resources">Passed as an allocated temporary dictionary used for rendering resources.</param>
+            <param name="tags">Passed as an allocated temporary dictionary used for rendering tags.</param>
+            <param name="logEvent">Returns as initialized from <paramref name="record"/>.</param>
+        </member>
+        <member name="M:Neon.Diagnostics.DiagnosticsHelper.CleanExceptionMessage(System.Exception)">
+            <summary>
+            Returns an exception's message cleaned of extraneous things like 
+            stack traces.
+            </summary>
+            <param name="e">The source exception.</param>
+            <returns>The cleaned message.</returns>
+            <remarks>
+            Some exceptions include extra stuff in their message text.  This method
+            removes that and returns just the message.
+            </remarks>
+        </member>
         <member name="T:Neon.Diagnostics.ExceptionInfo">
             <summary>
             Used for serializing exception information.
@@ -8901,6 +8943,152 @@
         <member name="P:Neon.Diagnostics.ExceptionInfo.Stack">
             <summary>
             The stack trace.
+            </summary>
+        </member>
+        <member name="T:Neon.Diagnostics.FileLogExporterFormat">
+            <summary>
+            Enumerates <see cref="T:Neon.Diagnostics.FileLogExporter"/> output formats.
+            </summary>
+        </member>
+        <member name="F:Neon.Diagnostics.FileLogExporterFormat.Human">
+            <summary>
+            Outputs logs in a human readable format.  This is the
+            default.
+            </summary>
+        </member>
+        <member name="F:Neon.Diagnostics.FileLogExporterFormat.Json">
+            <summary>
+            Outputs logs as single-line JSON.
+            </summary>
+        </member>
+        <member name="T:Neon.Diagnostics.FileLogExporter">
+            <summary>
+            Exports log records to a file as specified by <see cref="T:Neon.Diagnostics.FileLogExporterOptions"/>.
+            </summary>
+            <remarks>
+            <para>
+            This exporter currently supports writing logs as JSON or a bespoke human readable 
+            format (the default).  You can customize this by using options with the 
+            <see cref="P:Neon.Diagnostics.FileLogExporterOptions.Format"/> to one of the <see cref="T:Neon.Diagnostics.FileLogExporterFormat"/>
+            values (as shown below).
+            </para>
+            <para>
+            <b>IMPORTANT:</b> To enable the inclusion of log tags in the output, you must
+            set <see cref="P:OpenTelemetry.Logs.OpenTelemetryLoggerOptions.ParseStateValues"/><c>=true</c> when
+            configuring your OpenTelemetry options.  This is is <c>false</c> by default.
+            </para>
+            <code language="C#">
+            var loggerFactory = LoggerFactory.Create(
+                builder =>
+                {
+                    builder.AddOpenTelemetry(
+                        options =>
+                        {
+                            options.ParseStateValues = true;    // &lt;--- SET THIS TO TRUE
+                            
+                            options.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(serviceName: ServiceName, serviceVersion: ServiceVersion));
+                            options.AddFileExporter(
+                                options => 
+                                {
+                                    options.Format      = FileLogExporterFormat.Human;
+                                    options.LogFolder   = NeonHelper.GetBaseDirtectory();
+                                    options.LogFileName = "MyProgram.log";
+                                });
+                        });
+                });
+            </code>
+            <para>
+            This exporter supports log file rotation.  This is controlled by the <see cref="P:Neon.Diagnostics.FileLogExporterOptions.FileLimit"/>
+            and <see cref="P:Neon.Diagnostics.FileLogExporterOptions.MaxLogFiles"/> options.  When the current log file's size equals or exceeds
+            <see cref="P:Neon.Diagnostics.FileLogExporterOptions.FileLimit"/> after writing a log event, the exporter will close and rename the
+            current file by appending a timestamp and start logging to a new file named <see cref="P:Neon.Diagnostics.FileLogExporterOptions.LogFileName"/>.
+            <see cref="P:Neon.Diagnostics.FileLogExporterOptions.FileLimit"/> defaults to <b>10 MiB</b> and <see cref="P:Neon.Diagnostics.FileLogExporterOptions.MaxLogFiles"/>
+            defaults to retain <b>10</b> log files.
+            </para>
+            <para>
+            The rotated files will be named like "LOGFILENAME-YYYY-MM-ddTHH-mm-ss.fffZ.EXT", where <b>LOGFILENAME</b> is the
+            filename part of <see cref="P:Neon.Diagnostics.FileLogExporterOptions.LogFileName"/> and <b>EXT</b> is the extension.
+            </para>
+            <para>
+            <see cref="P:Neon.Diagnostics.FileLogExporterOptions.MaxLogFiles"/> controls how many log files will be retained.
+            </para>
+            </remarks>
+        </member>
+        <member name="M:Neon.Diagnostics.FileLogExporter.#ctor(Neon.Diagnostics.FileLogExporterOptions)">
+            <summary>
+            Constructs a log exporter that writes log records to standard output and/or
+            standard error as single line JSON objects.
+            </summary>
+            <param name="options">Optionally specifies the exporter options.</param>
+        </member>
+        <member name="M:Neon.Diagnostics.FileLogExporter.Dispose(System.Boolean)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Neon.Diagnostics.FileLogExporter.OnForceFlush(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Neon.Diagnostics.FileLogExporter.OnShutdown(System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Neon.Diagnostics.FileLogExporter.Export(OpenTelemetry.Batch{OpenTelemetry.Logs.LogRecord}@)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Neon.Diagnostics.FileLogExporterOptions">
+            <summary>
+            Specifies the options used to configure a <see cref="T:Neon.Diagnostics.ConsoleJsonLogExporter"/>.
+            </summary>
+        </member>
+        <member name="M:Neon.Diagnostics.FileLogExporterOptions.#ctor">
+            <summary>
+            Constructs an instance with reasonable settings.
+            </summary>
+        </member>
+        <member name="P:Neon.Diagnostics.FileLogExporterOptions.LogFolder">
+            <summary>
+            Specifies the folder where the log file will be written.  This must be specified.
+            </summary>
+        </member>
+        <member name="P:Neon.Diagnostics.FileLogExporterOptions.LogFileName">
+            <summary>
+            Specifies the name to use for the log file.  This must be specified.
+            </summary>
+        </member>
+        <member name="P:Neon.Diagnostics.FileLogExporterOptions.Format">
+            <summary>
+            Specifies the export format.  This defaults to <see cref="F:Neon.Diagnostics.FileLogExporterFormat.Human"/>.
+            </summary>
+        </member>
+        <member name="P:Neon.Diagnostics.FileLogExporterOptions.FileLimit">
+            <summary>
+            Used to limit the size of log files.  The current log file will be
+            rotated when its size reaches or exceeds this value.  This defaults
+            to <b>10 MiB</b> and cannot be less than <b>10KiB</b>
+            </summary>
+        </member>
+        <member name="P:Neon.Diagnostics.FileLogExporterOptions.MaxLogFiles">
+            <summary>
+            <para>
+            Used to limit how many log files are retained.  This must be greater than zero.
+            A value of one indicates that log rotation will be disabled and the current 
+            log file will simply be cleared when its size exceeds <see cref="P:Neon.Diagnostics.FileLogExporterOptions.FileLimit"/>,
+            effectively starting over.
+            </para>
+            <para>
+            This defaults to <b>10</b> log files.
+            </para>
+            </summary>
+        </member>
+        <member name="P:Neon.Diagnostics.FileLogExporterOptions.FlushAgressively">
+            <summary>
+            Controls whether the target log file will be flushed to disk after writing
+            log event batch.  This defaults to <c>true</c>.
+            </summary>
+        </member>
+        <member name="P:Neon.Diagnostics.FileLogExporterOptions.LogEventInterceptor">
+            <summary>
+            Used to intercept log events just before they are emitted by the exporter.  You can
+            use this for implementing logging related unit tests or modifying other event properties 
+            like the timestamp, labels, tags, etc.
             </summary>
         </member>
         <member name="T:Neon.Diagnostics.LogAsTraceProcessor">
@@ -9313,6 +9501,14 @@
             The associated trace ID.
             </summary>
         </member>
+        <member name="M:Neon.Diagnostics.LogEvent.Clone">
+            <summary>
+            Clones the current instance.  This is used internally when passing instances to a
+            <see cref="T:Neon.Diagnostics.LogEventInterceptor"/> because our logging code reused <see cref="T:Neon.Diagnostics.LogEvent"/>
+            instances to reduce GC pressure.
+            </summary>
+            <returns>The cloned instance.</returns>
+        </member>
         <member name="T:Neon.Diagnostics.LogEventInterceptor">
             <summary>
             Use this delegate for filtering, inspecting, or modifying log events immediately
@@ -9321,6 +9517,11 @@
             </summary>
             <param name="logEvent">The log event.</param>
             <remarks>
+            <note>
+            <b>IMPORTANT:</b> <see cref="T:Neon.Diagnostics.LogEvent"/> record instances are reused by the Neon telemetry
+            code, so you'll need to call <see cref="M:Neon.Diagnostics.LogEvent.Clone"/> when you're using the interceptor
+            to collected logged events for later analysis (i.e. when unit testing).
+            </note>
             <para>
             You can configure an interceptor in <see cref="T:Neon.Diagnostics.ConsoleJsonLogExporterOptions"/> or
             the options for other log exporters in the <see cref="N:Neon.Diagnostics"/> namespace.
@@ -9785,27 +9986,6 @@
             This method is intended mostly to avoid processing attributes when the current 
             log level prevents any log from being emitted, for better performance.
             </remarks>
-        </member>
-        <member name="T:Neon.Diagnostics.LogInterceptProcessor">
-            <summary>
-            Typically used for unit testing log output of components.  This simply calls
-            a delegate for ever <see cref="T:OpenTelemetry.Logs.LogRecord"/> received by the processor.
-            </summary>
-        </member>
-        <member name="M:Neon.Diagnostics.LogInterceptProcessor.#ctor(Neon.Diagnostics.LogRecordInterceptor)">
-            <summary>
-            Constructor.
-            </summary>
-            <param name="interceptor">Specifies the delegate to be called for each log record received.</param>
-        </member>
-        <member name="M:Neon.Diagnostics.LogInterceptProcessor.OnEnd(OpenTelemetry.Logs.LogRecord)">
-            <inheritdoc/>
-        </member>
-        <member name="T:Neon.Diagnostics.LogRecordInterceptor">
-            <summary>
-            Use this delegate when deploying a <see cref="T:Neon.Diagnostics.LogRecordInterceptor"/>.
-            </summary>
-            <param name="logRecord">The log record.</param>
         </member>
         <member name="T:Neon.Diagnostics.NamespaceDoc">
             <summary>
@@ -17897,16 +18077,16 @@
             <summary>Branch: jeff</summary>
         </member>
         <member name="F:ThisAssembly.Git.Commit">
-            <summary>Commit: a92570c</summary>
+            <summary>Commit: b7a2376</summary>
         </member>
         <member name="F:ThisAssembly.Git.Sha">
-            <summary>Sha: a92570cb29ec30276fc07d0e0e599dbcb56d1f02</summary>
+            <summary>Sha: b7a237660cc5864c9f1e52a4e7e089106852ac11</summary>
         </member>
         <member name="F:ThisAssembly.Git.CommitDate">
-            <summary>Commit date: 2022-10-05T21:52:17-07:00</summary>
+            <summary>Commit date: 2022-10-20T21:53:03-07:00</summary>
         </member>
         <member name="F:ThisAssembly.Git.Commits">
-            <summary>Commits on top of base version: 176</summary>
+            <summary>Commits on top of base version: 212</summary>
         </member>
         <member name="F:ThisAssembly.Git.Tag">
             <summary>Tag: </summary>
@@ -17936,7 +18116,7 @@
             <summary>Minor: 0</summary>
         </member>
         <member name="F:ThisAssembly.Git.SemVer.Patch">
-            <summary>Patch: 176</summary>
+            <summary>Patch: 212</summary>
         </member>
         <member name="F:ThisAssembly.Git.SemVer.Label">
             <summary>Label: </summary>

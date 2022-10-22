@@ -93,7 +93,9 @@ COMMANDS:
                         continue;
                     }
 
+#pragma warning disable IL2072  // The referenced assembly will never be trimmed.
                     commands.Add((ICommand)Activator.CreateInstance(type));
+#pragma warning restore IL2072
                 }
 
                 // Short-circuit the help command.

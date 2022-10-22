@@ -9,6 +9,7 @@
 		<NoWarn>$(NoWarn);NU5100</NoWarn>
 		<DebugType>embedded</DebugType>
 		<SelfContained>true</SelfContained>
+		<PublishSingleFile>false</PublishSingleFile>
 		<PublishTrimmed>false</PublishTrimmed>
 	</PropertyGroup>
 

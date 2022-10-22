@@ -1133,5 +1133,67 @@
             as well as all subdomains <b>*.mydomain.com</b>.
             </summary>
         </member>
+        <member name="T:System.GuidCryptoExtensions">
+            <summary>
+            Implements <see cref="T:System.Guid"/> extensions.
+            </summary>
+        </member>
+        <member name="M:System.GuidCryptoExtensions.ToHex(System.Guid)">
+            <summary>
+            Returns the 32-character lowecase HEX representiation of the GUID.
+            </summary>
+            <param name="guid">The GUID.</param>
+            <returns>The 16-byte hash.</returns>
+        </member>
+        <member name="M:System.GuidCryptoExtensions.ToMd5Bytes(System.Guid)">
+            <summary>
+            Computes and returns the 16-byte MD5 hash of the GUID.
+            </summary>
+            <param name="guid">The GUID.</param>
+            <returns>The 16-byte hash.</returns>
+        </member>
+        <member name="M:System.GuidCryptoExtensions.ToMd5Hex(System.Guid)">
+            <summary>
+            Computes and returns the 32-character lowercase HEX MD5 hash of the GUID.
+            </summary>
+            <param name="guid">The GUID.</param>
+            <returns>The hash hex characters.</returns>
+        </member>
+        <member name="M:System.GuidCryptoExtensions.ToFoldedBytes(System.Guid)">
+            <summary>
+            Computes and returns the 8-byte folded MD5 hash of the GUID.
+            </summary>
+            <param name="guid">The GUID.</param>
+            <returns>The 8-byte hash.</returns>
+            <remarks>
+            <para>
+            This works by:
+            </para>
+            <list type="number">
+            <item>Generating the 16-byte MD5 hash of the GUID.</item>
+            <item>Splitting the result in half to two 8-byte arrays.</item>
+            <item>XOR-ing the bytes of the two arrays to form a new 8-byte array.</item>
+            <item>Retuning the result.</item>
+            </list>
+            </remarks>
+        </member>
+        <member name="M:System.GuidCryptoExtensions.ToFoldedHex(System.Guid)">
+            <summary>
+            Computes and returns the 16-character lowercase HEX folded MD5 hash of the GUID.
+            </summary>
+            <param name="guid">The GUID.</param>
+            <returns>The 8-byte hash.</returns>
+            <remarks>
+            <para>
+            This works by:
+            </para>
+            <list type="number">
+            <item>Generating the 16-byte MD5 hash of the GUID.</item>
+            <item>Splitting the result in half to two 8-byte arrays.</item>
+            <item>XOR-ing the bytes of the two arrays to form a new 8-byte array.</item>
+            <item>Retuning the result as lowercase HEX.</item>
+            </list>
+            </remarks>
+        </member>
     </members>
 </doc>

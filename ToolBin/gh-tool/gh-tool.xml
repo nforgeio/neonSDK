@@ -1,0 +1,245 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>gh-tool</name>
+    </assembly>
+    <members>
+        <member name="T:GHTool.ActionCommand">
+            <summary>
+            Implements the <b>action</b> command.
+            </summary>
+        </member>
+        <member name="P:GHTool.ActionCommand.Words">
+            <inheritdoc/>
+        </member>
+        <member name="M:GHTool.ActionCommand.Help">
+            <inheritdoc/>
+        </member>
+        <member name="M:GHTool.ActionCommand.RunAsync(Neon.Common.CommandLine)">
+            <inheritdoc/>
+        </member>
+        <member name="T:GHTool.ActionRunDeleteCommand">
+            <summary>
+            Implements the <b>action run delete</b> command.
+            </summary>
+        </member>
+        <member name="P:GHTool.ActionRunDeleteCommand.Words">
+            <inheritdoc/>
+        </member>
+        <member name="P:GHTool.ActionRunDeleteCommand.ExtendedOptions">
+            <inheritdoc/>
+        </member>
+        <member name="M:GHTool.ActionRunDeleteCommand.Help">
+            <inheritdoc/>
+        </member>
+        <member name="M:GHTool.ActionRunDeleteCommand.RunAsync(Neon.Common.CommandLine)">
+            <inheritdoc/>
+        </member>
+        <member name="T:GHTool.CommandAttribute">
+            <summary>
+            Used to tag a <see cref="T:GHTool.ICommand"/> for automatic inclusion in a program.
+            </summary>
+        </member>
+        <member name="M:GHTool.CommandAttribute.#ctor(System.Boolean)">
+            <summary>
+            Constructor.
+            </summary>
+            <param name="disabled">
+            Optionally disables the command, preventing it fromm being
+            recognized by the program.
+            </param>
+        </member>
+        <member name="P:GHTool.CommandAttribute.Disabled">
+            <summary>
+            Indicates when the command is disabled.
+            </summary>
+        </member>
+        <member name="T:GHTool.CommandBase">
+            <summary>
+            An abstract class that has default implementations for selected 
+            <see cref="T:GHTool.ICommand"/> members.
+            </summary>
+        </member>
+        <member name="P:GHTool.CommandBase.Words">
+            <inheritdoc/>
+        </member>
+        <member name="P:GHTool.CommandBase.AltWords">
+            <inheritdoc/>
+        </member>
+        <member name="P:GHTool.CommandBase.ExtendedOptions">
+            <inheritdoc/>
+        </member>
+        <member name="P:GHTool.CommandBase.CheckOptions">
+            <summary>
+            Indicates that unknown command options should be checked against <see cref="P:GHTool.CommandBase.ExtendedOptions"/>.
+            This defaults to <c>true</c>.
+            </summary>
+        </member>
+        <member name="M:GHTool.CommandBase.NeedsSshCredentials(Neon.Common.CommandLine)">
+            <inheritdoc/>
+        </member>
+        <member name="P:GHTool.CommandBase.SplitItem">
+            <inheritdoc/>
+        </member>
+        <member name="M:GHTool.CommandBase.Help">
+            <inheritdoc/>
+        </member>
+        <member name="M:GHTool.CommandBase.RunAsync(Neon.Common.CommandLine)">
+            <inheritdoc/>
+        </member>
+        <member name="T:GHTool.ICommand">
+            <summary>
+            Implements a command.
+            </summary>
+        </member>
+        <member name="P:GHTool.ICommand.Words">
+            <summary>
+            Returns the command words.
+            </summary>
+            <remarks>
+            This property is used to map the command line arguments to a command
+            implemention.  In the simple case, this will be a single word.  You 
+            may also specify multiple words.
+            </remarks>
+        </member>
+        <member name="P:GHTool.ICommand.AltWords">
+            <summary>
+            Returns optional alternative command words like: "ls" for "list", or "rm" for "remove".
+            </summary>
+            <remarks>
+            <note>
+            This should return <c>null</c> if there are no alternate words and if there
+            is an alternate, the number of words must be the same as returned be <see cref="P:GHTool.ICommand.Words"/>
+            for the command.
+            </note>
+            </remarks>
+        </member>
+        <member name="P:GHTool.ICommand.ExtendedOptions">
+            <summary>
+            Returns the array of extended command line options beyond the common options
+            supported by the command or an empty array if none.  The option names must
+            include the leading dash(es).
+            </summary>
+        </member>
+        <member name="P:GHTool.ICommand.CheckOptions">
+            <summary>
+            Indicates that unknown command options should be checked against <see cref="P:GHTool.ICommand.ExtendedOptions"/>.
+            </summary>
+        </member>
+        <member name="M:GHTool.ICommand.NeedsSshCredentials(Neon.Common.CommandLine)">
+            <summary>
+            Returns <c>true</c> if the command requires server SSH credentials to be
+            specified on the command line via the <b>-u/--user</b> and <b>-p/--password</b>
+            options vs. obtaining them from the currently logged in cluster secrets or
+            not needing credentials at all.
+            </summary>
+            <param name="commandLine">The command line.</param>
+        </member>
+        <member name="P:GHTool.ICommand.SplitItem">
+            <summary>
+            Returns the item used to split a command line into two parts with
+            the left part having standard <b>neon-cli</b> options and the right
+            part being a command that will be executed remotely.  This returns as
+            <c>null</c> for commands that don't split.
+            </summary>
+        </member>
+        <member name="M:GHTool.ICommand.Help">
+            <summary>
+            Displays help for the command.
+            </summary>
+        </member>
+        <member name="M:GHTool.ICommand.RunAsync(Neon.Common.CommandLine)">
+            <summary>
+            Runs the command.
+            </summary>
+            <param name="commandLine">The command line.</param>
+        </member>
+        <member name="T:GHTool.GitHubRepoPath">
+            <summary>
+            Abstracts GitHub repo paths like: <b>github.com/owner/repo</b>.
+            </summary>
+        </member>
+        <member name="M:GHTool.GitHubRepoPath.Parse(System.String)">
+            <summary>
+            Parses a GitHub repository path.
+            </summary>
+            <param name="path">The path, like: <b>[SERVER]/OWNER/REPO</b></param>
+            <returns>The parsed <see cref="T:GHTool.GitHubRepoPath"/>.</returns>
+            <exception cref="T:System.FormatException">Thrown when the input is invalid.</exception>
+            <remarks>
+            <note>
+            <b>github.com</b> will be assumed when no server is specified.
+            </note>
+            </remarks>
+        </member>
+        <member name="M:GHTool.GitHubRepoPath.#ctor">
+            <summary>
+            Static constructor.
+            </summary>
+        </member>
+        <member name="P:GHTool.GitHubRepoPath.Server">
+            <summary>
+            Returns the <b>server</b> part of the path.
+            </summary>
+        </member>
+        <member name="P:GHTool.GitHubRepoPath.Owner">
+            <summary>
+            Returns the <b>owner</b> part of the path.
+            </summary>
+        </member>
+        <member name="P:GHTool.GitHubRepoPath.Repo">
+            <summary>
+            Returns the <b>repo</b> part of the path.
+            </summary>
+        </member>
+        <member name="M:GHTool.GitHubRepoPath.ToString">
+            <inheritdoc/>
+        </member>
+        <member name="T:GHTool.Program">
+            <summary>
+            Hosts the program entry point.
+            </summary>
+        </member>
+        <member name="M:GHTool.Program.Main(System.String[])">
+            <summary>
+            The program entry point.
+            </summary>
+            <param name="args">The command line arguments.</param>
+        </member>
+        <member name="M:GHTool.Program.GetCommand(Neon.Common.CommandLine,System.Collections.Generic.List{GHTool.ICommand})">
+            <summary>
+            Attempts to match the command line to the <see cref="T:GHTool.ICommand"/> to be used
+            to implement the command.
+            </summary>
+            <param name="commandLine">The command line.</param>
+            <param name="commands">The commands.</param>
+            <returns>The command instance or <c>null</c>.</returns>
+        </member>
+        <member name="M:GHTool.Program.Exit(System.Int32)">
+            <summary>
+            Exits the program returning the specified process exit code.
+            </summary>
+            <param name="exitCode">The exit code.</param>
+        </member>
+        <member name="P:GHTool.Program.Name">
+            <summary>
+            Returns the program name.
+            </summary>
+        </member>
+        <member name="P:GHTool.Program.Version">
+            <summary>
+            Returns the program version.
+            </summary>
+        </member>
+        <member name="P:GHTool.Program.CommandLine">
+            <summary>
+            Returns the orignal program <see cref="P:GHTool.Program.CommandLine"/>.
+            </summary>
+        </member>
+        <member name="P:GHTool.Program.GitHubPAT">
+            <summary>
+            Returns the current user's GITHUB_PAT token.
+            </summary>
+        </member>
+    </members>
+</doc>

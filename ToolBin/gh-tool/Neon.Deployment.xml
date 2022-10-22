@@ -239,8 +239,8 @@
             <summary>
             <para>
             Uploads a file in multiple parts from the local workstation to S3, returning the
-            <see cref="T:Neon.Deployment.DownloadManifest"/> details. required by <see cref="M:Neon.Deployment.DeploymentHelper.DownloadMultiPart(Neon.Deployment.DownloadManifest,System.String,Neon.Deployment.DownloadProgressDelegate,Neon.Retry.IRetryPolicy,System.TimeSpan)"/>
-            and <see cref="M:Neon.Deployment.DeploymentHelper.DownloadMultiPartAsync(Neon.Deployment.DownloadManifest,System.String,Neon.Deployment.DownloadProgressDelegate,System.TimeSpan,Neon.Retry.IRetryPolicy,System.Threading.CancellationToken)"/>
+            <see cref="T:Neon.Deployment.DownloadManifest"/> details. required by <see cref="M:Neon.Deployment.DeploymentHelper.DownloadMultiPart(Neon.Deployment.DownloadManifest,System.String,Neon.Deployment.DownloadProgressDelegate,Neon.Retry.IRetryPolicy,System.TimeSpan,System.Boolean)"/>
+            and <see cref="M:Neon.Deployment.DeploymentHelper.DownloadMultiPartAsync(Neon.Deployment.DownloadManifest,System.String,Neon.Deployment.DownloadProgressDelegate,System.TimeSpan,Neon.Retry.IRetryPolicy,System.Boolean,System.Threading.CancellationToken)"/>
             to actually download the entire file.  The URI to the uploaded <see cref="T:Neon.Deployment.DownloadManifest"/> details is also returned.
             </para>
             <para>
@@ -265,7 +265,7 @@
             This method creates a file named [<paramref name="sourcePath"/>.md5] with the MD5 hash for the entire
             uploaded file by default.  You may override this behavior by passing <paramref name="noMd5File"/>=<c>true</c>.
             </param>
-            <param name="maxPartSize">Optionally overrides the maximum part size (defailts to 100 MiB).</param>
+            <param name="maxPartSize">Optionally overrides the maximum part size (defaults to 25 MiB).</param>
             <param name="publicReadAccess">Optionally grant the upload public read access.</param>
             <param name="progressAction">Optional action called as the file is uploaded, passing the <c>long</c> percent complete.</param>
             <returns>The <see cref="T:Neon.Deployment.DownloadManifest"/> information.</returns>
@@ -280,8 +280,8 @@
             </para>
             <para>
             The <see cref="T:Neon.Deployment.DownloadManifest"/> details returned include all of the information required by
-            <see cref="M:Neon.Deployment.DeploymentHelper.DownloadMultiPart(Neon.Deployment.DownloadManifest,System.String,Neon.Deployment.DownloadProgressDelegate,Neon.Retry.IRetryPolicy,System.TimeSpan)"/> and
-            <see cref="M:Neon.Deployment.DeploymentHelper.DownloadMultiPartAsync(Neon.Deployment.DownloadManifest,System.String,Neon.Deployment.DownloadProgressDelegate,System.TimeSpan,Neon.Retry.IRetryPolicy,System.Threading.CancellationToken)"/>
+            <see cref="M:Neon.Deployment.DeploymentHelper.DownloadMultiPart(Neon.Deployment.DownloadManifest,System.String,Neon.Deployment.DownloadProgressDelegate,Neon.Retry.IRetryPolicy,System.TimeSpan,System.Boolean)"/> and
+            <see cref="M:Neon.Deployment.DeploymentHelper.DownloadMultiPartAsync(Neon.Deployment.DownloadManifest,System.String,Neon.Deployment.DownloadProgressDelegate,System.TimeSpan,Neon.Retry.IRetryPolicy,System.Boolean,System.Threading.CancellationToken)"/>
             to actually download the entire file and the URI returned references these msame details as
             uploaded to S3.
             </para>
@@ -465,9 +465,14 @@
             Returns the API class for managing GitHub Actions.
             </summary>
         </member>
-        <member name="P:Neon.Deployment.GitHub.Release">
+        <member name="P:Neon.Deployment.GitHub.Releases">
             <summary>
             Returns the API class for managing GitHub releases.
+            </summary>
+        </member>
+        <member name="P:Neon.Deployment.GitHub.Tags">
+            <summary>
+            Returns the API class for managing GutHub tags.
             </summary>
         </member>
         <member name="M:Neon.Deployment.GitHub.CreateGitHubClient(System.String)">
@@ -893,7 +898,7 @@
             This method creates a file named [<paramref name="sourcePath"/>.md5] with the MD5 hash for the entire
             uploaded file by default.  You may override this behavior by passing <paramref name="noMd5File"/>=<c>true</c>.
             </param>
-            <param name="maxPartSize">Optionally overrides the maximum part size (defailts to 100 MiB).</param>d
+            <param name="maxPartSize">Optionally overrides the maximum part size (defaults to 25 MiB).</param>d
             <returns>The <see cref="T:Neon.Deployment.DownloadManifest"/>.</returns>
             <remarks>
             <para>
@@ -904,6 +909,23 @@
             part names, which will be formatted like: <b>part-##</b>
             </note>
             </remarks>
+        </member>
+        <member name="T:Neon.Deployment.GitHubTagApi">
+            <summary>
+            Used to manage GitHub repo tags.
+            </summary>
+        </member>
+        <member name="M:Neon.Deployment.GitHubTagApi.#ctor">
+            <summary>
+            Internal constructor.
+            </summary>
+        </member>
+        <member name="M:Neon.Deployment.GitHubTagApi.List(System.String)">
+            <summary>
+            Lists the current tags for a GitHub repo.
+            </summary>
+            <param name="repo">Identifies the target repo.</param>
+            <returns>The list of <see cref="T:Octokit.RepositoryTag"/> instances.</returns>
         </member>
         <member name="T:Neon.Deployment.DeploymentHelper">
             <summary>
@@ -929,7 +951,7 @@
             history which could become a security vunerability.
             </summary>
         </member>
-        <member name="M:Neon.Deployment.DeploymentHelper.DownloadMultiPart(Neon.Deployment.DownloadManifest,System.String,Neon.Deployment.DownloadProgressDelegate,Neon.Retry.IRetryPolicy,System.TimeSpan)">
+        <member name="M:Neon.Deployment.DeploymentHelper.DownloadMultiPart(Neon.Deployment.DownloadManifest,System.String,Neon.Deployment.DownloadProgressDelegate,Neon.Retry.IRetryPolicy,System.TimeSpan,System.Boolean)">
             <summary>
             Synchronously downloads and assembles a multi-part file as specified by a <see cref="T:Neon.Deployment.DownloadManifest"/>.
             </summary>
@@ -938,12 +960,28 @@
             <param name="progressAction">Optionally specifies an action to be called with the the percentage downloaded.</param>
             <param name="retry">Optionally specifies the retry policy.  This defaults to a reasonable policy.</param>
             <param name="partTimeout">Optionally specifies the HTTP download timeout for each part (defaults to 10 minutes).</param>
+            <param name="strictCheck">
+            <para>
+            Optionally used to enable a slow but more comprehensive check of any existing file.
+            When this is enabled and the download file already exists along with its MD5 hash file,
+            the method will assume that the existing file matches when the file size is the same
+            as specified in the manifest and manifest overall MD5 matches the local MD5 file.
+            </para>
+            <para>
+            Otherwise, this method will need to compute the MD5 hashes for the existing file parts
+            and compare those to the part MD5 hashes in the manifest, which can take quite a while
+            for large files.
+            </para>
+            <para>
+            This defaults to <c>false</c>.
+            </para>
+            </param>
             <exception cref="T:System.IO.IOException">Thrown when the download is corrupt.</exception>
             <exception cref="T:System.Net.Sockets.SocketException">Thrown for network errors.</exception>
             <exception cref="T:Neon.Net.HttpException">Thrown for HTTP network errors.</exception>
             <exception cref="T:System.OperationCanceledException">Thrown when the operation was cancelled.</exception>
         </member>
-        <member name="M:Neon.Deployment.DeploymentHelper.DownloadMultiPart(System.String,System.String,Neon.Deployment.DownloadProgressDelegate,Neon.Retry.IRetryPolicy,System.TimeSpan)">
+        <member name="M:Neon.Deployment.DeploymentHelper.DownloadMultiPart(System.String,System.String,Neon.Deployment.DownloadProgressDelegate,Neon.Retry.IRetryPolicy,System.TimeSpan,System.Boolean)">
             <summary>
             Asynchronously downloads and assembles a multi-part file as specified by a source URI.
             </summary>
@@ -952,13 +990,29 @@
             <param name="progressAction">Optionally specifies an action to be called with the the percentage downloaded.</param>
             <param name="retry">Optionally specifies the retry policy.  This defaults to a reasonable policy.</param>
             <param name="partTimeout">Optionally specifies the HTTP download timeout for each part (defaults to 10 minutes).</param>
+            <param name="strictCheck">
+            <para>
+            Optionally used to enable a slow but more comprehensive check of any existing file.
+            When this is enabled and the download file already exists along with its MD5 hash file,
+            the method will assume that the existing file matches when the file size is the same
+            as specified in the manifest and manifest overall MD5 matches the local MD5 file.
+            </para>
+            <para>
+            Otherwise, this method will need to compute the MD5 hashes for the existing file parts
+            and compare those to the part MD5 hashes in the manifest, which can take quite a while
+            for large files.
+            </para>
+            <para>
+            This defaults to <c>false</c>.
+            </para>
+            </param>
             <exception cref="T:System.IO.IOException">Thrown when the download is corrupt.</exception>
             <exception cref="T:System.Net.Sockets.SocketException">Thrown for network errors.</exception>
             <exception cref="T:Neon.Net.HttpException">Thrown for HTTP network errors.</exception>
             <exception cref="T:System.OperationCanceledException">Thrown when the operation was cancelled.</exception>
             <exception cref="T:System.FormatException">Thrown when the object retrieved from <paramref name="uri"/> doesn't have the <see cref="F:Neon.Deployment.DeploymentHelper.DownloadManifestContentType"/> content type.</exception>
         </member>
-        <member name="M:Neon.Deployment.DeploymentHelper.DownloadMultiPartAsync(Neon.Deployment.DownloadManifest,System.String,Neon.Deployment.DownloadProgressDelegate,System.TimeSpan,Neon.Retry.IRetryPolicy,System.Threading.CancellationToken)">
+        <member name="M:Neon.Deployment.DeploymentHelper.DownloadMultiPartAsync(Neon.Deployment.DownloadManifest,System.String,Neon.Deployment.DownloadProgressDelegate,System.TimeSpan,Neon.Retry.IRetryPolicy,System.Boolean,System.Threading.CancellationToken)">
             <summary>
             Asynchronously downloads and assembles a multi-part file  as specified by a <see cref="T:Neon.Deployment.DownloadManifest"/>.
             </summary>
@@ -967,6 +1021,22 @@
             <param name="progressAction">Optionally specifies an action to be called with the the percentage downloaded.</param>
             <param name="partTimeout">Optionally specifies the HTTP download timeout for each part (defaults to 10 minutes).</param>
             <param name="retry">Optionally specifies the retry policy.  This defaults to a reasonable policy.</param>
+            <param name="strictCheck">
+            <para>
+            Optionally used to enable a slow but more comprehensive check of any existing file.
+            When this is enabled and the download file already exists along with its MD5 hash file,
+            the method will assume that the existing file matches when the file size is the same
+            as specified in the manifest and manifest overall MD5 matches the local MD5 file.
+            </para>
+            <para>
+            Otherwise, this method will need to compute the MD5 hashes for the existing file parts
+            and compare those to the part MD5 hashes in the manifest, which can take quite a while
+            for large files.
+            </para>
+            <para>
+            This defaults to <c>false</c>.
+            </para>
+            </param>
             <param name="cancellationToken">Optionally specifies the operation cancellation token.</param>
             <returns>The path to the downloaded file.</returns>
             <exception cref="T:System.IO.IOException">Thrown when the download is corrupt.</exception>
@@ -991,7 +1061,7 @@
             </note>
             </remarks>
         </member>
-        <member name="M:Neon.Deployment.DeploymentHelper.DownloadMultiPartAsync(System.String,System.String,Neon.Deployment.DownloadProgressDelegate,System.TimeSpan,Neon.Retry.IRetryPolicy,System.Threading.CancellationToken)">
+        <member name="M:Neon.Deployment.DeploymentHelper.DownloadMultiPartAsync(System.String,System.String,Neon.Deployment.DownloadProgressDelegate,System.TimeSpan,Neon.Retry.IRetryPolicy,System.Boolean,System.Threading.CancellationToken)">
             <summary>
             Asynchronously downloads and assembles a multi-part file  as specified by a <see cref="T:Neon.Deployment.DownloadManifest"/>.
             </summary>
@@ -1000,6 +1070,22 @@
             <param name="progressAction">Optionally specifies an action to be called with the the percentage downloaded.</param>
             <param name="partTimeout">Optionally specifies the HTTP download timeout for each part (defaults to 10 minutes).</param>
             <param name="retry">Optionally specifies the retry policy.  This defaults to a reasonable policy.</param>
+            <param name="strictCheck">
+            <para>
+            Optionally used to enable a slow but more comprehensive check of any existing file.
+            When this is enabled and the download file already exists along with its MD5 hash file,
+            the method will assume that the existing file matches when the file size is the same
+            as specified in the manifest and manifest overall MD5 matches the local MD5 file.
+            </para>
+            <para>
+            Otherwise, this method will need to compute the MD5 hashes for the existing file parts
+            and compare those to the part MD5 hashes in the manifest, which can take quite a while
+            for large files.
+            </para>
+            <para>
+            This defaults to <c>false</c>.
+            </para>
+            </param>
             <param name="cancellationToken">Optionally specifies the operation cancellation token.</param>
             <returns>The path to the downloaded file.</returns>
             <exception cref="T:System.IO.IOException">Thrown when the download is corrupt.</exception>
@@ -1283,14 +1369,6 @@
             </summary>
             <exception cref="T:Neon.Deployment.OnePasswordException">Thrown if we're not signed in.</exception>
         </member>
-        <member name="M:Neon.Deployment.OnePassword.GetVault(System.String)">
-            <summary>
-            Returns the target vault name.
-            </summary>
-            <param name="vault">Optionally specifies a specific vault.</param>
-            <returns>The target vault name.</returns>
-            <exception cref="T:Neon.Deployment.OnePasswordException">Thrown for 1Password related problems.</exception>
-        </member>
         <member name="M:Neon.Deployment.OnePassword.GetStatus(Neon.Common.ExecuteResponse)">
             <summary>
             Returns a <see cref="T:Neon.Deployment.OnePassword.OnePasswordStatus"/> corresponding to a 1Password CLI response.
@@ -1313,19 +1391,39 @@
         <member name="T:Neon.Deployment.ProfileClient">
             <inheritdoc/>
         </member>
-        <member name="M:Neon.Deployment.ProfileClient.GetAwsCredentials(System.String,System.String)">
+        <member name="M:Neon.Deployment.ProfileClient.GetAwsCredentials(System.String)">
             <summary>
             <para>
             Retrieves the AWS access key ID and secret access key from 1Password 
             and sets these enviroment variables for use by the AWS-CLI:
             </para>
             <list type="bullet">
-                <item><c>AWS_ACCESS_KEY_ID</c></item>
-                <item><c>AWS_SECRET_ACCESS_KEY</c></item>
+            <item><c>AWS_ACCESS_KEY_ID</c></item>
+            <item><c>AWS_SECRET_ACCESS_KEY</c></item>
             </list>
             </summary>
-            <param name="awsAccessKeyId">Optionally specfies a custom name for the AWS <b>access key ID</b> secret.</param>
-            <param name="awsSecretAccessKey">Optionally specfies a custom name for the AWS <b>access key</b> secret.</param>
+            <param name="secretName">Optionally specifies a custom name for the 1Password secret holding the credentials..</param>
+            <remarks>
+            <para>
+            The AWS credentials are persisted to a 1Password secret for each maintainer, where each user should
+            be granted individual credentials so they can be easy to revoke if necessary.  We use a single secret
+            to hold these individual fields:
+            </para>
+            <list type="table">
+            <item>
+                <term><b>ACCESS_KEY_ID</b></term>
+                <description>
+                Identifies the AWS access key.
+                </description>
+            </item>
+            <item>
+                <term><b>SECRET_ACCESS_KEY</b></term>
+                <description>
+                The AWS access key secret.
+                </description>
+            </item>
+            </list>
+            </remarks>
         </member>
         <member name="M:Neon.Deployment.ProfileClient.ClearAwsCredentials">
             <summary>
@@ -1333,8 +1431,8 @@
             Removes the AWS-CLI credential environment variables if present:
             </para>
             <list type="bullet">
-                <item><c>AWS_ACCESS_KEY_ID</c></item>
-                <item><c>AWS_SECRET_ACCESS_KEY</c></item>
+            <item><c>AWS_ACCESS_KEY_ID</c></item>
+            <item><c>AWS_SECRET_ACCESS_KEY</c></item>
             </list>
             </summary>
         </member>

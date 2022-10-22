@@ -4,22 +4,23 @@
 		<OutputType>Exe</OutputType>
 		<TargetFramework>net7.0</TargetFramework>
 		<RootNamespace>UnixText</RootNamespace>
-		<RuntimeIdentifier>win10-x64</RuntimeIdentifier>
-		<RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
+		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
 		<Configurations>Debug;Release</Configurations>
+		<DebugType>embedded</DebugType>
+		<SelfContained>false</SelfContained>
+		<PublishSingleFile>false</PublishSingleFile>
+		<PublishTrimmed>false</PublishTrimmed>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
 		<DefineConstants>DEBUG;TRACE</DefineConstants>
-		<OutputPath>bin\Debug</OutputPath>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-		<OutputPath>bin\Release</OutputPath>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\Lib\Neon.Common\Neon.Common.csproj" />
+		<ProjectReference Include="..\..\Lib\Neon.Common\Neon.Common.csproj"/>
 	</ItemGroup>
 
 	<ItemGroup>

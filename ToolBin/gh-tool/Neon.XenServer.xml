@@ -44,6 +44,14 @@
             </remarks>
             <threadsafety instance="false"/>
         </member>
+        <member name="M:Neon.XenServer.XenClient.ParseValues(System.String)">
+            <summary>
+            Parses <b>xe</b> client properties formatted like <b>name1:value1; name2: value2;...</b>
+            into a dictionary, making it easy to retrieve specific values.
+            </summary>
+            <param name="property">The property string.</param>
+            <returns>The case-insensitive dictionary.</returns>
+        </member>
         <member name="M:Neon.XenServer.XenClient.#ctor(System.String,System.String,System.String,System.String,System.String)">
             <summary>
             Constructor.  Note that you should dispose the instance when you're finished with it.
@@ -233,6 +241,12 @@
             <see cref="M:Neon.XenServer.XenClient.CreateTempIso(System.String,System.String)"/> for more information.
             </remarks>
         </member>
+        <member name="M:Neon.XenServer.XenClient.Connect">
+            <summary>
+            Establishes an SSH connection to the assocated XenServer.
+            </summary>
+            <returns>The connected <see cref="T:Neon.SSH.LinuxSshProxy"/>.</returns>
+        </member>
         <member name="T:Neon.XenServer.XenClient.MachineOperations">
             <summary>
             Implements the <see cref="T:Neon.XenServer.XenClient"/> virtual machine operations.
@@ -316,7 +330,8 @@
         </member>
         <member name="M:Neon.XenServer.XenClient.MachineOperations.Start(Neon.XenServer.XenVirtualMachine)">
             <summary>
-            Starts a virtual machine.
+            Starts a stopped virtual machine resumes a suspended or paused virtual machine.
+            This does nothing when the virtual machine is already running.
             </summary>
             <param name="virtualMachine">The target virtual machine.</param>
             <exception cref="T:Neon.XenServer.XenException">Thrown if the operation failed.</exception>
@@ -334,6 +349,14 @@
             <b>WARNING!</b> This could result in the loss of unsaved data.
             </note>
             </param>
+            <exception cref="T:Neon.XenServer.XenException">Thrown if the operation failed.</exception>
+        </member>
+        <member name="M:Neon.XenServer.XenClient.MachineOperations.Suspend(Neon.XenServer.XenVirtualMachine)">
+            <summary>
+            Suspends a virtual machine by persisting its memory to disk and stopping
+            the virtual machine so that it can be restarted where it left off later.
+            </summary>
+            <param name="virtualMachine">The target virtual machine.</param>
             <exception cref="T:Neon.XenServer.XenException">Thrown if the operation failed.</exception>
         </member>
         <member name="M:Neon.XenServer.XenClient.MachineOperations.Reboot(Neon.XenServer.XenVirtualMachine,System.Boolean)">
@@ -444,7 +467,7 @@
             </note>
             </remarks>
         </member>
-        <member name="M:Neon.XenServer.XenClient.TemplateOperations.ImportVmTemplate(System.String,System.String,System.String)">
+        <member name="M:Neon.XenServer.XenClient.TemplateOperations.ImportVmTemplate(System.String,System.String,System.String,System.String)">
             <summary>
             Installs from an XVA or OVA virtual machine template file on the local workstation to the 
             remote XenServer host an XVA or OVA virtual machine template, optionally renaming it.
@@ -454,6 +477,9 @@
             <param name="repositoryNameOrUuid">
             Optionally specifies the target storage repository by name or UUID.  
             This defaults to <b>Local storage</b>.
+            </param>
+            <param name="description">
+            Optionally specifies the template description.
             </param>
             <returns>The installed template.</returns>
             <exception cref="T:Neon.XenServer.XenException">Thrown if the operation failed.</exception>
@@ -506,6 +532,27 @@
             Holds the raw host parameters.
             </summary>
         </member>
+        <member name="P:Neon.XenServer.XenHostInfo.UsableCores">
+            <summary>
+            <para>
+            Returns the number of cores usable by virtual machines.
+            </para>
+            <note>
+            This includes all usable cores and includes cores that are pinned to
+            specific virtual machines.
+            </note>
+            </summary>
+        </member>
+        <member name="P:Neon.XenServer.XenHostInfo.AvailableMemory">
+            <summary>
+            Returns the bytes of memory available for new virtual machines.
+            </summary>
+        </member>
+        <member name="P:Neon.XenServer.XenHostInfo.AvailableDisk">
+            <summary>
+            Returns the bytes of disk available for new virtual machines.
+            </summary>
+        </member>
         <member name="T:Neon.XenServer.XenObject">
             <summary>
             Base class for all XenServer objects that implement common properties.
@@ -513,7 +560,7 @@
         </member>
         <member name="M:Neon.XenServer.XenObject.#ctor(System.Collections.Generic.IDictionary{System.String,System.String})">
             <summary>
-            Constructs an instance from raw property values returned by the <b>xe CLI</b>.
+            Constructs an instance from raw property values returned by the <b>xe client</b>.
             </summary>
             <param name="rawProperties">The raw object properties.</param>
         </member>
@@ -561,7 +608,7 @@
         </member>
         <member name="M:Neon.XenServer.XenStorageRepository.#ctor(System.Collections.Generic.IDictionary{System.String,System.String})">
             <summary>
-            Constructs an instance from raw property values returned by the <b>xe CLI</b>.
+            Constructs an instance from raw property values returned by the <b>xe client</b>.
             </summary>
             <param name="rawProperties">The raw object properties.</param>
         </member>
@@ -644,7 +691,7 @@
         </member>
         <member name="M:Neon.XenServer.XenTemplate.#ctor(System.Collections.Generic.IDictionary{System.String,System.String})">
             <summary>
-            Constructs an instance from raw property values returned by the <b>xe CLI</b>.
+            Constructs an instance from raw property values returned by the <b>xe client</b>.
             </summary>
             <param name="rawProperties">The raw object properties.</param>
         </member>
@@ -698,7 +745,7 @@
         </member>
         <member name="M:Neon.XenServer.XenVirtualMachine.#ctor(System.Collections.Generic.IDictionary{System.String,System.String})">
             <summary>
-            Constructs an instance from raw property values returned by the <b>xe CLI</b>.
+            Constructs an instance from raw property values returned by the <b>xe client</b>.
             </summary>
             <param name="rawProperties">The raw object properties.</param>
         </member>
@@ -726,6 +773,32 @@
         <member name="P:Neon.XenServer.XenVirtualMachine.IsRunning">
             <summary>
             Indicates whether the virtual machine is running.
+            </summary>
+        </member>
+        <member name="T:Neon.XenServer.XenVmPowerState">
+            <summary>
+            Enumerates the possible virtual machine states.
+            </summary>
+        </member>
+        <member name="F:Neon.XenServer.XenVmPowerState.Unknown">
+            <summary>
+            Could not determine the virtual machine state.
+            </summary>
+        </member>
+        <member name="F:Neon.XenServer.XenVmPowerState.Halted">
+            <summary>
+            The virtual machine is turned off.
+            </summary>
+        </member>
+        <member name="F:Neon.XenServer.XenVmPowerState.Paused">
+            <summary>
+            The virtual machine is either paused with its memory still loaded in RAM
+            or suspended with its memory persisted to disk.
+            </summary>
+        </member>
+        <member name="F:Neon.XenServer.XenVmPowerState.Running">
+            <summary>
+            The virtual machine is running.
             </summary>
         </member>
     </members>
