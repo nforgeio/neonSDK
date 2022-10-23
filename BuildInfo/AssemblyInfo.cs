@@ -25,6 +25,8 @@ using System.Reflection;
 //
 // Instead, we're going to hardcode this here.  In the future, it would be nice
 // to write a build task that generates this for us from the project properties.
+//
+// See [Directory.Build.props] for more information.
 
 [assembly: AssemblyProduct("neonSDK")]
 [assembly: AssemblyCompany("neonFORGE LLC")]

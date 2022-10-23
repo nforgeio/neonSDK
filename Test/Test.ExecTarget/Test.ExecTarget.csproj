@@ -12,6 +12,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\BuildInfo\BuildInfo.csproj" />
 		<ProjectReference Include="..\..\Lib\Neon.Common\Neon.Common.csproj" />
 	</ItemGroup>
 

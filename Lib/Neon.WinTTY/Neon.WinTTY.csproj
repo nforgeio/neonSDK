@@ -31,4 +31,8 @@
 	    <Folder Include="Properties\" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\..\BuildInfo\BuildInfo.csproj" />
+	</ItemGroup>
+
 </Project>

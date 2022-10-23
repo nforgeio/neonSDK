@@ -49,4 +49,8 @@
 		<None Include="..\..\LICENSE" Pack="true" PackagePath="" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\..\BuildInfo\BuildInfo.csproj" />
+	</ItemGroup>
+
 </Project>

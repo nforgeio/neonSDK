@@ -24,6 +24,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\BuildInfo\BuildInfo.csproj" />
 		<ProjectReference Include="..\Neon.Cadence\Neon.Cadence.csproj" />
 		<ProjectReference Include="..\Neon.Common\Neon.Common.csproj" />
 		<ProjectReference Include="..\Neon.XenServer\Neon.XenServer.csproj" />

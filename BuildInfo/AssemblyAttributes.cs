@@ -18,7 +18,21 @@
 using System;
 using System.Reflection;
 
-// $note(jefflill): See [Directory.Build.props] for more information.
+// $note(jefflill):
+//
+// We need to tag the assembly with a [TargetFrameworkAttribute] that describes
+// the target framework.  This is required for debugging and also for running
+// unit tests.  Normally, folks have MSBUILD generate these files, but that doesn't
+// work for complex solutions due to the scourge of duplicate symbols.
+//
+// We're relying on [Directory.Build.props] to detect the target framework and
+// define the associated build constant.  Note that when no relaveat constant is
+// defined, we assume .NET Framework 4.8.
+//
+// IMPORTANT: [Directory.Build.props] and the code below will need to be updated
+//            when we upgrade to a new framework version.
+//
+// See [Directory.Build.props] for more information.
 
 #if NETSTANDARD2_0
 [assembly: global::System.Runtime.Versioning.TargetFrameworkAttribute(".NETStandard,Version=v2.0", FrameworkDisplayName = ".NET Standard 2.0")]

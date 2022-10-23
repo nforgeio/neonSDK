@@ -105,7 +105,12 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\..\BuildInfo\BuildInfo.csproj">
+      <Project>{75ce2c25-013c-4ef2-ac4b-aacd1c028a71}</Project>
+      <Name>BuildInfo</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>if not exist "$(NF_BUILD)" mkdir "$(NF_BUILD)"
