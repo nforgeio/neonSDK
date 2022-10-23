@@ -14,13 +14,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="GitInfo" Version="2.2.0">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
-	</ItemGroup>
-
-	<ItemGroup>
 		<ProjectReference Include="..\..\BuildInfo\BuildInfo.csproj" />
 		<ProjectReference Include="..\..\Lib\Neon.Cadence\Neon.Cadence.csproj" />
 		<ProjectReference Include="..\..\Lib\Neon.Common\Neon.Common.csproj" />

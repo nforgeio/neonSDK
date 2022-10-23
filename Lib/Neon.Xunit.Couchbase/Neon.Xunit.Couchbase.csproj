@@ -23,10 +23,6 @@
 
 	<ItemGroup>
 		<PackageReference Include="CouchbaseNetClient" Version="2.7.27" />
-		<PackageReference Include="GitInfo" Version="2.2.0">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-		</PackageReference>
 		<PackageReference Include="Linq2Couchbase" Version="1.4.2" />
 		<PackageReference Include="xunit.extensibility.core" Version="2.4.2" />
 	</ItemGroup>
