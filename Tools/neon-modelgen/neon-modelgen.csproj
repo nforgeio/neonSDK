@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
-		<TargetFrameworks>net7.0</TargetFrameworks>
+		<TargetFramework>net7.0</TargetFramework>
 		<Configurations>Debug;Release</Configurations>
 		<RootNamespace>NeonModelGen</RootNamespace>
 		<RuntimeIdentifiers>win-x64;linux-x64;osx-x64</RuntimeIdentifiers>
