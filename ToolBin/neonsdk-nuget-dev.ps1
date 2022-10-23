@@ -202,10 +202,6 @@ function Publish
 
     $projectPath = [io.path]::combine($env:NF_ROOT, "Lib", "$project", "$project" + ".csproj")
 
-    # Disabling symbol packages now that we're embedding PDB files.
-    #
-    # dotnet pack $projectPath -c $config -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg -o "$env:NF_BUILD\nuget"
-
     dotnet pack $projectPath -c $config -o "$env:NF_BUILD\nuget"
     ThrowOnExitCode
 
@@ -382,6 +378,7 @@ try
     # these packages.
 
     SetVersion Neon.Blazor                      $neonSdkVersion
+    SetVersion Neon.BuildInfo                   $neonSdkVersion
     SetVersion Neon.Cadence                     $neonSdkVersion
     SetVersion Neon.Cassandra                   $neonSdkVersion
     SetVersion Neon.Common                      $neonSdkVersion
@@ -412,6 +409,7 @@ try
     # Build and publish the projects.
 
     Publish Neon.Blazor                         $neonSdkVersion
+    Publish Neon.BuildInfo                      $neonSdkVersion
     Publish Neon.Cadence                        $neonSdkVersion
     Publish Neon.Cassandra                      $neonSdkVersion
     Publish Neon.Common                         $neonSdkVersion
@@ -442,6 +440,7 @@ try
     # Restore the project versions
 
     RestoreVersion Neon.Blazor
+    RestoreVersion Neon.BuildInfo
     RestoreVersion Neon.Cadence
     RestoreVersion Neon.Cassandra
     RestoreVersion Neon.Common

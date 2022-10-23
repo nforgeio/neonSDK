@@ -22,6 +22,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 
 using Neon;
+using Neon.BuildInfo;
 using Neon.Common;
 using Neon.WSL;
 

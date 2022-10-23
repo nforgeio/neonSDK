@@ -65,10 +65,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\BuildInfo\AssemblyAttributes.cs">
+    <Compile Include="..\..\Lib\Neon.BuildInfo\AssemblyAttributes.cs">
       <Link>Properties\AssemblyAttributes.cs</Link>
     </Compile>
-    <Compile Include="..\..\BuildInfo\AssemblyInfo.cs">
+    <Compile Include="..\..\Lib\Neon.BuildInfo\AssemblyInfo.cs">
       <Link>Properties\AssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Program.cs" />
@@ -77,9 +77,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\BuildInfo\BuildInfo.csproj">
+    <ProjectReference Include="..\..\Lib\Neon.BuildInfo\Neon.BuildInfo.csproj">
       <Project>{75ce2c25-013c-4ef2-ac4b-aacd1c028a71}</Project>
-      <Name>BuildInfo</Name>
+      <Name>Neon.BuildInfo</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
