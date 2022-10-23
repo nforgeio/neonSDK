@@ -80,10 +80,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\SolutionInfo\AssemblyAttributes.cs">
+    <Compile Include="..\..\BuildInfo\AssemblyAttributes.cs">
       <Link>Properties\AssemblyAttributes.cs</Link>
     </Compile>
-    <Compile Include="..\..\SolutionInfo\AssemblyInfo.cs">
+    <Compile Include="..\..\BuildInfo\AssemblyInfo.cs">
       <Link>Properties\AssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Program.cs" />
