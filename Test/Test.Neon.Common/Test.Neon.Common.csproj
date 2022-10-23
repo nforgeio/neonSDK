@@ -9,21 +9,10 @@
 		<GenerateDocumentationFile>false</GenerateDocumentationFile>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<DefineConstants>DEBUG;TRACE</DefineConstants>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net48|AnyCPU'">
-		<DefineConstants>DEBUG;TRACE</DefineConstants>
-		<PlatformTarget>x64</PlatformTarget>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net48|AnyCPU'">
-		<PlatformTarget>x64</PlatformTarget>
-	</PropertyGroup>
+	<ItemGroup>
+		<Compile Include="$(SolutionDir)\SolutionInfo\AssemblyAttributes.cs" Link="Properties\AssemblyAttributes.cs" />
+		<Compile Include="$(SolutionDir)\SolutionInfo\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<None Remove="IORes\Resources\Folder1\Folder3\TextFile5.txt" />
@@ -66,6 +55,10 @@
 	<ItemGroup>
 		<ProjectReference Include="..\..\Lib\Neon.Common\Neon.Common.csproj" />
 		<ProjectReference Include="..\..\Lib\Neon.Xunit\Neon.Xunit.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	    <Folder Include="Properties\" />
 	</ItemGroup>
 
 </Project>

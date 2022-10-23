@@ -8,16 +8,10 @@
 		<PlatformTarget>x64</PlatformTarget>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net48|AnyCPU'">
-		<DefineConstants>DEBUG;TRACE</DefineConstants>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net48|AnyCPU'">
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net5.0|AnyCPU'">
-		<DefineConstants>DEBUG;TRACE</DefineConstants>
-	</PropertyGroup>
+	<ItemGroup>
+		<Compile Include="$(SolutionDir)\SolutionInfo\AssemblyAttributes.cs" Link="Properties\AssemblyAttributes.cs" />
+		<Compile Include="$(SolutionDir)\SolutionInfo\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<None Remove="Scripts\schema-0000.script" />
@@ -59,6 +53,10 @@
 		<ProjectReference Include="..\..\Lib\Neon.Common\Neon.Common.csproj" />
 		<ProjectReference Include="..\..\Lib\Neon.Xunit.YugaByte\Neon.Xunit.YugaByte.csproj" />
 		<ProjectReference Include="..\..\Lib\Neon.Xunit\Neon.Xunit.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	    <Folder Include="Properties\" />
 	</ItemGroup>
 
 </Project>

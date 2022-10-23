@@ -8,23 +8,13 @@
 		<Configurations>Debug;Release</Configurations>
 		<EnableDefaultContentItems>false</EnableDefaultContentItems>
 		<GenerateDocumentationFile>false</GenerateDocumentationFile>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<DefineConstants>DEBUG;TRACE</DefineConstants>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net48|AnyCPU'">
-		<DefineConstants>DEBUG;TRACE</DefineConstants>
 		<PlatformTarget>x64</PlatformTarget>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net48|AnyCPU'">
-		<PlatformTarget>x64</PlatformTarget>
-	</PropertyGroup>
+	<ItemGroup>
+		<Compile Include="$(SolutionDir)\SolutionInfo\AssemblyAttributes.cs" Link="Properties\AssemblyAttributes.cs" />
+		<Compile Include="$(SolutionDir)\SolutionInfo\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<None Remove="xunit.runner.json" />
@@ -58,6 +48,10 @@
 		<ProjectReference Include="..\..\Lib\Neon.Xunit\Neon.Xunit.csproj" />
 		<ProjectReference Include="..\Test.Neon.Models.Cadence\Test.Neon.Models.Cadence.csproj" />
 		<ProjectReference Include="..\Test.Neon.Models\Test.Neon.Models.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	    <Folder Include="Properties\" />
 	</ItemGroup>
 
 </Project>

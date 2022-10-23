@@ -17,12 +17,6 @@
 		<PackageTags>kubernetes docker service</PackageTags>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<DefineConstants>DEBUG;TRACE</DefineConstants>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-	</PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="DnsClient" Version="1.6.1" />
@@ -57,6 +51,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<Folder Include="Properties\" />
 		<Folder Include="Resources\" />
 	</ItemGroup>
 

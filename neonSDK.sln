@@ -303,6 +303,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "jefflill", "jefflill", "{0E
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelemetryTest", "User\jefflill\TelemetryTest\TelemetryTest.csproj", "{3171702A-8FED-4D97-8254-E44E56D51642}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SolutionInfo", "SolutionInfo\SolutionInfo.csproj", "{AF775ECE-7CA9-47FF-8D13-9FBA19390187}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -1033,6 +1035,18 @@ Global
 		{3171702A-8FED-4D97-8254-E44E56D51642}.Release|x64.Build.0 = Release|Any CPU
 		{3171702A-8FED-4D97-8254-E44E56D51642}.Release|x86.ActiveCfg = Release|Any CPU
 		{3171702A-8FED-4D97-8254-E44E56D51642}.Release|x86.Build.0 = Release|Any CPU
+		{AF775ECE-7CA9-47FF-8D13-9FBA19390187}.Debug|Any CPU.ActiveCfg = Release|Any CPU
+		{AF775ECE-7CA9-47FF-8D13-9FBA19390187}.Debug|Any CPU.Build.0 = Release|Any CPU
+		{AF775ECE-7CA9-47FF-8D13-9FBA19390187}.Debug|x64.ActiveCfg = Release|Any CPU
+		{AF775ECE-7CA9-47FF-8D13-9FBA19390187}.Debug|x64.Build.0 = Release|Any CPU
+		{AF775ECE-7CA9-47FF-8D13-9FBA19390187}.Debug|x86.ActiveCfg = Release|Any CPU
+		{AF775ECE-7CA9-47FF-8D13-9FBA19390187}.Debug|x86.Build.0 = Release|Any CPU
+		{AF775ECE-7CA9-47FF-8D13-9FBA19390187}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF775ECE-7CA9-47FF-8D13-9FBA19390187}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF775ECE-7CA9-47FF-8D13-9FBA19390187}.Release|x64.ActiveCfg = Release|Any CPU
+		{AF775ECE-7CA9-47FF-8D13-9FBA19390187}.Release|x64.Build.0 = Release|Any CPU
+		{AF775ECE-7CA9-47FF-8D13-9FBA19390187}.Release|x86.ActiveCfg = Release|Any CPU
+		{AF775ECE-7CA9-47FF-8D13-9FBA19390187}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

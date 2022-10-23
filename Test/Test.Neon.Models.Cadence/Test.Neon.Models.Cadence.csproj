@@ -6,17 +6,19 @@
 		<GenerateDocumentationFile>false</GenerateDocumentationFile>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<DefineConstants>DEBUG;TRACE</DefineConstants>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-	</PropertyGroup>
+	<ItemGroup>
+		<Compile Include="$(SolutionDir)\SolutionInfo\AssemblyAttributes.cs" Link="Properties\AssemblyAttributes.cs" />
+		<Compile Include="$(SolutionDir)\SolutionInfo\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\Lib\Neon.Cadence\Neon.Cadence.csproj" />
 		<ProjectReference Include="..\..\Lib\Neon.Common\Neon.Common.csproj" />
 		<ProjectReference Include="..\Test.Neon.Models.Definitions\Test.Neon.Models.Definitions.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	    <Folder Include="Properties\" />
 	</ItemGroup>
 
 </Project>

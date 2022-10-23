@@ -9,12 +9,10 @@
 		<GenerateDocumentationFile>false</GenerateDocumentationFile>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<DefineConstants>DEBUG;TRACE</DefineConstants>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-	</PropertyGroup>
+	<ItemGroup>
+		<Compile Include="$(SolutionDir)\SolutionInfo\AssemblyAttributes.cs" Link="Properties\AssemblyAttributes.cs" />
+		<Compile Include="$(SolutionDir)\SolutionInfo\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<None Remove="xunit.runner.json" />
@@ -43,6 +41,10 @@
 		<ProjectReference Include="..\..\Lib\Neon.Common\Neon.Common.csproj" />
 		<ProjectReference Include="..\..\Lib\Neon.JsonConverters\Neon.JsonConverters.csproj" />
 		<ProjectReference Include="..\..\Lib\Neon.Xunit\Neon.Xunit.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	    <Folder Include="Properties\" />
 	</ItemGroup>
 
 </Project>

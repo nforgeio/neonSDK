@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:	    AssemblyInfo.cs
+// FILE:	    ThisAssembly.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright (c) 2005-2022 by neonFORGE LLC.  All rights reserved.
 //
@@ -18,4 +18,20 @@
 using System;
 using System.Reflection;
 
-[assembly:AssemblyMetadata("IsTrimmable", "False")]
+// $todo(jefflill):
+//
+// We can't use [GenerateAssemblyInfo=TRUE] to generate the assembly info because
+// that can lead to duplicate symbol definitions (see [Directory.Build.props]).
+//
+// Instead, we're going to hardcode this here.  In the future, it would be nice
+// to write a build task that generates this for us from the project properties.
+
+[assembly: AssemblyProduct("neonSDK")]
+[assembly: AssemblyCompany("neonFORGE LLC")]
+[assembly: AssemblyCopyright("Copyright © 2005-2022 by neonFORGE LLC.  All rights reserved.")]
+
+#if DEBUG
+[assembly: AssemblyConfiguration("Debug")]
+#else
+[assembly: AssemblyConfiguration("Release")]
+#endif

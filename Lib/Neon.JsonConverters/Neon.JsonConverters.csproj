@@ -1,28 +1,26 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-	  <TargetFramework>netstandard2.0</TargetFramework>
-	  <OutputType>Library</OutputType>
-	  <RootNamespace>Neon.JsonConverters</RootNamespace>
-	  <Version>3.0.0</Version>
-	  <Description>Common type converters for [System.Text.Json] based serialization.</Description>
-	  <PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
-	  <IsPackable>true</IsPackable>
-	  <PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.JsonConverters/README.md</PackageProjectUrl>
-	  <RepositoryType>git</RepositoryType>
-	  <RepositoryUrl>https://github.com/nforgeio/neonSDK</RepositoryUrl>
-	  <PackageLicenseFile>LICENSE</PackageLicenseFile>
-	  <Configurations>Debug;Release</Configurations>
-	  <PackageIcon>nuget-icon.png</PackageIcon>
-	  <PackageTags>utility classes</PackageTags>
-  </PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<DefineConstants>TRACE;DEBUG</DefineConstants>
+	<PropertyGroup>
+		<TargetFrameworks>netstandard2.0</TargetFrameworks>
+		<OutputType>Library</OutputType>
+		<RootNamespace>Neon.JsonConverters</RootNamespace>
+		<Version>3.0.0</Version>
+		<Description>Common type converters for [System.Text.Json] based serialization.</Description>
+		<PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
+		<IsPackable>true</IsPackable>
+		<PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.JsonConverters/README.md</PackageProjectUrl>
+		<RepositoryType>git</RepositoryType>
+		<RepositoryUrl>https://github.com/nforgeio/neonSDK</RepositoryUrl>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<Configurations>Debug;Release</Configurations>
+		<PackageIcon>nuget-icon.png</PackageIcon>
+		<PackageTags>utility classes</PackageTags>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-	</PropertyGroup>
+	<ItemGroup>
+		<Compile Include="$(SolutionDir)\SolutionInfo\AssemblyAttributes.cs" Link="Properties\AssemblyAttributes.cs" />
+		<Compile Include="$(SolutionDir)\SolutionInfo\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<None Include="..\nuget-icon.png" Pack="true" PackagePath="" />
@@ -30,11 +28,15 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="System.Text.Json" Version="6.0.6" />
+		<PackageReference Include="System.Text.Json" Version="6.0.6" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\Neon.Common\Neon.Common.csproj" />
+		<ProjectReference Include="..\Neon.Common\Neon.Common.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Folder Include="Properties\" />
 	</ItemGroup>
 
 </Project>

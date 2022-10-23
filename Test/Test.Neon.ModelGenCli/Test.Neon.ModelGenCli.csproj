@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net7.0</TargetFramework>
+		<TargetFrameworks>net7.0</TargetFrameworks>
 		<PlatformTarget>x64</PlatformTarget>
 		<IsPackable>false</IsPackable>
 		<RootNamespace>Test.ModelGenCli</RootNamespace>
@@ -9,12 +9,10 @@
 		<GenerateDocumentationFile>false</GenerateDocumentationFile>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<DefineConstants>DEBUG;TRACE</DefineConstants>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-	</PropertyGroup>
+	<ItemGroup>
+		<Compile Include="$(SolutionDir)\SolutionInfo\AssemblyAttributes.cs" Link="Properties\AssemblyAttributes.cs" />
+		<Compile Include="$(SolutionDir)\SolutionInfo\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<None Remove="xunit.runner.json" />
@@ -51,6 +49,10 @@
 		<ProjectReference Include="..\..\Tools\neon-modelgen\neon-modelgen.csproj" />
 		<ProjectReference Include="..\Test.Neon.Models\Test.Neon.Models.csproj" />
 		<ProjectReference Include="..\Test.Neon.Postgres\Test.Neon.Postgres.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	    <Folder Include="Properties\" />
 	</ItemGroup>
 
 </Project>
