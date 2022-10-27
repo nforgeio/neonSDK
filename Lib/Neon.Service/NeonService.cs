@@ -843,47 +843,49 @@ namespace Neon.Service
                 {
                     // Built-in logger configuration.
 
-                    TelemetryHub.ParseLogLevel(System.Environment.GetEnvironmentVariable("LOG_LEVEL") ?? LogLevel.Information.ToMemberString());
+                    var logLevel = TelemetryHub.ParseLogLevel(System.Environment.GetEnvironmentVariable("LOG_LEVEL") ?? LogLevel.Information.ToMemberString());
 
                     var loggerFactory = Microsoft.Extensions.Logging.LoggerFactory.Create(
                         builder =>
                         {
-                            builder.AddOpenTelemetry(
-                                options =>
-                                {
-                                    options.ParseStateValues        = true;
-                                    options.IncludeFormattedMessage = true;
-
-                                    // Give the derived service a chance to customize the logging configuration.
-                                    // This method returns FALSE to continue with the built-in configuration or
-                                    // TRUE when the derived class has full configured things.
-
-                                    if (!OnLoggerConfg(options))
+                            builder
+                                .SetMinimumLevel(logLevel)
+                                .AddOpenTelemetry(
+                                    options =>
                                     {
-                                        options.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(serviceName: Name, serviceVersion: Version));
+                                        options.ParseStateValues        = true;
+                                        options.IncludeFormattedMessage = true;
 
-                                        // Configure the trace pipeline when the [TRACE_COLLECTOR_URI] environment
-                                        // variable is present and valid.
+                                        // Give the derived service a chance to customize the logging configuration.
+                                        // This method returns FALSE to continue with the built-in configuration or
+                                        // TRUE when the derived class has full configured things.
 
-                                        if (traceCollectorUri != null)
+                                        if (!OnLoggerConfg(options))
                                         {
-                                            options.AddLogAsTraceProcessor(
-                                                options =>
-                                                {
-                                                    var traceLogLevelString = System.Environment.GetEnvironmentVariable("TRACE_LOG_LEVEL") ?? LogLevel.Information.ToMemberString();
+                                            options.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(serviceName: Name, serviceVersion: Version));
 
-                                                    if (!NeonHelper.TryParseEnum<LogLevel>(traceLogLevelString, out var traceLogLevel))
+                                            // Configure the trace pipeline when the [TRACE_COLLECTOR_URI] environment
+                                            // variable is present and valid.
+
+                                            if (traceCollectorUri != null)
+                                            {
+                                                options.AddLogAsTraceProcessor(
+                                                    options =>
                                                     {
-                                                        traceLogLevel = LogLevel.Information;
-                                                    }
+                                                        var traceLogLevelString = System.Environment.GetEnvironmentVariable("TRACE_LOG_LEVEL") ?? LogLevel.Information.ToMemberString();
 
-                                                    options.LogLevel = traceLogLevel;
-                                                });
+                                                        if (!NeonHelper.TryParseEnum<LogLevel>(traceLogLevelString, out var traceLogLevel))
+                                                        {
+                                                            traceLogLevel = LogLevel.Information;
+                                                        }
+
+                                                        options.LogLevel = traceLogLevel;
+                                                    });
+                                            }
+
+                                            options.AddConsoleJsonExporter();
                                         }
-
-                                        options.AddConsoleJsonExporter();
-                                    }
-                                });
+                                    });
                         });
 
                     NeonHelper.ServiceContainer.Add(new ServiceDescriptor(typeof(ILoggerFactory), loggerFactory));
