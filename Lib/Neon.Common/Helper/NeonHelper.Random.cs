@@ -49,7 +49,7 @@ namespace Neon.Common
                 // alghorithm and doing a better job at seeding the generator.  We'll enable
                 // this new behavior by not seeding when running on .NET 6+.
 
-                if (NeonHelper.FrameworkVersion >= new Version(6, 0))
+                if (NeonHelper.FrameworkVersion >= new SemanticVersion() { Major = 6, Minor = 6 })
                 {
                     rand = new Random();
                 }

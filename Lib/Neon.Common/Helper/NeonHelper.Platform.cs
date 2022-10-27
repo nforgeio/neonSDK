@@ -39,7 +39,7 @@ namespace Neon.Common
         private static string           osDescription;
         private static NetFramework?    netFramework = null;
         private static string           frameworkDescription;
-        private static Version          frameworkVersion;
+        private static SemanticVersion  frameworkVersion;
         private static bool             isWindows;
         private static WindowsEdition   windowsEdition;
         private static bool             isLinux;
@@ -310,7 +310,7 @@ namespace Neon.Common
         /// <summary>
         /// Returns the current .NET runtime version hosting the current process.
         /// </summary>
-        public static Version FrameworkVersion
+        public static SemanticVersion FrameworkVersion
         {
             get
             {
@@ -344,7 +344,7 @@ namespace Neon.Common
                         throw new NotImplementedException($"Framework runtime [{Framework}] not currently supported.");
                 }
 
-                return frameworkVersion = Version.Parse(version);
+                return frameworkVersion = SemanticVersion.Parse(version);
             }
         }
 

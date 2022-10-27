@@ -112,15 +112,18 @@ namespace NeonBlazorProxy.Controllers
         {
             await SyncContext.Clear;
 
-            var host  = await GetHostAsync();
-            var error = await forwarder.SendAsync(HttpContext, $"{config.Backend.Scheme}://{host}:{config.Backend.Port}", httpClient, forwarderRequestConfig, transformer);
-
-            if (error != ForwarderError.None)
+            using (var activity = TelemetryHub.ActivitySource.StartActivity())
             {
-                var errorFeature = HttpContext.GetForwarderErrorFeature();
-                var exception    = errorFeature.Exception;
+                var host = await GetHostAsync();
+                var error = await forwarder.SendAsync(HttpContext, $"{config.Backend.Scheme}://{host}:{config.Backend.Port}", httpClient, forwarderRequestConfig, transformer);
 
-                Logger.LogErrorEx(exception, "CatchAll");
+                if (error != ForwarderError.None)
+                {
+                    var errorFeature = HttpContext.GetForwarderErrorFeature();
+                    var exception = errorFeature.Exception;
+
+                    Logger.LogErrorEx(exception, "CatchAll");
+                }
             }
         }
 
@@ -138,34 +141,37 @@ namespace NeonBlazorProxy.Controllers
         {
             await SyncContext.Clear;
 
-            var cookie    = HttpContext.Request.Cookies.Where(c => c.Key == Service.SessionCookieName).First();
-            var sessionId = cipher.DecryptStringFrom(cookie.Value);
-            var session   = await cache.GetAsync<Session>(sessionId);
-
-            Logger.LogDebugEx(() => NeonHelper.JsonSerialize(session));
-
-            session.ConnectionId = HttpContext.Connection.Id;
-
-            await cache.SetAsync(session.Id, session);
-            
-            WebsocketMetrics.CurrentConnections.Inc();
-            WebsocketMetrics.ConnectionsEstablished.Inc();
-            blazorProxyService.CurrentConnections.Add(session.ConnectionId);
-
-            Logger.LogDebugEx(() => $"Forwarding connection: [{NeonHelper.JsonSerializeToBytes(session)}]");
-
-            var error = await forwarder.SendAsync(HttpContext, $"{config.Backend.Scheme}://{session.UpstreamHost}", httpClient, forwarderRequestConfig, transformer);
-
-            Logger.LogDebugEx(() => $"Session closed: [{NeonHelper.JsonSerializeToBytes(session)}]");
-
-            if (error != ForwarderError.None)
+            using (var activity = TelemetryHub.ActivitySource.StartActivity())
             {
-                var errorFeature = HttpContext.GetForwarderErrorFeature();
-                var exception    = errorFeature.Exception;
+                var cookie = HttpContext.Request.Cookies.Where(c => c.Key == Service.SessionCookieName).First();
+                var sessionId = cipher.DecryptStringFrom(cookie.Value);
+                var session = await cache.GetAsync<Session>(sessionId);
 
-                if (exception.GetType() != typeof(TaskCanceledException) && exception.GetType() != typeof(OperationCanceledException))
+                Logger.LogDebugEx(() => NeonHelper.JsonSerialize(session));
+
+                session.ConnectionId = HttpContext.Connection.Id;
+
+                await cache.SetAsync(session.Id, session);
+
+                WebsocketMetrics.CurrentConnections.Inc();
+                WebsocketMetrics.ConnectionsEstablished.Inc();
+                blazorProxyService.CurrentConnections.Add(session.ConnectionId);
+
+                Logger.LogDebugEx(() => $"Forwarding connection: [{NeonHelper.JsonSerializeToBytes(session)}]");
+
+                var error = await forwarder.SendAsync(HttpContext, $"{config.Backend.Scheme}://{session.UpstreamHost}", httpClient, forwarderRequestConfig, transformer);
+
+                Logger.LogDebugEx(() => $"Session closed: [{NeonHelper.JsonSerializeToBytes(session)}]");
+
+                if (error != ForwarderError.None)
                 {
-                    Logger.LogErrorEx(exception);
+                    var errorFeature = HttpContext.GetForwarderErrorFeature();
+                    var exception = errorFeature.Exception;
+
+                    if (exception.GetType() != typeof(TaskCanceledException) && exception.GetType() != typeof(OperationCanceledException))
+                    {
+                        Logger.LogErrorEx(exception);
+                    }
                 }
             }
         }
@@ -178,24 +184,27 @@ namespace NeonBlazorProxy.Controllers
         {
             await SyncContext.Clear;
 
-            var host = config.Backend.Host;
-            var dns  = await dnsClient.QueryAsync(config.Backend.Host, QueryType.SRV);
-
-            if (dns.HasError || dns.Answers.IsEmpty())
+            using (var activity = TelemetryHub.ActivitySource.StartActivity())
             {
-                Logger.LogDebugEx(() => $"DNS error: [{NeonHelper.JsonSerialize(dns)}]");
+                var host = config.Backend.Host;
+                var dns = await dnsClient.QueryAsync(config.Backend.Host, QueryType.SRV);
+
+                if (dns.HasError || dns.Answers.IsEmpty())
+                {
+                    Logger.LogDebugEx(() => $"DNS error: [{NeonHelper.JsonSerialize(dns)}]");
+                    return host;
+                }
+
+                var srv = dns.Answers.SrvRecords().Where(r => r.Port == config.Backend.Port).ToList();
+
+                Logger.LogDebugEx(() => $"SRV: [{NeonHelper.JsonSerialize(srv)}]");
+
+                host = srv.SelectRandom<SrvRecord>(1).First().Target.Value;
+
+                Logger.LogDebugEx(() => $"DNS host: [{host}]");
+
                 return host;
             }
-
-            var srv = dns.Answers.SrvRecords().Where(r => r.Port == config.Backend.Port).ToList();
-
-            Logger.LogDebugEx(() => $"SRV: [{NeonHelper.JsonSerialize(srv)}]");
-            
-            host = srv.SelectRandom<SrvRecord>(1).First().Target.Value;
-
-            Logger.LogDebugEx(() => $"DNS host: [{host}]");
-
-            return host;
         }
     }
 }

@@ -77,8 +77,11 @@ namespace NeonBlazorProxy
         public override async ValueTask TransformRequestAsync(HttpContext httpContext, HttpRequestMessage proxyRequest, string destinationPrefix)
         {
             await SyncContext.Clear;
-            
-            await base.TransformRequestAsync(httpContext, proxyRequest, destinationPrefix);
+
+            using (var activity = TelemetryHub.ActivitySource.StartActivity())
+            {
+                await base.TransformRequestAsync(httpContext, proxyRequest, destinationPrefix);
+            }
         }
 
         /// <summary>
@@ -93,25 +96,28 @@ namespace NeonBlazorProxy
         {
             await SyncContext.Clear;
 
-            await base.TransformResponseAsync(httpContext, proxyResponse);
-
-            var session = new Session()
+            using (var activity = TelemetryHub.ActivitySource.StartActivity())
             {
-                Id           = NeonHelper.CreateBase36Uuid(),
-                UpstreamHost = proxyResponse.RequestMessage.RequestUri.Authority
-            };
-            
-            var headers   = proxyResponse.Content.Headers;
-            var mediaType = headers.ContentType?.MediaType ?? "";
+                await base.TransformResponseAsync(httpContext, proxyResponse);
 
-            if (!httpContext.Request.Cookies.ContainsKey(Service.SessionCookieName) || (mediaType == "text/html" && httpContext.Response.StatusCode == 200))
-            {
-                httpContext.Response.Cookies.Append(Service.SessionCookieName, cipher.EncryptToBase64($"{session.Id}"));
+                var session = new Session()
+                {
+                    Id = NeonHelper.CreateBase36Uuid(),
+                    UpstreamHost = proxyResponse.RequestMessage.RequestUri.Authority
+                };
+
+                var headers = proxyResponse.Content.Headers;
+                var mediaType = headers.ContentType?.MediaType ?? "";
+
+                if (!httpContext.Request.Cookies.ContainsKey(Service.SessionCookieName) || (mediaType == "text/html" && httpContext.Response.StatusCode == 200))
+                {
+                    httpContext.Response.Cookies.Append(Service.SessionCookieName, cipher.EncryptToBase64($"{session.Id}"));
+                }
+
+                await cache.SetAsync(session.Id, session);
+
+                return true;
             }
-
-            await cache.SetAsync(session.Id, session);
-
-            return true;
         }
     }
 }

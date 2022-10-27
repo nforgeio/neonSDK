@@ -74,11 +74,14 @@ namespace NeonBlazorProxy
         /// <param name="cacheOptions">Optionally specifies cache options.</param>
         public void Set(string key, object value, DistributedCacheEntryOptions cacheOptions = null)
         {
-            key = CreateKey(key);
+            using (var activity = TelemetryHub.ActivitySource.StartActivity())
+            {
+                key = CreateKey(key);
 
-            cache.Set(key, NeonHelper.JsonSerializeToBytes(value), cacheOptions ?? defaultCacheOptions);
+                cache.Set(key, NeonHelper.JsonSerializeToBytes(value), cacheOptions ?? defaultCacheOptions);
 
-            Service.CacheItemsStored.Inc();
+                Service.CacheItemsStored.Inc();
+            }
         }
 
         /// <summary>
@@ -92,11 +95,14 @@ namespace NeonBlazorProxy
         {
             await SyncContext.Clear;
 
-            key = CreateKey(key);
+            using (var activity = TelemetryHub.ActivitySource.StartActivity())
+            {
+                key = CreateKey(key);
 
-            await cache.SetAsync(key, NeonHelper.JsonSerializeToBytes(value), cacheOptions ?? defaultCacheOptions);
+                await cache.SetAsync(key, NeonHelper.JsonSerializeToBytes(value), cacheOptions ?? defaultCacheOptions);
 
-            Service.CacheItemsStored.Inc();
+                Service.CacheItemsStored.Inc();
+            }
         }
 
         /// <summary>
@@ -107,26 +113,29 @@ namespace NeonBlazorProxy
         /// <returns>The cached item.</returns>
         public T Get<T>(string key)
         {
-            Service.CacheLookupsRequested.Inc();
-
-            key = CreateKey(key);
-
-            var value = cache.Get(key);
-
-            if (value != null)
+            using (var activity = TelemetryHub.ActivitySource.StartActivity())
             {
-                Service.CacheHits.Inc();
+                Service.CacheLookupsRequested.Inc();
 
-                logger?.LogDebug($"Cache hit: [key={key}]");
+                key = CreateKey(key);
 
-                return NeonHelper.JsonDeserialize<T>(value);
+                var value = cache.Get(key);
+
+                if (value != null)
+                {
+                    Service.CacheHits.Inc();
+
+                    logger?.LogDebug($"Cache hit: [key={key}]");
+
+                    return NeonHelper.JsonDeserialize<T>(value);
+                }
+
+                Service.CacheMisses.Inc();
+
+                logger?.LogInformationEx(() => $"Cache miss: [key={key}]");
+
+                return default;
             }
-
-            Service.CacheMisses.Inc();
-
-            logger?.LogInformationEx(() => $"Cache miss: [key={key}]");
-
-            return default;
         }
 
         /// <summary>
@@ -139,26 +148,29 @@ namespace NeonBlazorProxy
         {
             await SyncContext.Clear;
 
-            Service.CacheLookupsRequested.Inc();
-
-            key = CreateKey(key);
-
-            var value = await cache.GetAsync(key);
-
-            if (value != null)
+            using (var activity = TelemetryHub.ActivitySource.StartActivity())
             {
-                Service.CacheHits.Inc();
+                Service.CacheLookupsRequested.Inc();
 
-                logger?.LogDebug($"Cache hit: [key={key}]");
+                key = CreateKey(key);
 
-                return NeonHelper.JsonDeserialize<T>(value);
+                var value = await cache.GetAsync(key);
+
+                if (value != null)
+                {
+                    Service.CacheHits.Inc();
+
+                    logger?.LogDebug($"Cache hit: [key={key}]");
+
+                    return NeonHelper.JsonDeserialize<T>(value);
+                }
+
+                Service.CacheMisses.Inc();
+
+                logger?.LogInformationEx(() => $"Cache miss: [key={key}]");
+
+                return default;
             }
-
-            Service.CacheMisses.Inc();
-
-            logger?.LogInformationEx(() => $"Cache miss: [key={key}]");
-
-            return default;
         }
     }
 }

@@ -74,22 +74,24 @@ namespace NeonBlazorProxy
         {
             await SyncContext.Clear;
 
-            await _next(context);
-
-            if (service.CurrentConnections.Contains(context.Connection.Id))
+            using (var activity = TelemetryHub.ActivitySource.StartActivity())
             {
-                var cookie    = context.Request.Cookies.Where(c => c.Key == Service.SessionCookieName).First();
-                var sessionId = cipher.DecryptStringFrom(cookie.Value);
-                var session   = await cache.GetAsync<Session>(sessionId);
+                await _next(context);
 
-                if (session.ConnectionId == context.Connection.Id)
+                if (service.CurrentConnections.Contains(context.Connection.Id))
                 {
-                    await cache.SetAsync(session.Id, session, cacheOptions);
-                    WebsocketMetrics.CurrentConnections.Dec();
-                    service.CurrentConnections.Remove(context.Connection.Id);
+                    var cookie    = context.Request.Cookies.Where(c => c.Key == Service.SessionCookieName).First();
+                    var sessionId = cipher.DecryptStringFrom(cookie.Value);
+                    var session   = await cache.GetAsync<Session>(sessionId);
+
+                    if (session.ConnectionId == context.Connection.Id)
+                    {
+                        await cache.SetAsync(session.Id, session, cacheOptions);
+                        WebsocketMetrics.CurrentConnections.Dec();
+                        service.CurrentConnections.Remove(context.Connection.Id);
+                    }
                 }
             }
-
         }
     }
 

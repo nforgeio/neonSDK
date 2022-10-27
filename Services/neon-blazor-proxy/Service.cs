@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -37,8 +38,12 @@ using Neon.Service;
 
 using DnsClient;
 
+using OpenTelemetry;
+using OpenTelemetry.Trace;
+
 using Prometheus;
 using Prometheus.DotNetRuntime;
+
 
 namespace NeonBlazorProxy
 {
@@ -208,6 +213,22 @@ namespace NeonBlazorProxy
             Terminator.ReadyToExit();
 
             return 0;
+        }
+
+        /// <inheritdoc/>
+        protected override bool OnTracerConfig(TracerProviderBuilder builder)
+        {
+            builder.AddHttpClientInstrumentation();
+            builder.AddAspNetCoreInstrumentation();
+            builder.AddOtlpExporter(
+                options =>
+                {
+                    options.ExportProcessorType = ExportProcessorType.Batch;
+                    options.BatchExportProcessorOptions = new BatchExportProcessorOptions<Activity>();
+                    options.Endpoint = new Uri(NeonHelper.NeonKubeOtelCollectorUri);
+                    options.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.Grpc;
+                });
+            return true;
         }
     }
 }
