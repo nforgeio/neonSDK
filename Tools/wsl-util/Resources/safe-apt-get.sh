@@ -104,6 +104,8 @@ do
             $TRANSIENT_ERROR=$true
         elif grep -q "^E: Could not get lock /var/lib/dpkg/lock-frontend." $STDALL_PATH ; then
             $TRANSIENT_ERROR=$true
+        elif grep -q "^dpkg: error: dpkg frontend lock was locked by another process" $STDALL_PATH ; then
+            $TRANSIENT_ERROR=$true
         fi
 
         if ! $TRANSIENT_ERROR ; then
