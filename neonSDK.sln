@@ -138,6 +138,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{9BF7513A-5219-4862-A290-7D2A00589312}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Neon.Common", "Test\Test.Neon.Common\Test.Neon.Common.csproj", "{49072BAB-857F-4058-B2CE-693085F9269C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{AD3BBDEC-A7CD-4E0D-8740-B3B133D3A018} = {AD3BBDEC-A7CD-4E0D-8740-B3B133D3A018}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test-cadence", "Services\test-cadence\test-cadence.csproj", "{75ED3E48-DFC6-481B-8168-A184DDD19FFB}"
 EndProject

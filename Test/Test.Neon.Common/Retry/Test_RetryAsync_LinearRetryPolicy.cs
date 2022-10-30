@@ -455,12 +455,12 @@ namespace TestCommon
         [Fact]
         public async Task Timeout()
         {
-            var policy = new LinearRetryPolicy(TransientDetector, retryInterval: TimeSpan.FromSeconds(0.5), timeout: TimeSpan.FromSeconds(1.5));
+            var policy = new LinearRetryPolicy(TransientDetector, retryInterval: TimeSpan.FromSeconds(0.5), timeout: TimeSpan.FromSeconds(2));
             var times  = new List<DateTime>();
 
             Assert.Equal(int.MaxValue, policy.MaxAttempts);
             Assert.Equal(TimeSpan.FromSeconds(0.5), policy.RetryInterval);
-            Assert.Equal(TimeSpan.FromSeconds(1.5), policy.Timeout);
+            Assert.Equal(TimeSpan.FromSeconds(2.0), policy.Timeout);
 
             await Assert.ThrowsAsync<TransientException>(
                 async () =>
@@ -475,7 +475,7 @@ namespace TestCommon
                         });
                 });
 
-            Assert.Equal(4, times.Count);
+            Assert.True(times.Count == 4 || times.Count == 5);
 
             // Additional test to verify this serious problem is fixed:
             //
@@ -489,7 +489,7 @@ namespace TestCommon
             times.Clear();
 
             Assert.Equal(TimeSpan.FromSeconds(0.5), policy.RetryInterval);
-            Assert.Equal(TimeSpan.FromSeconds(1.5), policy.Timeout);
+            Assert.Equal(TimeSpan.FromSeconds(2), policy.Timeout);
 
             await Assert.ThrowsAsync<TransientException>(
                 async () =>
@@ -504,7 +504,7 @@ namespace TestCommon
                         });
                 });
 
-            Assert.Equal(4, times.Count);
+            Assert.True(times.Count == 4 || times.Count == 5);
         }
     }
 }

@@ -75,7 +75,11 @@ namespace TestCommon
             return;
 #endif
 
-#if NET6_0_OR_GREATER
+#if NET7_0_OR_GREATER
+            Assert.Equal(NetFramework.Net, NeonHelper.Framework);
+            Assert.Equal(7, NeonHelper.FrameworkVersion.Major);
+            return;
+#elif NET6_0_OR_GREATER
             Assert.Equal(NetFramework.Net, NeonHelper.Framework);
             Assert.Equal(6, NeonHelper.FrameworkVersion.Major);
             return;

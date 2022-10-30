@@ -36,6 +36,24 @@ namespace TestCommon
     public partial class Test_NeonHelper
     {
         [Fact]
+        public void FrameworkVersionTest()
+        {
+#if TARGET_NETCORE_3_1
+            var checkVersion = SemanticVersion.Parse("3.0");
+#elif TARGET_NETCORE_5_0
+            var checkVersion = SemanticVersion.Parse("5.0");
+#elif TARGET_NETCORE_6_0
+            var checkVersion = SemanticVersion.Parse("6.0");
+#elif TARGET_NETCORE_7_0
+            var checkVersion = SemanticVersion.Parse("7.0");
+#else
+            var checkVersion = SemanticVersion.Parse("4.8");
+#endif
+
+            Assert.Equal(checkVersion, NeonHelper.FrameworkVersion);
+        }
+
+        [Fact]
         public void ParseCsv()
         {
             string[] fields;
@@ -180,7 +198,7 @@ namespace TestCommon
         public void SequenceEquals_Enumerable()
         {
             Assert.True(NeonHelper.SequenceEqual((IEnumerable<string>)null, (IEnumerable<string>)null));
-            Assert.True(NeonHelper.SequenceEqual((IEnumerable<string>)new string[0], (IEnumerable<string>)new string[0]));
+            Assert.True(NeonHelper.SequenceEqual((IEnumerable<string>)Array.Empty<string>(), (IEnumerable<string>)Array.Empty<string>()));
             Assert.True(NeonHelper.SequenceEqual((IEnumerable<string>)new string[] { "0", "1" }, (IEnumerable<string>)new string[] { "0", "1" }));
             Assert.True(NeonHelper.SequenceEqual((IEnumerable<string>)new string[] { "0", null }, (IEnumerable<string>)new string[] { "0", null }));
 
@@ -193,7 +211,7 @@ namespace TestCommon
         public void SequenceEquals_Array()
         {
             Assert.True(NeonHelper.SequenceEqual((string[])null, (string[])null));
-            Assert.True(NeonHelper.SequenceEqual(new string[0], new string[0]));
+            Assert.True(NeonHelper.SequenceEqual(Array.Empty<string>(), Array.Empty<string>()));
             Assert.True(NeonHelper.SequenceEqual(new string[] { "0", "1" }, new string[] { "0", "1" }));
             Assert.True(NeonHelper.SequenceEqual(new string[] { "0", null }, new string[] { "0", null }));
 
@@ -215,12 +233,12 @@ namespace TestCommon
             Assert.False(NeonHelper.SequenceEqual(new List<string>() { "0", "1" }, new List<string>() { "0" }));
         }
 
-        private async Task GetNoResultAsync()
+        private async static Task GetNoResultAsync()
         {
             await Task.CompletedTask;
         }
 
-        public async Task<string> GetResultAsync()
+        public static async Task<string> GetResultAsync()
         {
             return await Task.FromResult("Hello World!");
         }
