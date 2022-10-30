@@ -15,6 +15,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if NETSTANDARD1_5_OR_GREATER
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -318,3 +320,5 @@ catch [Exception] {{
         }
     }
 }
+
+#endif
