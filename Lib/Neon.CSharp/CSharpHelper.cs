@@ -66,10 +66,6 @@ namespace Neon.CSharp
                         }
                         break;
 
-                    case NetFramework.Core:
-
-                        return ReferenceAssemblies.NetCoreApp31;
-
                     case NetFramework.Net:
 
                         switch (frameworkVersion.Major)

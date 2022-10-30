@@ -28,14 +28,6 @@
         <PackageReference Include="NATS.Client" Version="1.0.1" />
 	</ItemGroup>
 
-	<ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.27" />
-		<PackageReference Include="Microsoft.AspNetCore.TestHost" Version="3.1.27" />
-		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="3.1.27" />
-		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="3.1.27" />
-		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.NewtonsoftJson" Version="3.1.27" />
-	</ItemGroup>
-
 	<ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.17" />
 		<PackageReference Include="Microsoft.AspNetCore.TestHost" Version="5.0.17" />
