@@ -331,6 +331,21 @@ namespace Neon.Common
                     case NetFramework.NetFramework:
 
                         version = FrameworkDescription.Substring(".NET Framework ".Length).Trim();
+
+                        // $note(jefflill):
+                        //
+                        // We see version strings here like [4.8.4515.0] which is not a valid
+                        // semantic version.  W're going to strip everything including and after
+                        // the second period if present.
+
+                        var fields = version.Split('.');
+
+                        version = fields[0];
+
+                        if (fields.Length > 1)
+                        {
+                            version = $"{version}.{fields[1]}";
+                        }
                         break;
 
                     case NetFramework.Net:
@@ -342,21 +357,6 @@ namespace Neon.Common
                     case NetFramework.Native:
 
                         throw new NotImplementedException($"Framework runtime [{Framework}] not currently supported.");
-                }
-
-                // $note(jefflill):
-                //
-                // We see version strings here like [4.8.4515.0] which is not a valid
-                // semantic version.  W're going to strip everything including and after
-                // the second period if present.
-
-                var fields = version.Split('.');
-
-                version = fields[0];
-
-                if (fields.Length > 1)
-                {
-                    version = $"{version}.{fields[1]}";
                 }
 
                 return frameworkVersion = SemanticVersion.Parse(version);

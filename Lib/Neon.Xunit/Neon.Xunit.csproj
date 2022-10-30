@@ -39,7 +39,6 @@
 		<ProjectReference Include="..\Neon.Common\Neon.Common.csproj" />
 		<ProjectReference Include="..\Neon.Cryptography\Neon.Cryptography.csproj" />
 		<ProjectReference Include="..\Neon.Docker\Neon.Docker.csproj" />
-		<ProjectReference Include="..\Neon.Service\Neon.Service.csproj" Condition="'$(TargetFramework)' == 'net5.0'" />
 		<ProjectReference Include="..\Neon.Service\Neon.Service.csproj" Condition="'$(TargetFramework)' == 'net6.0'" />
 		<ProjectReference Include="..\Neon.Service\Neon.Service.csproj" Condition="'$(TargetFramework)' == 'net7.0'" />
 	</ItemGroup>

@@ -383,7 +383,7 @@ namespace TestDeployment
         }
 
         [Fact]
-        public void Find()
+        public async void Find()
         {
             // Create a couple releases one draft and the other published and then
             // verify that Find() works with different predicates.
@@ -414,6 +414,13 @@ namespace TestDeployment
                 Assert.False(release2.Prerelease);
                 Assert.Empty(release2.Assets);
                 Assert.NotNull(release2.PublishedAt);
+
+                // $hack(jefflill):
+                //
+                // It looks like it may take a bit of time for new releases to be available
+                // for listing on GitHub.  We're going to wait a bit.
+
+                await Task.Delay(TimeSpan.FromSeconds(5));
 
                 // Exercise Find()
 

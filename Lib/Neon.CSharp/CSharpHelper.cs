@@ -55,11 +55,7 @@ namespace Neon.CSharp
 
                         if (frameworkVersion.Major == 4)
                         {
-                            if (frameworkVersion.Minor == 6)
-                            {
-                                return ReferenceAssemblies.Net461;
-                            }
-                            else if (frameworkVersion.Minor >= 7)
+                            if (frameworkVersion.Minor >= 7)
                             {
                                 return ReferenceAssemblies.Net472;
                             }
@@ -68,15 +64,9 @@ namespace Neon.CSharp
 
                     case NetFramework.Net:
 
-                        switch (frameworkVersion.Major)
+                        if (frameworkVersion.Major >= 6)
                         {
-                            case 5:
-
-                                return ReferenceAssemblies.Net50;
-
-                            case 6:
-
-                                return ReferenceAssemblies.Net60;
+                            return ReferenceAssemblies.Net60;
                         }
                         break;
                 }
