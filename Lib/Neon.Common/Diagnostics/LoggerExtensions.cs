@@ -300,6 +300,75 @@ namespace Neon.Diagnostics
         }
 
         //---------------------------------------------------------------------
+        // Log with specified level:
+
+        /// <summary>
+        /// Logs a message with the specified <see cref="LogLevel"/>.
+        /// </summary>
+        /// <param name="logger">Specifies the logger.</param>
+        /// <param name="logLevel">Specifies the <see cref="LogLevel"/>.</param>
+        /// <param name="message">Specifies the message.</param>
+        /// <param name="attributeSetter">Specifies an action that can be used to add attributes to the event being logged.</param>
+        /// <remarks>
+        /// This method is intended mostly to avoid processing interpolated strings and attributes
+        /// when the current log level prevents any log from being emitted, for better performance.
+        /// </remarks>
+        public static void LogWithLevelEx(this ILogger logger, LogLevel logLevel, string message, Action<LogAttributes> attributeSetter = null)
+        {
+            logger.LogInternal(logLevel, message: message, attributeSetter: attributeSetter);
+        }
+
+        /// <summary>
+        /// Logs a message retrieved via a message function with the specified <see cref="LogLevel"/>.
+        /// </summary>
+        /// <param name="logger">Specifies the logger.</param>
+        /// <param name="logLevel">Specifies the <see cref="LogLevel"/>.</param>
+        /// <param name="messageFunc">The message function.</param>
+        /// <param name="attributeSetter">Optionally specifies an action that can be used to add attributes to the event being logged.</param>
+        /// <remarks>
+        /// This method is intended mostly to avoid processing interpolated strings and attributes
+        /// when the current log level prevents any log from being emitted, for better performance.
+        /// </remarks>
+        public static void LogWithLevelEx(this ILogger logger, LogLevel logLevel, Func<string> messageFunc, Action<LogAttributes> attributeSetter = null)
+        {
+            logger.LogInternal(logLevel, messageFunc: messageFunc, attributeSetter: attributeSetter);
+        }
+
+        /// <summary>
+        /// Logs an exception retrieved via a message function with the specified <see cref="LogLevel"/>.
+        /// </summary>
+        /// <param name="logger">Specifies the logger.</param>
+        /// <param name="logLevel">Specifies the <see cref="LogLevel"/>.</param>
+        /// <param name="exception">Specifies the exception.</param>
+        /// <param name="message">Optionally specifies the event message.</param>
+        /// <param name="attributeSetter">Optionally specifies an action that can be used to add attributes to the event being logged.</param>
+        /// <remarks>
+        /// This method is intended mostly to avoid processing attributes when the current 
+        /// log level prevents any log from being emitted, for better performance.
+        /// </remarks>
+        public static void LogWithLevelEx(this ILogger logger, LogLevel logLevel, Exception exception, string message = null, Action<LogAttributes> attributeSetter = null)
+        {
+            logger.LogInternal(logLevel, exception: exception, message: message, attributeSetter: attributeSetter);
+        }
+
+        /// <summary>
+        /// Logs an exception with a message returned by a custom message function with the specified <see cref="LogLevel"/>.
+        /// </summary>
+        /// <param name="logger">Specifies the logger.</param>
+        /// <param name="logLevel">Specifies the <see cref="LogLevel"/>.</param>
+        /// <param name="exception">The exception.</param>
+        /// <param name="messageFunc">Specifies the message function.</param>
+        /// <param name="attributeSetter">Optionally specifies an action that can be used to add attributes to the event being logged.</param>
+        /// <remarks>
+        /// This method is intended mostly to avoid processing attributes when the current 
+        /// log level prevents any log from being emitted, for better performance.
+        /// </remarks>
+        public static void LogWithLevelEx(this ILogger logger, LogLevel logLevel, Exception exception, Func<string> messageFunc, Action<LogAttributes> attributeSetter = null)
+        {
+            logger.LogInternal(logLevel, exception: exception, messageFunc: messageFunc, attributeSetter: attributeSetter);
+        }
+
+        //---------------------------------------------------------------------
         // CRITICAL:
 
         /// <summary>
@@ -349,7 +418,7 @@ namespace Neon.Diagnostics
         }
 
         /// <summary>
-        /// Logs a critical exception with a message returned by a custom message function..
+        /// Logs a critical exception with a message returned by a custom message function.
         /// </summary>
         /// <param name="logger">Specifies the logger.</param>
         /// <param name="exception">The exception.</param>
