@@ -34,6 +34,7 @@ namespace Neon.Diagnostics
     public class NullLogger : ILogger
     {
         //---------------------------------------------------------------------
+        // Private types
 
         private sealed class NullScope : IDisposable
         {
@@ -41,6 +42,14 @@ namespace Neon.Diagnostics
             {
             }
         }
+
+        //---------------------------------------------------------------------
+        // Static members.
+
+        /// <summary>
+        /// Returns a <see cref="NullLogger"/> instance.
+        /// </summary>
+        public static ILogger Instance { get; private set; } = new NullLogger();
 
         //---------------------------------------------------------------------
         // Implementation

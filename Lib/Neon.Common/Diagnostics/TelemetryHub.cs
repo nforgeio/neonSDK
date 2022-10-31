@@ -131,14 +131,14 @@ namespace Neon.Diagnostics
         {
             if (nullLogger)
             {
-                return new NullLogger();
+                return NullLogger.Instance;
             }
 
             categoryName ??= "DEFAULT";
 
             if (LoggerFactory == null)
             {
-                return new NullLogger();
+                return NullLogger.Instance;
             }
             else
             {

@@ -129,7 +129,7 @@ namespace Neon.Cadence
             attributes.Add(CadenceLogTags.WorkflowId, workflowId);
             attributes.Add(CadenceLogTags.WorkflowTypeName, workflowTypeName);
 
-            this.Logger = TelemetryHub.CreateLogger(categoryName: workflowTypeName, attributes: attributes, nullLogger: IsReplaying && !Client.Settings.LogDuringReplay);
+            this.Logger = new WorkflowLogger(TelemetryHub.CreateLogger(categoryName: workflowTypeName, attributes: attributes), this);
 
             // Hold stack traces for pending operations for debug mode.s
 
@@ -490,10 +490,10 @@ namespace Neon.Cadence
                 domain:                     options.Domain ?? WorkflowInfo.Domain,
                 taskList:                   options.TaskList ?? WorkflowInfo.TaskList,
                 workflow:                   options.Workflow ?? WorkflowInfo.WorkflowType,
-                startToCloseTimeout:    options.ExecutionStartToCloseTimeout,
+                startToCloseTimeout:        options.ExecutionStartToCloseTimeout,
                 scheduleToCloseTimeout:     options.ScheduleToCloseTimeout,
                 scheduleToStartTimeout:     options.ScheduleToStartTimeout,
-                decisionTaskTimeout:    options.TaskStartToCloseTimeout,
+                decisionTaskTimeout:        options.TaskStartToCloseTimeout,
                 retryOptions:               options.RetryOptions);
         }
 
