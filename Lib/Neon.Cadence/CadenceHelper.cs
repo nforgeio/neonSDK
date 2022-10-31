@@ -1063,7 +1063,7 @@ namespace Neon.Cadence.Internal
         /// log level string.
         /// </summary>
         /// <param name="logLevel">The input log level.</param>
-        /// <returns>The <b>cadence-proxy</b> compatable level string.</returns>
+        /// <returns>The <b>cadence-proxy</b> compatible level string.</returns>
         internal static string ToCadenceLogLevel(LogLevel logLevel)
         {
             switch (logLevel)

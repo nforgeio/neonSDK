@@ -109,7 +109,7 @@ namespace Neon.Xunit
         /// <exception cref="IncompatibleServiceException">Thrown when the service implementaton doesn't match the generated client.</exception>
         public static void ValidateController<TServiceController>(this IGeneratedServiceClient client)
         {
-            // Verify that the schema for the generated code is compatable with this
+            // Verify that the schema for the generated code is compatible with this
             // version of the validator.  We currently require schema=1.
 
             var versionFields = client.GeneratorVersion.Split(':');
