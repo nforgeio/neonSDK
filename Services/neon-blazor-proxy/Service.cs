@@ -84,7 +84,7 @@ namespace NeonBlazorProxy
         /// Counts cache lookups.
         /// </summary>
         public static readonly Counter CacheLookupsRequested = Metrics.CreateCounter(
-            "neonblazorproxy_cache_lookups_total",
+            "neonblazorproxy_cache_lookups",
             "Number of Cache lookups requested"
             );
 
@@ -92,7 +92,7 @@ namespace NeonBlazorProxy
         /// Counts the items persisted to the cache.
         /// </summary>
         public static readonly Counter CacheItemsStored = Metrics.CreateCounter(
-            "neonblazorproxy_cache_items_stored_total",
+            "neonblazorproxy_cache_items_stored",
             "Number of items stored in the Cache"
             );
 
@@ -100,7 +100,7 @@ namespace NeonBlazorProxy
         /// Counts cache hits.
         /// </summary>
         public static readonly Counter CacheHits = Metrics.CreateCounter(
-            "neonblazorproxy_cache_hits_total",
+            "neonblazorproxy_cache_hits",
             "Number of Cache hits"
             );
 
@@ -108,7 +108,7 @@ namespace NeonBlazorProxy
         /// Counts cache misses.
         /// </summary>
         public static readonly Counter CacheMisses = Metrics.CreateCounter(
-            "neonblazorproxy_cache_misses_total",
+            "neonblazorproxy_cache_misses",
             "Number of Cache misses"
             );
 

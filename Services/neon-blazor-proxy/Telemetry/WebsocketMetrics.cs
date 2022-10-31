@@ -30,7 +30,7 @@ namespace NeonBlazorProxy
         /// The total number of websocket connections established.
         /// </summary>
         public static readonly Counter ConnectionsEstablished = Metrics.CreateCounter(
-            "neonblazorproxy_websockets_connections_established_total",
+            "neonblazorproxy_websockets_connections_established",
             "Number of websocket requests inititated."
             );
 
