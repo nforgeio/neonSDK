@@ -76,14 +76,14 @@ namespace Neon.Diagnostics
             levelToSeverityName[(int)LogLevel.Information]  = "Information";
             levelToSeverityName[(int)LogLevel.Warning]      = "Warning";
             levelToSeverityName[(int)LogLevel.Error]        = "Error";
-            levelToSeverityName[(int)LogLevel.Critical]     = "Fatal";
-            levelToSeverityName[(int)LogLevel.None]         = "Unspecified";
+            levelToSeverityName[(int)LogLevel.Critical]     = "Critical";
+            levelToSeverityName[(int)LogLevel.None]         = "None";
         }
 
         //---------------------------------------------------------------------
         // Instance members
 
-        private LogAsTraceProcessorOptions   options;
+        private LogAsTraceProcessorOptions  options;
         private LogLevel                    logLevel;
 
         /// <summary>

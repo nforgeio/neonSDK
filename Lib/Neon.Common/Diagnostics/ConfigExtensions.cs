@@ -93,5 +93,20 @@ namespace Neon.Diagnostics
 
             return loggerOptions.AddProcessor(new LogAsTraceProcessor(options));
         }
+
+        /// <summary>
+        /// Adds a <see cref="LogMetricsProcessor"/> to a <see cref="OpenTelemetryLoggerOptions"/> instance
+        /// that counts the number of logged events by <see cref="LogLevel"/> using the <b>neon_log_events</b>
+        /// metrics counter.
+        /// </summary>
+        /// <param name="loggerOptions">The <see cref="OpenTelemetryLoggerOptions"/> options to where the exporter will be added.</param>
+        /// <param name="metricsPrefix">Optionally specifies a prefix to be prepended to to the counter name.</param>
+        /// <returns>The <paramref name="loggerOptions"/> to enable fluent style programming.</returns>
+        public static OpenTelemetryLoggerOptions AddLogMetricsProcessor(this OpenTelemetryLoggerOptions loggerOptions, string metricsPrefix = null)
+        {
+            Covenant.Requires<ArgumentNullException>(loggerOptions != null, nameof(loggerOptions));
+
+            return loggerOptions.AddProcessor(new LogMetricsProcessor(metricsPrefix));
+        }
     }
 }

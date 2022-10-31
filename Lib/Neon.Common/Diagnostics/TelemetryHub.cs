@@ -177,6 +177,7 @@ namespace Neon.Diagnostics
                 switch (input.ToUpperInvariant())
                 {
                     case "CRITICAL":
+                    case "FATAL":
 
                         logLevel = LogLevel.Critical;
                         break;
@@ -209,6 +210,7 @@ namespace Neon.Diagnostics
                         break;
 
                     case "NONE":
+                    case "UNSPECIFIED":
 
                         logLevel = LogLevel.None;
                         break;

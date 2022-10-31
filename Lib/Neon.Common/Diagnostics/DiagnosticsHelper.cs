@@ -85,13 +85,13 @@ namespace Neon.Diagnostics
 
             logLevelToSeverityInfo = new SeverityInfo[(int)LogLevel.None + 1];
 
-            logLevelToSeverityInfo[(int)LogLevel.Critical]    = new SeverityInfo("Fatal", (int)SeverityNumber.SEVERITY_NUMBER_FATAL);
+            logLevelToSeverityInfo[(int)LogLevel.Critical]    = new SeverityInfo("Critical", (int)SeverityNumber.SEVERITY_NUMBER_FATAL);
             logLevelToSeverityInfo[(int)LogLevel.Error]       = new SeverityInfo("Error", (int)SeverityNumber.SEVERITY_NUMBER_ERROR);
             logLevelToSeverityInfo[(int)LogLevel.Warning]     = new SeverityInfo("Warning", (int)SeverityNumber.SEVERITY_NUMBER_WARN);
             logLevelToSeverityInfo[(int)LogLevel.Information] = new SeverityInfo("Information", (int)SeverityNumber.SEVERITY_NUMBER_INFO);
             logLevelToSeverityInfo[(int)LogLevel.Debug]       = new SeverityInfo("Debug", (int)SeverityNumber.SEVERITY_NUMBER_DEBUG);
             logLevelToSeverityInfo[(int)LogLevel.Trace]       = new SeverityInfo("Trace", (int)SeverityNumber.SEVERITY_NUMBER_TRACE);
-            logLevelToSeverityInfo[(int)LogLevel.None]        = new SeverityInfo("Unspecified", (int)SeverityNumber.SEVERITY_NUMBER_UNSPECIFIED);
+            logLevelToSeverityInfo[(int)LogLevel.None]        = new SeverityInfo("None", (int)SeverityNumber.SEVERITY_NUMBER_UNSPECIFIED);
         }
 
         /// <summary>

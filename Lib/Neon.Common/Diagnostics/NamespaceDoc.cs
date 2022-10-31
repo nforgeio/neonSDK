@@ -98,6 +98,19 @@ namespace Neon.Diagnostics
     ///     </description>
     /// </item>
     /// <item>
+    ///     <term><see cref="LogMetricsProcessor"/></term>
+    ///     <description>
+    ///     <para>
+    ///     This processor can be used to count logged events and expose them as the <b>neon_log_events</b>
+    ///     metric.  This counter is labeled by the <see cref="LogLevel"/> so you can monitor specific types
+    ///     of logged events.
+    ///     </para>
+    ///     <note>
+    ///     <b>NeonService</b> enables this processor by default.
+    ///     </note>
+    ///     </description>
+    /// </item>
+    /// <item>
     ///     <term><see cref="Covenant"/></term>
     ///     <description>
     ///     This is basically a clone of <see cref="System.Diagnostics.Contracts"/>.  We started using
