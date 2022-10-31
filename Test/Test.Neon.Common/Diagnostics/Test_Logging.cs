@@ -213,7 +213,7 @@ namespace TestCommon
             Assert.True(utcNow <= NeonHelper.UnixEpochNanosecondsToDateTimeUtc(logEvent.TsNs));
             Assert.Equal("test message", logEvent.Body);
             Assert.Equal(categoryName, logEvent.CategoryName);
-            Assert.Equal("Fatal", logEvent.Severity);
+            Assert.Equal("Critical", logEvent.Severity);
             Assert.Equal((int)SeverityNumber.SEVERITY_NUMBER_FATAL, logEvent.SeverityNumber);
             Assert.Null(logEvent.SpanId);
             Assert.Null(logEvent.TraceId);
@@ -499,7 +499,7 @@ namespace TestCommon
             Assert.True(utcNow <= NeonHelper.UnixEpochNanosecondsToDateTimeUtc(logEvent.TsNs));
             Assert.Equal("test message", logEvent.Body);
             Assert.Equal(categoryName, logEvent.CategoryName);
-            Assert.Equal("Fatal", logEvent.Severity);
+            Assert.Equal("Critical", logEvent.Severity);
             Assert.Equal((int)SeverityNumber.SEVERITY_NUMBER_FATAL, logEvent.SeverityNumber);
             Assert.Null(logEvent.SpanId);
             Assert.Null(logEvent.TraceId);

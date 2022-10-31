@@ -101,6 +101,8 @@ namespace TestNeonService
             {
                 var logger = TelemetryHub.CreateLogger(this.Name);
 
+                await StartedAsync();
+
                 logger.LogDebugEx("debug event");
                 logger.LogInformationEx("info event");
                 logger.LogWarningEx("warn event");
@@ -182,14 +184,14 @@ namespace TestNeonService
                 logger.LogErrorEx("error event");
                 logger.LogCriticalEx("critical event");
 
+                // Wait for the test to signal that the service can exit.
+
+                await CanExitEvent.WaitAsync();
+
                 // Signal to the test case that the service has done its thing
                 // and is ready to exit.
 
                 ReadyToExitEvent.Set();
-
-                // Wait for the test to signal that the service can exit.
-
-                await CanExitEvent.WaitAsync();
 
                 return await Task.FromResult(0);
             }
@@ -246,21 +248,23 @@ namespace TestNeonService
 
             var runTask = service.RunAsync();
 
-            // Wait for the test service to do its thing.
+            // Wait for the test service to be ready.
 
-            await service.ReadyToExitEvent.WaitAsync();
+            await service.WaitUntilStarted();
+
+            // Perform the tests.
 
             using (var httpClient = new HttpClient())
             {
                 // We're expecting the metrics scrape request to fail since metrics are disabled.
 
+                await Assert.ThrowsAsync<HttpRequestException>(async () => await httpClient.GetAsync($"http://127.0.0.1:{NetworkPorts.PrometheusMetrics}"));
                 await Assert.ThrowsAsync<HttpRequestException>(async () => await httpClient.GetAsync($"http://127.0.0.1:{NetworkPorts.PrometheusMetrics}/metrics/"));
             }
 
             // Tell the service it can exit.
 
             service.CanExitEvent.Set();
-
             await runTask;
         }
 
@@ -275,36 +279,41 @@ namespace TestNeonService
 
             var runTask = service.RunAsync();
 
-            // Wait for the test service to do its thing.
+            // Wait for the test service to be ready.
 
-            await service.ReadyToExitEvent.WaitAsync();
+            await service.WaitUntilStarted();
 
-            using (var httpClient = new HttpClient())
+            try
             {
-                var scrapedMetrics = await httpClient.GetStringAsync($"http://127.0.0.1:{NetworkPorts.PrometheusMetrics}/metrics/");
-                var metrics        = ParseMetrics(scrapedMetrics);
+                // Perform the tests.
 
-                // Verify the test counter.
+                using (var httpClient = new HttpClient())
+                {
+                    var scrapedMetrics = await httpClient.GetStringAsync($"http://127.0.0.1:{NetworkPorts.PrometheusMetrics}/metrics/");
+                    var metrics        = ParseMetrics(scrapedMetrics);
 
-                Assert.True(metrics["test_counter"] > 0);
+                    // Verify the test counter.
 
-                // Verify Neon logging counters.
+                    Assert.True(metrics["test_counter"] > 0);
 
-                Assert.True(metrics[@"neon_log_events_total{level=""warn""}"] > 0);
-                Assert.True(metrics[@"neon_log_events_total{level=""critical""}"] > 0);
-                Assert.True(metrics[@"neon_log_events_total{level=""transient""}"] > 0);
-                Assert.True(metrics[@"neon_log_events_total{level=""sinfo""}"] > 0);
-                Assert.True(metrics[@"neon_log_events_total{level=""error""}"] > 0);
-                Assert.True(metrics[@"neon_log_events_total{level=""debug""}"] > 0);
-                Assert.True(metrics[@"neon_log_events_total{level=""serror""}"] > 0);
-                Assert.True(metrics[@"neon_log_events_total{level=""info""}"] > 0);
+                    // Verify Neon logging counters.
+
+                    Assert.True(metrics.ContainsKey(@"neon_log_events{level=""Critical""}"));
+                    Assert.True(metrics.ContainsKey(@"neon_log_events{level=""Debug""}"));
+                    Assert.True(metrics.ContainsKey(@"neon_log_events{level=""Error""}"));
+                    Assert.True(metrics.ContainsKey(@"neon_log_events{level=""Information""}"));
+                    Assert.True(metrics.ContainsKey(@"neon_log_events{level=""None""}"));
+                    Assert.True(metrics.ContainsKey(@"neon_log_events{level=""Trace""}"));
+                    Assert.True(metrics.ContainsKey(@"neon_log_events{level=""Warning""}"));
+                }
             }
+            finally
+            {
+                // Tell the service it can exit.
 
-            // Tell the service it can exit.
-
-            service.CanExitEvent.Set();
-
-            await runTask;
+                service.CanExitEvent.Set();
+                await runTask;
+            }
         }
 
         [Fact]
@@ -320,36 +329,41 @@ namespace TestNeonService
 
             var runTask = service.RunAsync();
 
-            // Wait for the test service to do its thing.
+            // Wait for the test service to be ready.
 
-            await service.ReadyToExitEvent.WaitAsync();
+            await service.WaitUntilStarted();
 
-            using (var httpClient = new HttpClient())
+            try
             {
-                var scrapedMetrics = await httpClient.GetStringAsync($"http://127.0.0.1:{metricsPort}/metrics/");
-                var metrics = ParseMetrics(scrapedMetrics);
+                // Perform the tests.
 
-                // Verify the test counter.
+                using (var httpClient = new HttpClient())
+                {
+                    var scrapedMetrics = await httpClient.GetStringAsync($"http://127.0.0.1:{metricsPort}/metrics/");
+                    var metrics        = ParseMetrics(scrapedMetrics);
 
-                Assert.True(metrics["test_counter"] > 0);
+                    // Verify the test counter.
 
-                // Verify Neon logging counters.
+                    Assert.True(metrics["test_counter"] > 0);
 
-                Assert.True(metrics[@"neon_log_events_total{level=""warn""}"] > 0);
-                Assert.True(metrics[@"neon_log_events_total{level=""critical""}"] > 0);
-                Assert.True(metrics[@"neon_log_events_total{level=""transient""}"] > 0);
-                Assert.True(metrics[@"neon_log_events_total{level=""sinfo""}"] > 0);
-                Assert.True(metrics[@"neon_log_events_total{level=""error""}"] > 0);
-                Assert.True(metrics[@"neon_log_events_total{level=""debug""}"] > 0);
-                Assert.True(metrics[@"neon_log_events_total{level=""serror""}"] > 0);
-                Assert.True(metrics[@"neon_log_events_total{level=""info""}"] > 0);
+                    // Verify Neon logging counters.
+
+                    Assert.True(metrics.ContainsKey(@"neon_log_events{level=""Critical""}"));
+                    Assert.True(metrics.ContainsKey(@"neon_log_events{level=""Debug""}"));
+                    Assert.True(metrics.ContainsKey(@"neon_log_events{level=""Error""}"));
+                    Assert.True(metrics.ContainsKey(@"neon_log_events{level=""Information""}"));
+                    Assert.True(metrics.ContainsKey(@"neon_log_events{level=""None""}"));
+                    Assert.True(metrics.ContainsKey(@"neon_log_events{level=""Trace""}"));
+                    Assert.True(metrics.ContainsKey(@"neon_log_events{level=""Warning""}"));
+                }
             }
+            finally
+            {
+                // Tell the service it can exit.
 
-            // Tell the service it can exit.
-
-            service.CanExitEvent.Set();
-
-            await runTask;
+                service.CanExitEvent.Set();
+                await runTask;
+            }
         }
 
         [Fact]
@@ -365,36 +379,41 @@ namespace TestNeonService
 
             var runTask = service.RunAsync();
 
-            // Wait for the test service to do its thing.
+            // Wait for the test service to be ready.
 
-            await service.ReadyToExitEvent.WaitAsync();
+            await service.WaitUntilStarted();
 
-            using (var httpClient = new HttpClient())
+            try
             {
-                var scrapedMetrics = await httpClient.GetStringAsync($"http://127.0.0.1:{NetworkPorts.PrometheusMetrics}/{metricsPath}");
-                var metrics        = ParseMetrics(scrapedMetrics);
+                // Perform the tests.
 
-                // Verify the test counter.
+                using (var httpClient = new HttpClient())
+                {
+                    var scrapedMetrics = await httpClient.GetStringAsync($"http://127.0.0.1:{NetworkPorts.PrometheusMetrics}/{metricsPath}");
+                    var metrics        = ParseMetrics(scrapedMetrics);
 
-                Assert.True(metrics["test_counter"] > 0);
+                    // Verify the test counter.
 
-                // Verify Neon logging counters.
+                    Assert.True(metrics["test_counter"] > 0);
 
-                Assert.True(metrics[@"neon_log_events_total{level=""warn""}"] > 0);
-                Assert.True(metrics[@"neon_log_events_total{level=""critical""}"] > 0);
-                Assert.True(metrics[@"neon_log_events_total{level=""transient""}"] > 0);
-                Assert.True(metrics[@"neon_log_events_total{level=""sinfo""}"] > 0);
-                Assert.True(metrics[@"neon_log_events_total{level=""error""}"] > 0);
-                Assert.True(metrics[@"neon_log_events_total{level=""debug""}"] > 0);
-                Assert.True(metrics[@"neon_log_events_total{level=""serror""}"] > 0);
-                Assert.True(metrics[@"neon_log_events_total{level=""info""}"] > 0);
+                    // Verify Neon logging counters.
+
+                    Assert.True(metrics.ContainsKey(@"neon_log_events{level=""Critical""}"));
+                    Assert.True(metrics.ContainsKey(@"neon_log_events{level=""Debug""}"));
+                    Assert.True(metrics.ContainsKey(@"neon_log_events{level=""Error""}"));
+                    Assert.True(metrics.ContainsKey(@"neon_log_events{level=""Information""}"));
+                    Assert.True(metrics.ContainsKey(@"neon_log_events{level=""None""}"));
+                    Assert.True(metrics.ContainsKey(@"neon_log_events{level=""Trace""}"));
+                    Assert.True(metrics.ContainsKey(@"neon_log_events{level=""Warning""}"));
+                }
             }
+            finally
+            {
+                // Tell the service it can exit.
 
-            // Tell the service it can exit.
-
-            service.CanExitEvent.Set();
-
-            await runTask;
+                service.CanExitEvent.Set();
+                await runTask;
+            }
         }
 
         [Fact]
@@ -412,36 +431,41 @@ namespace TestNeonService
 
             var runTask = service.RunAsync();
 
-            // Wait for the test service to do its thing.
+            // Wait for the test service to be ready.
 
-            await service.ReadyToExitEvent.WaitAsync();
+            await service.WaitUntilStarted();
 
-            using (var httpClient = new HttpClient())
+            try
             {
-                var scrapedMetrics = await httpClient.GetStringAsync($"http://127.0.0.1:{metricPort}/{metricsPath}");
-                var metrics        = ParseMetrics(scrapedMetrics);
+                // Perform the tests.
 
-                // Verify the test counter.
+                using (var httpClient = new HttpClient())
+                {
+                    var scrapedMetrics = await httpClient.GetStringAsync($"http://127.0.0.1:{metricPort}/{metricsPath}");
+                    var metrics        = ParseMetrics(scrapedMetrics);
 
-                Assert.True(metrics["test_counter"] > 0);
+                    // Verify the test counter.
 
-                // Verify Neon logging counters.
+                    Assert.True(metrics["test_counter"] > 0);
 
-                Assert.True(metrics[@"neon_log_events_total{level=""warn""}"] > 0);
-                Assert.True(metrics[@"neon_log_events_total{level=""critical""}"] > 0);
-                Assert.True(metrics[@"neon_log_events_total{level=""transient""}"] > 0);
-                Assert.True(metrics[@"neon_log_events_total{level=""sinfo""}"] > 0);
-                Assert.True(metrics[@"neon_log_events_total{level=""error""}"] > 0);
-                Assert.True(metrics[@"neon_log_events_total{level=""debug""}"] > 0);
-                Assert.True(metrics[@"neon_log_events_total{level=""serror""}"] > 0);
-                Assert.True(metrics[@"neon_log_events_total{level=""info""}"] > 0);
+                    // Verify Neon logging counters.
+
+                    Assert.True(metrics.ContainsKey(@"neon_log_events{level=""Critical""}"));
+                    Assert.True(metrics.ContainsKey(@"neon_log_events{level=""Debug""}"));
+                    Assert.True(metrics.ContainsKey(@"neon_log_events{level=""Error""}"));
+                    Assert.True(metrics.ContainsKey(@"neon_log_events{level=""Information""}"));
+                    Assert.True(metrics.ContainsKey(@"neon_log_events{level=""None""}"));
+                    Assert.True(metrics.ContainsKey(@"neon_log_events{level=""Trace""}"));
+                    Assert.True(metrics.ContainsKey(@"neon_log_events{level=""Warning""}"));
+                }
             }
+            finally
+            {
+                // Tell the service it can exit.
 
-            // Tell the service it can exit.
-
-            service.CanExitEvent.Set();
-
-            await runTask;
+                service.CanExitEvent.Set();
+                await runTask;
+            }
         }
 
         [Fact]
@@ -467,6 +491,10 @@ namespace TestNeonService
                 listener.Start();
 
                 var runTask = service.RunAsync();
+
+                // Wait for the test service to be ready.
+
+                await service.WaitUntilStarted();
 
                 // Loop for up to 2 minutes until we receive metrics with a non-zero [test_counter]
 
@@ -505,10 +533,6 @@ namespace TestNeonService
                         }
                     });
 
-                // Wait for the test service to do its thing.
-
-                await service.ReadyToExitEvent.WaitAsync();
-
                 // Tell the service it can exit.
 
                 service.CanExitEvent.Set();
@@ -523,14 +547,13 @@ namespace TestNeonService
 
             // Verify Neon logging counters.
 
-            Assert.True(metrics[@"neon_log_events_total{level=""warn""}"] > 0);
-            Assert.True(metrics[@"neon_log_events_total{level=""critical""}"] > 0);
-            Assert.True(metrics[@"neon_log_events_total{level=""transient""}"] > 0);
-            Assert.True(metrics[@"neon_log_events_total{level=""sinfo""}"] > 0);
-            Assert.True(metrics[@"neon_log_events_total{level=""error""}"] > 0);
-            Assert.True(metrics[@"neon_log_events_total{level=""debug""}"] > 0);
-            Assert.True(metrics[@"neon_log_events_total{level=""serror""}"] > 0);
-            Assert.True(metrics[@"neon_log_events_total{level=""info""}"] > 0);
+            Assert.True(metrics.ContainsKey(@"neon_log_events{level=""Critical""}"));
+            Assert.True(metrics.ContainsKey(@"neon_log_events{level=""Debug""}"));
+            Assert.True(metrics.ContainsKey(@"neon_log_events{level=""Error""}"));
+            Assert.True(metrics.ContainsKey(@"neon_log_events{level=""Information""}"));
+            Assert.True(metrics.ContainsKey(@"neon_log_events{level=""None""}"));
+            Assert.True(metrics.ContainsKey(@"neon_log_events{level=""Trace""}"));
+            Assert.True(metrics.ContainsKey(@"neon_log_events{level=""Warning""}"));
         }
 
         [Fact]
@@ -549,42 +572,45 @@ namespace TestNeonService
 
             var runTask = service.RunAsync();
 
-            // Wait for the test service to do its thing.
+            // Wait for the test service to be ready.
 
-            await service.ReadyToExitEvent.WaitAsync();
+            await service.WaitUntilStarted();
 
-            using (var httpClient = new HttpClient())
+            try
             {
-                var scrapedMetrics = await httpClient.GetStringAsync($"http://127.0.0.1:{metricPort}/{metricsPath}");
-                var metrics        = ParseMetrics(scrapedMetrics);
+                // Perform the tests.
 
-                // Verify the test counter.
+                using (var httpClient = new HttpClient())
+                {
+                    var scrapedMetrics = await httpClient.GetStringAsync($"http://127.0.0.1:{metricPort}/{metricsPath}");
+                    var metrics        = ParseMetrics(scrapedMetrics);
 
-                Assert.True(metrics["test_counter"] > 0);
+                    // Verify the test counter.
 
-                // Verify Neon logging counters.
+                    Assert.True(metrics["test_counter"] > 0);
 
-                Assert.True(metrics[@"neon_log_events_total{level=""warn""}"] > 0);
-                Assert.True(metrics[@"neon_log_events_total{level=""critical""}"] > 0);
-                Assert.True(metrics[@"neon_log_events_total{level=""transient""}"] > 0);
-                Assert.True(metrics[@"neon_log_events_total{level=""sinfo""}"] > 0);
-                Assert.True(metrics[@"neon_log_events_total{level=""error""}"] > 0);
-                Assert.True(metrics[@"neon_log_events_total{level=""debug""}"] > 0);
-                Assert.True(metrics[@"neon_log_events_total{level=""serror""}"] > 0);
-                Assert.True(metrics[@"neon_log_events_total{level=""info""}"] > 0);
+                    // Verify Neon logging counters.
 
-                // Verify some .NET Runtime metrics
+                    Assert.True(metrics.ContainsKey(@"neon_log_events{level=""Critical""}"));
+                    Assert.True(metrics.ContainsKey(@"neon_log_events{level=""Debug""}"));
+                    Assert.True(metrics.ContainsKey(@"neon_log_events{level=""Error""}"));
+                    Assert.True(metrics.ContainsKey(@"neon_log_events{level=""Information""}"));
+                    Assert.True(metrics.ContainsKey(@"neon_log_events{level=""None""}"));
+                    Assert.True(metrics.ContainsKey(@"neon_log_events{level=""Trace""}"));
+                    Assert.True(metrics.ContainsKey(@"neon_log_events{level=""Warning""}"));
 
-                Assert.True(metrics.ContainsKey("process_private_memory_bytes"));
-                Assert.True(metrics.ContainsKey("dotnet_exceptions_total"));
-                Assert.True(metrics.ContainsKey("dotnet_threadpool_num_threads"));
+                    // Verify some .NET Runtime metrics
+
+                    Assert.True(metrics.ContainsKey("process_private_memory_bytes"));
+                }
             }
+            finally
+            {
+                // Tell the service it can exit.
 
-            // Tell the service it can exit.
-
-            service.CanExitEvent.Set();
-
-            await runTask;
+                service.CanExitEvent.Set();
+                await runTask;
+            }
         }
     }
 }

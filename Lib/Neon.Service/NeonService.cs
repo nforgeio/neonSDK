@@ -703,8 +703,9 @@ namespace Neon.Service
         //---------------------------------------------------------------------
         // Instance members
 
-        private readonly object                 syncLock   = new object();
-        private readonly AsyncMutex             asyncMutex = new AsyncMutex();
+        private readonly object                 syncLock     = new object();
+        private readonly AsyncMutex             asyncMutex   = new AsyncMutex();
+        private readonly AsyncManualResetEvent  startedEvent = new AsyncManualResetEvent(false);
         private readonly NeonServiceOptions     options;
         private readonly Counter                runtimeCount;
         private readonly Counter                unhealthyCount;
@@ -883,6 +884,7 @@ namespace Neon.Service
                                                     });
                                             }
 
+                                            options.AddLogMetricsProcessor(MetricsPrefix);
                                             options.AddConsoleJsonExporter();
                                         }
                                     });
@@ -1407,6 +1409,17 @@ namespace Neon.Service
         }
 
         /// <summary>
+        /// Waits until the service indicate that it's started when the <see cref="OnRunAsync"/> method
+        /// has called <see cref="StartedAsync(NeonServiceStatus)"/>.  This is typically used by unit tests
+        /// to wait until the service is ready before performing tests.
+        /// </summary>
+        /// <returns>The tracking <see cref="Task"/>.</returns>
+        public async Task WaitUntilStarted()
+        {
+            await startedEvent.WaitAsync();
+        }
+
+        /// <summary>
         /// Called by <see cref="OnRunAsync"/> implementation to indicate that the service
         /// is either <see cref="NeonServiceStatus.Running"/> (the default) or <see cref="NeonServiceStatus.NotReady"/>.
         /// </summary>
@@ -1429,6 +1442,8 @@ namespace Neon.Service
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentException>(status == NeonServiceStatus.Running || status == NeonServiceStatus.NotReady, nameof(status));
+
+            startedEvent.Set();
 
             await SetStatusAsync(status);
         }
