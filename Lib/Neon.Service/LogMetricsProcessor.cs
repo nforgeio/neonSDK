@@ -34,7 +34,7 @@ using OpenTelemetry.Trace;
 
 using Prometheus;
 
-namespace Neon.Diagnostics
+namespace Neon.Service
 {
     /// <summary>
     /// <para>
@@ -43,7 +43,7 @@ namespace Neon.Diagnostics
     /// <see cref="LogLevel"/> as the counter label.
     /// </para>
     /// <note>
-    /// <b>NeonService</b> based services configure this processor by default.
+    /// <see cref="NeonService"/> based applications configure this processor by default.
     /// </note>
     /// </summary>
     /// <remarks>
@@ -52,7 +52,7 @@ namespace Neon.Diagnostics
     /// errors, requiring further investigation.
     /// </para>
     /// <para>
-    /// This is very easy to use.  Simply call <see cref="ConfigExtensions.AddLogMetricsProcessor(OpenTelemetryLoggerOptions, string)"/>.
+    /// This is very easy to use.  Simply call <see cref="OtelConfigExtensions.AddLogMetricsProcessor(OpenTelemetryLoggerOptions, string)"/>.
     /// </para>
     /// </remarks>
     public class LogMetricsProcessor : BaseProcessor<LogRecord>
@@ -69,14 +69,14 @@ namespace Neon.Diagnostics
         {
             // $hack(jefflill): This is a bit of a hack to improve performance.
 
-            levelToSeverityName                              = new string[(int)LogLevel.None + 1];
-            levelToSeverityName[(int)LogLevel.Trace]        = "Trace";
-            levelToSeverityName[(int)LogLevel.Debug]        = "Debug";
-            levelToSeverityName[(int)LogLevel.Information]  = "Information";
-            levelToSeverityName[(int)LogLevel.Warning]      = "Warning";
-            levelToSeverityName[(int)LogLevel.Error]        = "Error";
-            levelToSeverityName[(int)LogLevel.Critical]     = "Critical";
-            levelToSeverityName[(int)LogLevel.None]         = "None";
+            levelToSeverityName                            = new string[(int)LogLevel.None + 1];
+            levelToSeverityName[(int)LogLevel.Trace]       = "Trace";
+            levelToSeverityName[(int)LogLevel.Debug]       = "Debug";
+            levelToSeverityName[(int)LogLevel.Information] = "Information";
+            levelToSeverityName[(int)LogLevel.Warning]     = "Warning";
+            levelToSeverityName[(int)LogLevel.Error]       = "Error";
+            levelToSeverityName[(int)LogLevel.Critical]    = "Critical";
+            levelToSeverityName[(int)LogLevel.None]        = "None";
         }
 
         //---------------------------------------------------------------------
