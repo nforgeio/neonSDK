@@ -83,7 +83,7 @@ namespace Neon.Common
 
                     switch (editionID.ToLowerInvariant())
                     {
-                        case "home":
+                        case "core":
 
                             windowsEdition = WindowsEdition.Home;
                             break;
