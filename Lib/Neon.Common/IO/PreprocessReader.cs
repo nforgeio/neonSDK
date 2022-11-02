@@ -194,7 +194,7 @@ namespace Neon.IO
     /// <para><b>Secret and profile Values</b></para>
     /// <para>
     /// This class can integrate with a <see cref="IProfileClient"/> implementation added to
-    /// <see cref="NeonHelper.serviceContainer"/>.  This provides a way to abstract access to
+    /// <see cref="NeonHelper.ServiceContainer"/>.  This provides a way to abstract access to
     /// secrets and profile values from an external source.  Three item types are supported:
     /// </para>
     /// <list type="table">
