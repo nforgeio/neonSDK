@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------------
 // FILE:	    NeonHelper.Platform.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright (c) 2005-2022 by neonFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -409,7 +409,7 @@ namespace Neon.Common
         }
 
         /// <summary>
-        /// Indicates whether the current user is a neonFORGE maintainer.  This is determined by the
+        /// Indicates whether the current user is a NEONFORGE maintainer.  This is determined by the
         /// presence of the <b>NF_MAINTAINER</b> environment variable.
         /// </summary>
         public static bool IsMaintainer

@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------------
 // FILE:	    MsgHandlerEventArgs.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright (c) 2005-2022 by neonFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
 // COPYRIGHT:   Copyright (c) 2015-2018 The NATS Authors (method comments)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");

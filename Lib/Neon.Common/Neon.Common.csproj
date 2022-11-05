@@ -5,7 +5,7 @@
 		<OutputType>Library</OutputType>
 		<RootNamespace>Neon.Common</RootNamespace>
 		<Version>3.0.0</Version>
-		<Description>Useful classes used by other neonSDK packages as well as neonFORGE applications</Description>
+		<Description>Useful classes used by other neonSDK packages as well as NEONFORGE applications</Description>
 		<PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
 		<IsPackable>true</IsPackable>
 		<PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.Common/README.md</PackageProjectUrl>

@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------------
 // FILE:	    TestArea.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright (c) 2005-2022 by neonFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,8 +24,8 @@ using System.Threading.Tasks;
 namespace Neon.Xunit
 {
     /// <summary>
-    /// Defines the neonFORGE related test areas.  These currently map to 
-    /// neonFORGE related projects.  Use these in <c>[Trait(TestTrait.Category, ...)]</c>
+    /// Defines the NEONFORGE related test areas.  These currently map to 
+    /// NEONFORGE related projects.  Use these in <c>[Trait(TestTrait.Category, ...)]</c>
     /// attributes tagging your test methods.
     /// </summary>
     public static class TestArea

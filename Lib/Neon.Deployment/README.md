@@ -1,7 +1,7 @@
 ﻿Neon.Deployment
 ===============
 
-**INTERNAL USE ONLY:** This package is intended mainly for use by neonFORGE projects and should probably be
+**INTERNAL USE ONLY:** This package is intended mainly for use by NEONFORGE projects and should probably be
 avoided by other folks at this time.  We are not giving any guarantees about not making breaking changes in
 the future.
 

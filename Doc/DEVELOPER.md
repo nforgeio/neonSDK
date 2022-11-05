@@ -131,7 +131,7 @@ Follow the steps below to configure a development or test workstation:
 
 17. **Clone** the https://github.com/nforgeio/neonSDK.git repository to your workstation:
 
-    * **IMPORTANT:** All neonFORGE related repositories must be cloned within the same parent directory and their folder names must be the same as the repo names.
+    * **IMPORTANT:** All NEONFORGE related repositories must be cloned within the same parent directory and their folder names must be the same as the repo names.
 
 18. Configure the build **environment variables**:
 

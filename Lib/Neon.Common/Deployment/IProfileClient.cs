@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------------
 // FILE:	    IProfileClient.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright (c) 2005-2022 by neonFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ namespace Neon.Deployment
     /// <list type="bullet">
     /// <item>
     /// <para>
-    /// Gaining access to secrets.  neonFORGE has standardized on 1Password for password management
+    /// Gaining access to secrets.  NEONFORGE has standardized on 1Password for password management
     /// and the Neon Profile Service abstracts the details of authenticating with 1Password and
     /// accessing secrets.
     /// </para>
@@ -72,12 +72,12 @@ namespace Neon.Deployment
     /// addresses assigned to other developers.
     /// </para>
     /// <para>
-    /// neonFORGE's internal implementation simply persists profile values on the local workstation
+    /// NEONFORGE's internal implementation simply persists profile values on the local workstation
     /// as a YAML file which is referenced by our profile service.
     /// </para>
     /// </item>
     /// <item>
-    /// Abstracting access to the user's master password.  neonFORGE has implemented an internal  
+    /// Abstracting access to the user's master password.  NEONFORGE has implemented an internal  
     /// Windows application that implements a profile service that prompts the developer for their
     /// master 1Password, optionally caching it for a period of time so the user won't be prompted
     /// as often.  This server also handles profile and secret lookup.

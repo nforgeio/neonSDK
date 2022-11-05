@@ -27,7 +27,7 @@ goto done
 
 :goodPath 
 
-REM Set NF_REPOS to the parent directory holding the neonFORGE repositories.
+REM Set NF_REPOS to the parent directory holding the NEONFORGE repositories.
 
 pushd "%NF_ROOT%\.."
 set NF_REPOS=%cd%
@@ -42,7 +42,7 @@ REM Ask the developer if they're a maintainer and set NF_MAINTAINER if they say 
 
 :maintainerPrompt
 
-set /P "IS_MAINTAINER=Are you a neonFORGE maintainer? (y/n): "
+set /P "IS_MAINTAINER=Are you a NEONFORGE maintainer? (y/n): "
 
 if "%IS_MAINTAINER%"=="y" (
     set NF_MAINTAINER=1

@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------------
 // FILE:	    NamespaceDoc.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright (c) 2005-2022 by neonFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,8 +31,8 @@ namespace Neon.Deployment
     /// for CI/CD.
     /// </para>
     /// <note>
-    /// These classes are not entirely general purpose at this point.  neonFORGE maintainers are
-    /// currently using this for CI/CD for opensource and private neonFORGE related projects.
+    /// These classes are not entirely general purpose at this point.  NEONFORGE maintainers are
+    /// currently using this for CI/CD for opensource and private NEONFORGE related projects.
     /// We may make these more generic in the future.
     /// </note>
     /// </summary>
