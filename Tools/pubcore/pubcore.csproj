@@ -100,12 +100,6 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Lib\Neon.BuildInfo\Neon.BuildInfo.csproj">
-      <Project>{75ce2c25-013c-4ef2-ac4b-aacd1c028a71}</Project>
-      <Name>Neon.BuildInfo</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Folder Include="Properties\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

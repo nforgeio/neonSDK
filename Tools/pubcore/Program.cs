@@ -40,7 +40,7 @@ namespace pubcore
         /// <summary>
         /// Tool version number.
         /// </summary>
-        public const string Version = "2.3";
+        public const string Version = "2.4";
 
         /// <summary>
         /// Program entry point.
@@ -76,7 +76,8 @@ namespace pubcore
                 // Parse the command line options and then remove any options
                 // from the arguments.
 
-                var noCmd = args.Any(arg => arg == "--no-cmd");
+                var noCmd   = args.Any(arg => arg == "--no-cmd");
+                var keepXml = args.Any(arg => arg == "--keep-xml");
 
                 args = args.Where(arg => !arg.StartsWith("--")).ToArray();
 
@@ -102,6 +103,8 @@ OPTIONS:
 
     --no-cmd        - Do not generate a [PROJECT-NAME.cmd] file in PUBLISH-DIR
                       that executes the published program.
+    --keep-xml      - Don't remove published [*.xml] files.  We remove these by
+                      default, assuming that they're generatedcode comment files.
 
 REMARKS:
 
@@ -318,6 +321,17 @@ $@"@echo off
                 if (File.Exists(dotnetPath))
                 {
                     File.Delete(dotnetPath);
+                }
+
+                // Publish also writes the code comment XML files to the publish folder.  We're
+                // going to delete all XML files there as a quick workaround by default.
+
+                if (!keepXml)
+                {
+                    foreach (var xmlPath in Directory.GetFiles(outputDir, "*.xml", SearchOption.TopDirectoryOnly))
+                    {
+                        File.Delete(xmlPath);
+                    }
                 }
 
                 // Finish up
