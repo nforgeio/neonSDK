@@ -8,9 +8,15 @@
 		<RuntimeIdentifiers>win-x64;linux-x64;osx-x64</RuntimeIdentifiers>
 		<NoWarn>$(NoWarn);NU5100</NoWarn>
 		<DebugType>embedded</DebugType>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<PublishSingleFile>true</PublishSingleFile>
 		<SelfContained>true</SelfContained>
-		<PublishSingleFile>false</PublishSingleFile>
 		<PublishTrimmed>false</PublishTrimmed>
+		<TrimMode>partial</TrimMode>
+		<PublishReadyToRun>false</PublishReadyToRun>
+		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -28,5 +34,10 @@
 		<Folder Include="Properties\" />
 		<Folder Include="Properties\PublishProfiles\" />
 	</ItemGroup>
+	
+	<Target Name="PubCore" AfterTargets="AfterBuild" Condition="true">
+		<Message Importance="high" Text="Publish: $(ProjectPath)" />
+		<Exec Command="pubcore --no-cmd &quot;$(ProjectPath)&quot; &quot;$(TargetName)&quot; $(ConfigurationName) &quot;$(NF_BUILD)&quot; win-x64" />
+	</Target>
 
 </Project>

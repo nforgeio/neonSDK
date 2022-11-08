@@ -82,6 +82,10 @@ else
     $config = "Release"
 }
 
+# $todo(jefflill): Code documentation build is not currently supported (need to port to DocFX).
+
+$codedoc = $false
+
 $msbuild     = $env:MSBUILDPATH
 $nfRoot      = $env:NF_ROOT
 $nfSolution  = "$nfRoot\neonSDK.sln"
@@ -132,11 +136,7 @@ function PublishCore
         $([System.IO.Path]::Combine($ncRoot, [System.IO.Path]::GetDirectoryName($projectPath), "bin", $config, "net6.0-windows10.0.17763.0", "$targetName.dll")),
         $([System.IO.Path]::Combine($ncRoot, [System.IO.Path]::GetDirectoryName($projectPath), "bin", $config, "net6.0", "$targetName.dll")),
         $([System.IO.Path]::Combine($ncRoot, [System.IO.Path]::GetDirectoryName($projectPath), "bin", $config, "net6.0", "win10-x64", "$targetName.dll")),
-        $([System.IO.Path]::Combine($ncRoot, [System.IO.Path]::GetDirectoryName($projectPath), "bin", $config, "net5.0-windows", "$targetName.dll")),
-        $([System.IO.Path]::Combine($ncRoot, [System.IO.Path]::GetDirectoryName($projectPath), "bin", $config, "net5.0-windows10.0.17763.0", "$targetName.dll")),
-        $([System.IO.Path]::Combine($ncRoot, [System.IO.Path]::GetDirectoryName($projectPath), "bin", $config, "net5.0", "$targetName.dll")),
-        $([System.IO.Path]::Combine($ncRoot, [System.IO.Path]::GetDirectoryName($projectPath), "bin", $config, "net5.0", "win10-x64", "$targetName.dll")),
-        $([System.IO.Path]::Combine($ncRoot, [System.IO.Path]::GetDirectoryName($projectPath), "bin", $config, "netcoreapp3.1", "$targetName.dll"))
+        $([System.IO.Path]::Combine($ncRoot, [System.IO.Path]::GetDirectoryName($projectPath), "bin", $config, "net7.0", "$targetName.dll"))
     )
 
     $targetPath = $null
@@ -252,28 +252,14 @@ try
         {
             throw "ERROR: BUILD FAILED"
         }
-
-        # The build generates source files like [.NETCoreApp,Version=v5.0.AssemblyAttributes.cs] within
-        # project [obj] configuration subdirectorties.  This can result in duplicate attribute compiler
-        # errors because Visual Studio seems to be including these files from all of the configuration
-        # subfolders rather than just for the current build configuration.  This isn't reproducable for 
-        # simple solutions, so we haven't reported this to MSFT.
-        #
-        # We mostly run into this issue after performing a script based RELEASE build and then go back 
-        # and try to build DEBUG with Visual Studio.  The workaround is to simply remove all of these
-        # generated files here.
-
-        & $nfToolBin\neon-build clean-attr "$nfRoot"
-        ThrowOnExitCode
     }
 
     # Build the Neon tools.
 
     if ($tools)
     {
-        # Publish the Windows .NET Core tool binaries to the build folder.
+        # Publish the tool binaries to the build folder.
 
-        PublishCore "Tools\neon-cli\neon-cli.csproj" "neon"
         PublishCore "Tools\neon-modelgen\neon-modelgen.csproj" "neon-modelgen"
      }
 

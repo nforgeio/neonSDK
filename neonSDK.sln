@@ -226,6 +226,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Powershell", "Powershell", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neon.ModelGenerator", "Lib\Neon.ModelGenerator\Neon.ModelGenerator.csproj", "{70FC3F3B-A0EF-469C-BCA1-AE656FDC265B}"
 	ProjectSection(ProjectDependencies) = postProject
+		{756FB86B-29BC-4C6B-A19B-A624A9E9D367} = {756FB86B-29BC-4C6B-A19B-A624A9E9D367}
 		{FE55ED55-F4B5-45B0-AFF2-EBDCAACF691A} = {FE55ED55-F4B5-45B0-AFF2-EBDCAACF691A}
 	EndProjectSection
 EndProject
