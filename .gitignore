@@ -153,3 +153,4 @@ cluster-manifest.json
 KubernetesWithRetry.cs
 /**/*.gitignore/**
 /UpgradeLog.htm
+/ToolBin/nuget.config

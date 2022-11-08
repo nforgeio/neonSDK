@@ -182,11 +182,16 @@ function RestoreVersion
 
 function SetDevFeed
 {
-    if ((dotnet nuget list source | grep $ncNugetFeedName).Length -eq 0) {
-        dotnet nuget add source --name $ncNugetFeedName $devFeedUrl
+    if (-Not(Test-Path -Path $env:NF_ROOT/ToolBin/nuget.config -PathType Leaf))
+    {
+        "<configuration></configuration>" > $env:NF_ROOT/ToolBin/nuget.config
     }
 
-    dotnet nuget update source $ncNugetFeedName --source $devFeedUrl --username $env:NEON_GITHUB_USER --password $devFeedApiKey
+    if ((dotnet nuget list source --configfile $env:NF_ROOT/ToolBin/nuget.config | grep $ncNugetFeedName).Length -eq 0) {
+        dotnet nuget add source --configfile $env:NF_ROOT/ToolBin/nuget.config --name $ncNugetFeedName $devFeedUrl
+    }
+
+    dotnet nuget update source $ncNugetFeedName --configfile $env:NF_ROOT/ToolBin/nuget.config --source $devFeedUrl --username $env:NEON_GITHUB_USER --password $devFeedApiKey
 }
 
 #------------------------------------------------------------------------------
