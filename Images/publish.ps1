@@ -168,7 +168,6 @@ try
     Write-Info "********************************************************************************"
     Write-Info ""
 
-    neon-build clean-generated-cs $nfRoot
     & "$msbuild" "$nfSolution" $buildConfig -t:Clean -m -verbosity:quiet
 
     if (-not $?)
@@ -182,7 +181,6 @@ try
     Write-Info  "*******************************************************************************"
     Write-Info  ""
 
-    neon-build clean-generated-cs $nfRoot
     & "$msbuild" "$nfSolution" -p:Configuration=Release -restore -m -verbosity:quiet
 
     if (-not $?)
@@ -245,10 +243,5 @@ try
 catch
 {
     Write-Exception $_
-
-    # Cleanup
-
-    neon-build clean-generated-cs $nfRoot
-
     exit 1
 }

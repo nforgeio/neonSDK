@@ -26,7 +26,6 @@ DeleteFolder bin
 $result = mkdir bin
 ThrowOnExitCode
 
-neon-build clean-generated-cs $nfRoot
 dotnet publish "$nfServices\$appname\$appname.csproj" -c Release -o "$pwd\bin" 
 ThrowOnExitCode
 
@@ -43,4 +42,3 @@ $result = Invoke-CaptureStreams "docker build -t ${registry}:${tag} --build-arg 
 # Clean up
 
 DeleteFolder bin
-neon-build clean-generated-cs $nfRoot
