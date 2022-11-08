@@ -42,15 +42,28 @@
 		Note that we're not using the glob [**] pattern in the <Content/> tags below
 		to avoid including any localization folders to reduce the package size.
 		-->
+		
+		<!-- 
+		$todo(jefflill): We're only building with the Windows version of the
+		neon-modelgen tool because we're having trouble publishing the nuget
+		package to BaGet (probably due to the size).  We're the only ones
+		using this right now and we're always building on Windows.
+		
+		In the future, we could look at whether facades might help, or
+		publish separate packages for each environment and tell users
+		to use build conditions to reference the correct one.
+		-->
 
-		<Content Include="linux-x64\*">
+		<!--<Content Include="linux-x64\*">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<CopyToPublishDirectory>true</CopyToPublishDirectory>
 		</Content>
+		
 		<Content Include="osx-x64\*">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<CopyToPublishDirectory>true</CopyToPublishDirectory>
-		</Content>
+		</Content>-->
+		
 		<Content Include="win-x64\*">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<CopyToPublishDirectory>true</CopyToPublishDirectory>
