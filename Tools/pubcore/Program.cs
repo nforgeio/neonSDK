@@ -96,7 +96,7 @@ ARGUMENTS:
     PROJECT-PATH        - Path to the [.csproj] file
     TARGET-FRAMEWORK    - Build target framework (like:g. net70)
     CONFIG              - Build configuration (like: Debug or Release)
-    OUTDIR-PATH         - Path to the output directory
+    OUTPUT-DIR          - Path to the output directory
     RUNTIME             - Target dotnet runtime, like: win10-x64,
 
 OPTIONS:
@@ -180,6 +180,7 @@ scripts or MSBUILD/CSPROJ files to quickly disable publication.
                 var targetFramework = args[1];
                 var config          = args[2];
                 var outputDir       = Path.Combine(Path.GetDirectoryName(projectPath), args[3]);
+                var programName     = Path.GetFileName(outputDir);  // $hack(jefflill): assuming the program name is the same as the last segment in the output directory.
                 var runtime         = args.ElementAtOrDefault(4);
 
                 // Ensure that the runtime identifier is present in the project file.
@@ -289,13 +290,13 @@ scripts or MSBUILD/CSPROJ files to quickly disable publication.
 
                 // Create the CMD shell script when not disabled.
 
-                var cmdPath = Path.Combine(Path.Combine(outputDir, ".."), $"{targetFramework}.cmd");
+                var cmdPath = Path.Combine(Path.Combine(outputDir, ".."), $"{programName}.cmd");
 
                 if (!noCmd)
                 {
                     File.WriteAllText(cmdPath,
 $@"@echo off
-""%~dp0\{targetFramework}\{targetFramework}.exe"" %*
+""%~dp0\{programName}\{programName}.exe"" %*
 ");
                 }
                 else
