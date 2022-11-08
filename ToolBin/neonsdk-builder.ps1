@@ -67,7 +67,7 @@ if ($codedoc)
 
 if ($all)
 {
-    $codedoc = $true
+    # $codedoc = $true
 }
 
 if ($debug)
@@ -78,10 +78,6 @@ else
 {
     $config = "Release"
 }
-
-# $todo(jefflill): Code documentation build is not currently supported (need to port to DocFX).
-
-$codedoc = $false
 
 $msbuild     = $env:MSBUILDPATH
 $nfRoot      = $env:NF_ROOT
