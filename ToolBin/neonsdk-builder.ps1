@@ -23,13 +23,11 @@
 #
 # OPTIONS:
 #
-#       -tools        - Builds the command line tools
 #       -codedoc      - Builds the code documentation
 #       -all          - Builds with all of the options above
 
 param 
 (
-    [switch]$tools   = $false,
     [switch]$codedoc = $false,
     [switch]$all     = $false,
     [switch]$debug   = $false   # Optionally specify DEBUG build config
@@ -69,7 +67,6 @@ if ($codedoc)
 
 if ($all)
 {
-    $tools   = $true
     $codedoc = $true
 }
 
@@ -98,88 +95,6 @@ $env:PATH   += ";$nfBuild"
 
 $neonSdkVersion = $(& "$nfToolBin\neon-build" read-version "$nfLib\Neon.Common\Build.cs" NeonSdkVersion)
 ThrowOnExitCode
-
-#------------------------------------------------------------------------------
-# Publishes a .NET Core project to the repo's build folder.
-#
-# ARGUMENTS:
-#
-#   $projectPath    - The relative project folder PATH
-#   $targetName     - Name of the target executable
-
-function PublishCore
-{
-    [CmdletBinding()]
-    param (
-        [Parameter(Position=0, Mandatory=$true)]
-        [string]$projectPath,
-        [Parameter(Position=1, Mandatory=$true)]
-        [string]$targetName
-    )
-
-    Write-Info ""
-    Write-Info "**************************************************************************"
-    Write-Info "*** PUBLISH: $targetName"
-    Write-Info "**************************************************************************"
-    Write-Info ""
-
-    # Ensure that the NF_BUILD folder exists:
-
-    [System.IO.Directory]::CreateDirectory($nfBuild) | Out-Null
-
-    # Locate the published output folder (note that we need to handle apps targeting different versions of .NET):
-
-    $projectPath = [System.IO.Path]::Combine($nfRoot, $projectPath)
-
-    $potentialTargets = @(
-        $([System.IO.Path]::Combine($ncRoot, [System.IO.Path]::GetDirectoryName($projectPath), "bin", $config, "net6.0-windows", "$targetName.dll")),
-        $([System.IO.Path]::Combine($ncRoot, [System.IO.Path]::GetDirectoryName($projectPath), "bin", $config, "net6.0-windows10.0.17763.0", "$targetName.dll")),
-        $([System.IO.Path]::Combine($ncRoot, [System.IO.Path]::GetDirectoryName($projectPath), "bin", $config, "net6.0", "$targetName.dll")),
-        $([System.IO.Path]::Combine($ncRoot, [System.IO.Path]::GetDirectoryName($projectPath), "bin", $config, "net6.0", "win10-x64", "$targetName.dll")),
-        $([System.IO.Path]::Combine($ncRoot, [System.IO.Path]::GetDirectoryName($projectPath), "bin", $config, "net7.0", "$targetName.dll"))
-    )
-
-    $targetPath = $null
-
-    foreach ($path in $potentialTargets)
-    {
-        if ([System.IO.File]::Exists($path))
-        {
-            $targetPath = $path
-            Write-Output("*** Publish target exists at: $path")
-            break
-        }
-        else
-        {
-            Write-Output("*** Publish target does not exist at: $path")
-        }
-    }
-
-    if ([System.String]::IsNullOrEmpty($targetPath))
-    {
-        throw "Cannot locate publish folder for: $projectPath"
-    }
-
-    $targetFolder = [System.IO.Path]::GetDirectoryName($targetPath)
-
-    # Copy the binary files to a new build folder subdirectory named for the target and
-    # generate the batch file to launch the program.
-
-    $binaryFolder = [System.IO.Path]::Combine($nfBuild, $targetName)
-
-    if ([System.IO.Directory]::Exists($binaryFolder))
-    {
-        [System.IO.Directory]::Delete($binaryFolder, $true)
-    }
-
-    [System.IO.Directory]::CreateDirectory($binaryFolder) | Out-Null
-    Copy-Item -Path "$targetFolder/*" -Destination $binaryFolder -Recurse
-
-    $cmdPath = [System.IO.Path]::Combine($nfBuild, "$targetName.cmd")
-
-    [System.IO.File]::WriteAllText($cmdPath, "@echo off`r`n")
-    [System.IO.File]::AppendAllText($cmdPath, "%~dp0\$targetName\$targetName.exe %*`r`n")
-}
 
 #------------------------------------------------------------------------------
 # Perform the operation.
@@ -253,15 +168,6 @@ try
             throw "ERROR: BUILD FAILED"
         }
     }
-
-    # Build the Neon tools.
-
-    if ($tools)
-    {
-        # Publish the tool binaries to the build folder.
-
-        PublishCore "Tools\neon-modelgen\neon-modelgen.csproj" "neon-modelgen"
-     }
 
     # Build the code documentation if requested.
 
