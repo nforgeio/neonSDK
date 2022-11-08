@@ -40,7 +40,7 @@ namespace pubcore
         /// <summary>
         /// Tool version number.
         /// </summary>
-        public const string Version = "2.4";
+        public const string Version = "2.5";
 
         /// <summary>
         /// Program entry point.
@@ -89,22 +89,22 @@ namespace pubcore
 $@"
 NEON PUBCORE v{Version}
 
-usage: pubcore [OPTIONS] PROJECT-PATH TARGET-NAME CONFIG OUTPUT-PATH RUNTIME
+usage: pubcore [OPTIONS] PROJECT-PATH TARGET-FRAMEWORK CONFIG OUTPUT-PATH RUNTIME
 
 ARGUMENTS:
 
-    PROJECT-PATH    - Path to the [.csproj] file
-    TARGET-NAME     - Build target name
-    CONFIG          - Build configuration (like: Debug or Release)
-    OUTDIR-PATH     - Path to the output directory
-    RUNTIME         - Target dotnet runtime, like: win10-x64,
+    PROJECT-PATH        - Path to the [.csproj] file
+    TARGET-FRAMEWORK    - Build target framework (like:g. net70)
+    CONFIG              - Build configuration (like: Debug or Release)
+    OUTDIR-PATH         - Path to the output directory
+    RUNTIME             - Target dotnet runtime, like: win10-x64,
 
 OPTIONS:
 
-    --no-cmd        - Do not generate a [PROJECT-NAME.cmd] file in PUBLISH-DIR
-                      that executes the published program.
-    --keep-xml      - Don't remove published [*.xml] files.  We remove these by
-                      default, assuming that they're generatedcode comment files.
+    --no-cmd            - Do not generate a [PROJECT-NAME.cmd] file in PUBLISH-DIR
+                          that executes the published program.
+    --keep-xml          - Don't remove published [*.xml] files.  We remove these by
+                          default, assuming that they're generatedcode comment files.
 
 REMARKS:
 
@@ -123,8 +123,8 @@ or:
 
     <RuntimeIdentifiers>win10-x64;...</RuntimeIdentifiers>
 
-This command publishes the executable files to a new PUBLISH-DIR/TARGET-NAME directory
-then creates a CMD.EXE batch file named PUBLISH-DIR/TARGET-NAME.cmd that launches the
+This command publishes the executable files to a new PUBLISH-DIR/TARGET-FRAMEWORK directory
+then creates a CMD.EXE batch file named PUBLISH-DIR/TARGET-FRAMEWORK.cmd that launches the
 application, forwarding any command line arguments.
 
 The [--no-cmd] option prevents the CMD.EXE batch file from being created.
@@ -177,10 +177,10 @@ scripts or MSBUILD/CSPROJ files to quickly disable publication.
                     Environment.Exit(1);
                 }
 
-                var targetName = args[1];
-                var config     = args[2];
-                var outputDir  = Path.Combine(Path.GetDirectoryName(projectPath), args[3]);
-                var runtime    = args.ElementAtOrDefault(4);
+                var targetFramework = args[1];
+                var config          = args[2];
+                var outputDir       = Path.Combine(Path.GetDirectoryName(projectPath), args[3]);
+                var runtime         = args.ElementAtOrDefault(4);
 
                 // Ensure that the runtime identifier is present in the project file.
 
@@ -289,13 +289,13 @@ scripts or MSBUILD/CSPROJ files to quickly disable publication.
 
                 // Create the CMD shell script when not disabled.
 
-                var cmdPath = Path.Combine(Path.Combine(outputDir, ".."), $"{targetName}.cmd");
+                var cmdPath = Path.Combine(Path.Combine(outputDir, ".."), $"{targetFramework}.cmd");
 
                 if (!noCmd)
                 {
                     File.WriteAllText(cmdPath,
 $@"@echo off
-""%~dp0\{targetName}\{targetName}.exe"" %*
+""%~dp0\{targetFramework}\{targetFramework}.exe"" %*
 ");
                 }
                 else
