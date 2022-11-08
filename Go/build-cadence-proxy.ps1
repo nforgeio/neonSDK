@@ -30,30 +30,24 @@
 $env:GOPATH  = "$env:NF_ROOT\Go"
 $buildPath   = "$env:NF_BUILD"
 $projectPath = "$env:GOPATH\src\github.com\cadence-proxy"
-$logPath     = "$buildPath\build-cadence-proxy.log"
 
 Push-Cwd "$projectpath\cmd\cadenceproxy" | Out-Null
 
 try
 {
-    # Ensure that the build output folder exists and remove any existing log file.
+    # Ensure that the build output folder exists.
 
     [System.IO.Directory]::CreateDirectory($buildPath) | Out-Null
-
-    if ([System.IO.File]::Exists($logPath))
-    {
-        [System.IO.File]::Delete($logPath)
-    }
 
     # Change to project path
 
     Set-Cwd $projectPath | Out-Null
 
-    Write-Output " "                                                                               >> $logPath 2>&1
-    Write-Output "*******************************************************************************" >> $logPath 2>&1
-    Write-Output "*                            WINDOWS CADENCE-PROXY                            *" >> $logPath 2>&1
-    Write-Output "*******************************************************************************" >> $logPath 2>&1
-    Write-Output " "                                                                               >> $logPath 2>&1
+    Write-Output " "
+    Write-Output "*******************************************************************************"
+    Write-Output "*                            WINDOWS CADENCE-PROXY                            *"
+    Write-Output "*******************************************************************************"
+    Write-Output " "
 
     $env:GOOS	= "windows"
     $env:GOARCH = "amd64"
@@ -61,11 +55,11 @@ try
     $result = Invoke-CaptureStreams "go build -mod=vendor -ldflags=`"-w -s`" -v -o $buildPath\cadence-proxy.win.exe cmd\cadenceproxy\main.go"
     Write-Output $result.alltext
 
-    Write-Output " "                                                                               >> $logPath 2>&1
-    Write-Output "*******************************************************************************" >> $logPath 2>&1
-    Write-Output "*                             LINUX CADENCE-PROXY                             *" >> $logPath 2>&1
-    Write-Output "*******************************************************************************" >> $logPath 2>&1
-    Write-Output " "                                                                               >> $logPath 2>&1
+    Write-Output " "
+    Write-Output "*******************************************************************************"
+    Write-Output "*                             LINUX CADENCE-PROXY                             *"
+    Write-Output "*******************************************************************************"
+    Write-Output " "
 
     $env:GOOS   = "linux"
     $env:GOARCH = "amd64"
@@ -73,11 +67,11 @@ try
     $result = Invoke-CaptureStreams "go build -mod=vendor -ldflags=`"-w -s`" -v -o $buildPath\cadence-proxy.linux cmd\cadenceproxy\main.go"
     Write-Output $result.alltext
 
-    Write-Output " "                                                                               >> $logPath 2>&1
-    Write-Output "*******************************************************************************" >> $logPath 2>&1
-    Write-Output "*                             OS/X CADENCE-PROXY                              *" >> $logPath 2>&1
-    Write-Output "*******************************************************************************" >> $logPath 2>&1
-    Write-Output " "                                                                               >> $logPath 2>&1
+    Write-Output " "
+    Write-Output "*******************************************************************************"
+    Write-Output "*                             OS/X CADENCE-PROXY                              *"
+    Write-Output "*******************************************************************************"
+    Write-Output " "
 
     $env:GOOS   = "darwin"
     $env:GOARCH = "amd64"
@@ -85,24 +79,24 @@ try
     $result = Invoke-CaptureStreams "go build -mod=vendor -ldflags=`"-w -s`" -v -o $buildPath\cadence-proxy.osx cmd\cadenceproxy\main.go"
     Write-Output $result.alltext
 
-    Write-Output " "                                                                               >> $logPath 2>&1
-    Write-Output "*******************************************************************************" >> $logPath 2>&1
-    Write-Output "*                      COMPRESSING CADENCE-PROXY BINARIES                     *" >> $logPath 2>&1
-    Write-Output "*******************************************************************************" >> $logPath 2>&1
-    Write-Output " "                                                                               >> $logPath 2>&1
+    Write-Output " "
+    Write-Output "*******************************************************************************"
+    Write-Output "*                      COMPRESSING CADENCE-PROXY BINARIES                     *"
+    Write-Output "*******************************************************************************"
+    Write-Output " "
 
     # Compress the binaries to the [Neon.Cadence] project where they'll
     # be embedded as binary resources.
 
     $neonCadenceResourceFolder = "$env:NF_ROOT\Lib\Neon.Cadence\Resources"
 
-    neon-build gzip "$buildPath\cadence-proxy.linux"   "$neonCadenceResourceFolder\cadence-proxy.linux.gz"   >> "$logPath" 2>&1
+    neon-build gzip "$buildPath\cadence-proxy.linux"   "$neonCadenceResourceFolder\cadence-proxy.linux.gz"
     ThrowOnExitCode
 
-    neon-build gzip "$buildPath\cadence-proxy.osx"     "$neonCadenceResourceFolder\cadence-proxy.osx.gz"     >> "$logPath" 2>&1
+    neon-build gzip "$buildPath\cadence-proxy.osx"     "$neonCadenceResourceFolder\cadence-proxy.osx.gz"
     ThrowOnExitCode
 
-    neon-build gzip "$buildPath\cadence-proxy.win.exe" "$neonCadenceResourceFolder\cadence-proxy.win.exe.gz" >> "$logPath" 2>&1
+    neon-build gzip "$buildPath\cadence-proxy.win.exe" "$neonCadenceResourceFolder\cadence-proxy.win.exe.gz"
     ThrowOnExitCode
 }
 catch

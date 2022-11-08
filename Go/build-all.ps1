@@ -35,8 +35,8 @@ try
 {
     # Perform the builds
 
-    $result = Invoke-CaptureStreams "pwsh -f build-cadence-proxy.ps1"
-    $result = Invoke-CaptureStreams "pwsh -f build-test.ps1"
+    Invoke-CaptureStreams "pwsh -f build-cadence-proxy.ps1"
+    Invoke-CaptureStreams "pwsh -f build-test.ps1"
 }
 catch
 {

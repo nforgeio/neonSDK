@@ -28,7 +28,6 @@
 $env:GO111MODULE = "on"
 $projectPath     = "$env:NF_ROOT\Go\test"
 $buildPath       = "$env:NF_BUILD\go-test"
-$logPath         = "$buildPath\build.log"
 
 Push-Location $projectPath | Out-Null
 
@@ -57,15 +56,15 @@ try
 
     Set-Cwd "$projectPath\cadence\cwf-args" | Out-Null
 
-    Write-Output "Building cwf-args" > "$logPath"
+    Write-Output "Building cwf-args"
 
     $env:GOOS   = "windows"
     $env:GOARCH = "amd64"
 
-    go build -o "$outputPath\cwf-args.exe" . # >> "$logPath" 2>&1
+    go build -o "$outputPath\cwf-args.exe" .
     ThrowOnExitCode
 
-    Write-Output "Build success" >> "$logPath" 2>&1
+    Write-Output "Build success"
 }
 catch
 {
