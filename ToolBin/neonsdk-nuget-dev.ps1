@@ -228,6 +228,24 @@ try
     $nfSolution  = "$nfRoot\neonSDK.sln"
     $branch      = GitBranch $nfRoot
 
+    ############################################
+    # $todo(jefflill): Remove this on 12-01-2022
+    #
+    # This ensures that any [$/ToolBin/nuget.config] file is removed.
+    # This file may include a GITHUB_PAT token and shouldn't ever be 
+    # the in the repo due to security concerns.
+    #
+    # We can also remove this file from [.gitignore] at the same time.
+
+    $nugetConfigPath = "$nkRoot/ToolBin/nuget.config"
+
+    if ([System.IO.File]::Exists($nugetConfigPath))
+    {
+        [System.IO.File]::Delete($nugetConfigPath)
+    }
+
+    ###########################################
+
     if ($localVersion)
     {
         $local = $true
