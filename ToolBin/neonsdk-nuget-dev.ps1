@@ -182,20 +182,34 @@ function RestoreVersion
 
 function SetDevFeed
 {
-    $nugetConfigPath = "$env:NF_ROOT/ToolBin/nuget.config"
+    $nugetConfigFolder = "$env:HOME/.neon/developer"
+    $nugetConfigPath   = "$nugetConfigFolder/nuget.config"
 
-    if (-Not(Test-Path -Path $env:NF_ROOT/ToolBin/nuget.config -PathType Leaf))
+    [System.IO.Directory]::CreateDirectory($nugetConfigFolder) | Out-Null
+
+    if (-not [System.IO.File]::Exists($nugetConfigPath))
     {
         ""
         "<configuration></configuration>" > $nugetConfigPath
     }
 
-    if ((dotnet nuget list source --configfile $env:NF_ROOT/ToolBin/nuget.config | grep $ncNugetFeedName).Length -eq 0) 
+    $configJson = [System.IO.File]::ReadAllText($nugetConfigPath)
+
+    if (-not $configJson.Contains($nugetFeedName))
     {
-        dotnet nuget add source --configfile $nugetConfigPath --name $ncNugetFeedName $devFeedUrl
+        "****************************"
+        "dotnet nuget add source --configfile $nugetConfigPath --name $nugetFeedName $devFeedName"
+        "****************************"
+        dotnet nuget add source --configfile $nugetConfigPath --name $nugetFeedName $devFeedName
+        "****************************"
     }
 
-    dotnet nuget update source $ncNugetFeedName --configfile $nugetConfigPath --source $devFeedUrl --username $env:NEON_GITHUB_USER --password $nugetFeedApiKey
+    "****************************"
+    "dotnet nuget update source $nugetFeedName --source $nugetConfigPath --username $env:NEON_GITHUB_USER --password $nugetFeedApiKey"
+    "****************************"
+
+    dotnet nuget update source $nugetFeedName --source $nugetConfigPath --username $env:NEON_GITHUB_USER --password $nugetFeedApiKey
+    exit 1
 }
 
 #------------------------------------------------------------------------------
@@ -235,7 +249,7 @@ function Publish
     }
     else
     {
-        dotnet nuget push --source $ncNugetFeedName --api-key $nugetFeedApiKey "$env:NF_BUILD\nuget\$project.$version.nupkg" --skip-duplicate --timeout 600
+        dotnet nuget push --source $nugetFeedName --api-key $nugetFeedApiKey "$env:NF_BUILD\nuget\$project.$version.nupkg" --skip-duplicate --timeout 600
         ThrowOnExitCode
     }
 }
@@ -310,10 +324,10 @@ try
 
         # Retrieve any necessary credentials.
 
-        $versionerKey      = Get-SecretValue    "NUGET_VERSIONER_KEY" "group-devops"
-        $nugetFeedApiKey   = Get-SecretPassword "GITHUB_PAT" user-$env:NC_USER
-        $nugetFeedUri      = "https://nuget.pkg.github.com/nforgeio/index.json"
-        $ncNugetFeedName = "nc-nuget-devfeed"
+        $versionerKey    = Get-SecretValue    "NUGET_VERSIONER_KEY" "group-devops"
+        $nugetFeedName   = "nc-nuget-devfeed"
+        $nugetFeedUri    = "https://nuget.pkg.github.com/nforgeio/index.json"
+        $nugetFeedApiKey = Get-SecretPassword "GITHUB_PAT" user-$env:NC_USER
 
         # Ensure that the development nuget feed is configured.
 

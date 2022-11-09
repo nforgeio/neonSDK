@@ -203,11 +203,9 @@ Follow the steps below to configure a development or test workstation:
 
 27. *Optional:* Maintainers who will be publishing releases will need to:
 
-    * **Download:** the latest recommended (at least **v6.3.0**) **nuget.exe** from [here](https://www.nuget.org/downloads) and put this somewhere in your `PATH`
-
     * Obtain a nuget API key from a maintainer and install the key on your workstation via:
 	
-	  `nuget SetApiKey YOUR-KEY`
+	  `dotnet nuget SetApiKey YOUR-KEY`
 	
     * **Install:** GitHub CLI (amd64) v1.9.2 or greater from: https://github.com/cli/cli/releases
 

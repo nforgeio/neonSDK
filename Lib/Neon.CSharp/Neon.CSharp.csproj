@@ -4,7 +4,7 @@
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<OutputType>Library</OutputType>
 		<RootNamespace>Neon.CSharp</RootNamespace>
-		<Version>3.0.0</Version>
+		<Version>10000.0.2512-dev-master</Version>
 		<Description>C# dynamic compilation support utilities.</Description>
 		<PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
 		<IsPackable>true</IsPackable>

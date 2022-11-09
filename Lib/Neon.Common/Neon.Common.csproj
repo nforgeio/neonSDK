@@ -1,10 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<OutputType>Library</OutputType>
 		<RootNamespace>Neon.Common</RootNamespace>
-		<Version>3.0.0</Version>
+		<Version>10000.0.2512-dev-master</Version>
 		<Description>Useful classes used by other neonSDK packages as well as NEONFORGE applications</Description>
 		<PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
 		<IsPackable>true</IsPackable>
