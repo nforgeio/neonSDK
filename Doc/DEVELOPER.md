@@ -91,9 +91,9 @@ Follow the steps below to configure a development or test workstation:
     * Clock **Docker Engine** and disable BuildKit (which causes random problems) so be sure to disable it by setting **buildkit=false** in the edit box
 	* Start a command window and use `docker login` to login using your GitHub credentials
 
-10. Install **Visual Studio 2022 Community 17.3+** from [here](https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030&passive=false)
+10. Install **Visual Studio 2022 Community 17.4+** from [here](https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030&passive=false)
 
-  * Select **all workloads** on the first panel
+  * Check **all workloads** on the first panel
   * Click **Install** (and take a coffee break)
   * Apply any pending **Visual Studio updates**
   * **Close** Visual Studio to install any updates
@@ -125,7 +125,7 @@ Follow the steps below to configure a development or test workstation:
    
 16. **Visual Studio:** Enable preview .NET SDKs:
     * Open Visual Studio
-    * Goto: **Tools/Options/Environment/Preview Features**
+    * Goto: **Tools/Options/Environment/Preview Features** (if present)
     * Check: **Use previews of the .NET SDK (requires restart)
     * Restart all Visual Studio instances
 
@@ -182,6 +182,7 @@ Follow the steps below to configure a development or test workstation:
 
     * Restart **Visual Studio** as **administrator** (to pick up the new environment variables)
     * Open **$/neonSDK.sln** (where **$** is the repo root directory)
+    * You may be asked to login to GitHub.  Enter your GitHub username and GITHUB_PAT as the password and check the save password button
     * Click the **Install** link at the top of the solution explorer panel when there's a warning about a missing SDK.
     * Select **Build/Rebuild** Solution
 
