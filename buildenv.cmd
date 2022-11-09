@@ -59,6 +59,13 @@ if "%IS_MAINTAINER%"=="y" (
     goto maintainerPrompt
 )
 
+REM Ask maintainers for their NEONFORGE Office 365 username.
+
+if "%NF_MAINTAINER%"=="1" (
+    set /p NC_USER="Enter your NEONFORGE Office 365 username: "
+    setx NC_USER "%NC_USER%" /M > nul
+)
+
 REM Ask the developer if they're using preview Visual Studio.
 
 :previewVSPrompt
@@ -118,6 +125,10 @@ setx NF_SNIPPETS "%NF_SNIPPETS%" /M               > nul
 setx NF_TEST "%NF_TEST%" /M                       > nul
 setx NF_TEMP "%NF_TEMP%" /M                       > nul
 setx NF_SAMPLES_CADENCE "%NF_SAMPLES_CADENCE%" /M > nul
+
+if "%NF_MAINTAINER%"=="1" (
+    setx NC_USER "%NC_USER%" /M > nul
+)
 
 setx DOTNETPATH "%DOTNETPATH%" /M                             > nul
 setx MSBUILDPATH "%MSBUILDPATH%" /M                           > nul
