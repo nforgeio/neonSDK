@@ -36,7 +36,7 @@ popd
 REM Some scripts need to know the developer's GitHub username:
 
 echo.
-set /p NEON_GITHUB_USER="Enter your GitHub username: "
+set /p GITHUB_USER="Enter your GitHub username: "
 
 REM Ask the developer if they're a maintainer and set NF_MAINTAINER if they say yes.
 
@@ -114,7 +114,7 @@ set NEON_CLUSTER_TESTING=1
 
 REM Persist the environment variables.
 
-setx NEON_GITHUB_USER "%NEON_GITHUB_USER%" /M     > nul
+setx GITHUB_USER "%NEON_GITHUB_USER%" /M          > nul
 setx NF_MAINTAINER "%NF_MAINTAINER%" /M           > nul              
 setx NF_REPOS "%NF_REPOS%" /M                     > nul
 setx NF_ROOT "%NF_ROOT%" /M                       > nul
