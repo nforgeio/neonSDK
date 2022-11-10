@@ -76,7 +76,7 @@ try
 		Build "6.0.10-jammy-amd64"
 	}
 
-	Build "7.0.0-rc.2-jammy-amd64" -latest
+	Build "7.0.0-jammy-amd64" -latest
 }
 catch
 {
