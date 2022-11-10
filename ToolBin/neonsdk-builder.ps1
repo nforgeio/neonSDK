@@ -25,12 +25,14 @@
 #
 #       -codedoc      - Builds the code documentation
 #       -all          - Builds with all of the options above
+#       -allowDirty   - Use GitHub sources for SourceLink even if local repo is dirty
 
 param 
 (
-    [switch]$codedoc = $false,
-    [switch]$all     = $false,
-    [switch]$debug   = $false   # Optionally specify DEBUG build config
+    [switch]$codedoc    = $false,
+    [switch]$all        = $false,
+    [switch]$debug      = $false,   # Optionally specify DEBUG build config
+    [switch]$allowDirty = $false    # use GitHub sources for SourceLink even if local repo is dirty
 )
 
 #------------------------------------------------------------------------------
@@ -63,44 +65,59 @@ if ($codedoc)
 
 # Ensure-VisualStudioNotRunning
 
-# Initialize
-
-if ($all)
-{
-    # $codedoc = $true
-}
-
-if ($debug)
-{
-    $config = "Debug"
-}
-else
-{
-    $config = "Release"
-}
-
-$msbuild     = $env:MSBUILDPATH
-$nfRoot      = $env:NF_ROOT
-$nfSolution  = "$nfRoot\neonSDK.sln"
-$nfBuild     = "$env:NF_BUILD"
-$nfLib       = "$nfRoot\Lib"
-$nfTools     = "$nfRoot\Tools"
-$nfToolBin   = "$nfRoot\ToolBin"
-$buildConfig = "-p:Configuration=$config"
-$env:PATH   += ";$nfBuild"
-
-$neonSdkVersion = $(& "$nfToolBin\neon-build" read-version "$nfLib\Neon.Common\Build.cs" NeonSdkVersion)
-ThrowOnExitCode
-
-#------------------------------------------------------------------------------
-# Perform the operation.
-
-Push-Cwd $nfRoot | Out-Null
-
-$verbosity = "minimal"
-
 try
 {
+    # Initialize
+
+    if ($all)
+    {
+        # $codedoc = $true
+    }
+
+    if ($debug)
+    {
+        $config = "Debug"
+    }
+    else
+    {
+        $config = "Release"
+    }
+
+    $msbuild     = $env:MSBUILDPATH
+    $nfRoot      = $env:NF_ROOT
+    $nfSolution  = "$nfRoot\neonSDK.sln"
+    $nfBuild     = "$env:NF_BUILD"
+    $nfLib       = "$nfRoot\Lib"
+    $nfTools     = "$nfRoot\Tools"
+    $nfToolBin   = "$nfRoot\ToolBin"
+    $buildConfig = "-p:Configuration=$config"
+    $env:PATH   += ";$nfBuild"
+
+    $neonSdkVersion = $(& "$nfToolBin\neon-build" read-version "$nfLib\Neon.Common\Build.cs" NeonSdkVersion)
+    ThrowOnExitCode
+
+    #------------------------------------------------------------------------------
+    # SourceLink configuration:
+    #
+    # We're going to fail this when the current git branch is dirty 
+    # and [-allowDirty] wasn't passed.
+
+    $gitDirty = IsGitDirty
+
+    if ($gitDirty -and -not $allowDirty
+    {
+        throw "Cannot publish nugets because the git branch is dirty.  Use the -allowDirty option to override."
+    }
+
+    $env:NEON_PUBLIC_SOURCELINK = "true"
+
+    #------------------------------------------------------------------------------
+    # Perform the operation.
+
+    Push-Cwd $nfRoot | Out-Null
+
+    $verbosity = "minimal"
+
     # Build the solution.
 
     if (-not $nobuild)

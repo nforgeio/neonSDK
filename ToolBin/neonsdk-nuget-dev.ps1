@@ -28,7 +28,7 @@
 #
 #       -local          - Publishes to C:\nc-nuget-local
 #       -localversion   - Use the local version number (emergeny only)
-#       -publicSource   - Use GitHub sources for SourceLink even if local repo is dirty
+#       -allowDirty     - Use GitHub sources for SourceLink even if local repo is dirty
 #       -release        - Do a RELEASE build instead of DEBUG (the default)
 #       -restore        - Just restore the CSPROJ files after cancelling publish
 #
@@ -79,7 +79,7 @@ param
 (
     [switch]$local        = $false,     # publish to local file system
     [switch]$localVersion = $false,     # use a local version counter (emergency only)
-    [switch]$publicSource = $false,     # use GitHub sources for SourceLink even if local repo is dirty
+    [switch]$allowDirty   = $false,     # use GitHub sources for SourceLink even if local repo is dirty
     [switch]$release      = $false,     # RELEASE build instead of DEBUG (the default)
     [switch]$restore      = $false      # Just restore the CSPROJ files after cancelling publish
 )
@@ -328,26 +328,21 @@ try
         $neonkubeVersion = "10000.0.$reply-dev-$branch"
     }
 
+    #------------------------------------------------------------------------------
     # SourceLink configuration: We need to decide whether to set the environment variable 
     # [NEON_PUBLIC_SOURCELINK=true] to enable SourceLink references to our GitHub repos.
 
-    $publicSourceLink = $true
-    $gitDirty         = IsGitDirty
+    $gitDirty = IsGitDirty
 
-    if ($local -or $gitDirty)
+    if ($gitDirty -and -not $allowDirty
     {
-        $publicSourceLink = $false
+        throw "Cannot publish nugets because the git branch is dirty.  Use the -allowDirty option to override."
     }
 
-    if ($publicSource)
-    {
-        $publicSourceLink = $true
-    }
+    $env:NEON_PUBLIC_SOURCELINK = "true"
 
-    if ($publicSourceLink)
-    {
-        $env:NEON_PUBLIC_SOURCELINK = "true"
-    }
+    #------------------------------------------------------------------------------
+    # Restore packages.
 
     if (-not $restore)
     {

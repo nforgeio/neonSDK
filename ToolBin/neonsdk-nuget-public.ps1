@@ -23,11 +23,11 @@
 #
 # OPTIONS:
 #
-#       -publicSource   - Use GitHub sources for SourceLink even if local repo is dirty
+#       -allowDirty     - Use GitHub sources for SourceLink even if local repo is dirty
 
 param 
 (
-    [switch]$publicSource = $false      # use GitHub sources for SourceLink even if local repo is dirty
+    [switch]$allowDirty = $false     # use GitHub sources for SourceLink even if local repo is dirty
 )
 
 # Import the global solution include file.
@@ -138,16 +138,17 @@ try
     $nfToolBin      = "$nfRoot\ToolBin"
     $neonSdkVersion = $(& "$nfToolBin\neon-build" read-version "$nfLib/Neon.Common/Build.cs" NeonSdkVersion)
 
+    #--------------------------------------------------------------------------
     # SourceLink configuration:
 	#
 	# We're going to fail this when the current git branch is dirty 
-	# and [-publicSource] wasn't passed.
+	# and [-allowDirty] wasn't passed.
 
     $gitDirty = IsGitDirty
 
-    if ($gitDirty -and -not $publicSource)
+    if ($gitDirty -and -not $allowDirty
     {
-        throw "Cannot publish nugets because the git branch is dirty.  Use the -publicSource option to override."
+        throw "Cannot publish nugets because the git branch is dirty.  Use the -allowDirty option to override."
     }
 
     $env:NEON_PUBLIC_SOURCELINK = "true"
