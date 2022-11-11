@@ -199,12 +199,11 @@ try
 
     # NOTE: 
     #
-    # The build order below is important since later images
-    # may depend on earlier ones.
+    # The build order below is important since later images may depend on earlier ones.
 
     if ($base)
     {
-        Publish "$image_root\aspnet"
+        # It's lonely here.
     }
 
     if ($other)
