@@ -28,7 +28,7 @@
 #
 #       -local          - Publishes to C:\nc-nuget-local
 #       -localversion   - Use the local version number (emergeny only)
-#       -allowDirty     - Use GitHub sources for SourceLink even if local repo is dirty
+#       -drty           - Use GitHub sources for SourceLink even if local repo is dirty
 #       -release        - Do a RELEASE build instead of DEBUG (the default)
 #       -restore        - Just restore the CSPROJ files after cancelling publish
 #
@@ -79,7 +79,7 @@ param
 (
     [switch]$local        = $false,     # publish to local file system
     [switch]$localVersion = $false,     # use a local version counter (emergency only)
-    [switch]$allowDirty   = $false,     # use GitHub sources for SourceLink even if local repo is dirty
+    [switch]$dirty        = $false,     # use GitHub sources for SourceLink even if local repo is dirty
     [switch]$release      = $false,     # RELEASE build instead of DEBUG (the default)
     [switch]$restore      = $false      # Just restore the CSPROJ files after cancelling publish
 )
@@ -334,9 +334,9 @@ try
 
     $gitDirty = IsGitDirty
 
-    if ($gitDirty -and -not $allowDirty)
+    if ($gitDirty -and -not $dirty)
     {
-        throw "Cannot publish nugets because the git branch is dirty.  Use the -allowDirty option to override."
+        throw "Cannot publish nugets because the git branch is dirty.  Use the -dirty option to override."
     }
 
     $env:NEON_PUBLIC_SOURCELINK = "true"

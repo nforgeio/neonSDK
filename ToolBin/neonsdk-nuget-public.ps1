@@ -23,11 +23,11 @@
 #
 # OPTIONS:
 #
-#       -allowDirty     - Use GitHub sources for SourceLink even if local repo is dirty
+#       -dirty  - Use GitHub sources for SourceLink even if local repo is dirty
 
 param 
 (
-    [switch]$allowDirty = $false     # use GitHub sources for SourceLink even if local repo is dirty
+    [switch]$dirty = $false     # use GitHub sources for SourceLink even if local repo is dirty
 )
 
 # Import the global solution include file.
@@ -142,13 +142,13 @@ try
     # SourceLink configuration:
 	#
 	# We're going to fail this when the current git branch is dirty 
-	# and [-allowDirty] wasn't passed.
+	# and [-dirty] wasn't passed.
 
     $gitDirty = IsGitDirty
 
-    if ($gitDirty -and -not $allowDirty)
+    if ($gitDirty -and -not $dirty)
     {
-        throw "Cannot publish nugets because the git branch is dirty.  Use the -allowDirty option to override."
+        throw "Cannot publish nugets because the git branch is dirty.  Use the [-dirty] option to override."
     }
 
     $env:NEON_PUBLIC_SOURCELINK = "true"
