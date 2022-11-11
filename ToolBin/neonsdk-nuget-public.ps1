@@ -146,7 +146,7 @@ try
 
     $gitDirty = IsGitDirty
 
-    if ($gitDirty -and -not $allowDirty
+    if ($gitDirty -and -not $allowDirty)
     {
         throw "Cannot publish nugets because the git branch is dirty.  Use the -allowDirty option to override."
     }
