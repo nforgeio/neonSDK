@@ -72,14 +72,14 @@
 
 	<Target Name="ModelGen" BeforeTargets="BeforeBuild">
 
-		<Message Importance="high" Text="pubcore --no-cmd &quot;$(NF_ROOT)\Tools\neon-modelgen\neon-modelgen.csproj&quot; net7.0 $(configuration) &quot;$(NF_ROOT)\Lib\Neon.ModelGenerator\linux-x64&quot; linux-x64" />
-		<Exec Command="pubcore --no-cmd &quot;$(NF_ROOT)\Tools\neon-modelgen\neon-modelgen.csproj&quot; net7.0 $(configuration) &quot;$(NF_ROOT)\Lib\Neon.ModelGenerator\linux-x64&quot; linux-x64" />
+		<Message Importance="high" Text="pubcore --no-cmd &quot;$(NF_ROOT)\Tools\neon-modelgen\neon-modelgen.csproj&quot; $(configuration) &quot;$(NF_ROOT)\Lib\Neon.ModelGenerator\linux-x64&quot; linux-x64" />
+		<Exec Command="pubcore --no-cmd &quot;$(NF_ROOT)\Tools\neon-modelgen\neon-modelgen.csproj&quot; $(configuration) &quot;$(NF_ROOT)\Lib\Neon.ModelGenerator\linux-x64&quot; linux-x64" />
 
-		<Message Importance="high" Text="pubcore --no-cmd &quot;$(NF_ROOT)\Tools\neon-modelgen\neon-modelgen.csproj&quot; net7.0 $(configuration) &quot;$(NF_ROOT)\Lib\Neon.ModelGenerator\osx-x64&quot; osx-x64" />
-		<Exec Command="pubcore --no-cmd &quot;$(NF_ROOT)\Tools\neon-modelgen\neon-modelgen.csproj&quot; net7.0 $(configuration) &quot;$(NF_ROOT)\Lib\Neon.ModelGenerator\osx-x64&quot; osx-x64" />
+		<Message Importance="high" Text="pubcore --no-cmd &quot;$(NF_ROOT)\Tools\neon-modelgen\neon-modelgen.csproj&quot; $(configuration) &quot;$(NF_ROOT)\Lib\Neon.ModelGenerator\osx-x64&quot; osx-x64" />
+		<Exec Command="pubcore --no-cmd &quot;$(NF_ROOT)\Tools\neon-modelgen\neon-modelgen.csproj&quot; $(configuration) &quot;$(NF_ROOT)\Lib\Neon.ModelGenerator\osx-x64&quot; osx-x64" />
 
-		<Message Importance="high" Text="pubcore --no-cmd &quot;$(NF_ROOT)\Tools\neon-modelgen\neon-modelgen.csproj&quot; net7.0 $(configuration) &quot;$(NF_ROOT)\Lib\Neon.ModelGenerator\win-x64&quot; win-x64" />
-		<Exec Command="pubcore --no-cmd &quot;$(NF_ROOT)\Tools\neon-modelgen\neon-modelgen.csproj&quot; net7.0 $(configuration) &quot;$(NF_ROOT)\Lib\Neon.ModelGenerator\win-x64&quot; win-x64" />
+		<Message Importance="high" Text="pubcore --no-cmd &quot;$(NF_ROOT)\Tools\neon-modelgen\neon-modelgen.csproj&quot; $(configuration) &quot;$(NF_ROOT)\Lib\Neon.ModelGenerator\win-x64&quot; win-x64" />
+		<Exec Command="pubcore --no-cmd &quot;$(NF_ROOT)\Tools\neon-modelgen\neon-modelgen.csproj&quot; $(configuration) &quot;$(NF_ROOT)\Lib\Neon.ModelGenerator\win-x64&quot; win-x64" />
 	</Target>
 
 </Project>

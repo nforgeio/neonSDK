@@ -40,7 +40,7 @@ namespace pubcore
         /// <summary>
         /// Tool version number.
         /// </summary>
-        public const string Version = "2.5";
+        public const string Version = "3.0";
 
         /// <summary>
         /// Program entry point.
@@ -51,7 +51,7 @@ namespace pubcore
             try
             {
                 Console.WriteLine();
-                Console.WriteLine($".NET Core Publishing Utility: PUBCORE v{Version}");
+                Console.WriteLine($"NEON PUBCORE v{Version}");
 
                 var sbCommandLine = new StringBuilder("pubcore");
 
@@ -83,7 +83,7 @@ namespace pubcore
 
                 // Verify the number of non-option arguments.
 
-                if (args.Length != 5)
+                if (args.Length != 3 && args.Length != 4)
                 {
                     Console.WriteLine(
 $@"
@@ -94,10 +94,10 @@ usage: pubcore [OPTIONS] PROJECT-PATH TARGET-FRAMEWORK CONFIG OUTPUT-PATH RUNTIM
 ARGUMENTS:
 
     PROJECT-PATH        - Path to the [.csproj] file
-    TARGET-FRAMEWORK    - Build target framework (like:g. net70)
     CONFIG              - Build configuration (like: Debug or Release)
     OUTPUT-DIR          - Path to the output directory
-    RUNTIME             - Target dotnet runtime, like: win10-x64,
+    [RUNTIME]           - Optionally specifies the target dotnet runtime, like: win10-x64.
+                          This is obtained from the [.csproj] file when not specified.
 
 OPTIONS:
 
@@ -112,16 +112,15 @@ This utility is designed to be called from within a .NET Core project's
 POST-BUILD event using Visual Studio post-build event macros.  Here's
 an example that publishes a standalone [win10-x64] app to: %NF_BUILD%\neon
 
-    pubcore ""$(ProjectPath)"" ""$(TargetName)"" ""$(ConfigurationName)"" ""%NF_BUILD%\neon"" win10-x64
+    pubcore ""$(ProjectPath)"" ""$(ConfigurationName)"" ""%NF_BUILD%\neon""
 
-Note that you MUST ADD the following to the <PropertyGroup>...</PropertyGroup>
-section on your project CSPROJ file for this to work:
+Note that you MUST ADD something like the following to a <PropertyGroup> section in
+your project CSPROJ file for this to work:
 
-    <RuntimeIdentifier>win10-x64</RuntimeIdentifier>
-
-or:
-
-    <RuntimeIdentifiers>win10-x64;...</RuntimeIdentifiers>
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+        <RuntimeIdentifier>win10-x64</RuntimeIdentifier>
+    </PropertyGroup>
 
 This command publishes the executable files to a new PUBLISH-DIR/TARGET-FRAMEWORK directory
 then creates a CMD.EXE batch file named PUBLISH-DIR/TARGET-FRAMEWORK.cmd that launches the
@@ -177,36 +176,10 @@ scripts or MSBUILD/CSPROJ files to quickly disable publication.
                     Environment.Exit(1);
                 }
 
-                var targetFramework = args[1];
-                var config          = args[2];
-                var outputDir       = Path.Combine(Path.GetDirectoryName(projectPath), args[3]);
-                var programName     = Path.GetFileName(outputDir);  // $hack(jefflill): assuming the program name is the same as the last segment in the output directory.
-                var runtime         = args.ElementAtOrDefault(4);
-
-                // Ensure that the runtime identifier is present in the project file.
-
-                // $hack(jefflill): 
-                //
-                // I'm hacking this test right now using string matching.  Ultimately,
-                // this should be accomplished by actually parsing the project XML.
-
-                var projectText = File.ReadAllText(projectPath);
-
-                if (!projectText.Contains(runtime))
-                {
-                    Console.Error.WriteLine();
-                    Console.Error.WriteLine("ERROR: Make sure the runtime identifier below is present in your");
-                    Console.Error.WriteLine("       project's <PropertyGroup/> section:");
-                    Console.Error.WriteLine();
-                    Console.Error.WriteLine($"    <PropertyGroup>");
-                    Console.Error.WriteLine($"        <RuntimeIdentifier>{runtime}</RuntimeIdentifier>");
-                    Console.Error.WriteLine($"    </PropertyGroup>");
-                    Console.Error.WriteLine();
-                    Console.Error.WriteLine($"PROJECT: {Path.GetFullPath(projectPath)}");
-                    Console.Error.WriteLine();
-
-                    Environment.Exit(1);
-                }
+                var config      = args[1];
+                var outputDir   = Path.Combine(Path.GetDirectoryName(projectPath), args[2]);
+                var programName = Path.GetFileName(outputDir);  // $hack(jefflill): assuming the program name is the same as the last segment in the output directory.
+                var runtime     = args.ElementAtOrDefault(3);
 
                 // Ensure that the output folder exists.
 
@@ -225,8 +198,14 @@ scripts or MSBUILD/CSPROJ files to quickly disable publication.
                 // initial 5 second delay to hopefully avoid the situation entirely
                 // and then try the operation up to five times.
 
-                var tryCount = 5;
-                var delay    = TimeSpan.FromSeconds(5);
+                var tryCount      = 5;
+                var delay         = TimeSpan.FromSeconds(5);
+                var runtimeOption = string.Empty;
+
+                if (!string.IsNullOrEmpty(runtime))
+                {
+                    runtimeOption = $"-r {runtime}";
+                }
 
                 for (int i = 0; i < tryCount; i++)
                 {
@@ -234,7 +213,7 @@ scripts or MSBUILD/CSPROJ files to quickly disable publication.
                     var sbOutput = new StringBuilder();
 
                     process.StartInfo.FileName               = "dotnet.exe";
-                    process.StartInfo.Arguments              = $"publish \"{projectPath}\" -c \"{config}\" -r {runtime} -o \"{outputDir}\" --self-contained";
+                    process.StartInfo.Arguments              = $"publish \"{projectPath}\" {runtimeOption} -c \"{config}\" -o \"{outputDir}\"";
                     process.StartInfo.CreateNoWindow         = true;
                     process.StartInfo.UseShellExecute        = false;
                     process.StartInfo.RedirectStandardError  = true;
