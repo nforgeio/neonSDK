@@ -36,6 +36,8 @@ using Microsoft.CodeAnalysis.Text;
 using Newtonsoft.Json;
 
 using Neon.Common;
+using System.Reflection.Metadata;
+using System.Data.Common;
 
 // $todo(jefflill):
 //
@@ -2588,9 +2590,9 @@ namespace Neon.ModelGen
         }
 
         /// <summary>
-        /// Generates a service's method code.
+        /// Generates code that calls a service method.
         /// </summary>
-        /// <param name="serviceMethod">The service method.</param>
+        /// <param name="serviceMethod">The target service method.</param>
         /// <param name="indent">Optionally specifies additional source code indentation.</param>
         private void GenerateServiceMethod(ServiceMethod serviceMethod, string indent = "")
         {
@@ -2615,7 +2617,7 @@ namespace Neon.ModelGen
 
             if (bodyStreamAttribute != null)
             {
-                sbParameters.AppendWithSeparator($"Stream stream", argSeparator);
+                sbParameters.AppendWithSeparator($"[GeneratedParam(PassAs.Body, Name = \"bodyStream\")]Stream bodyStream", argSeparator);
             }
 
             foreach (var parameter in serviceMethod.Parameters)
@@ -2874,8 +2876,12 @@ namespace Neon.ModelGen
                 }
             }
 
+            var headersDeclared = false;
+
             if (headerParameters.Count > 0)
             {
+                headersDeclared = true;
+
                 if (sbArgGenerate.Length > 0)
                 {
                     sbArgGenerate.AppendLine();
@@ -2911,6 +2917,23 @@ namespace Neon.ModelGen
                 }
             }
 
+            if (bodyStreamAttribute != null &&  bodyStreamAttribute.IncludeContentSize)
+            {
+                // Generate code to obtain the size of the input stream and then
+                // to include that as the [Content-Size] header for the request.
+
+                if (!headersDeclared)
+                {
+                    headersDeclared = true;
+
+                    sbArgGenerate.AppendLine();
+                    sbArgGenerate.AppendLine($"{indent}            var _headers = new ArgDictionary();");
+                }
+
+                sbArgGenerate.AppendLine();
+                sbArgGenerate.AppendLine($"{indent}            _headers.Add(\"Content-Size\", bodyStream.Length);");
+            }
+
             sbArguments.AppendWithSeparator("_retryPolicy ?? this.retryPolicy", argSeparator);
             sbArguments.AppendWithSeparator(endpointUriLiteral, argSeparator);
 
@@ -2920,7 +2943,7 @@ namespace Neon.ModelGen
             }
             else if (bodyStreamAttribute != null)
             {
-                sbArguments.AppendWithSeparator($"document: new StreamDocument(stream) {{ ContentType = \"{ bodyStreamAttribute.ContentType }\", BufferSize = {bodyStreamAttribute.BufferSize} }}", argSeparator);
+                sbArguments.AppendWithSeparator($"document: new StreamDocument(bodyStream) {{ ContentType = \"{ bodyStreamAttribute.ContentType }\", BufferSize = {bodyStreamAttribute.BufferSize} }}", argSeparator);
             }
 
             if (queryParameters.Count > 0 || apiVersion != null)
@@ -2928,7 +2951,7 @@ namespace Neon.ModelGen
                 sbArguments.AppendWithSeparator("args: _args", argSeparator);
             }
 
-            if (headerParameters.Count > 0)
+            if (headerParameters.Count > 0 || (bodyStreamAttribute != null && bodyStreamAttribute.IncludeContentSize))
             {
                 sbArguments.AppendWithSeparator("headers: _headers", argSeparator);
             }
@@ -3071,7 +3094,7 @@ namespace Neon.ModelGen
 
             if (bodyStreamAttribute != null)
             {
-                writer.WriteLine($"{indent}            Covenant.Requires<ArgumentNullException>(stream != null, nameof(stream));");
+                writer.WriteLine($"{indent}            Covenant.Requires<ArgumentNullException>(bodyStream != null, nameof(bodyStream));");
             }
 
             if (sbArgGenerate.Length > 0)
@@ -3113,7 +3136,7 @@ namespace Neon.ModelGen
 
             if (bodyStreamAttribute != null)
             {
-                writer.WriteLine($"{indent}            Covenant.Requires<ArgumentNullException>(stream != null, nameof(stream));");
+                writer.WriteLine($"{indent}            Covenant.Requires<ArgumentNullException>(bodyStream != null, nameof(bodyStream));");
             }
 
             if (sbArgGenerate.Length > 0)

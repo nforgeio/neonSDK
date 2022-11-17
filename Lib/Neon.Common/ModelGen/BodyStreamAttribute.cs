@@ -90,6 +90,12 @@ namespace Neon.ModelGen
         }
 
         /// <summary>
+        /// Indicates that a <b>Content-Size</b> header will be included in the request,
+        /// passing the size of the input stream.  This defaults to <c>false</c>.
+        /// </summary>
+        public bool IncludeContentSize { get; set; } = false;
+
+        /// <summary>
         /// Optionally specifies the size of the buffer in bytes that will be used
         /// by the generated API method for uploading the source stream to the server.
         /// This defaults to <b>8 KiB</b>.
