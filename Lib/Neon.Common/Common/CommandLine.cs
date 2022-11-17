@@ -21,7 +21,10 @@ using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+
+using Neon.IO;
 
 // $todo(jefflill):
 //
@@ -1002,6 +1005,46 @@ namespace Neon.Common
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// Preprocesses the command line by using <see cref="PreprocessReader"/> to replace any 
+        /// environment variable, profile, or secret references like <b>&lt;password:MY-PASSWORD$gt;</b>
+        /// in the command line arguments.
+        /// </summary>
+        /// <param name="variableRegex">
+        /// Optionally specifies the regular expression that will be used to locate and process
+        /// any variable references.  This defaults to <see cref="PreprocessReader.AngleVariableExpansionRegex"/>
+        /// but may be set to any expressions supported by <see cref="PreprocessReader"/>.
+        /// </param>
+        /// <returns>A new <see cref="CommandLine"/> including any changes.</returns>
+        public CommandLine Preprocess(Regex variableRegex = null)
+        {
+            variableRegex ??= PreprocessReader.AngleVariableExpansionRegex;
+
+            // We're simply going to serialize the current command line's arguments
+            // and options to a string (one item to a line) and then use [PreprocessReader]
+            // to read the processed items and then parse a new command line from the
+            // changes.
+
+            var sbUnprocessed = new StringBuilder();
+
+            foreach (var item in Items)
+            {
+                sbUnprocessed.AppendLine(item);
+            }
+
+            var processedItems = new List<string>();
+
+            using (var reader = new PreprocessReader(sbUnprocessed.ToString()) { VariableExpansionRegex = variableRegex })
+            {
+                foreach (var item in reader.Lines())
+                {
+                    processedItems.Add(item);
+                }
+            }
+
+            return new CommandLine(processedItems.ToArray());
         }
 
         /// <summary>

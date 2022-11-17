@@ -324,5 +324,40 @@ namespace TestCommon
             Assert.Equal(split.Left.Items, new string[] { "left", "--left0", "--left1=1", "--left2", "2" }, new CollectionComparer<string>());
             Assert.Equal(split.Right.Items, new string[] { "right", "--right0", "--right1=1", "--right2", "2" }, new CollectionComparer<string>());
         }
+
+        [Fact]
+        public void Preprocess()
+        {
+            // Verify that references like $<env:VARIABLE> are converted correctly when 
+            // preprocessing a command line (using [PreprocessReader]).
+
+            try
+            {
+                var commandLine = new CommandLine(new string[] { "$<env:TEST_MYVAR1>", "$<env:TEST_MYVAR2>", "--test1", "--test2=$<env:TEST_MYVAR2>" });
+
+                Environment.SetEnvironmentVariable("TEST_MYVAR1", "value1");
+                Environment.SetEnvironmentVariable("TEST_MYVAR2", "value2");
+
+                var processed = commandLine.Preprocess();
+
+                Assert.Equal(4, processed.Items.Count());
+                Assert.Equal(2, processed.Arguments.Count());
+                Assert.Equal(2, processed.Options.Count());
+
+                Assert.Equal("value1", processed.Arguments[0]);
+                Assert.Equal("value2", processed.Arguments[1]);
+
+                Assert.True(processed.HasOption("--test1"));
+                Assert.Equal("value2", processed.GetOption("--test2"));
+
+                Environment.SetEnvironmentVariable("TEST_MYVAR1", "value1");
+                Environment.SetEnvironmentVariable("TEST_MYVAR2", "value2");
+            }
+            finally
+            {
+                Environment.SetEnvironmentVariable("TEST_MYVAR1", null);
+                Environment.SetEnvironmentVariable("TEST_MYVAR2", null);
+            }
+        }
     }
 }
