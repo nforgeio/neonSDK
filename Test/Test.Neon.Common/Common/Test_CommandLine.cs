@@ -333,30 +333,34 @@ namespace TestCommon
 
             try
             {
-                var commandLine = new CommandLine(new string[] { "$<env:TEST_MYVAR1>", "$<env:TEST_MYVAR2>", "--test1", "--test2=$<env:TEST_MYVAR2>" });
+                Environment.SetEnvironmentVariable("TEST_MYENVVAR1", "env.value1");
+                Environment.SetEnvironmentVariable("TEST_MYENVVAR2", "env.value2");
 
-                Environment.SetEnvironmentVariable("TEST_MYVAR1", "value1");
-                Environment.SetEnvironmentVariable("TEST_MYVAR2", "value2");
+                var variables = new Dictionary<string, string>()
+                {
+                    { "TEST_MYVAR1", "value1" },
+                    { "TEST_MYVAR2", "value2" }
+                };
 
-                var processed = commandLine.Preprocess();
+                var commandLine = new CommandLine(new string[] { "$<env:TEST_MYENVVAR1>", "$<env:TEST_MYENVVAR2>", "--test1", "--test2=$<env:TEST_MYENVVAR2>", "$<TEST_MYVAR1>", "$<TEST_MYVAR2>" });
+                var processed   = commandLine.Preprocess(variables);
 
-                Assert.Equal(4, processed.Items.Count());
-                Assert.Equal(2, processed.Arguments.Count());
+                Assert.Equal(6, processed.Items.Count());
+                Assert.Equal(4, processed.Arguments.Count());
                 Assert.Equal(2, processed.Options.Count());
 
-                Assert.Equal("value1", processed.Arguments[0]);
-                Assert.Equal("value2", processed.Arguments[1]);
+                Assert.Equal("env.value1", processed.Arguments[0]);
+                Assert.Equal("env.value2", processed.Arguments[1]);
+                Assert.Equal("value1", processed.Arguments[2]);
+                Assert.Equal("value2", processed.Arguments[3]);
 
                 Assert.True(processed.HasOption("--test1"));
-                Assert.Equal("value2", processed.GetOption("--test2"));
-
-                Environment.SetEnvironmentVariable("TEST_MYVAR1", "value1");
-                Environment.SetEnvironmentVariable("TEST_MYVAR2", "value2");
+                Assert.Equal("env.value2", processed.GetOption("--test2"));
             }
             finally
             {
-                Environment.SetEnvironmentVariable("TEST_MYVAR1", null);
-                Environment.SetEnvironmentVariable("TEST_MYVAR2", null);
+                Environment.SetEnvironmentVariable("TEST_MYENVVAR1", null);
+                Environment.SetEnvironmentVariable("TEST_MYENVVAR2", null);
             }
         }
     }

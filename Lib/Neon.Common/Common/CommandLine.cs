@@ -1012,13 +1012,14 @@ namespace Neon.Common
         /// environment variable, profile, or secret references like <b>&lt;password:MY-PASSWORD$gt;</b>
         /// in the command line arguments.
         /// </summary>
+        /// <param name="variables">Optionally specifies variables to be incuded in the preprocessing.</param>
         /// <param name="variableRegex">
         /// Optionally specifies the regular expression that will be used to locate and process
         /// any variable references.  This defaults to <see cref="PreprocessReader.AngleVariableExpansionRegex"/>
         /// but may be set to any expressions supported by <see cref="PreprocessReader"/>.
         /// </param>
         /// <returns>A new <see cref="CommandLine"/> including any changes.</returns>
-        public CommandLine Preprocess(Regex variableRegex = null)
+        public CommandLine Preprocess(Dictionary<string, string> variables = null, Regex variableRegex = null)
         {
             variableRegex ??= PreprocessReader.AngleVariableExpansionRegex;
 
@@ -1036,7 +1037,7 @@ namespace Neon.Common
 
             var processedItems = new List<string>();
 
-            using (var reader = new PreprocessReader(sbUnprocessed.ToString()) { VariableExpansionRegex = variableRegex })
+            using (var reader = new PreprocessReader(sbUnprocessed.ToString(), variables: variables) { VariableExpansionRegex = variableRegex })
             {
                 foreach (var item in reader.Lines())
                 {
