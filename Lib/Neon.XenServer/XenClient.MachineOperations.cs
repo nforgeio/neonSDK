@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:	    XenClient.Machine.cs
+// FILE:	    XenClient.MachineOperations.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
 //
@@ -194,7 +194,7 @@ namespace Neon.XenServer
                 //       will probably always be the case since we only add disks after the VMs
                 //       are created.
 
-                var primarySR       = client.Repository.Find(name: primaryStorageRepository, mustExist: true);
+                var primarySR       = client.Storage.Find(name: primaryStorageRepository, mustExist: true);
                 var vdiListResponse = client.InvokeItems("vdi-list");
                 var templateVdiName = $"{templateName} 0";
                 var templateSrUuid  = (string)null;
@@ -342,7 +342,7 @@ namespace Neon.XenServer
                 if (extraDisks != null && extraDisks.Count() > 0)
                 {
                     var diskIndex = 1; // The boot disk has index=0 so we'll skip that.
-                    var extraSR   = client.Repository.Find(name: extraStorageRespository, mustExist: true);
+                    var extraSR   = client.Storage.Find(name: extraStorageRespository, mustExist: true);
 
                     foreach (var disk in extraDisks)
                     {
@@ -514,7 +514,7 @@ namespace Neon.XenServer
 
                 var vmDisks   = client.SafeInvokeItems("vm-disk-list", $"vm={virtualMachine.Uuid}").Items;
                 var diskIndex = vmDisks.Count(disk => disk.TryGetValue("userdevice", out var device));  // Count only VDB (virtual block devices)
-                var extraSR   = client.Repository.Find(name: disk.StorageRepository, mustExist: true);
+                var extraSR   = client.Storage.Find(name: disk.StorageRepository, mustExist: true);
 
                 // Create the disk.
 

@@ -99,7 +99,7 @@ namespace Neon.XenServer
     /// </para>
     /// <para>
     /// XenServer template operations are implemented by the <see cref="Template"/>
-    /// property, storage repository operations by <see cref="Repository"/> and
+    /// property, storage repository operations by <see cref="Storage"/> and
     /// virtual machine operations by <see cref="Machine"/>.
     /// </para>
     /// </remarks>
@@ -144,8 +144,6 @@ namespace Neon.XenServer
         private SftpClient      sftpClient = null;
         private string          username;
         private string          password;
-        private string          xePath;
-        private string          xeFolder;
         private TextWriter      logWriter;
 
         // Implementation Note:
@@ -164,24 +162,13 @@ namespace Neon.XenServer
         /// <param name="password">The password.</param>
         /// <param name="name">Optionally specifies the XenServer name.</param>
         /// <param name="logFolder">
-        /// The folder where log files are to be written, otherwise or <c>null</c> or 
-        /// empty if logging is disabled.
+        /// The folder where log files are to be written, otherwise <c>null</c> or 
+        /// empty to disable logging.
         /// </param>
         public XenClient(string addressOrFQDN, string username, string password, string name = null, string logFolder = null)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(username), nameof(username));
             Covenant.Requires<ArgumentNullException>(password != null, nameof(password));
-
-            string platformSubfolder;
-
-            if (NeonHelper.IsWindows)
-            {
-                platformSubfolder = "win";
-            }
-            else
-            {
-                throw new NotImplementedException($"[{nameof(XenClient)}] is currently only supported on Windows: https://github.com/nforgeio/neonKUBE/issues/113");
-            }
 
             if (!NetHelper.TryParseIPv4Address(addressOrFQDN, out var address))
             {
@@ -215,8 +202,6 @@ namespace Neon.XenServer
             this.username = username;
             this.password = password;
             this.Name     = name ?? $"XENSERVER-{addressOrFQDN}";
-            this.xePath   = Path.Combine(NeonHelper.GetBaseDirectory(), "assets-Neon.XenServer", platformSubfolder, "xe.exe");
-            this.xeFolder = Path.GetDirectoryName(xePath);
 
             // Connect via SFTP.
 
@@ -225,7 +210,7 @@ namespace Neon.XenServer
 
             // Initialize the operation classes.
 
-            this.Repository = new RepositoryOperations(this);
+            this.Storage = new StorageOperations(this);
             this.Template   = new TemplateOperations(this);
             this.Machine    = new MachineOperations(this);
         }
@@ -263,7 +248,7 @@ namespace Neon.XenServer
         /// <summary>
         /// Implements the XenServer storage repository operations.
         /// </summary>
-        public RepositoryOperations Repository { get; private set; }
+        public StorageOperations Storage { get; private set; }
 
         /// <summary>
         /// Implements the XenServer virtual machine template operations.
@@ -466,7 +451,30 @@ namespace Neon.XenServer
                 }
             }
 
-            return LogXeCommand(command, args, NeonHelper.ExecuteCapture(xePath, NormalizeArgs(command, args), workingDirectory: xeFolder));
+            // $note(jefflill):
+            //
+            // In the olden days, we used to include the [xe.exe] in the library client as content
+            // and then use that to execute commands against XenServer host machines.  This was 
+            // problematic because Citrix only released Windows binaries (although we could have
+            // built our own binaries for OS/X and Linux).  The bigger problem was that the nuget
+            // includes the [xe.exe] content for projects that directly reference this package but
+            // not for projects that reference this project indirectly via one or more intermediate
+            // packages.
+            //
+            // After poking around the XenServer GitHub repo, I realized that it would be pretty
+            // easy to adapt their code to submit commands to these hosts directly via HTTP.
+            //
+            //      https://github.com/xenserver/xenadmin/tree/master/xe
+            //
+            // So we're going to do that and decouple from [xe.exe].
+
+            args = NormalizeArgs(command, args).ToArray();
+
+            var config = new Config();
+
+            // Execute the command on the XenServer host.
+
+            return Xe.Invoke(args);
         }
 
         /// <summary>

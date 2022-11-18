@@ -1,10 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<OutputType>Library</OutputType>
 		<Version>3.0.0</Version>
-		<Description>XenServer/XCP-ng client for .NET</Description>
+		<Description>XenServer/XCP-ng client library for .NET</Description>
 		<PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
 		<PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.XenServer/README.md</PackageProjectUrl>
 		<RepositoryType>git</RepositoryType>
@@ -60,7 +60,6 @@
 
 	<ItemGroup>
 		<None Include="..\nuget-icon.png" Pack="true" PackagePath="" />
-		<None Include="..\..\LICENSE" Pack="true" PackagePath="" />
 	</ItemGroup>
 
 	<ItemGroup>

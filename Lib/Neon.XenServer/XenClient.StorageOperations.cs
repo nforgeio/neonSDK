@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:	    XenClient.Repository.cs
+// FILE:	    XenClient.StorageOperations.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
 //
@@ -37,7 +37,7 @@ namespace Neon.XenServer
         /// <summary>
         /// Implements the <see cref="XenClient"/> virtual machine template operations.
         /// </summary>
-        public class RepositoryOperations
+        public class StorageOperations
         {
             private XenClient client;
 
@@ -45,7 +45,7 @@ namespace Neon.XenServer
             /// Constructor.
             /// </summary>
             /// <param name="client">The XenServer client instance.</param>
-            internal RepositoryOperations(XenClient client)
+            internal StorageOperations(XenClient client)
             {
                 this.client = client;
             }

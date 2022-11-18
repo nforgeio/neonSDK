@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:	    XenClient.Template.cs
+// FILE:	    XenClient.TemplateOperations.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
 //
@@ -118,7 +118,7 @@ namespace Neon.XenServer
                 Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(path), nameof(path));
                 Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(repositoryNameOrUuid), nameof(repositoryNameOrUuid));
 
-                var sr = client.Repository.GetTargetStorageRepository(repositoryNameOrUuid);
+                var sr = client.Storage.GetTargetStorageRepository(repositoryNameOrUuid);
 
                 var response = client.SafeInvoke("vm-import", $"filename={path}", $"sr-uuid={sr.Uuid}");
                 var uuid     = response.OutputText.Trim();
