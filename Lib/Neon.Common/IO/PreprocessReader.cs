@@ -240,18 +240,23 @@ namespace Neon.IO
     /// </list>
     /// <para>
     /// Secrets and profile values can be referenced via <b>&lt;TYPE:NAME[:SOURCE]&gt;</b>
-    /// where <b>TYPE</b> is one of <b>password</b>, <b>secret</b> (value), or <b>profile</b> and <b>NAME</b>
+    /// where <b>TYPE</b> is one of <b>env</b>, <b>secret</b> (value), or <b>profile</b> and <b>NAME</b>
     /// identifies the secret or profile value and <b>source</b> optionally specifies the secret source
     /// (this is ignored for profile values).
     /// </para>
+    /// <para>
+    /// By default, a secret reference is replaced by the <b>password</b> property within the 
+    /// named secret.  Use can use the square bracket syntax to select a different secret property.
+    /// </para>
+    /// <para>
+    /// <b>Examples:</b>
+    /// </para>
     /// <code>
-    /// $&lt;password:my-password:my-vault&gt;    # password from specific source
-    /// $&lt;password:my-password&gt;             # password from default source
-    /// $&lt;secret:my-secret;my-vault&gt;        # secret from specific source
-    /// $&lt;secret:my-secret&gt;                 # secret from default source
-    /// $&lt;secret:my-secret[username]&gt;       # retrieve [username] from secret
-    /// $&lt;secret:my-secret[password]&gt;       # retrieve [password] from secret
-    /// $&lt;profile:my-profile&gt;               # profile value
+    /// $&lt;secret:my-secret;my-vault&gt;      # secret from specific source
+    /// $&lt;secret:my-secret&gt;               # secret password from default source
+    /// $&lt;secret:my-secret[username]&gt;     # retrieve [username] from secret
+    /// $&lt;secret:my-secret[password]&gt;     # retrieve [password] from secret
+    /// $&lt;profile:my-profile&gt;             # profile value
     /// </code>
     /// <para>
     /// This class will throw <see cref="ProfileException"/> when it encounters a secret/profile
@@ -299,8 +304,8 @@ namespace Neon.IO
         /// <para>
         /// A variable expansion <see cref="Regex"/> that matches normal variables like <b>$&lt;NAME&gt;</b>, environment
         /// variables like <b>$&lt;env:NAME&gt;</b>, profile value references like <b>$&lt;profile:NAME&gt;</b> and
-        /// secret references like <b>$&lt;secret:NAME&gt;</b>, <b>$&lt;secret:NAME:VAULT&gt;</b>, <b>$&lt;secret:NAME[PROPERTY]&gt;</b>
-        /// or <b>$&lt;secret:NAME[PROPERTY]:VAULT&gt;</b>
+        /// secret references like <b>$&lt;secret:NAME&gt;</b>, <b>$&lt;secret:NAME:SOURCE&gt;</b>, <b>$&lt;secret:NAME[PROPERTY]&gt;</b>
+        /// or <b>$&lt;secret:NAME[PROPERTY]:SOURCE&gt;</b>
         /// </para>
         /// <para>
         /// You can set the <see cref="VariableExpansionRegex"/> property to this value to change the
@@ -313,8 +318,8 @@ namespace Neon.IO
         /// <para>
         /// A variable expansion <see cref="Regex"/> that matches normal variables like <b>${NAME}</b>, environment
         /// variables like <b>${env:NAME}</b>, profile value references like <b>${profile:NAME}</b> and
-        /// secret references like <b>${secret:NAME}</b>, <b>${secret:NAME:VAULT}</b>, <b>${secret:NAME[PROPERTY]}</b>
-        /// or <b>${secret:NAME[PROPERTY]:VAULT}</b>
+        /// secret references like <b>${secret:NAME}</b>, <b>${secret:NAME:SOURCE}</b>, <b>${secret:NAME[PROPERTY]}</b>
+        /// or <b>${secret:NAME[PROPERTY]:SOURCE}</b>
         /// </para>
         /// <para>
         /// You can set the <see cref="VariableExpansionRegex"/> property to this value to change the
@@ -327,8 +332,8 @@ namespace Neon.IO
         /// <para>
         /// A variable expansion <see cref="Regex"/> that matches normal variables like <b>$(NAME)</b>, environment
         /// variables like <b>$(env:NAME)</b>, profile value references like <b>$(profile:NAME)</b> and
-        /// secret references like <b>$(secret:NAME)</b>, <b>$(secret:NAME:VAULT)</b>, <b>$(secret:NAME[PROPERTY])</b>
-        /// or <b>$(secret:NAME[PROPERTY]:VAULT)</b>
+        /// secret references like <b>$(secret:NAME)</b>, <b>$(secret:NAME:SOURCE)</b>, <b>$(secret:NAME[PROPERTY])</b>
+        /// or <b>$(secret:NAME[PROPERTY]:SOURCE)</b>
         /// </para>
         /// <para>
         /// You can set the <see cref="VariableExpansionRegex"/> property to this value to change the
@@ -340,7 +345,7 @@ namespace Neon.IO
         /// <summary>
         /// The default variable expansion <see cref="Regex"/> that matches normal variables like <b>$&lt;test&gt;</b>, environment
         /// variables like <b>&lt;env:test&gt;</b>, profile references like <b>&lt;profile:my-profile&gt;</b>, and secret
-        /// references like <b>&lt;secret:my-secret:my-vault&gt;</b>.  You can set the <see cref="VariableExpansionRegex"/>
+        /// references like <b>&lt;secret:NAME:SOURCE&gt;</b>.  You can set the <see cref="VariableExpansionRegex"/>
         /// property to this value to change the <see cref="PreprocessReader"/> behavior.
         /// </summary>
         public static Regex DefaultVariableExpansionRegex { get; private set; } = AngleVariableExpansionRegex;
