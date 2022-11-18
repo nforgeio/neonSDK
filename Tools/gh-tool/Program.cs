@@ -29,6 +29,8 @@ using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.DependencyInjection;
+
 using Neon.Common;
 using Neon.Deployment;
 
@@ -72,6 +74,15 @@ COMMANDS:
             try
             {
                 ICommand    command;
+
+                // $hack(jefflill):
+                //
+                // We hardcoding our own profile client for the time being.  Eventually,
+                // we'll need to support custom or retail profile clients somehow.
+                //
+                // This is required by: CommandLine.Preprocess()
+
+                NeonHelper.ServiceContainer.AddSingleton<IProfileClient>(new ProfileClient());
 
                 CommandLine = new CommandLine(args).Preprocess();
 

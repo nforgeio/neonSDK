@@ -24,6 +24,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
+using Neon.Deployment;
 using Neon.IO;
 
 // $todo(jefflill):
@@ -1008,9 +1009,15 @@ namespace Neon.Common
         }
 
         /// <summary>
+        /// <para>
         /// Preprocesses the command line by using <see cref="PreprocessReader"/> to replace any 
         /// environment variable, profile, or secret references like <b>&lt;password:MY-PASSWORD$gt;</b>
         /// in the command line arguments.
+        /// </para>
+        /// <note>
+        /// <b>IMPORTANT:</b> You must register an <see cref="IProfileClient"/> implementation with
+        /// <see cref="NeonHelper.ServiceContainer"/> for this to work.
+        /// </note>
         /// </summary>
         /// <param name="variables">Optionally specifies variables to be incuded in the preprocessing.</param>
         /// <param name="variableRegex">

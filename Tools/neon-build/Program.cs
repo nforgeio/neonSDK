@@ -22,7 +22,10 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
+using Microsoft.Extensions.DependencyInjection;
+
 using Neon.Common;
+using Neon.Deployment;
 
 namespace NeonBuild
 {
@@ -302,6 +305,15 @@ ARGUMENTS:
         {
             string      repoRoot;
             string      buildFolder;
+
+            // $hack(jefflill):
+            //
+            // We hardcoding our own profile client for the time being.  Eventually,
+            // we'll need to support custom or retail profile clients somehow.
+            //
+            // This is required by: CommandLine.Preprocess()
+
+            NeonHelper.ServiceContainer.AddSingleton<IProfileClient>(new ProfileClient());
 
             commandLine = new CommandLine(args).Preprocess();
 

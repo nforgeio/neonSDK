@@ -22,8 +22,11 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.DependencyInjection;
+
 using Neon;
 using Neon.Common;
+using Neon.Deployment;
 using Neon.ModelGen;
 
 namespace NeonModelGen
@@ -115,6 +118,15 @@ style design conventions.  See this GitHub issue for more information:
         /// <returns>The program exit code.</returns>
         public static async Task<int> Main(string[] args)
         {
+            // $hack(jefflill):
+            //
+            // We hardcoding our own profile client for the time being.  Eventually,
+            // we'll need to support custom or retail profile clients somehow.
+            //
+            // This is required by: CommandLine.Preprocess()
+
+            NeonHelper.ServiceContainer.AddSingleton<IProfileClient>(new ProfileClient());
+
             var commandLine = new CommandLine(args).Preprocess();
 
             if (commandLine.HasHelpOption)
