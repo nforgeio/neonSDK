@@ -115,7 +115,7 @@ style design conventions.  See this GitHub issue for more information:
         /// <returns>The program exit code.</returns>
         public static async Task<int> Main(string[] args)
         {
-            var commandLine = new CommandLine(args);
+            var commandLine = new CommandLine(args).Preprocess();
 
             if (commandLine.HasHelpOption)
             {

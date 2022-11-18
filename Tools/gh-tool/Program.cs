@@ -51,6 +51,16 @@ namespace GHTool
 {Program.Name} [v{Program.Version}]
 {Neon.Build.Copyright}
 
+NOTE: Command line arguments and options may include references to 
+      profile values, secrets and environment variables, like:
+
+      $<profile:NAME>                   - profile value
+      $<secret:NAME>                    - ""password"" property value of NAME secret
+      $<secret:NAME:SOURCE>             - ""password""  property value of NAME secret at SOURCE
+      $<secret:NAME[PROPERTY]           - PROPERTY value from NAME secret
+      $<secret:NAME[PROPERTY]:SOURCE>   - PROPERTY value from NAME secret at SOURCE
+      $<env:NAME>                       - environment variable
+
 USAGE:
 
     gh-tool COMMAND [ARG...]
@@ -63,7 +73,7 @@ COMMANDS:
             {
                 ICommand    command;
 
-                CommandLine = new CommandLine(args);
+                CommandLine = new CommandLine(args).Preprocess();
 
                 var validOptions = new HashSet<string>();
 

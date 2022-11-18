@@ -37,6 +37,16 @@ namespace NeonBuild
 $@"
 Internal neonSDK project build related utilities: v{version}
 
+NOTE: Command line arguments and options may include references to 
+      profile values, secrets and environment variables, like:
+
+      $<profile:NAME>                   - profile value
+      $<secret:NAME>                    - ""password"" property value of NAME secret
+      $<secret:NAME:SOURCE>             - ""password""  property value of NAME secret at SOURCE
+      $<secret:NAME[PROPERTY]           - PROPERTY value from NAME secret
+      $<secret:NAME[PROPERTY]:SOURCE>   - PROPERTY value from NAME secret at SOURCE
+      $<env:NAME>                       - environment variable
+
 ---------------------------------------------------------------------
 neon-build version
 
@@ -293,7 +303,7 @@ ARGUMENTS:
             string      repoRoot;
             string      buildFolder;
 
-            commandLine = new CommandLine(args);
+            commandLine = new CommandLine(args).Preprocess();
 
             var command = commandLine.Arguments.FirstOrDefault();
 
