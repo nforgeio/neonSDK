@@ -334,15 +334,12 @@ try
 
     $gitDirty = IsGitDirty
 
-    if ($gitDirty -and -not $dirty)
+    if ($gitDirty -and -not $dirty -and -not $restore)
     {
         throw "Cannot publish nugets because the git branch is dirty.  Use the -dirty option to override."
     }
 
     $env:NEON_PUBLIC_SOURCELINK = "true"
-
-    #------------------------------------------------------------------------------
-    # Restore packages.
 
     if (-not $restore)
     {
@@ -453,6 +450,7 @@ try
         Publish Neon.YugaByte                       $neonSdkVersion
     }
 
+    #--------------------------------------------------------------------------
     # Restore the project versions
 
     RestoreVersion Neon.Blazor

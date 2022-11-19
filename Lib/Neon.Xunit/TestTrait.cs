@@ -62,5 +62,11 @@ namespace Neon.Xunit
         /// are actively under investigation.
         /// </summary>
         public const string Investigate = "investigate";
+
+        /// <summary>
+        /// Requires one or more profile values, potentially requiring the developer
+        /// to enter a master password.
+        /// </summary>
+        public const string RequiresProfile = "requires-profile";
     }
 }

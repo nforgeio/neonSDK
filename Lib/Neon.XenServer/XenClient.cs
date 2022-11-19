@@ -39,6 +39,8 @@ using Neon.SSH;
 
 using Renci.SshNet;
 
+using ThinCLI;
+
 //-----------------------------------------------------------------------------
 // IMPLEMENTATION NOTE:
 //
@@ -470,11 +472,10 @@ namespace Neon.XenServer
 
             args = NormalizeArgs(command, args).ToArray();
 
-            var config = new Config();
+            // Execute the command on the XenServer host via the thin CLI protocol,
+            // capturing the output.
 
-            // Execute the command on the XenServer host.
-
-            return Xe.Invoke(args);
+            return MainClass.Main(args);
         }
 
         /// <summary>
@@ -533,7 +534,7 @@ namespace Neon.XenServer
         public XenHostInfo GetHostInfo()
         {
             // List the hosts to obtain the host UUID.  We're going to assume that only the
-            // current host will be returned and the confguring a resource pool doesn't change
+            // current host will be returned and the configuring a resource pool doesn't change
             // this (which is probably not going to be the case in the real world).
 
             var response = SafeInvokeItems("host-list");

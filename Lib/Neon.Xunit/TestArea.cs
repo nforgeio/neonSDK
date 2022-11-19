@@ -124,5 +124,10 @@ namespace Neon.Xunit
         /// Identfies <b>Neon.JsonConverters</b> tests.
         /// </summary>
         public const string NeonJsonConverters = "Neon.JsonConverters";
+
+        /// <summary>
+        /// Identfies <b>Neon.XenServer</b> tests.
+        /// </summary>
+        public const string NeonXenServer = "Neon.XenServer";
     }
 }
