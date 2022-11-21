@@ -26,27 +26,33 @@ namespace Neon.Common
     public enum CpuArchitecture
     {
         /// <summary>
-        /// 32-bit AMD/Intel
+        /// The CPU architecture is not known.
+        /// </summary>
+        [EnumMember(Value = "unknown")]
+        unknown = 0,
+
+        /// <summary>
+        /// 32-bit AMD/Intel.
         /// </summary>
         [EnumMember(Value = "amd32")]
-        Amd32,
+        amd32,
 
         /// <summary>
-        /// 64-bit AMD/Intel
+        /// 64-bit AMD/Intel.
         /// </summary>
         [EnumMember(Value = "amd64")]
-        Amd64,
+        amd64,
 
         /// <summary>
-        /// 32-bit ARM
+        /// 32-bit ARM.
         /// </summary>
         [EnumMember(Value = "arm32")]
-        Arm32,
+        arm32,
 
         /// <summary>
-        /// 64-bit ARM
+        /// 64-bit ARM.
         /// </summary>
         [EnumMember(Value = "arm64")]
-        Arm64
+        arm64
     }
 }

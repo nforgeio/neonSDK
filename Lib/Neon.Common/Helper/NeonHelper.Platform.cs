@@ -161,11 +161,11 @@ namespace Neon.Common
                 {
                     if (isARM)
                     {
-                        cpuArchitecture = Is64BitOS ? CpuArchitecture.Arm64 : CpuArchitecture.Arm32;
+                        cpuArchitecture = Is64BitOS ? CpuArchitecture.arm64 : CpuArchitecture.arm32;
                     }
                     else
                     {
-                        cpuArchitecture = Is64BitOS ? CpuArchitecture.Amd64 : CpuArchitecture.Amd32;
+                        cpuArchitecture = Is64BitOS ? CpuArchitecture.amd64 : CpuArchitecture.amd32;
                     }
                 }
 
