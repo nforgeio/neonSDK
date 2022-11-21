@@ -302,7 +302,10 @@ namespace Neon.XenServer
             {
                 foreach (var arg in args)
                 {
-                    allArgs.Add(arg);
+                    if (!string.IsNullOrEmpty(arg))
+                    {
+                        allArgs.Add(arg);
+                    }
                 }
             }
 
