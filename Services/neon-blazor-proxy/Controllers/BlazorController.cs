@@ -143,9 +143,9 @@ namespace NeonBlazorProxy.Controllers
 
             using (var activity = TelemetryHub.ActivitySource.StartActivity())
             {
-                var cookie = HttpContext.Request.Cookies.Where(c => c.Key == Service.SessionCookieName).First();
+                var cookie    = HttpContext.Request.Cookies.Where(c => c.Key == Service.SessionCookieName).First();
                 var sessionId = cipher.DecryptStringFrom(cookie.Value);
-                var session = await cache.GetAsync<Session>(sessionId);
+                var session    = await cache.GetAsync<Session>(sessionId);
 
                 Logger.LogDebugEx(() => NeonHelper.JsonSerialize(session));
 
@@ -166,7 +166,7 @@ namespace NeonBlazorProxy.Controllers
                 if (error != ForwarderError.None)
                 {
                     var errorFeature = HttpContext.GetForwarderErrorFeature();
-                    var exception = errorFeature.Exception;
+                    var exception    = errorFeature.Exception;
 
                     if (exception.GetType() != typeof(TaskCanceledException) && exception.GetType() != typeof(OperationCanceledException))
                     {
@@ -187,7 +187,7 @@ namespace NeonBlazorProxy.Controllers
             using (var activity = TelemetryHub.ActivitySource.StartActivity())
             {
                 var host = config.Backend.Host;
-                var dns = await dnsClient.QueryAsync(config.Backend.Host, QueryType.SRV);
+                var dns  = await dnsClient.QueryAsync(config.Backend.Host, QueryType.SRV);
 
                 if (dns.HasError || dns.Answers.IsEmpty())
                 {

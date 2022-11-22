@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.IO;
+using System.Net;
 using System.Threading;
 
 using Microsoft.AspNetCore;
@@ -90,6 +91,96 @@ namespace Neon.Web
                 // See the TODO in [TelemetryHub.cs] for more information.
 
                 return logger = TelemetryHub.CreateLogger("WEB-" + base.ControllerContext.ActionDescriptor.ControllerName);
+            }
+        }
+
+        /// <summary>
+        /// Throws a <see cref="HttpApiException"/> when <paramref name="condition"/> is <c>false</c>.
+        /// </summary>
+        /// <param name="condition">The condition being checked.</param>
+        /// <param name="message">Optionally specifies a human readable message.</param>
+        /// <param name="errorCode">Optionally specifies a computer readable error code string.</param>
+        /// <param name="statusCode">Optionally specifies the HTTP status code.  This defaults to <see cref="HttpStatusCode.BadRequest"/>.</param>
+        /// <remarks>
+        /// <note>
+        /// <paramref name="errorCode"/> is restricted to 1-32 characters including ASCII letters, digits, 
+        /// undercores, dots, or dashes.
+        /// </note>
+        /// </remarks>
+        /// <exception cref="HttpApiException">Thrown when <paramref name="condition"/> is <c>false</c>.</exception>
+        public void Requires(bool condition, string message = null, string errorCode = null, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
+        {
+            if (!condition)
+            {
+                throw new HttpApiException(message, errorCode, statusCode);
+            }
+        }
+
+        /// <summary>
+        /// Throws a <see cref="HttpApiException"/> when the <paramref name="predicate"/> function returns <c>false</c>.
+        /// </summary>
+        /// <param name="predicate">Called to retrieve the condition value..</param>
+        /// <param name="message">Optionally specifies a human readable message.</param>
+        /// <param name="errorCode">Optionally specifies a computer readable error code string.</param>
+        /// <param name="statusCode">Optionally specifies the HTTP status code.  This defaults to <see cref="HttpStatusCode.BadRequest"/>.</param>
+        /// <remarks>
+        /// <note>
+        /// <paramref name="errorCode"/> is restricted to 1-32 characters including ASCII letters, digits, 
+        /// undercores, dots, or dashes.
+        /// </note>
+        /// </remarks>
+        /// <exception cref="HttpApiException">Thrown when <paramref name="predicate"/> returns <c>false</c>.</exception>
+        public void Requires(Func<bool> predicate, string message = null, string errorCode = null, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
+        {
+            Covenant.Requires<ArgumentNullException>(predicate != null, nameof(predicate));
+
+            if (!predicate())
+            {
+                throw new HttpApiException(message, errorCode, statusCode);
+            }
+        }
+
+        /// <summary>
+        /// Throws a <see cref="HttpApiException"/> when <paramref name="value"/> is <c>null</c>.
+        /// </summary>
+        /// <param name="value">The object value being checked.</param>
+        /// <param name="name">Identifies the value being checked.</param>
+        /// <param name="errorCode">Optionally specifies a computer readable error code string.</param>
+        /// <param name="statusCode">Optionally specifies the HTTP status code.  This defaults to <see cref="HttpStatusCode.BadRequest"/>.</param>
+        /// <remarks>
+        /// <note>
+        /// <paramref name="errorCode"/> is restricted to 1-32 characters including ASCII letters, digits, 
+        /// undercores, dots, or dashes.
+        /// </note>
+        /// </remarks>
+        /// <exception cref="HttpApiException">Thrown when <paramref name="value"/> is <c>null</c>.</exception>
+        public void RequiresNotNull(object value, string name, string errorCode = null, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
+        {
+            if (value == null)
+            {
+                throw new HttpApiException($"[{name}] cannot be null.", errorCode, statusCode);
+            }
+        }
+
+        /// <summary>
+        /// Throws a <see cref="HttpApiException"/> when <paramref name="value"/> is <c>null</c> or empty.
+        /// </summary>
+        /// <param name="value">The string value being checked.</param>
+        /// <param name="name">Identifies the value being checked.</param>
+        /// <param name="errorCode">Optionally specifies a computer readable error code string.</param>
+        /// <param name="statusCode">Optionally specifies the HTTP status code.  This defaults to <see cref="HttpStatusCode.BadRequest"/>.</param>
+        /// <remarks>
+        /// <note>
+        /// <paramref name="errorCode"/> is restricted to 1-32 characters including ASCII letters, digits, 
+        /// undercores, dots, or dashes.
+        /// </note>
+        /// </remarks>
+        /// <exception cref="HttpApiException">Thrown when <paramref name="value"/> is <c>null</c>.</exception>
+        public void RequiresNotNull(string value, string name, string errorCode = null, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                throw new HttpApiException($"[{name}] cannot be null or empty.", errorCode, statusCode);
             }
         }
     }
