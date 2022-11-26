@@ -382,7 +382,7 @@ namespace Neon.Net
             }
 
             // We're seeing transient file locked errors when trying to update the [hosts] file.
-            // My guess is that this is cause by the Window DNS resolver opening the file as
+            // My guess is that this is caused by the Window DNS resolver opening the file as
             // READ/WRITE to prevent it from being modified while the resolver is reading any
             // changes.
             //
@@ -392,8 +392,9 @@ namespace Neon.Net
             //
             //      https://github.com/nforgeio/neonKUBE/issues/244
             //
-            // We're going to mitigate this by writing a [neon-modify-local-hosts.nhive.io] record with
-            // a random IP address and then wait for for the DNS resolver to report the correct address.
+            // We're going to mitigate this by writing a [neonkube.neonforge-marker] record with
+            // a random IP address and then wait for for the DNS resolver to report the correct
+            // address.
             //
             // Note that this only works on Windows and perhaps OSX.  This doesn't work on
             // Linux because there's no central DNS resolver there.  See the issue below for
@@ -517,7 +518,7 @@ namespace Neon.Net
 
                         var address = updateAddress.ToString();
 
-                        lines.Add($"        {address}{new string(' ', 16 - address.Length)}    {updateHost}");
+                        lines.Add($"    {address}{new string(' ', 16 - address.Length)}    {updateHost}");
 
                         // Append the new entries.
 
@@ -525,7 +526,7 @@ namespace Neon.Net
                         {
                             address = item.Value.ToString();
 
-                            lines.Add($"        {address}{new string(' ', 16 - address.Length)}    {item.Key}");
+                            lines.Add($"    {address}{new string(' ', 16 - address.Length)}    {item.Key}");
                         }
 
                         lines.Add(endMarker);
