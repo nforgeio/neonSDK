@@ -1493,6 +1493,16 @@ rm {HostFolders.Home(Username)}/askpass
         }
 
         /// <inheritdoc/>
+        public void DeleteDirectory(string path)
+        {
+            var script =
+$@"
+if [ -f ""{path}"" ] ; rm -r ""{path}""; fi
+";
+            SudoCommand(CommandBundle.FromScript(script)).EnsureSuccess();
+        }
+
+        /// <inheritdoc/>
         public bool FileExists(string path)
         {
             var response = SudoCommand($"if [ -f \"{path}\" ] ; then exit 0; else exit 1; fi", RunOptions.None);
@@ -1503,6 +1513,16 @@ rm {HostFolders.Home(Username)}/askpass
             // due to a permissions restriction.
 
             return response.ExitCode == 0;
+        }
+
+        /// <inheritdoc/>
+        public void DeleteFile(string path)
+        {
+            var script =
+$@"
+if [ -f ""{path}"" ] ; rm ""{path}""; fi
+";
+            SudoCommand(CommandBundle.FromScript(script)).EnsureSuccess();
         }
 
         /// <inheritdoc/>

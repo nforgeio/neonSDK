@@ -432,11 +432,23 @@ namespace Neon.SSH
         bool DirectoryExists(string path);
 
         /// <summary>
+        /// Deletes the directory if it exists.
+        /// </summary>
+        /// <param name="path">The directory path.</param>
+        void DeleteDirectory(string path);
+
+        /// <summary>
         /// Determines whether a file exists on the remote server.
         /// </summary>
         /// <param name="path">The file path.</param>
         /// <returns><c>true</c> if the file exists.</returns>
         bool FileExists(string path);
+
+        /// <summary>
+        /// Deletes the file if it exists.
+        /// </summary>
+        /// <param name="path">The file path.</param>
+        void DeleteFile(string path);
 
         /// <summary>
         /// Uploads a binary stream to the Linux server and then writes it to the file system.
