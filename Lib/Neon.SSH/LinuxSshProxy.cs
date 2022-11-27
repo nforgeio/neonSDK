@@ -1497,7 +1497,7 @@ rm {HostFolders.Home(Username)}/askpass
         {
             var script =
 $@"
-if [ -f ""{path}"" ] ; rm -r ""{path}""; fi
+if [ -f ""{path}"" ] ; then rm -r ""{path}""; fi
 ";
             SudoCommand(CommandBundle.FromScript(script)).EnsureSuccess();
         }
@@ -1520,7 +1520,7 @@ if [ -f ""{path}"" ] ; rm -r ""{path}""; fi
         {
             var script =
 $@"
-if [ -f ""{path}"" ] ; rm ""{path}""; fi
+if [ -f ""{path}"" ] ; then rm ""{path}""; fi
 ";
             SudoCommand(CommandBundle.FromScript(script)).EnsureSuccess();
         }
