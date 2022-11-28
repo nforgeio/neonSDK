@@ -179,8 +179,9 @@ namespace Neon.SSH
         // that the remote machine is still rebooting.
         private readonly string RebootStatusPath = $"{HostFolders.Tmpfs}/rebooting";
 
-        private readonly object     syncLock   = new object();
-        private bool                isDisposed = false;
+        private readonly object     syncLock         = new object();
+        private bool                isDisposed       = false;
+        private bool                rootCertsUpdated = false;
         private SshClient           sshClient;
         private ScpClient           scpClient;
         private string              status;
@@ -798,6 +799,55 @@ rm {HostFolders.Home(Username)}/askpass
             {
                 WaitForBoot();
             }
+        }
+
+        /// <summary>
+        /// Checks for and installs any new root certificates.
+        /// </summary>
+        public void UpdateRootCertificates()
+        {
+            // We're going to use [rootCertsUpdated] instance variable to avoid the overhead
+            // of checking for and updating root certificates multiple times for cluster nodes.
+
+            if (rootCertsUpdated)
+            {
+                return;
+            }
+
+            // We need to ensure that the root certificate authority certs are up to date.
+            // We're not making this idempotent because we want to re-run this on every
+            // cluster install because the our node images will be archived for some time
+            // after we create them.
+
+            SudoCommand("safe-apt-get update");
+            SudoCommand("safe-apt-get install ca-certificates -yq");
+
+            rootCertsUpdated = true;
+        }
+
+        /// <summary>
+        /// Patches Linux on the node applying all outstanding package updates but without 
+        /// upgrading the Linux distribution.
+        /// </summary>
+        public void UpdateLinux()
+        {
+            SudoCommand("safe-apt-get update", RunOptions.Defaults | RunOptions.FaultOnError);
+            SudoCommand("safe-apt-get upgrade -yq", RunOptions.Defaults | RunOptions.FaultOnError);
+        }
+
+        /// <summary>
+        /// Upgrades the Linux distribution on the node.
+        /// </summary>
+        public void UpgradeLinuxDistribution()
+        {
+            // $todo(jefflill):
+            //
+            // We haven't actually tested this yet.  Seems like we'll probably need to
+            // reboot the node and report that to the caller.
+
+            SudoCommand("safe-apt-get update -yq", RunOptions.Defaults | RunOptions.FaultOnError);
+            SudoCommand("safe-apt-get dist-upgrade -yq", RunOptions.Defaults | RunOptions.FaultOnError);
+            SudoCommand("do-release-upgrade --mode server", RunOptions.Defaults | RunOptions.FaultOnError);
         }
 
         /// <inheritdoc/>
