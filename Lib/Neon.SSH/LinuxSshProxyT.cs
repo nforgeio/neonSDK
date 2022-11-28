@@ -54,6 +54,11 @@ namespace Neon.SSH
     /// files, run commands, etc.  This extends <see cref="LinuxSshProxy"/> by 
     /// adding the <see cref="Metadata"/> property with a generic type.
     /// </para>
+    /// <note>
+    /// <b>IMPORTANT:</b> We use this class to manage Ubuntu Linux machines.  This 
+    /// will likely work for Debian and other Debian based distros but other distros 
+    /// like Alpine and Red Hat may have problems or may not work at all.
+    /// </note>
     /// </summary>
     /// <typeparam name="TMetadata">
     /// Defines the metadata type the application wishes to associate with the server.

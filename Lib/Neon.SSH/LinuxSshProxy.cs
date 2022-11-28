@@ -50,6 +50,11 @@ namespace Neon.SSH
     /// Uses a SSH/SCP connection to provide access to Linux machines to access
     /// files, run commands, etc.
     /// </para>
+    /// <note>
+    /// <b>IMPORTANT:</b> We use this class to manage Ubuntu Linux machines.  This 
+    /// will likely work for Debian and other Debian based distros but other distros 
+    /// like Alpine and Red Hat may have problems or may not work at all.
+    /// </note>
     /// </summary>
     /// <remarks>
     /// <para>
