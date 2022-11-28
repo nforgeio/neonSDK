@@ -826,7 +826,7 @@ rm {HostFolders.Home(Username)}/askpass
         }
 
         /// <summary>
-        /// Patches Linux on the node applying all outstanding package updates but without 
+        /// Patches Linux on the node applying all outstanding security patches but without 
         /// upgrading the Linux distribution.
         /// </summary>
         public void UpdateLinux()
