@@ -43,14 +43,14 @@ namespace Neon.Tailwind
             
             var processStartInfo = new ProcessStartInfo(executable)
             {
-                Arguments = string.Join(' ', args),
-                UseShellExecute = false,
-                RedirectStandardInput = true,
+                Arguments              = string.Join(' ', args),
+                UseShellExecute        = false,
+                RedirectStandardInput  = true,
                 RedirectStandardOutput = true,
-                RedirectStandardError = true
+                RedirectStandardError  = true
             };
 
-            process = Process.Start(processStartInfo);
+            process                      = Process.Start(processStartInfo);
             process.EnableRaisingEvents = true;
 
             cancellationToken.Register(((IDisposable)this).Dispose);
