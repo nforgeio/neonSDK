@@ -829,7 +829,7 @@ rm {HostFolders.Home(Username)}/askpass
         /// Patches Linux on the node applying all outstanding security patches but without 
         /// upgrading the Linux distribution.
         /// </summary>
-        public void UpdateLinux()
+        public void PatchLinux()
         {
             SudoCommand("safe-apt-get update", RunOptions.Defaults | RunOptions.FaultOnError);
             SudoCommand("safe-apt-get upgrade -yq", RunOptions.Defaults | RunOptions.FaultOnError);
