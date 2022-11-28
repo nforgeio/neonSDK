@@ -829,16 +829,20 @@ rm {HostFolders.Home(Username)}/askpass
         /// Patches Linux on the node applying all outstanding security patches but without 
         /// upgrading the Linux distribution.
         /// </summary>
-        public void PatchLinux()
+        /// <returns><c>true</c> when a reboot is required.</returns>
+        public bool PatchLinux()
         {
             SudoCommand("safe-apt-get update", RunOptions.Defaults | RunOptions.FaultOnError);
             SudoCommand("safe-apt-get upgrade -yq", RunOptions.Defaults | RunOptions.FaultOnError);
+
+            return FileExists("/var/run/reboot-required");
         }
 
         /// <summary>
         /// Upgrades the Linux distribution on the node.
         /// </summary>
-        public void UpgradeLinuxDistribution()
+        /// <returns><c>true</c> when a reboot is required.</returns>
+        public bool UpgradeLinuxDistribution()
         {
             // $todo(jefflill):
             //
@@ -848,6 +852,8 @@ rm {HostFolders.Home(Username)}/askpass
             SudoCommand("safe-apt-get update -yq", RunOptions.Defaults | RunOptions.FaultOnError);
             SudoCommand("safe-apt-get dist-upgrade -yq", RunOptions.Defaults | RunOptions.FaultOnError);
             SudoCommand("do-release-upgrade --mode server", RunOptions.Defaults | RunOptions.FaultOnError);
+
+            return FileExists("/var/run/reboot-required");
         }
 
         /// <inheritdoc/>
