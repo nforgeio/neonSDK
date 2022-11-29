@@ -108,7 +108,7 @@ namespace Neon.Web
         /// </note>
         /// </remarks>
         /// <exception cref="HttpApiException">Thrown when <paramref name="condition"/> is <c>false</c>.</exception>
-        public void Requires(bool condition, string message = null, string errorCode = null, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
+        protected void Requires(bool condition, string message = null, string errorCode = null, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
         {
             if (!condition)
             {
@@ -130,7 +130,7 @@ namespace Neon.Web
         /// </note>
         /// </remarks>
         /// <exception cref="HttpApiException">Thrown when <paramref name="predicate"/> returns <c>false</c>.</exception>
-        public void Requires(Func<bool> predicate, string message = null, string errorCode = null, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
+        protected void Requires(Func<bool> predicate, string message = null, string errorCode = null, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
         {
             Covenant.Requires<ArgumentNullException>(predicate != null, nameof(predicate));
 
@@ -154,7 +154,7 @@ namespace Neon.Web
         /// </note>
         /// </remarks>
         /// <exception cref="HttpApiException">Thrown when <paramref name="value"/> is <c>null</c>.</exception>
-        public void RequiresNotNull(object value, string name, string errorCode = null, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
+        protected void RequiresNotNull(object value, string name, string errorCode = null, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
         {
             if (value == null)
             {
@@ -176,7 +176,7 @@ namespace Neon.Web
         /// </note>
         /// </remarks>
         /// <exception cref="HttpApiException">Thrown when <paramref name="value"/> is <c>null</c>.</exception>
-        public void RequiresNotNull(string value, string name, string errorCode = null, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
+        protected void RequiresNotNull(string value, string name, string errorCode = null, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
         {
             if (string.IsNullOrEmpty(value))
             {
