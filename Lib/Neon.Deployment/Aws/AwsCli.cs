@@ -539,7 +539,7 @@ namespace Neon.Deployment
         /// This method creates a file named [<paramref name="sourcePath"/>.md5] with the MD5 hash for the entire
         /// uploaded file by default.  You may override this behavior by passing <paramref name="noMd5File"/>=<c>true</c>.
         /// </param>
-        /// <param name="maxPartSize">Optionally overrides the maximum part size (defaults to 25 MiB).</param>
+        /// <param name="maxPartSize">Optionally overrides the maximum part size (defaults to 75 MiB).</param>
         /// <param name="publicReadAccess">Optionally grant the upload public read access.</param>
         /// <param name="progressAction">Optional action called as the file is uploaded, passing the <c>long</c> percent complete.</param>
         /// <returns>The <see cref="DownloadManifest"/> information.</returns>
@@ -592,7 +592,7 @@ namespace Neon.Deployment
             string          name             = null, 
             string          filename         = null, 
             bool            noMd5File        = false,
-            long            maxPartSize      = (long)(25 * ByteUnits.MebiBytes),
+            long            maxPartSize      = (long)(75 * ByteUnits.MebiBytes),
             bool            publicReadAccess = false,
             Action<long>    progressAction   = null)
         {

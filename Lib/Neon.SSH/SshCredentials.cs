@@ -54,22 +54,27 @@ namespace Neon.SSH
         }
 
         /// <summary>
-        /// Returns credentials based on a user name and password.
+        /// Returns credentials based on a user name and password and an optional passphrase.
         /// </summary>
         /// <param name="username">The user name.</param>
         /// <param name="privateKey">The unencrypted PEM-encoded private key.</param>
+        /// <param name="passPhrase">Optionally specifies a pass phrase.</param>
         /// <returns>The <see cref="SshCredentials"/>.</returns>
-        public static SshCredentials FromPrivateKey(string username, string privateKey)
+        public static SshCredentials FromPrivateKey(string username, string privateKey, string passPhrase = null)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(username), nameof(username));
             Covenant.Requires<ArgumentNullException>(privateKey != null, nameof(privateKey));
 
             using (var privateKeyStream = new MemoryStream(Encoding.UTF8.GetBytes(privateKey)))
             {
+                var privateKeyFile = string.IsNullOrWhiteSpace(passPhrase) 
+                    ? new PrivateKeyFile(privateKeyStream) 
+                    : new PrivateKeyFile(privateKeyStream, passPhrase);
+
                 return new SshCredentials()
                 {
                     Username             = username,
-                    AuthenticationMethod = new PrivateKeyAuthenticationMethod(username, new PrivateKeyFile(privateKeyStream))
+                    AuthenticationMethod = new PrivateKeyAuthenticationMethod(username, privateKeyFile)
                 };
             }
         }

@@ -50,6 +50,11 @@ namespace Neon.SSH
     /// Uses a SSH/SCP connection to provide access to Linux machines to access
     /// files, run commands, etc.
     /// </para>
+    /// <note>
+    /// <b>IMPORTANT:</b> We use this class to manage Ubuntu Linux machines.  This 
+    /// will likely work for Debian and other Debian based distros but other distros 
+    /// like Alpine and Red Hat may have problems or may not work at all.
+    /// </note>
     /// </summary>
     /// <remarks>
     /// <para>
@@ -174,8 +179,9 @@ namespace Neon.SSH
         // that the remote machine is still rebooting.
         private readonly string RebootStatusPath = $"{HostFolders.Tmpfs}/rebooting";
 
-        private readonly object     syncLock   = new object();
-        private bool                isDisposed = false;
+        private readonly object     syncLock         = new object();
+        private bool                isDisposed       = false;
+        private bool                rootCertsUpdated = false;
         private SshClient           sshClient;
         private ScpClient           scpClient;
         private string              status;
@@ -793,6 +799,55 @@ rm {HostFolders.Home(Username)}/askpass
             {
                 WaitForBoot();
             }
+        }
+
+        /// <summary>
+        /// Checks for and installs any new root certificates.
+        /// </summary>
+        public void UpdateRootCertificates()
+        {
+            // We're going to use [rootCertsUpdated] instance variable to avoid the overhead
+            // of checking for and updating root certificates multiple times for cluster nodes.
+
+            if (rootCertsUpdated)
+            {
+                return;
+            }
+
+            // We need to ensure that the root certificate authority certs are up to date.
+            // We're not making this idempotent because we want to re-run this on every
+            // cluster install because the our node images will be archived for some time
+            // after we create them.
+
+            SudoCommand("safe-apt-get update");
+            SudoCommand("safe-apt-get install ca-certificates -yq");
+
+            rootCertsUpdated = true;
+        }
+
+        /// <summary>
+        /// Patches Linux on the node applying all outstanding security patches but without 
+        /// upgrading the Linux distribution.
+        /// </summary>
+        public void UpdateLinux()
+        {
+            SudoCommand("safe-apt-get update", RunOptions.Defaults | RunOptions.FaultOnError);
+            SudoCommand("safe-apt-get upgrade -yq", RunOptions.Defaults | RunOptions.FaultOnError);
+        }
+
+        /// <summary>
+        /// Upgrades the Linux distribution on the node.
+        /// </summary>
+        public void UpgradeLinuxDistribution()
+        {
+            // $todo(jefflill):
+            //
+            // We haven't actually tested this yet.  Seems like we'll probably need to
+            // reboot the node and report that to the caller.
+
+            SudoCommand("safe-apt-get update -yq", RunOptions.Defaults | RunOptions.FaultOnError);
+            SudoCommand("safe-apt-get dist-upgrade -yq", RunOptions.Defaults | RunOptions.FaultOnError);
+            SudoCommand("do-release-upgrade --mode server", RunOptions.Defaults | RunOptions.FaultOnError);
         }
 
         /// <inheritdoc/>
@@ -1493,6 +1548,16 @@ rm {HostFolders.Home(Username)}/askpass
         }
 
         /// <inheritdoc/>
+        public void DeleteDirectory(string path)
+        {
+            var script =
+$@"
+if [ -f ""{path}"" ] ; then rm -r ""{path}""; fi
+";
+            SudoCommand(CommandBundle.FromScript(script)).EnsureSuccess();
+        }
+
+        /// <inheritdoc/>
         public bool FileExists(string path)
         {
             var response = SudoCommand($"if [ -f \"{path}\" ] ; then exit 0; else exit 1; fi", RunOptions.None);
@@ -1503,6 +1568,16 @@ rm {HostFolders.Home(Username)}/askpass
             // due to a permissions restriction.
 
             return response.ExitCode == 0;
+        }
+
+        /// <inheritdoc/>
+        public void DeleteFile(string path)
+        {
+            var script =
+$@"
+if [ -f ""{path}"" ] ; then rm ""{path}""; fi
+";
+            SudoCommand(CommandBundle.FromScript(script)).EnsureSuccess();
         }
 
         /// <inheritdoc/>
@@ -2684,6 +2759,56 @@ echo $? > {cmdFolder}/exit
             var epochSeconds = long.Parse(response.OutputText.Trim());
 
             return NeonHelper.UnixEpoch + TimeSpan.FromSeconds(epochSeconds);
+        }
+
+        /// <summary>
+        /// Cleans a node by removing unnecessary package manager metadata, cached DHCP information, journald
+        /// logs... and then fills unreferenced file system blocks with zeros so the disk image will or
+        /// trims the file system (when possible) so the image will compress better.
+        /// </summary>
+        /// <param name="trim">Optionally trims the file system.</param>
+        /// <param name="zero">Optionally zeros unreferenced file system blocks.</param>
+        public void Clean(bool trim = false, bool zero = false)
+        {
+            var fstrim = string.Empty;
+            var fsZero = string.Empty;
+
+            if (trim)
+            {
+                // Not all hosting enviuronments supports: fstrim
+
+                fstrim = "fstrim /";
+            }
+
+            if (zero)
+            {
+                // Zeroing block devices can actually make things worse for
+                // some environment.
+
+                fsZero = "sfill -fllz /";
+            }
+
+            var cleanScript =
+$@"#!/bin/bash
+
+set -euo pipefail
+
+# Remove all log files (but retain the directories).
+
+find -type f -exec rm {{}} +
+
+# Misc cleaning
+
+safe-apt-get clean
+rm -rf /var/lib/apt/lists
+rm -rf /var/lib/dhcp/*
+
+# Filesystem cleaning
+
+{fsZero}
+{fstrim}
+";
+            SudoCommand(CommandBundle.FromScript(cleanScript), RunOptions.FaultOnError);
         }
 
         /// <inheritdoc/>

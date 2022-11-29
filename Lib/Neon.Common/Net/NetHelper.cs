@@ -281,28 +281,64 @@ namespace Neon.Net
         }
 
         /// <summary>
+        /// Line prefix indicating the start of an <b>$/etc/hosts</b> section.
+        /// </summary>
+        private const string HostsSectionBeginMarker = "# NEON-BEGIN: ";
+
+        /// <summary>
+        /// Line prefix indicating the end of an <b>$/etc/hosts</b> section.
+        /// </summary>
+        private const string HostsSectionEndMarker = "# NEON-END: ";
+
+        /// <summary>
+        /// Validates a hosts section name.
+        /// </summary>
+        /// <param name="section">The section name being checked.</param>
+        /// <exception cref="ArgumentNullException">Thrown for empty or <c>null</c> sections.</exception>
+        /// <exception cref="ArgumentException">Thrown when the exception includes an invalid character.</exception>
+        private static void ValidateHostsSection(string section)
+        {
+            if (string.IsNullOrEmpty(section))
+            {
+                throw new ArgumentNullException(nameof(section));
+            }
+
+            if (section.Length > 63)
+            {
+                throw new ArgumentException($"Section name [{section}] length exceeds [63] characters.", nameof(section));
+            }
+
+            foreach (var ch in section)
+            {
+                if (ch < (char)32)
+                {
+                    throw new ArgumentException($"Section name [{section}] includes invalid character [0x{NeonHelper.ToHex((byte)ch)}].");
+                }
+                else if (ch > (char)254)
+                {
+                    throw new ArgumentException($"Section name [{section}] includes invalid character [{ch}].");
+                }
+            }
+        }
+
+        /// <summary>
         /// <para>
-        /// Used to temporarily modify the <b>hosts</b> file used by the DNS resolver
-        /// for testing, debugging or other purposes.
+        /// Used to modify the <b>$/etc/hosts</b> file used by the DNS resolver for testing, debugging 
+        /// and possibly other purposes.
         /// </para>
         /// <note>
         /// <b>WARNING:</b> Modifying the <b>hosts</b> file will impact all processes
-        /// on the system, not just the current one and this is designed to be used by
-        /// a single process at a time.
+        /// on the system, not just the current process.
         /// </note>
         /// </summary>
-        /// <param name="hostEntries">A dictionary mapping the hostnames to an IP address or <c>null</c>.</param>
         /// <param name="section">
         /// <para>
-        /// Optionally specifies the string to use to mark the hostnames section.  This
-        /// defaults to <b>MODIFY</b> which will delimit the section with <b># NEON-BEGIN-MODIFY</b>
-        /// and <b># NEON-END-MODIFY</b>.  You may pass a different string to identify a custom section.
+        /// Specifies the string to use to delimit the host names section.  This is required and
+        /// must be a non-empty string consisting of up to 63 non-control ASCII characters.  Section
+        /// names are case sensitive.
         /// </para>
-        /// <note>
-        /// The string passed must be a valid DNS hostname label that must begin with a letter
-        /// followed by letters, digits or dashes.  The maximum length is 63 characters.
-        /// </note>
         /// </param>
+        /// <param name="hostEntries">A dictionary mapping the hostnames to an IP address or <c>null</c>.</param>
         /// <remarks>
         /// <note>
         /// This method requires elevated administrative privileges.
@@ -318,38 +354,16 @@ namespace Neon.Net
         /// and <paramref name="section"/> as <c>null</c>.
         /// </para>
         /// </remarks>
-        public static void ModifyLocalHosts(Dictionary<string, IPAddress> hostEntries = null, string section = "MODIFY")
+        public static void ModifyLocalHosts(string section, Dictionary<string, IPAddress> hostEntries = null)
         {
+            ValidateHostsSection(section);
+
 #if XAMARIN
             throw new NotSupportedException();
 #else
             if (hostEntries != null && string.IsNullOrWhiteSpace(section))
             {
                 throw new ArgumentNullException(nameof(section));
-            }
-
-            if (section != null)
-            {
-                var sectionOK = char.IsLetter(section[0]) && section.Length <= 63;
-
-                if (sectionOK)
-                {
-                    foreach (var ch in section)
-                    {
-                        if (!char.IsLetterOrDigit(ch) && ch != '-')
-                        {
-                            sectionOK = false;
-                            break;
-                        }
-                    }
-                }
-
-                if (!sectionOK)
-                {
-                    throw new ArgumentException("Suffix is not a valid DNS host name label.", nameof(section));
-                }
-
-                section = section.ToUpperInvariant();
             }
 
             string hostsPath;
@@ -368,7 +382,7 @@ namespace Neon.Net
             }
 
             // We're seeing transient file locked errors when trying to update the [hosts] file.
-            // My guess is that this is cause by the Window DNS resolver opening the file as
+            // My guess is that this is caused by the Window DNS resolver opening the file as
             // READ/WRITE to prevent it from being modified while the resolver is reading any
             // changes.
             //
@@ -378,8 +392,9 @@ namespace Neon.Net
             //
             //      https://github.com/nforgeio/neonKUBE/issues/244
             //
-            // We're going to mitigate this by writing a [neon-modify-local-hosts.nhive.io] record with
-            // a random IP address and then wait for for the DNS resolver to report the correct address.
+            // We're going to mitigate this by writing a [neonkube.neonforge-marker] record with
+            // a random IP address and then wait for for the DNS resolver to report the correct
+            // address.
             //
             // Note that this only works on Windows and perhaps OSX.  This doesn't work on
             // Linux because there's no central DNS resolver there.  See the issue below for
@@ -396,8 +411,8 @@ namespace Neon.Net
             retryFile.Invoke(
                 () =>
                 {
-                    var beginMarker = $"# NEON-BEGIN-";
-                    var endMarker   = $"# NEON-END-";
+                    var beginMarker = HostsSectionBeginMarker;
+                    var endMarker   = HostsSectionEndMarker;
 
                     if (section != null)
                     {
@@ -405,8 +420,9 @@ namespace Neon.Net
                         endMarker   += section;
                     }
 
-                    var inputLines = File.ReadAllLines(hostsPath);
-                    var inSection  = false;
+                    var inputLines       = File.ReadAllLines(hostsPath);
+                    var withinSection    = false;
+                    var recordDelimiters = new char[] { ' ', '\t' };
 
                     // Load lines of text from the current [hosts] file, without
                     // any lines for the named section.  We're going to parse those
@@ -423,15 +439,15 @@ namespace Neon.Net
 
                         if (trimmed == beginMarker || (section == null && trimmed.StartsWith(beginMarker)))
                         {
-                            inSection = true;
+                            withinSection = true;
                         }
                         else if (trimmed == endMarker || (section == null && trimmed.StartsWith(endMarker)))
                         {
-                            inSection = false;
+                            withinSection = false;
                         }
                         else
                         {
-                            if (inSection)
+                            if (withinSection)
                             {
                                 // The line is within the named section, so we're going to parse
                                 // the host entry (if any) and add it to [existingHosts].
@@ -452,7 +468,7 @@ namespace Neon.Net
                                 //
                                 // Note that we're going to ignore the special marker entry.
 
-                                var fields   = line.Split(new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+                                var fields   = line.Split(recordDelimiters, StringSplitOptions.RemoveEmptyEntries);
                                 var address  = fields[0];
                                 var hostname = fields.Length > 1 ? fields[1] : string.Empty;
 
@@ -502,7 +518,7 @@ namespace Neon.Net
 
                         var address = updateAddress.ToString();
 
-                        lines.Add($"        {address}{new string(' ', 16 - address.Length)}    {updateHost}");
+                        lines.Add($"    {address}{new string(' ', 16 - address.Length)}    {updateHost}");
 
                         // Append the new entries.
 
@@ -510,7 +526,7 @@ namespace Neon.Net
                         {
                             address = item.Value.ToString();
 
-                            lines.Add($"        {address}{new string(' ', 16 - address.Length)}    {item.Key}");
+                            lines.Add($"    {address}{new string(' ', 16 - address.Length)}    {item.Key}");
                         }
 
                         lines.Add(endMarker);
@@ -643,7 +659,7 @@ namespace Neon.Net
         /// Lists the names of the local host sections.
         /// </summary>
         /// <returns>The section names converted to uppercase.</returns>
-        public static IEnumerable<string> ListLocalHostsSections()
+        public static IEnumerable<LocalHostSection> ListLocalHostsSections()
         {
             string hostsPath;
 
@@ -660,21 +676,47 @@ namespace Neon.Net
                 throw new NotSupportedException();
             }
 
-            var sections = new List<string>();
+            var sections = new List<LocalHostSection>();
 
             using (var reader = new StringReader(File.ReadAllText(hostsPath)))
             {
+                var withinSection    = false;
+                var sectionName      = (string)null;
+                var hostEntries      = (Dictionary<string, IPAddress>) null;
+                var recordDelimiters = new char[] { ' ', '\t' };
+
                 foreach (var rawLine in reader.Lines())
                 {
                     var line = rawLine.Trim();
 
-                    if (line.StartsWith("# NEON-BEGIN-"))
+                    if (line.StartsWith(HostsSectionBeginMarker))
                     {
-                        var sectionName = line.Substring("# NEON-BEGIN-".Length).Trim();
+                        var name = line.Substring(HostsSectionBeginMarker.Length).Trim().ToUpperInvariant();
 
-                        if (!string.IsNullOrEmpty(sectionName))
+                        if (string.IsNullOrEmpty(name))
                         {
-                            sections.Add(sectionName.ToUpperInvariant());
+                            continue;   // Skip sections without a name.
+                        }
+
+                        withinSection = true;
+                        sectionName   = name;
+                        hostEntries   = new Dictionary<string, IPAddress>(StringComparer.InvariantCultureIgnoreCase);
+                    }
+                    else if (line.StartsWith(HostsSectionEndMarker))
+                    {
+                        withinSection = false;
+
+                        sections.Add(new LocalHostSection(sectionName, hostEntries));
+                    }
+                    else if (withinSection)
+                    {
+                        var fields   = line.Split(new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+                        var address   = fields[0];
+                        var hostname = fields.Length > 1 ? fields[1] : string.Empty;
+
+                        if (!hostname.EndsWith(".neonforge-marker") && IPAddress.TryParse(address, out var ipAddress))
+                        {
+                            hostEntries[hostname] = ipAddress;
                         }
                     }
                 }

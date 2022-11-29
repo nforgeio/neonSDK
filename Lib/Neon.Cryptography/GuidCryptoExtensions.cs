@@ -22,6 +22,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 using Neon.Common;
@@ -97,6 +98,7 @@ namespace System
         /// Computes and returns the 16-character lowercase HEX folded MD5 hash of the GUID.
         /// </summary>
         /// <param name="guid">The GUID.</param>
+        /// <param name="dashes">Optionally includes dashes between each HEX byte.</param>
         /// <returns>The 8-byte hash.</returns>
         /// <remarks>
         /// <para>
@@ -109,9 +111,16 @@ namespace System
         /// <item>Retuning the result as lowercase HEX.</item>
         /// </list>
         /// </remarks>
-        public static string ToFoldedHex(this Guid guid)
+        public static string ToFoldedHex(this Guid guid, bool dashes = false)
         {
-            return NeonHelper.ToHex(guid.ToFoldedBytes(), uppercase: false);
+            var hex = NeonHelper.ToHex(guid.ToFoldedBytes(), uppercase: false);
+
+            if (dashes)
+            {
+                hex = Regex.Replace(hex, @"^(.{4})(.{4})(.{4})(.{4})$", "$1-$2-$3-$4");
+            }
+
+            return hex;
         }
     }
 }
