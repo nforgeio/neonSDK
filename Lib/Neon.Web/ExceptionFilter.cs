@@ -133,23 +133,25 @@ namespace Neon.Web
         /// <inheritdoc/>
         public void OnActionExecuted(ActionExecutedContext context)
         {
-            // Log the exception.
-
-            logger.LogErrorEx(context.Exception);
-
-            // Format the details as JSON.
-
-            if (context.Exception is HttpApiException apiException)
+            if (context.Exception != null) 
             {
-                context.Result = new JsonResult(new ErrorDetails(apiException, apiException.ErrorCode, (int)apiException.StatusCode));
-            }
-            else
-            {
-                context.Result = new JsonResult(new ErrorDetails(context.Exception));
+                // Log the exception.
 
+                logger.LogErrorEx(context.Exception);
+
+                // Format the details as JSON.
+
+                if (context.Exception is HttpApiException apiException)
+                {
+                    context.Result = new JsonResult(new ErrorDetails(apiException, apiException.ErrorCode, (int)apiException.StatusCode));
+                }
+                else
+                {
+                    context.Result = new JsonResult(new ErrorDetails(context.Exception));
+                }
+
+                context.ExceptionHandled = true;
             }
-            
-            context.ExceptionHandled = true;
         }
     }
 }
