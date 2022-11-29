@@ -35,8 +35,7 @@ namespace Neon.Tailwind
     public static class TailwindExtensions
     {
         [UnsupportedOSPlatform("browser")]
-        public static void RunTailwind(
-            this IApplicationBuilder applicationBuilder,
+        public static void RunTailwind(this IApplicationBuilder applicationBuilder,
             string inputCssPath  = "./Styles/tailwind.css",
             string outputCssPath = "./wwwroot/css/tailwind.css",
             bool watch           = true)
@@ -73,9 +72,7 @@ namespace Neon.Tailwind
         }
 
         [UnsupportedOSPlatform("browser")]
-        public static void RunTailwind(
-            this IApplicationBuilder applicationBuilder,
-            string script)
+        public static void RunTailwind(this IApplicationBuilder applicationBuilder, string script)
         {
             if (applicationBuilder == null)
             {
@@ -98,8 +95,7 @@ namespace Neon.Tailwind
             var nodeRunner = new NodeRunner(executable, args.ToArray());
         }
 
-        public static IServiceCollection AddTailwind(
-            this IServiceCollection builder)
+        public static IServiceCollection AddTailwind(this IServiceCollection builder)
         {
             builder.AddScoped<IPortalBinder, PortalBinder>();
 
