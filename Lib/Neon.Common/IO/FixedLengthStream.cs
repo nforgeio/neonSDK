@@ -90,7 +90,24 @@ namespace Neon.IO
         public override long Length => length;
 
         /// <inheritdoc/>
-        public override long Position { get => position; set => throw new NotImplementedException(); }
+        public override long Position
+        {
+            get
+            {
+                return position;
+            }
+            set
+            {
+                if (position == 0 && value == 0) 
+                { 
+                    position = 0;
+                }
+                else
+                {
+                    throw new InvalidOperationException();
+                }
+            }
+        }
 
         /// <inheritdoc/>
         public override void Flush()
