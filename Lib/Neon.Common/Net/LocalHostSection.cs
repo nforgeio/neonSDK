@@ -46,7 +46,7 @@ namespace Neon.Net
         /// </summary>
         /// <param name="name">Identifies the section.</param>
         /// <param name="hostEntries">The dictionary of hostname/address entries.</param>
-        internal LocalHostSection(string name, Dictionary<string, IPAddress> hostEntries)
+        public LocalHostSection(string name, Dictionary<string, IPAddress> hostEntries)
         {
             this.Name        = name;
             this.HostEntries = hostEntries;

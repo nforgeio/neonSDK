@@ -833,19 +833,6 @@ namespace Neon.SSH
         CommandResponse SudoCommand(CommandBundle bundle, RunOptions runOptions = RunOptions.Defaults);
 
         /// <summary>
-        /// Verifies a TLS/SSL certificate.
-        /// </summary>
-        /// <param name="name">The certificate name (included in errors).</param>
-        /// <param name="certificate">The certificate being tested or <c>null</c>.</param>
-        /// <param name="hostname">The hostname to be secured by the certificate.</param>
-        /// <returns>The command response.</returns>
-        /// <remarks>
-        /// You may pass <paramref name="certificate"/> as <c>null</c> to indicate that no 
-        /// checking is to be performed as a convienence.
-        /// </remarks>
-        CommandResponse VerifyCertificate(string name, TlsCertificate certificate, string hostname);
-
-        /// <summary>
         /// Creates an interactive shell.
         /// </summary>
         /// <returns>A <see cref="ShellStream"/>.</returns>

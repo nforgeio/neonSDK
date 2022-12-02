@@ -1171,7 +1171,56 @@ namespace Neon.Common
             }
             else
             {
-                throw new NotImplementedException("Browser launch support is not implemented on the current platform.");
+                throw new NotImplementedException("Browser support is not implemented on the current platform.");
+            }
+        }
+
+        /// <summary>
+        /// Launches the platform (i.e. Edge for Windows or Safari for OS/X) browser to display the specified URI,
+        /// optionally opening a new browser window.
+        /// </summary>
+        /// <param name="uri">The target URI.</param>
+        /// <param name="newWindow">
+        /// Optionally opens the URI in a new platform browser window.  By default,
+        /// this method will open the URI in as new browser tab.
+        /// </param>
+        public static void OpenPlatformBrowser(string uri, bool newWindow = false)
+        {
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(uri), nameof(uri));
+
+            if (IsWindows)
+            {
+                var args = string.Empty;
+
+                if (newWindow)
+                {
+                    args += "-new-window ";
+                }
+
+                args += uri;
+
+                var processStart = new ProcessStartInfo("msedge", args)
+                {
+                    UseShellExecute = true
+                };
+
+                Process.Start(processStart);
+            }
+            else if (IsOSX)
+            {
+                // $todo(jefflill): Actually implement this.
+
+                OpenBrowser(uri);
+            }
+            else if (IsLinux)
+            {
+                // $todo(jefflill): Actually implement this.
+
+                OpenBrowser(uri);
+            }
+            else
+            {
+                throw new NotImplementedException("Browser support is not implemented on the current platform.");
             }
         }
 

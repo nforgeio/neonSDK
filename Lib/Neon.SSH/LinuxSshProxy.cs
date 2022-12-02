@@ -829,16 +829,20 @@ rm {HostFolders.Home(Username)}/askpass
         /// Patches Linux on the node applying all outstanding security patches but without 
         /// upgrading the Linux distribution.
         /// </summary>
-        public void UpdateLinux()
+        /// <returns><c>true</c> when a reboot is required.</returns>
+        public bool PatchLinux()
         {
             SudoCommand("safe-apt-get update", RunOptions.Defaults | RunOptions.FaultOnError);
             SudoCommand("safe-apt-get upgrade -yq", RunOptions.Defaults | RunOptions.FaultOnError);
+
+            return FileExists("/var/run/reboot-required");
         }
 
         /// <summary>
         /// Upgrades the Linux distribution on the node.
         /// </summary>
-        public void UpgradeLinuxDistribution()
+        /// <returns><c>true</c> when a reboot is required.</returns>
+        public bool UpgradeLinuxDistribution()
         {
             // $todo(jefflill):
             //
@@ -848,6 +852,8 @@ rm {HostFolders.Home(Username)}/askpass
             SudoCommand("safe-apt-get update -yq", RunOptions.Defaults | RunOptions.FaultOnError);
             SudoCommand("safe-apt-get dist-upgrade -yq", RunOptions.Defaults | RunOptions.FaultOnError);
             SudoCommand("do-release-upgrade --mode server", RunOptions.Defaults | RunOptions.FaultOnError);
+
+            return FileExists("/var/run/reboot-required");
         }
 
         /// <inheritdoc/>
@@ -2614,75 +2620,6 @@ echo $? > {cmdFolder}/exit
                 // Remove the bundle files.
 
                 SudoCommand($"rm -rf {bundleFolder}", runOptions);
-            }
-        }
-
-        /// <inheritdoc/>
-        public CommandResponse VerifyCertificate(string name, TlsCertificate certificate, string hostname)
-        {
-            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(name), nameof(name));
-
-            if (certificate == null)
-            {
-                return new CommandResponse() { ExitCode = 0 };
-            }
-
-            Status = $"verify: [{name}] certificate";
-
-            if (string.IsNullOrEmpty(hostname))
-            {
-                throw new ArgumentException($"No hostname is specified for the [{name}] certificate test.", nameof(name));
-            }
-
-            // Verify that the private key looks reasonable.
-
-            if (!certificate.KeyPem.StartsWith("-----BEGIN PRIVATE KEY-----"))
-            {
-                throw new FormatException($"The [{name}] certificate's private key is not PEM encoded.");
-            }
-
-            // Verify the certificate.
-
-            if (!certificate.CertPem.StartsWith("-----BEGIN CERTIFICATE-----"))
-            {
-                throw new ArgumentException($"The [{name}] certificate is not PEM encoded.", nameof(name));
-            }
-
-            // We're going to split the certificate into two files, the issued
-            // certificate and the certificate authority's certificate chain
-            // (AKA the CA bundle).
-            //
-            // Then we're going to upload these to [/tmp/cert.crt] and [/tmp/cert.ca]
-            // and then use the [openssl] command to verify it.
-
-            var pos = certificate.CertPem.IndexOf("-----END CERTIFICATE-----");
-
-            if (pos == -1)
-            {
-                throw new ArgumentNullException($"The [{name}] certificate is not formatted properly.");
-            }
-
-            pos = certificate.CertPem.IndexOf("-----BEGIN CERTIFICATE-----", pos);
-
-            var issuedCert = certificate.CertPem.Substring(0, pos);
-            var caBundle   = certificate.CertPem.Substring(pos);
-
-            try
-            {
-                UploadText("/tmp/cert.crt", issuedCert);
-                UploadText("/tmp/cert.ca", caBundle);
-
-                return SudoCommand(
-                    "openssl verify",
-                    RunOptions.FaultOnError,
-                    "-verify_hostname", hostname,
-                    "-purpose", "sslserver",
-                    "-CAfile", "/tmp/cert.ca",
-                    "/tmp/cert.crt");
-            }
-            finally
-            {
-                SudoCommand("rm -f /tmp/cert.*", RunOptions.LogOnErrorOnly);
             }
         }
 
