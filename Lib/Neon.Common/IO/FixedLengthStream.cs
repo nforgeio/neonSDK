@@ -55,6 +55,7 @@ namespace Neon.IO
     {
         private Stream  stream;
         private long    length;
+        private long    position;
 
         /// <summary>
         /// Constructor.
@@ -67,8 +68,9 @@ namespace Neon.IO
             Covenant.Requires<ArgumentException>(stream.CanRead, nameof(stream));
             Covenant.Requires<ArgumentException>(length >= 0, nameof(length));
 
-            this.stream = stream;
-            this.length = length;
+            this.stream   = stream;
+            this.length   = length;
+            this.position = 0;
         }
 
         /// <inheritdoc/>
@@ -88,7 +90,7 @@ namespace Neon.IO
         public override long Length => length;
 
         /// <inheritdoc/>
-        public override long Position { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public override long Position { get => position; set => throw new NotImplementedException(); }
 
         /// <inheritdoc/>
         public override void Flush()
@@ -96,16 +98,19 @@ namespace Neon.IO
         }
 
         /// <inheritdoc/>
-        public override int Read(byte[] buffer, int offset, int count) => stream.Read(buffer, offset, count);
+        public override int Read(byte[] buffer, int offset, int count)
+        {
+            var bytesRead = stream.Read(buffer, offset, count);
+            position += bytesRead;
+
+            return bytesRead;
+        }
 
         /// <inheritdoc/>
         public override long Seek(long offset, SeekOrigin origin) => throw new NotImplementedException();
 
         /// <inheritdoc/>
-        public override void SetLength(long value)
-        {
-            throw new NotImplementedException();
-        }
+        public override void SetLength(long value) => throw new NotImplementedException();
 
         /// <inheritdoc/>
         public override void Write(byte[] buffer, int offset, int count) => throw new NotImplementedException();
