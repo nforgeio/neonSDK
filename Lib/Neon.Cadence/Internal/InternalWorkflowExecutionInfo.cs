@@ -81,7 +81,7 @@ namespace Neon.Cadence.Internal
         public string ParentDomainId { get; set; }
 
         /// <summary>
-        /// Identfies the parent workflow.
+        /// Identifies the parent workflow.
         /// </summary>
         [JsonProperty(PropertyName = "ParentExecution", DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
         [DefaultValue(null)]

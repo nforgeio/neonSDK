@@ -84,7 +84,7 @@ namespace Neon.Cadence
         public string ParentDomain { get; internal set; }
 
         /// <summary>
-        /// Identfies the parent workflow (or <c>null</c>).
+        /// Identifies the parent workflow (or <c>null</c>).
         /// </summary>
         public WorkflowExecution ParentExecution { get; internal set; }
 
