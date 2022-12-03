@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:	    Test_WmiHyperV.cs
+// FILE:	    WmiDiskType.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
 //
@@ -16,36 +16,37 @@
 // limitations under the License.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
+using System.Diagnostics.Contracts;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
+using System.Management;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Xunit;
 
 using Neon.Common;
-using Neon.Cryptography;
-using Neon.Deployment;
-using Neon.IO;
-using Neon.HyperV;
-using Neon.Xunit;
+using Neon.Diagnostics;
 
-namespace TestHyperV
+namespace Neon.HyperV
 {
     /// <summary>
-    /// Low-level Hyper-V related WMI tests.
+    /// Enumerates possible virtual disk types.
     /// </summary>
-    [Trait(TestTrait.Category, TestArea.NeonHyperV)]
-    [Collection(TestCollection.NonParallel)]
-    [CollectionDefinition(TestCollection.NonParallel, DisableParallelization = true)]
-    public partial class Test_WmiHyperV
+    internal static class WmiDiskType
     {
+        /// <summary>
+        /// Disk will be persisted at full size on underlying pyhysical storage.
+        /// </summary>
+        public const ushort Fixed = 2;
+
+        /// <summary>
+        /// Disk will start out small on underlying physical storage and grow
+        /// as required.
+        /// </summary>
+        public const ushort Dynamic = 3;
+
+        /// <summary>
+        /// Disk holds differences from a parent disk.
+        /// </summary>
+        public const ushort Differencing = 4;
     }
 }

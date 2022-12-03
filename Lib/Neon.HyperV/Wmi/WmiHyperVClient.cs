@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:	    HyperVWmi.cs
+// FILE:	    WmiHyperVClient.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
 //
@@ -28,18 +28,44 @@ using Neon.Diagnostics;
 
 namespace Neon.HyperV
 {
+    // Implementation Notes:
+    // ---------------------
+    // These links include information used for implementing WMI support:
+    //
+    //      https://learn.microsoft.com/en-us/windows/win32/hyperv_v2/windows-virtualization-portal
+
     /// <summary>
     /// Abstracts access to the low-level Hyper-V WMI capabilities used to implement <see cref="HyperVClient"/>.
     /// </summary>
     internal sealed partial class WmiHyperVClient : IDisposable
     {
-        private ManagementScope     scope = new ManagementScope(@"root\virtualization\v2");
+        private object                                  syncLock     = new object();
+        private ManagementScope                         scope        = new ManagementScope(@"root\virtualization\v2");
+        private Dictionary<string, ManagementObject>    serviceCache = new Dictionary<string, ManagementObject>();
 
         /// <inheritdoc/>
         public void Dispose()
         {
-            scope = null;
+            lock (syncLock)
+            {
+                if (scope == null)
+                {
+                    return;
+                }
+
+                scope = null;
+
+                foreach (var service in serviceCache.Values)
+                {
+                    service.Dispose();
+                }
+
+                serviceCache = null;
+            }
         }
+
+        //---------------------------------------------------------------------
+        // Common methods.
 
         /// <summary>
         /// Ensures that the instance is no0t disposed.
@@ -54,20 +80,145 @@ namespace Neon.HyperV
         }
 
         /// <summary>
-        /// Validates a VHD or VHDX disk image.
+        /// Returns the named service object from the current scope.
         /// </summary>
-        /// <param name="path">Path to the disk image file.</param>
-        /// <exception cref="HyperVException">Thrown when the disk is not valid.</exception>
-        public void ValidateDisk(string path)
+        /// <param name="serviceName">The service object name.</param>
+        /// <returns>The service <see cref="ManagementObject"/>.</returns>
+        /// <exception cref="InvalidOperationException">Thrown if the requested service doesn't exist.</exception>
+        private ManagementObject GetService(string serviceName)
         {
-            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(path));
-            CheckDisposed();
+            lock (syncLock)
+            {
+                if (serviceCache.TryGetValue(serviceName, out var service))
+                {
+                    return service;
+                }
 
-            InvokeJob(WmiServiceClassName.ImageManagement, "ValidateVirtualHardDisk", 
-                new Dictionary<string, object>() 
-                { 
-                    { "Path", path } 
-                });
+                var wmiPath = new ManagementPath(serviceName);
+
+                using (var serviceClass = new ManagementClass(scope, wmiPath, null))
+                {
+                    service                   = serviceClass.GetInstances().Single();
+                    serviceCache[serviceName] = service;
+
+                    return service;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Creates a settings object for a service.
+        /// </summary>
+        /// <param name="service">Specifies the service.</param>
+        /// <param name="settingsClassName">Specifies the class name for the desired settings object.</param>
+        /// <param name="values">The setting values to be assigned to the result.</param>
+        /// <returns>The settings object.</returns>
+        private ManagementObject CreateSettings(ManagementObject service, string settingsClassName, Dictionary<string, object> values)
+        {
+            Covenant.Requires<ArgumentNullException>(service != null, nameof(service));
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(settingsClassName), nameof(settingsClassName));
+            Covenant.Requires<ArgumentNullException>(values != null, nameof(values));
+
+            var settingsPath = new ManagementPath()
+            {
+                Server        = null,
+                NamespacePath = service.Path.Path,
+                ClassName     = settingsClassName
+            };
+
+            var settingsClass = new ManagementClass(settingsPath);
+
+            settingsClass.SetProperties(values);
+
+            return settingsClass.CreateInstance();
+        }
+
+        /// <summary>
+        /// Invokes a named service method, passing the arguments passed (if any), 
+        /// and returning the result object.
+        /// </summary>
+        /// <param name="service">The target service name.</param>
+        /// <param name="method">The target service method name.</param>
+        /// <param name="args">Optionally specifies arguments to be passed to the method.</param>
+        /// <exception cref="HyperVException">Thrown for operation failures.</exception>
+        private Dictionary<string, object> Invoke(string service, string method, Dictionary<string, object> args = null)
+        {
+            Covenant.Requires<ArgumentNullException>(service != null, nameof(service));
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(method), nameof(method));
+
+            using (var targetService = GetService(service))
+            {
+                using (var inParams = targetService.GetMethodParameters(method))
+                {
+                    inParams.SetProperties(args);
+
+                    using (var outParams = targetService.InvokeMethod(method, inParams, null))
+                    {
+                        if (outParams == null)
+                        {
+                            throw new HyperVException($"WMI [{targetService["Name"]}.{method}] returned NULL.");
+                        }
+
+                        return outParams.ToDictionary();
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Invokes a named service method as a job, passing the arguments passed (if any).
+        /// </summary>
+        /// <param name="service">The target service name.</param>
+        /// <param name="method">The target service method name.</param>
+        /// <param name="args">Optionally specifies arguments to be passed to the method.</param>
+        /// <exception cref="HyperVException">Thrown for operation failures.</exception>
+        private void InvokeJob(string service, string method, Dictionary<string, object> args = null)
+        {
+            Covenant.Requires<ArgumentNullException>(service != null, nameof(service));
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(method), nameof(method));
+
+            using (var targetService = GetService(service))
+            {
+                using (var inParams = targetService.GetMethodParameters(method))
+                {
+                    inParams.SetProperties(args);
+
+                    using (var outParams = targetService.InvokeMethod(method, inParams, null))
+                    {
+                        if (outParams == null)
+                        {
+                            throw new HyperVException($"WMI [{targetService["Name"]}.{method}] returned NULL.");
+                        }
+
+                        if ((UInt32)outParams["ReturnValue"] != WmiReturnCode.Started)
+                        {
+                            throw new HyperVException($"WMI [{targetService["Name"]}.{method}] job wasn't started.");
+                        }
+
+                        // Wait for the job to complete (or fail).
+
+                        var jobPath = (string)outParams["Job"];
+                        var job     = new ManagementObject(scope, new ManagementPath(jobPath), null);
+
+                        job.Get();
+
+                        while ((UInt16)job["JobState"] == WmiJobState.Starting || (UInt16)job["JobState"] == WmiJobState.Running)
+                        {
+                            Thread.Sleep(1000);
+                            job.Get();
+                        }
+
+                        // Determine whether the job failed.
+
+                        var jobState = (UInt16)job["JobState"];
+
+                        if (jobState != WmiJobState.Completed)
+                        {
+                            throw new HyperVException($"WMI [{service}.{method}] error: [code={job["ErrorCode"]}]: {job["ErrorDescription"]}");
+                        }
+                    }
+                }
+            }
         }
     }
 }

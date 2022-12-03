@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:	    WmiServiceClassName.cs
+// FILE:	    WmiDiskFormat.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
 //
@@ -29,23 +29,25 @@ using Neon.Diagnostics;
 namespace Neon.HyperV
 {
     /// <summary>
-    /// Defines the relevant Hyper-V WM service class names.
+    /// Enumerates the possible virtual disk formats.
     /// </summary>
-    internal class WmiServiceClassName
+    internal static class WmiDiskFormat
     {
         /// <summary>
-        /// Disk image management.
+        /// VHD format.
         /// </summary>
-        public const string ImageManagement = "Msvm_ImageManagementService";
+        public const ushort VHD = 2;
 
         /// <summary>
-        /// Virtual machine management.
+        /// VHDX format.
         /// </summary>
-        public const string VirtualSystemManagement = "Msvm_VirtualSystemManagementService";
+        public const ushort VHDX = 3;
 
         /// <summary>
-        /// Virtual machine setting management.
+        /// Advanced format supported by Windows Server 2006+ that handles online resizing of
+        /// shared virtual disks, supports Hyper-V Replica and can be included in application
+        /// checkpoints.
         /// </summary>
-        public const string VirtualSystemSettingData = "Msvm_VirtualSystemSettingData";
+        public const ushort VHDSet = 4;
     }
 }
