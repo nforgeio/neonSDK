@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Management;
@@ -42,6 +43,11 @@ namespace Neon.HyperV
         public const string ImageManagementService = "Msvm_ImageManagementService";
 
         /// <summary>
+        /// Network switch management.
+        /// </summary>
+        public const string VirtualEthernetSwitchManagementService = "Msvm_VirtualEthernetSwitchManagementService";
+
+        /// <summary>
         /// Virtual machine management.
         /// </summary>
         public const string VirtualSystemManagementService = "Msvm_VirtualSystemManagementService";
@@ -58,5 +64,10 @@ namespace Neon.HyperV
         /// Virtual hard disk settings.
         /// </summary>
         public const string VirtualHardDiskSettingData = "Msvm_VirtualHardDiskSettingData";
+
+        /// <summary>
+        /// Virtual ethernet switch.
+        /// </summary>
+        public const string VirtualEtherenetSwitch = "Msvm_VirtualEtherenetSwitch";
     }
 }

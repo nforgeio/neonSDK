@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:	    Test_WmiHyperV.cs
+// FILE:	    Test_WmiHyperV_Net.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
 //
@@ -40,12 +40,20 @@ using Neon.Xunit;
 namespace TestHyperV
 {
     /// <summary>
-    /// Low-level Hyper-V related WMI tests.
+    /// Low-level WMI virtual disk tests networking.
     /// </summary>
     [Trait(TestTrait.Category, TestArea.NeonHyperV)]
     [Collection(TestCollection.NonParallel)]
     [CollectionDefinition(TestCollection.NonParallel, DisableParallelization = true)]
-    public partial class Test_WmiHyperV
+    public partial class Test_WmiHyperV_Net
     {
+        [Fact]
+        public void Switch_List()
+        {
+            using (var wmiClient = new WmiHyperVClient())
+            {
+                Assert.NotEmpty(wmiClient.ListSwitches());
+            }
+        }
     }
 }

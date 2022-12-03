@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:	    Test_WmiHyperV.Disk.cs
+// FILE:	    Test_WmiHyperV_Disk.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
 //
@@ -39,7 +39,10 @@ using Neon.Xunit;
 
 namespace TestHyperV
 {
-    public partial class Test_WmiHyperV
+    /// <summary>
+    /// Low-level WMI virtual disk tests.
+    /// </summary>
+    public partial class Test_WmiHyperV_Disk
     {
         private const long  diskSize  = (long) (100 * ByteUnits.MebiBytes);
         private const int   blockSize = (int) ( 1 * ByteUnits.MebiBytes);
