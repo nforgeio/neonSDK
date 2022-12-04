@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:	    WmiHyperVClient.Net.cs
+// FILE:	    WmiHyperVClient.Switch.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
 //
@@ -42,18 +42,19 @@ namespace Neon.HyperV
         {
             CheckDisposed();
 
-            //var service  = GetService(WmiClass.VirtualEthernetSwitchManagementService);
-            //var switches = Wmi.Query($"select * from {WmiClass.VirtualEtherenetSwitch}", scope);
+            var switches = Wmi.Query($"select * from {WmiClass.VirtualEthernetSwitch}", scope);
 
-            //return switches.Select(
-            //    @switch =>
-            //    {
-            //        var switchType = VirtualSwitchType.Unknown;
+            return switches.Select(
+                @switch =>
+                {
+                    var switchType = VirtualSwitchType.Unknown;
 
-
-
-            //        return new VirtualSwitch(service["ElementName"], switchType);;
-            //    });
+                    return new VirtualSwitch()
+                    {
+                        Name = (string)@switch["ElementName"],
+                        Type = switchType
+                    };
+                });
         }
     }
 }

@@ -68,6 +68,6 @@ namespace Neon.HyperV
         /// <summary>
         /// Virtual ethernet switch.
         /// </summary>
-        public const string VirtualEtherenetSwitch = "Msvm_VirtualEtherenetSwitch";
+        public const string VirtualEthernetSwitch = "Msvm_VirtualEthernetSwitch";
     }
 }

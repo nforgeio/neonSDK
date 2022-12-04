@@ -28,12 +28,6 @@ using Neon.Diagnostics;
 
 namespace Neon.HyperV
 {
-    // Implementation Notes:
-    // ---------------------
-    // These links include information used for implementing WMI support:
-    //
-    //      https://learn.microsoft.com/en-us/windows/win32/hyperv_v2/windows-virtualization-portal
-
     /// <summary>
     /// Abstracts access to the low-level Hyper-V WMI capabilities used to implement <see cref="HyperVClient"/>.
     /// </summary>
