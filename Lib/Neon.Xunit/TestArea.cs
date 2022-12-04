@@ -121,13 +121,18 @@ namespace Neon.Xunit
         public const string NeonCloud = "Neon.Cloud";
 
         /// <summary>
-        /// Identfies <b>Neon.JsonConverters</b> tests.
+        /// Identifies <b>Neon.JsonConverters</b> tests.
         /// </summary>
         public const string NeonJsonConverters = "Neon.JsonConverters";
 
         /// <summary>
-        /// Identfies <b>Neon.XenServer</b> tests.
+        /// Identifies <b>Neon.XenServer</b> tests.
         /// </summary>
         public const string NeonXenServer = "Neon.XenServer";
+
+        /// <summary>
+        /// Identifies <b>Neon.HyperV</b> unit tests.
+        /// </summary>
+        public const string NeonHyperV = "Neon.HyperV";
     }
 }

@@ -140,6 +140,7 @@ namespace Neon.HyperV
         /// </summary>
         /// <param name="rawMachine">The dynamic machine properties.</param>
         /// <returns>The parsed <see cref="VirtualMachine"/>.</returns>
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
         private VirtualMachine ExtractVm(dynamic rawMachine)
         {
             var vm = new VirtualMachine();
@@ -250,6 +251,7 @@ namespace Neon.HyperV
         /// Optionally specifies any additional virtual drives to be created and 
         /// then attached to the new virtual machine.
         /// </param>
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
         /// <remarks>
         /// <note>
         /// The <see cref="VirtualDrive.Path"/> property of <paramref name="extraDrives"/> may be
@@ -417,6 +419,7 @@ namespace Neon.HyperV
         /// </summary>
         /// <param name="machineName">The machine name.</param>
         /// <param name="keepDrives">Optionally retains the VM disk files.</param>
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
         public void RemoveVm(string machineName, bool keepDrives = false)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
@@ -449,6 +452,7 @@ namespace Neon.HyperV
         /// Lists the virtual machines.
         /// </summary>
         /// <returns><see cref="IEnumerable{VirtualMachine}"/>.</returns>
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
         public IEnumerable<VirtualMachine> ListVms()
         {
             CheckDisposed();
@@ -476,7 +480,8 @@ namespace Neon.HyperV
         /// Gets the current status for a named virtual machine.
         /// </summary>
         /// <param name="machineName">The machine name.</param>
-        /// <returns>The <see cref="VirtualMachine"/> or <c>null</c> when the virtual machine doesn't exist..</returns>
+        /// <returns>The <see cref="VirtualMachine"/> or <c>null</c> when the virtual machine doesn't exist.</returns>
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
         public VirtualMachine GetVm(string machineName)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
@@ -490,6 +495,7 @@ namespace Neon.HyperV
         /// </summary>
         /// <param name="machineName">The machine name.</param>
         /// <returns><c>true</c> if the machine exists.</returns>
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
         public bool VmExists(string machineName)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
@@ -502,6 +508,7 @@ namespace Neon.HyperV
         /// Starts the named virtual machine.
         /// </summary>
         /// <param name="machineName">The machine name.</param>
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
         public void StartVm(string machineName)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
@@ -529,6 +536,7 @@ namespace Neon.HyperV
         /// <b>WARNING!</b> This could result in corruption or the the loss of unsaved data.
         /// </note>
         /// </param>
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
         public void StopVm(string machineName, bool turnOff = false)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
@@ -556,6 +564,7 @@ namespace Neon.HyperV
         /// equivalent to hibernation for a physical machine.
         /// </summary>
         /// <param name="machineName">The machine name.</param>
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
         public void SaveVm(string machineName)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
@@ -577,6 +586,7 @@ namespace Neon.HyperV
         /// </summary>
         /// <param name="machineName">The machine name.</param>
         /// <returns>The list of fully qualified virtual drive file paths.</returns>
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
         public List<string> GetVmDrives(string machineName)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
@@ -605,6 +615,7 @@ namespace Neon.HyperV
         /// </summary>
         /// <param name="machineName">The target virtual machine name.</param>
         /// <param name="drive">The new drive information.</param>
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
         public void AddVmDrive(string machineName, VirtualDrive drive)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
@@ -630,6 +641,7 @@ namespace Neon.HyperV
         /// </note>
         /// </summary>
         /// <param name="drivePath">Path to the virtual drive file.</param>
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
         public void CompactDrive(string drivePath)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(drivePath), nameof(drivePath));
@@ -645,6 +657,7 @@ namespace Neon.HyperV
         /// </summary>
         /// <param name="machineName">The machine name.</param>
         /// <param name="isoPath">Path to the ISO file.</param>
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
         public void InsertVmDvd(string machineName, string isoPath)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
@@ -658,6 +671,7 @@ namespace Neon.HyperV
         /// Ejects any DVD/CD that's currently inserted into a virtual machine.
         /// </summary>
         /// <param name="machineName">The machine name.</param>
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
         public void EjectVmDvd(string machineName)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
@@ -667,9 +681,10 @@ namespace Neon.HyperV
         }
 
         /// <summary>
-        /// Returns the virtual network switches.
+        /// Lists any virtual network switches.
         /// </summary>
         /// <returns>The list of switches.</returns>
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
         public List<VirtualSwitch> ListSwitches()
         {
             CheckDisposed();
@@ -726,6 +741,7 @@ namespace Neon.HyperV
         /// </summary>
         /// <param name="switchName">The switch name.</param>
         /// <returns>The <see cref="VirtualSwitch"/> when present or <c>null</c>.</returns>
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
         public VirtualSwitch GetSwitch(string switchName)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(switchName), nameof(switchName));
@@ -739,6 +755,7 @@ namespace Neon.HyperV
         /// </summary>
         /// <param name="switchName">The new switch name.</param>
         /// <param name="gateway">Address of the LAN gateway, used to identify the connected network interface.</param>
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
         public void NewExternalSwitch(string switchName, IPAddress gateway)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(switchName), nameof(switchName));
@@ -825,6 +842,7 @@ namespace Neon.HyperV
         /// <param name="switchName">The new switch name.</param>
         /// <param name="subnet">Specifies the internal subnet.</param>
         /// <param name="addNat">Optionally configure a NAT to support external routing.</param>
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
         public void NewInternalSwitch(string switchName, NetworkCidr subnet, bool addNat = false)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(switchName), nameof(switchName));
@@ -850,6 +868,7 @@ namespace Neon.HyperV
         /// </summary>
         /// <param name="switchName">The target switch name.</param>
         /// <param name="ignoreMissing">Optionally ignore missing items.</param>
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
         public void RemoveSwitch(string switchName, bool ignoreMissing = false)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(switchName), nameof(switchName));
@@ -892,6 +911,7 @@ namespace Neon.HyperV
         /// <param name="machineName">The machine name.</param>
         /// <param name="waitForAddresses">Optionally wait until at least one adapter has been able to acquire at least one IPv4 address.</param>
         /// <returns>The list of network adapters.</returns>
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
         public List<VirtualNetworkAdapter> GetVmNetworkAdapters(string machineName, bool waitForAddresses = false)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
@@ -984,6 +1004,7 @@ namespace Neon.HyperV
         /// </note>
         /// </summary>
         /// <returns>A list of <see cref="VirtualIPAddress"/>.</returns>
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
         public List<VirtualIPAddress> ListIPAddresses()
         {
             CheckDisposed();
@@ -1050,6 +1071,7 @@ namespace Neon.HyperV
         /// </summary>
         /// <param name="address">The desired IP address.</param>
         /// <returns>The <see cref="VirtualIPAddress"/> or <c>null</c> when it doesn't exist.</returns>
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
         public VirtualIPAddress GetIPAddress(string address)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(address), nameof(address));
@@ -1062,6 +1084,7 @@ namespace Neon.HyperV
         /// Lists the virtual NATs.
         /// </summary>
         /// <returns>A list of <see cref="VirtualNat"/>.</returns>
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
         public List<VirtualNat> ListNats()
         {
             CheckDisposed();
@@ -1119,6 +1142,7 @@ namespace Neon.HyperV
         /// </summary>
         /// <param name="name">The desired NAT name.</param>
         /// <returns>The <see cref="VirtualNat"/> or <c>null</c> if the NAT doesn't exist.</returns>
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
         public VirtualNat GetNatByName(string name)
         {
             CheckDisposed();
@@ -1131,6 +1155,7 @@ namespace Neon.HyperV
         /// </summary>
         /// <param name="subnet">The desired NAT subnet.</param>
         /// <returns>The <see cref="VirtualNat"/> or <c>null</c> if the NAT doesn't exist.</returns>
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
         public VirtualNat GetNatBySubnet(string subnet)
         {
             CheckDisposed();
