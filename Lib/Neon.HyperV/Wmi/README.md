@@ -6,8 +6,8 @@ sizes by about 100MB and also consumes about 300MB on the user disk.
 
 I've started the port, but this is not going to be as easy as I originally thought, so I'm
 going to defer this until the future after we've actually released neonKUBE.  I'm going to
-go ahead and leave the in-progress WMI code here along with the unit tests, but not actually
-call any of this code until it's actually complete.
+go ahead and leave the in-progress WMI code here along with the unit tests but exclude these
+files from the build until we have the chance to get it working.
     
 Hyper-V related WMI documentation:
 
