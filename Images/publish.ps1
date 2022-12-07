@@ -32,7 +32,7 @@ param
     [switch]$nopush      = $false,      # Don't push to the registry
     [switch]$noprune     = $false,      # Don't prune the local Docker cache
     [switch]$allVersions = $false,      # Rebuild all image versions
-    [switch]$public      = $false       # Publish to [ghcr.io/neonkube] instead of [ghcr.io/nronkube-dev] (the default)
+    [switch]$public      = $false       # Publish to [ghcr.io/neonkube] instead of [ghcr.io/neonkube-dev] (the default)
 )
 
 #----------------------------------------------------------
