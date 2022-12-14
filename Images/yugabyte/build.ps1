@@ -31,4 +31,4 @@ Pull-DockerImage "yugabytedb/yugabyte:$yugabyteVersion"
 
 # Build the image.
 
-$result = Invoke-CaptureStreams "docker build -t ${registry}:${tag} --build-arg `"VERSION=$yugabyteVersion`" ." -interleave
+Invoke-CaptureStreams "docker build -t ${registry}:${tag} --build-arg `"VERSION=$yugabyteVersion`" ." -interleave | Out-Null

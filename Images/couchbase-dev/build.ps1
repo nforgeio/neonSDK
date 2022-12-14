@@ -28,4 +28,4 @@ param
 )
 
 Pull-DockerImage "couchbase/server:$version"
-$result = Invoke-CaptureStreams "docker build -t ${registry}:${tag} --build-arg VERSION=$version ." -interleave
+Invoke-CaptureStreams "docker build -t ${registry}:${tag} --build-arg VERSION=$version ." -interleave$result | Out-Null
