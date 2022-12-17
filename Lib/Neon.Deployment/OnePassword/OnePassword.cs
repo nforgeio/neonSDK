@@ -298,7 +298,7 @@ retry:          var response = NeonHelper.ExecuteCapture("op",
         /// </summary>
         /// <param name="name">The password name with optional property.</param>
         /// <param name="vault">Optionally specifies a specific vault.</param>
-        /// <returns>The requested value (from the password's [value] field).</returns>
+        /// <returns>The requested value (from the password's <b>value</b> field).</returns>
         /// <exception cref="OnePasswordException">Thrown for 1Password related problems.</exception>
         /// <remarks>
         /// <para>
