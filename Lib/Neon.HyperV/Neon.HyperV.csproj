@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
@@ -19,11 +19,18 @@
 	<ItemGroup>
 		<Compile Include="$(SolutionDir)\Lib\Neon.BuildInfo\AssemblyAttributes.cs" Link="Properties\AssemblyAttributes.cs" />
 		<Compile Include="$(SolutionDir)\Lib\Neon.BuildInfo\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
+
+		<!-- $todo(jefflill): Remove this when we're ready to test the WMI implementation -->
+		
+		<Compile Remove="Wmi\**" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
 		<PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
+
+		<!-- $todo(jefflill): Restore this when we're ready to test the WMI implementation. -->
+		<!--<PackageReference Include="System.Management" Version="7.0.0" />-->
 	</ItemGroup>
 
 	<ItemGroup>
@@ -34,10 +41,6 @@
 	<ItemGroup>
 		<None Include="..\nuget-icon.png" Pack="true" PackagePath="" />
 		<None Include="..\..\LICENSE" Pack="true" PackagePath="" />
-	</ItemGroup>
-
-	<ItemGroup>
-	    <Folder Include="Properties\" />
 	</ItemGroup>
 
 </Project>
