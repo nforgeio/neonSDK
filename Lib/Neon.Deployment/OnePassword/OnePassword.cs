@@ -217,7 +217,7 @@ namespace Neon.Deployment
 
         /// <summary>
         /// Returns a named password from the current user's standard 1Password 
-        /// vault like [user-sally] by default or a custom named vault.
+        /// vault like <b>user-sally</b> by default or a custom named vault.
         /// </summary>
         /// <param name="name">The password name with optional property.</param>
         /// <param name="vault">Optionally specifies a specific vault.</param>
@@ -294,7 +294,7 @@ retry:          var response = NeonHelper.ExecuteCapture("op",
 
         /// <summary>
         /// Returns a named value from the current user's standard 1Password 
-        /// vault like [user-sally] by default or a custom named vault.
+        /// vault like <b>user-sally</b> by default or a custom named vault.
         /// </summary>
         /// <param name="name">The password name with optional property.</param>
         /// <param name="vault">Optionally specifies a specific vault.</param>

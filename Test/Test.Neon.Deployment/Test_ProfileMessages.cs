@@ -120,7 +120,10 @@ namespace TestDeployment
             Assert.True(response.Success);
             Assert.Equal("HELLO WORLD!", response.Value);
             Assert.Null(response.JObject);
-            Assert.Equal("OK: HELLO WORLD!", response.ToString());
+
+            var test = Convert.ToBase64String(Encoding.UTF8.GetBytes("HELL) WORLD!"));
+
+            Assert.Equal($"OK: {Convert.ToBase64String(Encoding.UTF8.GetBytes("HELLO WORLD!"))}", response.ToString());
         }
 
         [Fact]
@@ -134,9 +137,11 @@ namespace TestDeployment
             Assert.Equal(ProfileStatus.OK, response.Status);
             Assert.Null(response.Value);
             Assert.NotNull(response.JObject);
-
             Assert.Empty(response.JObject.Properties());
-            Assert.Equal("OK-JSON: {}", response.ToString());
+
+            var base64Json = Convert.ToBase64String(Encoding.UTF8.GetBytes("{}"));
+
+            Assert.Equal($"OK-JSON: {base64Json}", response.ToString());
 
             //---------------------------------------------
 
@@ -154,7 +159,10 @@ namespace TestDeployment
 
             Assert.Single(response.JObject.Properties());
             Assert.Equal("world!", response.JObject["hello"]);
-            Assert.Equal("OK-JSON: {\"hello\":\"world!\"}", response.ToString());
+
+            base64Json = Convert.ToBase64String(Encoding.UTF8.GetBytes("{\"hello\":\"world!\"}"));
+
+            Assert.Equal($"OK-JSON: {base64Json}", response.ToString());
         }
 
         [Fact]
@@ -184,25 +192,30 @@ namespace TestDeployment
         [Fact]
         public void Response_Parse()
         {
-            var response = ProfileResponse.Parse("OK: HELLO WORLD!");
+            var response = ProfileResponse.Parse($"OK: HELLO WORLD!");
 
             Assert.True(response.Success);
             Assert.Equal("HELLO WORLD!", response.Value);
             Assert.Null(response.JObject);
-            Assert.Equal("OK: HELLO WORLD!", response.ToString());
+
+            var base64Value = Convert.ToBase64String(Encoding.UTF8.GetBytes("HELLO WORLD!"));
+            
+            Assert.Equal($"OK: {base64Value}", response.ToString());
         }
 
         [Fact]
         public void Response_ParseJson()
         {
-            var response = ProfileResponse.Parse("OK-JSON: {\"hello\":\"world!\"}");
+            var json       = "{\"hello\":\"world!\"}";
+            var base64Json = Convert.ToBase64String(Encoding.UTF8.GetBytes(json));
+            var response   = ProfileResponse.Parse($"OK-JSON: {base64Json}");
 
             Assert.True(response.Success);
             Assert.Equal(ProfileStatus.OK, response.Status);
             Assert.Null(response.Value);
             Assert.Single(response.JObject.Properties());
             Assert.Equal("world!", response.JObject["hello"]);
-            Assert.Equal("OK-JSON: {\"hello\":\"world!\"}", response.ToString());
+            Assert.Equal($"OK-JSON: {base64Json}", response.ToString());
         }
 
         [Fact]

@@ -92,6 +92,10 @@ namespace Neon.Deployment
     ///     caller already knows the master password, such as for fully automated
     ///     CI/CD operations.
     ///     </para>
+    ///     <note>
+    ///     The value returned by the protocol is value encoded as UTF-8 and then converted
+    ///     to base64.  This allows for multi-line results.
+    ///     </note>
     ///     </description>
     /// </item>
     /// <item>
@@ -108,6 +112,10 @@ namespace Neon.Deployment
     ///     caller already knows the master password, such as for fully automated
     ///     CI/CD operations.
     ///     </para>
+    ///     <note>
+    ///     The value returned by the protocol is value encoded as UTF-8 and then converted
+    ///     to base64.  This allows for multi-line results.
+    ///     </note>
     ///     </description>
     /// </item>
     /// <item>
@@ -118,6 +126,10 @@ namespace Neon.Deployment
     ///     This requests a profile value the user's local profile by <c>NAME</c>.
     ///     he value is returned as the response.
     ///     </para>
+    ///     <note>
+    ///     The value returned by the protocol is value encoded as UTF-8 and then converted
+    ///     to base64.  This allows for multi-line results.
+    ///     </note>
     ///     </description>
     /// </item>
     /// <item>
@@ -131,6 +143,10 @@ namespace Neon.Deployment
     ///     <para>
     ///     We may use this in the future for other neon-assistant interactions.
     ///     </para>
+    ///     <note>
+    ///     The value returned by the protocol is value encoded as UTF-8 and then converted
+    ///     to base64.  This allows for multi-line results.
+    ///     </note>
     ///     </description>
     /// </item>
     /// </list>
@@ -405,9 +421,10 @@ namespace Neon.Deployment
                     }
 
                     var reader = new StreamReader(pipe);
-                    var writer = new StreamWriter(pipe);
-
-                    writer.AutoFlush = true;
+                    var writer = new StreamWriter(pipe)
+                    {
+                        AutoFlush = true
+                    };
 
                     var requestLine   = reader.ReadLine();
                     var request       = (ProfileRequest)null;
