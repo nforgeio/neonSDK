@@ -22,7 +22,7 @@ using System.Threading.Tasks;
 using Neon.Common;
 using Neon.Service;
 
-namespace CadenceService
+namespace TestCadenceService
 {
     /// <summary>
     /// The program entry point.

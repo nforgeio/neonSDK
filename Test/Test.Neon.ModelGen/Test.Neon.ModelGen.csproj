@@ -2,8 +2,9 @@
 
 	<PropertyGroup>
 		<TargetFrameworks>net7.0</TargetFrameworks>
-		<IsPackable>false</IsPackable>
+		<OutputType>Library</OutputType>
 		<RootNamespace>TestModelGen</RootNamespace>
+		<IsPackable>false</IsPackable>
 		<Configurations>Debug;Release</Configurations>
 		<GenerateDocumentationFile>false</GenerateDocumentationFile>
 	</PropertyGroup>

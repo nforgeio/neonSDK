@@ -30,7 +30,7 @@ using Neon.Common;
 using Neon.Diagnostics;
 using Neon.Service;
 
-namespace CadenceService
+namespace TestCadenceService
 {
     /// <summary>
     /// Implements the test service.

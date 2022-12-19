@@ -2,12 +2,10 @@
 
 	<PropertyGroup>
 		<TargetFrameworks>net6.0; net7.0</TargetFrameworks>
+		<OutputType>Library</OutputType>
 		<IsPackable>false</IsPackable>
 		<Configurations>Debug;Release</Configurations>
 		<GenerateDocumentationFile>false</GenerateDocumentationFile>
-		<TargetFrameworks>net6.0; net7.0</TargetFrameworks>
-		<IsPackable>false</IsPackable>
-		<Configurations>Debug;Release</Configurations>
 	</PropertyGroup>
 
 	<ItemGroup>

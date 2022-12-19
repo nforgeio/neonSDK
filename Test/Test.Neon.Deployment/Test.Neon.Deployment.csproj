@@ -2,9 +2,10 @@
 
 	<PropertyGroup>
 		<TargetFrameworks>net7.0</TargetFrameworks>
+		<OutputType>Library</OutputType>
+		<RootNamespace>TestDeployment</RootNamespace>
 		<PlatformTarget>x64</PlatformTarget>
 		<IsPackable>false</IsPackable>
-		<RootNamespace>TestDeployment</RootNamespace>
 		<AssemblyName>Test.Neon.Deployment</AssemblyName>
 		<IsPackable>false</IsPackable>
 		<Configurations>Debug;Release</Configurations>

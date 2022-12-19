@@ -2,8 +2,9 @@
 
 	<PropertyGroup>
 		<TargetFrameworks>net48; net6.0; net7.0</TargetFrameworks>
-		<IsPackable>false</IsPackable>
+		<OutputType>Library</OutputType>
 		<RootNamespace>TestCommon</RootNamespace>
+		<IsPackable>false</IsPackable>
 		<AssemblyName>Test.Neon.Common</AssemblyName>
 		<Configurations>Debug;Release</Configurations>
 		<GenerateDocumentationFile>false</GenerateDocumentationFile>

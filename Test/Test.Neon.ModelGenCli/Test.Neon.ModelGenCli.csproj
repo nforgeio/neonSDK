@@ -2,9 +2,10 @@
 
 	<PropertyGroup>
 		<TargetFrameworks>net7.0</TargetFrameworks>
+		<OutputType>Library</OutputType>
+		<RootNamespace>Test.ModelGenCli</RootNamespace>
 		<PlatformTarget>x64</PlatformTarget>
 		<IsPackable>false</IsPackable>
-		<RootNamespace>Test.ModelGenCli</RootNamespace>
 		<Configurations>Debug;Release</Configurations>
 		<GenerateDocumentationFile>false</GenerateDocumentationFile>
 	</PropertyGroup>

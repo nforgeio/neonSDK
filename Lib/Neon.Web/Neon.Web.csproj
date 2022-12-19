@@ -3,6 +3,7 @@
 	<PropertyGroup>
         <TargetFrameworks>net6.0; net7.0</TargetFrameworks>
         <OutputType>Library</OutputType>
+		<RootNamespace>Neon.Web</RootNamespace>
 		<Version>3.0.0</Version>
 		<PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
 		<AssemblyVersion>0.0.0.0</AssemblyVersion>
@@ -48,6 +49,7 @@
 		<ProjectReference Include="..\..\Lib\Neon.BuildInfo\Neon.BuildInfo.csproj" />
 		<ProjectReference Include="..\Neon.Common\Neon.Common.csproj" />
         <ProjectReference Include="..\Neon.Nats\Neon.Nats.csproj" />
+        <ProjectReference Include="..\Neon.WinTTY\Neon.WinTTY.csproj" />
     </ItemGroup>
 
 	<ItemGroup>

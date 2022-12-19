@@ -2,8 +2,9 @@
 
     <PropertyGroup>
 		<TargetFrameworks>net6.0; net7.0</TargetFrameworks>
-        <IsPackable>false</IsPackable>
+		<OutputType>Library</OutputType>
         <RootNamespace>Test.Neon.Web</RootNamespace>
+        <IsPackable>false</IsPackable>
         <Configurations>Debug;Release</Configurations>
         <OutputType>Library</OutputType>
 		<GenerateDocumentationFile>false</GenerateDocumentationFile>

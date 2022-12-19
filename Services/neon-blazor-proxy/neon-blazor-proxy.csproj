@@ -3,8 +3,8 @@
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
         <OutputType>Exe</OutputType>
+		<RootNamespace>NeonBlazorProxy</RootNamespace>
         <IsPackable>false</IsPackable>
-        <RootNamespace>NeonBlazorProxy</RootNamespace>
         <ServerGarbageCollection>true</ServerGarbageCollection>
         <ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
         <AssemblyName>neon-blazor-proxy</AssemblyName>
