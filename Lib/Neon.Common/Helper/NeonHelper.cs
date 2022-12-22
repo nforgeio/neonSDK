@@ -274,5 +274,52 @@ namespace Neon.Common
                 }
             }
         }
+
+        /// <summary>
+        /// <para>
+        /// Returns the path to the development folder for NEONFORGE developers.  This folder
+        /// is used to hold build and test related files and is named <b>.neondev</b> under
+        /// the current user's home folder.
+        /// </para>
+        /// <para>Related: <see cref="UserNeonDevBuildFolder"/>, <see cref="UserNeonDevTestFolder"/></para>
+        /// <note>
+        /// This property ensures that the folder exists.
+        /// </note>
+        /// </summary>
+        public static string UserNeonDevFolder
+        {
+            get
+            {
+                var path = Path.Combine(UserHomeFolder, ".neondev");
+
+                Directory.CreateDirectory(path);
+
+                return path;
+            }
+        }
+
+        /// <summary>
+        /// <para>
+        /// Returns the path to the development/build folder for NEONFORGE developers.  This folder
+        /// is used to hold build related files and is named <b>.neondev/build</b> under
+        /// the current user's home folder.
+        /// </para>
+        /// <note>
+        /// This property ensures that the folder exists.
+        /// </note>
+        /// </summary>
+        public static string UserNeonDevBuildFolder => Directory.CreateDirectory(Path.Combine(UserNeonDevFolder, "build")).FullName;
+
+        /// <summary>
+        /// <para>
+        /// Returns the path to the development/build folder for NEONFORGE developers.  This folder
+        /// is used to hold unit test related files and is named <b>.neondev/test</b> under
+        /// the current user's home folder.
+        /// </para>
+        /// <note>
+        /// This property ensures that the folder exists.
+        /// </note>
+        /// </summary>
+        public static string UserNeonDevTestFolder => Directory.CreateDirectory(Path.Combine(UserNeonDevFolder, "test")).FullName;
     }
 }

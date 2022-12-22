@@ -742,17 +742,7 @@ namespace Neon.Xunit
         /// used to hold various assets required by some NEONFORGE unit tests.
         /// </summary>
         /// <exception cref="NotSupportedException">Thrown when the development environment is not fully configured.</exception>
-        public static string NeonForgeTestAssetsFolder
-        {
-            get
-            {
-                var folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".neonkube-dev");
-
-                Directory.CreateDirectory(folder);
-
-                return folder;
-            }
-        }
+        public static string NeonForgeTestAssetsFolder => NeonHelper.UserNeonDevTestFolder;
 
         /// <summary>
         /// Returns the path to the Ubuntu VHDX file suitable for basic unit testing.  This
