@@ -24,6 +24,13 @@
 # OPTIONS:
 #
 #       -dirty  - Use GitHub sources for SourceLink even if local repo is dirty
+#
+# REMARKS:
+#
+# NOTE: The script writes the package publication version to:
+#
+#           $/build/nuget/version.txt
+#
 
 param 
 (
@@ -138,7 +145,7 @@ try
     # SourceLink configuration:
 	#
 	# We're going to fail this when the current git branch is dirty 
-	# and [-dirty] wasn't passed.
+	# and [-dirty] wasn't passed. 
 
     $gitDirty = IsGitDirty
 
@@ -149,6 +156,13 @@ try
 
     $env:NEON_PUBLIC_SOURCELINK = "true"
 
+    #------------------------------------------------------------------------------
+    # Save the publish version to [$/build/nuget/version.text] so release tools can
+    # determine the current release.
+
+    [System.IO.File]::WriteAllText("$nfRoot\build\nuget\version.txt", $neonSdkVersion)
+
+    #------------------------------------------------------------------------------
     # We need to do a release solution build to ensure that any tools or other
     # dependencies are built before we build and publish the individual packages.
 
@@ -191,6 +205,7 @@ try
         throw "ERROR: BUILD FAILED"
     }
 
+    #------------------------------------------------------------------------------
     # Update the project versions.
 
     SetVersion Neon.Blazor              $neonSdkVersion
@@ -222,6 +237,7 @@ try
     SetVersion Neon.Xunit.YugaByte      $neonSdkVersion
     SetVersion Neon.YugaByte            $neonSdkVersion
 
+    #------------------------------------------------------------------------------
     # Build and publish the projects.
 
     Publish Neon.Blazor                 $neonSdkVersion
@@ -253,9 +269,10 @@ try
     Publish Neon.Xunit.YugaByte         $neonSdkVersion
     Publish Neon.YugaByte               $neonSdkVersion
 
+    #------------------------------------------------------------------------------
     # Remove all of the generated nuget files so these don't accumulate.
 
-    Remove-Item "$env:NF_BUILD\nuget\*"
+    Remove-Item "$env:NF_BUILD\nuget\*.nupkg"
 
     ""
     "** Package publication completed"
