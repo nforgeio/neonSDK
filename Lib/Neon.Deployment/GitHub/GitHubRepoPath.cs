@@ -57,7 +57,7 @@ namespace Neon.Deployment
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(path), nameof(path));
 
-            var parts    = path.Split('/');
+            var parts = path.Split('/');
 
             foreach (var part in parts)
             {

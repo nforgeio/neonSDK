@@ -47,6 +47,13 @@ namespace Neon.Deployment
     public static partial class GitHub
     {
         /// <summary>
+        /// Specifies the <b>User-Agent</b> string used when submitting REST API
+        /// requests to GitHub.  This defaults to <b>neon-sdk</b> but may be 
+        /// customized.
+        /// </summary>
+        public static string UserAgent = "neon-sdk";
+
+        /// <summary>
         /// Returns the GitHub PAT (personal access token) or <c>null</c>.
         /// </summary>
         internal static string AccessToken { get; private set; }
@@ -121,14 +128,18 @@ namespace Neon.Deployment
         /// <summary>
         /// Creates a REST client that can be used to manage GitHub.
         /// </summary>
+        /// <param name="userAgent">Optionally identifies the user agent.  This defaults to <b>"neon-sdk"</b>.</param>
         /// <returns>The <see cref="GitHubClient"/> instance.</returns>
-        internal static GitHubClient CreatClient()
+        public static GitHubClient CreatClient(string userAgent = null)
         {
+            if (string.IsNullOrEmpty(userAgent))
+            {
+                userAgent = GitHub.UserAgent;
+            }
+
             GitHub.GetCredentials();
 
-            // $todo(jefflill): https://github.com/nforgeio/neonKUBE/issues/1214
-
-            return new GitHubClient(new Octokit.ProductHeaderValue("neonforge.com"))
+            return new GitHubClient(new Octokit.ProductHeaderValue(userAgent))
             {
                 Credentials = new Octokit.Credentials(AccessToken)
             };
