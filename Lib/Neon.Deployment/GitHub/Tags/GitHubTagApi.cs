@@ -62,7 +62,7 @@ namespace Neon.Deployment
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(repo), nameof(repo));
 
             var repoPath = GitHubRepoPath.Parse(repo);
-            var client   = GitHub.CreateGitHubClient(repo);
+            var client   = GitHub.CreatClient();
             
             return client.Repository.GetAllTags(repoPath.Owner, repoPath.Repo).Result;
         }

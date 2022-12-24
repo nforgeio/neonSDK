@@ -121,18 +121,17 @@ namespace Neon.Deployment
         /// <summary>
         /// Creates a REST client that can be used to manage GitHub.
         /// </summary>
-        /// <param name="repo">Identifies the target repo.</param>
         /// <returns>The <see cref="GitHubClient"/> instance.</returns>
-        internal static GitHubClient CreateGitHubClient(string repo)
+        internal static GitHubClient CreatClient()
         {
             GitHub.GetCredentials();
 
-            var repoPath = GitHubRepoPath.Parse(repo);
-            var client = new GitHubClient(new Octokit.ProductHeaderValue("neonforge.com"));    // $todo(jefflill): https://github.com/nforgeio/neonKUBE/issues/1214
+            // $todo(jefflill): https://github.com/nforgeio/neonKUBE/issues/1214
 
-            client.Credentials = new Octokit.Credentials(AccessToken);
-
-            return client;
+            return new GitHubClient(new Octokit.ProductHeaderValue("neonforge.com"))
+            {
+                Credentials = new Octokit.Credentials(AccessToken)
+            };
         }
 
         /// <summary>
