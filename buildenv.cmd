@@ -114,7 +114,7 @@ set NEON_CLUSTER_TESTING=1
 
 REM Persist the environment variables.
 
-setx GITHUB_USER "%NEON_GITHUB_USER%" /M          > nul
+setx GITHUB_USER "%GITHUB_USER%" /M          > nul
 setx NF_MAINTAINER "%NF_MAINTAINER%" /M           > nul              
 setx NF_REPOS "%NF_REPOS%" /M                     > nul
 setx NF_ROOT "%NF_ROOT%" /M                       > nul
