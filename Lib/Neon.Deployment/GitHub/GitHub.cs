@@ -130,7 +130,7 @@ namespace Neon.Deployment
         /// </summary>
         /// <param name="userAgent">Optionally identifies the user agent.  This defaults to <b>"neon-sdk"</b>.</param>
         /// <returns>The <see cref="GitHubClient"/> instance.</returns>
-        public static GitHubClient CreatClient(string userAgent = null)
+        public static GitHubClient CreateClient(string userAgent = null)
         {
             if (string.IsNullOrEmpty(userAgent))
             {
@@ -146,11 +146,18 @@ namespace Neon.Deployment
         }
 
         /// <summary>
-        /// Creates a <see cref="JsonClient"/> that can be used to manage GitHub.
+        /// Creates a <see cref="JsonClient"/> that can be used to manage GitHub via
+        /// its REST API.
         /// </summary>
+        /// <param name="userAgent">Optionally identifies the user agent.  This defaults to <b>"neon-sdk"</b>.</param>
         /// <returns>The <see cref="JsonClient"/> instance.</returns>
-        internal static JsonClient CreateJsonClient()
+        internal static JsonClient CreateJsonClient(string userAgent = null)
         {
+            if (string.IsNullOrEmpty(userAgent))
+            {
+                userAgent = GitHub.UserAgent;
+            }
+
             GitHub.GetCredentials();
 
             var client = new JsonClient()
@@ -159,7 +166,7 @@ namespace Neon.Deployment
             };
 
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("token", AccessToken);
-            client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("neonforge.com", "0"));       // $todo(jefflill): https://github.com/nforgeio/neonKUBE/issues/1214
+            client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(userAgent));
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github.v3+json"));
 
             return client;

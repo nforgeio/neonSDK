@@ -85,7 +85,7 @@ namespace Neon.Deployment
             releaseName = releaseName ?? tagName;
 
             var repoPath = GitHubRepoPath.Parse(repo);
-            var client   = GitHub.CreatClient();
+            var client   = GitHub.CreateClient();
             var tags     = client.Repository.GetAllTags(repoPath.Owner, repoPath.Repo).Result;
             var tag      = tags.SingleOrDefault(tag => tag.Name == tagName);
 
@@ -174,7 +174,7 @@ namespace Neon.Deployment
             Covenant.Requires<ArgumentNullException>(releaseUpdate != null, nameof(releaseUpdate));
 
             var repoPath = GitHubRepoPath.Parse(repo);
-            var client   = GitHub.CreatClient();
+            var client   = GitHub.CreateClient();
 
             return client.Repository.Release.Edit(repoPath.Owner, repoPath.Repo, release.Id, releaseUpdate).Result;
         }
@@ -188,7 +188,7 @@ namespace Neon.Deployment
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(repo), nameof(repo));
 
             var repoPath = GitHubRepoPath.Parse(repo);
-            var client   = GitHub.CreatClient();
+            var client   = GitHub.CreateClient();
 
             return client.Repository.Release.GetAll(repoPath.Owner, repoPath.Repo).Result;
         }
@@ -205,7 +205,7 @@ namespace Neon.Deployment
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(tagName), nameof(tagName));
 
             var repoPath = GitHubRepoPath.Parse(repo);
-            var client   = GitHub.CreatClient();
+            var client   = GitHub.CreateClient();
 
             try
             {
@@ -234,7 +234,7 @@ namespace Neon.Deployment
             Covenant.Requires<ArgumentNullException>(predicate != null, nameof(predicate));
 
             var repoPath = GitHubRepoPath.Parse(repo);
-            var client   = GitHub.CreatClient();
+            var client   = GitHub.CreateClient();
 
             return List(repo).Where(predicate).ToList();
         }
@@ -266,7 +266,7 @@ namespace Neon.Deployment
             }
 
             var repoPath = GitHubRepoPath.Parse(repo);
-            var client   = GitHub.CreatClient();
+            var client   = GitHub.CreateClient();
 
             using (var assetStream = File.OpenRead(assetPath))
             {
@@ -303,7 +303,7 @@ namespace Neon.Deployment
             Covenant.Requires<ArgumentNullException>(assetStream != null, nameof(assetStream));
 
             var repoPath = GitHubRepoPath.Parse(repo);
-            var client   = GitHub.CreatClient();
+            var client   = GitHub.CreateClient();
 
             var upload = new ReleaseAssetUpload()
             {
@@ -357,7 +357,7 @@ namespace Neon.Deployment
             Covenant.Requires<ArgumentNullException>(release != null, nameof(release));
 
             var repoPath = GitHubRepoPath.Parse(repo);
-            var client   = GitHub.CreatClient();
+            var client   = GitHub.CreateClient();
 
             client.Repository.Release.Delete(repoPath.Owner, repoPath.Repo, release.Id).WaitWithoutAggregate();
         }
