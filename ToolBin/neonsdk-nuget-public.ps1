@@ -218,6 +218,7 @@ try
     SetVersion Neon.CSharp              $neonSdkVersion
     SetVersion Neon.Deployment          $neonSdkVersion
     SetVersion Neon.Docker              $neonSdkVersion
+    SetVersion Neon.Git                 $neonSdkVersion
     SetVersion Neon.JsonConverters      $neonSdkVersion
     SetVersion Neon.HyperV              $neonSdkVersion
     SetVersion Neon.Service             $neonSdkVersion
@@ -250,6 +251,7 @@ try
     Publish Neon.CSharp                 $neonSdkVersion
     Publish Neon.Deployment             $neonSdkVersion
     Publish Neon.Docker                 $neonSdkVersion
+    Publish Neon.Git                    $neonSdkVersion
     Publish Neon.JsonConverters         $neonSdkVersion
     Publish Neon.HyperV                 $neonSdkVersion
     Publish Neon.Service                $neonSdkVersion

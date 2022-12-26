@@ -55,7 +55,7 @@ ARGUMENTS:
 
     REPO            - target repository, like: 
 
-                        [SERVER]/OWNER/REPO
+                        [SERVER/]OWNER/REPO
 
     WORKFLOW-NAME   - optional target workflow name
 

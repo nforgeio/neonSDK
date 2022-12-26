@@ -59,11 +59,6 @@ namespace Neon.Deployment
         internal static string AccessToken { get; private set; }
 
         /// <summary>
-        /// Returns the GitHub user credentials or <c>null</c>.
-        /// </summary>
-        internal static Neon.Common.Credentials Credentials { get; private set; }
-
-        /// <summary>
         /// Retrieves the necessary credentials from 1Password when necessary and 
         /// caches them locally as well as in environment variables.
         /// </summary>
@@ -71,27 +66,19 @@ namespace Neon.Deployment
         {
             if (AccessToken == null)
             {
-                var gitHubPat      = Environment.GetEnvironmentVariable("GITHUB_PAT");
-                var gitHubUsername = Environment.GetEnvironmentVariable("GITHUB_USERNAME");
-                var gitHubPassword = Environment.GetEnvironmentVariable("GITHUB_PASSWORD");
+                var gitHubPat = Environment.GetEnvironmentVariable("GITHUB_PAT");
 
-                if (!string.IsNullOrEmpty(gitHubPat) &&
-                    !string.IsNullOrEmpty(gitHubUsername) &&
-                    !string.IsNullOrEmpty(gitHubPassword))
+                if (!string.IsNullOrEmpty(gitHubPat))
                 {
                     AccessToken = gitHubPat;
-                    Credentials = Neon.Common.Credentials.FromUserPassword(gitHubUsername, gitHubPassword);
                 }
                 else
                 {
                     var profile = new ProfileClient();
 
-                    AccessToken = profile.GetSecretPassword("GITHUB_PAT");
-                    Credentials = Neon.Common.Credentials.FromUserPassword(profile.GetSecretPassword("GITHUB_LOGIN[username]"), profile.GetSecretPassword("GITHUB_LOGIN[password]"));
+                    AccessToken = profile.GetSecretPassword("GITHUB_PAT[password]");
 
                     Environment.SetEnvironmentVariable("GITHUB_PAT", AccessToken);
-                    Environment.SetEnvironmentVariable("GITHUB_USERNAME", Credentials.Username);
-                    Environment.SetEnvironmentVariable("GITHUB_PASSWORD", Credentials.Password);
                 }
             }
         }
@@ -102,7 +89,6 @@ namespace Neon.Deployment
         public static void ClearCredentials()
         {
             AccessToken = null;
-            Credentials = null;
         }
 
         /// <summary>

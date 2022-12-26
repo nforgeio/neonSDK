@@ -1,10 +1,8 @@
 ﻿Neon.Deployment
 ===============
 
-**INTERNAL USE ONLY:** This package is intended mainly for use by NEONFORGE projects and should probably be
-avoided by other folks at this time.  We are not giving any guarantees about not making breaking changes in
-the future.
+Extends **GitHub** and **LibGit2Sharp** with handy higer level utilities.  Note that this replicates
+some of the functionality provided by **Neon.Deployment**.  Perhaps someday we'll have **Neon.Deployment**
+pick up these capabilities from this library or potentially combine the libraries.
 
-CI/CD (deployment) related utilities.
-
-You can get started here: [Neon.Docker](https://sdk.neonforge.com/N_Neon_Deployment.htm)
+You can get started here: [Neon.Docker](https://sdk.neonforge.com/N_Neon_GitHub.htm)

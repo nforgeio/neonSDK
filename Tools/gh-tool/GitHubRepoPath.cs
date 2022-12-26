@@ -44,7 +44,7 @@ namespace GHTool
         /// <summary>
         /// Parses a GitHub repository path.
         /// </summary>
-        /// <param name="path">The path, like: <b>[SERVER]/OWNER/REPO</b></param>
+        /// <param name="path">The path, like: <b>[SERVER/]OWNER/REPO</b></param>
         /// <returns>The parsed <see cref="GitHubRepoPath"/>.</returns>
         /// <exception cref="FormatException">Thrown when the input is invalid.</exception>
         /// <remarks>

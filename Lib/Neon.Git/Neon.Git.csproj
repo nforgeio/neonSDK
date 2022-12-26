@@ -3,18 +3,21 @@
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
 		<OutputType>Library</OutputType>
-		<RootNamespace>Neon.Deployment</RootNamespace>
+		<RootNamespace>Neon.Git</RootNamespace>
 		<Version>3.0.0</Version>
-		<Description>INTERNAL USE ONLY: CI/CD utility classes</Description>
+		<Description>
+Combines GitHub and local git repo functions into easy to use classes that behave
+similarily to Visual Studio's embedded git provider.
+		</Description>
 		<PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
 		<IsPackable>true</IsPackable>
-		<PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.Deployment/README.md</PackageProjectUrl>
+		<PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.Git/README.md</PackageProjectUrl>
 		<RepositoryType>git</RepositoryType>
 		<RepositoryUrl>https://github.com/nforgeio/neonSDK</RepositoryUrl>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<Configurations>Debug;Release</Configurations>
 		<PackageIcon>nuget-icon.png</PackageIcon>
-		<PackageTags>deployment utilities</PackageTags>
+		<PackageTags>git github utilities</PackageTags>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -25,15 +28,21 @@
 	<ItemGroup>
 		<ProjectReference Include="..\..\Lib\Neon.BuildInfo\Neon.BuildInfo.csproj" />
 		<ProjectReference Include="..\Neon.Common\Neon.Common.csproj" />
-		<ProjectReference Include="..\Neon.Cryptography\Neon.Cryptography.csproj" />
-		<ProjectReference Include="..\Neon.XenServer\Neon.XenServer.csproj" />
+		<ProjectReference Include="..\Neon.Deployment\Neon.Deployment.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-		<PackageReference Include="Octokit" Version="4.0.3" />
-		<PackageReference Include="System.IO.Pipes.AccessControl" Version="5.0.0" />
+		<None Include="..\nuget-icon.png" Pack="true" PackagePath="" />
+		<None Include="..\..\LICENSE" Pack="true" PackagePath="" />
 	</ItemGroup>
 
+	<ItemGroup>
+	    <Folder Include="Properties\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="LibGit2Sharp" Version="0.27.0-preview-0182" />
+	  <PackageReference Include="Octokit" Version="4.0.3" />
+	</ItemGroup>
+	
 </Project>
