@@ -37,8 +37,9 @@ REM We need to capture the user's GitHub username and email address:
 
 echo.
 set /p GITHUB_USERNAME="Enter your GitHub username: "
+
 echo.
-set /p GITHUB_EMAIL="Enter the email used for GitHub commits: "
+set /p GITHUB_EMAIL="Enter the email to be included in GitHub commits: "
 
 REM Ask the developer if they're a maintainer and set NF_MAINTAINER if they say yes.
 
@@ -119,8 +120,8 @@ set NEON_CLUSTER_TESTING=1
 
 REM Persist the environment variables.
 
-setx GITHUB_USERNAME "%GITHUB_USER%" /M          > nul
-setx GITHUB_EMAIL "%GITHUB_EMAIL%" /M          > nul
+setx GITHUB_USERNAME "%GITHUB_USERNAME%" /M       > nul
+setx GITHUB_EMAIL "%GITHUB_EMAIL%" /M             > nul
 setx NF_MAINTAINER "%NF_MAINTAINER%" /M           > nul              
 setx NF_REPOS "%NF_REPOS%" /M                     > nul
 setx NF_ROOT "%NF_ROOT%" /M                       > nul
