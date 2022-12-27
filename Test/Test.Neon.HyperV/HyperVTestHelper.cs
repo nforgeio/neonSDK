@@ -49,7 +49,7 @@ namespace TestHyperV
         /// image.  This is copied from the git repo: <b>$/External/alpine.vhdx</b>
         /// </summary>
         /// <returns>The <see cref="TempFile"/>.</returns>
-        public static TempFile CreateTempAlpineVhdx()
+        public static TempFile CopyTempAlpineVhdx()
         {
             var tempFile = new TempFile(suffix: ".vhdx");
 

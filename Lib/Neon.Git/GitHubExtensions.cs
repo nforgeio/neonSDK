@@ -54,7 +54,7 @@ namespace Neon.Git
     {
         /// <summary>
         /// Returns the GitHub username for the current user.  This is obtained from the <b>GIHUB_USERNAME</b>
-        /// environment variable which is intialized by <see cref="GitHubHelper.GetGitHubClient(string, string, string, string)"/>.
+        /// environment variable which is intialized by <see cref="GitHubHelper.CreateGitHubClient(string, string, string, string)"/>.
         /// </summary>
         /// <exception cref="InvalidOperationException">Thrown if the username could not be located.</exception>
         private static string Username
@@ -74,7 +74,7 @@ namespace Neon.Git
 
         /// <summary>
         /// Returns the GitHub PAT for the current user.  This is obtained from the <b>GITHuB_PAT</b>
-        /// environment variable which is intialized by <see cref="GitHubHelper.GetGitHubClient(string, string, string, string)"/>.
+        /// environment variable which is intialized by <see cref="GitHubHelper.CreateGitHubClient(string, string, string, string)"/>.
         /// </summary>
         /// <exception cref="InvalidOperationException">Thrown if the access token could not be located.</exception>
         private static string AccessToken
@@ -94,7 +94,7 @@ namespace Neon.Git
 
         /// <summary>
         /// Returns the GitHub email for the current user.  This is obtained from the <b>GIHUB_EMAIL</b>
-        /// environment variable which is intialized by <see cref="GitHubHelper.GetGitHubClient(string, string, string, string)"/>.
+        /// environment variable which is intialized by <see cref="GitHubHelper.CreateGitHubClient(string, string, string, string)"/>.
         /// </summary>
         /// <exception cref="InvalidOperationException">Thrown if the email address could not be located.</exception>
         private static string Email
