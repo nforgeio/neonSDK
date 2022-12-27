@@ -25,7 +25,6 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Neon.Common;
-using Neon.Kube;
 using Neon.Xunit;
 
 using Xunit;
@@ -45,7 +44,7 @@ namespace TestXunit
 
             this.fixture = fixture;
 
-            fixture.Start("neon-unit-test-container", $"{NeonHelper.NeonLibraryBranchRegistry}/test:latest");
+            fixture.Start("neon-unit-test-container", $"{NeonHelper.NeonSdkBranchRegistry}/test:latest");
         }
 
         [Fact]

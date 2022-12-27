@@ -32,7 +32,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 
 using Neon.Common;
-using Neon.Kube;
 using Neon.Service;
 using Neon.Xunit;
 using Neon.Xunit.Couchbase;
@@ -167,7 +166,7 @@ namespace TestXunit
                     composedFixture.AddFixture("container", new ContainerFixture(),
                         containerFixture =>
                         {
-                            containerFixture.StartAsComposed("my-container", $"{NeonHelper.NeonLibraryBranchRegistry}/test:latest");
+                            containerFixture.StartAsComposed("my-container", $"{NeonHelper.NeonSdkBranchRegistry}/test:latest");
                         },
                         group: 2);
 

@@ -35,7 +35,6 @@ using Microsoft.AspNetCore.Mvc;
 using Neon.Common;
 using Neon.Cryptography;
 using Neon.Docker;
-using Neon.Kube;
 using Neon.IO;
 using Neon.Web;
 using Neon.Xunit;

@@ -25,7 +25,6 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Neon.Common;
-using Neon.Kube;
 using Neon.Xunit;
 
 using Xunit;
@@ -55,7 +54,7 @@ namespace TestXunit
                 OomKillDisable    = true
             };
 
-            fixture.Start("neon-unit-test-container", $"{NeonHelper.NeonLibraryBranchRegistry}/test:latest", limits: limits);
+            fixture.Start("neon-unit-test-container", $"{NeonHelper.NeonSdkBranchRegistry}/test:latest", limits: limits);
         }
 
         [Fact]

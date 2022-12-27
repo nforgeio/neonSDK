@@ -27,7 +27,6 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 using Neon.Common;
-using Neon.Kube;
 using Neon.Xunit;
 
 using Xunit;

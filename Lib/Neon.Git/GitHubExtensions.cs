@@ -164,7 +164,7 @@ namespace Neon.Git
         /// <param name="branchName">
         /// Optionally specifies the branch to be checked out after the clone operation completes.
         /// This defaults to the remote repos default branch (typically <b>main</b> or <b>master</b>).
-        /// <param name="branchName"></param>
+        /// </param>
         /// <returns>The tracking <see cref="Task"/>.</returns>
         public static async Task CheckoutAsync (this GitHubClient githubClient, string localRepoPath, string branchName)
         {
@@ -295,10 +295,8 @@ namespace Neon.Git
                      }
                 };
 
-                return Commands.Pull(gitRepo, new GitSignature(Username, Email, DateTimeOffset.Now), options).Status;
+                return await Task.FromResult(Commands.Pull(gitRepo, new GitSignature(Username, Email, DateTimeOffset.Now), options).Status);
             }
-
-            await Task.CompletedTask;
         }
 
         /// <summary>

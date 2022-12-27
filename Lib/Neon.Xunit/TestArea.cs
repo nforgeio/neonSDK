@@ -134,5 +134,10 @@ namespace Neon.Xunit
         /// Identifies <b>Neon.HyperV</b> unit tests.
         /// </summary>
         public const string NeonHyperV = "Neon.HyperV";
+
+        /// <summary>
+        /// Identifies the <b>Neon.Git</b> unit tests.
+        /// </summary>
+        public const string NeonGit = "Neon.Git";
     }
 }
