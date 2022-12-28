@@ -16,6 +16,7 @@
 // limitations under the License.
 
 using Neon.Common;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -44,8 +45,11 @@ namespace Neon.IO
         /// Creates a temporary folder.
         /// </summary>
         /// <param name="folder">Optionally overrides <see cref="Root"/> as the parent folder for this instance.</param>
-        public TempFolder(string folder = null)
+        /// <param name="prefix">Optionally specifies a prefix to be added to the temporary directory name.</param>
+        public TempFolder(string folder = null, string prefix = null)
         {
+            prefix ??= string.Empty;
+
             if (string.IsNullOrEmpty(folder))
             {
                 folder = Root;
@@ -53,7 +57,7 @@ namespace Neon.IO
 
             if (string.IsNullOrEmpty(folder))
             {
-                Path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), Guid.NewGuid().ToString());
+                Path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"{prefix}{Guid.NewGuid()}");
             }
             else
             {
