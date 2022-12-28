@@ -23,13 +23,15 @@ using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Server.IIS.Core;
+using LibGit2Sharp;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Neon.Common;
 using Neon.Git;
 using Neon.IO;
 using Neon.Xunit;
 
 using Xunit;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace TestGit
 {
@@ -236,14 +238,96 @@ namespace TestGit
         [MaintainerFact]
         public async Task Clone()
         {
-            // Verify that we can clone the repo to a local temporary folder.
+            // Verify that we can clone the repo to a temporary local folder.
 
-            using (var tempRepoFolder = new TempFolder())
+            using (var tempFolder = new TempFolder())
             {
-                var github = GitHubHelper.CreateGitHubClient();
-            }
+                var repoPath = tempFolder.Path;
+                var github   = GitHubHelper.CreateGitHubClient();
 
-            await Task.CompletedTask;
+                await github.CloneAsync(TestRepo, repoPath, "master");
+                Assert.True(File.Exists(Path.Combine(repoPath, ".gitignore")));
+            }
+        }
+
+        [MaintainerFact]
+        public async Task Fetch()
+        {
+            // Verify that we can fetch remote info for a local repo
+            // without crashing.
+
+            using (var tempFolder = new TempFolder())
+            {
+                var repoPath = tempFolder.Path;
+                var github   = GitHubHelper.CreateGitHubClient();
+
+                await github.CloneAsync(TestRepo, repoPath, "master");
+                Assert.True(File.Exists(Path.Combine(repoPath, ".gitignore")));
+                await github.FetchAsync(repoPath);
+            }
+        }
+
+        [MaintainerFact]
+        public async Task CommitPushPull()
+        {
+            // Here's what we're going to do:
+            //
+            //       1. Clone the remote repo to two local folders
+            //       2. Create a new text file named with GUID to the first repo
+            //       3. Commit the change and push to the remote
+            //       4. Pull the second repo from the remote
+            //       5. Confirm that the second repo has the new file
+            //       6. Remove the file in the second repo
+            //       7. Commit and push the second repo to the remote
+            //       8. Go back to the first repo and pull changes from the remote
+            //       9. Confirm that the new file no longer exists
+            //      10. Delete both local repo folders
+
+            using (var tempFolder1 = new TempFolder())
+            {
+                using (var tempFolder2 = new TempFolder())
+                {
+                    var repoPath1 = tempFolder1.Path;
+                    var repoPath2 = tempFolder2.Path;
+                    var github    = GitHubHelper.CreateGitHubClient();
+
+                    // Clone the remote repo to two local folders:
+
+                    await github.CloneAsync(TestRepo, repoPath1, "master");
+                    await github.CloneAsync(TestRepo, repoPath2, "master");
+
+                    // Create a new text file named with GUID to the first repo
+                    // and commit the change:
+
+                    var testFileName = $"{Guid.NewGuid().ToString("d")}.txt";
+                    var testPath1    = Path.Combine(repoPath1, testFileName);
+                    var testPath2    = Path.Combine(repoPath2, testFileName);
+
+                    File.WriteAllText(testPath1, "HELLO WORLD!");
+                    Assert.True(await github.CommitAsync(repoPath1, "added a test file"));
+
+                    // Pull the second repo from the remote:
+
+                    Assert.Equal(MergeStatus.UpToDate, await github.PullAsync(repoPath2));
+
+                    // Confirm that the second repo has the new file:
+
+                    Assert.True(File.Exists(testPath2));
+                    Assert.Equal("HELLO WORLD!", File.ReadAllText(testPath2));
+
+                    // Remove the file in the second repo and then commit and
+                    // push to the remote:
+
+                    File.WriteAllText(testPath1, "HELLO WORLD!");
+                    Assert.True(await github.CommitAsync(repoPath1, "deleted a test file"));
+
+                    // Go back to the first repo and pull changes from the remote 
+                    // and confirm that the file no longer exists:
+
+                    Assert.Equal(MergeStatus.UpToDate, await github.PullAsync(repoPath1));
+                    Assert.False(File.Exists(testPath1));
+                }
+            }
         }
     }
 }

@@ -148,7 +148,7 @@ namespace Neon.Git
 
             GitHubRepoPath.Parse(remoteRepo);     // Validate the repo path
 
-            var remoteUri = $"github.com/{remoteRepo}";
+            var remoteUri = $"https://github.com/{remoteRepo}";
             var options   = new CloneOptions() { BranchName = branchName };
 
             GitRepository.Clone(remoteUri, localRepoPath, options);
@@ -187,7 +187,7 @@ namespace Neon.Git
         }
 
         /// <summary>
-        /// Fetches a local repo from the remote.
+        /// Fetches remote information into a local git repo.
         /// </summary>
         /// <param name="githubClient">Specifies the GitHub client.</param>
         /// <param name="localRepoPath">Specifies the local repo directory.</param>
@@ -242,7 +242,7 @@ namespace Neon.Git
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(localRepoPath));
             Covenant.Requires<ArgumentException>(Directory.Exists(localRepoPath), $"Local git repo does not exist at: {localRepoPath}");
-            Covenant.Requires<ArgumentNullException>(string.IsNullOrEmpty(message), nameof(message));
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(message), nameof(message));
 
             using (var gitRepo = new GitRepository(localRepoPath))
             {
@@ -270,7 +270,7 @@ namespace Neon.Git
 
         /// <summary>
         /// <para>
-        /// Pulls the changes from GitHub into the checked-out branch.
+        /// Fetches and pulls the changes from GitHub into the checked-out branch within a local git repo.
         /// </para>
         /// <note>
         /// The pull operation will be aborted and rolled back for merge conflicts.
@@ -294,6 +294,8 @@ namespace Neon.Git
                         FailOnConflict = true
                      }
                 };
+
+                await githubClient.FetchAsync(localRepoPath);
 
                 return await Task.FromResult(Commands.Pull(gitRepo, new GitSignature(Username, Email, DateTimeOffset.Now), options).Status);
             }
