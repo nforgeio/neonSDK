@@ -233,7 +233,7 @@ namespace Neon.IO
     ///     </para>
     ///     <para>
     ///     Profile values are simply named by a string.  There is currently no concept of a source, 
-    ///     location like secrets can have.
+    ///     location like secrets may have.
     ///     </para>
     ///     </description>
     /// </item>
