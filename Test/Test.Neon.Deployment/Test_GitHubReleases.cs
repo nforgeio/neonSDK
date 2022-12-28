@@ -43,7 +43,7 @@ namespace TestDeployment
     [CollectionDefinition(TestCollection.NonParallel, DisableParallelization = true)]
     public partial class Test_GitHubReleases
     {
-        const string repo = "neon-test/github-automation";
+        const string repo = "neontest/neon-deployment";
 
         private readonly TimeSpan releaseDelay = TimeSpan.FromSeconds(5);
 
