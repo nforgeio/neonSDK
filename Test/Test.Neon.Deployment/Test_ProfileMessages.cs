@@ -192,13 +192,13 @@ namespace TestDeployment
         [Fact]
         public void Response_Parse()
         {
-            var response = ProfileResponse.Parse($"OK: HELLO WORLD!");
+            var base64Value = Convert.ToBase64String(Encoding.UTF8.GetBytes("HELLO WORLD!"));
+            var response    = ProfileResponse.Parse($"OK: {base64Value}");
 
             Assert.True(response.Success);
             Assert.Equal("HELLO WORLD!", response.Value);
             Assert.Null(response.JObject);
 
-            var base64Value = Convert.ToBase64String(Encoding.UTF8.GetBytes("HELLO WORLD!"));
             
             Assert.Equal($"OK: {base64Value}", response.ToString());
         }

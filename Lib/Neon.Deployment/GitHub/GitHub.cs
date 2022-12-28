@@ -152,7 +152,7 @@ namespace Neon.Deployment
             };
 
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("token", AccessToken);
-            client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(userAgent));
+            client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(userAgent, "0"));
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github.v3+json"));
 
             return client;
