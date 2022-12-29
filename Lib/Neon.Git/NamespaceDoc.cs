@@ -58,6 +58,11 @@ namespace Neon.Git
     /// of Visual Studio.
     /// </para>
     /// <para>
+    /// Finally, although <b>LibeGit2Sharp</b> is very powerful, it can be hard to understand and use,
+    /// especially for common basic operations.  This library includes very easy-to-use methods implementing
+    /// some of these operations.
+    /// </para>
+    /// <para>
     /// Our approach here is to using a combination of environment variables like <b>GITHUB_USERNAME</b>,
     /// <b>GITHUB_PAT</b>, and <b>GITHUB_EMAIL</b> hold the credentials or alternatively, a secret
     /// provider like <b>1Password</b> via <see cref="IProfileClient"/>.  The environment variables
@@ -70,7 +75,7 @@ namespace Neon.Git
     /// </note>
     /// <note>
     /// This functionality is currently <b>tied to GitHub</b> because that's where we're hosting our
-    /// projects.  We don't currently support other providers like GitLabs, etc.
+    /// projects.  We don't currently support other providers like GitLabs, etc. and may never do so.
     /// </note>
     /// <pare><b>USAGE:</b></pare>
     /// <para>
@@ -80,7 +85,7 @@ namespace Neon.Git
     /// </para>
     /// <para>
     /// Then, you can use the client to query GitHub or the <see cref="GitHubExtensions"/> methods
-    /// extending <see cref="GitHubClient"/> to perform extended operations.
+    /// extending <see cref="GitHubClient"/> with new operations.
     /// </para>
     /// </remarks>
     [System.Runtime.CompilerServices.CompilerGenerated]

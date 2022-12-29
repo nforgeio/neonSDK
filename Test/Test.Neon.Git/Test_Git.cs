@@ -23,15 +23,15 @@ using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+
 using LibGit2Sharp;
-using Microsoft.AspNetCore.Http.HttpResults;
+
 using Neon.Common;
 using Neon.Git;
 using Neon.IO;
 using Neon.Xunit;
 
 using Xunit;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace TestGit
 {
@@ -41,7 +41,7 @@ namespace TestGit
         /// <summary>
         /// Identifies the GitHub repo we'll use for testing the <b>Neon.Git</b> library.
         /// </summary>
-        private const string TestRepo = "neontest/neon-git";
+        private const string RemoteTestRepo = "neontest/neon-git";
 
         private string saveUsername;
         private string saveAccessToken;
@@ -245,7 +245,7 @@ namespace TestGit
                 var repoPath = tempFolder.Path;
                 var github   = GitHubHelper.CreateGitHubClient();
 
-                await github.CloneAsync(TestRepo, repoPath, "master");
+                await github.CloneAsync(RemoteTestRepo, repoPath, "master");
                 Assert.True(File.Exists(Path.Combine(repoPath, ".gitignore")));
             }
         }
@@ -261,7 +261,7 @@ namespace TestGit
                 var repoPath = tempFolder.Path;
                 var github   = GitHubHelper.CreateGitHubClient();
 
-                await github.CloneAsync(TestRepo, repoPath, "master");
+                await github.CloneAsync(RemoteTestRepo, repoPath, "master");
                 Assert.True(File.Exists(Path.Combine(repoPath, ".gitignore")));
                 await github.FetchAsync(repoPath);
             }
@@ -283,9 +283,9 @@ namespace TestGit
             //       9. Confirm that the new file no longer exists
             //      10. Delete both local repo folders
 
-            using (var tempFolder1 = new TempFolder())
+            using (var tempFolder1 = new TempFolder(prefix: "repo1-"))
             {
-                using (var tempFolder2 = new TempFolder())
+                using (var tempFolder2 = new TempFolder(prefix: "repo2-"))
                 {
                     var repoPath1 = tempFolder1.Path;
                     var repoPath2 = tempFolder2.Path;
@@ -293,22 +293,25 @@ namespace TestGit
 
                     // Clone the remote repo to two local folders:
 
-                    await github.CloneAsync(TestRepo, repoPath1, "master");
-                    await github.CloneAsync(TestRepo, repoPath2, "master");
+                    await github.CloneAsync(RemoteTestRepo, repoPath1, "master");
+                    await github.CloneAsync(RemoteTestRepo, repoPath2, "master");
 
                     // Create a new text file named with GUID to the first repo
-                    // and commit the change:
+                    // and commit and push the change to the remote:
 
-                    var testFileName = $"{Guid.NewGuid().ToString("d")}.txt";
+                    var testFolder   = "test";
+                    var testFileName = Path.Combine(testFolder, $"{Guid.NewGuid()}.txt");
                     var testPath1    = Path.Combine(repoPath1, testFileName);
                     var testPath2    = Path.Combine(repoPath2, testFileName);
 
+                    Directory.CreateDirectory(Path.Combine(repoPath1, testFolder));
                     File.WriteAllText(testPath1, "HELLO WORLD!");
-                    Assert.True(await github.CommitAsync(repoPath1, "added a test file"));
+                    Assert.True(await github.CommitAsync(repoPath1, "add: test file"));
+                    Assert.True(await github.PushAsync(RemoteTestRepo, repoPath1));
 
                     // Pull the second repo from the remote:
 
-                    Assert.Equal(MergeStatus.UpToDate, await github.PullAsync(repoPath2));
+                    Assert.Equal(MergeStatus.FastForward, await github.PullAsync(repoPath2));
 
                     // Confirm that the second repo has the new file:
 
@@ -318,15 +321,47 @@ namespace TestGit
                     // Remove the file in the second repo and then commit and
                     // push to the remote:
 
-                    File.WriteAllText(testPath1, "HELLO WORLD!");
-                    Assert.True(await github.CommitAsync(repoPath1, "deleted a test file"));
+                    File.Delete(testPath2);
+                    Assert.True(await github.CommitAsync(repoPath2, "delete: test file"));
+                    Assert.True(await github.PushAsync(RemoteTestRepo, repoPath2));
 
                     // Go back to the first repo and pull changes from the remote 
                     // and confirm that the file no longer exists:
 
-                    Assert.Equal(MergeStatus.UpToDate, await github.PullAsync(repoPath1));
+                    Assert.Equal(MergeStatus.FastForward, await github.PullAsync(repoPath1));
                     Assert.False(File.Exists(testPath1));
+
+                    // It's possible for test files to accumulate when past unit tests were
+                    // aborted or failed.  We're going to remove any test files in the first
+                    // repo and then commit/push any changes to GitHub to address this.
+
+                    var testFolder1 = Path.Combine(repoPath1, testFolder);
+
+                    if (Directory.Exists(testFolder1) && Directory.GetFiles(testFolder1, "*", SearchOption.AllDirectories).Length > 0)
+                    {
+                        NeonHelper.DeleteFolderContents(testFolder1);
+                        Assert.True(await github.CommitAsync(repoPath1, "delete: accumulated test files"));
+                        Assert.True(await github.PushAsync(RemoteTestRepo, repoPath2));
+                    }
                 }
+            }
+            }
+
+        [MaintainerFact]
+        public async Task CreateRemoveBranch()
+        {
+            // Verify that we can create a local branch, push it to GitHub,
+            // and then remove both the local and remote branches.
+
+            using (var tempFolder = new TempFolder(prefix: "repo-"))
+            {
+                var repoPath      = tempFolder.Path;
+                var newBranchName = $"testbranch-{Guid.NewGuid()}";
+                var github        = GitHubHelper.CreateGitHubClient();
+
+                //await github.CreateLocalBranchAsync(repoPath, newBranchName);
+
+                //await github.RemoveBranchAsync(repoPath, newBranchName);
             }
         }
     }
