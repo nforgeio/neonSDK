@@ -270,12 +270,11 @@ namespace Neon.Common
 
         /// <summary>
         /// This is a convenience generic method that returns the service
-        /// already cast to requested type.  This only works for reference types.
+        /// already cast to requested type.
         /// </summary>
         /// <typeparam name="TService">Specifies the desired service type.</typeparam>
         /// <returns>The service instance if it exists or <c>null</c>.</returns>
         public TService GetService<TService>()
-            where TService : class
         {
             return (TService)GetService(typeof(TService));
         }
