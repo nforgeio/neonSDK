@@ -90,7 +90,7 @@ namespace Neon.Deployment
     /// to <c>false</c> and the cached can be cleared via <see cref="ClearCache()"/>
     /// </para>
     /// <para>
-    /// The <b>Neon.Deployment.ProfileClient</b> implementation communicates with the <b>neon-assistant</b>
+    /// The <b>Neon.Deployment.MaintainerProfileClient</b> implementation communicates with the <b>neon-assistant</b>
     /// to retrieve profile values and secrets.  <b>neon-assistant</b> manages profile values directly but
     /// communicates with 1Password.com to obtain secrets, which can take a second or two.  Caching will
     /// improve performance and also take some load off of 1Password. 

@@ -85,7 +85,7 @@ namespace Neon.Git
         // Instance members
 
         /// <summary>
-        /// Constructor.
+        /// Internal constructor.
         /// </summary>
         /// <param name="username">Optionally specifies the GitHub username.</param>
         /// <param name="accessToken">Optionally specifies the GitHub Personal Access Token (PAT).</param>
@@ -96,7 +96,7 @@ namespace Neon.Git
         /// and the instance will use that if this parameter is <c>null</c>.  Secrets will be queried only
         /// when a profile client is available.
         /// </param>
-        public GitHubCredentials(
+        internal GitHubCredentials(
             string username              = null, 
             string accessToken           = null, 
             string email                 = null, 
