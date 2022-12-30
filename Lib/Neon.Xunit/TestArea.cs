@@ -31,11 +31,6 @@ namespace Neon.Xunit
     public static class TestArea
     {
         /// <summary>
-        /// Identifies <b>Neon.Cadence</b> tests.
-        /// </summary>
-        public const string NeonCadence = "Neon.Cadence";
-
-        /// <summary>
         /// Identifies <b>Neon.ModelGen</b> tests.
         /// </summary>
         public const string NeonModelGen = "Neon.ModelGen";
