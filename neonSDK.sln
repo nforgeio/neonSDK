@@ -104,23 +104,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neon.Xunit.Couchbase", "Lib
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Neon.Couchbase", "Test\Test.Neon.Couchbase\Test.Neon.Couchbase.csproj", "{D3AA09B8-9C4D-42DC-83CE-E2F319EB6287}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Go", "Go", "{F91BE5A3-9CBD-409B-AE86-D6FD8C09F02D}"
-	ProjectSection(SolutionItems) = preProject
-		Go\build-all.ps1 = Go\build-all.ps1
-		Go\build-cadence-proxy.ps1 = Go\build-cadence-proxy.ps1
-		Go\build-test.ps1 = Go\build-test.ps1
-	EndProjectSection
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GoBuilder", "Go\GoBuilder\GoBuilder.csproj", "{C2071335-AFDF-4643-93A2-EAC482E90E73}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "bin", "bin", "{B811096C-2648-4156-A7E4-05E9A5C69297}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{EAA2C7EE-0B01-4B2B-80FA-7BF3D03552BA}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "pkg", "pkg", "{07791873-FCCD-4506-B192-A61509724BD6}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "github.com", "github.com", "{DFFBE94F-8C0E-4592-AF14-7B47A41AE2C9}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neon.Nats", "Lib\Neon.Nats\Neon.Nats.csproj", "{3D3A8742-0EC5-4C95-92F5-84F95A0B7F1A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Neon.Web", "Test\Test.Neon.Web\Test.Neon.Web.csproj", "{DF45D6DD-02D7-479E-8856-A06A0C679B58}"
@@ -130,29 +113,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Neon.Common", "Test\Test.Neon.Common\Test.Neon.Common.csproj", "{49072BAB-857F-4058-B2CE-693085F9269C}"
 	ProjectSection(ProjectDependencies) = postProject
 		{AD3BBDEC-A7CD-4E0D-8740-B3B133D3A018} = {AD3BBDEC-A7CD-4E0D-8740-B3B133D3A018}
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{DCE108FB-01CD-4768-A37D-229E354905D9}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "cadence", "cadence", "{B755BCE3-2296-4DC6-95DF-621B3EE31FE3}"
-	ProjectSection(SolutionItems) = preProject
-		Go\test\cadence\config.yaml = Go\test\cadence\config.yaml
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "cwf-args", "cwf-args", "{161A8603-1E04-4E7E-923E-DF2D8D0D3327}"
-	ProjectSection(SolutionItems) = preProject
-		Go\test\cadence\cwf-args\arrayArg.go = Go\test\cadence\cwf-args\arrayArg.go
-		Go\test\cadence\cwf-args\arrayArgs.go = Go\test\cadence\cwf-args\arrayArgs.go
-		Go\test\cadence\cwf-args\errTest.go = Go\test\cadence\cwf-args\errTest.go
-		Go\test\cadence\cwf-args\factory.go = Go\test\cadence\cwf-args\factory.go
-		Go\test\cadence\cwf-args\go.mod = Go\test\cadence\cwf-args\go.mod
-		Go\test\cadence\cwf-args\go.sum = Go\test\cadence\cwf-args\go.sum
-		Go\test\cadence\cwf-args\main.go = Go\test\cadence\cwf-args\main.go
-		Go\test\cadence\cwf-args\noArgs.go = Go\test\cadence\cwf-args\noArgs.go
-		Go\test\cadence\cwf-args\oneArg.go = Go\test\cadence\cwf-args\oneArg.go
-		Go\test\cadence\cwf-args\sample_helper.go = Go\test\cadence\cwf-args\sample_helper.go
-		Go\test\cadence\cwf-args\twoArgs.go = Go\test\cadence\cwf-args\twoArgs.go
-		Go\test\cadence\cwf-args\util.go = Go\test\cadence\cwf-args\util.go
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Neon.Service", "Test\Test.Neon.Service\Test.Neon.Service.csproj", "{3348B808-5F6E-4DF8-BA2E-7E465431F48C}"
@@ -689,24 +649,6 @@ Global
 		{D3AA09B8-9C4D-42DC-83CE-E2F319EB6287}.Release|x64.Build.0 = Release|Any CPU
 		{D3AA09B8-9C4D-42DC-83CE-E2F319EB6287}.Release|x86.ActiveCfg = Release|Any CPU
 		{D3AA09B8-9C4D-42DC-83CE-E2F319EB6287}.Release|x86.Build.0 = Release|Any CPU
-		{C2071335-AFDF-4643-93A2-EAC482E90E73}.CodeDoc|Any CPU.ActiveCfg = Release|Any CPU
-		{C2071335-AFDF-4643-93A2-EAC482E90E73}.CodeDoc|Any CPU.Build.0 = Release|Any CPU
-		{C2071335-AFDF-4643-93A2-EAC482E90E73}.CodeDoc|x64.ActiveCfg = Release|Any CPU
-		{C2071335-AFDF-4643-93A2-EAC482E90E73}.CodeDoc|x64.Build.0 = Release|Any CPU
-		{C2071335-AFDF-4643-93A2-EAC482E90E73}.CodeDoc|x86.ActiveCfg = Release|Any CPU
-		{C2071335-AFDF-4643-93A2-EAC482E90E73}.CodeDoc|x86.Build.0 = Release|Any CPU
-		{C2071335-AFDF-4643-93A2-EAC482E90E73}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C2071335-AFDF-4643-93A2-EAC482E90E73}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C2071335-AFDF-4643-93A2-EAC482E90E73}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{C2071335-AFDF-4643-93A2-EAC482E90E73}.Debug|x64.Build.0 = Debug|Any CPU
-		{C2071335-AFDF-4643-93A2-EAC482E90E73}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{C2071335-AFDF-4643-93A2-EAC482E90E73}.Debug|x86.Build.0 = Debug|Any CPU
-		{C2071335-AFDF-4643-93A2-EAC482E90E73}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C2071335-AFDF-4643-93A2-EAC482E90E73}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C2071335-AFDF-4643-93A2-EAC482E90E73}.Release|x64.ActiveCfg = Release|Any CPU
-		{C2071335-AFDF-4643-93A2-EAC482E90E73}.Release|x64.Build.0 = Release|Any CPU
-		{C2071335-AFDF-4643-93A2-EAC482E90E73}.Release|x86.ActiveCfg = Release|Any CPU
-		{C2071335-AFDF-4643-93A2-EAC482E90E73}.Release|x86.Build.0 = Release|Any CPU
 		{3D3A8742-0EC5-4C95-92F5-84F95A0B7F1A}.CodeDoc|Any CPU.ActiveCfg = Release|Any CPU
 		{3D3A8742-0EC5-4C95-92F5-84F95A0B7F1A}.CodeDoc|Any CPU.Build.0 = Release|Any CPU
 		{3D3A8742-0EC5-4C95-92F5-84F95A0B7F1A}.CodeDoc|x64.ActiveCfg = Release|Any CPU
@@ -1417,17 +1359,9 @@ Global
 		{DF8A6F39-7A8D-477F-8A19-8B467671B542} = {5641C82B-E8E5-49AD-8DEE-E574D0D77460}
 		{12283401-E727-4771-A24E-E9B873AD44BB} = {DBDA1B94-CCD1-48E4-AA0A-FDB5B18AF069}
 		{D3AA09B8-9C4D-42DC-83CE-E2F319EB6287} = {83DC75D5-800D-42F7-9812-BD198A62DD0B}
-		{C2071335-AFDF-4643-93A2-EAC482E90E73} = {F91BE5A3-9CBD-409B-AE86-D6FD8C09F02D}
-		{B811096C-2648-4156-A7E4-05E9A5C69297} = {F91BE5A3-9CBD-409B-AE86-D6FD8C09F02D}
-		{EAA2C7EE-0B01-4B2B-80FA-7BF3D03552BA} = {F91BE5A3-9CBD-409B-AE86-D6FD8C09F02D}
-		{07791873-FCCD-4506-B192-A61509724BD6} = {F91BE5A3-9CBD-409B-AE86-D6FD8C09F02D}
-		{DFFBE94F-8C0E-4592-AF14-7B47A41AE2C9} = {EAA2C7EE-0B01-4B2B-80FA-7BF3D03552BA}
 		{3D3A8742-0EC5-4C95-92F5-84F95A0B7F1A} = {DBDA1B94-CCD1-48E4-AA0A-FDB5B18AF069}
 		{DF45D6DD-02D7-479E-8856-A06A0C679B58} = {83DC75D5-800D-42F7-9812-BD198A62DD0B}
 		{49072BAB-857F-4058-B2CE-693085F9269C} = {83DC75D5-800D-42F7-9812-BD198A62DD0B}
-		{DCE108FB-01CD-4768-A37D-229E354905D9} = {F91BE5A3-9CBD-409B-AE86-D6FD8C09F02D}
-		{B755BCE3-2296-4DC6-95DF-621B3EE31FE3} = {DCE108FB-01CD-4768-A37D-229E354905D9}
-		{161A8603-1E04-4E7E-923E-DF2D8D0D3327} = {B755BCE3-2296-4DC6-95DF-621B3EE31FE3}
 		{3348B808-5F6E-4DF8-BA2E-7E465431F48C} = {83DC75D5-800D-42F7-9812-BD198A62DD0B}
 		{8AB98A6E-B8C3-4387-ADA8-BB3E2DDF3275} = {2CFE7466-98C4-490A-9519-4702DF7A4E15}
 		{58D183E5-41FC-4A97-9942-42B5CFDC0854} = {8AB98A6E-B8C3-4387-ADA8-BB3E2DDF3275}
