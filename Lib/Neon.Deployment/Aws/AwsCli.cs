@@ -153,7 +153,7 @@ namespace Neon.Deployment
         /// <param name="masterPassword">Optionally specifies the master 1Password.</param>
         public static void SetCredentials(string awsAccessKeyId = "AWS_NEONFORGE[ACCESS_KEY_ID]", string awsSecretAccessKey = "AWS_NEONFORGE[SECRET_ACCESS_KEY]", string vault = null, string masterPassword = null)
         {
-            var profileClient = new ProfileClient();
+            var profileClient = new MaintainerProfileClient();
 
             Environment.SetEnvironmentVariable("AWS_ACCESS_KEY_ID", profileClient.GetSecretPassword(awsAccessKeyId, vault, masterPassword));
             Environment.SetEnvironmentVariable("AWS_SECRET_ACCESS_KEY", profileClient.GetSecretPassword(awsSecretAccessKey, vault, masterPassword));

@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:	    ProfileClient.cs
+// FILE:	    MaintainerProfileClient.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
 //
@@ -30,8 +30,11 @@ using Neon.Common;
 
 namespace Neon.Deployment
 {
-    /// <inheritdoc/>
-    public partial class ProfileClient : IProfileClient
+    /// <summary>
+    /// Provides the <see cref="IProfileClient"/> implementation used by NEONFORGE maintainers
+    /// to obtain 1Password secrets via our internal <b>neon-assistant</b> tool.
+    /// </summary>
+    public partial class MaintainerProfileClient : IProfileClient
     {
         private readonly string             pipeName;
         private readonly TimeSpan           connectTimeout;
@@ -46,11 +49,11 @@ namespace Neon.Deployment
         /// constructing from Powershell scripts.
         /// </para>
         /// <note>
-        /// <see cref="ProfileClient"/> currently only supports Windows.
+        /// <see cref="MaintainerProfileClient"/> currently only supports Windows.
         /// </note>
         /// </summary>
         /// <exception cref="NotSupportedException">Thrown when not running on Windows.</exception>
-        public ProfileClient()
+        public MaintainerProfileClient()
             : this(DeploymentHelper.NeonProfileServicePipe)
         {
         }
@@ -60,15 +63,15 @@ namespace Neon.Deployment
         /// Constructor with optional client timeout.
         /// </para>
         /// <note>
-        /// <see cref="ProfileClient"/> currently supports only Windows.
+        /// <see cref="MaintainerProfileClient"/> currently supports only Windows.
         /// </note>
         /// </summary>
         /// <param name="pipeName">Specifies the server pipe name.</param>
         /// <param name="connectTimeout">Optionally specifies the connection timeout.  This defaults to <b>10 seconds</b>.</param>
         /// <exception cref="NotSupportedException">Thrown when not running on Windows.</exception>
-        public ProfileClient(string pipeName, TimeSpan connectTimeout = default)
+        public MaintainerProfileClient(string pipeName, TimeSpan connectTimeout = default)
         {
-            Covenant.Requires<NotSupportedException>(NeonHelper.IsWindows, $"[{nameof(ProfileClient)}] currently only supports Windows.");
+            Covenant.Requires<NotSupportedException>(NeonHelper.IsWindows, $"[{nameof(MaintainerProfileClient)}] currently only supports Windows.");
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(pipeName), nameof(pipeName));
 
             this.pipeName = pipeName;

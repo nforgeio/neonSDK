@@ -74,7 +74,7 @@ namespace Neon.Deployment
                 }
                 else
                 {
-                    var profile = new ProfileClient();
+                    var profile = new MaintainerProfileClient();
 
                     AccessToken = profile.GetSecretPassword("GITHUB_PAT[password]");
 

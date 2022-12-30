@@ -313,7 +313,7 @@ ARGUMENTS:
             //
             // This is required by: CommandLine.Preprocess()
 
-            NeonHelper.ServiceContainer.AddSingleton<IProfileClient>(new ProfileClient());
+            NeonHelper.ServiceContainer.AddSingleton<IProfileClient>(new MaintainerProfileClient());
 
             commandLine = new CommandLine(args).Preprocess();
 

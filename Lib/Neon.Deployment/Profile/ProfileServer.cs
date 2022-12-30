@@ -36,7 +36,7 @@ namespace Neon.Deployment
 {
     /// <summary>
     /// Implements a named-pipe based server that will be used to receive
-    /// requests from <see cref="ProfileClient"/>.  This server listens
+    /// requests from <see cref="MaintainerProfileClient"/>.  This server listens
     /// on a named pipe and only allows connections from other processes 
     /// running on behalf of the current user.
     /// </summary>

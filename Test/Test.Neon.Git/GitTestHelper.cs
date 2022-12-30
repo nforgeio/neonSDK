@@ -160,7 +160,7 @@ namespace TestGit
 
             try
             {
-                NeonHelper.ServiceContainer.AddSingleton<IProfileClient>(new ProfileClient());
+                NeonHelper.ServiceContainer.AddSingleton<IProfileClient>(new MaintainerProfileClient());
 
                 await action();
             }

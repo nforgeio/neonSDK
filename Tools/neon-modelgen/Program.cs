@@ -125,7 +125,7 @@ style design conventions.  See this GitHub issue for more information:
             //
             // This is required by: CommandLine.Preprocess()
 
-            NeonHelper.ServiceContainer.AddSingleton<IProfileClient>(new ProfileClient());
+            NeonHelper.ServiceContainer.AddSingleton<IProfileClient>(new MaintainerProfileClient());
 
             var commandLine = new CommandLine(args).Preprocess();
 
