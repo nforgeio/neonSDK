@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -46,6 +47,11 @@ namespace TestGit
         public const string RemoteTestRepo = "neontest/neon-git";
 
         /// <summary>
+        /// Name of the folder used for managing test files.
+        /// </summary>
+        public const string TestFolder = "test";
+
+        /// <summary>
         /// Ensures that the current user appears to be a NTONFORGE maintainer.
         /// </summary>
         /// <exception cref="InvalidOperationException">Thrown when the current user doesn't appear to be a maintainer.</exception>
@@ -61,6 +67,74 @@ namespace TestGit
                     string.IsNullOrEmpty(Environment.GetEnvironmentVariable("GITHUB_EMAIL")))
                 {
                     throw new InvalidOperationException("NEONFORGE maintainers are expected to have these environment variables: GITHUB_USERNAME, GITHUB_PAT, and GITHUB_EMAIL");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Clones the test repo, checks out the master branch, and then removes any files in
+        /// the repo under the <see cref="TestFolder"/> directory (if it exists) and pushes
+        /// the changes to the remote.  This is used to help prevent the accumulation of test files.
+        /// </summary>
+        /// <returns>The tracking <see cref="Task"/>.</returns>
+        public static async Task RemoveTestFilesAsync()
+        {
+            using (var tempFolder = new TempFolder(prefix: "repo-"))
+            {
+                var repoPath = tempFolder.Path;
+
+                using (var repo = new SimpleRepository(GitTestHelper.RemoteTestRepo, repoPath))
+                {
+                    await repo.CloneAsync();
+
+                    var testFolder = Path.Combine(repo.LocalRepoFolder, TestFolder);
+
+                    if (Directory.Exists(testFolder) && Directory.GetFiles(testFolder, "*", SearchOption.AllDirectories).Length > 0)
+                    {
+                        NeonHelper.DeleteFolderContents(testFolder);
+                        Assert.True(await repo.CommitAsync("delete: accumulated test files"));
+                        Assert.True(await repo.PushAsync());
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Clones the test repo, checks out the master branch, and then removes any test branches
+        /// (whose names  start with "testbranch-") from the local repo and pushes the changes to the
+        /// remote to help prevent the accumulation of branches.
+        /// </summary>
+        /// <returns>The tracking <see cref="Task"/>.</returns>
+        public static async Task RemoveTestBranchesAsync()
+        {
+            using (var tempFolder = new TempFolder(prefix: "repo-"))
+            {
+                var repoPath = tempFolder.Path;
+
+                using (var repo = new SimpleRepository(GitTestHelper.RemoteTestRepo, repoPath))
+                {
+                    await repo.CloneAsync("master");
+
+                    // We need to check out the remote test branches first.
+
+                    foreach (var branch in repo.Branches
+                        .Where(branch => branch.FriendlyName.StartsWith("origin/testbranch-"))
+                        .ToArray())
+                    {
+                        await repo.CheckoutRemoteAsync(repo.NormalizeRemoteBranchName(branch.FriendlyName));
+                    }
+
+                    // Now remove the test branches.
+
+                    await repo.CheckoutAsync("master");
+
+                    foreach (var branch in repo.Branches
+                        .Select(branch => repo.NormalizeRemoteBranchName(branch.FriendlyName))
+                        .Where(branchName => branchName.StartsWith("testbranch-"))
+                        .ToArray())
+                    {
+                        await repo.RemoveBranchAsync(branch);
+                    }
                 }
             }
         }

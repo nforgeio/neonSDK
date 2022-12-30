@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:	    SimpleRepository.cs
+// FILE:	    EasyRepository.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
 //
@@ -49,13 +49,14 @@ namespace Neon.Git
 {
     /// <summary>
     /// Wraps a <see cref="GitHubClient"/> and <see cref="GitRepository"/> into a single object that provides
-    /// easy to use high-level methods while also exposing the <see cref="GitHubClient"/> and <see cref="GitRepository"/>
-    /// as the <see cref="GitHubApi"/> and <see cref="LocalRepo"/> properties for more advanced scenarios.
+    /// easy to use high-level methods while also exposing the lower-level <see cref="GitHubClient"/> and <see cref="GitRepository"/>
+    /// properties as the <see cref="RemoteApi"/> and <see cref="Local"/> properties for more advanced scenarios.
     /// </summary>
     public partial class SimpleRepository : IDisposable
     {
         private bool                isDisposed = false;
         private CredentialsHandler  credentialsProvider;
+        private Remote              cachedOrigin;
 
         /// <summary>
         /// <para>
@@ -88,7 +89,7 @@ namespace Neon.Git
 
             if (Directory.Exists(localRepoFolder) && Directory.GetFiles(localRepoFolder, "*", SearchOption.AllDirectories).Length > 0)
             {
-                this.LocalRepo = new GitRepository(localRepoFolder);
+                this.Local = new GitRepository(localRepoFolder);
             }
 
             if (string.IsNullOrEmpty(userAgent))
@@ -101,7 +102,7 @@ namespace Neon.Git
                 accessToken: accessToken,
                 email:       email);
 
-            this.GitHubApi = new GitHubClient(new Octokit.ProductHeaderValue(userAgent))
+            this.RemoteApi = new GitHubClient(new Octokit.ProductHeaderValue(userAgent))
             {
                 Credentials = new Octokit.Credentials(Credentials.AccessToken)
             };
@@ -143,10 +144,10 @@ namespace Neon.Git
                 return;
             }
 
-            if (LocalRepo != null)
+            if (Local != null)
             {
-                LocalRepo.Dispose();
-                LocalRepo = null;
+                Local.Dispose();
+                Local = null;
             }
 
             isDisposed = true;
@@ -170,22 +171,84 @@ namespace Neon.Git
         /// <summary>
         /// Returns the <see cref="GitHubClient"/> REST API client associated with the instance.
         /// </summary>
-        public GitHubClient GitHubApi { get; private set; }
+        public GitHubClient RemoteApi { get; private set; }
 
         /// <summary>
         /// Returns the associated local git repo if it exists, <c>null</c> otherwise.
         /// </summary>
-        public GitRepository LocalRepo { get; private set; }
+        public GitRepository Local { get; private set; }
 
         /// <summary>
-        /// Returns <c>true</c> when the local repository has changes waiting to be committed.
+        /// Returns the repository's remote origin.
         /// </summary>
-        public bool IsDirty => LocalRepo.IsDirty();
+        /// <exception cref="InvalidOperationException">Thrown if the repositoru doesn't have an origin.</exception>
+        public Remote Origin
+        {
+            get
+            {
+                if (cachedOrigin != null)
+                {
+                    return cachedOrigin;
+                }
+
+                cachedOrigin = Local.Network.Remotes["origin"];
+
+                if (cachedOrigin == null)
+                {
+                    throw new InvalidOperationException($"Local git repo [{LocalRepoFolder}] has no remote origin.");
+                }
+
+                return cachedOrigin;
+            }
+        }
+
+        /// <summary>
+        /// Returns <c>true</c> when the local repos has uncommitted changes.
+        /// </summary>
+        public bool IsDirty => Local.IsDirty();
+
+        /// <summary>
+        /// Returns the local repo's branches.
+        /// </summary>
+        public BranchCollection Branches => Local.Branches;
 
         /// <summary>
         /// Creates a <see cref="GitSignature"/> from the repo's credentials.
         /// </summary>
         /// <returns></returns>
         public GitSignature CreateSignature() => new GitSignature(Credentials.Username, Credentials.Email, DateTimeOffset.Now);
+
+        /// <summary>
+        /// Returns a <see cref="PushOptions"/> instance initialized with the credentials provider.
+        /// </summary>
+        /// <returns>The new <see cref="PushOptions"/>.</returns>
+        public PushOptions CreatePushOptions()
+        {
+            return new PushOptions()
+            {
+                CredentialsProvider = credentialsProvider
+            };
+        }
+
+        /// <summary>
+        /// Normalizes a remote branch name by stripping off any leading "origin/".
+        /// </summary>
+        /// <param name="branchName">The branch name.</param>
+        /// <returns>The normalized branch name.</returns>
+        internal string NormalizeRemoteBranchName(string branchName)
+        {
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
+
+            const string originPrefix = "origin/";
+
+            if (branchName.StartsWith(originPrefix))
+            {
+                return branchName.Substring(originPrefix.Length);
+            }
+            else
+            {
+                return branchName;
+            }
+        }
     }
 }

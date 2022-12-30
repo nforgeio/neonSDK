@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:	    SimpleRepository.Remote.cs
+// FILE:	    EasyRepository.Remote.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
 //
@@ -37,25 +37,37 @@ using LibGit2Sharp.Handlers;
 
 using Octokit;
 
-using GitHubBranch = Octokit.Branch;
+using GitHubBranch     = Octokit.Branch;
 using GitHubRepository = Octokit.Repository;
-using GitHubSignature = Octokit.Signature;
+using GitHubSignature  = Octokit.Signature;
 
-using GitBranch = LibGit2Sharp.Branch;
+using GitBranch     = LibGit2Sharp.Branch;
 using GitRepository = LibGit2Sharp.Repository;
-using GitSignature = LibGit2Sharp.Signature;
+using GitSignature  = LibGit2Sharp.Signature;
 
 namespace Neon.Git
 {
     public partial class SimpleRepository
     {
         /// <summary>
-        /// Returns the remote branches for a GitHub repo.
+        /// Returns a specific remote branch.
+        /// </summary>
+        /// <param name="branchName">Specifies the remote branch name.</param>
+        /// <returns>The <see cref="GitHubBranch"/> or <c>null</c> when the branch doesn't exist.</returns>
+        public async Task<GitHubBranch> GetRemoteBranchAsync(string branchName)
+        {
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
+
+            return (await GetRemoteBranchesAsync()).FirstOrDefault(branch => branch.Name.Equals(branchName, StringComparison.InvariantCultureIgnoreCase));
+        }
+
+        /// <summary>
+        /// Returns all remote branches for a GitHub repo.
         /// </summary>
         /// <returns>The list of branches.</returns>
         public async Task<IReadOnlyList<GitHubBranch>> GetRemoteBranchesAsync()
         {
-            return await GitHubApi.Repository.Branch.GetAll(RemoteRepoPath.Owner, RemoteRepoPath.Repo);
+            return await RemoteApi.Repository.Branch.GetAll(RemoteRepoPath.Owner, RemoteRepoPath.Repo);
         }
     }
 }
