@@ -83,10 +83,10 @@ namespace Neon.Common
 
         // $todo(jefflill)
         //
-        // Using [syncRoot] to implement threadsafety via a [Monitor] may introduce
+        // Using [syncRoot] to implement thread safety via a [Monitor] may introduce
         // some performance overhead for ASP.NET sites with lots of traffic.  It
         // may be worth investigating whether a [SpinLock] might be better or perhaps
-        // even reimplementing this using concurrent collections.
+        // even reimplementing this using a concurrent collections.
 
         /// <summary>
         /// Constructor.
