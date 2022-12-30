@@ -33,6 +33,7 @@ using Newtonsoft.Json.Serialization;
 
 using Neon.Diagnostics;
 using System.Collections;
+using System.ComponentModel;
 
 namespace Neon.Common
 {
@@ -93,6 +94,23 @@ namespace Neon.Common
         /// </summary>
         public ServiceContainer()
         {
+        }
+
+        /// <summary>
+        /// Returns a clone of the instance.  This can be useful for unit testing to save
+        /// the service container before executing a test and then restoring it afterwards.
+        /// </summary>
+        /// <returns>The cloned instance.</returns>
+        public ServiceContainer Clone()
+        {
+            var clone = new ServiceContainer();
+
+            foreach (var item in this)
+            {
+                clone.Add(item);
+            }
+
+            return clone;
         }
 
         //---------------------------------------------------------------------

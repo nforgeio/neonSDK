@@ -33,16 +33,6 @@ namespace Neon.Git
     /// Combines <b>git</b> and <b>GitHub</b> functionality into easy to use classes that behave
     /// similarily to Visual Studio's embedded git provider.
     /// </para>
-    /// <note>
-    /// These classes are not entirely general purpose at this point.  NEONFORGE maintainers are
-    /// currently using this for CI/CD for opensource and private NEONFORGE related projects.
-    /// We may make these more generic in the future.
-    /// </note>
-    /// <note>
-    /// Note that this replicates some of the functionality provided by <b>Neon.Deployment></b>.
-    /// Perhaps someday we'll have <b>Neon.Deployment</b> pick up these capabilities from this 
-    /// library or potentially combine the two libraries.
-    /// </note>
     /// </summary>
     /// <remarks>
     /// <para>
@@ -77,16 +67,6 @@ namespace Neon.Git
     /// This functionality is currently <b>tied to GitHub</b> because that's where we're hosting our
     /// projects.  We don't currently support other providers like GitLabs, etc. and may never do so.
     /// </note>
-    /// <pare><b>USAGE:</b></pare>
-    /// <para>
-    /// Use <see cref="GitHubHelper.CreateGitHubClient(string, string, string, string)"/> to create a 
-    /// <see cref="GitHubClient"/> instance.  You may explicitly pass your GitHub credentials or rely
-    /// on the method to locate these as environment variables or secrets.
-    /// </para>
-    /// <para>
-    /// Then, you can use the client to query GitHub or the <see cref="GitHubExtensions"/> methods
-    /// extending <see cref="GitHubClient"/> with new operations.
-    /// </para>
     /// </remarks>
     [System.Runtime.CompilerServices.CompilerGenerated]
     class NamespaceDoc

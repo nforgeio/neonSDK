@@ -27,7 +27,10 @@ using System.Threading.Tasks;
 
 using LibGit2Sharp;
 
+using Microsoft.Extensions.DependencyInjection;
+
 using Neon.Common;
+using Neon.Deployment;
 using Neon.Git;
 using Neon.IO;
 using Neon.Xunit;
@@ -83,7 +86,7 @@ namespace TestGit
             {
                 var repoPath = tempFolder.Path;
 
-                using (var repo = new SimpleRepository(GitTestHelper.RemoteTestRepo, repoPath))
+                using (var repo = new EasyRepository(GitTestHelper.RemoteTestRepo, repoPath))
                 {
                     await repo.CloneAsync();
 
@@ -111,7 +114,7 @@ namespace TestGit
             {
                 var repoPath = tempFolder.Path;
 
-                using (var repo = new SimpleRepository(GitTestHelper.RemoteTestRepo, repoPath))
+                using (var repo = new EasyRepository(GitTestHelper.RemoteTestRepo, repoPath))
                 {
                     await repo.CloneAsync("master");
 
@@ -136,6 +139,34 @@ namespace TestGit
                         await repo.RemoveBranchAsync(branch);
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Used to run a unit test in a context where <see cref="NeonHelper.ServiceContainer"/>"/> includes
+        /// our <see cref="IProfileClient"/> implementation for maintainers that fetches secrets from 
+        /// <b>1Password</b> via <b>neon-assistant</b>.
+        /// </summary>
+        /// <param name="action">The test action.</param>
+        /// <returns>The tracking <see cref="Task"/>,</returns>
+        public static async Task RunWithProfileClientAsync(Func<Task> action)
+        {
+            Covenant.Requires<ArgumentNullException>(action != null, nameof(action));
+
+            // We're going to save and restore the ambient service container and then
+            // set our [neon-assistant] profile client implementation during the test.
+
+            var savedServices = NeonHelper.ServiceContainer.Clone();
+
+            try
+            {
+                NeonHelper.ServiceContainer.AddSingleton<IProfileClient>(new ProfileClient());
+
+                await action();
+            }
+            finally
+            {
+                NeonHelper.ServiceContainer = savedServices;
             }
         }
     }

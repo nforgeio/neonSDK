@@ -52,7 +52,7 @@ namespace Neon.Git
     /// easy to use high-level methods while also exposing the lower-level <see cref="GitHubClient"/> and <see cref="GitRepository"/>
     /// properties as the <see cref="RemoteApi"/> and <see cref="Local"/> properties for more advanced scenarios.
     /// </summary>
-    public partial class SimpleRepository : IDisposable
+    public partial class EasyRepository : IDisposable
     {
         private bool                isDisposed = false;
         private CredentialsHandler  credentialsProvider;
@@ -60,14 +60,14 @@ namespace Neon.Git
 
         /// <summary>
         /// <para>
-        /// Constructs a <see cref="SimpleRepository"/> that references a local git repo as well as
+        /// Constructs a <see cref="EasyRepository"/> that references a local git repo as well as
         /// the associated remote GitHub API.
         /// </para>
         /// <para>
         /// This requires GitHub credentials.  These can be passed explicitly as parameters or can be retrieved 
         /// automatically  from the <b>GITHUB_USERNAME</b> and <b>GITHUB_PAT</b> environment variables or from 
-        /// the current user's 1Password <b>GITHUB_PAT[username]</b> and <c>GITHUB_PAT[password]</c> secrets via
-        /// <b>neon-assistant</b> (NEONFORGE maintainers only).
+        /// the <b>GITHUB_PAT[username]</b> and <c>GITHUB_PAT[password]</c> secrets via an optional
+        /// <see cref="IProfileClient"/> implementation.
         /// </para>
         /// </summary>
         /// <param name="remoteRepoPath">Specifies the remote (GitHub) repository path, like: <b>[SERVER/]OWNER/REPO</b></param>
@@ -78,13 +78,26 @@ namespace Neon.Git
         /// <param name="userAgent">
         /// Optionally specifies the user-agent to be submitted with GitHub REST API calls.  This defaults to <b>"unknown"</b>.
         /// </param>
+        /// <param name="profileClient">
+        /// Optionally specifies the <see cref="IProfileClient"/> instance to be used for retrieving secrets.
+        /// You may also add your <see cref="IProfileClient"/> to <see cref="NeonHelper.ServiceContainer"/>
+        /// and the instance will use that if this parameter is <c>null</c>.  Secrets will be queried only
+        /// when a profile client is available.
+        /// </param>
         /// <exception cref="InvalidOperationException">Thrown when GitHub credentials could be located.</exception>
-        public SimpleRepository(string remoteRepoPath, string localRepoFolder, string username = null, string accessToken = null, string email = null, string userAgent = null)
+        public EasyRepository(
+            string          remoteRepoPath, 
+            string          localRepoFolder,
+            string          username      = null, 
+            string          accessToken   = null, 
+            string          email         = null, 
+            string          userAgent     = null,
+            IProfileClient  profileClient = null)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(remoteRepoPath), nameof(remoteRepoPath));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(localRepoFolder), nameof(localRepoFolder));
 
-            this.RemoteRepoPath  = GitHubRepoPath.Parse(remoteRepoPath);
+            this.RemoteRepoPath  = RemoteRepoPath.Parse(remoteRepoPath);
             this.LocalRepoFolder = localRepoFolder;
 
             if (Directory.Exists(localRepoFolder) && Directory.GetFiles(localRepoFolder, "*", SearchOption.AllDirectories).Length > 0)
@@ -98,9 +111,10 @@ namespace Neon.Git
             }
 
             this.Credentials = GitHubCredentials.Load(
-                username:    username,
-                accessToken: accessToken,
-                email:       email);
+                username:      username,
+                accessToken:   accessToken,
+                email:         email,
+                profileClient: profileClient);
 
             this.RemoteApi = new GitHubClient(new Octokit.ProductHeaderValue(userAgent))
             {
@@ -119,7 +133,7 @@ namespace Neon.Git
         /// <summary>
         /// Finalizer.
         /// </summary>
-        ~SimpleRepository()
+        ~EasyRepository()
         {
             Dispose(false);
         }
@@ -156,7 +170,7 @@ namespace Neon.Git
         /// <summary>
         /// Returns the path to the remote GitHub repo.
         /// </summary>
-        public GitHubRepoPath RemoteRepoPath { get; private set; }
+        public RemoteRepoPath RemoteRepoPath { get; private set; }
 
         /// <summary>
         /// Returns the path to the local repo folder.

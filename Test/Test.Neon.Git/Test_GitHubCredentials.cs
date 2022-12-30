@@ -27,6 +27,7 @@ using System.Threading.Tasks;
 using LibGit2Sharp;
 
 using Neon.Common;
+using Neon.Deployment;
 using Neon.Git;
 using Neon.IO;
 using Neon.Xunit;
@@ -131,7 +132,7 @@ namespace TestGit
                 SaveAndClearEnvCredentials();
                 Environment.SetEnvironmentVariable("NC_USER", saveNcUser);
 
-                var credentials = new GitHubCredentials();
+                var credentials = new GitHubCredentials(profileClient: new ProfileClient());
 
                 Assert.NotEmpty(credentials.Username);
                 Assert.NotEmpty(credentials.AccessToken);
@@ -159,7 +160,7 @@ namespace TestGit
                 Environment.SetEnvironmentVariable("NC_USER", saveNcUser);
                 Environment.SetEnvironmentVariable("GITHUB_USERNAME", testUsername);
 
-                var credentials = new GitHubCredentials();
+                var credentials = new GitHubCredentials(profileClient: new ProfileClient());
 
                 Assert.Equal(testUsername, credentials.Username);
                 Assert.NotEmpty(credentials.AccessToken);

@@ -47,7 +47,7 @@ using GitSignature  = LibGit2Sharp.Signature;
 
 namespace Neon.Git
 {
-    public partial class SimpleRepository
+    public partial class EasyRepository
     {
         /// <summary>
         /// Returns a specific remote branch.

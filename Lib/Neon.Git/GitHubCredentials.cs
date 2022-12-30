@@ -29,6 +29,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.DependencyInjection;
+
 using Neon.Common;
 using Neon.Deployment;
 
@@ -38,7 +40,8 @@ namespace Neon.Git
 {
     /// <summary>
     /// Used internally to obtain the current user's GitHub from enviroment
-    /// variables or 1Password.
+    /// variables or a secret manager like 1Password via an <see cref="IProfileClient"/>
+    /// implementation.
     /// </summary>
     public class GitHubCredentials
     {
@@ -46,12 +49,18 @@ namespace Neon.Git
         // Static members
 
         /// <summary>
-        /// Loads the current user's GitHub credentials and email address.  These are
-        /// obtained from environment variables or from 1Password via <b>neon</b>
+        /// Loads the current user's GitHub credentials and email address.  These area 
+        /// secret manager like 1Password via an <see cref="IProfileClient"/> implementation.
         /// </summary>
         /// <param name="username">Optionally specifies the GitHub username.</param>
         /// <param name="accessToken">Optionally specifies the GitHub Personal Access Token (PAT).</param>
         /// <param name="email">Optionally specifies the GitHub email address for the current user.</param>
+        /// <param name="profileClient">
+        /// Optionally specifies the <see cref="IProfileClient"/> instance to be used for retrieving secrets.
+        /// You may also add your <see cref="IProfileClient"/> to <see cref="NeonHelper.ServiceContainer"/>
+        /// and the instance will use that if this parameter is <c>null</c>.  Secrets will be queried only
+        /// when a profile client is available.
+        /// </param>
         /// <returns>The <see cref="GitHubCredentials"/>.</returns>
         /// <remarks>
         /// <para>
@@ -60,8 +69,8 @@ namespace Neon.Git
         /// </para>
         /// <para>
         /// For any credential parts that couldn't be located as environment variables, the 
-        /// method will attempt to load the missing parts as 1Password secrets via 
-        /// <b>neon-assistant</b> (NEONFORGE maintainers only).
+        /// method will attempt to load the missing parts as via an <see cref="IProfileClient"/>
+        /// implementation, if available.
         /// </para>
         /// <para>
         /// The method extracts the credentials from the <b>GITHUB_PAT</b> secret in the
@@ -69,8 +78,8 @@ namespace Neon.Git
         /// (the token), and <b>GITHUB_PAT[email]</b>.
         /// </para>
         /// </remarks>
-        public static GitHubCredentials Load(string username = null, string accessToken = null, string email = null) 
-            => new GitHubCredentials(username, accessToken, email);
+        public static GitHubCredentials Load(string username = null, string accessToken = null, string email = null, IProfileClient profileClient = null) 
+            => new GitHubCredentials(username, accessToken, email, profileClient);
 
         //-----------------------------------------------------------------
         // Instance members
@@ -81,10 +90,19 @@ namespace Neon.Git
         /// <param name="username">Optionally specifies the GitHub username.</param>
         /// <param name="accessToken">Optionally specifies the GitHub Personal Access Token (PAT).</param>
         /// <param name="email">Optionally specifies the GitHub email address for the current user.</param>
-        public GitHubCredentials(string username = null, string accessToken = null, string email = null)
+        /// <param name="profileClient">
+        /// Optionally specifies the <see cref="IProfileClient"/> instance to be used for retrieving secrets.
+        /// You may also add your <see cref="IProfileClient"/> to <see cref="NeonHelper.ServiceContainer"/>
+        /// and the instance will use that if this parameter is <c>null</c>.  Secrets will be queried only
+        /// when a profile client is available.
+        /// </param>
+        public GitHubCredentials(
+            string username              = null, 
+            string accessToken           = null, 
+            string email                 = null, 
+            IProfileClient profileClient = null)
         {
-            var profile   = new ProfileClient();
-            var hasNcUser = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("NC_USER"));
+            var profile = profileClient ?? NeonHelper.ServiceContainer.GetService<IProfileClient>();
 
             //-----------------------------------------------------------------
             // Fetch the username:
@@ -93,7 +111,7 @@ namespace Neon.Git
             {
                 username = Environment.GetEnvironmentVariable("GITHUB_USERNAME");
 
-                if (string.IsNullOrEmpty(username) && hasNcUser)
+                if (profile != null && string.IsNullOrEmpty(username))
                 {
                     username = profile.GetSecretValue("GITHUB_PAT[username]");
                 }
@@ -111,7 +129,7 @@ namespace Neon.Git
             {
                 accessToken = Environment.GetEnvironmentVariable("GITHUB_PAT");
 
-                if (string.IsNullOrEmpty(accessToken) && hasNcUser)
+                if (profile != null && string.IsNullOrEmpty(accessToken))
                 {
                     accessToken = profile.GetSecretValue("GITHUB_PAT[password]");
                 }
@@ -129,7 +147,7 @@ namespace Neon.Git
             {
                 email = Environment.GetEnvironmentVariable("GITHUB_EMAIL");
 
-                if (string.IsNullOrEmpty(Email) && hasNcUser)
+                if (profile != null && string.IsNullOrEmpty(Email))
                 {
                     email = profile.GetSecretValue("GITHUB_PAT[email]");
                 }

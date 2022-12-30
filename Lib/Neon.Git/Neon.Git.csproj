@@ -25,7 +25,6 @@
 	<ItemGroup>
 		<ProjectReference Include="..\..\Lib\Neon.BuildInfo\Neon.BuildInfo.csproj" />
 		<ProjectReference Include="..\Neon.Common\Neon.Common.csproj" />
-		<ProjectReference Include="..\Neon.Deployment\Neon.Deployment.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
