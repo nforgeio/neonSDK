@@ -18,7 +18,6 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\Lib\Neon.BuildInfo\Neon.BuildInfo.csproj" />
-		<ProjectReference Include="..\..\Lib\Neon.Cadence\Neon.Cadence.csproj" />
 		<ProjectReference Include="..\..\Lib\Neon.Couchbase\Neon.Couchbase.csproj" />
 		<ProjectReference Include="..\Test.Neon.Models.Definitions\Test.Neon.Models.Definitions.csproj" />
 	</ItemGroup>

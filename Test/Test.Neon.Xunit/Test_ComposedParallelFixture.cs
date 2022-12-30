@@ -35,8 +35,6 @@ using Neon.Common;
 using Neon.Service;
 using Neon.Xunit;
 using Neon.Xunit.Couchbase;
-using Neon.Xunit.Cadence;
-
 using Xunit;
 
 using Couchbase;
@@ -103,19 +101,12 @@ namespace TestXunit
             composedFixture.Start(
                 () =>
                 {
-                    // Start Couchbase and Cadence together as [group=0].
+                    // Start Couchbase as [group=0].
 
                     composedFixture.AddFixture("couchbase", new CouchbaseFixture(),
                         couchbaseFixture =>
                         {
                             couchbaseFixture.StartAsComposed();
-                        },
-                        group: 0);
-
-                    composedFixture.AddFixture("cadence", new CadenceFixture(),
-                        cadenceFixture =>
-                        {
-                            cadenceFixture.StartAsComposed();
                         },
                         group: 0);
 
@@ -183,16 +174,14 @@ namespace TestXunit
         public async Task Verify()
         {
             var couchbaseFixture = (CouchbaseFixture)fixture["couchbase"];
-            var cadenceFixture   = (CadenceFixture)fixture["cadence"];
             var natsFixture      = (NatsFixture)fixture["nats"];
             var containerFixture = (ContainerFixture)fixture["container"];
             var service1Fixture  = (NeonServiceFixture<MyService1>)fixture["service1"];
             var service2Fixture  = (NeonServiceFixture<MyService2>)fixture["service2"];
 
-            // Verify that Couchbase and Cadence from [group 0] are running.
+            // Verify that Couchbase from [group 0] is running.
 
             couchbaseFixture.Bucket.Insert("my-key", "my-value");
-            await cadenceFixture.Client.DescribeDomainAsync(cadenceFixture.Client.Settings.DefaultDomain);
 
             // Verify that NATS and the container from [group 1] are running.
 

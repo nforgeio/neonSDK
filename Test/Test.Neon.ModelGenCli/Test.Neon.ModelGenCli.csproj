@@ -42,6 +42,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\..\Lib\Neon.BuildInfo\Neon.BuildInfo.csproj" />
 		<ProjectReference Include="..\..\Lib\Neon.Common\Neon.Common.csproj" />
+		<ProjectReference Include="..\..\Lib\Neon.CSharp\Neon.CSharp.csproj" />
 		<ProjectReference Include="..\..\Lib\Neon.ModelGen\Neon.ModelGen.csproj" />
 		<ProjectReference Include="..\..\Lib\Neon.Xunit\Neon.Xunit.csproj" />
 		<ProjectReference Include="..\..\Tools\neon-modelgen\neon-modelgen.csproj" />

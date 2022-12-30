@@ -223,13 +223,13 @@ try
     if ($test)
     {
         Publish "$image_root\test"
-        Publish "$image_root\test-cadence"
     }
 
     if ($services)
     {
         Publish "$image_root\neon-blazor-proxy"
         Publish "$image_root\test-api"
+        Publish "$image_root\test-tailwind"
     }
 
     # Purge any local Docker images as well as the image build cache.

@@ -88,7 +88,7 @@ namespace TestGit
 
             try
             {
-                // Expecting failure with no credential variables.
+                // Expecting failure with no credential environment variables.
 
                 SaveAndClearEnvCredentials();
                 Assert.Throws<InvalidOperationException>(() => new GitHubCredentials());

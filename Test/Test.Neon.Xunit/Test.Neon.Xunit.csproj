@@ -77,7 +77,6 @@
 		<ProjectReference Include="..\..\Lib\Neon.Nats\Neon.Nats.csproj" />
 		<ProjectReference Include="..\..\Lib\Neon.Service\Neon.Service.csproj" />
 		<ProjectReference Include="..\..\Lib\Neon.Web\Neon.Web.csproj" />
-		<ProjectReference Include="..\..\Lib\Neon.Xunit.Cadence\Neon.Xunit.Cadence.csproj" />
 		<ProjectReference Include="..\..\Lib\Neon.Xunit.Couchbase\Neon.Xunit.Couchbase.csproj" />
 		<ProjectReference Include="..\..\Lib\Neon.Xunit\Neon.Xunit.csproj" />
 		<ProjectReference Include="..\Test.Neon.Models\Test.Neon.Models.csproj" />
