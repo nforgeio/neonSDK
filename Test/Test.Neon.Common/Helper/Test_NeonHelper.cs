@@ -44,13 +44,14 @@ namespace TestCommon
             var checkVersion = SemanticVersion.Parse("5.0");
 #elif TARGET_NETCORE_6_0
             var checkVersion = SemanticVersion.Parse("6.0");
-#elif TARGET_NETCORE_7_0
+#elif NET7_0_OR_GREATER
             var checkVersion = SemanticVersion.Parse("7.0");
 #else
             var checkVersion = SemanticVersion.Parse("4.8");
 #endif
 
-            Assert.Equal(checkVersion, NeonHelper.FrameworkVersion);
+            Assert.Equal(checkVersion.Major, NeonHelper.FrameworkVersion.Major);
+            Assert.Equal(checkVersion.Minor, NeonHelper.FrameworkVersion.Minor);
         }
 
         [Fact]
