@@ -38,18 +38,17 @@ namespace TestCommon
         [Fact]
         public void FrameworkVersionTest()
         {
-#if TARGET_NETCORE_3_1
-            var checkVersion = SemanticVersion.Parse("3.0");
-#elif TARGET_NETCORE_5_0
-            var checkVersion = SemanticVersion.Parse("5.0");
-#elif TARGET_NETCORE_6_0
-            var checkVersion = SemanticVersion.Parse("6.0");
-#elif NET7_0_OR_GREATER
+#if NET7_0_OR_GREATER
             var checkVersion = SemanticVersion.Parse("7.0");
+#elif NET6_0_OR_GREATER
+            var checkVersion = SemanticVersion.Parse("6.0");
+#elif NET5_0_OR_GREATER
+            var checkVersion = SemanticVersion.Parse("5.0");
+#elif TARGET_NETCORE_3_1
+            var checkVersion = SemanticVersion.Parse("3.0");
 #else
             var checkVersion = SemanticVersion.Parse("4.8");
 #endif
-
             Assert.Equal(checkVersion.Major, NeonHelper.FrameworkVersion.Major);
             Assert.Equal(checkVersion.Minor, NeonHelper.FrameworkVersion.Minor);
         }

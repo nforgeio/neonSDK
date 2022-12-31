@@ -85,6 +85,14 @@ namespace TestGit
             // Ensure that [InvalidOperationException] is thrown when one or more
             // credential parts are not present as environment variables and [NC_USER]
             // does not exist, which disables 1Password lookups.
+            //
+            // We're going to save and clear the service container to ensure
+            // that no [IProfileClient] is present, run the tests, and then
+            // restore the service container afterwards.
+
+            var savedServiceContainer = NeonHelper.ServiceContainer.Clone();
+
+            NeonHelper.ServiceContainer.Clear();
 
             try
             {
@@ -116,6 +124,8 @@ namespace TestGit
             finally
             {
                 RestoreEnvCredentials();
+
+                NeonHelper.ServiceContainer = savedServiceContainer;
             }
         }
 
