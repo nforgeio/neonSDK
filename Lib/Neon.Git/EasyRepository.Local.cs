@@ -55,32 +55,6 @@ namespace Neon.Git
         public GitBranch CurrentBranch => Local.CurrentBranch();
 
         /// <summary>
-        /// Clones a remote GitHub repo to a local directory.
-        /// </summary>
-        /// <param name="branchName">
-        /// Optionally specifies the branch to be checked out after the clone operation completes.
-        /// This defaults to the remote repos default branch (typically <b>main</b> or <b>master</b>).
-        /// </param>
-        /// <returns>The tracking <see cref="Task"/>.</returns>
-        /// <exception cref="LibGit2SharpException">Thrown if the local repository already exists.</exception>
-        public async Task CloneAsync(string branchName = null)
-        {
-            if (Local != null)
-            {
-                throw new LibGit2SharpException($"Local repository already exists at: {LocalRepoFolder}");
-            }
-
-            var remoteUri = $"https://{RemoteRepoPath}";
-            var options   = new CloneOptions() { BranchName = branchName };
-
-            GitRepository.Clone(remoteUri, LocalRepoFolder, options);
-
-            Local = new GitRepository(LocalRepoFolder);
-
-            await Task.CompletedTask;
-        }
-
-        /// <summary>
         /// Fetches information from the remote GitHub repository.
         /// </summary>
         /// <returns>The tracking <see cref="Task"/>.</returns>

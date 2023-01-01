@@ -48,19 +48,134 @@ using GitSignature  = LibGit2Sharp.Signature;
 namespace Neon.Git
 {
     /// <summary>
+    /// <para>
     /// Wraps a <see cref="GitHubClient"/> and <see cref="GitRepository"/> into a single object that provides
     /// easy to use high-level methods while also exposing the lower-level <see cref="GitHubClient"/> and <see cref="GitRepository"/>
     /// properties as the <see cref="RemoteApi"/> and <see cref="Local"/> properties for more advanced scenarios.
+    /// </para>
+    /// <note>
+    /// <see cref="EasyRepository"/> implements <see cref="IDisposable"/> and instances should be disposed
+    /// when you're done with them.
+    /// </note>
     /// </summary>
+    /// <remarks>
+    /// <para>
+    /// <b>Toclone a remote GitHub repository</b>, call the <c>static</c>
+    /// <see cref="CloneAsync(string, string, string, string, string, string, string, IProfileClient)"/>
+    /// method, passing the GitHub repo path, path the the local folder and optionally the branch to
+    /// be checked out as well as the GitHub credentials.  This returns the <see cref="EasyRepository"/>
+    /// that you'll use for subsequent operations.
+    /// </para>
+    /// <para>
+    /// <b>To manage an existing local repo, use the <see cref="EasyRepository(string, string, string, string, string, IProfileClient)"/></b>
+    /// constructor, passing the path the the local folder and optionally the branch to
+    /// be checked out as well as the GitHub credentials.  This returns the <see cref="EasyRepository"/>
+    /// that you'll use for subsequent operations.
+    /// </para>
+    /// </remarks>
     public partial class EasyRepository : IDisposable
     {
+        //---------------------------------------------------------------------
+        // Static members
+
+        /// <summary>
+        /// Clones a remote GitHub repository to a local folder.
+        /// </summary>
+        /// <param name="remoteRepoPath">Specifies the remote (GitHub) repository path, like: <b>[SERVER/]OWNER/REPO</b></param>
+        /// <param name="localRepoFolder">Specifies the folder where the local git repo will be created or where it already exists.</param>
+        /// <param name="branchName">
+        /// Optionally specifies the branch to be checked out after the clone operation completes.
+        /// This defaults to the remote repo's default branch (typically <b>main</b> or <b>master</b>).
+        /// </param>
+        /// <param name="username">Optionally specifies the GitHub username.</param>
+        /// <param name="accessToken">Optionally specifies the GitHub Personal Access Token (PAT).</param>
+        /// <param name="email">Optionally specifies the GitHub email address for the current user.</param>
+        /// <param name="userAgent">
+        /// Optionally specifies the user-agent to be submitted with GitHub REST API calls.  This defaults to <b>"unknown"</b>.
+        /// </param>
+        /// <param name="profileClient">
+        /// Optionally specifies the <see cref="IProfileClient"/> instance to be used for retrieving secrets.
+        /// You may also add your <see cref="IProfileClient"/> to <see cref="NeonHelper.ServiceContainer"/>
+        /// and the instance will use that if this parameter is <c>null</c>.  Secrets will be queried only
+        /// when a profile client is available.
+        /// </param>
+        /// <exception cref="LibGit2SharpException">Thrown when the local folder already exists.</exception>
+        public static async Task<EasyRepository> CloneAsync(
+            string          remoteRepoPath, 
+            string          localRepoFolder,
+            string          branchName    = null,
+            string          username      = null, 
+            string          accessToken   = null, 
+            string          email         = null, 
+            string          userAgent     = null,
+            IProfileClient  profileClient = null)
+        {
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(remoteRepoPath), nameof(remoteRepoPath));
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(localRepoFolder), nameof(localRepoFolder));
+
+            var repo = new EasyRepository();
+
+            repo.LocalRepoFolder = localRepoFolder;
+            repo.RemoteRepoPath  = RemoteRepoPath.Parse(remoteRepoPath);
+
+            if (Directory.Exists(localRepoFolder))
+            {
+                throw new LibGit2SharpException($"Local repo [{localRepoFolder}] folder already exists.");
+            }
+
+            Directory.CreateDirectory(localRepoFolder);
+
+            if (string.IsNullOrEmpty(userAgent))
+            {
+                userAgent = "unknown";
+            }
+
+            repo.Credentials = GitHubCredentials.Load(
+                username:      username,
+                accessToken:   accessToken,
+                email:         email,
+                profileClient: profileClient);
+
+            repo.RemoteApi = new GitHubClient(new Octokit.ProductHeaderValue(userAgent))
+            {
+                Credentials = new Octokit.Credentials(repo.Credentials.AccessToken)
+            };
+
+            repo.credentialsProvider = new CredentialsHandler(
+                (url, usernameFromUrl, types) =>
+                    new UsernamePasswordCredentials()
+                    {
+                        Username = repo.Credentials.Username,
+                        Password = repo.Credentials.AccessToken
+                    });
+
+            var remoteUri = $"https://{repo.RemoteRepoPath}";
+            var options   = new CloneOptions() { BranchName = branchName };
+
+            GitRepository.Clone(remoteUri, repo.LocalRepoFolder, options);
+
+            repo.Local = new GitRepository(repo.LocalRepoFolder);
+
+            return await Task.FromResult(repo);
+        }
+
+        //---------------------------------------------------------------------
+        // Instance members
+
         private bool                isDisposed = false;
         private CredentialsHandler  credentialsProvider;
         private Remote              cachedOrigin;
 
         /// <summary>
+        /// Private constructor.
+        /// </summary>
+        private EasyRepository()
+        {
+        }
+
+        /// <summary>
         /// <para>
-        /// Constructs a <see cref="EasyRepository"/> that references a local git repo as well as
+        /// Constructs a <see cref="EasyRepository"/> that references an existing local git repo as well as
         /// the associated remote GitHub API.
         /// </para>
         /// <para>
@@ -70,7 +185,6 @@ namespace Neon.Git
         /// <see cref="IProfileClient"/> implementation.
         /// </para>
         /// </summary>
-        /// <param name="remoteRepoPath">Specifies the remote (GitHub) repository path, like: <b>[SERVER/]OWNER/REPO</b></param>
         /// <param name="localRepoFolder">Specifies the folder where the local git repo will be created or where it already exists.</param>
         /// <param name="username">Optionally specifies the GitHub username.</param>
         /// <param name="accessToken">Optionally specifies the GitHub Personal Access Token (PAT).</param>
@@ -84,9 +198,8 @@ namespace Neon.Git
         /// and the instance will use that if this parameter is <c>null</c>.  Secrets will be queried only
         /// when a profile client is available.
         /// </param>
-        /// <exception cref="InvalidOperationException">Thrown when GitHub credentials could be located.</exception>
+        /// <exception cref="RepositoryNotFoundException">Thrown when the local repo doesn't exist.</exception>
         public EasyRepository(
-            string          remoteRepoPath, 
             string          localRepoFolder,
             string          username      = null, 
             string          accessToken   = null, 
@@ -94,16 +207,27 @@ namespace Neon.Git
             string          userAgent     = null,
             IProfileClient  profileClient = null)
         {
-            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(remoteRepoPath), nameof(remoteRepoPath));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(localRepoFolder), nameof(localRepoFolder));
+
+            if (!Directory.Exists(localRepoFolder))
+            {
+                throw new RepositoryNotFoundException($"The local repo [{localRepoFolder}] folder does not exist.");
+            }
+
+            this.Local = new GitRepository(localRepoFolder);
+
+            // We're going to obtain the GitHub path for the repo from the origin's
+            // push URL.  This will look something like:
+            //
+            //      https://github.com/neontest/neon-git
+            //
+            // We'll just strip off the scheme and and what remains is the path.\
+
+            var pushUrl        = new Uri(Origin.PushUrl);
+            var remoteRepoPath = $"{pushUrl.Host}{pushUrl.AbsolutePath}";
 
             this.RemoteRepoPath  = RemoteRepoPath.Parse(remoteRepoPath);
             this.LocalRepoFolder = localRepoFolder;
-
-            if (Directory.Exists(localRepoFolder) && Directory.GetFiles(localRepoFolder, "*", SearchOption.AllDirectories).Length > 0)
-            {
-                this.Local = new GitRepository(localRepoFolder);
-            }
 
             if (string.IsNullOrEmpty(userAgent))
             {
@@ -195,7 +319,7 @@ namespace Neon.Git
         /// <summary>
         /// Returns the repository's remote origin.
         /// </summary>
-        /// <exception cref="InvalidOperationException">Thrown if the repositoru doesn't have an origin.</exception>
+        /// <exception cref="LibGit2SharpException">Thrown if the repository doesn't have an origin.</exception>
         public Remote Origin
         {
             get
@@ -209,7 +333,7 @@ namespace Neon.Git
 
                 if (cachedOrigin == null)
                 {
-                    throw new InvalidOperationException($"Local git repo [{LocalRepoFolder}] has no remote origin.");
+                    throw new LibGit2SharpException($"Local git repo [{LocalRepoFolder}] has no remote origin.");
                 }
 
                 return cachedOrigin;

@@ -46,27 +46,66 @@ namespace TestGit
             await GitTestHelper.RunWithProfileClientAsync(
                 async () =>
                 {
-                    using (var tempFolder = new TempFolder())
+                    using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
                     {
                         var repoPath = tempFolder.Path;
 
-                        using (var repo = new EasyRepository(GitTestHelper.RemoteTestRepo, tempFolder.Path))
+                        using (var repo = await EasyRepository.CloneAsync(GitTestHelper.RemoteTestRepo, tempFolder.Path))
                         {
-                            // Ensure that the [GitRepository] property is NULL because the temp
-                            // folder is empty initially.
-
-                            Assert.Null(repo.Local);
-
-                            // Verify that we can clone a remote repo.
-
-                            await repo.CloneAsync("master");
+                            Assert.Equal(GitTestHelper.RemoteTestRepo, repo.RemoteRepoPath.ToString());
                             Assert.Equal("master", repo.CurrentBranch.FriendlyName);
                             Assert.True(File.Exists(Path.Combine(repoPath, ".gitignore")));
-
-                            // Verify that we can't clone over an existing repo.
-
-                            await Assert.ThrowsAsync<LibGit2SharpException>(async () => await repo.CloneAsync("master"));
                         }
+                    }
+                });
+        }
+
+        [MaintainerFact]
+        public async Task Open()
+        {
+            // Verify that we can open an existing local repo.
+
+            await GitTestHelper.RunWithProfileClientAsync(
+                async () =>
+                {
+                    // Verify that we can open an existing local repo.
+
+                    using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
+                    {
+                        var repoPath = tempFolder.Path;
+
+                        // Clone the initial repo and then dispose it.
+
+                        using (var repo = await EasyRepository.CloneAsync(GitTestHelper.RemoteTestRepo, tempFolder.Path))
+                        {
+                            Assert.Equal(GitTestHelper.RemoteTestRepo, repo.RemoteRepoPath.ToString());
+                            Assert.Equal("master", repo.CurrentBranch.FriendlyName);
+                            Assert.True(File.Exists(Path.Combine(repoPath, ".gitignore")));
+                        }
+
+                        // Verify that we can reopen the existing repo.
+
+                        using (var repo = new EasyRepository(tempFolder.Path))
+                        {
+                            Assert.Equal("master", repo.CurrentBranch.FriendlyName);
+                            Assert.True(File.Exists(Path.Combine(repoPath, ".gitignore")));
+                            Assert.Equal(RemoteRepoPath.Parse(GitTestHelper.RemoteTestRepo).ToString(), repo.RemoteRepoPath.ToString());
+                        }
+                    }
+
+                    // Verify that we see an exception when trying to open a local repo
+                    // folder that doesn't exist.
+
+                    using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
+                    {
+                        Assert.Throws<RepositoryNotFoundException>(() => new EasyRepository(tempFolder.Path));
+                    }
+
+                    // Verify that we see an exception when trying to open an empty local repo folder.
+
+                    using (var tempFolder = new TempFolder(prefix: "repo-", create: true))
+                    {
+                        Assert.Throws<RepositoryNotFoundException>(() => new EasyRepository(tempFolder.Path));
                     }
                 });
         }
@@ -79,13 +118,12 @@ namespace TestGit
             await GitTestHelper.RunWithProfileClientAsync(
                 async () =>
                 {
-                    using (var tempFolder = new TempFolder())
+                    using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
                     {
                         var repoPath = tempFolder.Path;
 
-                        using (var repo = new EasyRepository(GitTestHelper.RemoteTestRepo, tempFolder.Path))
+                        using (var repo = await EasyRepository.CloneAsync(GitTestHelper.RemoteTestRepo, tempFolder.Path))
                         {
-                            await repo.CloneAsync();
                             Assert.True(File.Exists(Path.Combine(repoPath, ".gitignore")));
                             await repo.FetchAsync();
                         }
@@ -114,22 +152,18 @@ namespace TestGit
                 {
                     try
                     {
-                        using (var tempFolder1 = new TempFolder(prefix: "repo1-"))
+                        using (var tempFolder1 = new TempFolder(prefix: "repo1-", create: false))
                         {
-                            using (var tempFolder2 = new TempFolder(prefix: "repo2-"))
+                            using (var tempFolder2 = new TempFolder(prefix: "repo2-", create: false))
                             {
                                 var repoPath1 = tempFolder1.Path;
                                 var repoPath2 = tempFolder2.Path;
 
-                                using (var repo1 = new EasyRepository(GitTestHelper.RemoteTestRepo, repoPath1))
+                                using (var repo1 = await EasyRepository.CloneAsync(GitTestHelper.RemoteTestRepo, repoPath1))
                                 {
-                                    using (var repo2 = new EasyRepository(GitTestHelper.RemoteTestRepo, repoPath2))
+                                    using (var repo2 = await EasyRepository.CloneAsync(GitTestHelper.RemoteTestRepo, repoPath2))
                                     {
                                         // Clone the remote repo to two local folders:
-
-                                        await repo1.CloneAsync("master");
-                                        await repo2.CloneAsync("master");
-
                                         // Create a new text file named with GUID to the first repo
                                         // and commit and push the change to the remote:
 
@@ -186,16 +220,14 @@ namespace TestGit
                 {
                     try
                     {
-                        using (var tempFolder = new TempFolder(prefix: "repo-"))
+                        using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
                         {
                             var repoPath      = tempFolder.Path;
                             var newBranchName = $"testbranch-{Guid.NewGuid()}";
                             var testFilePath  = Path.Combine(repoPath, GitTestHelper.TestFolder, $"{Guid.NewGuid()}.txt");
 
-                            using (var repo = new EasyRepository(GitTestHelper.RemoteTestRepo, repoPath))
+                            using (var repo = await EasyRepository.CloneAsync(GitTestHelper.RemoteTestRepo, repoPath))
                             {
-                                await repo.CloneAsync();
-
                                 // Create the new branch and verify that it's now currently checked out.
 
                                 Assert.True(await repo.CreateBranchAsync(newBranchName, "master"));
@@ -231,14 +263,12 @@ namespace TestGit
             await GitTestHelper.RunWithProfileClientAsync(
                 async () =>
                 {
-                    using (var tempFolder = new TempFolder(prefix: "repo-"))
+                    using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
                     {
                         var repoPath = tempFolder.Path;
 
-                        using (var repo = new EasyRepository(GitTestHelper.RemoteTestRepo, repoPath))
+                        using (var repo = await EasyRepository.CloneAsync(GitTestHelper.RemoteTestRepo, repoPath))
                         {
-                            await repo.CloneAsync();
-
                             var remoteBranches = await repo.GetRemoteBranchesAsync();
 
                             Assert.Contains(remoteBranches, branch => branch.Name == "master");
@@ -257,15 +287,13 @@ namespace TestGit
                 {
                     try
                     {
-                        using (var tempFolder = new TempFolder(prefix: "repo-"))
+                        using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
                         {
                             var repoPath      = tempFolder.Path;
                             var newBranchName = $"testbranch-{Guid.NewGuid()}";
 
-                            using (var repo = new EasyRepository(GitTestHelper.RemoteTestRepo, repoPath))
+                            using (var repo = await EasyRepository.CloneAsync(GitTestHelper.RemoteTestRepo, repoPath))
                             {
-                                await repo.CloneAsync("master");
-
                                 // Create a new local branch and verify.
 
                                 Assert.True(await repo.CreateBranchAsync(newBranchName, "master"));
@@ -303,16 +331,14 @@ namespace TestGit
                 {
                     try
                     {
-                        using (var tempFolder = new TempFolder(prefix: "repo-"))
+                        using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
                         {
                             var repoPath      = tempFolder.Path;
                             var newBranchName = $"testbranch-{Guid.NewGuid()}";
                             var testFilePath  = Path.Combine(repoPath, GitTestHelper.TestFolder, $"{Guid.NewGuid()}.txt");
 
-                            using (var repo = new EasyRepository(GitTestHelper.RemoteTestRepo, repoPath))
+                            using (var repo = await EasyRepository.CloneAsync(GitTestHelper.RemoteTestRepo, repoPath))
                             {
-                                await repo.CloneAsync("master");
-
                                 // Create a new local branch and verify.
 
                                 Assert.True(await repo.CreateBranchAsync(newBranchName, "master"));
@@ -354,16 +380,14 @@ namespace TestGit
                 {
                     try
                     {
-                        using (var tempFolder = new TempFolder(prefix: "repo-"))
+                        using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
                         {
                             var repoPath      = tempFolder.Path;
                             var newBranchName = $"testbranch-{Guid.NewGuid()}";
                             var testFilePath  = Path.Combine(repoPath, GitTestHelper.TestFolder, $"{Guid.NewGuid()}.txt");
 
-                            using (var repo = new EasyRepository(GitTestHelper.RemoteTestRepo, repoPath))
+                            using (var repo = await EasyRepository.CloneAsync(GitTestHelper.RemoteTestRepo, repoPath))
                             {
-                                await repo.CloneAsync("master");
-
                                 // Create a new local branch and verify.
 
                                 Assert.True(await repo.CreateBranchAsync(newBranchName, "master"));
@@ -424,16 +448,14 @@ namespace TestGit
                 {
                     try
                     {
-                        using (var tempFolder = new TempFolder(prefix: "repo-"))
+                        using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
                         {
                             var repoPath      = tempFolder.Path;
                             var newBranchName = $"testbranch-{Guid.NewGuid()}";
                             var testFilePath  = Path.Combine(repoPath, GitTestHelper.TestFolder, $"{Guid.NewGuid()}.txt");
 
-                            using (var repo = new EasyRepository(GitTestHelper.RemoteTestRepo, repoPath))
+                            using (var repo = await EasyRepository.CloneAsync(GitTestHelper.RemoteTestRepo, repoPath))
                             {
-                                await repo.CloneAsync("master");
-
                                 // Verify that undo doesn't barf when there are no changes.
 
                                 await repo.UndoAsync();
@@ -466,14 +488,13 @@ namespace TestGit
                 {
                     try
                     {
-                        using (var tempFolder = new TempFolder(prefix: "repo-"))
+                        using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
                         {
                             var repoPath      = tempFolder.Path;
                             var newBranchName = $"testbranch-{Guid.NewGuid()}";
 
-                            using (var repo = new EasyRepository(GitTestHelper.RemoteTestRepo, repoPath))
+                            using (var repo = await EasyRepository.CloneAsync(GitTestHelper.RemoteTestRepo, repoPath))
                             {
-                                await repo.CloneAsync("master");
                                 Assert.Equal("master", repo.CurrentBranch.FriendlyName);
 
                                 // Create a local branch only and verify.
@@ -523,7 +544,7 @@ namespace TestGit
                 {
                     try
                     {
-                        using (var tempFolder = new TempFolder(prefix: "repo-"))
+                        using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
                         {
                             var repoPath       = tempFolder.Path;
                             var newBranchName  = $"testbranch-{Guid.NewGuid()}";
@@ -531,9 +552,8 @@ namespace TestGit
 
                             // Clone the remote repo, create a new test branch, and push it to GitHub.
 
-                            using (var repo = new EasyRepository(GitTestHelper.RemoteTestRepo, repoPath))
+                            using (var repo = await EasyRepository.CloneAsync(GitTestHelper.RemoteTestRepo, repoPath))
                             {
-                                await repo.CloneAsync("master");
                                 await repo.CreateBranchAsync(newBranchName, "master");
                                 Assert.True(repo.Branches[newBranchName] != null);
                                 Assert.True(repo.Branches[newBranchName].IsCurrentRepositoryHead);
@@ -541,35 +561,16 @@ namespace TestGit
                             }
 
                             // Delete all repo files, re-clone the remote repo and then verify that
-                            // we can checkout the remote to a branch with the same name.
+                            // we can checkout the remote with the new branch.
 
                             NeonHelper.DeleteFolderContents(repoPath);
+                            Directory.Delete(repoPath);
 
-                            using (var repo = new EasyRepository(GitTestHelper.RemoteTestRepo, repoPath))
+                            using (var repo = await EasyRepository.CloneAsync(GitTestHelper.RemoteTestRepo, repoPath, newBranchName))
                             {
-                                await repo.CloneAsync("master");
-                                Assert.Equal("master", repo.CurrentBranch.FriendlyName);
-
-                                await repo.CheckoutRemoteAsync(newBranchName);
-                                await repo.CreateBranchAsync(newBranchName, "master");
+                                Assert.Equal(newBranchName, repo.CurrentBranch.FriendlyName);
                                 Assert.True(repo.Branches[newBranchName] != null);
                                 Assert.True(repo.Branches[newBranchName].IsCurrentRepositoryHead);
-                            }
-
-                            // Delete all repo files, re-clone the remote repo and then verify that
-                            // we can checkout the remote to a branch with a different name.
-
-                            NeonHelper.DeleteFolderContents(repoPath);
-
-                            using (var repo = new EasyRepository(GitTestHelper.RemoteTestRepo, repoPath))
-                            {
-                                await repo.CloneAsync("master");
-                                Assert.Equal("master", repo.CurrentBranch.FriendlyName);
-
-                                await repo.CheckoutRemoteAsync(newBranchName, newBranchName2);
-                                await repo.CreateBranchAsync(newBranchName2, "master");
-                                Assert.True(repo.Branches[newBranchName2] != null);
-                                Assert.True(repo.Branches[newBranchName2].IsCurrentRepositoryHead);
                             }
                         }
                     }

@@ -31,7 +31,7 @@ using System.Threading.Tasks;
 
 using Neon.Common;
 
-namespace Neon.Deployment
+namespace Neon.Git
 {
     /// <summary>
     /// <para>

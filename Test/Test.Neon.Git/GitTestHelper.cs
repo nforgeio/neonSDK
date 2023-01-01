@@ -47,7 +47,7 @@ namespace TestGit
         /// <summary>
         /// Identifies the GitHub repo we'll use for testing the <b>Neon.Git</b> library.
         /// </summary>
-        public const string RemoteTestRepo = "neontest/neon-git";
+        public const string RemoteTestRepo = "github.com/neontest/neon-git";
 
         /// <summary>
         /// Name of the folder used for managing test files.
@@ -82,14 +82,12 @@ namespace TestGit
         /// <returns>The tracking <see cref="Task"/>.</returns>
         public static async Task RemoveTestFilesAsync()
         {
-            using (var tempFolder = new TempFolder(prefix: "repo-"))
+            using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
             {
                 var repoPath = tempFolder.Path;
 
-                using (var repo = new EasyRepository(GitTestHelper.RemoteTestRepo, repoPath))
+                using (var repo = await EasyRepository.CloneAsync(GitTestHelper.RemoteTestRepo, repoPath))
                 {
-                    await repo.CloneAsync();
-
                     var testFolder = Path.Combine(repo.LocalRepoFolder, TestFolder);
 
                     if (Directory.Exists(testFolder) && Directory.GetFiles(testFolder, "*", SearchOption.AllDirectories).Length > 0)
@@ -110,14 +108,12 @@ namespace TestGit
         /// <returns>The tracking <see cref="Task"/>.</returns>
         public static async Task RemoveTestBranchesAsync()
         {
-            using (var tempFolder = new TempFolder(prefix: "repo-"))
+            using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
             {
                 var repoPath = tempFolder.Path;
 
-                using (var repo = new EasyRepository(GitTestHelper.RemoteTestRepo, repoPath))
+                using (var repo = await EasyRepository.CloneAsync(GitTestHelper.RemoteTestRepo, repoPath))
                 {
-                    await repo.CloneAsync("master");
-
                     // We need to check out the remote test branches first.
 
                     foreach (var branch in repo.Branches
