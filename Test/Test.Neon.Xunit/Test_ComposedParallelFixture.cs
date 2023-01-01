@@ -202,6 +202,8 @@ namespace TestXunit
             Assert.Equal("service2", service2Fixture.Service.GetEnvironmentVariable("service"));
             Assert.Equal("HELLO SERVICE2!", File.ReadAllText(service2Fixture.Service.GetConfigFilePath("/config.txt")));
             Assert.Equal(new byte[] { 5, 6, 7, 8, 9 }, File.ReadAllBytes(service2Fixture.Service.GetConfigFilePath("/config.dat")));
+
+            await Task.CompletedTask;
         }
     }
 }
