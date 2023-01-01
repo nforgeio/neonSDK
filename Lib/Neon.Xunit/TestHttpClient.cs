@@ -522,7 +522,7 @@ namespace Neon.Xunit
         /// Performs a <b>GET</b> request and returns the response as a stream.
         /// </summary>
         /// <param name="requestUri">The request URI.</param>
-        /// <returns>The response stream..</returns>
+        /// <returns>The response stream.</returns>
         public async Task<Stream> GetStreamAsync(string requestUri)
         {
             await SyncContext.Clear;
@@ -544,7 +544,7 @@ namespace Neon.Xunit
         /// Performs a <b>GET</b> request and returns the response as a stream.
         /// </summary>
         /// <param name="requestUri">The request URI.</param>
-        /// <returns>The response stream..</returns>
+        /// <returns>The response stream.</returns>
         public async Task<Stream> GetStreamAsync(Uri requestUri)
         {
             await SyncContext.Clear;
@@ -566,7 +566,7 @@ namespace Neon.Xunit
         /// Performs a <b>GET</b> request and returns the response as a string.
         /// </summary>
         /// <param name="requestUri">The request URI.</param>
-        /// <returns>The response string..</returns>
+        /// <returns>The response string.</returns>
         public async Task<string> GetStringAsync(string requestUri)
         {
             await SyncContext.Clear;
@@ -588,7 +588,7 @@ namespace Neon.Xunit
         /// Performs a <b>GET</b> request and returns the response as a string.
         /// </summary>
         /// <param name="requestUri">The request URI.</param>
-        /// <returns>The response string..</returns>
+        /// <returns>The response string.</returns>
         public async Task<string> GetStringAsync(Uri requestUri)
         {
             await SyncContext.Clear;

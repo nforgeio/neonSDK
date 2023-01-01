@@ -119,7 +119,7 @@ namespace Neon.Web
         /// <summary>
         /// Throws a <see cref="HttpApiException"/> when the <paramref name="predicate"/> function returns <c>false</c>.
         /// </summary>
-        /// <param name="predicate">Called to retrieve the condition value..</param>
+        /// <param name="predicate">Called to retrieve the condition value.</param>
         /// <param name="message">Optionally specifies a human readable message.</param>
         /// <param name="errorCode">Optionally specifies a computer readable error code string.</param>
         /// <param name="statusCode">Optionally specifies the HTTP status code.  This defaults to <see cref="HttpStatusCode.BadRequest"/>.</param>

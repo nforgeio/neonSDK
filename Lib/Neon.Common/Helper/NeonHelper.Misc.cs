@@ -700,7 +700,7 @@ namespace Neon.Common
         /// <summary>
         /// Asynchronously waits for all of the <see cref="Task"/>s passed to complete.
         /// </summary>
-        /// <param name="tasks">Specifies the tasks being waited on..</param>
+        /// <param name="tasks">Specifies the tasks being waited on.</param>
         /// <param name="timeout">Optionally specifies a timeout.</param>
         /// <param name="cancellationToken">Optionally a cancellation token.</param>
         /// <param name="timeoutMessage">
@@ -2383,7 +2383,7 @@ namespace Neon.Common
         /// Determines the minimum <see cref="TimeSpan"/> value.
         /// </summary>
         /// <param name="values">The values to compare.</param>
-        /// <returns>The minimum of the values passed or <see cref="TimeSpan.Zero"/> when nothing is passed..</returns>
+        /// <returns>The minimum of the values passed or <see cref="TimeSpan.Zero"/> when nothing is passed.</returns>
         public static TimeSpan Min(params TimeSpan[] values)
         {
             if (values == null || values.Length == 0)
@@ -2408,7 +2408,7 @@ namespace Neon.Common
         /// Determines the maximum <see cref="TimeSpan"/> value.
         /// </summary>
         /// <param name="values">The values to compare.</param>
-        /// <returns>The minimum of the values passed or <see cref="TimeSpan.Zero"/> when nothing is passed..</returns>
+        /// <returns>The minimum of the values passed or <see cref="TimeSpan.Zero"/> when nothing is passed.</returns>
         public static TimeSpan Max(params TimeSpan[] values)
         {
             if (values == null || values.Length == 0)

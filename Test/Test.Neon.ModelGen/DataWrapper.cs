@@ -253,7 +253,7 @@ namespace TestModelGen
         /// Calls the data model's <b>__Load()</b> method.
         /// </summary>
         /// <param name="source">The optional source <see cref="JObject"/>.</param>
-        /// <param name="isDerived">Optionally indicates that were deserializing a derived class..</param>
+        /// <param name="isDerived">Optionally indicates that were deserializing a derived class.</param>
         public void Load(JObject source = null, bool isDerived = false)
         {
             try
