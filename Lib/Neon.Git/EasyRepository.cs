@@ -50,8 +50,8 @@ namespace Neon.Git
     /// <summary>
     /// <para>
     /// Wraps a <see cref="GitHubClient"/> and <see cref="GitRepository"/> into a single object that provides
-    /// easy to use high-level methods while also exposing the lower-level <see cref="GitHubClient"/> and <see cref="GitRepository"/>
-    /// properties as the <see cref="RemoteApi"/> and <see cref="Local"/> properties for more advanced scenarios.
+    /// easy to use high-level methods while also including properties for the GitHub server, remote GitHub
+    /// repoistory, as well as the local git repository,
     /// </para>
     /// <note>
     /// <see cref="EasyRepository"/> implements <see cref="IDisposable"/> and instances should be disposed
@@ -67,7 +67,7 @@ namespace Neon.Git
     /// that you'll use for subsequent operations.
     /// </para>
     /// <para>
-    /// <b>To manage an existing local repo, use the <see cref="EasyRepository(string, string, string, string, string, IProfileClient)"/></b>
+    /// <b>To manage an existing local repo</b>, use the <see cref="EasyRepository(string, string, string, string, string, IProfileClient)"/>
     /// constructor, passing the path the the local folder and optionally the branch to
     /// be checked out as well as the GitHub credentials.  This returns the <see cref="EasyRepository"/>
     /// that you'll use for subsequent operations.
@@ -116,7 +116,7 @@ namespace Neon.Git
             var repo = new EasyRepository();
 
             repo.LocalRepoFolder = localRepoFolder;
-            repo.RemoteRepoPath  = RemoteRepoPath.Parse(remoteRepoPath);
+            repo.ServerRepoPath  = RemoteRepoPath.Parse(remoteRepoPath);
 
             if (Directory.Exists(localRepoFolder))
             {
@@ -136,7 +136,7 @@ namespace Neon.Git
                 email:         email,
                 profileClient: profileClient);
 
-            repo.RemoteApi = new GitHubClient(new Octokit.ProductHeaderValue(userAgent))
+            repo.Server = new GitHubClient(new Octokit.ProductHeaderValue(userAgent))
             {
                 Credentials = new Octokit.Credentials(repo.Credentials.AccessToken)
             };
@@ -149,12 +149,13 @@ namespace Neon.Git
                         Password = repo.Credentials.AccessToken
                     });
 
-            var remoteUri = $"https://{repo.RemoteRepoPath}";
+            var remoteUri = $"https://{repo.ServerRepoPath}";
             var options   = new CloneOptions() { BranchName = branchName };
 
             GitRepository.Clone(remoteUri, repo.LocalRepoFolder, options);
 
-            repo.Local = new GitRepository(repo.LocalRepoFolder);
+            repo.LocalRepo  = new GitRepository(repo.LocalRepoFolder);
+            repo.ServerRepo = await repo.Server.Repository.Get(repo.ServerRepoPath.Owner, repo.ServerRepoPath.Name);
 
             return await Task.FromResult(repo);
         }
@@ -214,7 +215,7 @@ namespace Neon.Git
                 throw new RepositoryNotFoundException($"The local repo [{localRepoFolder}] folder does not exist.");
             }
 
-            this.Local = new GitRepository(localRepoFolder);
+            this.LocalRepo = new GitRepository(localRepoFolder);
 
             // We're going to obtain the GitHub path for the repo from the origin's
             // push URL.  This will look something like:
@@ -226,7 +227,7 @@ namespace Neon.Git
             var pushUrl        = new Uri(Origin.PushUrl);
             var remoteRepoPath = $"{pushUrl.Host}{pushUrl.AbsolutePath}";
 
-            this.RemoteRepoPath  = RemoteRepoPath.Parse(remoteRepoPath);
+            this.ServerRepoPath  = RemoteRepoPath.Parse(remoteRepoPath);
             this.LocalRepoFolder = localRepoFolder;
 
             if (string.IsNullOrEmpty(userAgent))
@@ -240,7 +241,7 @@ namespace Neon.Git
                 email:         email,
                 profileClient: profileClient);
 
-            this.RemoteApi = new GitHubClient(new Octokit.ProductHeaderValue(userAgent))
+            this.Server = new GitHubClient(new Octokit.ProductHeaderValue(userAgent))
             {
                 Credentials = new Octokit.Credentials(Credentials.AccessToken)
             };
@@ -282,10 +283,10 @@ namespace Neon.Git
                 return;
             }
 
-            if (Local != null)
+            if (LocalRepo != null)
             {
-                Local.Dispose();
-                Local = null;
+                LocalRepo.Dispose();
+                LocalRepo = null;
             }
 
             isDisposed = true;
@@ -294,7 +295,7 @@ namespace Neon.Git
         /// <summary>
         /// Returns the path to the remote GitHub repo.
         /// </summary>
-        public RemoteRepoPath RemoteRepoPath { get; private set; }
+        public RemoteRepoPath ServerRepoPath { get; private set; }
 
         /// <summary>
         /// Returns the path to the local repo folder.
@@ -309,12 +310,18 @@ namespace Neon.Git
         /// <summary>
         /// Returns the <see cref="GitHubClient"/> REST API client associated with the instance.
         /// </summary>
-        public GitHubClient RemoteApi { get; private set; }
+        public GitHubClient Server { get; private set; }
+
+        /// <summary>
+        /// Returns the GitHub server <see cref="GitHubRepository"/> corresponding to
+        /// the local repository.
+        /// </summary>
+        public GitHubRepository ServerRepo { get; private set; }
 
         /// <summary>
         /// Returns the associated local git repo if it exists, <c>null</c> otherwise.
         /// </summary>
-        public GitRepository Local { get; private set; }
+        public GitRepository LocalRepo { get; private set; }
 
         /// <summary>
         /// Returns the repository's remote origin.
@@ -329,7 +336,7 @@ namespace Neon.Git
                     return cachedOrigin;
                 }
 
-                cachedOrigin = Local.Network.Remotes["origin"];
+                cachedOrigin = LocalRepo.Network.Remotes["origin"];
 
                 if (cachedOrigin == null)
                 {
@@ -343,12 +350,12 @@ namespace Neon.Git
         /// <summary>
         /// Returns <c>true</c> when the local repos has uncommitted changes.
         /// </summary>
-        public bool IsDirty => Local.IsDirty();
+        public bool IsDirty => LocalRepo.IsDirty();
 
         /// <summary>
         /// Returns the local repo's branches.
         /// </summary>
-        public BranchCollection Branches => Local.Branches;
+        public BranchCollection Branches => LocalRepo.Branches;
 
         /// <summary>
         /// Creates a <see cref="GitSignature"/> from the repo's credentials.

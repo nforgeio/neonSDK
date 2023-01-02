@@ -52,7 +52,7 @@ namespace Neon.Git
         /// <summary>
         /// Returns the current branch.
         /// </summary>
-        public GitBranch CurrentBranch => Local.CurrentBranch();
+        public GitBranch CurrentBranch => LocalRepo.CurrentBranch();
 
         /// <summary>
         /// Fetches information from the remote GitHub repository.
@@ -70,7 +70,7 @@ namespace Neon.Git
 
             var refSpecs = Origin.FetchRefSpecs.Select(spec => spec.Specification);
 
-            Commands.Fetch(Local, Origin.Name, refSpecs, options, "fetching");
+            Commands.Fetch(LocalRepo, Origin.Name, refSpecs, options, "fetching");
 
             await Task.CompletedTask;
         }
@@ -90,11 +90,11 @@ namespace Neon.Git
                 return false;
             }
 
-            Commands.Stage(Local, "*");
+            Commands.Stage(LocalRepo, "*");
 
             var signature = CreateSignature();
 
-            Local.Commit(message, signature, signature);
+            LocalRepo.Commit(message, signature, signature);
 
             return await Task.FromResult(true);
         }
@@ -122,7 +122,7 @@ namespace Neon.Git
 
             await FetchAsync();
 
-            return await Task.FromResult(Commands.Pull(Local, CreateSignature(), options).Status);
+            return await Task.FromResult(Commands.Pull(LocalRepo, CreateSignature(), options).Status);
         }
 
 
@@ -139,7 +139,7 @@ namespace Neon.Git
             // same name.  This will cause the remote branch to be created when we
             // push below if the remote branch does not already exist.
 
-            var currentBranch = Local.CurrentBranch();
+            var currentBranch = LocalRepo.CurrentBranch();
 
             if (currentBranch == null)
             {
@@ -148,19 +148,19 @@ namespace Neon.Git
 
             if (!currentBranch.IsTracking)
             {
-                Local.Branches.Update(currentBranch,
+                LocalRepo.Branches.Update(currentBranch,
                     updater => updater.Remote = Origin.Name,
                     updater => updater.UpstreamBranch = currentBranch.CanonicalName);
             }
 
             // Push any local commits to the remote branch.
 
-            if (Local.Commits.Count() == 0)
+            if (LocalRepo.Commits.Count() == 0)
             {
                 return false;
             }
 
-            Local.Network.Push(currentBranch, CreatePushOptions());
+            LocalRepo.Network.Push(currentBranch, CreatePushOptions());
 
             return await Task.FromResult(true);
         }
@@ -175,14 +175,14 @@ namespace Neon.Git
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
 
-            var branch = Local.Branches[branchName];
+            var branch = LocalRepo.Branches[branchName];
 
             if (branch == null)
             {
                 throw new LibGit2SharpException($"Branch [{branchName}] does not exist.");
             }
 
-            Commands.Checkout(Local, branch);
+            Commands.Checkout(LocalRepo, branch);
             await Task.CompletedTask;
         }
 
@@ -199,7 +199,7 @@ namespace Neon.Git
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(sourceBranchName), nameof(sourceBranchName));
 
-            var newBranch = Local.Branches[branchName];
+            var newBranch = LocalRepo.Branches[branchName];
 
             if (newBranch != null)
             {
@@ -208,14 +208,14 @@ namespace Neon.Git
                 return false;
             }
 
-            var sourceBranch = Local.Branches[sourceBranchName];
+            var sourceBranch = LocalRepo.Branches[sourceBranchName];
 
             if (sourceBranch == null)
             {
                 throw new LibGit2SharpException($"Source branch [{sourceBranchName}] does not exist.");
             }
              
-            Local.CreateBranch(branchName, sourceBranch.Tip);
+            LocalRepo.CreateBranch(branchName, sourceBranch.Tip);
             await CheckoutAsync(branchName);
 
             return await Task.FromResult(true);
@@ -236,11 +236,11 @@ namespace Neon.Git
 
             branchName ??= remoteBranchName;
 
-            var created = Local.Branches[branchName] == null;
+            var created = LocalRepo.Branches[branchName] == null;
 
             if (created)
             {
-                Local.CreateBranch(branchName, $"{Origin.Name}/{remoteBranchName}");
+                LocalRepo.CreateBranch(branchName, $"{Origin.Name}/{remoteBranchName}");
             }
 
             await CheckoutAsync(branchName);
@@ -260,11 +260,11 @@ namespace Neon.Git
 
             // Remove the remote branch.
 
-            Local.Network.Push(Origin, $"+:refs/heads/{branchName}", CreatePushOptions());
+            LocalRepo.Network.Push(Origin, $"+:refs/heads/{branchName}", CreatePushOptions());
 
             // Remove the local branch.
 
-            Local.Branches.Remove(branchName);
+            LocalRepo.Branches.Remove(branchName);
 
             await Task.CompletedTask;
         }
@@ -288,7 +288,7 @@ namespace Neon.Git
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
 
-            var branch = Local.Branches[branchName];
+            var branch = LocalRepo.Branches[branchName];
 
             if (branch == null)
             {
@@ -305,7 +305,7 @@ namespace Neon.Git
                 FailOnConflict = true
             };
 
-            var result = Local.Merge(branch, CreateSignature());
+            var result = LocalRepo.Merge(branch, CreateSignature());
 
             if (result.Status == MergeStatus.Conflicts)
             {
@@ -326,8 +326,8 @@ namespace Neon.Git
         /// <returns>The tracking <see cref="Task"/>.</returns>
         public async Task UndoAsync()
         {
-            Local.CheckoutPaths(CurrentBranch.Tip.Sha, new string[] { "*" }, new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force });
-            Local.RemoveUntrackedFiles();
+            LocalRepo.CheckoutPaths(CurrentBranch.Tip.Sha, new string[] { "*" }, new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force });
+            LocalRepo.RemoveUntrackedFiles();
 
             await Task.CompletedTask;
         }

@@ -67,7 +67,7 @@ namespace Neon.Git
         /// <returns>The list of branches.</returns>
         public async Task<IReadOnlyList<GitHubBranch>> GetRemoteBranchesAsync()
         {
-            return await RemoteApi.Repository.Branch.GetAll(RemoteRepoPath.Owner, RemoteRepoPath.Repo);
+            return await Server.Repository.Branch.GetAll(ServerRepoPath.Owner, ServerRepoPath.Name);
         }
     }
 }

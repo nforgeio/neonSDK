@@ -80,14 +80,14 @@ namespace Neon.Git
 
                     repoPath.Server = "github.com";
                     repoPath.Owner  = parts[0];
-                    repoPath.Repo   = parts[1];
+                    repoPath.Name   = parts[1];
                     break;
 
                 case 3:
 
                     repoPath.Server = parts[0];
                     repoPath.Owner  = parts[1];
-                    repoPath.Repo   = parts[2];
+                    repoPath.Name   = parts[2];
                     break;
 
                 default:
@@ -119,14 +119,14 @@ namespace Neon.Git
         public string Owner { get; private set; }
 
         /// <summary>
-        /// Returns the <b>repo</b> part of the path.
+        /// Returns the name of the repo.
         /// </summary>
-        public string Repo { get; private set; }
+        public string Name { get; private set; }
 
         /// <inheritdoc/>
         public override string ToString()
         {
-            return $"{Server}/{Owner}/{Repo}";
+            return $"{Server}/{Owner}/{Name}";
         }
     }
 }

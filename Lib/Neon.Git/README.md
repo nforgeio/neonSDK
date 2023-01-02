@@ -1,9 +1,6 @@
-﻿Neon.GitHub
-===========
+﻿Neon.Git
+========
 
-Combines **git** and **GitHub** functionality into easy to use classes that behave
-similarily to Visual Studio's embedded git provider.
+Combines **git** and **GitHub** functionality into the **EasyRepository** class.
 
-**WARNING:** This is stell a work in progress.
-
-You can get started here: [Neon.Docker](https://sdk.neonforge.com/N_Neon_Git.htm)
+You can get started here: [Neon.Git](https://sdk.neonforge.com/N_Neon_Git.htm)

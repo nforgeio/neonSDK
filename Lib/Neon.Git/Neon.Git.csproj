@@ -5,7 +5,7 @@
 		<OutputType>Library</OutputType>
 		<RootNamespace>Neon.Git</RootNamespace>
 		<Version>3.0.0</Version>
-		<Description>EXPERIMENTAL: Combines GitHub and local git repo functions into easy to use classes that behave somewhat like Visual Studio's embedded git provider.</Description>
+		<Description>Combines GitHub and local git repo functionality into the EasyRepository class.</Description>
 		<PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
 		<IsPackable>true</IsPackable>
 		<PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.Git/README.md</PackageProjectUrl>

@@ -52,7 +52,7 @@ namespace TestGit
 
                         using (var repo = await EasyRepository.CloneAsync(GitTestHelper.RemoteTestRepo, tempFolder.Path))
                         {
-                            Assert.Equal(GitTestHelper.RemoteTestRepo, repo.RemoteRepoPath.ToString());
+                            Assert.Equal(GitTestHelper.RemoteTestRepo, repo.ServerRepoPath.ToString());
                             Assert.Equal("master", repo.CurrentBranch.FriendlyName);
                             Assert.True(File.Exists(Path.Combine(repoPath, ".gitignore")));
                         }
@@ -78,7 +78,7 @@ namespace TestGit
 
                         using (var repo = await EasyRepository.CloneAsync(GitTestHelper.RemoteTestRepo, tempFolder.Path))
                         {
-                            Assert.Equal(GitTestHelper.RemoteTestRepo, repo.RemoteRepoPath.ToString());
+                            Assert.Equal(GitTestHelper.RemoteTestRepo, repo.ServerRepoPath.ToString());
                             Assert.Equal("master", repo.CurrentBranch.FriendlyName);
                             Assert.True(File.Exists(Path.Combine(repoPath, ".gitignore")));
                         }
@@ -89,7 +89,7 @@ namespace TestGit
                         {
                             Assert.Equal("master", repo.CurrentBranch.FriendlyName);
                             Assert.True(File.Exists(Path.Combine(repoPath, ".gitignore")));
-                            Assert.Equal(RemoteRepoPath.Parse(GitTestHelper.RemoteTestRepo).ToString(), repo.RemoteRepoPath.ToString());
+                            Assert.Equal(RemoteRepoPath.Parse(GitTestHelper.RemoteTestRepo).ToString(), repo.ServerRepoPath.ToString());
                         }
                     }
 
@@ -308,7 +308,7 @@ namespace TestGit
 
                                 await repo.CheckoutAsync("master");
                                 repo.Branches.Remove(repo.Branches[newBranchName]);
-                                Assert.Null(repo.Local.Branches[newBranchName]);
+                                Assert.Null(repo.LocalRepo.Branches[newBranchName]);
                                 Assert.Null(await repo.GetRemoteBranchAsync(newBranchName));
                             }
                         }
