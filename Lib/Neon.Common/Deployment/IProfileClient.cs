@@ -95,6 +95,18 @@ namespace Neon.Deployment
     /// communicates with 1Password.com to obtain secrets, which can take a second or two.  Caching will
     /// improve performance and also take some load off of 1Password. 
     /// </para>
+    /// <para>
+    /// Caching may be used to solve the problem where a tool like <b>neon-assistant</b> is signed-in
+    /// when a long running operation starts but signs-out automatically before the operation completes,
+    /// potentially failing when a secret is requested after that point.  This can be mitigated by having
+    /// your operations request all required secrets and profiles up front and then cache them so these
+    /// will be available later.
+    /// </para>
+    /// <para>
+    /// Some <see cref="IProfileClient"/> implementations may also cache secrets elsewhere, like process
+    /// environment variables such that other profile instances constructed by the process or subprocesses
+    /// can also take advantage of the cached values.
+    /// </para>
     /// </summary>
     /// <remarks>
     /// <para>

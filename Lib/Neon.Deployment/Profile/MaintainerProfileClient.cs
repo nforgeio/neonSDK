@@ -16,6 +16,7 @@
 // limitations under the License.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.IO;
@@ -34,6 +35,14 @@ namespace Neon.Deployment
     /// Provides the <see cref="IProfileClient"/> implementation used by NEONFORGE maintainers
     /// to obtain 1Password secrets via our internal <b>neon-assistant</b> tool.
     /// </summary>
+    /// <remarks>
+    /// <note>
+    /// This class uses process environment variables like <b>NEONASSISTANT_CACHE_PROFILE_[name=value</b>
+    /// and <b>NEONASSISTANT_CACHE_SECRET_name=value</b> to cache profile and secret values such that
+    /// other <see cref="MaintainerProfileClient"/> instances within the current process and
+    /// subprocesses can take advantage of cached values as well.
+    /// </note>
+    /// </remarks>
     public partial class MaintainerProfileClient : IProfileClient
     {
         private readonly string             pipeName;
@@ -93,11 +102,7 @@ namespace Neon.Deployment
             {
                 if (!value)
                 {
-                    lock (syncLock)
-                    {
-                        profileCache.Clear();
-                        secretCache.Clear();
-                    }
+                    ClearCache();
                 }
 
                 cacheEnabled = value;
@@ -164,6 +169,13 @@ namespace Neon.Deployment
                     {
                         return value;
                     }
+
+                    var cachedEnvironmentValue = Environment.GetEnvironmentVariable($"NEONASSISTANT_CACHE_PROFILE_{name}");
+
+                    if (!string.IsNullOrEmpty(cachedEnvironmentValue))
+                    {
+                        return cachedEnvironmentValue;
+                    }
                 }
             }
 
@@ -180,6 +192,8 @@ namespace Neon.Deployment
                     lock (syncLock)
                     {
                         profileCache[name] = value;
+
+                        Environment.SetEnvironmentVariable($"NEONASSISTANT_CACHE_PROFILE_{name}", value);
                     }
                 }
 
@@ -211,6 +225,13 @@ namespace Neon.Deployment
                     {
                         return value;
                     }
+
+                    var cachedEnvironmentValue = Environment.GetEnvironmentVariable($"NEONASSISTANT_CACHE_SECRET_{cacheKey}");
+
+                    if (!string.IsNullOrEmpty(cachedEnvironmentValue))
+                    {
+                        return cachedEnvironmentValue;
+                    }
                 }
             }
 
@@ -237,6 +258,8 @@ namespace Neon.Deployment
                     lock (syncLock)
                     {
                         secretCache[cacheKey] = value;
+
+                        Environment.SetEnvironmentVariable($"NEONASSISTANT_CACHE_SECRET_{cacheKey}", value);
                     }
                 }
 
@@ -258,6 +281,26 @@ namespace Neon.Deployment
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(name), nameof(name));
 
+            var cacheKey = $"{vault}::{name}[password]";
+
+            if (CacheEnabled)
+            {
+                lock (syncLock)
+                {
+                    if (secretCache.TryGetValue(cacheKey, out var value))
+                    {
+                        return value;
+                    }
+
+                    var cachedEnvironmentValue = Environment.GetEnvironmentVariable($"NEONASSISTANT_CACHE_SECRET_{cacheKey}");
+
+                    if (!string.IsNullOrEmpty(cachedEnvironmentValue))
+                    {
+                        return cachedEnvironmentValue;
+                    }
+                }
+            }
+
             var args = new Dictionary<string, string>();
 
             args.Add("name", name);
@@ -274,7 +317,19 @@ namespace Neon.Deployment
 
             try
             {
-                return Call(ProfileRequest.Create("GET-SECRET-VALUE", args)).Value;
+                var value = Call(ProfileRequest.Create("GET-SECRET-VALUE", args)).Value;
+
+                if (CacheEnabled)
+                {
+                    lock (syncLock)
+                    {
+                        secretCache[cacheKey] = value;
+
+                        Environment.SetEnvironmentVariable($"NEONASSISTANT_CACHE_SECRET_{cacheKey}", value);
+                    }
+                }
+
+                return value;
             }
             catch (ProfileException e)
             {
@@ -305,6 +360,18 @@ namespace Neon.Deployment
             {
                 profileCache.Clear();
                 secretCache.Clear();
+
+                // Clear any values cached as environment variables.
+
+                foreach (DictionaryEntry variable in Environment.GetEnvironmentVariables())
+                {
+                    var name = (string)variable.Key;
+
+                    if (name.StartsWith("NEONASSISTANT_CACHE_", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        Environment.SetEnvironmentVariable(name, null);
+                    }
+                }
             }
         }
 
