@@ -375,7 +375,6 @@ try
         SetVersion Neon.BuildInfo                   $neonSdkVersion
         SetVersion Neon.Cassandra                   $neonSdkVersion
         SetVersion Neon.Common                      $neonSdkVersion
-        SetVersion Neon.Couchbase                   $neonSdkVersion
         SetVersion Neon.Cryptography                $neonSdkVersion
         SetVersion Neon.CSharp                      $neonSdkVersion
         SetVersion Neon.Deployment                  $neonSdkVersion
@@ -395,7 +394,6 @@ try
         SetVersion Neon.WSL                         $neonSdkVersion
         SetVersion Neon.XenServer                   $neonSdkVersion
         SetVersion Neon.Xunit                       $neonSdkVersion
-        SetVersion Neon.Xunit.Couchbase             $neonSdkVersion
         SetVersion Neon.Xunit.YugaByte              $neonSdkVersion
         SetVersion Neon.YugaByte                    $neonSdkVersion
 
@@ -405,7 +403,6 @@ try
         Publish Neon.BuildInfo                      $neonSdkVersion
         Publish Neon.Cassandra                      $neonSdkVersion
         Publish Neon.Common                         $neonSdkVersion
-        Publish Neon.Couchbase                      $neonSdkVersion
         Publish Neon.Cryptography                   $neonSdkVersion
         Publish Neon.CSharp                         $neonSdkVersion
         Publish Neon.Deployment                     $neonSdkVersion
@@ -425,7 +422,6 @@ try
         Publish Neon.WSL                            $neonSdkVersion
         Publish Neon.XenServer                      $neonSdkVersion
         Publish Neon.Xunit                          $neonSdkVersion
-        Publish Neon.Xunit.Couchbase                $neonSdkVersion
         Publish Neon.Xunit.YugaByte                 $neonSdkVersion
         Publish Neon.YugaByte                       $neonSdkVersion
     }
@@ -437,7 +433,6 @@ try
     RestoreVersion Neon.BuildInfo
     RestoreVersion Neon.Cassandra
     RestoreVersion Neon.Common
-    RestoreVersion Neon.Couchbase
     RestoreVersion Neon.Cryptography
     RestoreVersion Neon.CSharp
     RestoreVersion Neon.Deployment
@@ -457,7 +452,6 @@ try
     RestoreVersion Neon.WSL
     RestoreVersion Neon.XenServer
     RestoreVersion Neon.Xunit
-    RestoreVersion Neon.Xunit.Couchbase
     RestoreVersion Neon.Xunit.YugaByte
     RestoreVersion Neon.YugaByte
 

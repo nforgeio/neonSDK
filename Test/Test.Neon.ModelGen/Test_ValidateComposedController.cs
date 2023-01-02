@@ -38,7 +38,6 @@ using Couchbase.N1QL;
 
 using Neon.Common;
 using Neon.Xunit;
-using Neon.Xunit.Couchbase;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;

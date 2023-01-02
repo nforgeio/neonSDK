@@ -49,8 +49,8 @@ namespace Neon.Retry
     /// </note>
     /// <para>
     /// Choose a category name that can be used to easily identify the affected
-    /// component.  For example, <b>couchbase:my-cluster</b> to identify a
-    /// specific Couchbase cluster.
+    /// component.  For example, <b>yugabyte:my-cluster</b> to identify a
+    /// specific YugaBYte database cluster.
     /// </para>
     /// </remarks>
     public class ExponentialRetryPolicy : RetryPolicyBase, IRetryPolicy

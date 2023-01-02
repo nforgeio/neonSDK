@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
@@ -34,11 +35,9 @@ using Microsoft.AspNetCore.Http;
 using Neon.Common;
 using Neon.Service;
 using Neon.Xunit;
-using Neon.Xunit.Couchbase;
-using Xunit;
+using Neon.Xunit.YugaByte;
 
-using Couchbase;
-using NATS.Client;
+using Xunit;
 
 namespace TestXunit
 {
@@ -101,17 +100,17 @@ namespace TestXunit
             composedFixture.Start(
                 () =>
                 {
-                    // Start Couchbase as [group=0].
+                    // Start [YugaByteFixture] as [group=0].
 
-                    composedFixture.AddFixture("couchbase", new CouchbaseFixture(),
-                        couchbaseFixture =>
+                    composedFixture.AddFixture("yugabyte", new YugaByteFixture(),
+                        yugabyteFixture =>
                         {
-                            couchbaseFixture.StartAsComposed();
+                            yugabyteFixture.StartAsComposed();
                         },
                         group: 0);
 
-                    // Add a [CodeFixture] as [group=1] and have it initialize write to
-                    // Couchbase to simulate initializing a database and also configure 
+                    // Add a [CodeFixture] as [group=1] and have it verify that YougByte
+                    // is running to simulate initializing a database and also configure 
                     // environment variables and configuration files for the services
                     // via a service map.
 
@@ -125,10 +124,12 @@ namespace TestXunit
                         {
                             // Write a key to the database.
 
-                            var couchbaseFixture = (CouchbaseFixture)composedFixture["couchbase"];
-                            var bucket           = couchbaseFixture.Bucket;
+                            var yugabyteFixture = (YugaByteFixture)composedFixture["yugabyte"];
 
-                            bucket.UpsertSafeAsync("test", "HELLO WORLD!").WaitWithoutAggregate();
+                            if (yugabyteFixture.PostgresConnection.State != ConnectionState.Open)
+                            {
+                                yugabyteFixture.PostgresConnection.Open();
+                            }
 
                             // Configure the services via the service map.
 
@@ -173,15 +174,18 @@ namespace TestXunit
         [Fact]
         public async Task Verify()
         {
-            var couchbaseFixture = (CouchbaseFixture)fixture["couchbase"];
+            var yugabyteFixture  = (YugaByteFixture)fixture["yugabyte"];
             var natsFixture      = (NatsFixture)fixture["nats"];
             var containerFixture = (ContainerFixture)fixture["container"];
             var service1Fixture  = (NeonServiceFixture<MyService1>)fixture["service1"];
             var service2Fixture  = (NeonServiceFixture<MyService2>)fixture["service2"];
 
-            // Verify that Couchbase from [group 0] is running.
+            // Verify that YugaByte from [group 0] is running.
 
-            couchbaseFixture.Bucket.Insert("my-key", "my-value");
+            if (yugabyteFixture.PostgresConnection.State != ConnectionState.Open)
+            {
+                yugabyteFixture.PostgresConnection.Open();
+            }
 
             // Verify that NATS and the container from [group 1] are running.
 

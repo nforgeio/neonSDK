@@ -34,15 +34,13 @@ using Microsoft.AspNetCore.Http;
 using Neon.Common;
 using Neon.Xunit;
 
-using Xunit;
-
-using Couchbase;
 using NATS.Client;
+using Xunit;
 
 // NOTE: We're not testing [NatsStreamingFixture] here because we can't run
 //       it at the same time as the [NatsFixture] (by default) due to port 
 //       conflicts.  We'll test [NatsStreamingFixture] by composing it with
-//       the CouchbaseFixture in the Couchbase unit tests.
+//       the YugaByteFixture.
 
 namespace TestXunit
 {

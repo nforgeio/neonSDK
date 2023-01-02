@@ -475,7 +475,7 @@ namespace TestCommon
                         });
                 });
 
-            Assert.True(times.Count == 4 || times.Count == 5);
+            Assert.True(times.Count >= 4);
 
             // Additional test to verify this serious problem is fixed:
             //

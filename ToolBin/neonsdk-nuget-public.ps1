@@ -212,7 +212,6 @@ try
     SetVersion Neon.BuildInfo           $neonSdkVersion
     SetVersion Neon.Cassandra           $neonSdkVersion
     SetVersion Neon.Common              $neonSdkVersion
-    SetVersion Neon.Couchbase           $neonSdkVersion
     SetVersion Neon.Cryptography        $neonSdkVersion
     SetVersion Neon.CSharp              $neonSdkVersion
     SetVersion Neon.Deployment          $neonSdkVersion
@@ -242,7 +241,6 @@ try
     Publish Neon.BuildInfo              $neonSdkVersion
     Publish Neon.Cassandra              $neonSdkVersion
     Publish Neon.Common                 $neonSdkVersion
-    Publish Neon.Couchbase              $neonSdkVersion
     Publish Neon.Cryptography           $neonSdkVersion
     Publish Neon.CSharp                 $neonSdkVersion
     Publish Neon.Deployment             $neonSdkVersion
@@ -262,7 +260,6 @@ try
     Publish Neon.WSL                    $neonSdkVersion
     Publish Neon.XenServer              $neonSdkVersion
     Publish Neon.Xunit                  $neonSdkVersion
-    Publish Neon.Xunit.Couchbase        $neonSdkVersion
     Publish Neon.Xunit.YugaByte         $neonSdkVersion
     Publish Neon.YugaByte               $neonSdkVersion
 
