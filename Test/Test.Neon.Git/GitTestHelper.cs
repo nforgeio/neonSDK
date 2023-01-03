@@ -86,7 +86,7 @@ namespace TestGit
             {
                 var repoPath = tempFolder.Path;
 
-                using (var repo = await EasyRepository.CloneAsync(GitTestHelper.RemoteTestRepo, repoPath))
+                using (var repo = await GitHubRepo.CloneAsync(GitTestHelper.RemoteTestRepo, repoPath))
                 {
                     var testFolder = Path.Combine(repo.LocalRepoFolder, TestFolder);
 
@@ -112,7 +112,7 @@ namespace TestGit
             {
                 var repoPath = tempFolder.Path;
 
-                using (var repo = await EasyRepository.CloneAsync(GitTestHelper.RemoteTestRepo, repoPath))
+                using (var repo = await GitHubRepo.CloneAsync(GitTestHelper.RemoteTestRepo, repoPath))
                 {
                     // We need to check out the remote test branches first.
 

@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:	    EasyRepository.Remote.cs
+// FILE:	    GitHubRepo.Server.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
 //
@@ -47,7 +47,7 @@ using GitSignature  = LibGit2Sharp.Signature;
 
 namespace Neon.Git
 {
-    public partial class EasyRepository
+    public partial class GitHubRepo
     {
         /// <summary>
         /// Returns a specific remote branch.

@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:	    EasyRepository.cs
+// FILE:	    GitHubRepo.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
 //
@@ -54,7 +54,7 @@ namespace Neon.Git
     /// repoistory, as well as the local git repository,
     /// </para>
     /// <note>
-    /// <see cref="EasyRepository"/> implements <see cref="IDisposable"/> and instances should be disposed
+    /// <see cref="GitHubRepo"/> implements <see cref="IDisposable"/> and instances should be disposed
     /// when you're done with them.
     /// </note>
     /// </summary>
@@ -63,17 +63,17 @@ namespace Neon.Git
     /// <b>Toclone a remote GitHub repository</b>, call the <c>static</c>
     /// <see cref="CloneAsync(string, string, string, string, string, string, string, IProfileClient)"/>
     /// method, passing the GitHub repo path, path the the local folder and optionally the branch to
-    /// be checked out as well as the GitHub credentials.  This returns the <see cref="EasyRepository"/>
+    /// be checked out as well as the GitHub credentials.  This returns the <see cref="GitHubRepo"/>
     /// that you'll use for subsequent operations.
     /// </para>
     /// <para>
-    /// <b>To manage an existing local repo</b>, use the <see cref="EasyRepository(string, string, string, string, string, IProfileClient)"/>
+    /// <b>To manage an existing local repo</b>, use the <see cref="GitHubRepo(string, string, string, string, string, IProfileClient)"/>
     /// constructor, passing the path the the local folder and optionally the branch to
-    /// be checked out as well as the GitHub credentials.  This returns the <see cref="EasyRepository"/>
+    /// be checked out as well as the GitHub credentials.  This returns the <see cref="GitHubRepo"/>
     /// that you'll use for subsequent operations.
     /// </para>
     /// </remarks>
-    public partial class EasyRepository : IDisposable
+    public partial class GitHubRepo : IDisposable
     {
         //---------------------------------------------------------------------
         // Static members
@@ -100,7 +100,7 @@ namespace Neon.Git
         /// when a profile client is available.
         /// </param>
         /// <exception cref="LibGit2SharpException">Thrown when the local folder already exists.</exception>
-        public static async Task<EasyRepository> CloneAsync(
+        public static async Task<GitHubRepo> CloneAsync(
             string          remoteRepoPath, 
             string          localRepoFolder,
             string          branchName    = null,
@@ -113,7 +113,7 @@ namespace Neon.Git
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(remoteRepoPath), nameof(remoteRepoPath));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(localRepoFolder), nameof(localRepoFolder));
 
-            var repo = new EasyRepository();
+            var repo = new GitHubRepo();
 
             repo.LocalRepoFolder = localRepoFolder;
             repo.ServerRepoPath  = RemoteRepoPath.Parse(remoteRepoPath);
@@ -170,13 +170,13 @@ namespace Neon.Git
         /// <summary>
         /// Private constructor.
         /// </summary>
-        private EasyRepository()
+        private GitHubRepo()
         {
         }
 
         /// <summary>
         /// <para>
-        /// Constructs a <see cref="EasyRepository"/> that references an existing local git repo as well as
+        /// Constructs a <see cref="GitHubRepo"/> that references an existing local git repo as well as
         /// the associated remote GitHub API.
         /// </para>
         /// <para>
@@ -200,7 +200,7 @@ namespace Neon.Git
         /// when a profile client is available.
         /// </param>
         /// <exception cref="RepositoryNotFoundException">Thrown when the local repo doesn't exist.</exception>
-        public EasyRepository(
+        public GitHubRepo(
             string          localRepoFolder,
             string          username      = null, 
             string          accessToken   = null, 
@@ -258,7 +258,7 @@ namespace Neon.Git
         /// <summary>
         /// Finalizer.
         /// </summary>
-        ~EasyRepository()
+        ~GitHubRepo()
         {
             Dispose(false);
         }
