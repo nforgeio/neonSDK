@@ -43,7 +43,7 @@ namespace Neon.Git
     /// </para>
     /// <para>
     /// Another problem is that you'll need to use GitHub credentials to do anything interesting
-    /// (like pushing a local repo to GitHub).  The Visual Studio git provider manages these credentials
+    /// (like pushing a local repository to GitHub).  The Visual Studio git provider manages these credentials
     /// for the developer, but there isn't really a standard for managing these credentials outside
     /// of Visual Studio.
     /// </para>
@@ -66,6 +66,8 @@ namespace Neon.Git
     /// <note>
     /// This functionality is currently <b>tied to GitHub</b> because that's where we're hosting our
     /// projects.  We don't currently support other providers like GitLabs, etc. and may never do so.
+    /// If we were to eventually support other git services like GitLabs, we'd probably create another
+    /// class specific to that service as opposed to extending this class.
     /// </note>
     /// </remarks>
     [System.Runtime.CompilerServices.CompilerGenerated]

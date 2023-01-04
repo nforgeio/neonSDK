@@ -52,10 +52,10 @@ namespace Neon.Git
         /// <summary>
         /// Returns the current branch.
         /// </summary>
-        public GitBranch CurrentBranch => LocalRepo.CurrentBranch();
+        public GitBranch CurrentBranch => LocalRepository.CurrentBranch();
 
         /// <summary>
-        /// Fetches information from the remote GitHub repository.
+        /// Fetches information from the associated GitHub origin repository.
         /// </summary>
         /// <returns>The tracking <see cref="Task"/>.</returns>
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
@@ -70,13 +70,13 @@ namespace Neon.Git
 
             var refSpecs = Origin.FetchRefSpecs.Select(spec => spec.Specification);
 
-            Commands.Fetch(LocalRepo, Origin.Name, refSpecs, options, "fetching");
+            Commands.Fetch(LocalRepository, Origin.Name, refSpecs, options, "fetching");
 
             await Task.CompletedTask;
         }
 
         /// <summary>
-        /// Commits any staged and pending changes to the local git repo.
+        /// Commits any staged and pending changes to the local git repository.
         /// </summary>
         /// <param name="message">Optionally specifies the commit message.  This defaults to <b>unspecified changes"</b>.</param>
         /// <returns><c>true</c> when changes were comitted, <c>false</c> when there were no pending changes.</returns>
@@ -90,18 +90,18 @@ namespace Neon.Git
                 return false;
             }
 
-            Commands.Stage(LocalRepo, "*");
+            Commands.Stage(LocalRepository, "*");
 
             var signature = CreateSignature();
 
-            LocalRepo.Commit(message, signature, signature);
+            LocalRepository.Commit(message, signature, signature);
 
             return await Task.FromResult(true);
         }
 
         /// <summary>
         /// <para>
-        /// Fetches and pulls the changes from GitHub into the current checked-out branch within a local git repo.
+        /// Fetches and pulls the changes from GitHub into the current checked-out branch within a local git repository.
         /// </para>
         /// <note>
         /// The pull operation will be aborted and rolled back for merge conflicts.  Check the result status
@@ -122,51 +122,52 @@ namespace Neon.Git
 
             await FetchAsync();
 
-            return await Task.FromResult(Commands.Pull(LocalRepo, CreateSignature(), options).Status);
+            return await Task.FromResult(Commands.Pull(LocalRepository, CreateSignature(), options).Status);
         }
 
 
         /// <summary>
         /// Pushes any pending local commits from the checked out branch to GitHub, creating the
         /// branch on GitHub and associating the local branch when the branch doesn't already exist
-        /// on GitHub.  Any remote branch created will have the same name as the local branch.
+        /// on GitHub.  Any GitHub origin repository branch created will have the same name as the 
+        /// local branch.
         /// </summary>
         /// <returns><c>true</c> when commits were pushed, <c>false</c> when there were no pending commits.</returns>
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
         public async Task<bool> PushAsync()
         {
-            // Associate the current local branch with the remote branch with the 
-            // same name.  This will cause the remote branch to be created when we
-            // push below if the remote branch does not already exist.
+            // Associate the current local branch with the origin branch having the 
+            // same name.  This will cause the origin branch to be created when we
+            // push below if the origin branch does not already exist.
 
-            var currentBranch = LocalRepo.CurrentBranch();
+            var currentBranch = LocalRepository.CurrentBranch();
 
             if (currentBranch == null)
             {
-                throw new LibGit2SharpException($"Local git repo [{LocalRepoFolder}] has no checked-out branch.");
+                throw new LibGit2SharpException($"Local git repository [{LocalRepoFolder}] has no checked-out branch.");
             }
 
             if (!currentBranch.IsTracking)
             {
-                LocalRepo.Branches.Update(currentBranch,
+                LocalRepository.Branches.Update(currentBranch,
                     updater => updater.Remote = Origin.Name,
                     updater => updater.UpstreamBranch = currentBranch.CanonicalName);
             }
 
-            // Push any local commits to the remote branch.
+            // Push any local commits to the origin branch.
 
-            if (LocalRepo.Commits.Count() == 0)
+            if (LocalRepository.Commits.Count() == 0)
             {
                 return false;
             }
 
-            LocalRepo.Network.Push(currentBranch, CreatePushOptions());
+            LocalRepository.Network.Push(currentBranch, CreatePushOptions());
 
             return await Task.FromResult(true);
         }
 
         /// <summary>
-        /// Checks out a local repo branch.
+        /// Checks out a local repository branch.
         /// </summary>
         /// <param name="branchName">Specifies the local branch to be checked out.</param>
         /// <returns>The tracking <see cref="Task"/>.</returns>
@@ -175,14 +176,14 @@ namespace Neon.Git
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
 
-            var branch = LocalRepo.Branches[branchName];
+            var branch = LocalRepository.Branches[branchName];
 
             if (branch == null)
             {
                 throw new LibGit2SharpException($"Branch [{branchName}] does not exist.");
             }
 
-            Commands.Checkout(LocalRepo, branch);
+            Commands.Checkout(LocalRepository, branch);
             await Task.CompletedTask;
         }
 
@@ -199,7 +200,7 @@ namespace Neon.Git
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(sourceBranchName), nameof(sourceBranchName));
 
-            var newBranch = LocalRepo.Branches[branchName];
+            var newBranch = LocalRepository.Branches[branchName];
 
             if (newBranch != null)
             {
@@ -208,39 +209,39 @@ namespace Neon.Git
                 return false;
             }
 
-            var sourceBranch = LocalRepo.Branches[sourceBranchName];
+            var sourceBranch = LocalRepository.Branches[sourceBranchName];
 
             if (sourceBranch == null)
             {
                 throw new LibGit2SharpException($"Source branch [{sourceBranchName}] does not exist.");
             }
              
-            LocalRepo.CreateBranch(branchName, sourceBranch.Tip);
+            LocalRepository.CreateBranch(branchName, sourceBranch.Tip);
             await CheckoutAsync(branchName);
 
             return await Task.FromResult(true);
         }
 
         /// <summary>
-        /// Creates a local branch from a named remote branch and then checks out the branch.
-        /// By default, the local branch will have the same name as the remote, but this can 
-        /// be customized.
+        /// Creates a local branch from a named GitHub repository origin branch and then checks 
+        /// out the branch.  By default, the local branch will have the same name as the origin, 
+        /// but this can be customized.
         /// </summary>
-        /// <param name="remoteBranchName">Specifies the remote branch name.</param>
-        /// <param name="branchName">Optionally specifies the local branch name.  This defaults to <paramref name="remoteBranchName"/>.</param>
-        /// <returns><c>true</c> if the local branch didn't already exist and was created from the remote, <c>false</c> otherwise.</returns>
+        /// <param name="originBranchName">Specifies the GitHub origin repository branch name.</param>
+        /// <param name="branchName">Optionally specifies the local branch name.  This defaults to <paramref name="originBranchName"/>.</param>
+        /// <returns><c>true</c> if the local branch didn't already exist and was created from the GitHib origin repository, <c>false</c> otherwise.</returns>
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
-        public async Task<bool> CheckoutRemoteAsync(string remoteBranchName, string branchName = null)
+        public async Task<bool> CheckoutOriginAsync(string originBranchName, string branchName = null)
         {
-            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(remoteBranchName), nameof(remoteBranchName));
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(originBranchName), nameof(originBranchName));
 
-            branchName ??= remoteBranchName;
+            branchName ??= originBranchName;
 
-            var created = LocalRepo.Branches[branchName] == null;
+            var created = LocalRepository.Branches[branchName] == null;
 
             if (created)
             {
-                LocalRepo.CreateBranch(branchName, $"{Origin.Name}/{remoteBranchName}");
+                LocalRepository.CreateBranch(branchName, $"{Origin.Name}/{originBranchName}");
             }
 
             await CheckoutAsync(branchName);
@@ -249,7 +250,7 @@ namespace Neon.Git
         }
 
         /// <summary>
-        /// Removes a branch from local repo as well as the from the remote, if they exist.
+        /// Removes a branch from local repository as well as the from the GitHub origin repository, if they exist.
         /// </summary>
         /// <param name="branchName">Specifies the branch to be removed.</param>
         /// <returns><c>true</c> if the branch existed and was removed, <c>false</c> otherwise.</returns>
@@ -258,13 +259,13 @@ namespace Neon.Git
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
 
-            // Remove the remote branch.
+            // Remove the origin branch.
 
-            LocalRepo.Network.Push(Origin, $"+:refs/heads/{branchName}", CreatePushOptions());
+            LocalRepository.Network.Push(Origin, $"+:refs/heads/{branchName}", CreatePushOptions());
 
             // Remove the local branch.
 
-            LocalRepo.Branches.Remove(branchName);
+            LocalRepository.Branches.Remove(branchName);
 
             await Task.CompletedTask;
         }
@@ -288,7 +289,7 @@ namespace Neon.Git
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
 
-            var branch = LocalRepo.Branches[branchName];
+            var branch = LocalRepository.Branches[branchName];
 
             if (branch == null)
             {
@@ -305,7 +306,7 @@ namespace Neon.Git
                 FailOnConflict = true
             };
 
-            var result = LocalRepo.Merge(branch, CreateSignature());
+            var result = LocalRepository.Merge(branch, CreateSignature());
 
             if (result.Status == MergeStatus.Conflicts)
             {
@@ -321,13 +322,13 @@ namespace Neon.Git
         }
 
         /// <summary>
-        /// Reverts any uncommitted changes in the current local repo branch.
+        /// Reverts any uncommitted changes in the current local repository branch.
         /// </summary>
         /// <returns>The tracking <see cref="Task"/>.</returns>
         public async Task UndoAsync()
         {
-            LocalRepo.CheckoutPaths(CurrentBranch.Tip.Sha, new string[] { "*" }, new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force });
-            LocalRepo.RemoveUntrackedFiles();
+            LocalRepository.CheckoutPaths(CurrentBranch.Tip.Sha, new string[] { "*" }, new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force });
+            LocalRepository.RemoveUntrackedFiles();
 
             await Task.CompletedTask;
         }

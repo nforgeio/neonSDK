@@ -120,7 +120,7 @@ namespace TestGit
                         .Where(branch => branch.FriendlyName.StartsWith("origin/testbranch-"))
                         .ToArray())
                     {
-                        await repo.CheckoutRemoteAsync(repo.NormalizeRemoteBranchName(branch.FriendlyName));
+                        await repo.CheckoutOriginAsync(repo.NormalizeBranchName(branch.FriendlyName));
                     }
 
                     // Now remove the test branches.
@@ -128,7 +128,7 @@ namespace TestGit
                     await repo.CheckoutAsync("master");
 
                     foreach (var branch in repo.Branches
-                        .Select(branch => repo.NormalizeRemoteBranchName(branch.FriendlyName))
+                        .Select(branch => repo.NormalizeBranchName(branch.FriendlyName))
                         .Where(branchName => branchName.StartsWith("testbranch-"))
                         .ToArray())
                     {

@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:	    GitHubRepo.Server.cs
+// FILE:	    GitHubOriginApi.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
@@ -47,27 +47,43 @@ using GitSignature  = LibGit2Sharp.Signature;
 
 namespace Neon.Git
 {
-    public partial class GitHubRepo
+    /// <summary>
+    /// Implements extended GitHub server API methods.
+    /// </summary>
+    public class GitHubOriginRepoApi
     {
-        /// <summary>
-        /// Returns a specific remote branch.
-        /// </summary>
-        /// <param name="branchName">Specifies the remote branch name.</param>
-        /// <returns>The <see cref="GitHubBranch"/> or <c>null</c> when the branch doesn't exist.</returns>
-        public async Task<GitHubBranch> GetRemoteBranchAsync(string branchName)
-        {
-            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
+        private GitHubRepo  repo;
 
-            return (await GetRemoteBranchesAsync()).FirstOrDefault(branch => branch.Name.Equals(branchName, StringComparison.InvariantCultureIgnoreCase));
+        /// <summary>
+        /// Internal conbstructor.
+        /// </summary>
+        /// <param name="repo">The parent <see cref="GitHubRepo"/>.</param>
+        internal GitHubOriginRepoApi(GitHubRepo repo)
+        {
+            Covenant.Requires<ArgumentNullException>(repo != null, nameof(repo));
+
+            this.repo = repo;
         }
 
         /// <summary>
-        /// Returns all remote branches for a GitHub repo.
+        /// Returns branches from the GitHub origin repository.
         /// </summary>
         /// <returns>The list of branches.</returns>
-        public async Task<IReadOnlyList<GitHubBranch>> GetRemoteBranchesAsync()
+        public async Task<IReadOnlyList<GitHubBranch>> GetBranchesAsync()
         {
-            return await Server.Repository.Branch.GetAll(ServerRepoPath.Owner, ServerRepoPath.Name);
+            return await repo.Server.Repository.Branch.GetAll(repo.OriginRepoPath.Owner, repo.OriginRepoPath.Name);
+        }
+
+        /// <summary>
+        /// Returns a specific GitHub origin repository branch.
+        /// </summary>
+        /// <param name="branchName">Specifies the origin repository branch name.</param>
+        /// <returns>The <see cref="GitHubBranch"/> or <c>null</c> when the branch doesn't exist.</returns>
+        public async Task<GitHubBranch> GetBranchAsync(string branchName)
+        {
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
+
+            return (await GetBranchesAsync()).FirstOrDefault(branch => branch.Name.Equals(branchName, StringComparison.InvariantCultureIgnoreCase));
         }
     }
 }

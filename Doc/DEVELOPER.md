@@ -70,11 +70,9 @@ Follow the steps below to configure a development or test workstation:
     dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
     ```
 
-    b. Reboot Windows
+    b. Install the WSL2 Kernel update as described [here](https://aka.ms/wsl2kernel)
 
-    c. Install the WSL2 Kernel update as described [here](https://aka.ms/wsl2kernel)
-
-    d. Execute these Powershell commands in **pwsh** to install Ubuntu-20.04 on WSL2:
+    c. Execute these Powershell commands in **pwsh** to install Ubuntu-20.04 on WSL2:
     ```
     Invoke-WebRequest https://neon-public.s3.us-west-2.amazonaws.com/downloads/ubuntu-20.04.tar -OutFile ubuntu.tar
     wsl --import Ubuntu-20.04 $env:USERPROFILE ubuntu.tar
@@ -88,7 +86,7 @@ Follow the steps below to configure a development or test workstation:
     * You'll need to create a DockerHub account if you don't already have one
     * Start Docker and click the Settings **Gear** on the right side of the title bar
     * Click **General** and check **Start Docker Desktop when you log in**
-    * Clock **Docker Engine** and disable BuildKit (which causes random problems) so be sure to disable it by setting **buildkit=false** in the edit box
+    * Click **Docker Engine** and disable BuildKit (which causes random problems) so be sure to disable it by setting **buildkit=false** in the edit box
 	* Start a command window and use `docker login` to login using your GitHub credentials
 
 10. Install **Visual Studio 2022 Community 17.4+** from [here](https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030&passive=false)

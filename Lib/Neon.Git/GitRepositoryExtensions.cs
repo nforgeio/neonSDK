@@ -56,7 +56,7 @@ namespace Neon.Git
         /// Returns a local git repository is changes pending a commit..
         /// </summary>
         /// <param name="localRepo">The local git repository.</param>
-        /// <returns><c>true</c> when the repo has pending changes.</returns>
+        /// <returns><c>true</c> when the repository has pending changes.</returns>
         public static bool IsDirty(this GitRepository localRepo)
         {
             return localRepo.RetrieveStatus().IsDirty;

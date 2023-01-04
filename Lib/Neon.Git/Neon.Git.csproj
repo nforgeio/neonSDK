@@ -5,7 +5,7 @@
 		<OutputType>Library</OutputType>
 		<RootNamespace>Neon.Git</RootNamespace>
 		<Version>3.0.0</Version>
-		<Description>Combines GitHub and local git repo functionality into the GitHubRepo class.</Description>
+		<Description>Combines GitHub and local git repository functionality into the GitHubRepo class.</Description>
 		<PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
 		<IsPackable>true</IsPackable>
 		<PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.Git/README.md</PackageProjectUrl>

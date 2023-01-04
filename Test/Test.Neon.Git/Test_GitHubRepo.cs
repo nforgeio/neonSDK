@@ -52,7 +52,7 @@ namespace TestGit
 
                         using (var repo = await GitHubRepo.CloneAsync(GitTestHelper.RemoteTestRepo, tempFolder.Path))
                         {
-                            Assert.Equal(GitTestHelper.RemoteTestRepo, repo.ServerRepoPath.ToString());
+                            Assert.Equal(GitTestHelper.RemoteTestRepo, repo.OriginRepoPath.ToString());
                             Assert.Equal("master", repo.CurrentBranch.FriendlyName);
                             Assert.True(File.Exists(Path.Combine(repoPath, ".gitignore")));
                         }
@@ -78,7 +78,7 @@ namespace TestGit
 
                         using (var repo = await GitHubRepo.CloneAsync(GitTestHelper.RemoteTestRepo, tempFolder.Path))
                         {
-                            Assert.Equal(GitTestHelper.RemoteTestRepo, repo.ServerRepoPath.ToString());
+                            Assert.Equal(GitTestHelper.RemoteTestRepo, repo.OriginRepoPath.ToString());
                             Assert.Equal("master", repo.CurrentBranch.FriendlyName);
                             Assert.True(File.Exists(Path.Combine(repoPath, ".gitignore")));
                         }
@@ -89,7 +89,7 @@ namespace TestGit
                         {
                             Assert.Equal("master", repo.CurrentBranch.FriendlyName);
                             Assert.True(File.Exists(Path.Combine(repoPath, ".gitignore")));
-                            Assert.Equal(RemoteRepoPath.Parse(GitTestHelper.RemoteTestRepo).ToString(), repo.ServerRepoPath.ToString());
+                            Assert.Equal(OriginRepoPath.Parse(GitTestHelper.RemoteTestRepo).ToString(), repo.OriginRepoPath.ToString());
                         }
                     }
 
@@ -269,7 +269,7 @@ namespace TestGit
 
                         using (var repo = await GitHubRepo.CloneAsync(GitTestHelper.RemoteTestRepo, repoPath))
                         {
-                            var remoteBranches = await repo.GetRemoteBranchesAsync();
+                            var remoteBranches = await repo.OriginRepo.GetBranchesAsync();
 
                             Assert.Contains(remoteBranches, branch => branch.Name == "master");
                         }
@@ -298,7 +298,7 @@ namespace TestGit
 
                                 Assert.True(await repo.CreateBranchAsync(newBranchName, "master"));
                                 Assert.NotNull(repo.Branches[newBranchName]);
-                                Assert.Null(await repo.GetRemoteBranchAsync(newBranchName));
+                                Assert.Null(await repo.OriginRepo.GetBranchAsync(newBranchName));
 
                                 // Verify that we see FALSE when trying to create an existing branch.
 
@@ -308,8 +308,8 @@ namespace TestGit
 
                                 await repo.CheckoutAsync("master");
                                 repo.Branches.Remove(repo.Branches[newBranchName]);
-                                Assert.Null(repo.LocalRepo.Branches[newBranchName]);
-                                Assert.Null(await repo.GetRemoteBranchAsync(newBranchName));
+                                Assert.Null(repo.LocalRepository.Branches[newBranchName]);
+                                Assert.Null(await repo.OriginRepo.GetBranchAsync(newBranchName));
                             }
                         }
                     }
@@ -343,7 +343,7 @@ namespace TestGit
 
                                 Assert.True(await repo.CreateBranchAsync(newBranchName, "master"));
                                 Assert.NotNull(repo.Branches[newBranchName]);
-                                Assert.Null(await repo.GetRemoteBranchAsync(newBranchName));
+                                Assert.Null(await repo.OriginRepo.GetBranchAsync(newBranchName));
 
                                 // Create a test file in the new branch and commit.
 
@@ -392,7 +392,7 @@ namespace TestGit
 
                                 Assert.True(await repo.CreateBranchAsync(newBranchName, "master"));
                                 Assert.NotNull(repo.Branches[newBranchName]);
-                                Assert.Null(await repo.GetRemoteBranchAsync(newBranchName));
+                                Assert.Null(await repo.OriginRepo.GetBranchAsync(newBranchName));
 
                                 // Create a test file in the new branch and commit.
 
@@ -501,14 +501,14 @@ namespace TestGit
 
                                 Assert.True(await repo.CreateBranchAsync(newBranchName, "master"));
                                 Assert.NotNull(repo.Branches[newBranchName]);
-                                Assert.Null(await repo.GetRemoteBranchAsync(newBranchName));
+                                Assert.Null(await repo.OriginRepo.GetBranchAsync(newBranchName));
                                 Assert.Equal(newBranchName, repo.CurrentBranch.FriendlyName);
 
                                 // Push to remote and verify.
 
                                 await repo.PushAsync();
                                 Assert.NotNull(repo.Branches[newBranchName]);
-                                Assert.NotNull(await repo.GetRemoteBranchAsync(newBranchName));
+                                Assert.NotNull(await repo.OriginRepo.GetBranchAsync(newBranchName));
 
                                 // Switch back to master so we'll be able to delete the branch.
 
@@ -520,7 +520,7 @@ namespace TestGit
                                 await repo.RemoveBranchAsync(newBranchName);
 
                                 Assert.Null(repo.Branches[newBranchName]);
-                                Assert.Null(await repo.GetRemoteBranchAsync(newBranchName));
+                                Assert.Null(await repo.OriginRepo.GetBranchAsync(newBranchName));
                                 Assert.Equal("master", repo.CurrentBranch.FriendlyName);
                             }
                         }

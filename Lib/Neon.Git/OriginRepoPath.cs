@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:	    RemoteRepoPath.cs
+// FILE:	    OriginRepoPath.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
@@ -35,14 +35,14 @@ namespace Neon.Git
 {
     /// <summary>
     /// <para>
-    /// Abstracts remote repository paths formatted like: <b>[SERVER/]OWNER/REPO</b>.
+    /// Abstracts GitHub origin repository paths formatted like: <b>[SERVER/]OWNER/REPO</b>.
     /// </para>
     /// <para>
     /// Examples: <b>github.com/owner/repo</b> or <b>owner/repo</b> (where <b>github.com</b> 
     /// is the implied server).
     /// </para>
     /// </summary>
-    public class RemoteRepoPath
+    public class OriginRepoPath
     {
         //---------------------------------------------------------------------
         // Static members
@@ -51,14 +51,14 @@ namespace Neon.Git
         /// Parses a GitHub repository path.
         /// </summary>
         /// <param name="path">The path, like: <b>[SERVER/]OWNER/REPO</b></param>
-        /// <returns>The parsed <see cref="RemoteRepoPath"/>.</returns>
+        /// <returns>The parsed <see cref="OriginRepoPath"/>.</returns>
         /// <exception cref="FormatException">Thrown when the input is invalid.</exception>
         /// <remarks>
         /// <note>
         /// <b>github.com</b> will be assumed when no server is specified.
         /// </note>
         /// </remarks>
-        public static RemoteRepoPath Parse(string path)
+        public static OriginRepoPath Parse(string path)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(path), nameof(path));
 
@@ -68,11 +68,11 @@ namespace Neon.Git
             {
                 if (part.Length == 0 || part.Contains(' '))
                 {
-                    throw new FormatException($"Invalid GitHub repo path: {path}");
+                    throw new FormatException($"Invalid GitHub repository path: {path}");
                 }
             }
 
-            var repoPath = new RemoteRepoPath();
+            var repoPath = new OriginRepoPath();
 
             switch (parts.Length)
             {
@@ -92,7 +92,7 @@ namespace Neon.Git
 
                 default:
 
-                    throw new FormatException($"Invalid GitHub repo path: {path}");
+                    throw new FormatException($"Invalid GitHub repository path: {path}");
             }
 
             return repoPath;
@@ -104,7 +104,7 @@ namespace Neon.Git
         /// <summary>
         /// Static constructor.
         /// </summary>
-        private RemoteRepoPath()
+        private OriginRepoPath()
         {
         }
 
@@ -119,7 +119,7 @@ namespace Neon.Git
         public string Owner { get; private set; }
 
         /// <summary>
-        /// Returns the name of the repo.
+        /// Returns the name of the repository.
         /// </summary>
         public string Name { get; private set; }
 
