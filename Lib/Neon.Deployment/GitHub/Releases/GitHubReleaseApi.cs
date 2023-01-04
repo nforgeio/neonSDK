@@ -302,8 +302,7 @@ namespace Neon.Deployment
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(assetName), nameof(assetName));
             Covenant.Requires<ArgumentNullException>(assetStream != null, nameof(assetStream));
 
-            var repoPath = GitHubRepoPath.Parse(repo);
-            var client   = GitHub.CreateClient();
+            var client  = GitHub.CreateClient();
 
             var upload = new ReleaseAssetUpload()
             {
