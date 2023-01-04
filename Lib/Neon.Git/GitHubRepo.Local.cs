@@ -58,9 +58,14 @@ namespace Neon.Git
         /// Fetches information from the associated GitHub origin repository.
         /// </summary>
         /// <returns>The tracking <see cref="Task"/>.</returns>
+        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
         public async Task FetchAsync()
         {
+            EnsureNotDisposed();
+            EnsureLocalRepo();
+
             var options = new FetchOptions()
             {
                 TagFetchMode        = TagFetchMode.Auto,
@@ -68,9 +73,9 @@ namespace Neon.Git
                 CredentialsProvider = credentialsProvider
             };
 
-            var refSpecs = Origin.FetchRefSpecs.Select(spec => spec.Specification);
+            var refSpecs = OriginRemote.FetchRefSpecs.Select(spec => spec.Specification);
 
-            Commands.Fetch(LocalRepository, Origin.Name, refSpecs, options, "fetching");
+            Commands.Fetch(LocalRepository, OriginRemote.Name, refSpecs, options, "fetching");
 
             await Task.CompletedTask;
         }
@@ -80,9 +85,14 @@ namespace Neon.Git
         /// </summary>
         /// <param name="message">Optionally specifies the commit message.  This defaults to <b>unspecified changes"</b>.</param>
         /// <returns><c>true</c> when changes were comitted, <c>false</c> when there were no pending changes.</returns>
+        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
         public async Task<bool> CommitAsync(string message = null)
         {
+            EnsureNotDisposed();
+            EnsureLocalRepo();
+
             message ??= "unspecified changes";
 
             if (!IsDirty)
@@ -109,9 +119,14 @@ namespace Neon.Git
         /// </note>
         /// </summary>
         /// <returns>The <see cref="MergeStatus"/> for the operation.</returns>
+        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
         public async Task<MergeStatus> PullAsync()
         {
+            EnsureNotDisposed();
+            EnsureLocalRepo();
+
             var options = new PullOptions()
             {
                 MergeOptions = new MergeOptions()
@@ -133,9 +148,14 @@ namespace Neon.Git
         /// local branch.
         /// </summary>
         /// <returns><c>true</c> when commits were pushed, <c>false</c> when there were no pending commits.</returns>
+        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
         public async Task<bool> PushAsync()
         {
+            EnsureNotDisposed();
+            EnsureLocalRepo();
+
             // Associate the current local branch with the origin branch having the 
             // same name.  This will cause the origin branch to be created when we
             // push below if the origin branch does not already exist.
@@ -150,7 +170,7 @@ namespace Neon.Git
             if (!currentBranch.IsTracking)
             {
                 LocalRepository.Branches.Update(currentBranch,
-                    updater => updater.Remote = Origin.Name,
+                    updater => updater.Remote = OriginRemote.Name,
                     updater => updater.UpstreamBranch = currentBranch.CanonicalName);
             }
 
@@ -171,10 +191,14 @@ namespace Neon.Git
         /// </summary>
         /// <param name="branchName">Specifies the local branch to be checked out.</param>
         /// <returns>The tracking <see cref="Task"/>.</returns>
+        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
         public async Task CheckoutAsync(string branchName)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
+            EnsureNotDisposed();
+            EnsureLocalRepo();
 
             var branch = LocalRepository.Branches[branchName];
 
@@ -194,11 +218,15 @@ namespace Neon.Git
         /// <param name="branchName">Identifies the branch to being created.</param>
         /// <param name="sourceBranchName">Identifies the source branch.</param>
         /// <returns><c>true</c> if the branch didn't already exist and was created, <c>false</c> otherwise.</returns>
+        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
         public async Task<bool> CreateBranchAsync(string branchName, string sourceBranchName)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(sourceBranchName), nameof(sourceBranchName));
+            EnsureNotDisposed();
+            EnsureLocalRepo();
 
             var newBranch = LocalRepository.Branches[branchName];
 
@@ -230,10 +258,14 @@ namespace Neon.Git
         /// <param name="originBranchName">Specifies the GitHub origin repository branch name.</param>
         /// <param name="branchName">Optionally specifies the local branch name.  This defaults to <paramref name="originBranchName"/>.</param>
         /// <returns><c>true</c> if the local branch didn't already exist and was created from the GitHib origin repository, <c>false</c> otherwise.</returns>
+        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
         public async Task<bool> CheckoutOriginAsync(string originBranchName, string branchName = null)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(originBranchName), nameof(originBranchName));
+            EnsureNotDisposed();
+            EnsureLocalRepo();
 
             branchName ??= originBranchName;
 
@@ -241,7 +273,7 @@ namespace Neon.Git
 
             if (created)
             {
-                LocalRepository.CreateBranch(branchName, $"{Origin.Name}/{originBranchName}");
+                LocalRepository.CreateBranch(branchName, $"{OriginRemote.Name}/{originBranchName}");
             }
 
             await CheckoutAsync(branchName);
@@ -254,14 +286,18 @@ namespace Neon.Git
         /// </summary>
         /// <param name="branchName">Specifies the branch to be removed.</param>
         /// <returns><c>true</c> if the branch existed and was removed, <c>false</c> otherwise.</returns>
+        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
         public async Task RemoveBranchAsync(string branchName)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
+            EnsureNotDisposed();
+            EnsureLocalRepo();
 
             // Remove the origin branch.
 
-            LocalRepository.Network.Push(Origin, $"+:refs/heads/{branchName}", CreatePushOptions());
+            LocalRepository.Network.Push(OriginRemote, $"+:refs/heads/{branchName}", CreatePushOptions());
 
             // Remove the local branch.
 
@@ -284,10 +320,14 @@ namespace Neon.Git
         /// A <see cref="MergeResult"/> for successful merges or when the merged failed and 
         /// <paramref name="throwOnConflict"/> is <c>false</c>.
         /// </returns>
+        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
         public async Task<MergeResult> MergeAsync(string branchName, bool throwOnConflict = true)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
+            EnsureNotDisposed();
+            EnsureLocalRepo();
 
             var branch = LocalRepository.Branches[branchName];
 
@@ -325,8 +365,14 @@ namespace Neon.Git
         /// Reverts any uncommitted changes in the current local repository branch.
         /// </summary>
         /// <returns>The tracking <see cref="Task"/>.</returns>
+        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
+        /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
         public async Task UndoAsync()
         {
+            EnsureNotDisposed();
+            EnsureLocalRepo();
+
             LocalRepository.CheckoutPaths(CurrentBranch.Tip.Sha, new string[] { "*" }, new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force });
             LocalRepository.RemoveUntrackedFiles();
 

@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:        Test_EasyRepository.cs
+// FILE:        Test_GitHubRepo.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
@@ -38,12 +38,17 @@ namespace TestGit
     [Trait(TestTrait.Category, TestArea.NeonGit)]
     public class Test_GitHubRepo
     {
+        public Test_GitHubRepo()
+        {
+            GitTestHelper.EnsureMaintainer();
+        }
+
         [MaintainerFact]
         public async Task Clone()
         {
             // Verify that we can clone the repo to a temporary local folder.
 
-            await GitTestHelper.RunWithProfileClientAsync(
+            await GitTestHelper.RunTestAsync(
                 async () =>
                 {
                     using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
@@ -65,7 +70,7 @@ namespace TestGit
         {
             // Verify that we can open an existing local repo.
 
-            await GitTestHelper.RunWithProfileClientAsync(
+            await GitTestHelper.RunTestAsync(
                 async () =>
                 {
                     // Verify that we can open an existing local repo.
@@ -115,7 +120,7 @@ namespace TestGit
         {
             // Verify that we can fetch remote info for a local repo without trouble.
 
-            await GitTestHelper.RunWithProfileClientAsync(
+            await GitTestHelper.RunTestAsync(
                 async () =>
                 {
                     using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
@@ -147,66 +152,59 @@ namespace TestGit
             //       9. Confirm that the new file no longer exists
             //      10. Delete both local repo folders
 
-            await GitTestHelper.RunWithProfileClientAsync(
+            await GitTestHelper.RunTestAsync(
                 async () =>
                 {
-                    try
+                    using (var tempFolder1 = new TempFolder(prefix: "repo1-", create: false))
                     {
-                        using (var tempFolder1 = new TempFolder(prefix: "repo1-", create: false))
+                        using (var tempFolder2 = new TempFolder(prefix: "repo2-", create: false))
                         {
-                            using (var tempFolder2 = new TempFolder(prefix: "repo2-", create: false))
+                            var repoPath1 = tempFolder1.Path;
+                            var repoPath2 = tempFolder2.Path;
+
+                            using (var repo1 = await GitHubRepo.CloneAsync(GitTestHelper.RemoteTestRepo, repoPath1))
                             {
-                                var repoPath1 = tempFolder1.Path;
-                                var repoPath2 = tempFolder2.Path;
-
-                                using (var repo1 = await GitHubRepo.CloneAsync(GitTestHelper.RemoteTestRepo, repoPath1))
+                                using (var repo2 = await GitHubRepo.CloneAsync(GitTestHelper.RemoteTestRepo, repoPath2))
                                 {
-                                    using (var repo2 = await GitHubRepo.CloneAsync(GitTestHelper.RemoteTestRepo, repoPath2))
-                                    {
-                                        // Clone the remote repo to two local folders:
-                                        // Create a new text file named with GUID to the first repo
-                                        // and commit and push the change to the remote:
+                                    // Clone the remote repo to two local folders:
+                                    // Create a new text file named with GUID to the first repo
+                                    // and commit and push the change to the remote:
 
-                                        var testFolder   = GitTestHelper.TestFolder;
-                                        var testFileName = Path.Combine(testFolder, $"{Guid.NewGuid()}.txt");
-                                        var testPath1    = Path.Combine(repoPath1, testFileName);
-                                        var testPath2    = Path.Combine(repoPath2, testFileName);
+                                    var testFolder   = GitTestHelper.TestFolder;
+                                    var testFileName = Path.Combine(testFolder, $"{Guid.NewGuid()}.txt");
+                                    var testPath1    = Path.Combine(repoPath1, testFileName);
+                                    var testPath2    = Path.Combine(repoPath2, testFileName);
 
-                                        Directory.CreateDirectory(Path.Combine(repoPath1, testFolder));
-                                        File.WriteAllText(testPath1, "HELLO WORLD!");
-                                        Assert.True(await repo1.CommitAsync("add: test file"));
-                                        Assert.True(await repo1.PushAsync());
+                                    Directory.CreateDirectory(Path.Combine(repoPath1, testFolder));
+                                    File.WriteAllText(testPath1, "HELLO WORLD!");
+                                    Assert.True(await repo1.CommitAsync("add: test file"));
+                                    Assert.True(await repo1.PushAsync());
 
-                                        // Pull the second repo from the remote:
+                                    // Pull the second repo from the remote:
 
-                                        Assert.Equal(MergeStatus.FastForward, await repo2.PullAsync());
+                                    Assert.Equal(MergeStatus.FastForward, await repo2.PullAsync());
 
-                                        // Confirm that the second repo has the new file:
+                                    // Confirm that the second repo has the new file:
 
-                                        Assert.True(File.Exists(testPath2));
-                                        Assert.Equal("HELLO WORLD!", File.ReadAllText(testPath2));
+                                    Assert.True(File.Exists(testPath2));
+                                    Assert.Equal("HELLO WORLD!", File.ReadAllText(testPath2));
 
-                                        // Remove the file in the second repo and then commit and
-                                        // push to the remote:
+                                    // Remove the file in the second repo and then commit and
+                                    // push to the remote:
 
-                                        File.Delete(testPath2);
-                                        Assert.True(await repo2.CommitAsync("delete: test file"));
-                                        Assert.True(await repo2.PushAsync());
+                                    File.Delete(testPath2);
+                                    Assert.True(await repo2.CommitAsync("delete: test file"));
+                                    Assert.True(await repo2.PushAsync());
 
-                                        // Go back to the first repo and pull changes from the remote 
-                                        // and confirm that the file no longer exists:
+                                    // Go back to the first repo and pull changes from the remote 
+                                    // and confirm that the file no longer exists:
 
-                                        Assert.Equal(MergeStatus.FastForward, await repo1.PullAsync());
-                                        Assert.False(File.Exists(testPath1));
-                                    }
+                                    Assert.Equal(MergeStatus.FastForward, await repo1.PullAsync());
+                                    Assert.False(File.Exists(testPath1));
                                 }
                             }
                         }
-                    }
-                    finally
-                    {
-                        await GitTestHelper.RemoveTestFilesAsync();
-                    }
+                        }
                 });
         }
 
@@ -215,42 +213,35 @@ namespace TestGit
         {
             // Verify that we can create a new local branch from master.
 
-            await GitTestHelper.RunWithProfileClientAsync(
+            await GitTestHelper.RunTestAsync(
                 async () =>
                 {
-                    try
+                    using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
                     {
-                        using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
+                        var repoPath      = tempFolder.Path;
+                        var newBranchName = $"testbranch-{Guid.NewGuid()}";
+                        var testFilePath  = Path.Combine(repoPath, GitTestHelper.TestFolder, $"{Guid.NewGuid()}.txt");
+
+                        using (var repo = await GitHubRepo.CloneAsync(GitTestHelper.RemoteTestRepo, repoPath))
                         {
-                            var repoPath      = tempFolder.Path;
-                            var newBranchName = $"testbranch-{Guid.NewGuid()}";
-                            var testFilePath  = Path.Combine(repoPath, GitTestHelper.TestFolder, $"{Guid.NewGuid()}.txt");
+                            // Create the new branch and verify that it's now currently checked out.
 
-                            using (var repo = await GitHubRepo.CloneAsync(GitTestHelper.RemoteTestRepo, repoPath))
-                            {
-                                // Create the new branch and verify that it's now currently checked out.
+                            Assert.True(await repo.CreateBranchAsync(newBranchName, "master"));
+                            Assert.True(repo.Branches[newBranchName].IsCurrentRepositoryHead);
 
-                                Assert.True(await repo.CreateBranchAsync(newBranchName, "master"));
-                                Assert.True(repo.Branches[newBranchName].IsCurrentRepositoryHead);
+                            // Verify that the new branch is currently checked out by:
+                            //
+                            //      1. Creating a test file in the new branch and commiting it.
+                            //      2. Check out the master branch
+                            //      3. Verify that the test file is not present in master.
 
-                                // Verify that the new branch is currently checked out by:
-                                //
-                                //      1. Creating a test file in the new branch and commiting it.
-                                //      2. Check out the master branch
-                                //      3. Verify that the test file is not present in master.
+                            Directory.CreateDirectory(Path.GetDirectoryName(testFilePath));
+                            File.WriteAllText(testFilePath, "HELLO WORLD!");
+                            await repo.CommitAsync();
 
-                                Directory.CreateDirectory(Path.GetDirectoryName(testFilePath));
-                                File.WriteAllText(testFilePath, "HELLO WORLD!");
-                                await repo.CommitAsync();
-
-                                await repo.CheckoutAsync("master");
-                                Assert.False(File.Exists(testFilePath));
-                            }
+                            await repo.CheckoutAsync("master");
+                            Assert.False(File.Exists(testFilePath));
                         }
-                    }
-                    finally
-                    {
-                        await GitTestHelper.RemoveTestBranchesAsync();
                     }
                 });
         }
@@ -260,7 +251,7 @@ namespace TestGit
         {
             // Verify that we can list remote branches.
 
-            await GitTestHelper.RunWithProfileClientAsync(
+            await GitTestHelper.RunTestAsync(
                 async () =>
                 {
                     using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
@@ -269,7 +260,7 @@ namespace TestGit
 
                         using (var repo = await GitHubRepo.CloneAsync(GitTestHelper.RemoteTestRepo, repoPath))
                         {
-                            var remoteBranches = await repo.OriginRepo.GetBranchesAsync();
+                            var remoteBranches = await repo.OriginApi.GetBranchesAsync();
 
                             Assert.Contains(remoteBranches, branch => branch.Name == "master");
                         }
@@ -282,40 +273,33 @@ namespace TestGit
         {
             // Verify that we can create a local branch (from master) and then remove it.
 
-            await GitTestHelper.RunWithProfileClientAsync(
+            await GitTestHelper.RunTestAsync(
                 async () =>
                 {
-                    try
+                    using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
                     {
-                        using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
+                        var repoPath      = tempFolder.Path;
+                        var newBranchName = $"testbranch-{Guid.NewGuid()}";
+
+                        using (var repo = await GitHubRepo.CloneAsync(GitTestHelper.RemoteTestRepo, repoPath))
                         {
-                            var repoPath      = tempFolder.Path;
-                            var newBranchName = $"testbranch-{Guid.NewGuid()}";
+                            // Create a new local branch and verify.
 
-                            using (var repo = await GitHubRepo.CloneAsync(GitTestHelper.RemoteTestRepo, repoPath))
-                            {
-                                // Create a new local branch and verify.
+                            Assert.True(await repo.CreateBranchAsync(newBranchName, "master"));
+                            Assert.NotNull(repo.Branches[newBranchName]);
+                            Assert.Null(await repo.OriginApi.GetBranchAsync(newBranchName));
 
-                                Assert.True(await repo.CreateBranchAsync(newBranchName, "master"));
-                                Assert.NotNull(repo.Branches[newBranchName]);
-                                Assert.Null(await repo.OriginRepo.GetBranchAsync(newBranchName));
+                            // Verify that we see FALSE when trying to create an existing branch.
 
-                                // Verify that we see FALSE when trying to create an existing branch.
+                            Assert.False(await repo.CreateBranchAsync(newBranchName, "master"));
 
-                                Assert.False(await repo.CreateBranchAsync(newBranchName, "master"));
+                            // Remove the local branch and verify.
 
-                                // Remove the local branch and verify.
-
-                                await repo.CheckoutAsync("master");
-                                repo.Branches.Remove(repo.Branches[newBranchName]);
-                                Assert.Null(repo.LocalRepository.Branches[newBranchName]);
-                                Assert.Null(await repo.OriginRepo.GetBranchAsync(newBranchName));
-                            }
+                            await repo.CheckoutAsync("master");
+                            repo.Branches.Remove(repo.Branches[newBranchName]);
+                            Assert.Null(repo.LocalRepository.Branches[newBranchName]);
+                            Assert.Null(await repo.OriginApi.GetBranchAsync(newBranchName));
                         }
-                    }
-                    finally
-                    {
-                        await GitTestHelper.RemoveTestBranchesAsync();
                     }
                 });
         }
@@ -326,46 +310,39 @@ namespace TestGit
         {
             // Verify that we can merge changes from one branch into another.
 
-            await GitTestHelper.RunWithProfileClientAsync(
+            await GitTestHelper.RunTestAsync(
                 async () =>
                 {
-                    try
+                    using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
                     {
-                        using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
+                        var repoPath      = tempFolder.Path;
+                        var newBranchName = $"testbranch-{Guid.NewGuid()}";
+                        var testFilePath  = Path.Combine(repoPath, GitTestHelper.TestFolder, $"{Guid.NewGuid()}.txt");
+
+                        using (var repo = await GitHubRepo.CloneAsync(GitTestHelper.RemoteTestRepo, repoPath))
                         {
-                            var repoPath      = tempFolder.Path;
-                            var newBranchName = $"testbranch-{Guid.NewGuid()}";
-                            var testFilePath  = Path.Combine(repoPath, GitTestHelper.TestFolder, $"{Guid.NewGuid()}.txt");
+                            // Create a new local branch and verify.
 
-                            using (var repo = await GitHubRepo.CloneAsync(GitTestHelper.RemoteTestRepo, repoPath))
-                            {
-                                // Create a new local branch and verify.
+                            Assert.True(await repo.CreateBranchAsync(newBranchName, "master"));
+                            Assert.NotNull(repo.Branches[newBranchName]);
+                            Assert.Null(await repo.OriginApi.GetBranchAsync(newBranchName));
 
-                                Assert.True(await repo.CreateBranchAsync(newBranchName, "master"));
-                                Assert.NotNull(repo.Branches[newBranchName]);
-                                Assert.Null(await repo.OriginRepo.GetBranchAsync(newBranchName));
+                            // Create a test file in the new branch and commit.
 
-                                // Create a test file in the new branch and commit.
+                            Directory.CreateDirectory(Path.GetDirectoryName(testFilePath));
+                            File.WriteAllText(testFilePath, "HELLO WORLD!");
+                            await repo.CommitAsync();
 
-                                Directory.CreateDirectory(Path.GetDirectoryName(testFilePath));
-                                File.WriteAllText(testFilePath, "HELLO WORLD!");
-                                await repo.CommitAsync();
+                            // Switch back to the master branch and merge changes from the other branch
+                            // and then verify that we see the new test file.
 
-                                // Switch back to the master branch and merge changes from the other branch
-                                // and then verify that we see the new test file.
+                            await repo.CheckoutAsync("master");
 
-                                await repo.CheckoutAsync("master");
+                            var result = await repo.MergeAsync(newBranchName);
 
-                                var result = await repo.MergeAsync(newBranchName);
-
-                                Assert.Equal(MergeStatus.FastForward, result.Status);
-                                Assert.True(File.Exists(testFilePath));
-                            }
+                            Assert.Equal(MergeStatus.FastForward, result.Status);
+                            Assert.True(File.Exists(testFilePath));
                         }
-                    }
-                    finally
-                    {
-                        await GitTestHelper.RemoveTestBranchesAsync();
                     }
                 });
         }
@@ -375,65 +352,58 @@ namespace TestGit
         {
             // Verify that merge conflicts are detected.
 
-            await GitTestHelper.RunWithProfileClientAsync(
+            await GitTestHelper.RunTestAsync(
                 async () =>
                 {
-                    try
+                    using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
                     {
-                        using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
+                        var repoPath      = tempFolder.Path;
+                        var newBranchName = $"testbranch-{Guid.NewGuid()}";
+                        var testFilePath  = Path.Combine(repoPath, GitTestHelper.TestFolder, $"{Guid.NewGuid()}.txt");
+
+                        using (var repo = await GitHubRepo.CloneAsync(GitTestHelper.RemoteTestRepo, repoPath))
                         {
-                            var repoPath      = tempFolder.Path;
-                            var newBranchName = $"testbranch-{Guid.NewGuid()}";
-                            var testFilePath  = Path.Combine(repoPath, GitTestHelper.TestFolder, $"{Guid.NewGuid()}.txt");
+                            // Create a new local branch and verify.
 
-                            using (var repo = await GitHubRepo.CloneAsync(GitTestHelper.RemoteTestRepo, repoPath))
-                            {
-                                // Create a new local branch and verify.
+                            Assert.True(await repo.CreateBranchAsync(newBranchName, "master"));
+                            Assert.NotNull(repo.Branches[newBranchName]);
+                            Assert.Null(await repo.OriginApi.GetBranchAsync(newBranchName));
 
-                                Assert.True(await repo.CreateBranchAsync(newBranchName, "master"));
-                                Assert.NotNull(repo.Branches[newBranchName]);
-                                Assert.Null(await repo.OriginRepo.GetBranchAsync(newBranchName));
+                            // Create a test file in the new branch and commit.
 
-                                // Create a test file in the new branch and commit.
+                            Directory.CreateDirectory(Path.GetDirectoryName(testFilePath));
+                            File.WriteAllText(testFilePath, "HELLO WORLD!");
+                            await repo.CommitAsync();
 
-                                Directory.CreateDirectory(Path.GetDirectoryName(testFilePath));
-                                File.WriteAllText(testFilePath, "HELLO WORLD!");
-                                await repo.CommitAsync();
+                            // Switch back to the master branch and change the contents of the
+                            // test file to something different and commit.
 
-                                // Switch back to the master branch and change the contents of the
-                                // test file to something different and commit.
+                            await repo.CheckoutAsync("master");
+                            Directory.CreateDirectory(Path.GetDirectoryName(testFilePath));
+                            File.WriteAllText(testFilePath, "GOODBYE WORLD!");
+                            await repo.CommitAsync();
 
-                                await repo.CheckoutAsync("master");
-                                Directory.CreateDirectory(Path.GetDirectoryName(testFilePath));
-                                File.WriteAllText(testFilePath, "GOODBYE WORLD!");
-                                await repo.CommitAsync();
+                            // Try to merge the test branch into master.  This should fail with
+                            // a merge conflict exception.  We'll also verify that the original
+                            // test file was restored.
 
-                                // Try to merge the test branch into master.  This should fail with
-                                // a merge conflict exception.  We'll also verify that the original
-                                // test file was restored.
+                            await Assert.ThrowsAsync<LibGit2SharpException>(async () => await repo.MergeAsync(newBranchName));
+                            Assert.Equal("GOODBYE WORLD!", File.ReadAllText(testFilePath));
 
-                                await Assert.ThrowsAsync<LibGit2SharpException>(async () => await repo.MergeAsync(newBranchName));
-                                Assert.Equal("GOODBYE WORLD!", File.ReadAllText(testFilePath));
+                            // Try merging again with [throwOnConflict=false] and verify.
+                            // We'll also verify that the original test file was restored.
 
-                                // Try merging again with [throwOnConflict=false] and verify.
-                                // We'll also verify that the original test file was restored.
+                            var result = await repo.MergeAsync(newBranchName, throwOnConflict: false);
 
-                                var result = await repo.MergeAsync(newBranchName, throwOnConflict: false);
+                            Assert.Equal(MergeStatus.Conflicts, result.Status);
+                            Assert.Equal("GOODBYE WORLD!", File.ReadAllText(testFilePath));
 
-                                Assert.Equal(MergeStatus.Conflicts, result.Status);
-                                Assert.Equal("GOODBYE WORLD!", File.ReadAllText(testFilePath));
+                            // Edit the test file, attempt the merge and verify that we see
+                            // an exception because merge doesn't work when the repo is dirty.
 
-                                // Edit the test file, attempt the merge and verify that we see
-                                // an exception because merge doesn't work when the repo is dirty.
-
-                                File.WriteAllText(testFilePath, "HI WORLD!");
-                                await Assert.ThrowsAsync<LibGit2SharpException>(async () => await repo.MergeAsync(newBranchName, throwOnConflict: false));
-                            }
+                            File.WriteAllText(testFilePath, "HI WORLD!");
+                            await Assert.ThrowsAsync<LibGit2SharpException>(async () => await repo.MergeAsync(newBranchName, throwOnConflict: false));
                         }
-                    }
-                    finally
-                    {
-                        await GitTestHelper.RemoveTestBranchesAsync();
                     }
                 });
         }
@@ -443,36 +413,29 @@ namespace TestGit
         {
             // Verify that we can undo uncommited changes to a repo.
 
-            await GitTestHelper.RunWithProfileClientAsync(
+            await GitTestHelper.RunTestAsync(
                 async () =>
                 {
-                    try
+                    using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
                     {
-                        using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
+                        var repoPath      = tempFolder.Path;
+                        var newBranchName = $"testbranch-{Guid.NewGuid()}";
+                        var testFilePath  = Path.Combine(repoPath, GitTestHelper.TestFolder, $"{Guid.NewGuid()}.txt");
+
+                        using (var repo = await GitHubRepo.CloneAsync(GitTestHelper.RemoteTestRepo, repoPath))
                         {
-                            var repoPath      = tempFolder.Path;
-                            var newBranchName = $"testbranch-{Guid.NewGuid()}";
-                            var testFilePath  = Path.Combine(repoPath, GitTestHelper.TestFolder, $"{Guid.NewGuid()}.txt");
+                            // Verify that undo doesn't barf when there are no changes.
 
-                            using (var repo = await GitHubRepo.CloneAsync(GitTestHelper.RemoteTestRepo, repoPath))
-                            {
-                                // Verify that undo doesn't barf when there are no changes.
+                            await repo.UndoAsync();
 
-                                await repo.UndoAsync();
+                            // Create a test file, undo changes, and then verify that the file
+                            // no longer exists.
 
-                                // Create a test file, undo changes, and then verify that the file
-                                // no longer exists.
-
-                                Directory.CreateDirectory(Path.GetDirectoryName(testFilePath));
-                                File.WriteAllText(testFilePath, "HELLO WORLD!");
-                                await repo.UndoAsync();
-                                Assert.False(File.Exists(testFilePath));
-                            }
+                            Directory.CreateDirectory(Path.GetDirectoryName(testFilePath));
+                            File.WriteAllText(testFilePath, "HELLO WORLD!");
+                            await repo.UndoAsync();
+                            Assert.False(File.Exists(testFilePath));
                         }
-                    }
-                    finally
-                    {
-                        await GitTestHelper.RemoveTestBranchesAsync();
                     }
                 });
         }
@@ -483,51 +446,44 @@ namespace TestGit
             // Verify that we can create a local branch (from master), push it to
             // the remote, and then remove it from both local and remote.
 
-            await GitTestHelper.RunWithProfileClientAsync(
+            await GitTestHelper.RunTestAsync(
                 async () =>
                 {
-                    try
+                    using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
                     {
-                        using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
+                        var repoPath      = tempFolder.Path;
+                        var newBranchName = $"testbranch-{Guid.NewGuid()}";
+
+                        using (var repo = await GitHubRepo.CloneAsync(GitTestHelper.RemoteTestRepo, repoPath))
                         {
-                            var repoPath      = tempFolder.Path;
-                            var newBranchName = $"testbranch-{Guid.NewGuid()}";
+                            Assert.Equal("master", repo.CurrentBranch.FriendlyName);
 
-                            using (var repo = await GitHubRepo.CloneAsync(GitTestHelper.RemoteTestRepo, repoPath))
-                            {
-                                Assert.Equal("master", repo.CurrentBranch.FriendlyName);
+                            // Create a local branch only and verify.
 
-                                // Create a local branch only and verify.
+                            Assert.True(await repo.CreateBranchAsync(newBranchName, "master"));
+                            Assert.NotNull(repo.Branches[newBranchName]);
+                            Assert.Null(await repo.OriginApi.GetBranchAsync(newBranchName));
+                            Assert.Equal(newBranchName, repo.CurrentBranch.FriendlyName);
 
-                                Assert.True(await repo.CreateBranchAsync(newBranchName, "master"));
-                                Assert.NotNull(repo.Branches[newBranchName]);
-                                Assert.Null(await repo.OriginRepo.GetBranchAsync(newBranchName));
-                                Assert.Equal(newBranchName, repo.CurrentBranch.FriendlyName);
+                            // Push to remote and verify.
 
-                                // Push to remote and verify.
+                            await repo.PushAsync();
+                            Assert.NotNull(repo.Branches[newBranchName]);
+                            Assert.NotNull(await repo.OriginApi.GetBranchAsync(newBranchName));
 
-                                await repo.PushAsync();
-                                Assert.NotNull(repo.Branches[newBranchName]);
-                                Assert.NotNull(await repo.OriginRepo.GetBranchAsync(newBranchName));
+                            // Switch back to master so we'll be able to delete the branch.
 
-                                // Switch back to master so we'll be able to delete the branch.
+                            await repo.CheckoutAsync("master");
+                            Assert.Equal("master", repo.CurrentBranch.FriendlyName);
 
-                                await repo.CheckoutAsync("master");
-                                Assert.Equal("master", repo.CurrentBranch.FriendlyName);
+                            // Remove the branch and verify.
 
-                                // Remove the branch and verify.
+                            await repo.RemoveBranchAsync(newBranchName);
 
-                                await repo.RemoveBranchAsync(newBranchName);
-
-                                Assert.Null(repo.Branches[newBranchName]);
-                                Assert.Null(await repo.OriginRepo.GetBranchAsync(newBranchName));
-                                Assert.Equal("master", repo.CurrentBranch.FriendlyName);
-                            }
+                            Assert.Null(repo.Branches[newBranchName]);
+                            Assert.Null(await repo.OriginApi.GetBranchAsync(newBranchName));
+                            Assert.Equal("master", repo.CurrentBranch.FriendlyName);
                         }
-                    }
-                    finally
-                    {
-                        await GitTestHelper.RemoveTestBranchesAsync();
                     }
                 });
         }
@@ -539,44 +495,78 @@ namespace TestGit
             // local repo with the same name (the default) or to a new branch
             // name.
 
-            await GitTestHelper.RunWithProfileClientAsync(
+            await GitTestHelper.RunTestAsync(
                 async () =>
                 {
-                    try
+                    using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
                     {
-                        using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
+                        var repoPath       = tempFolder.Path;
+                        var newBranchName  = $"testbranch-{Guid.NewGuid()}";
+                        var newBranchName2 = $"{newBranchName}-new";
+
+                        // Clone the remote repo, create a new test branch, and push it to GitHub.
+
+                        using (var repo = await GitHubRepo.CloneAsync(GitTestHelper.RemoteTestRepo, repoPath))
                         {
-                            var repoPath       = tempFolder.Path;
-                            var newBranchName  = $"testbranch-{Guid.NewGuid()}";
-                            var newBranchName2 = $"{newBranchName}-new";
+                            await repo.CreateBranchAsync(newBranchName, "master");
+                            Assert.True(repo.Branches[newBranchName] != null);
+                            Assert.True(repo.Branches[newBranchName].IsCurrentRepositoryHead);
+                            await repo.PushAsync();
+                        }
 
-                            // Clone the remote repo, create a new test branch, and push it to GitHub.
+                        // Delete all repo files, re-clone the remote repo and then verify that
+                        // we can checkout the remote with the new branch.
 
-                            using (var repo = await GitHubRepo.CloneAsync(GitTestHelper.RemoteTestRepo, repoPath))
-                            {
-                                await repo.CreateBranchAsync(newBranchName, "master");
-                                Assert.True(repo.Branches[newBranchName] != null);
-                                Assert.True(repo.Branches[newBranchName].IsCurrentRepositoryHead);
-                                await repo.PushAsync();
-                            }
+                        NeonHelper.DeleteFolderContents(repoPath);
+                        Directory.Delete(repoPath);
 
-                            // Delete all repo files, re-clone the remote repo and then verify that
-                            // we can checkout the remote with the new branch.
-
-                            NeonHelper.DeleteFolderContents(repoPath);
-                            Directory.Delete(repoPath);
-
-                            using (var repo = await GitHubRepo.CloneAsync(GitTestHelper.RemoteTestRepo, repoPath, newBranchName))
-                            {
-                                Assert.Equal(newBranchName, repo.CurrentBranch.FriendlyName);
-                                Assert.True(repo.Branches[newBranchName] != null);
-                                Assert.True(repo.Branches[newBranchName].IsCurrentRepositoryHead);
-                            }
+                        using (var repo = await GitHubRepo.CloneAsync(GitTestHelper.RemoteTestRepo, repoPath, newBranchName))
+                        {
+                            Assert.Equal(newBranchName, repo.CurrentBranch.FriendlyName);
+                            Assert.True(repo.Branches[newBranchName] != null);
+                            Assert.True(repo.Branches[newBranchName].IsCurrentRepositoryHead);
                         }
                     }
-                    finally
+                });
+        }
+
+        [MaintainerFact]
+        public async Task ObjectDisposedException()
+        {
+            // Verify that [ObjectDisposedException] is thrown calling APIs on a disposed [GitHubRepo] instance.
+
+            await GitTestHelper.RunTestAsync(
+                async () =>
+                {
+                    using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
                     {
-                        await GitTestHelper.RemoveTestBranchesAsync();
+                        var repo = await GitHubRepo.CloneAsync(GitTestHelper.RemoteTestRepo, tempFolder.Path);
+
+                        repo.Dispose();
+
+                        Assert.Throws<ObjectDisposedException>(() => _ = repo.Branches);
+                        Assert.Throws<ObjectDisposedException>(() => _ = repo.LocalRepoFolder);
+                        Assert.Throws<ObjectDisposedException>(() => _ = repo.LocalRepository);
+                        Assert.Throws<ObjectDisposedException>(() => _ = repo.CurrentBranch);
+                        Assert.Throws<ObjectDisposedException>(() => _ = repo.CreateSignature());
+                        Assert.Throws<ObjectDisposedException>(() => _ = repo.IsDirty);
+
+                        Assert.Throws<ObjectDisposedException>(() => _ = repo.OriginRemote);
+                        Assert.Throws<ObjectDisposedException>(() => _ = repo.OriginApi);
+                        Assert.Throws<ObjectDisposedException>(() => _ = repo.OriginRepoPath);
+
+                        await Assert.ThrowsAsync<ObjectDisposedException>(async () => await repo.CheckoutAsync("master"));
+                        await Assert.ThrowsAsync<ObjectDisposedException>(async () => await repo.CheckoutOriginAsync("master"));
+                        await Assert.ThrowsAsync<ObjectDisposedException>(async () => await repo.CreateBranchAsync("test", "master"));
+                        await Assert.ThrowsAsync<ObjectDisposedException>(async () => await repo.CommitAsync());
+                        await Assert.ThrowsAsync<ObjectDisposedException>(async () => await repo.FetchAsync());
+                        await Assert.ThrowsAsync<ObjectDisposedException>(async () => await repo.MergeAsync("master"));
+                        await Assert.ThrowsAsync<ObjectDisposedException>(async () => await repo.PullAsync());
+                        await Assert.ThrowsAsync<ObjectDisposedException>(async () => await repo.PushAsync());
+                        await Assert.ThrowsAsync<ObjectDisposedException>(async () => await repo.RemoveBranchAsync("master"));
+                        await Assert.ThrowsAsync<ObjectDisposedException>(async () => await repo.UndoAsync());
+
+                        Assert.Throws<ObjectDisposedException>(() => repo.NormalizeBranchName("master"));
                     }
                 });
         }

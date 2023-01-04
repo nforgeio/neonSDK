@@ -139,30 +139,50 @@ namespace TestGit
         }
 
         /// <summary>
+        /// <para>
         /// Used to run a unit test in a context where <see cref="NeonHelper.ServiceContainer"/>"/> includes
         /// our <see cref="IProfileClient"/> implementation for maintainers that fetches secrets from 
-        /// <b>1Password</b> via <b>neon-assistant</b>.
+        /// <b>1Password</b> via <b>neon-assistant</b>.  This also saves and restores the ambient maintainer
+        /// GITHUB related environment variables.
+        /// </para>
+        /// <para>
+        /// This also ensures that there are no test release branches or test releases before and
+        /// after the test is executed.
+        /// </para>
         /// </summary>
         /// <param name="action">The test action.</param>
         /// <returns>The tracking <see cref="Task"/>,</returns>
-        public static async Task RunWithProfileClientAsync(Func<Task> action)
+        public static async Task RunTestAsync(Func<Task> action)
         {
             Covenant.Requires<ArgumentNullException>(action != null, nameof(action));
 
             // We're going to save and restore the ambient service container and then
             // set our [neon-assistant] profile client implementation during the test.
 
-            var savedServices = NeonHelper.ServiceContainer.Clone();
+            var savedServices  = NeonHelper.ServiceContainer.Clone();
+            var githubUsername = Environment.GetEnvironmentVariable("GITHUB_USERNAME");
+            var gitHubPat      = Environment.GetEnvironmentVariable("GITHUB_PAT");
+            var githubEmail    = Environment.GetEnvironmentVariable("GITHUB_EMAIL");
+            var ncUser         = Environment.GetEnvironmentVariable("NC_USER");
 
             try
             {
                 NeonHelper.ServiceContainer.AddSingleton<IProfileClient>(new MaintainerProfileClient());
+
+                await RemoveTestBranchesAsync();
 
                 await action();
             }
             finally
             {
                 NeonHelper.ServiceContainer = savedServices;
+
+                Environment.SetEnvironmentVariable("GITHUB_USERNAME", githubUsername);
+                Environment.SetEnvironmentVariable("GITHUB_PAT", gitHubPat);
+                Environment.SetEnvironmentVariable("GITHUB_EMAIL", githubEmail);
+                Environment.SetEnvironmentVariable("NC_USER", ncUser);
+
+                await RemoveTestBranchesAsync();
             }
         }
     }

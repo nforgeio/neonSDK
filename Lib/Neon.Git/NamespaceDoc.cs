@@ -33,6 +33,9 @@ namespace Neon.Git
     /// Combines <b>git</b> and <b>GitHub</b> functionality into easy to use classes that behave
     /// similarily to Visual Studio's embedded git provider.
     /// </para>
+    /// <note>
+    /// THis library is still a work in progress.
+    /// </note>
     /// </summary>
     /// <remarks>
     /// <para>

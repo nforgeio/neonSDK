@@ -50,7 +50,7 @@ namespace Neon.Git
     /// <summary>
     /// Implements extended GitHub server API methods.
     /// </summary>
-    public class GitHubOriginRepoApi
+    public partial class GitHubOriginRepoApi
     {
         private GitHubRepo  repo;
 
@@ -66,24 +66,8 @@ namespace Neon.Git
         }
 
         /// <summary>
-        /// Returns branches from the GitHub origin repository.
+        /// Returns the OctoKit <see cref="GitHubClient"/> REST API client associated with the instance.
         /// </summary>
-        /// <returns>The list of branches.</returns>
-        public async Task<IReadOnlyList<GitHubBranch>> GetBranchesAsync()
-        {
-            return await repo.Server.Repository.Branch.GetAll(repo.OriginRepoPath.Owner, repo.OriginRepoPath.Name);
-        }
-
-        /// <summary>
-        /// Returns a specific GitHub origin repository branch.
-        /// </summary>
-        /// <param name="branchName">Specifies the origin repository branch name.</param>
-        /// <returns>The <see cref="GitHubBranch"/> or <c>null</c> when the branch doesn't exist.</returns>
-        public async Task<GitHubBranch> GetBranchAsync(string branchName)
-        {
-            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
-
-            return (await GetBranchesAsync()).FirstOrDefault(branch => branch.Name.Equals(branchName, StringComparison.InvariantCultureIgnoreCase));
-        }
+        public GitHubClient RestApi { get; private set; }
     }
 }
