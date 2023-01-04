@@ -22,6 +22,7 @@ using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
@@ -1224,7 +1225,27 @@ namespace Neon.Net
                     throw new ArgumentException($"Only HTTPS or S3 URI schemes are allowed: {uri}", nameof(uri));
             }
         }
+
+        /// <summary>
+        /// <para>
+        /// Ensures that the status code passed indicates an HTTP request completed successfully.
+        /// </para>
+        /// <note>
+        /// Status codes less than 400 are considered to indicate success.
+        /// </note>
+        /// </summary>
+        /// <param name="statusCode">Specifies the status code.</param>
+        /// <param name="reasonPhrase">Optionally specifies the reason phrase to be included in any exception thrown.</param>
+        /// <returns>The status code passed.</returns>
+        /// <exception cref="HttpException">Thrown for non-success status codes.</exception>
+        public static HttpStatusCode EnsureSuccess(HttpStatusCode statusCode,string reasonPhrase = null)
+        {
+            if ((int)statusCode < 400)
+            {
+                return statusCode;
+            }
+
+            throw new HttpException(reasonPhrase: reasonPhrase, statusCode: statusCode);
+        }
     }
 }
-
-
