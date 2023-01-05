@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:	    OriginRepoPath.cs
+// FILE:	    RemoteRepoPath.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
@@ -42,7 +42,7 @@ namespace Neon.Git
     /// is the implied server).
     /// </para>
     /// </summary>
-    public class OriginRepoPath
+    public class RemoteRepoPath
     {
         //---------------------------------------------------------------------
         // Static members
@@ -51,14 +51,14 @@ namespace Neon.Git
         /// Parses a GitHub repository path.
         /// </summary>
         /// <param name="path">The path, like: <b>[SERVER/]OWNER/REPO</b></param>
-        /// <returns>The parsed <see cref="OriginRepoPath"/>.</returns>
+        /// <returns>The parsed <see cref="RemoteRepoPath"/>.</returns>
         /// <exception cref="FormatException">Thrown when the input is invalid.</exception>
         /// <remarks>
         /// <note>
         /// <b>github.com</b> will be assumed when no server is specified.
         /// </note>
         /// </remarks>
-        public static OriginRepoPath Parse(string path)
+        public static RemoteRepoPath Parse(string path)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(path), nameof(path));
 
@@ -72,7 +72,7 @@ namespace Neon.Git
                 }
             }
 
-            var repoPath = new OriginRepoPath();
+            var repoPath = new RemoteRepoPath();
 
             switch (parts.Length)
             {
@@ -104,7 +104,7 @@ namespace Neon.Git
         /// <summary>
         /// Static constructor.
         /// </summary>
-        private OriginRepoPath()
+        private RemoteRepoPath()
         {
         }
 

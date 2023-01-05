@@ -93,8 +93,8 @@ namespace TestGit
                     if (Directory.Exists(testFolder) && Directory.GetFiles(testFolder, "*", SearchOption.AllDirectories).Length > 0)
                     {
                         NeonHelper.DeleteFolderContents(testFolder);
-                        Assert.True(await repo.CommitAsync("delete: accumulated test files"));
-                        Assert.True(await repo.PushAsync());
+                        Assert.True(await repo.Local.CommitAsync("delete: accumulated test files"));
+                        Assert.True(await repo.Local.PushAsync());
                     }
                 }
             }
@@ -116,23 +116,23 @@ namespace TestGit
                 {
                     // We need to check out the remote test branches first.
 
-                    foreach (var branch in repo.Local.Branches
+                    foreach (var branch in repo.GitApi.Branches
                         .Where(branch => branch.FriendlyName.StartsWith("origin/testbranch-"))
                         .ToArray())
                     {
-                        await repo.CheckoutOriginAsync(repo.NormalizeBranchName(branch.FriendlyName));
+                        await repo.Local.CheckoutOriginAsync(repo.NormalizeBranchName(branch.FriendlyName));
                     }
 
                     // Now remove the test branches.
 
-                    await repo.CheckoutAsync("master");
+                    await repo.Local.CheckoutAsync("master");
 
-                    foreach (var branch in repo.Local.Branches
+                    foreach (var branch in repo.GitApi.Branches
                         .Select(branch => repo.NormalizeBranchName(branch.FriendlyName))
                         .Where(branchName => branchName.StartsWith("testbranch-"))
                         .ToArray())
                     {
-                        await repo.RemoveBranchAsync(branch);
+                        await repo.Local.RemoveBranchAsync(branch);
                     }
                 }
             }

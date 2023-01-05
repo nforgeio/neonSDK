@@ -54,15 +54,15 @@ namespace Neon.Git
     /// </summary>
     public class RemoteRepoTagApi
     {
-        private GitHubRepo  repo;
+        private GitHubRepo  root;
 
         /// <summary>
         /// Internal constructor.
         /// </summary>
-        /// <param name="repo">The parent <see cref="GitHubRepo"/>.</param>
-        internal RemoteRepoTagApi(GitHubRepo repo)
+        /// <param name="root">The root <see cref="GitHubRepo"/>.</param>
+        internal RemoteRepoTagApi(GitHubRepo root)
         {
-            this.repo = repo;
+            this.root = root;
         }
 
         /// <summary>
@@ -73,10 +73,10 @@ namespace Neon.Git
         /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
         public async Task<IReadOnlyList<GitHubRepositoryTag>> GetAsync()
         {
-            repo.EnsureNotDisposed();
-            repo.EnsureLocalRepo();
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
 
-            return await repo.GitHubServer.Repository.GetAllTags(repo.OriginRepoPath.Owner, repo.OriginRepoPath.Name);
+            return await root.GitHubApi.Repository.GetAllTags(root.OriginRepoPath.Owner, root.OriginRepoPath.Name);
         }
 
         /// <summary>
@@ -89,8 +89,8 @@ namespace Neon.Git
         public async Task<GitHubRepositoryTag> GetAsync(string tageName)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(tageName), nameof(tageName));
-            repo.EnsureNotDisposed();
-            repo.EnsureLocalRepo();
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
 
             return (await GetAsync()).FirstOrDefault(tag => tag.Name.Equals(tageName, StringComparison.InvariantCultureIgnoreCase));
         }
@@ -105,8 +105,8 @@ namespace Neon.Git
         public async Task<bool> RemoveAsync(string tagName)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(tagName), nameof(tagName));
-            repo.EnsureNotDisposed();
-            repo.EnsureLocalRepo();
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
 
             var tag = await GetAsync(tagName);
 
@@ -120,9 +120,9 @@ namespace Neon.Git
             //
             //      https://stackoverflow.com/questions/7247414/delete-a-tag-with-github-v3-api
 
-            var uri = $"/repos/{repo.OriginRepoPath.Owner}/{repo.OriginRepoPath.Name}/git/refs/tags/{tagName}";
+            var uri = $"/repos/{root.OriginRepoPath.Owner}/{root.OriginRepoPath.Name}/git/refs/tags/{tagName}";
 
-            NetHelper.EnsureSuccess(await repo.GitHubServer.Connection.Delete(new Uri(uri)));
+            NetHelper.EnsureSuccess(await root.GitHubApi.Connection.Delete(new Uri(uri)));
 
             return true;
         }

@@ -55,15 +55,15 @@ namespace Neon.Git
     /// </summary>
     public class RemoteRepoReleaseApi
     {
-        private GitHubRepo  repo;
+        private GitHubRepo  root;
 
         /// <summary>
         /// Internal constructor.
         /// </summary>
-        /// <param name="repo">The parent <see cref="GitHubRepo"/>.</param>
-        internal RemoteRepoReleaseApi(GitHubRepo repo)
+        /// <param name="root">The root <see cref="GitHubRepo"/>.</param>
+        internal RemoteRepoReleaseApi(GitHubRepo root)
         {
-            this.repo = repo;
+            this.root = root;
         }
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace Neon.Git
         /// <returns>The new release.</returns>
         public async Task<Release> Create(string tagName, string releaseName = null, string body = null, bool draft = false, bool prerelease = false)
         {
-            repo.EnsureNotDisposed();
+            root.EnsureNotDisposed();
 
             releaseName ??= tagName;
 
@@ -89,15 +89,15 @@ namespace Neon.Git
                 Body       = body
             };
 
-            var newRelease = await repo.GitHubServer.Repository.Release.Create(repo.OriginRepoPath.Owner, repo.OriginRepoPath.Name, release);
+            var newRelease = await root.GitHubApi.Repository.Release.Create(root.OriginRepoPath.Owner, root.OriginRepoPath.Name, release);
 
             // GitHub doesn't appear to create releases synchronously, so we're going
             // to wait for the new release to show up.
 
-            await repo.WaitForGitHubAsync(
+            await root.WaitForGitHubAsync(
                 async () =>
                 {
-                    return await repo.RemoteRepository.Release.GetAsync(releaseName) != null;
+                    return await root.RemoteRepository.Release.GetAsync(releaseName) != null;
                 });
 
             return newRelease;
@@ -112,9 +112,9 @@ namespace Neon.Git
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
         public async Task<IReadOnlyList<Release>> GetAsync()
         {
-            repo.EnsureNotDisposed();
+            root.EnsureNotDisposed();
 
-            return await repo.GitHubServer.Repository.Release.GetAll(repo.OriginRepoPath.Owner, repo.OriginRepoPath.Name);
+            return await root.GitHubApi.Repository.Release.GetAll(root.OriginRepoPath.Owner, root.OriginRepoPath.Name);
         }
 
         /// <summary>
@@ -128,7 +128,7 @@ namespace Neon.Git
         public async Task<Octokit.Release> GetAsync(string releaseName)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(releaseName), nameof(releaseName));
-            repo.EnsureNotDisposed();
+            root.EnsureNotDisposed();
 
             return (await GetAsync()).FirstOrDefault(release => release.Name.Equals(releaseName, StringComparison.InvariantCultureIgnoreCase));
         }
@@ -142,7 +142,7 @@ namespace Neon.Git
         public async Task<Release> RefreshAsync(Release release)
         {
             Covenant.Requires<ArgumentNullException>(release != null, nameof(release));
-            repo.EnsureNotDisposed();
+            root.EnsureNotDisposed();
 
             var update = await GetAsync(release.Name);
 
@@ -185,7 +185,7 @@ namespace Neon.Git
             Covenant.Requires<ArgumentNullException>(release != null, nameof(release));
             Covenant.Requires<ArgumentNullException>(releaseUpdate != null, nameof(releaseUpdate));
 
-            return await repo.GitHubServer.Repository.Release.Edit(repo.OriginRepoPath.Owner, repo.OriginRepoPath.Name, release.Id, releaseUpdate);
+            return await root.GitHubApi.Repository.Release.Edit(root.OriginRepoPath.Owner, root.OriginRepoPath.Name, release.Id, releaseUpdate);
         }
 
         /// <summary>
@@ -196,7 +196,7 @@ namespace Neon.Git
         public async Task<bool> RemoveAsync(string releaseName)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(releaseName), nameof(releaseName));
-            repo.EnsureNotDisposed();
+            root.EnsureNotDisposed();
 
             var release = await GetAsync(releaseName);
 
@@ -205,7 +205,7 @@ namespace Neon.Git
                 return false;
             }
 
-            await repo.GitHubServer.Repository.Release.Delete(repo.OriginRepoPath.Owner, repo.OriginRepoPath.Name, release.Id);
+            await root.GitHubApi.Repository.Release.Delete(root.OriginRepoPath.Owner, root.OriginRepoPath.Name, release.Id);
 
             return true;
         }
@@ -263,15 +263,15 @@ namespace Neon.Git
                 RawData     = stream
             };
 
-            var newAsset = await repo.GitHubServer.Repository.Release.UploadAsset(release, upload);
+            var newAsset = await root.GitHubApi.Repository.Release.UploadAsset(release, upload);
 
             // GitHub doesn't appear to upload assets synchronously, so we're going
             // to wait for the new asset to show up.
 
-            await repo.WaitForGitHubAsync(
+            await root.WaitForGitHubAsync(
                 async () =>
                 {
-                    var release = await repo.RemoteRepository.Release.GetAsync(releaseName);
+                    var release = await root.RemoteRepository.Release.GetAsync(releaseName);
 
                     return release.Assets.Any(asset => asset.Id == newAsset.Id && newAsset.State == "uploaded");
                 });
@@ -332,15 +332,15 @@ namespace Neon.Git
 
             update.Draft = false;
 
-            await repo.RemoteRepository.Release.UpdateAsync(release, update);
+            await root.RemoteRepository.Release.UpdateAsync(release, update);
 
             // GitHub doesn't appear to publish releases synchronously, so we're going
             // to wait for the new release to show up.
 
-            await repo.WaitForGitHubAsync(
+            await root.WaitForGitHubAsync(
                 async () =>
                 {
-                    release = await repo.RemoteRepository.Release.GetAsync(releaseName);
+                    release = await root.RemoteRepository.Release.GetAsync(releaseName);
 
                     return release != null && !release.Draft;
                 });
@@ -392,7 +392,7 @@ namespace Neon.Git
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(releaseName), nameof(releaseName));
             Covenant.Requires<ArgumentNullException>(output != null, nameof(output));
 
-            var response = await repo.HttpClient.GetAsync(await GetZipballUri(releaseName));
+            var response = await root.HttpClient.GetAsync(await GetZipballUri(releaseName));
 
             response.EnsureSuccessStatusCode();
 

@@ -48,23 +48,23 @@ using GitSignature  = LibGit2Sharp.Signature;
 namespace Neon.Git
 {
     /// <summary>
-    /// Implements extended GitHub server API methods.
+    /// Implements easy-to-use remote GitHub repository related APIs.
     /// </summary>
-    public partial class RemoteRepoApi
+    public class RemoteRepoApi
     {
-        private GitHubRepo  repo;
+        private GitHubRepo  root;
 
         /// <summary>
         /// Internal constructor.
         /// </summary>
-        /// <param name="repo">The parent <see cref="GitHubRepo"/>.</param>
-        internal RemoteRepoApi(GitHubRepo repo)
+        /// <param name="root">The root <see cref="GitHubRepo"/>.</param>
+        internal RemoteRepoApi(GitHubRepo root)
         {
-            Covenant.Requires<ArgumentNullException>(repo != null, nameof(repo));
+            Covenant.Requires<ArgumentNullException>(root != null, nameof(root));
 
-            this.repo    = repo;
-            this.Branch  = new RemoteRepoBranchApi(repo);
-            this.Release = new RemoteRepoReleaseApi(repo);
+            this.root    = root;
+            this.Branch  = new RemoteRepoBranchApi(root);
+            this.Release = new RemoteRepoReleaseApi(root);
         }
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace Neon.Git
         /// <returns>The associated <see cref="GitHubRepository"/>.</returns>
         public async Task<GitHubRepository> GetAsync()
         {
-            return await repo.GitHubServer.Repository.Get(repo.OriginRepoPath.Owner, repo.OriginRepoPath.Name);
+            return await root.GitHubApi.Repository.Get(root.OriginRepoPath.Owner, root.OriginRepoPath.Name);
         }
 
         /// <summary>

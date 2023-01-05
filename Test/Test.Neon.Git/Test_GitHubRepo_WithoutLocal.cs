@@ -74,23 +74,23 @@ namespace TestGit
                 {
                     using (var repo = await GitHubRepo.ConnectAsync(GitTestHelper.RemoteTestRepo))
                     {
-                        Assert.Throws<NoLocalRepositoryException>(() => _ = repo.IsDirty);
-                        Assert.Throws<NoLocalRepositoryException>(() => _ = repo.CurrentBranch);
-                        Assert.Throws<NoLocalRepositoryException>(() => _ = repo.CreateSignature());
-                        Assert.Throws<NoLocalRepositoryException>(() => _ = repo.CreatePushOptions());
+                        Assert.Throws<NoLocalRepositoryException>(() => _ = repo.Local.IsDirty);
+                        Assert.Throws<NoLocalRepositoryException>(() => _ = repo.Local.CurrentBranch);
+                        Assert.Throws<NoLocalRepositoryException>(() => _ = repo.Local.CreateSignature());
+                        Assert.Throws<NoLocalRepositoryException>(() => _ = repo.Local.CreatePushOptions());
                         Assert.Throws<NoLocalRepositoryException>(() => _ = repo.LocalRepoFolder);
-                        Assert.Throws<NoLocalRepositoryException>(() => _ = repo.Local);
+                        Assert.Throws<NoLocalRepositoryException>(() => _ = repo.GitApi);
 
-                        await Assert.ThrowsAsync<NoLocalRepositoryException>(async () => await repo.CheckoutAsync("master"));
-                        await Assert.ThrowsAsync<NoLocalRepositoryException>(async () => await repo.CheckoutOriginAsync("master"));
-                        await Assert.ThrowsAsync<NoLocalRepositoryException>(async () => await repo.CreateBranchAsync("test", "master"));
-                        await Assert.ThrowsAsync<NoLocalRepositoryException>(async () => await repo.CommitAsync());
-                        await Assert.ThrowsAsync<NoLocalRepositoryException>(async () => await repo.FetchAsync());
-                        await Assert.ThrowsAsync<NoLocalRepositoryException>(async () => await repo.MergeAsync("master"));
-                        await Assert.ThrowsAsync<NoLocalRepositoryException>(async () => await repo.PullAsync());
-                        await Assert.ThrowsAsync<NoLocalRepositoryException>(async () => await repo.PushAsync());
-                        await Assert.ThrowsAsync<NoLocalRepositoryException>(async () => await repo.RemoveBranchAsync("master"));
-                        await Assert.ThrowsAsync<NoLocalRepositoryException>(async () => await repo.UndoAsync());
+                        await Assert.ThrowsAsync<NoLocalRepositoryException>(async () => await repo.Local.CheckoutAsync("master"));
+                        await Assert.ThrowsAsync<NoLocalRepositoryException>(async () => await repo.Local.CheckoutOriginAsync("master"));
+                        await Assert.ThrowsAsync<NoLocalRepositoryException>(async () => await repo.Local.CreateBranchAsync("test", "master"));
+                        await Assert.ThrowsAsync<NoLocalRepositoryException>(async () => await repo.Local.CommitAsync());
+                        await Assert.ThrowsAsync<NoLocalRepositoryException>(async () => await repo.Local.FetchAsync());
+                        await Assert.ThrowsAsync<NoLocalRepositoryException>(async () => await repo.Local.MergeAsync("master"));
+                        await Assert.ThrowsAsync<NoLocalRepositoryException>(async () => await repo.Local.PullAsync());
+                        await Assert.ThrowsAsync<NoLocalRepositoryException>(async () => await repo.Local.PushAsync());
+                        await Assert.ThrowsAsync<NoLocalRepositoryException>(async () => await repo.Local.RemoveBranchAsync("master"));
+                        await Assert.ThrowsAsync<NoLocalRepositoryException>(async () => await repo.Local.UndoAsync());
                     }
                 });
         }

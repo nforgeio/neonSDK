@@ -53,15 +53,15 @@ namespace Neon.Git
     /// </summary>
     public class RemoteRepoBranchApi
     {
-        private GitHubRepo  repo;
+        private GitHubRepo  root;
 
         /// <summary>
         /// Internal constructor.
         /// </summary>
-        /// <param name="repo">The parent <see cref="GitHubRepo"/>.</param>
-        internal RemoteRepoBranchApi(GitHubRepo repo)
+        /// <param name="root">The root <see cref="GitHubRepo"/>.</param>
+        internal RemoteRepoBranchApi(GitHubRepo root)
         {
-            this.repo = repo;
+            this.root = root;
         }
 
         /// <summary>
@@ -72,10 +72,10 @@ namespace Neon.Git
         /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
         public async Task<IReadOnlyList<GitHubBranch>> GetAsync()
         {
-            repo.EnsureNotDisposed();
-            repo.EnsureLocalRepo();
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
 
-            return await repo.GitHubServer.Repository.Branch.GetAll(repo.OriginRepoPath.Owner, repo.OriginRepoPath.Name);
+            return await root.GitHubApi.Repository.Branch.GetAll(root.OriginRepoPath.Owner, root.OriginRepoPath.Name);
         }
 
         /// <summary>
@@ -88,8 +88,8 @@ namespace Neon.Git
         public async Task<GitHubBranch> GetAsync(string branchName)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
-            repo.EnsureNotDisposed();
-            repo.EnsureLocalRepo();
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
 
             return (await GetAsync()).FirstOrDefault(branch => branch.Name.Equals(branchName, StringComparison.InvariantCultureIgnoreCase));
         }
@@ -104,8 +104,8 @@ namespace Neon.Git
         public async Task<bool> RemoveAsync(string branchName)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
-            repo.EnsureNotDisposed();
-            repo.EnsureLocalRepo();
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
 
             var branch = await GetAsync(branchName);
 
@@ -119,9 +119,9 @@ namespace Neon.Git
             //
             //      https://github.com/orgs/community/discussions/24603
 
-            var uri = $"/repos/{repo.OriginRepoPath.Owner}/{repo.OriginRepoPath.Name}/git/heads/{branchName}";
+            var uri = $"/repos/{root.OriginRepoPath.Owner}/{root.OriginRepoPath.Name}/git/heads/{branchName}";
 
-            NetHelper.EnsureSuccess(await repo.GitHubServer.Connection.Delete(new Uri(uri)));
+            NetHelper.EnsureSuccess(await root.GitHubApi.Connection.Delete(new Uri(uri)));
 
             return true;
         }

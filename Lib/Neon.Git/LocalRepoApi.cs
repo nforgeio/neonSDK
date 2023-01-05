@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:	    GitHubRepo.Local.cs
+// FILE:	    LocalRepoApi.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
@@ -47,12 +47,69 @@ using GitSignature  = LibGit2Sharp.Signature;
 
 namespace Neon.Git
 {
-    public partial class GitHubRepo
+    /// <summary>
+    /// Implements easy-to-use local git repository related APIs.
+    /// </summary>
+    public class LocalRepoApi
     {
+        private GitHubRepo root;
+
+        /// <summary>
+        /// Internal constructor.
+        /// </summary>
+        /// <param name="root">The root <see cref="GitHubRepo"/>.</param>
+        internal LocalRepoApi(GitHubRepo root)
+        {
+            this.root = root;
+        }
+
         /// <summary>
         /// Returns the current branch.
         /// </summary>
-        public GitBranch CurrentBranch => Local.CurrentBranch();
+        public GitBranch CurrentBranch => root.GitApi.CurrentBranch();
+
+        /// <summary>
+        /// Returns the path to the local repository folder.
+        /// </summary>
+        /// <exception cref="ObjectDisposedException">Thrown when the instance is disposed.</exception>
+        /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
+        public string LocalRepoFolder => root.LocalRepoFolder;
+
+        /// <summary>
+        /// Returns <c>true</c> when the local repos has uncommitted changes.
+        /// </summary>
+        /// <exception cref="ObjectDisposedException">Thrown when the instance is disposed.</exception>
+        /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
+        public bool IsDirty => root.GitApi.IsDirty();
+
+        /// <summary>
+        /// Creates a <see cref="GitSignature"/> from the repository's credentials.
+        /// </summary>
+        /// <returns>The new <see cref="GitSignature"/>.</returns>
+        /// <exception cref="ObjectDisposedException">Thrown when the instance is disposed.</exception>
+        public GitSignature CreateSignature()
+        {
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
+
+            return new GitSignature(root.Credentials.Username, root.Credentials.Email, DateTimeOffset.Now);
+        }
+
+        /// <summary>
+        /// Returns a <see cref="PushOptions"/> instance initialized with the credentials provider.
+        /// </summary>
+        /// <returns>The new <see cref="PushOptions"/>.</returns>
+        /// <exception cref="ObjectDisposedException">Thrown when the instance is disposed.</exception>
+        public PushOptions CreatePushOptions()
+        {
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
+
+            return new PushOptions()
+            {
+                CredentialsProvider = root.CredentialsProvider
+            };
+        }
 
         /// <summary>
         /// Fetches information from the associated GitHub origin repository.
@@ -63,19 +120,19 @@ namespace Neon.Git
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
         public async Task FetchAsync()
         {
-            EnsureNotDisposed();
-            EnsureLocalRepo();
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
 
             var options = new FetchOptions()
             {
                 TagFetchMode        = TagFetchMode.Auto,
                 Prune               = true,
-                CredentialsProvider = credentialsProvider
+                CredentialsProvider = root.CredentialsProvider
             };
 
-            var refSpecs = Remote.FetchRefSpecs.Select(spec => spec.Specification);
+            var refSpecs = root.Remote.FetchRefSpecs.Select(spec => spec.Specification);
 
-            Commands.Fetch(Local, Remote.Name, refSpecs, options, "fetching");
+            Commands.Fetch(root.GitApi, root.Remote.Name, refSpecs, options, "fetching");
 
             await Task.CompletedTask;
         }
@@ -90,8 +147,8 @@ namespace Neon.Git
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
         public async Task<bool> CommitAsync(string message = null)
         {
-            EnsureNotDisposed();
-            EnsureLocalRepo();
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
 
             message ??= "unspecified changes";
 
@@ -100,11 +157,11 @@ namespace Neon.Git
                 return false;
             }
 
-            Commands.Stage(Local, "*");
+            Commands.Stage(root.GitApi, "*");
 
             var signature = CreateSignature();
 
-            Local.Commit(message, signature, signature);
+            root.GitApi.Commit(message, signature, signature);
 
             return await Task.FromResult(true);
         }
@@ -124,8 +181,8 @@ namespace Neon.Git
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
         public async Task<MergeStatus> PullAsync()
         {
-            EnsureNotDisposed();
-            EnsureLocalRepo();
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
 
             var options = new PullOptions()
             {
@@ -137,7 +194,7 @@ namespace Neon.Git
 
             await FetchAsync();
 
-            return await Task.FromResult(Commands.Pull(Local, CreateSignature(), options).Status);
+            return await Task.FromResult(Commands.Pull(root.GitApi, CreateSignature(), options).Status);
         }
 
 
@@ -153,40 +210,40 @@ namespace Neon.Git
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
         public async Task<bool> PushAsync()
         {
-            EnsureNotDisposed();
-            EnsureLocalRepo();
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
 
             // Associate the current local branch with the origin branch having the 
             // same name.  This will cause the origin branch to be created when we
             // push below if the origin branch does not already exist.
 
-            var currentBranch = Local.CurrentBranch();
+            var currentBranch = root.GitApi.CurrentBranch();
 
             if (currentBranch == null)
             {
-                throw new LibGit2SharpException($"Local git repository [{LocalRepoFolder}] has no checked-out branch.");
+                throw new LibGit2SharpException($"Local git repository [{root.LocalRepoFolder}] has no checked-out branch.");
             }
 
             if (!currentBranch.IsTracking)
             {
-                Local.Branches.Update(currentBranch,
-                    updater => updater.Remote = Remote.Name,
+                root.GitApi.Branches.Update(currentBranch,
+                    updater => updater.Remote = root.Remote.Name,
                     updater => updater.UpstreamBranch = currentBranch.CanonicalName);
             }
 
             // Push any local commits to the origin branch.
 
-            if (Local.Commits.Count() == 0)
+            if (root.GitApi.Commits.Count() == 0)
             {
                 return false;
             }
 
-            Local.Network.Push(currentBranch, CreatePushOptions());
+            root.GitApi.Network.Push(currentBranch, CreatePushOptions());
 
-            await WaitForGitHubAsync(
+            await root.WaitForGitHubAsync(
                 async () =>
                 {
-                    var serverBranchUpdate = await RemoteRepository.Branch.GetAsync(currentBranch.FriendlyName);
+                    var serverBranchUpdate = await root.RemoteRepository.Branch.GetAsync(currentBranch.FriendlyName);
 
                     return serverBranchUpdate.Commit.Sha == currentBranch.Tip.Sha;
                 });
@@ -205,17 +262,17 @@ namespace Neon.Git
         public async Task CheckoutAsync(string branchName)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
-            EnsureNotDisposed();
-            EnsureLocalRepo();
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
 
-            var branch = Local.Branches[branchName];
+            var branch = root.GitApi.Branches[branchName];
 
             if (branch == null)
             {
                 throw new LibGit2SharpException($"Branch [{branchName}] does not exist.");
             }
 
-            Commands.Checkout(Local, branch);
+            Commands.Checkout(root.GitApi, branch);
             await Task.CompletedTask;
         }
 
@@ -233,10 +290,10 @@ namespace Neon.Git
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(sourceBranchName), nameof(sourceBranchName));
-            EnsureNotDisposed();
-            EnsureLocalRepo();
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
 
-            var newBranch = Local.Branches[branchName];
+            var newBranch = root.GitApi.Branches[branchName];
 
             if (newBranch != null)
             {
@@ -245,14 +302,14 @@ namespace Neon.Git
                 return false;
             }
 
-            var sourceBranch = Local.Branches[sourceBranchName];
+            var sourceBranch = root.GitApi.Branches[sourceBranchName];
 
             if (sourceBranch == null)
             {
                 throw new LibGit2SharpException($"Source branch [{sourceBranchName}] does not exist.");
             }
-             
-            Local.CreateBranch(branchName, sourceBranch.Tip);
+
+            root.GitApi.CreateBranch(branchName, sourceBranch.Tip);
             await CheckoutAsync(branchName);
 
             return await Task.FromResult(true);
@@ -272,16 +329,16 @@ namespace Neon.Git
         public async Task<bool> CheckoutOriginAsync(string originBranchName, string branchName = null)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(originBranchName), nameof(originBranchName));
-            EnsureNotDisposed();
-            EnsureLocalRepo();
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
 
             branchName ??= originBranchName;
 
-            var created = Local.Branches[branchName] == null;
+            var created = root.GitApi.Branches[branchName] == null;
 
             if (created)
             {
-                Local.CreateBranch(branchName, $"{Remote.Name}/{originBranchName}");
+                root.GitApi.CreateBranch(branchName, $"{root.Remote.Name}/{originBranchName}");
             }
 
             await CheckoutAsync(branchName);
@@ -300,16 +357,16 @@ namespace Neon.Git
         public async Task RemoveBranchAsync(string branchName)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
-            EnsureNotDisposed();
-            EnsureLocalRepo();
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
 
             // Remove the origin branch.
 
-            Local.Network.Push(Remote, $"+:refs/heads/{branchName}", CreatePushOptions());
+            root.GitApi.Network.Push(root.Remote, $"+:refs/heads/{branchName}", CreatePushOptions());
 
             // Remove the local branch.
 
-            Local.Branches.Remove(branchName);
+            root.GitApi.Branches.Remove(branchName);
 
             await Task.CompletedTask;
         }
@@ -334,10 +391,10 @@ namespace Neon.Git
         public async Task<MergeResult> MergeAsync(string branchName, bool throwOnConflict = true)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
-            EnsureNotDisposed();
-            EnsureLocalRepo();
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
 
-            var branch = Local.Branches[branchName];
+            var branch = root.GitApi.Branches[branchName];
 
             if (branch == null)
             {
@@ -354,7 +411,7 @@ namespace Neon.Git
                 FailOnConflict = true
             };
 
-            var result = Local.Merge(branch, CreateSignature());
+            var result = root.GitApi.Merge(branch, CreateSignature());
 
             if (result.Status == MergeStatus.Conflicts)
             {
@@ -378,11 +435,11 @@ namespace Neon.Git
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
         public async Task UndoAsync()
         {
-            EnsureNotDisposed();
-            EnsureLocalRepo();
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
 
-            Local.CheckoutPaths(CurrentBranch.Tip.Sha, new string[] { "*" }, new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force });
-            Local.RemoveUntrackedFiles();
+            root.GitApi.CheckoutPaths(CurrentBranch.Tip.Sha, new string[] { "*" }, new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force });
+            root.GitApi.RemoveUntrackedFiles();
 
             await Task.CompletedTask;
         }

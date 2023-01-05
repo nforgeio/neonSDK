@@ -75,13 +75,21 @@ namespace Neon.Git
     /// that you'll use for subsequent operations.
     /// </para>
     /// <para>
+    /// <b>To perform only GitHub account operations</b> Call the static <see cref="ConnectAsync(string, string, string, string, string, IProfileClient)"/>
+    /// method to construct an instance without a local repository reference.
+    /// </para>
+    /// <para>
+    /// The <see cref="Local"/> property provides some easy-to-use methods for managing the
+    /// associated local git repository.
+    /// </para>
+    /// <para>
     /// The <see cref="RemoteRepository"/> property provides some easy-to-use methods for managing the associated
     /// GitHub repository.  These implement some common operations and are easier to use than the stock
     /// Octokit implementations.
     /// </para>
     /// <para>
-    /// <b>To perform only GitHub account operations</b> Call the static <see cref="ConnectAsync(string, string, string, string, string, IProfileClient)"/>
-    /// method to construct an instance without a local repository reference.
+    /// The lower-level <see cref="GitHubApi"/> can be used to manage GitHub assets directly and <see cref="GitApi"/>
+    /// is the lower-level API that can be used to manage the local git repository.
     /// </para>
     /// </remarks>
     public partial class GitHubRepo : IDisposable
@@ -131,8 +139,9 @@ namespace Neon.Git
                 userAgent = "unknown";
             }
 
-            repo.RemoteRepository  = new RemoteRepoApi(repo);
-            repo.OriginRepoPath = OriginRepoPath.Parse(originRepoPath);
+            repo.Local  = new LocalRepoApi(repo);
+            repo.RemoteRepository = new RemoteRepoApi(repo);
+            repo.OriginRepoPath   = RemoteRepoPath.Parse(originRepoPath);
 
             repo.Credentials = GitHubCredentials.Load(
                 username:      username,
@@ -140,7 +149,7 @@ namespace Neon.Git
                 email:         email,
                 profileClient: profileClient);
 
-            repo.GitHubServer = new GitHubClient(new Octokit.ProductHeaderValue(userAgent))
+            repo.GitHubApi = new GitHubClient(new Octokit.ProductHeaderValue(userAgent))
             {
                 Credentials = new Octokit.Credentials(repo.Credentials.AccessToken)
             };
@@ -196,9 +205,10 @@ namespace Neon.Git
 
             var repo = new GitHubRepo();
 
-            repo.LocalRepoFolder = localRepoFolder;
-            repo.RemoteRepository      = new RemoteRepoApi(repo);
-            repo.OriginRepoPath  = OriginRepoPath.Parse(originRepoPath);
+            repo.LocalRepoFolder  = localRepoFolder;
+            repo.Local  = new LocalRepoApi(repo);
+            repo.RemoteRepository = new RemoteRepoApi(repo);
+            repo.OriginRepoPath   = RemoteRepoPath.Parse(originRepoPath);
 
             if (Directory.Exists(localRepoFolder))
             {
@@ -218,7 +228,7 @@ namespace Neon.Git
                 email:         email,
                 profileClient: profileClient);
 
-            repo.GitHubServer = new GitHubClient(new Octokit.ProductHeaderValue(userAgent))
+            repo.GitHubApi = new GitHubClient(new Octokit.ProductHeaderValue(userAgent))
             {
                 Credentials = new Octokit.Credentials(repo.Credentials.AccessToken)
             };
@@ -236,7 +246,7 @@ namespace Neon.Git
 
             GitRepository.Clone(originRepo, repo.localRepoFolder, options);
 
-            repo.Local = new GitRepository(repo.localRepoFolder);
+            repo.GitApi = new GitRepository(repo.localRepoFolder);
 
             repo.CreateHttpClient(userAgent);
 
@@ -249,9 +259,10 @@ namespace Neon.Git
         private bool                    isDisposed = false;
         private CredentialsHandler      credentialsProvider;
         private Remote                  cachedOrigin;
-        private OriginRepoPath          originRepoPath;
+        private RemoteRepoPath          originRepoPath;
         private string                  localRepoFolder;
-        private RemoteRepoApi           originRepoApi;
+        private LocalRepoApi            localRepoApi;
+        private RemoteRepoApi           remoteRepoApi;
         private GitRepository           localRepository;
         private GitHubCredentials       githubCredentials;
         private GitHubClient            githubServer;
@@ -305,7 +316,8 @@ namespace Neon.Git
                 throw new RepositoryNotFoundException($"The local repo [{localRepoFolder}] folder does not exist.");
             }
 
-            this.Local            = new GitRepository(localRepoFolder);
+            this.GitApi            = new GitRepository(localRepoFolder);
+            this.Local  = new LocalRepoApi(this);
             this.RemoteRepository = new RemoteRepoApi(this);
 
             // We're going to obtain the GitHub path for the repo from the origin's
@@ -313,12 +325,12 @@ namespace Neon.Git
             //
             //      https://github.com/neontest/neon-git
             //
-            // We'll just strip off the scheme and and what remains is the path.\
+            // We'll just strip off the scheme and and what remains is the path.
 
             var pushUrl        = new Uri(Remote.PushUrl);
             var originRepoPath = $"{pushUrl.Host}{pushUrl.AbsolutePath}";
 
-            this.OriginRepoPath  = OriginRepoPath.Parse(originRepoPath);
+            this.OriginRepoPath  = RemoteRepoPath.Parse(originRepoPath);
             this.LocalRepoFolder = localRepoFolder;
 
             if (string.IsNullOrEmpty(userAgent))
@@ -332,7 +344,7 @@ namespace Neon.Git
                 email:         email,
                 profileClient: profileClient);
 
-            this.GitHubServer = new GitHubClient(new Octokit.ProductHeaderValue(userAgent))
+            this.GitHubApi = new GitHubClient(new Octokit.ProductHeaderValue(userAgent))
             {
                 Credentials = new Octokit.Credentials(Credentials.AccessToken)
             };
@@ -396,7 +408,7 @@ namespace Neon.Git
         /// </summary>
         /// <exception cref="ObjectDisposedException">Thrown when the instance is disposed.</exception>
         /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
-        public OriginRepoPath OriginRepoPath
+        public RemoteRepoPath OriginRepoPath
         {
             get
             {
@@ -444,10 +456,16 @@ namespace Neon.Git
         }
 
         /// <summary>
-        /// Returns the OctoKit <see cref="GitHubClient"/> associated with the instance.
+        /// Returns the [LibGit2Sharp] credentials provider.
+        /// </summary>
+        internal CredentialsHandler CredentialsProvider => credentialsProvider;
+
+        /// <summary>
+        /// Returns the lower-level OctoKit <see cref="GitHubClient"/> API that can be used
+        /// to manage GitGub assets.
         /// </summary>
         /// <exception cref="ObjectDisposedException">Thrown when the instance is disposed.</exception>
-        public GitHubClient GitHubServer
+        public GitHubClient GitHubApi
         {
             get
             {
@@ -457,6 +475,42 @@ namespace Neon.Git
             }
 
             set => githubServer = value;
+        }
+
+        /// <summary>
+        /// Returns the lower level <see cref="GitRepository"/> API for managing the associated local git repository.
+        /// </summary>
+        /// <exception cref="ObjectDisposedException">Thrown when the instance is disposed.</exception>
+        /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
+        public GitRepository GitApi
+        {
+            get
+            {
+                EnsureNotDisposed();
+                EnsureLocalRepo();
+
+                return localRepository;
+            }
+
+            set => localRepository = value;
+        }
+
+        /// <summary>
+        /// Returns the friendly API methods used to manage the local git repository.
+        /// </summary>
+        /// <exception cref="ObjectDisposedException">Thrown when the instance is disposed.</exception>
+        /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
+        public LocalRepoApi Local
+        {
+            get
+            {
+                EnsureNotDisposed();
+                EnsureLocalRepo();
+
+                return localRepoApi;
+            }
+
+            set => localRepoApi = value;
         }
 
         /// <summary>
@@ -470,28 +524,10 @@ namespace Neon.Git
             {
                 EnsureNotDisposed();
 
-                return originRepoApi;
+                return remoteRepoApi;
             }
 
-            set => originRepoApi = value;
-        }
-
-        /// <summary>
-        /// Returns the associated local git repository.
-        /// </summary>
-        /// <exception cref="ObjectDisposedException">Thrown when the instance is disposed.</exception>
-        /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
-        public GitRepository Local
-        {
-            get
-            {
-                EnsureNotDisposed();
-                EnsureLocalRepo();
-
-                return localRepository;
-            }
-
-            set => localRepository = value;
+            set => remoteRepoApi = value;
         }
 
         /// <summary>
@@ -512,7 +548,7 @@ namespace Neon.Git
                     return cachedOrigin;
                 }
 
-                cachedOrigin = Local.Network.Remotes["origin"];
+                cachedOrigin = GitApi.Network.Remotes["origin"];
 
                 if (cachedOrigin == null)
                 {
@@ -557,45 +593,9 @@ namespace Neon.Git
 
             // Initialize the HTTP client User-Agent and bearer token.
 
-            HttpClient.BaseAddress                         = GitHubServer.BaseAddress;
+            HttpClient.BaseAddress                         = GitHubApi.BaseAddress;
             HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Credentials.AccessToken);
             HttpClient.DefaultRequestHeaders.Add("User-Agent", userAgent);
-        }
-
-        /// <summary>
-        /// Returns <c>true</c> when the local repos has uncommitted changes.
-        /// </summary>
-        /// <exception cref="ObjectDisposedException">Thrown when the instance is disposed.</exception>
-        /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
-        public bool IsDirty => Local.IsDirty();
-
-        /// <summary>
-        /// Creates a <see cref="GitSignature"/> from the repository's credentials.
-        /// </summary>
-        /// <returns>The new <see cref="GitSignature"/>.</returns>
-        /// <exception cref="ObjectDisposedException">Thrown when the instance is disposed.</exception>
-        public GitSignature CreateSignature()
-        {
-            EnsureNotDisposed();
-            EnsureLocalRepo();
-
-            return new GitSignature(Credentials.Username, Credentials.Email, DateTimeOffset.Now);
-        }
-
-        /// <summary>
-        /// Returns a <see cref="PushOptions"/> instance initialized with the credentials provider.
-        /// </summary>
-        /// <returns>The new <see cref="PushOptions"/>.</returns>
-        /// <exception cref="ObjectDisposedException">Thrown when the instance is disposed.</exception>
-        public PushOptions CreatePushOptions()
-        {
-            EnsureNotDisposed();
-            EnsureLocalRepo();
-
-            return new PushOptions()
-            {
-                CredentialsProvider = credentialsProvider
-            };
         }
 
         /// <summary>
