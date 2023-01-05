@@ -25,6 +25,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -36,6 +37,7 @@ using LibGit2Sharp;
 using LibGit2Sharp.Handlers;
 
 using Octokit;
+using Octokit.Internal;
 
 using GitHubBranch     = Octokit.Branch;
 using GitHubRepository = Octokit.Repository;
@@ -44,7 +46,6 @@ using GitHubSignature  = Octokit.Signature;
 using GitBranch     = LibGit2Sharp.Branch;
 using GitRepository = LibGit2Sharp.Repository;
 using GitSignature  = LibGit2Sharp.Signature;
-using Neon.Retry;
 
 namespace Neon.Git
 {
@@ -152,6 +153,8 @@ namespace Neon.Git
                         Password = repo.Credentials.AccessToken
                     });
 
+            repo.InitializeHttpClient(userAgent);
+
             return await Task.FromResult(repo);
         }
 
@@ -235,6 +238,8 @@ namespace Neon.Git
 
             repo.LocalRepository = new GitRepository(repo.localRepoFolder);
 
+            repo.InitializeHttpClient(userAgent);
+
             return await Task.FromResult(repo);
         }
 
@@ -250,6 +255,7 @@ namespace Neon.Git
         private GitRepository           localRepository;
         private GitHubCredentials       githubCredentials;
         private GitHubClient            githubServer;
+        private string                  userAgent;
 
         /// <summary>
         /// Private constructor.
@@ -338,6 +344,8 @@ namespace Neon.Git
                         Username = Credentials.Username,
                         Password = Credentials.AccessToken
                     });
+
+            InitializeHttpClient(userAgent);
         }
 
         /// <summary>
@@ -372,6 +380,12 @@ namespace Neon.Git
             {
                 localRepository.Dispose();
                 localRepository = null;
+            }
+
+            if (HttpClient != null)
+            {
+                HttpClient.Dispose();
+                HttpClient = null;
             }
 
             isDisposed = true;
@@ -507,6 +521,49 @@ namespace Neon.Git
 
                 return cachedOrigin;
             }
+        }
+
+        /// <summary>
+        /// Returns a standard <see cref="HttpClient"/> configured to submit requests to GitHub using
+        /// the user's credentials.  This can be useful for advanced scenarios where the Octokit built-in
+        /// connection is lacking.
+        /// </summary>
+        internal HttpClient HttpClient { get; private set; }
+
+        /// <summary>
+        /// Uses reflection to initialize the <see cref="HttpClient"/> from the Octokit connection.
+        /// </summary>
+        /// <param name="userAgent">Specifies the User-Agent to be included in HTTP requests.</param>
+        private void InitializeHttpClient(string userAgent)
+        {
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(userAgent), nameof(userAgent));
+
+            if (HttpClient != null)
+            {
+                return;
+            }
+
+            this.userAgent = userAgent;
+
+            HttpClient = new HttpClient(
+                new HttpClientHandler()
+                {
+                    AllowAutoRedirect        = true,
+                    AutomaticDecompression   = DecompressionMethods.GZip | DecompressionMethods.Deflate,
+                    UseDefaultCredentials    = true,
+                    MaxAutomaticRedirections = 30
+                },
+                disposeHandler: true);
+
+            // Initialize the HTTP client User-Agent and bearer token.
+
+            if (!HttpClient.DefaultRequestHeaders.Contains("User-Agent"))
+            {
+                HttpClient.DefaultRequestHeaders.Add("User-Agent", userAgent);
+            }
+
+            HttpClient.BaseAddress                         = GitHubServer.BaseAddress;
+            HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Credentials.AccessToken);
         }
 
         /// <summary>

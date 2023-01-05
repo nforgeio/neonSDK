@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:	    EasyRepoBranchApi.cs
+// FILE:	    EasyRepoTagApi.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
@@ -38,9 +38,10 @@ using LibGit2Sharp.Handlers;
 
 using Octokit;
 
-using GitHubBranch     = Octokit.Branch;
-using GitHubRepository = Octokit.Repository;
-using GitHubSignature  = Octokit.Signature;
+using GitHubBranch        = Octokit.Branch;
+using GitHubRepository    = Octokit.Repository;
+using GitHubSignature     = Octokit.Signature;
+using GitHubRepositoryTag = Octokit.RepositoryTag;
 
 using GitBranch     = LibGit2Sharp.Branch;
 using GitRepository = LibGit2Sharp.Repository;
@@ -49,9 +50,9 @@ using GitSignature  = LibGit2Sharp.Signature;
 namespace Neon.Git
 {
     /// <summary>
-    /// Implements friendly GitHub repository branch related APIs.
+    /// Implements friendly GitHub repository tag related APIs.
     /// </summary>
-    public class EasyRepoBranchApi
+    public class EasyRepoTagApi
     {
         private GitHubRepo  repo;
 
@@ -59,67 +60,67 @@ namespace Neon.Git
         /// Internal constructor.
         /// </summary>
         /// <param name="repo">The parent <see cref="GitHubRepo"/>.</param>
-        internal EasyRepoBranchApi(GitHubRepo repo)
+        internal EasyRepoTagApi(GitHubRepo repo)
         {
             this.repo = repo;
         }
 
         /// <summary>
-        /// Returns all branches from the GitHub origin repository.
+        /// Returns all tags from the GitHub origin repository.
         /// </summary>
-        /// <returns>The list of branches.</returns>
+        /// <returns>The list of tags.</returns>
         /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
-        public async Task<IReadOnlyList<GitHubBranch>> GetAsync()
+        public async Task<IReadOnlyList<GitHubRepositoryTag>> GetAsync()
         {
             repo.EnsureNotDisposed();
             repo.EnsureLocalRepo();
 
-            return await repo.GitHubServer.Repository.Branch.GetAll(repo.OriginRepoPath.Owner, repo.OriginRepoPath.Name);
+            return await repo.GitHubServer.Repository.GetAllTags(repo.OriginRepoPath.Owner, repo.OriginRepoPath.Name);
         }
 
         /// <summary>
-        /// Returns a specific GitHub origin repository branch, if it exists.
+        /// Returns a specific GitHub origin repository tag, if it exists.
         /// </summary>
-        /// <param name="branchName">Specifies the origin repository branch name.</param>
-        /// <returns>The <see cref="GitHubBranch"/> or <c>null</c> when the branch doesn't exist.</returns>
+        /// <param name="tageName">Specifies the origin repository tag name.</param>
+        /// <returns>The <see cref="GitHubRepositoryTag"/> or <c>null</c> when the tag doesn't exist.</returns>
         /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
-        public async Task<GitHubBranch> GetAsync(string branchName)
+        public async Task<GitHubRepositoryTag> GetAsync(string tageName)
         {
-            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(tageName), nameof(tageName));
             repo.EnsureNotDisposed();
             repo.EnsureLocalRepo();
 
-            return (await GetAsync()).FirstOrDefault(branch => branch.Name.Equals(branchName, StringComparison.InvariantCultureIgnoreCase));
+            return (await GetAsync()).FirstOrDefault(tag => tag.Name.Equals(tageName, StringComparison.InvariantCultureIgnoreCase));
         }
 
         /// <summary>
-        /// Removes an origin branch, if it exists.
+        /// Removes an origin repository tag, if it exists.
         /// </summary>
-        /// <param name="branchName">Specifies the origin repository branch name.</param>
-        /// <returns><c>true</c> if the branch existed and was removed, <c>false</c> otherwise.</returns>
+        /// <param name="tagName">Specifies the origin repository tag name.</param>
+        /// <returns><c>true</c> if the tag existed and was removed, <c>false</c> otherwise.</returns>
         /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
-        public async Task<bool> RemoveAsync(string branchName)
+        public async Task<bool> RemoveAsync(string tagName)
         {
-            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(tagName), nameof(tagName));
             repo.EnsureNotDisposed();
             repo.EnsureLocalRepo();
 
-            var branch = await GetAsync(branchName);
+            var tag = await GetAsync(tagName);
 
-            if (branch == null)
+            if (tag == null)
             {
                 return false;
             }
 
-            // OctoKit doesn't have a nice branch removeal method, so we'll need to use
+            // OctoKit doesn't have a nice tag removal method, so we'll need to use
             // the REST API.  This is a bit tricky:
             //
-            //      https://github.com/orgs/community/discussions/24603
+            //      https://stackoverflow.com/questions/7247414/delete-a-tag-with-github-v3-api
 
-            var uri = $"/repos/{repo.OriginRepoPath.Owner}/{repo.OriginRepoPath.Name}/git/heads/{branchName}";
+            var uri = $"/repos/{repo.OriginRepoPath.Owner}/{repo.OriginRepoPath.Name}/git/refs/tags/{tagName}";
 
             NetHelper.EnsureSuccess(await repo.GitHubServer.Connection.Delete(new Uri(uri)));
 

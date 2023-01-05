@@ -51,7 +51,7 @@ using GitSignature  = LibGit2Sharp.Signature;
 namespace Neon.Git
 {
     /// <summary>
-    /// Implements the friendly GitHub relase related APIS.
+    /// Implements the friendly GitHub repository release related APIS.
     /// </summary>
     public class EasyRepoReleaseApi
     {
@@ -118,7 +118,7 @@ namespace Neon.Git
         }
 
         /// <summary>
-        /// Returns a specific GitHub origin repository release.
+        /// Returns a specific GitHub origin repository release, if it exists.
         /// </summary>
         /// <param name="releaseName">Specifies the origin repository release name.</param>
         /// <returns>The <see cref="Octokit.Release"/> or <c>null</c> when the release doesn't exist.</returns>
@@ -189,7 +189,7 @@ namespace Neon.Git
         }
 
         /// <summary>
-        /// Removes a GitHub release if it exists.
+        /// Removes an origin release, if it exists.
         /// </summary>
         /// <param name="releaseName">Specifies the release name.</param>
         /// <returns><c>true</c> when the release existed and was removed, <c>false</c> otherwise.</returns>
@@ -346,6 +346,57 @@ namespace Neon.Git
                 });
 
             return release;
+        }
+
+        /// <summary>
+        /// Returns the URI for the zipped source code (Zipball) for a published release.
+        /// </summary>
+        /// <param name="releaseName">Specifies the release name.</param>
+        /// <returns>The zipball URI.</returns>
+        /// <exception cref="InvalidOperationException">Thrown if the release does not exist or it has not been published.</exception>
+        public async Task<string> GetZipballUri(string releaseName)
+        {
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(releaseName), nameof(releaseName));
+
+            var release = await GetAsync(releaseName);
+
+            if (release == null)
+            {
+                throw new InvalidOperationException($"Release [{releaseName}] does not exist.");
+            }
+
+            if (release.Draft)
+            {
+                throw new InvalidOperationException($"Release [{releaseName}] has not been published.");
+            }
+
+            return release.ZipballUrl;
+        }
+
+        /// <summary>
+        /// <para>
+        /// Returns the zipped source code (Zipball) for a published release.
+        /// </para>
+        /// <note>
+        /// The repository files in the Zipball are are persisted to a root folder named like
+        /// <b>REPONAME-COMMIT</b> where <b>REPONAME</b> is the name of the GitHub repository
+        /// and <b>COMMIT</b> is the latest commit for the repo.
+        /// </note>
+        /// </summary>
+        /// <param name="releaseName">Specifies the release name.</param>
+        /// <param name="output">Specifies the stream where the Zipball will be written.</param>
+        /// <returns>The tracking <see cref="Task"/>.</returns>
+        /// <exception cref="InvalidOperationException">Thrown if the release does not exist or it has not been published.</exception>
+        public async Task DownloadZipballAsync(string releaseName, Stream output)
+        {
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(releaseName), nameof(releaseName));
+            Covenant.Requires<ArgumentNullException>(output != null, nameof(output));
+
+            var response = await repo.HttpClient.GetAsync(await GetZipballUri(releaseName));
+
+            response.EnsureSuccessStatusCode();
+
+            await response.Content.CopyToAsync(output);
         }
 
         /// <summary>

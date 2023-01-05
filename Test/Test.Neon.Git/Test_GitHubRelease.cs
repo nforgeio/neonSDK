@@ -26,6 +26,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
+using ICSharpCode.SharpZipLib.Zip;
 using LibGit2Sharp;
 
 using Neon.Common;
@@ -217,6 +218,62 @@ namespace TestGit
                         release = await repo.Repository.Release.GetAsync(releaseName);
 
                         Assert.False(release.Draft);
+                    }
+                });
+        }
+
+        [MaintainerFact]
+        public async Task Zipball()
+        {
+            // Publish a release and download its source code as a Zipball.
+
+            await GitTestHelper.RunTestAsync(
+                async () =>
+                {
+                    using (var repo = await GitHubRepo.ConnectAsync(GitTestHelper.RemoteTestRepo))
+                    {
+                        var releaseName = $"test-{Guid.NewGuid()}";
+                        var newTestTag  = $"test-{Guid.NewGuid()}";
+                        var release     = await repo.Repository.Release.Create(tagName: newTestTag, releaseName: releaseName, body: "HELLO WORLD!", draft: true);
+
+                        Assert.Equal(releaseName, release.Name);
+                        Assert.True(release.Draft);
+                        Assert.True(!string.IsNullOrEmpty(release.Body));
+
+                        release = await repo.Repository.Release.PublishAsync(releaseName);
+
+                        using (var tempFolder = new TempFolder())
+                        {
+                            var zipballPath = Path.Combine(tempFolder.Path, "zipball.zip");
+
+                            using (var output = File.OpenWrite(zipballPath))
+                            {
+                                await repo.Repository.Release.DownloadZipballAsync(releaseName, output);
+                            }
+
+                            Assert.True((new FileInfo(zipballPath)).Length > 0);
+
+                            // Verify that we can unzip the thing and then confirm that
+                            // we see some expewcted files.
+
+                            var fastZip = new FastZip();
+
+                            fastZip.ExtractZip(zipballPath, tempFolder.Path, null);
+
+                            // Note the the files are extracted to a subdirectory that's named 
+                            // something like this (including the commit):
+                            //
+                            //      neontest-neon-git-4e35cb9
+                            //
+                            // There should only be the one directory, so we'll look for that
+                            // and then check for the files within.
+
+                            var extractFolder = Directory.GetDirectories(tempFolder.Path, "*").First();
+
+                            Assert.True(File.Exists(Path.Combine(extractFolder, ".gitignore")));
+                            Assert.True(File.Exists(Path.Combine(extractFolder, "LICENSE")));
+                            Assert.True(File.Exists(Path.Combine(extractFolder, "README.md")));
+                        }
                     }
                 });
         }
