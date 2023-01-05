@@ -51,15 +51,35 @@ namespace TestGit
             await GitTestHelper.RunTestAsync(
                 async () =>
                 {
-                    using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
+                    using (var repo = await GitHubRepo.ConnectAsync(GitTestHelper.RemoteTestRepo))
                     {
-                        var repoPath = tempFolder.Path;
+                        await repo.OriginRepoApi.GetReleasesAsync();
+                    }
+                });
+        }
 
-                        using (var repo = await GitHubRepo.CloneAsync(GitTestHelper.RemoteTestRepo, tempFolder.Path))
-                        {
-                            Assert.True(File.Exists(Path.Combine(repoPath, ".gitignore")));
-                            await repo.OriginApi.GetBranchesAsync();
-                        }
+        [MaintainerFact]
+        public async Task CreateGetRemove()
+        {
+            // Verify that we can create, get and then remove a GitHub release.
+
+            await GitTestHelper.RunTestAsync(
+                async () =>
+                {
+                    using (var repo = await GitHubRepo.ConnectAsync(GitTestHelper.RemoteTestRepo))
+                    {
+                        var newTestRelease = $"test-{Guid.NewGuid()}";
+                        var newTestTag     = $"test-{Guid.NewGuid()}";
+                        var release        = await repo.OriginRepoApi.CreateRelease(tagName: newTestTag, releaseName: newTestRelease);
+
+                        Assert.NotNull(release);
+                        Assert.NotNull(await repo.OriginRepoApi.GetReleaseAsync(newTestRelease));
+                        Assert.True(await repo.OriginRepoApi.RemoveReleaseAsync(newTestRelease));
+                        Assert.Null(await repo.OriginRepoApi.GetReleaseAsync(newTestRelease));
+
+                        // Verify that trying to delete a non-existent release returns FALSE.
+
+                        Assert.False(await repo.OriginRepoApi.RemoveReleaseAsync(newTestRelease));
                     }
                 });
         }

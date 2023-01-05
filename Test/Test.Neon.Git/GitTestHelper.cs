@@ -139,6 +139,23 @@ namespace TestGit
         }
 
         /// <summary>
+        /// Clones the test repo, checks out the master branch, and then removes any files in
+        /// the repo under the <see cref="TestFolder"/> directory (if it exists) and pushes
+        /// the changes to the remote.  This is used to help prevent the accumulation of test files.
+        /// </summary>
+        /// <returns>The tracking <see cref="Task"/>.</returns>
+        public static async Task RemoveTestReleasesAsync()
+        {
+            using (var repo = await GitHubRepo.ConnectAsync(GitTestHelper.RemoteTestRepo))
+            {
+                foreach (var release in await repo.OriginRepoApi.GetReleasesAsync())
+                {
+                    await repo.OriginRepoApi.RemoveReleaseAsync(release.Name);
+                }
+            }
+        }
+
+        /// <summary>
         /// <para>
         /// Used to run a unit test in a context where <see cref="NeonHelper.ServiceContainer"/>"/> includes
         /// our <see cref="IProfileClient"/> implementation for maintainers that fetches secrets from 
@@ -160,16 +177,13 @@ namespace TestGit
             // set our [neon-assistant] profile client implementation during the test.
 
             var savedServices  = NeonHelper.ServiceContainer.Clone();
-            var githubUsername = Environment.GetEnvironmentVariable("GITHUB_USERNAME");
-            var gitHubPat      = Environment.GetEnvironmentVariable("GITHUB_PAT");
-            var githubEmail    = Environment.GetEnvironmentVariable("GITHUB_EMAIL");
-            var ncUser         = Environment.GetEnvironmentVariable("NC_USER");
 
             try
             {
                 NeonHelper.ServiceContainer.AddSingleton<IProfileClient>(new MaintainerProfileClient());
 
                 await RemoveTestBranchesAsync();
+                await RemoveTestReleasesAsync();
 
                 await action();
             }
@@ -177,12 +191,8 @@ namespace TestGit
             {
                 NeonHelper.ServiceContainer = savedServices;
 
-                Environment.SetEnvironmentVariable("GITHUB_USERNAME", githubUsername);
-                Environment.SetEnvironmentVariable("GITHUB_PAT", gitHubPat);
-                Environment.SetEnvironmentVariable("GITHUB_EMAIL", githubEmail);
-                Environment.SetEnvironmentVariable("NC_USER", ncUser);
-
                 await RemoveTestBranchesAsync();
+                await RemoveTestReleasesAsync();
             }
         }
     }

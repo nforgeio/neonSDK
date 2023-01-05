@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:	    GitHubOriginApi.Release.cs
+// FILE:	    GitHubRepoApi.Release.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
@@ -47,8 +47,45 @@ using GitSignature  = LibGit2Sharp.Signature;
 
 namespace Neon.Git
 {
-    public partial class GitHubOriginRepoApi
+    public partial class GitHubRepoApi
     {
+        /// <summary>
+        /// Creates a GitHub release.
+        /// </summary>
+        /// <param name="tagName">Specifies the release name.</param>
+        /// <param name="releaseName">Optionally specifies the release name (defaults to <paramref name="tagName"/>).</param>
+        /// <param name="body">Optionally specifies the markdown formatted release notes.</param>
+        /// <param name="draft">Optionally indicates that the release won't be published immediately.</param>
+        /// <param name="prerelease">Optionally indicates that the release is not production ready.</param>
+        /// <returns>The new release.</returns>
+        public async Task<Release> CreateRelease(string tagName, string releaseName = null, string body = null, bool draft = false, bool prerelease = false)
+        {
+            repo.EnsureNotDisposed();
+
+            releaseName ??= tagName;
+
+            var release = new NewRelease(tagName)
+            {
+                Name       = releaseName,
+                Draft      = draft,
+                Prerelease = prerelease,
+                Body       = body
+            };
+
+            var newRelease = await repo.GitHubServer.Repository.Release.Create(repo.OriginRepoPath.Owner, repo.OriginRepoPath.Name, release);
+
+            // GitHub doesn't appear to create releases synchronously, so we're going
+            // to wait for the new release to show up.
+
+            await repo.WaitForGitHubAsync(
+                async () =>
+                {
+                    return await repo.OriginRepoApi.GetReleaseAsync(releaseName) != null;
+                });
+
+            return newRelease;
+        }
+
         /// <summary>
         /// Returns all releases from the GitHub origin repository.
         /// </summary>
@@ -59,7 +96,6 @@ namespace Neon.Git
         public async Task<IReadOnlyList<Release>> GetReleasesAsync()
         {
             repo.EnsureNotDisposed();
-            repo.EnsureLocalRepo();
 
             return await repo.GitHubServer.Repository.Release.GetAll(repo.OriginRepoPath.Owner, repo.OriginRepoPath.Name);
         }
@@ -76,9 +112,30 @@ namespace Neon.Git
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(releaseName), nameof(releaseName));
             repo.EnsureNotDisposed();
-            repo.EnsureLocalRepo();
 
             return (await GetReleasesAsync()).FirstOrDefault(release => release.Name.Equals(releaseName, StringComparison.InvariantCultureIgnoreCase));
+        }
+
+        /// <summary>
+        /// Removes a GitHub release if it exists,
+        /// </summary>
+        /// <param name="releaseName">Specifies the release name.</param>
+        /// <returns><c>true</c> when the release existed and was removed, <c>false</c> otherwise.</returns>
+        public async Task<bool> RemoveReleaseAsync(string releaseName)
+        {
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(releaseName), nameof(releaseName));
+            repo.EnsureNotDisposed();
+
+            var release = await GetReleaseAsync(releaseName);
+
+            if (release == null)
+            {
+                return false;
+            }
+
+            await repo.GitHubServer.Repository.Release.Delete(repo.OriginRepoPath.Owner, repo.OriginRepoPath.Name, release.Id);
+
+            return true;
         }
     }
 }

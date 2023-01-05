@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:	    GitHubOriginApi.Branch.cs
+// FILE:	    GitHubRepoApi.Branch.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
@@ -31,6 +31,7 @@ using System.Threading.Tasks;
 
 using Neon.Common;
 using Neon.Deployment;
+using Neon.Net;
 
 using LibGit2Sharp;
 using LibGit2Sharp.Handlers;
@@ -47,7 +48,7 @@ using GitSignature = LibGit2Sharp.Signature;
 
 namespace Neon.Git
 {
-    public partial class GitHubOriginRepoApi
+    public partial class GitHubRepoApi
     {
         /// <summary>
         /// Returns branches from the GitHub origin repository.
@@ -102,9 +103,11 @@ namespace Neon.Git
             // OctoKit doesn't have [remove branch] functionality so we'll need to use
             // the REST API.  This is a bit tricky:
             //
-            //      https://github.com/octokit/octokit.rb/issues/363#issuecomment-30384451
+            //      https://github.com/orgs/community/discussions/24603
 
-            throw new NotImplementedException("$todo(jefflill)");
+            var uri = $"/repos/{repo.OriginRepoPath.Owner}/{repo.OriginRepoPath.Name}/git/heads/{branchName}";
+
+            NetHelper.EnsureSuccess(await repo.GitHubServer.Connection.Delete(new Uri(uri)));
 
             return true;
         }

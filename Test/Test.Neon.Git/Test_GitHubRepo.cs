@@ -247,7 +247,7 @@ namespace TestGit
         }
 
         [MaintainerFact]
-        public async Task Remote_GetBranches()
+        public async Task GitHub_GetBranches()
         {
             // Verify that we can list remote branches.
 
@@ -260,7 +260,7 @@ namespace TestGit
 
                         using (var repo = await GitHubRepo.CloneAsync(GitTestHelper.RemoteTestRepo, repoPath))
                         {
-                            var remoteBranches = await repo.OriginApi.GetBranchesAsync();
+                            var remoteBranches = await repo.OriginRepoApi.GetBranchesAsync();
 
                             Assert.Contains(remoteBranches, branch => branch.Name == "master");
                         }
@@ -287,7 +287,7 @@ namespace TestGit
 
                             Assert.True(await repo.CreateBranchAsync(newBranchName, "master"));
                             Assert.NotNull(repo.Branches[newBranchName]);
-                            Assert.Null(await repo.OriginApi.GetBranchAsync(newBranchName));
+                            Assert.Null(await repo.OriginRepoApi.GetBranchAsync(newBranchName));
 
                             // Verify that we see FALSE when trying to create an existing branch.
 
@@ -298,7 +298,7 @@ namespace TestGit
                             await repo.CheckoutAsync("master");
                             repo.Branches.Remove(repo.Branches[newBranchName]);
                             Assert.Null(repo.LocalRepository.Branches[newBranchName]);
-                            Assert.Null(await repo.OriginApi.GetBranchAsync(newBranchName));
+                            Assert.Null(await repo.OriginRepoApi.GetBranchAsync(newBranchName));
                         }
                     }
                 });
@@ -325,7 +325,7 @@ namespace TestGit
 
                             Assert.True(await repo.CreateBranchAsync(newBranchName, "master"));
                             Assert.NotNull(repo.Branches[newBranchName]);
-                            Assert.Null(await repo.OriginApi.GetBranchAsync(newBranchName));
+                            Assert.Null(await repo.OriginRepoApi.GetBranchAsync(newBranchName));
 
                             // Create a test file in the new branch and commit.
 
@@ -367,7 +367,7 @@ namespace TestGit
 
                             Assert.True(await repo.CreateBranchAsync(newBranchName, "master"));
                             Assert.NotNull(repo.Branches[newBranchName]);
-                            Assert.Null(await repo.OriginApi.GetBranchAsync(newBranchName));
+                            Assert.Null(await repo.OriginRepoApi.GetBranchAsync(newBranchName));
 
                             // Create a test file in the new branch and commit.
 
@@ -441,7 +441,7 @@ namespace TestGit
         }
 
         [MaintainerFact]
-        public async Task Remote_CreateRemoveBranch()
+        public async Task GitHub_CreateRemoveBranch()
         {
             // Verify that we can create a local branch (from master), push it to
             // the remote, and then remove it from both local and remote.
@@ -462,26 +462,26 @@ namespace TestGit
 
                             Assert.True(await repo.CreateBranchAsync(newBranchName, "master"));
                             Assert.NotNull(repo.Branches[newBranchName]);
-                            Assert.Null(await repo.OriginApi.GetBranchAsync(newBranchName));
+                            Assert.Null(await repo.OriginRepoApi.GetBranchAsync(newBranchName));
                             Assert.Equal(newBranchName, repo.CurrentBranch.FriendlyName);
 
                             // Push to remote and verify.
 
                             await repo.PushAsync();
                             Assert.NotNull(repo.Branches[newBranchName]);
-                            Assert.NotNull(await repo.OriginApi.GetBranchAsync(newBranchName));
+                            Assert.NotNull(await repo.OriginRepoApi.GetBranchAsync(newBranchName));
 
                             // Switch back to master so we'll be able to delete the branch.
 
                             await repo.CheckoutAsync("master");
                             Assert.Equal("master", repo.CurrentBranch.FriendlyName);
 
-                            // Remove the branch and verify.
+                            // Remove the new branch and verify.
 
                             await repo.RemoveBranchAsync(newBranchName);
 
                             Assert.Null(repo.Branches[newBranchName]);
-                            Assert.Null(await repo.OriginApi.GetBranchAsync(newBranchName));
+                            Assert.Null(await repo.OriginRepoApi.GetBranchAsync(newBranchName));
                             Assert.Equal("master", repo.CurrentBranch.FriendlyName);
                         }
                     }
@@ -489,7 +489,7 @@ namespace TestGit
         }
 
         [MaintainerFact]
-        public async Task Remote_Checkout()
+        public async Task GitHub_Checkout()
         {
             // Verify that we can checkout an existing remote branch to the
             // local repo with the same name (the default) or to a new branch
@@ -552,7 +552,7 @@ namespace TestGit
                         Assert.Throws<ObjectDisposedException>(() => _ = repo.IsDirty);
 
                         Assert.Throws<ObjectDisposedException>(() => _ = repo.OriginRemote);
-                        Assert.Throws<ObjectDisposedException>(() => _ = repo.OriginApi);
+                        Assert.Throws<ObjectDisposedException>(() => _ = repo.OriginRepoApi);
                         Assert.Throws<ObjectDisposedException>(() => _ = repo.OriginRepoPath);
 
                         await Assert.ThrowsAsync<ObjectDisposedException>(async () => await repo.CheckoutAsync("master"));

@@ -44,6 +44,7 @@ using GitHubSignature  = Octokit.Signature;
 using GitBranch     = LibGit2Sharp.Branch;
 using GitRepository = LibGit2Sharp.Repository;
 using GitSignature  = LibGit2Sharp.Signature;
+using Neon.Retry;
 
 namespace Neon.Git
 {
@@ -73,11 +74,11 @@ namespace Neon.Git
     /// that you'll use for subsequent operations.
     /// </para>
     /// <para>
-    /// The <see cref="GitHubOriginRepoApi"/> methods from the <see cref="OriginApi"/> property
+    /// The <see cref="GitHubRepoApi"/> methods from the <see cref="OriginRepoApi"/> property
     /// provide some easy-to-use wrappers over the underlying OctoKit API.
     /// </para>
     /// <para>
-    /// <b>To perform only GitHub account operations</b> Call the static <see cref="ConnectAsync(string, string, string, string, IProfileClient)"/>
+    /// <b>To perform only GitHub account operations</b> Call the static <see cref="ConnectAsync(string, string, string, string, string, IProfileClient)"/>
     /// method to construct an instance without a local repository reference.
     /// </para>
     /// </remarks>
@@ -128,7 +129,7 @@ namespace Neon.Git
                 userAgent = "unknown";
             }
 
-            repo.OriginApi     = new GitHubOriginRepoApi(repo);
+            repo.OriginRepoApi  = new GitHubRepoApi(repo);
             repo.OriginRepoPath = OriginRepoPath.Parse(originRepoPath);
 
             repo.Credentials = GitHubCredentials.Load(
@@ -192,7 +193,7 @@ namespace Neon.Git
             var repo = new GitHubRepo();
 
             repo.LocalRepoFolder = localRepoFolder;
-            repo.OriginApi      = new GitHubOriginRepoApi(repo);
+            repo.OriginRepoApi      = new GitHubRepoApi(repo);
             repo.OriginRepoPath  = OriginRepoPath.Parse(originRepoPath);
 
             if (Directory.Exists(localRepoFolder))
@@ -246,7 +247,7 @@ namespace Neon.Git
         private OriginRepoPath          originRepoPath;
         private string                  localRepoFolder;
         private GitHubRepository        originRepository;
-        private GitHubOriginRepoApi     originApi;
+        private GitHubRepoApi           originRepoApi;
         private GitRepository           localRepository;
         private GitHubCredentials       githubCredentials;
         private GitHubClient            githubServer;
@@ -300,7 +301,7 @@ namespace Neon.Git
             }
 
             this.LocalRepository  = new GitRepository(localRepoFolder);
-            this.OriginApi = new GitHubOriginRepoApi(this);
+            this.OriginRepoApi = new GitHubRepoApi(this);
 
             // We're going to obtain the GitHub path for the repo from the origin's
             // push URL.  This will look something like:
@@ -394,6 +395,7 @@ namespace Neon.Git
             set => originRepoPath = value;
         }
 
+
         /// <summary>
         /// Returns the path to the local repository folder.
         /// </summary>
@@ -467,16 +469,16 @@ namespace Neon.Git
         /// </summary>
         /// <exception cref="ObjectDisposedException">Thrown when the instance is disposed.</exception>
         /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
-        public GitHubOriginRepoApi OriginApi
+        public GitHubRepoApi OriginRepoApi
         {
             get
             {
                 EnsureNotDisposed();
 
-                return originApi;
+                return originRepoApi;
             }
 
-            set => originApi = value;
+            set => originRepoApi = value;
         }
 
         /// <summary>
@@ -611,6 +613,48 @@ namespace Neon.Git
             {
                 return branchName;
             }
+        }
+
+        /// <summary>
+        /// Used to wait for GitHub to complete an operation.
+        /// </summary>
+        /// <param name="asyncPredicate">The async predicate verifying that the operation is complete.</param>
+        /// <returns>The tracking <see cref="Task"/>.</returns>
+        /// <exception cref="TimeoutException">Thrown when the operation didn't complete within the timeout period.</exception>
+        /// <remarks>
+        /// Some GitHub operations don't complete synchronously although it does seem like they complete
+        /// within a few seconds.  We use this method to periodically execute a predicate function that
+        /// returns <c>true</c> when operation completion has been confirmed.
+        /// </remarks>
+        internal async Task WaitForGitHubAsync(Func<Task<bool>> asyncPredicate)
+        {
+            // $hack(jefflill):
+            //
+            // We're going to hardcode this to wait up to 30 seconds, polling the
+            // predicate at one second intervals for 5 seconds and then 5 second
+            // intervals for the remaining 25 seconds.
+
+            for (int i = 0; i < 5; i++)
+            {
+                if (await asyncPredicate())
+                {
+                    return;
+                }
+
+                await Task.Delay(TimeSpan.FromSeconds(1));
+            }
+
+            for (int i = 0; i < 25; i++)
+            {
+                if (await asyncPredicate())
+                {
+                    return;
+                }
+
+                await Task.Delay(TimeSpan.FromSeconds(5));
+            }
+
+            throw new TimeoutException("Timeout waiting for GitHub.");
         }
     }
 }

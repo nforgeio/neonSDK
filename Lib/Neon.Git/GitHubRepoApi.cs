@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:	    GitHubOriginApi.cs
+// FILE:	    GitHubRepoApi.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
@@ -50,7 +50,7 @@ namespace Neon.Git
     /// <summary>
     /// Implements extended GitHub server API methods.
     /// </summary>
-    public partial class GitHubOriginRepoApi
+    public partial class GitHubRepoApi
     {
         private GitHubRepo  repo;
 
@@ -58,7 +58,7 @@ namespace Neon.Git
         /// Internal conbstructor.
         /// </summary>
         /// <param name="repo">The parent <see cref="GitHubRepo"/>.</param>
-        internal GitHubOriginRepoApi(GitHubRepo repo)
+        internal GitHubRepoApi(GitHubRepo repo)
         {
             Covenant.Requires<ArgumentNullException>(repo != null, nameof(repo));
 

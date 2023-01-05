@@ -183,6 +183,14 @@ namespace Neon.Git
 
             LocalRepository.Network.Push(currentBranch, CreatePushOptions());
 
+            await WaitForGitHubAsync(
+                async () =>
+                {
+                    var serverBranchUpdate = await OriginRepoApi.GetBranchAsync(currentBranch.FriendlyName);
+
+                    return serverBranchUpdate.Commit.Sha == currentBranch.Tip.Sha;
+                });
+
             return await Task.FromResult(true);
         }
 

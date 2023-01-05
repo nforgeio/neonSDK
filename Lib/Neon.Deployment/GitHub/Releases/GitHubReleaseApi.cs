@@ -89,9 +89,6 @@ namespace Neon.Deployment
             var tags     = client.Repository.GetAllTags(repoPath.Owner, repoPath.Repo).Result;
             var tag      = tags.SingleOrDefault(tag => tag.Name == tagName);
 
-            // Tag the specified or default branch when the tag doesn't already exist.
-            // Note that we may need to 
-
             if (tag == null)
             {
                 if (string.IsNullOrEmpty(branch))
@@ -121,7 +118,7 @@ namespace Neon.Deployment
                         Object  = "",
                     };
 
-                    client.Git.Tag.Create(repoPath.Owner, repoPath.Repo, newTag);
+                    client.Git.Tag.Create(repoPath.Owner, repoPath.Repo, newTag).Wait();
                 }
             }
 
