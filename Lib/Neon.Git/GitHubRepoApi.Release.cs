@@ -30,7 +30,10 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Neon.Common;
+using Neon.Cryptography;
 using Neon.Deployment;
+using Neon.IO;
+using Neon.Net;
 
 using LibGit2Sharp;
 using LibGit2Sharp.Handlers;
@@ -117,7 +120,62 @@ namespace Neon.Git
         }
 
         /// <summary>
-        /// Removes a GitHub release if it exists,
+        /// Returns the latest version of a release.
+        /// </summary>
+        /// <param name="release">The release being refreshed.</param>
+        /// <returns>The updated release.</returns>
+        /// <exception cref="InvalidOperationException">Thrown when the relase no longer exists.</exception>
+        public async Task<Release> RefreshReleaseAsync(Release release)
+        {
+            Covenant.Requires<ArgumentNullException>(release != null, nameof(release));
+            repo.EnsureNotDisposed();
+
+            var update = await GetReleaseAsync(release.Name);
+
+            if (update == null)
+            {
+                throw new InvalidOperationException($"Release [{release.Name}] no longer exists.");
+            }
+
+            return update;
+        }
+
+        /// <summary>
+        /// Updates an existing GitHub release.
+        /// </summary>
+        /// <param name="release">Specifies the release being changed.</param>
+        /// <param name="releaseUpdate">Specifies the release revisions.</param>
+        /// <returns>The updated release.</returns>
+        /// <remarks>
+        /// <para>
+        /// To update a release, you'll first need to:
+        /// </para>
+        /// <list type="number">
+        /// <item>
+        /// Create a new release or get and existing one.
+        /// </item>
+        /// <item>
+        /// Obtain a <see cref="ReleaseUpdate"/> by calling <see cref="Release.ToUpdate"/>.
+        /// </item>
+        /// <item>
+        /// Make your changes to the release update.
+        /// </item>
+        /// <item>
+        /// Call <see cref="UpdateReleaseAsync(Release, ReleaseUpdate)"/>, passing the 
+        /// original release along with the update.
+        /// </item>
+        /// </list>
+        /// </remarks>
+        public async Task<Release> UpdateReleaseAsync(Release release, ReleaseUpdate releaseUpdate)
+        {
+            Covenant.Requires<ArgumentNullException>(release != null, nameof(release));
+            Covenant.Requires<ArgumentNullException>(releaseUpdate != null, nameof(releaseUpdate));
+
+            return await repo.GitHubServer.Repository.Release.Edit(repo.OriginRepoPath.Owner, repo.OriginRepoPath.Name, release.Id, releaseUpdate);
+        }
+
+        /// <summary>
+        /// Removes a GitHub release if it exists.
         /// </summary>
         /// <param name="releaseName">Specifies the release name.</param>
         /// <returns><c>true</c> when the release existed and was removed, <c>false</c> otherwise.</returns>
@@ -136,6 +194,260 @@ namespace Neon.Git
             await repo.GitHubServer.Repository.Release.Delete(repo.OriginRepoPath.Owner, repo.OriginRepoPath.Name, release.Id);
 
             return true;
+        }
+
+        /// <summary>
+        /// <para>
+        /// Uploads an asset file to a GitHub release.  Any existing asset with same name will be replaced.
+        /// </para>
+        /// <note>
+        /// This only works for unpublished releases where <c>Draft=true</c>.
+        /// </note>
+        /// </summary>
+        /// <param name="release">The target release.</param>
+        /// <param name="assetPath">Path to the source asset file.</param>
+        /// <param name="assetName">Optionally specifies the file name to assign to the asset.  This defaults to the file name in <paramref name="assetPath"/>.</param>
+        /// <param name="contentType">Optionally specifies the asset's <b>Content-Type</b>.  This defaults to: <b> application/octet-stream</b></param>
+        /// <returns>The new <see cref="ReleaseAsset"/>.</returns>
+        /// <exception cref="NotSupportedException">Thrown when the releas has already been published.</exception>
+        public async Task<ReleaseAsset> AddReleaseAssetAsync(Release release, string assetPath, string assetName = null, string contentType = "application/octet-stream")
+        {
+            Covenant.Requires<ArgumentNullException>(release != null, nameof(release));
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(assetPath), nameof(assetPath));
+
+            using (var stream = File.OpenRead(assetPath))
+            {
+                return await AddReleaseAssetAsync(release, stream, assetName, contentType);
+            }
+        }
+
+        /// <summary>
+        /// <para>
+        /// Uploads an asset stream to a GitHub release.  Any existing asset with same name will be replaced.
+        /// </para>
+        /// <note>
+        /// This only works for unpublished releases where <c>Draft=true</c>.
+        /// </note>
+        /// </summary>
+        /// <param name="release">The target release.</param>
+        /// <param name="stream">The asset source stream.</param>
+        /// <param name="assetName">Specifies the file name to assign to the asset.</param>
+        /// <param name="contentType">Optionally specifies the asset's <b>Content-Type</b>.  This defaults to: <b> application/octet-stream</b></param>
+        /// <returns>The new <see cref="ReleaseAsset"/>.</returns>
+        public async Task<ReleaseAsset> AddReleaseAssetAsync(Release release, Stream stream, string assetName, string contentType = "application/octet-stream")
+        {
+            Covenant.Requires<ArgumentNullException>(release != null, nameof(release));
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(assetName), nameof(assetName));
+            Covenant.Requires<ArgumentNullException>(stream != null, nameof(stream));
+
+            var releaseName = release.Name;
+
+            var upload = new ReleaseAssetUpload()
+            {
+                FileName    = assetName,
+                ContentType = contentType,
+                RawData     = stream
+            };
+
+            var newAsset = await repo.GitHubServer.Repository.Release.UploadAsset(release, upload);
+
+            // GitHub doesn't appear to upload assets synchronously, so we're going
+            // to wait for the new asset to show up.
+
+            await repo.WaitForGitHubAsync(
+                async () =>
+                {
+                    var release = await repo.OriginRepoApi.GetReleaseAsync(releaseName);
+
+                    return release.Assets.Any(asset => asset.Id == newAsset.Id && newAsset.State == "uploaded");
+                });
+
+            return newAsset;
+        }
+
+        /// <summary>
+        /// <para>
+        /// Returns the URI that can be used to download a GitHub release asset.
+        /// </para>
+        /// <note>
+        /// This works only for published releases.
+        /// </note>
+        /// </summary>
+        /// <param name="release">The target release.</param>
+        /// <param name="asset">The target asset.</param>
+        /// <returns>The asset URI.</returns>
+        /// <exception cref="InvalidOperationException">Thrown when the asset passed doesn't exist in the release.</exception>
+        public string GetAssetUri(Release release, ReleaseAsset asset)
+        {
+            Covenant.Requires<ArgumentNullException>(release != null, nameof(release));
+            Covenant.Requires<ArgumentNullException>(asset != null, nameof(asset));
+
+            var releasedAsset = release.Assets.SingleOrDefault(a => a.Id == asset.Id);
+
+            if (releasedAsset == null)
+            {
+                throw new InvalidOperationException($"Asset [id={asset.Id}] is not present in release [id={release.Id}].");
+            }
+
+            return releasedAsset.BrowserDownloadUrl;
+        }
+
+        /// <summary>
+        /// Publishes a release.
+        /// </summary>
+        /// <param name="releaseName">Specifies the release name.</param>
+        /// <returns>The published release.</returns>
+        /// <exception cref="InvalidOperationException">Thrown if the release doesn't exist or when it's already published.</exception>
+        public async Task<Release> PublishReleaseAsync(string releaseName)
+        {
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(releaseName), nameof(releaseName));
+
+            var release = await GetReleaseAsync(releaseName);
+
+            if (release == null)
+            {
+                throw new InvalidOperationException($"Release [{releaseName}] does not exist.");
+            }
+
+            if (!release.Draft)
+            {
+                throw new InvalidOperationException($"Release [{releaseName}] has already been published.");
+            }
+
+            var update = release.ToUpdate();
+
+            update.Draft = false;
+
+            await repo.OriginRepoApi.UpdateReleaseAsync(release, update);
+
+            // GitHub doesn't appear to publish releases synchronously, so we're going
+            // to wait for the new release to show up.
+
+            await repo.WaitForGitHubAsync(
+                async () =>
+                {
+                    release = await repo.OriginRepoApi.GetReleaseAsync(releaseName);
+
+                    return release != null && !release.Draft;
+                });
+
+            return release;
+        }
+
+        /// <summary>
+        /// Uploads a multi-part download to a release as an asset and then publishes the release.
+        /// </summary>
+        /// <param name="release">The target release.</param>
+        /// <param name="sourcePath">Path to the file being uploaded.</param>
+        /// <param name="version">The download version.</param>
+        /// <param name="name">Optionally overrides the download file name specified by <paramref name="sourcePath"/> to initialize <see cref="DownloadManifest.Name"/>.</param>
+        /// <param name="filename">Optionally overrides the download file name specified by <paramref name="sourcePath"/> to initialize <see cref="DownloadManifest.Filename"/>.</param>
+        /// <param name="noMd5File">
+        /// This method creates a file named [<paramref name="sourcePath"/>.md5] with the MD5 hash for the entire
+        /// uploaded file by default.  You may override this behavior by passing <paramref name="noMd5File"/>=<c>true</c>.
+        /// </param>
+        /// <param name="maxPartSize">Optionally overrides the maximum part size (defaults to 75 MiB).</param>d
+        /// <returns>The <see cref="DownloadManifest"/>.</returns>
+        /// <remarks>
+        /// <para>
+        /// The release passed must be unpublished and you may upload other assets before calling this.
+        /// </para>
+        /// <note>
+        /// Take care that any assets already published have names that won't conflict with the asset
+        /// part names, which will be formatted like: <b>part-##</b>
+        /// </note>
+        /// </remarks>
+        public async Task<DownloadManifest> AddMultipartReleaseAssetAsync(
+            Release     release, 
+            string      sourcePath, 
+            string      version, 
+            string      name        = null,
+            string      filename    = null,
+            bool        noMd5File   = false,
+            long        maxPartSize = (long)(75 * ByteUnits.MebiBytes))
+        {
+            Covenant.Requires<ArgumentNullException>(release != null, nameof(release));
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(sourcePath), nameof(sourcePath));
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(version), nameof(version));
+
+            name     = name ?? Path.GetFileName(sourcePath);
+            filename = filename ?? Path.GetFileName(sourcePath);
+
+            using (var input = File.OpenRead(sourcePath))
+            {
+                if (input.Length == 0)
+                {
+                    throw new IOException($"Asset at [{sourcePath}] cannot be empty.");
+                }
+
+                var assetPartMap = new List<Tuple<ReleaseAsset, DownloadPart>>();
+                var manifest     = new DownloadManifest() { Name = name, Version = version, Filename = filename };
+                var partCount    = NeonHelper.PartitionCount(input.Length, maxPartSize);
+                var partNumber   = 0;
+                var partStart    = 0L;
+                var cbRemaining  = input.Length;
+
+                manifest.Md5   = CryptoHelper.ComputeMD5String(input);
+                input.Position = 0;
+
+                while (cbRemaining > 0)
+                {
+                    var partSize = Math.Min(cbRemaining, maxPartSize);
+                    var part     = new DownloadPart()
+                    {
+                        Number = partNumber,
+                        Size   = partSize,
+                    };
+
+                    // We're going to use a substream to compute the MD5 hash for the part
+                    // as well as to actually upload the part to the GitHub release.
+
+                    using (var partStream = new SubStream(input, partStart, partSize))
+                    {
+                        part.Md5            = CryptoHelper.ComputeMD5String(partStream);
+                        partStream.Position = 0;
+
+                        var asset = await AddReleaseAssetAsync(release, partStream, $"part-{partNumber:0#}");
+
+                        assetPartMap.Add(new Tuple<ReleaseAsset, DownloadPart>(asset, part));
+                    }
+
+                    manifest.Parts.Add(part);
+
+                    // Loop to handle the next part (if any).
+
+                    partNumber++;
+                    partStart   += partSize;
+                    cbRemaining -= partSize;
+                }
+
+                manifest.Size = manifest.Parts.Sum(part => part.Size);
+
+                // Publish the release.
+
+                var releaseUpdate = release.ToUpdate();
+
+                releaseUpdate.Draft = false;
+
+                release = await UpdateReleaseAsync(release, releaseUpdate);
+
+                // Now that the release has been published, we can go back and fill in
+                // the asset URIs for each of the download parts.
+
+                foreach (var item in assetPartMap)
+                {
+                    item.Item2.Uri = GitHub.Releases.GetAssetUri(release, item.Item1);
+                }
+
+                // Write the MD5 file unless disabled.
+
+                if (!noMd5File)
+                {
+                    File.WriteAllText($"{sourcePath}.md5", manifest.Md5);
+                }
+
+                return manifest;
+            }
         }
     }
 }
