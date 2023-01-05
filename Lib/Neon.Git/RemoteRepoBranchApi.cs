@@ -75,7 +75,7 @@ namespace Neon.Git
             root.EnsureNotDisposed();
             root.EnsureLocalRepo();
 
-            return await root.GitHubApi.Repository.Branch.GetAll(root.OriginRepoPath.Owner, root.OriginRepoPath.Name);
+            return await root.GitHubApi.Repository.Branch.GetAll(root.RemoteRepoPath.Owner, root.RemoteRepoPath.Name);
         }
 
         /// <summary>
@@ -119,7 +119,7 @@ namespace Neon.Git
             //
             //      https://github.com/orgs/community/discussions/24603
 
-            var uri = $"/repos/{root.OriginRepoPath.Owner}/{root.OriginRepoPath.Name}/git/heads/{branchName}";
+            var uri = $"/repos/{root.RemoteRepoPath.Owner}/{root.RemoteRepoPath.Name}/git/heads/{branchName}";
 
             NetHelper.EnsureSuccess(await root.GitHubApi.Connection.Delete(new Uri(uri)));
 

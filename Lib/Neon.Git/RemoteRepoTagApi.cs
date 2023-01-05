@@ -76,7 +76,7 @@ namespace Neon.Git
             root.EnsureNotDisposed();
             root.EnsureLocalRepo();
 
-            return await root.GitHubApi.Repository.GetAllTags(root.OriginRepoPath.Owner, root.OriginRepoPath.Name);
+            return await root.GitHubApi.Repository.GetAllTags(root.RemoteRepoPath.Owner, root.RemoteRepoPath.Name);
         }
 
         /// <summary>
@@ -120,7 +120,7 @@ namespace Neon.Git
             //
             //      https://stackoverflow.com/questions/7247414/delete-a-tag-with-github-v3-api
 
-            var uri = $"/repos/{root.OriginRepoPath.Owner}/{root.OriginRepoPath.Name}/git/refs/tags/{tagName}";
+            var uri = $"/repos/{root.RemoteRepoPath.Owner}/{root.RemoteRepoPath.Name}/git/refs/tags/{tagName}";
 
             NetHelper.EnsureSuccess(await root.GitHubApi.Connection.Delete(new Uri(uri)));
 

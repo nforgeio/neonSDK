@@ -89,7 +89,7 @@ namespace Neon.Git
                 Body       = body
             };
 
-            var newRelease = await root.GitHubApi.Repository.Release.Create(root.OriginRepoPath.Owner, root.OriginRepoPath.Name, release);
+            var newRelease = await root.GitHubApi.Repository.Release.Create(root.RemoteRepoPath.Owner, root.RemoteRepoPath.Name, release);
 
             // GitHub doesn't appear to create releases synchronously, so we're going
             // to wait for the new release to show up.
@@ -114,7 +114,7 @@ namespace Neon.Git
         {
             root.EnsureNotDisposed();
 
-            return await root.GitHubApi.Repository.Release.GetAll(root.OriginRepoPath.Owner, root.OriginRepoPath.Name);
+            return await root.GitHubApi.Repository.Release.GetAll(root.RemoteRepoPath.Owner, root.RemoteRepoPath.Name);
         }
 
         /// <summary>
@@ -185,7 +185,7 @@ namespace Neon.Git
             Covenant.Requires<ArgumentNullException>(release != null, nameof(release));
             Covenant.Requires<ArgumentNullException>(releaseUpdate != null, nameof(releaseUpdate));
 
-            return await root.GitHubApi.Repository.Release.Edit(root.OriginRepoPath.Owner, root.OriginRepoPath.Name, release.Id, releaseUpdate);
+            return await root.GitHubApi.Repository.Release.Edit(root.RemoteRepoPath.Owner, root.RemoteRepoPath.Name, release.Id, releaseUpdate);
         }
 
         /// <summary>
@@ -205,7 +205,7 @@ namespace Neon.Git
                 return false;
             }
 
-            await root.GitHubApi.Repository.Release.Delete(root.OriginRepoPath.Owner, root.OriginRepoPath.Name, release.Id);
+            await root.GitHubApi.Repository.Release.Delete(root.RemoteRepoPath.Owner, root.RemoteRepoPath.Name, release.Id);
 
             return true;
         }

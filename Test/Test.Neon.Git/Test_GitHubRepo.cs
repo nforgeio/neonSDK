@@ -59,7 +59,7 @@ namespace TestGit
 
                         using (var repo = await GitHubRepo.CloneAsync(GitTestHelper.RemoteTestRepo, tempFolder.Path))
                         {
-                            Assert.Equal(GitTestHelper.RemoteTestRepo, repo.OriginRepoPath.ToString());
+                            Assert.Equal(GitTestHelper.RemoteTestRepo, repo.RemoteRepoPath.ToString());
                             Assert.Equal("master", repo.Local.CurrentBranch.FriendlyName);
                             Assert.True(File.Exists(Path.Combine(repoPath, ".gitignore")));
                         }
@@ -85,7 +85,7 @@ namespace TestGit
 
                         using (var repo = await GitHubRepo.CloneAsync(GitTestHelper.RemoteTestRepo, tempFolder.Path))
                         {
-                            Assert.Equal(GitTestHelper.RemoteTestRepo, repo.OriginRepoPath.ToString());
+                            Assert.Equal(GitTestHelper.RemoteTestRepo, repo.RemoteRepoPath.ToString());
                             Assert.Equal("master", repo.Local.CurrentBranch.FriendlyName);
                             Assert.True(File.Exists(Path.Combine(repoPath, ".gitignore")));
                         }
@@ -96,7 +96,7 @@ namespace TestGit
                         {
                             Assert.Equal("master", repo.Local.CurrentBranch.FriendlyName);
                             Assert.True(File.Exists(Path.Combine(repoPath, ".gitignore")));
-                            Assert.Equal(RemoteRepoPath.Parse(GitTestHelper.RemoteTestRepo).ToString(), repo.OriginRepoPath.ToString());
+                            Assert.Equal(RemoteRepoPath.Parse(GitTestHelper.RemoteTestRepo).ToString(), repo.RemoteRepoPath.ToString());
                         }
                     }
 
@@ -249,7 +249,7 @@ namespace TestGit
         }
 
         [MaintainerFact]
-        public async Task GitHub_GetBranches()
+        public async Task Remote_GetBranches()
         {
             // Verify that we can list remote branches.
 
@@ -443,7 +443,7 @@ namespace TestGit
         }
 
         [MaintainerFact]
-        public async Task GitHub_CreateRemoveBranch()
+        public async Task Remote_CreateRemoveBranch()
         {
             // Verify that we can create a local branch (from master), push it to
             // the remote, and then remove it from both local and remote.
@@ -491,7 +491,7 @@ namespace TestGit
         }
 
         [MaintainerFact]
-        public async Task GitHub_Checkout()
+        public async Task Remote_Checkout()
         {
             // Verify that we can checkout an existing remote branch to the
             // local repo with the same name (the default) or to a new branch
@@ -554,7 +554,7 @@ namespace TestGit
 
                         Assert.Throws<ObjectDisposedException>(() => _ = repo.Remote);
                         Assert.Throws<ObjectDisposedException>(() => _ = repo.RemoteRepository);
-                        Assert.Throws<ObjectDisposedException>(() => _ = repo.OriginRepoPath);
+                        Assert.Throws<ObjectDisposedException>(() => _ = repo.RemoteRepoPath);
 
                         await Assert.ThrowsAsync<ObjectDisposedException>(async () => await repo.Local.CheckoutAsync("master"));
                         await Assert.ThrowsAsync<ObjectDisposedException>(async () => await repo.Local.CheckoutOriginAsync("master"));

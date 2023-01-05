@@ -52,7 +52,7 @@ namespace Neon.Git
     /// <summary>
     /// <para>
     /// Wraps a <see cref="GitHubClient"/> and <see cref="GitRepository"/> into a single object that provides
-    /// easy to use high-level methods while also including properties for the GitHub server, origin GitHub
+    /// easy to use high-level methods while also including properties for the GitHub server, remote GitHub
     /// repository, as well as the local git repository,
     /// </para>
     /// <note>
@@ -102,7 +102,7 @@ namespace Neon.Git
         /// but is not associated with a local git repository.  This is useful when you only
         /// need to perform GitHub operations.
         /// </summary>
-        /// <param name="originRepoPath">Specifies the GitHub origin repository path, like: <b>[SERVER/]OWNER/REPO</b></param>
+        /// <param name="remoteRepoPath">Specifies the GitHub remote repository path, like: <b>[SERVER/]OWNER/REPO</b></param>
         /// <param name="username">Optionally specifies the GitHub username.</param>
         /// <param name="accessToken">Optionally specifies the GitHub Personal Access Token (PAT).</param>
         /// <param name="email">Optionally specifies the GitHub email address for the current user.</param>
@@ -123,14 +123,14 @@ namespace Neon.Git
         /// </note>
         /// </remarks>
         public static async Task<GitHubRepo> ConnectAsync(
-            string          originRepoPath,
+            string          remoteRepoPath,
             string          username      = null, 
             string          accessToken   = null, 
             string          email         = null, 
             string          userAgent     = null,
             IProfileClient  profileClient = null)
         {
-            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(originRepoPath), nameof(originRepoPath));
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(remoteRepoPath), nameof(remoteRepoPath));
 
             var repo = new GitHubRepo();
 
@@ -139,9 +139,9 @@ namespace Neon.Git
                 userAgent = "unknown";
             }
 
-            repo.Local  = new LocalRepoApi(repo);
+            repo.Local            = new LocalRepoApi(repo);
             repo.RemoteRepository = new RemoteRepoApi(repo);
-            repo.OriginRepoPath   = RemoteRepoPath.Parse(originRepoPath);
+            repo.RemoteRepoPath   = RemoteRepoPath.Parse(remoteRepoPath);
 
             repo.Credentials = GitHubCredentials.Load(
                 username:      username,
@@ -170,11 +170,11 @@ namespace Neon.Git
         /// <summary>
         /// Clones a GitHub repository to a local folder.
         /// </summary>
-        /// <param name="originRepoPath">Specifies the GitHub origin repository path, like: <b>[SERVER/]OWNER/REPO</b></param>
+        /// <param name="remoteRepoPath">Specifies the GitHub remote repository path, like: <b>[SERVER/]OWNER/REPO</b></param>
         /// <param name="localRepoFolder">Specifies the folder where the local git repository will be created or where it already exists.</param>
         /// <param name="branchName">
         /// Optionally specifies the branch to be checked out after the clone operation completes.
-        /// This defaults to the GitHub origin repository's default branch (typically <b>main</b> or <b>master</b>).
+        /// This defaults to the GitHub remote repository's default branch (typically <b>main</b> or <b>master</b>).
         /// </param>
         /// <param name="username">Optionally specifies the GitHub username.</param>
         /// <param name="accessToken">Optionally specifies the GitHub Personal Access Token (PAT).</param>
@@ -191,7 +191,7 @@ namespace Neon.Git
         /// <returns>The new <see cref="GitHubRepo"/> instance.</returns>
         /// <exception cref="LibGit2SharpException">Thrown when the local folder already exists.</exception>
         public static async Task<GitHubRepo> CloneAsync(
-            string          originRepoPath, 
+            string          remoteRepoPath, 
             string          localRepoFolder,
             string          branchName    = null,
             string          username      = null, 
@@ -200,15 +200,15 @@ namespace Neon.Git
             string          userAgent     = null,
             IProfileClient  profileClient = null)
         {
-            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(originRepoPath), nameof(originRepoPath));
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(remoteRepoPath), nameof(remoteRepoPath));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(localRepoFolder), nameof(localRepoFolder));
 
             var repo = new GitHubRepo();
 
             repo.LocalRepoFolder  = localRepoFolder;
-            repo.Local  = new LocalRepoApi(repo);
+            repo.Local            = new LocalRepoApi(repo);
             repo.RemoteRepository = new RemoteRepoApi(repo);
-            repo.OriginRepoPath   = RemoteRepoPath.Parse(originRepoPath);
+            repo.RemoteRepoPath   = RemoteRepoPath.Parse(remoteRepoPath);
 
             if (Directory.Exists(localRepoFolder))
             {
@@ -241,10 +241,10 @@ namespace Neon.Git
                         Password = repo.Credentials.AccessToken
                     });
 
-            var originRepo = $"https://{repo.originRepoPath}";
+            var remoteRepo = $"https://{repo.remoteRepoPath}";
             var options    = new CloneOptions() { BranchName = branchName };
 
-            GitRepository.Clone(originRepo, repo.localRepoFolder, options);
+            GitRepository.Clone(remoteRepo, repo.localRepoFolder, options);
 
             repo.GitApi = new GitRepository(repo.localRepoFolder);
 
@@ -258,8 +258,8 @@ namespace Neon.Git
 
         private bool                    isDisposed = false;
         private CredentialsHandler      credentialsProvider;
-        private Remote                  cachedOrigin;
-        private RemoteRepoPath          originRepoPath;
+        private Remote                  cachedRemote;
+        private RemoteRepoPath          remoteRepoPath;
         private string                  localRepoFolder;
         private LocalRepoApi            localRepoApi;
         private RemoteRepoApi           remoteRepoApi;
@@ -278,7 +278,7 @@ namespace Neon.Git
         /// <summary>
         /// <para>
         /// Constructs a <see cref="GitHubRepo"/> that references an existing local git repository as well as
-        /// the associated GitHub origin repository API.
+        /// the associated GitHub remote repository API.
         /// </para>
         /// <para>
         /// This requires GitHub credentials.  These can be passed explicitly as parameters or can be retrieved 
@@ -316,8 +316,8 @@ namespace Neon.Git
                 throw new RepositoryNotFoundException($"The local repo [{localRepoFolder}] folder does not exist.");
             }
 
-            this.GitApi            = new GitRepository(localRepoFolder);
-            this.Local  = new LocalRepoApi(this);
+            this.GitApi           = new GitRepository(localRepoFolder);
+            this.Local            = new LocalRepoApi(this);
             this.RemoteRepository = new RemoteRepoApi(this);
 
             // We're going to obtain the GitHub path for the repo from the origin's
@@ -328,9 +328,9 @@ namespace Neon.Git
             // We'll just strip off the scheme and and what remains is the path.
 
             var pushUrl        = new Uri(Remote.PushUrl);
-            var originRepoPath = $"{pushUrl.Host}{pushUrl.AbsolutePath}";
+            var remoteRepoPath = $"{pushUrl.Host}{pushUrl.AbsolutePath}";
 
-            this.OriginRepoPath  = RemoteRepoPath.Parse(originRepoPath);
+            this.RemoteRepoPath  = RemoteRepoPath.Parse(remoteRepoPath);
             this.LocalRepoFolder = localRepoFolder;
 
             if (string.IsNullOrEmpty(userAgent))
@@ -404,20 +404,20 @@ namespace Neon.Git
         }
 
         /// <summary>
-        /// Returns the path to the GitHub origin repository.
+        /// Returns the path to the GitHub remote repository.
         /// </summary>
         /// <exception cref="ObjectDisposedException">Thrown when the instance is disposed.</exception>
         /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
-        public RemoteRepoPath OriginRepoPath
+        public RemoteRepoPath RemoteRepoPath
         {
             get
             {
                 EnsureNotDisposed();
 
-                return originRepoPath;
+                return remoteRepoPath;
             }
 
-            set => originRepoPath = value;
+            set => remoteRepoPath = value;
         }
 
 
@@ -514,7 +514,7 @@ namespace Neon.Git
         }
 
         /// <summary>
-        /// Returns the friendly API methods used to manage the GitHub origin repository.
+        /// Returns the friendly API methods used to manage the remote GitHub repository.
         /// </summary>
         /// <exception cref="ObjectDisposedException">Thrown when the instance is disposed.</exception>
         /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
@@ -531,11 +531,11 @@ namespace Neon.Git
         }
 
         /// <summary>
-        /// Returns the repository's remote origin.
+        /// Returns the repository's remote GitHub remote origin.
         /// </summary>
         /// <exception cref="ObjectDisposedException">Thrown when the instance is disposed.</exception>
         /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
-        /// <exception cref="LibGit2SharpException">Thrown if the repository doesn't have an origin.</exception>
+        /// <exception cref="LibGit2SharpException">Thrown if the repository doesn't have a remote origin.</exception>
         public Remote Remote
         {
             get
@@ -543,19 +543,19 @@ namespace Neon.Git
                 EnsureNotDisposed();
                 EnsureLocalRepo();
 
-                if (cachedOrigin != null)
+                if (cachedRemote != null)
                 {
-                    return cachedOrigin;
+                    return cachedRemote;
                 }
 
-                cachedOrigin = GitApi.Network.Remotes["origin"];
+                cachedRemote = GitApi.Network.Remotes["origin"];
 
-                if (cachedOrigin == null)
+                if (cachedRemote == null)
                 {
-                    throw new LibGit2SharpException($"Local git repository [{LocalRepoFolder}] has no associated origin repository.");
+                    throw new LibGit2SharpException($"Local git repository [{LocalRepoFolder}] has no associated remote origin repository.");
                 }
 
-                return cachedOrigin;
+                return cachedRemote;
             }
         }
 

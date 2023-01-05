@@ -74,7 +74,7 @@ namespace Neon.Git
         /// <returns>The associated <see cref="GitHubRepository"/>.</returns>
         public async Task<GitHubRepository> GetAsync()
         {
-            return await root.GitHubApi.Repository.Get(root.OriginRepoPath.Owner, root.OriginRepoPath.Name);
+            return await root.GitHubApi.Repository.Get(root.RemoteRepoPath.Owner, root.RemoteRepoPath.Name);
         }
 
         /// <summary>

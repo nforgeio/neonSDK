@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:        Test_GitHubReleasey.cs
+// FILE:        Test_GitHubRepoReleases.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
@@ -44,9 +44,9 @@ namespace TestGit
     [Trait(TestTrait.Category, TestArea.NeonGit)]
     [Collection(TestCollection.NonParallel)]
     [CollectionDefinition(TestCollection.NonParallel, DisableParallelization = true)]
-    public class Test_GitHubRelease
+    public class Test_GitHubRepoReleases
     {
-        public Test_GitHubRelease()
+        public Test_GitHubRepoReleases()
         {
             GitTestHelper.EnsureMaintainer();
         }
