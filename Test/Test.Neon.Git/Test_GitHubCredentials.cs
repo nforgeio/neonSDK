@@ -37,6 +37,8 @@ using Xunit;
 namespace TestGit
 {
     [Trait(TestTrait.Category, TestArea.NeonGit)]
+    [Collection(TestCollection.NonParallel)]
+    [CollectionDefinition(TestCollection.NonParallel, DisableParallelization = true)]
     public class Test_GitHubCredentials
     {
         private string saveUsername;

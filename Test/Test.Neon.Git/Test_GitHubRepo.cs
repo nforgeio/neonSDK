@@ -36,6 +36,8 @@ using Xunit;
 namespace TestGit
 {
     [Trait(TestTrait.Category, TestArea.NeonGit)]
+    [Collection(TestCollection.NonParallel)]
+    [CollectionDefinition(TestCollection.NonParallel, DisableParallelization = true)]
     public class Test_GitHubRepo
     {
         public Test_GitHubRepo()

@@ -41,6 +41,8 @@ using Release = Octokit.Release;
 namespace TestGit
 {
     [Trait(TestTrait.Category, TestArea.NeonGit)]
+    [Collection(TestCollection.NonParallel)]
+    [CollectionDefinition(TestCollection.NonParallel, DisableParallelization = true)]
     public class Test_GitHubRelease
     {
         public Test_GitHubRelease()
