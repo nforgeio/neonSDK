@@ -1231,7 +1231,7 @@ namespace Neon.Net
         /// Ensures that the status code passed indicates an HTTP request completed successfully.
         /// </para>
         /// <note>
-        /// Status codes less than 400 are considered to indicate success.
+        /// Status codes between 400-499 are considered to indicate success.
         /// </note>
         /// </summary>
         /// <param name="statusCode">Specifies the status code.</param>
@@ -1240,7 +1240,7 @@ namespace Neon.Net
         /// <exception cref="HttpException">Thrown for non-success status codes.</exception>
         public static HttpStatusCode EnsureSuccess(HttpStatusCode statusCode,string reasonPhrase = null)
         {
-            if ((int)statusCode < 400)
+            if (400 <= (int)statusCode && (int)statusCode <= 499)
             {
                 return statusCode;
             }
