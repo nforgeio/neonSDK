@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:	    EasyRepoApi.cs
+// FILE:	    RemoteRepoApi.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
@@ -50,7 +50,7 @@ namespace Neon.Git
     /// <summary>
     /// Implements extended GitHub server API methods.
     /// </summary>
-    public partial class EasyRepoApi
+    public partial class RemoteRepoApi
     {
         private GitHubRepo  repo;
 
@@ -58,13 +58,13 @@ namespace Neon.Git
         /// Internal constructor.
         /// </summary>
         /// <param name="repo">The parent <see cref="GitHubRepo"/>.</param>
-        internal EasyRepoApi(GitHubRepo repo)
+        internal RemoteRepoApi(GitHubRepo repo)
         {
             Covenant.Requires<ArgumentNullException>(repo != null, nameof(repo));
 
             this.repo    = repo;
-            this.Branch  = new EasyRepoBranchApi(repo);
-            this.Release = new EasyRepoReleaseApi(repo);
+            this.Branch  = new RemoteRepoBranchApi(repo);
+            this.Release = new RemoteRepoReleaseApi(repo);
         }
 
         /// <summary>
@@ -80,11 +80,11 @@ namespace Neon.Git
         /// <summary>
         /// Returns the friendly GitHub branch related APIs.
         /// </summary>
-        public EasyRepoBranchApi Branch { get; private set; }
+        public RemoteRepoBranchApi Branch { get; private set; }
 
         /// <summary>
         /// Returns the friendly GitHub release related APIs.
         /// </summary>
-        public EasyRepoReleaseApi Release { get; private set; }
+        public RemoteRepoReleaseApi Release { get; private set; }
     }
 }

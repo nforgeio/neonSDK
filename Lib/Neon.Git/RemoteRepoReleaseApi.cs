@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:	    EasyRepoReleaseApi.cs
+// FILE:	    RemoteRepoReleaseApi.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
@@ -53,7 +53,7 @@ namespace Neon.Git
     /// <summary>
     /// Implements the friendly GitHub repository release related APIS.
     /// </summary>
-    public class EasyRepoReleaseApi
+    public class RemoteRepoReleaseApi
     {
         private GitHubRepo  repo;
 
@@ -61,7 +61,7 @@ namespace Neon.Git
         /// Internal constructor.
         /// </summary>
         /// <param name="repo">The parent <see cref="GitHubRepo"/>.</param>
-        internal EasyRepoReleaseApi(GitHubRepo repo)
+        internal RemoteRepoReleaseApi(GitHubRepo repo)
         {
             this.repo = repo;
         }
@@ -97,7 +97,7 @@ namespace Neon.Git
             await repo.WaitForGitHubAsync(
                 async () =>
                 {
-                    return await repo.Repository.Release.GetAsync(releaseName) != null;
+                    return await repo.RemoteRepository.Release.GetAsync(releaseName) != null;
                 });
 
             return newRelease;
@@ -271,7 +271,7 @@ namespace Neon.Git
             await repo.WaitForGitHubAsync(
                 async () =>
                 {
-                    var release = await repo.Repository.Release.GetAsync(releaseName);
+                    var release = await repo.RemoteRepository.Release.GetAsync(releaseName);
 
                     return release.Assets.Any(asset => asset.Id == newAsset.Id && newAsset.State == "uploaded");
                 });
@@ -332,7 +332,7 @@ namespace Neon.Git
 
             update.Draft = false;
 
-            await repo.Repository.Release.UpdateAsync(release, update);
+            await repo.RemoteRepository.Release.UpdateAsync(release, update);
 
             // GitHub doesn't appear to publish releases synchronously, so we're going
             // to wait for the new release to show up.
@@ -340,7 +340,7 @@ namespace Neon.Git
             await repo.WaitForGitHubAsync(
                 async () =>
                 {
-                    release = await repo.Repository.Release.GetAsync(releaseName);
+                    release = await repo.RemoteRepository.Release.GetAsync(releaseName);
 
                     return release != null && !release.Draft;
                 });

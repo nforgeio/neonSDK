@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:	    EasyRepoTagApi.cs
+// FILE:	    RemoteRepoTagApi.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
@@ -52,7 +52,7 @@ namespace Neon.Git
     /// <summary>
     /// Implements friendly GitHub repository tag related APIs.
     /// </summary>
-    public class EasyRepoTagApi
+    public class RemoteRepoTagApi
     {
         private GitHubRepo  repo;
 
@@ -60,7 +60,7 @@ namespace Neon.Git
         /// Internal constructor.
         /// </summary>
         /// <param name="repo">The parent <see cref="GitHubRepo"/>.</param>
-        internal EasyRepoTagApi(GitHubRepo repo)
+        internal RemoteRepoTagApi(GitHubRepo repo)
         {
             this.repo = repo;
         }

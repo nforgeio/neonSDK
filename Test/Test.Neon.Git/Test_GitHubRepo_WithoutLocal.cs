@@ -57,7 +57,7 @@ namespace TestGit
                     {
                         // These shouldn't throw any exceptions.
 
-                        _ = repo.Repository;
+                        _ = repo.RemoteRepository;
                         _ = repo.OriginRepoPath;
                     }
                 });
@@ -74,13 +74,12 @@ namespace TestGit
                 {
                     using (var repo = await GitHubRepo.ConnectAsync(GitTestHelper.RemoteTestRepo))
                     {
-                        Assert.Throws<NoLocalRepositoryException>(() => _ = repo.Branches);
                         Assert.Throws<NoLocalRepositoryException>(() => _ = repo.IsDirty);
                         Assert.Throws<NoLocalRepositoryException>(() => _ = repo.CurrentBranch);
                         Assert.Throws<NoLocalRepositoryException>(() => _ = repo.CreateSignature());
                         Assert.Throws<NoLocalRepositoryException>(() => _ = repo.CreatePushOptions());
                         Assert.Throws<NoLocalRepositoryException>(() => _ = repo.LocalRepoFolder);
-                        Assert.Throws<NoLocalRepositoryException>(() => _ = repo.LocalRepository);
+                        Assert.Throws<NoLocalRepositoryException>(() => _ = repo.Local);
 
                         await Assert.ThrowsAsync<NoLocalRepositoryException>(async () => await repo.CheckoutAsync("master"));
                         await Assert.ThrowsAsync<NoLocalRepositoryException>(async () => await repo.CheckoutOriginAsync("master"));

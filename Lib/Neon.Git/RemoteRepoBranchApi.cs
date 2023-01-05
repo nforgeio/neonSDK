@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:	    EasyRepoBranchApi.cs
+// FILE:	    RemoteRepoBranchApi.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
@@ -51,7 +51,7 @@ namespace Neon.Git
     /// <summary>
     /// Implements friendly GitHub repository branch related APIs.
     /// </summary>
-    public class EasyRepoBranchApi
+    public class RemoteRepoBranchApi
     {
         private GitHubRepo  repo;
 
@@ -59,7 +59,7 @@ namespace Neon.Git
         /// Internal constructor.
         /// </summary>
         /// <param name="repo">The parent <see cref="GitHubRepo"/>.</param>
-        internal EasyRepoBranchApi(GitHubRepo repo)
+        internal RemoteRepoBranchApi(GitHubRepo repo)
         {
             this.repo = repo;
         }

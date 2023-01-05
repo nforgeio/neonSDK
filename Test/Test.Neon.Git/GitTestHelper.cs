@@ -116,7 +116,7 @@ namespace TestGit
                 {
                     // We need to check out the remote test branches first.
 
-                    foreach (var branch in repo.Branches
+                    foreach (var branch in repo.Local.Branches
                         .Where(branch => branch.FriendlyName.StartsWith("origin/testbranch-"))
                         .ToArray())
                     {
@@ -127,7 +127,7 @@ namespace TestGit
 
                     await repo.CheckoutAsync("master");
 
-                    foreach (var branch in repo.Branches
+                    foreach (var branch in repo.Local.Branches
                         .Select(branch => repo.NormalizeBranchName(branch.FriendlyName))
                         .Where(branchName => branchName.StartsWith("testbranch-"))
                         .ToArray())
@@ -148,9 +148,9 @@ namespace TestGit
         {
             using (var repo = await GitHubRepo.ConnectAsync(GitTestHelper.RemoteTestRepo))
             {
-                foreach (var release in await repo.Repository.Release.GetAsync())
+                foreach (var release in await repo.RemoteRepository.Release.GetAsync())
                 {
-                    await repo.Repository.Release.RemoveAsync(release.Name);
+                    await repo.RemoteRepository.Release.RemoveAsync(release.Name);
                 }
             }
         }
