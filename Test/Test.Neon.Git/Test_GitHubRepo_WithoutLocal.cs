@@ -57,9 +57,8 @@ namespace TestGit
                     {
                         // These shouldn't throw any exceptions.
 
-                        _ = repo.OriginRepoApi;
+                        _ = repo.Repository;
                         _ = repo.OriginRepoPath;
-                        _ = repo.OriginRepository;
                     }
                 });
         }

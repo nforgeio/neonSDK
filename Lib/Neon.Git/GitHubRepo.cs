@@ -74,8 +74,9 @@ namespace Neon.Git
     /// that you'll use for subsequent operations.
     /// </para>
     /// <para>
-    /// The <see cref="GitHubRepoApi"/> methods from the <see cref="OriginRepoApi"/> property
-    /// provide some easy-to-use wrappers over the underlying OctoKit API.
+    /// The <see cref="Repository"/> property provides some easy-to-use methods for managing the associated
+    /// GitHub repository.  These implement some common operations and are easier to use than the stock
+    /// Octokit implementations.
     /// </para>
     /// <para>
     /// <b>To perform only GitHub account operations</b> Call the static <see cref="ConnectAsync(string, string, string, string, string, IProfileClient)"/>
@@ -129,7 +130,7 @@ namespace Neon.Git
                 userAgent = "unknown";
             }
 
-            repo.OriginRepoApi  = new GitHubRepoApi(repo);
+            repo.Repository  = new EasyRepoApi(repo);
             repo.OriginRepoPath = OriginRepoPath.Parse(originRepoPath);
 
             repo.Credentials = GitHubCredentials.Load(
@@ -193,7 +194,7 @@ namespace Neon.Git
             var repo = new GitHubRepo();
 
             repo.LocalRepoFolder = localRepoFolder;
-            repo.OriginRepoApi      = new GitHubRepoApi(repo);
+            repo.Repository      = new EasyRepoApi(repo);
             repo.OriginRepoPath  = OriginRepoPath.Parse(originRepoPath);
 
             if (Directory.Exists(localRepoFolder))
@@ -228,12 +229,11 @@ namespace Neon.Git
                     });
 
             var originRepo = $"https://{repo.originRepoPath}";
-            var options   = new CloneOptions() { BranchName = branchName };
+            var options    = new CloneOptions() { BranchName = branchName };
 
             GitRepository.Clone(originRepo, repo.localRepoFolder, options);
 
-            repo.LocalRepository  = new GitRepository(repo.localRepoFolder);
-            repo.OriginRepository = await repo.GitHubServer.Repository.Get(repo.originRepoPath.Owner, repo.originRepoPath.Name);
+            repo.LocalRepository = new GitRepository(repo.localRepoFolder);
 
             return await Task.FromResult(repo);
         }
@@ -246,8 +246,7 @@ namespace Neon.Git
         private Remote                  cachedOrigin;
         private OriginRepoPath          originRepoPath;
         private string                  localRepoFolder;
-        private GitHubRepository        originRepository;
-        private GitHubRepoApi           originRepoApi;
+        private EasyRepoApi             originRepoApi;
         private GitRepository           localRepository;
         private GitHubCredentials       githubCredentials;
         private GitHubClient            githubServer;
@@ -301,7 +300,7 @@ namespace Neon.Git
             }
 
             this.LocalRepository  = new GitRepository(localRepoFolder);
-            this.OriginRepoApi = new GitHubRepoApi(this);
+            this.Repository = new EasyRepoApi(this);
 
             // We're going to obtain the GitHub path for the repo from the origin's
             // push URL.  This will look something like:
@@ -447,29 +446,11 @@ namespace Neon.Git
         }
 
         /// <summary>
-        /// Returns the GitHub server <see cref="GitHubRepository"/> corresponding to
-        /// the local repository.
+        /// Returns the friendly API methods used to manage the GitHub origin repository.
         /// </summary>
         /// <exception cref="ObjectDisposedException">Thrown when the instance is disposed.</exception>
         /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
-        public GitHubRepository OriginRepository
-        {
-            get
-            {
-                EnsureNotDisposed();
-
-                return originRepository;
-            }
-
-            set => originRepository = value;
-        }
-
-        /// <summary>
-        /// Returns the API methods used to manage the GitHub origin repository.
-        /// </summary>
-        /// <exception cref="ObjectDisposedException">Thrown when the instance is disposed.</exception>
-        /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
-        public GitHubRepoApi OriginRepoApi
+        public EasyRepoApi Repository
         {
             get
             {

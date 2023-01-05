@@ -60,7 +60,7 @@ namespace TestGit
                 {
                     using (var repo = await GitHubRepo.ConnectAsync(GitTestHelper.RemoteTestRepo))
                     {
-                        await repo.OriginRepoApi.GetReleasesAsync();
+                        await repo.Repository.Release.GetAsync();
                     }
                 });
         }
@@ -77,19 +77,19 @@ namespace TestGit
                     {
                         var newTestName = $"test-{Guid.NewGuid()}";
                         var newTestTag  = $"test-{Guid.NewGuid()}";
-                        var release     = await repo.OriginRepoApi.CreateRelease(tagName: newTestTag, releaseName: newTestName, draft: true);
+                        var release     = await repo.Repository.Release.Create(tagName: newTestTag, releaseName: newTestName, draft: true);
 
                         Assert.NotNull(release);
-                        Assert.NotNull(await repo.OriginRepoApi.GetReleaseAsync(newTestName));
-                        Assert.True(await repo.OriginRepoApi.RemoveReleaseAsync(newTestName));
-                        Assert.Null(await repo.OriginRepoApi.GetReleaseAsync(newTestName));
+                        Assert.NotNull(await repo.Repository.Release.GetAsync(newTestName));
+                        Assert.True(await repo.Repository.Release.RemoveAsync(newTestName));
+                        Assert.Null(await repo.Repository.Release.GetAsync(newTestName));
                         Assert.Equal(newTestName, release.Name);
                         Assert.True(release.Draft);
                         Assert.True(string.IsNullOrEmpty(release.Body));
 
                         // Verify that trying to delete a non-existent release returns FALSE.
 
-                        Assert.False(await repo.OriginRepoApi.RemoveReleaseAsync(newTestName));
+                        Assert.False(await repo.Repository.Release.RemoveAsync(newTestName));
                     }
                 });
         }
@@ -106,7 +106,7 @@ namespace TestGit
                     {
                         var newTestName = $"test-{Guid.NewGuid()}";
                         var newTestTag  = $"test-{Guid.NewGuid()}";
-                        var release     = await repo.OriginRepoApi.CreateRelease(tagName: newTestTag, releaseName: newTestName, draft: true);
+                        var release     = await repo.Repository.Release.Create(tagName: newTestTag, releaseName: newTestName, draft: true);
 
                         Assert.Equal(newTestName, release.Name);
                         Assert.True(release.Draft);
@@ -118,7 +118,7 @@ namespace TestGit
                         update.Body       = "HELLO WORLD!";
                         update.Prerelease = false;
 
-                        await repo.OriginRepoApi.UpdateReleaseAsync(release, update);
+                        await repo.Repository.Release.UpdateAsync(release, update);
                     }
                 });
         }
@@ -135,17 +135,17 @@ namespace TestGit
                     {
                         var releaseName = $"test-{Guid.NewGuid()}";
                         var newTestTag  = $"test-{Guid.NewGuid()}";
-                        var release     = await repo.OriginRepoApi.CreateRelease(tagName: newTestTag, releaseName: releaseName, draft: true);
+                        var release     = await repo.Repository.Release.Create(tagName: newTestTag, releaseName: releaseName, draft: true);
 
                         using (var tempFile = new TempFile())
                         {
                             File.WriteAllText(tempFile.Path, "HELLO WORLD!", Encoding.UTF8);
 
-                            var asset = await repo.OriginRepoApi.AddReleaseAssetAsync(release, tempFile.Path, "asset-1");
+                            var asset = await repo.Repository.Release.AddAssetAsync(release, tempFile.Path, "asset-1");
 
-                            release = await repo.OriginRepoApi.PublishReleaseAsync(releaseName);
+                            release = await repo.Repository.Release.PublishAsync(releaseName);
 
-                            var assetUri = repo.OriginRepoApi.GetAssetUri(release, asset);
+                            var assetUri = repo.Repository.Release.GetAssetUri(release, asset);
 
                             using (var httpClient = new HttpClient())
                             {
@@ -170,18 +170,18 @@ namespace TestGit
                     {
                         var releaseName = $"test-{Guid.NewGuid()}";
                         var newTestTag  = $"test-{Guid.NewGuid()}";
-                        var release     = await repo.OriginRepoApi.CreateRelease(tagName: newTestTag, releaseName: releaseName, draft: true);
+                        var release     = await repo.Repository.Release.Create(tagName: newTestTag, releaseName: releaseName, draft: true);
 
                         using (var ms = new MemoryStream())
                         {
                             ms.Write(Encoding.UTF8.GetBytes("HELLO WORLD!"));
                             ms.Seek(0, SeekOrigin.Begin);
 
-                            var asset = await repo.OriginRepoApi.AddReleaseAssetAsync(release, ms, "asset-1");
+                            var asset = await repo.Repository.Release.AddAssetAsync(release, ms, "asset-1");
 
-                            release = await repo.OriginRepoApi.PublishReleaseAsync(releaseName);
+                            release = await repo.Repository.Release.PublishAsync(releaseName);
 
-                            var assetUri = repo.OriginRepoApi.GetAssetUri(release, asset);
+                            var assetUri = repo.Repository.Release.GetAssetUri(release, asset);
 
                             using (var httpClient = new HttpClient())
                             {
@@ -206,15 +206,15 @@ namespace TestGit
                     {
                         var releaseName = $"test-{Guid.NewGuid()}";
                         var newTestTag  = $"test-{Guid.NewGuid()}";
-                        var release     = await repo.OriginRepoApi.CreateRelease(tagName: newTestTag, releaseName: releaseName, body: "HELLO WORLD!", draft: true);
+                        var release     = await repo.Repository.Release.Create(tagName: newTestTag, releaseName: releaseName, body: "HELLO WORLD!", draft: true);
 
                         Assert.Equal(releaseName, release.Name);
                         Assert.True(release.Draft);
                         Assert.True(!string.IsNullOrEmpty(release.Body));
 
-                        await repo.OriginRepoApi.PublishReleaseAsync(releaseName);
+                        await repo.Repository.Release.PublishAsync(releaseName);
 
-                        release = await repo.OriginRepoApi.GetReleaseAsync(releaseName);
+                        release = await repo.Repository.Release.GetAsync(releaseName);
 
                         Assert.False(release.Draft);
                     }
@@ -233,7 +233,7 @@ namespace TestGit
                     {
                         var releaseName = $"test-{Guid.NewGuid()}";
                         var newTestTag  = $"test-{Guid.NewGuid()}";
-                        var release     = await repo.OriginRepoApi.CreateRelease(tagName: newTestTag, releaseName: releaseName, body: "HELLO WORLD!", draft: true);
+                        var release     = await repo.Repository.Release.Create(tagName: newTestTag, releaseName: releaseName, body: "HELLO WORLD!", draft: true);
 
                         Assert.Equal(releaseName, release.Name);
                         Assert.True(release.Draft);
@@ -243,7 +243,7 @@ namespace TestGit
                         var partSize  = 1024;
                         var download  = await PublishMultipartAssetAsync(repo, release, "test.dat", "v1.0", partCount, partSize);
 
-                        release = await repo.OriginRepoApi.RefreshReleaseAsync(release);
+                        release = await repo.Repository.Release.RefreshAsync(release);
 
                         Assert.False(release.Draft);
                         Assert.Equal("test.dat", download.Name);
@@ -298,7 +298,7 @@ namespace TestGit
                     }
                 }
 
-                return await repo.OriginRepoApi.AddMultipartReleaseAssetAsync(release, tempFile.Path, version: version, name: name, maxPartSize: partSize);
+                return await repo.Repository.Release.AddMultipartAssetAsync(release, tempFile.Path, version: version, name: name, maxPartSize: partSize);
             }
         }
     }

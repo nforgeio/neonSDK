@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:	    GitHubRepoApi.cs
+// FILE:	    EasyRepoApi.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
@@ -50,24 +50,41 @@ namespace Neon.Git
     /// <summary>
     /// Implements extended GitHub server API methods.
     /// </summary>
-    public partial class GitHubRepoApi
+    public partial class EasyRepoApi
     {
         private GitHubRepo  repo;
 
         /// <summary>
-        /// Internal conbstructor.
+        /// Internal constructor.
         /// </summary>
         /// <param name="repo">The parent <see cref="GitHubRepo"/>.</param>
-        internal GitHubRepoApi(GitHubRepo repo)
+        internal EasyRepoApi(GitHubRepo repo)
         {
             Covenant.Requires<ArgumentNullException>(repo != null, nameof(repo));
 
-            this.repo = repo;
+            this.repo    = repo;
+            this.Branch  = new EasyRepoBranchApi(repo);
+            this.Release = new EasyRepoReleaseApi(repo);
         }
 
         /// <summary>
-        /// Returns the OctoKit <see cref="GitHubClient"/> REST API client associated with the instance.
+        /// Returns the current <see cref="GitHubRepository"/> for the orgin repository
+        /// assocated with the parent <see cref="GitHubRepo"/> instance.
         /// </summary>
-        public GitHubClient RestApi { get; private set; }
+        /// <returns>The associated <see cref="GitHubRepository"/>.</returns>
+        public async Task<GitHubRepository> GetAsync()
+        {
+            return await repo.GitHubServer.Repository.Get(repo.OriginRepoPath.Owner, repo.OriginRepoPath.Name);
+        }
+
+        /// <summary>
+        /// Returns the friendly GitHub branch related APIs.
+        /// </summary>
+        public EasyRepoBranchApi Branch { get; private set; }
+
+        /// <summary>
+        /// Returns the friendly GitHub release related APIs.
+        /// </summary>
+        public EasyRepoReleaseApi Release { get; private set; }
     }
 }

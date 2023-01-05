@@ -148,9 +148,9 @@ namespace TestGit
         {
             using (var repo = await GitHubRepo.ConnectAsync(GitTestHelper.RemoteTestRepo))
             {
-                foreach (var release in await repo.OriginRepoApi.GetReleasesAsync())
+                foreach (var release in await repo.Repository.Release.GetAsync())
                 {
-                    await repo.OriginRepoApi.RemoveReleaseAsync(release.Name);
+                    await repo.Repository.Release.RemoveAsync(release.Name);
                 }
             }
         }

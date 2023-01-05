@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:	    GitHubRepoApi.Branch.cs
+// FILE:	    EasyRepoBranchApi.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
@@ -38,25 +38,39 @@ using LibGit2Sharp.Handlers;
 
 using Octokit;
 
-using GitHubBranch = Octokit.Branch;
+using GitHubBranch     = Octokit.Branch;
 using GitHubRepository = Octokit.Repository;
-using GitHubSignature = Octokit.Signature;
+using GitHubSignature  = Octokit.Signature;
 
-using GitBranch = LibGit2Sharp.Branch;
+using GitBranch     = LibGit2Sharp.Branch;
 using GitRepository = LibGit2Sharp.Repository;
-using GitSignature = LibGit2Sharp.Signature;
+using GitSignature  = LibGit2Sharp.Signature;
 
 namespace Neon.Git
 {
-    public partial class GitHubRepoApi
+    /// <summary>
+    /// Implements friendly GitHub branch related APIs.
+    /// </summary>
+    public class EasyRepoBranchApi
     {
+        private GitHubRepo  repo;
+
+        /// <summary>
+        /// Internal constructor.
+        /// </summary>
+        /// <param name="repo">The parent <see cref="GitHubRepo"/>.</param>
+        internal EasyRepoBranchApi(GitHubRepo repo)
+        {
+            this.repo = repo;
+        }
+
         /// <summary>
         /// Returns branches from the GitHub origin repository.
         /// </summary>
         /// <returns>The list of branches.</returns>
         /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
-        public async Task<IReadOnlyList<GitHubBranch>> GetBranchesAsync()
+        public async Task<IReadOnlyList<GitHubBranch>> GetAsync()
         {
             repo.EnsureNotDisposed();
             repo.EnsureLocalRepo();
@@ -71,13 +85,13 @@ namespace Neon.Git
         /// <returns>The <see cref="GitHubBranch"/> or <c>null</c> when the branch doesn't exist.</returns>
         /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
-        public async Task<GitHubBranch> GetBranchAsync(string branchName)
+        public async Task<GitHubBranch> GetAsync(string branchName)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
             repo.EnsureNotDisposed();
             repo.EnsureLocalRepo();
 
-            return (await GetBranchesAsync()).FirstOrDefault(branch => branch.Name.Equals(branchName, StringComparison.InvariantCultureIgnoreCase));
+            return (await GetAsync()).FirstOrDefault(branch => branch.Name.Equals(branchName, StringComparison.InvariantCultureIgnoreCase));
         }
 
         /// <summary>
@@ -87,13 +101,13 @@ namespace Neon.Git
         /// <returns><c>true</c> if the branch existed and was removed, <c>false</c> otherwise.</returns>
         /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
-        public async Task<bool> RemoveBranchAsync(string branchName)
+        public async Task<bool> RemoveAsync(string branchName)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
             repo.EnsureNotDisposed();
             repo.EnsureLocalRepo();
 
-            var branch = await GetBranchAsync(branchName);
+            var branch = await GetAsync(branchName);
 
             if (branch == null)
             {

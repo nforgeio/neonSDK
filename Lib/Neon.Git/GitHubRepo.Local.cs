@@ -186,7 +186,7 @@ namespace Neon.Git
             await WaitForGitHubAsync(
                 async () =>
                 {
-                    var serverBranchUpdate = await OriginRepoApi.GetBranchAsync(currentBranch.FriendlyName);
+                    var serverBranchUpdate = await Repository.Branch.GetAsync(currentBranch.FriendlyName);
 
                     return serverBranchUpdate.Commit.Sha == currentBranch.Tip.Sha;
                 });
