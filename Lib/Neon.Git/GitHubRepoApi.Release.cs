@@ -436,7 +436,7 @@ namespace Neon.Git
 
                 foreach (var item in assetPartMap)
                 {
-                    item.Item2.Uri = GitHub.Releases.GetAssetUri(release, item.Item1);
+                    item.Item2.Uri = GetAssetUri(release, item.Item1);
                 }
 
                 // Write the MD5 file unless disabled.
