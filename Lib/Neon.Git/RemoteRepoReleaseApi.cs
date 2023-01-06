@@ -75,7 +75,7 @@ namespace Neon.Git
         /// <param name="draft">Optionally indicates that the release won't be published immediately.</param>
         /// <param name="prerelease">Optionally indicates that the release is not production ready.</param>
         /// <returns>The new release.</returns>
-        public async Task<Release> Create(string tagName, string releaseName = null, string body = null, bool draft = false, bool prerelease = false)
+        public async Task<Release> CreateAsync(string tagName, string releaseName = null, string body = null, bool draft = false, bool prerelease = false)
         {
             root.EnsureNotDisposed();
 
