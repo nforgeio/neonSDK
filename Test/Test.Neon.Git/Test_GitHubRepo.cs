@@ -262,7 +262,7 @@ namespace TestGit
 
                         using (var repo = await GitHubRepo.CloneAsync(GitTestHelper.RemoteTestRepo, repoPath))
                         {
-                            var remoteBranches = await repo.RemoteRepository.Branch.GetAsync();
+                            var remoteBranches = await repo.RemoteRepository.Branch.GetAllAsync();
 
                             Assert.Contains(remoteBranches, branch => branch.Name == "master");
                         }

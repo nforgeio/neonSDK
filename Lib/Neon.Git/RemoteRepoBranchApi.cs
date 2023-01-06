@@ -70,10 +70,9 @@ namespace Neon.Git
         /// <returns>The list of branches.</returns>
         /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
-        public async Task<IReadOnlyList<GitHubBranch>> GetAsync()
+        public async Task<IReadOnlyList<GitHubBranch>> GetAllAsync()
         {
             root.EnsureNotDisposed();
-            root.EnsureLocalRepo();
 
             return await root.GitHubApi.Repository.Branch.GetAll(root.RemoteRepoPath.Owner, root.RemoteRepoPath.Name);
         }
@@ -89,9 +88,14 @@ namespace Neon.Git
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
             root.EnsureNotDisposed();
-            root.EnsureLocalRepo();
 
-            return (await GetAsync()).FirstOrDefault(branch => branch.Name.Equals(branchName, StringComparison.InvariantCultureIgnoreCase));
+            // $todo(jefflill):
+            //
+            // It's unfortunate to have to list all of these objects just to obtain a
+            // specific one.  We should come back and refactor this to use the low-level
+            // API.
+
+            return (await GetAllAsync()).FirstOrDefault(branch => branch.Name.Equals(branchName, StringComparison.InvariantCultureIgnoreCase));
         }
 
         /// <summary>
@@ -105,7 +109,6 @@ namespace Neon.Git
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
             root.EnsureNotDisposed();
-            root.EnsureLocalRepo();
 
             var branch = await GetAsync(branchName);
 
@@ -114,7 +117,7 @@ namespace Neon.Git
                 return false;
             }
 
-            // OctoKit doesn't have a nice branch removeal method, so we'll need to use
+            // OctoKit doesn't have a nice branch removal method, so we'll need to use
             // the REST API.  This is a bit tricky:
             //
             //      https://github.com/orgs/community/discussions/24603

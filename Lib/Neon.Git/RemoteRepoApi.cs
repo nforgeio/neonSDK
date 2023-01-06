@@ -65,6 +65,7 @@ namespace Neon.Git
             this.root    = root;
             this.Branch  = new RemoteRepoBranchApi(root);
             this.Release = new RemoteRepoReleaseApi(root);
+            this.Tag     = new RemoteRepoTagApi(root);
         }
 
         /// <summary>
@@ -86,5 +87,21 @@ namespace Neon.Git
         /// Returns the friendly GitHub release related APIs.
         /// </summary>
         public RemoteRepoReleaseApi Release { get; private set; }
+
+        /// <summary>
+        /// Returns the friendly GitHub release related APIs.
+        /// </summary>
+        public RemoteRepoTagApi Tag { get; private set; }
+        /// <summary>
+        /// Creates a <see cref="GitSignature"/> from the repository's credentials.
+        /// </summary>
+        /// <returns>The new <see cref="Committer"/>.</returns>
+        /// <exception cref="ObjectDisposedException">Thrown when the instance is disposed.</exception>
+        public Committer CreateComitter()
+        {
+            root.EnsureNotDisposed();
+
+            return new Committer(root.Credentials.Username, root.Credentials.Email, DateTimeOffset.Now);
+        }
     }
 }

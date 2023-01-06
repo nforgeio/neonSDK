@@ -595,7 +595,9 @@ namespace Neon.Git
 
             HttpClient.BaseAddress                         = GitHubApi.BaseAddress;
             HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Credentials.AccessToken);
+
             HttpClient.DefaultRequestHeaders.Add("User-Agent", userAgent);
+            HttpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github+json"));
         }
 
         /// <summary>

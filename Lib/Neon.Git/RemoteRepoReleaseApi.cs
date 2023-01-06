@@ -110,7 +110,7 @@ namespace Neon.Git
         /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
-        public async Task<IReadOnlyList<Release>> GetAsync()
+        public async Task<IReadOnlyList<Release>> GetAllAsync()
         {
             root.EnsureNotDisposed();
 
@@ -130,7 +130,13 @@ namespace Neon.Git
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(releaseName), nameof(releaseName));
             root.EnsureNotDisposed();
 
-            return (await GetAsync()).FirstOrDefault(release => release.Name.Equals(releaseName, StringComparison.InvariantCultureIgnoreCase));
+            // $todo(jefflill):
+            //
+            // It's unfortunate to have to list all of these objects just to obtain a
+            // specific one.  We should come back and refactor this to use the low-level
+            // API.
+
+            return (await GetAllAsync()).FirstOrDefault(release => release.Name.Equals(releaseName, StringComparison.InvariantCultureIgnoreCase));
         }
 
         /// <summary>
@@ -392,9 +398,7 @@ namespace Neon.Git
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(releaseName), nameof(releaseName));
             Covenant.Requires<ArgumentNullException>(output != null, nameof(output));
 
-            var response = await root.HttpClient.GetAsync(await GetZipballUri(releaseName));
-
-            response.EnsureSuccessStatusCode();
+            var response = await root.HttpClient.GetSafeAsync(await GetZipballUri(releaseName));
 
             await response.Content.CopyToAsync(output);
         }

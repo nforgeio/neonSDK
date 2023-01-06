@@ -52,7 +52,7 @@ namespace TestGit
         }
 
         [MaintainerFact]
-        public async Task List()
+        public async Task GetAll()
         {
             // Verify that we can list releases without crashing.
 
@@ -61,7 +61,7 @@ namespace TestGit
                 {
                     using (var repo = await GitHubRepo.ConnectAsync(GitTestHelper.RemoteTestRepo))
                     {
-                        await repo.RemoteRepository.Release.GetAsync();
+                        await repo.RemoteRepository.Release.GetAllAsync();
                     }
                 });
         }

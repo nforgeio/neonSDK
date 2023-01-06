@@ -52,8 +52,50 @@ namespace TestGit
         }
 
         [MaintainerFact]
-        public async Task Get()
+        public async Task GetAll()
         {
+            // Verify that we can list tags without crashing.
+
+            await GitTestHelper.RunTestAsync(
+                async () =>
+                {
+                    using (var repo = await GitHubRepo.ConnectAsync(GitTestHelper.RemoteTestRepo))
+                    {
+                        await repo.RemoteRepository.Tag.GetAllAsync();
+                    }
+                });
         }
+
+        // $todo(jefflill):
+        //
+        // The tag create methods don't work.  Create/delete functionality isn't really
+        // important right now, so I'm going to comment them out.
+
+#if TODO
+        [MaintainerFact]
+        public async Task CreateRemove_FromBranch()
+        {
+            // Verify that we can create, get, and remove a tag created from a branch.
+
+            var tagName = $"test-{Guid.NewGuid()}";
+
+            await GitTestHelper.RunTestAsync(
+                async () =>
+                {
+                    using (var repo = await GitHubRepo.ConnectAsync(GitTestHelper.RemoteTestRepo))
+                    {
+                        // Create and verify.
+
+                        await repo.RemoteRepository.Tag.CreateFromBranchAsync(tagName, "master", "create test tag");
+                        Assert.NotNull(repo.RemoteRepository.Tag.GetAsync(tagName));
+
+                        // Remove and verify.
+
+                        await repo.RemoteRepository.Tag.RemoveAsync(tagName);
+                        Assert.Null(repo.RemoteRepository.Tag.GetAsync(tagName));
+                    }
+                });
+        }
+#endif
     }
 }

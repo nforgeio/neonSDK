@@ -101,9 +101,7 @@ namespace TestGit
         }
 
         /// <summary>
-        /// Clones the test repo, checks out the master branch, and then removes any test branches
-        /// (whose names  start with "testbranch-") from the local repo and pushes the changes to the
-        /// remote to help prevent the accumulation of branches.
+        /// Removes any test branches from the GitHub repository.
         /// </summary>
         /// <returns>The tracking <see cref="Task"/>.</returns>
         public static async Task RemoveTestBranchesAsync()
@@ -139,18 +137,31 @@ namespace TestGit
         }
 
         /// <summary>
-        /// Clones the test repo, checks out the master branch, and then removes any files in
-        /// the repo under the <see cref="TestFolder"/> directory (if it exists) and pushes
-        /// the changes to the remote.  This is used to help prevent the accumulation of test files.
+        /// Removes any releases from the GitHub repository.
         /// </summary>
         /// <returns>The tracking <see cref="Task"/>.</returns>
         public static async Task RemoveTestReleasesAsync()
         {
             using (var repo = await GitHubRepo.ConnectAsync(GitTestHelper.RemoteTestRepo))
             {
-                foreach (var release in await repo.RemoteRepository.Release.GetAsync())
+                foreach (var release in await repo.RemoteRepository.Release.GetAllAsync())
                 {
                     await repo.RemoteRepository.Release.RemoveAsync(release.Name);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Removes any tags from the GitHub repository.
+        /// </summary>
+        /// <returns>The tracking <see cref="Task"/>.</returns>
+        public static async Task RemoveTestTagsAsync()
+        {
+            using (var repo = await GitHubRepo.ConnectAsync(GitTestHelper.RemoteTestRepo))
+            {
+                foreach (var tag in await repo.RemoteRepository.Tag.GetAllAsync())
+                {
+                    await repo.RemoteRepository.Tag.RemoveAsync(tag.Name);
                 }
             }
         }
@@ -184,6 +195,7 @@ namespace TestGit
 
                 await RemoveTestBranchesAsync();
                 await RemoveTestReleasesAsync();
+                await RemoveTestTagsAsync();
 
                 await action();
             }
@@ -193,6 +205,7 @@ namespace TestGit
 
                 await RemoveTestBranchesAsync();
                 await RemoveTestReleasesAsync();
+                await RemoveTestTagsAsync();
             }
         }
     }
