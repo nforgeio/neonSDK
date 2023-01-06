@@ -29,49 +29,27 @@ using Octokit;
 namespace Neon.Git
 {
     /// <summary>
-    /// <para>
-    /// Combines <b>git</b> and <b>GitHub</b> functionality into easy to use classes that behave
-    /// similarily to Visual Studio's embedded git provider.
-    /// </para>
-    /// <note>
-    /// THis library is still a work in progress.
-    /// </note>
+    /// Combines <b>git</b> and <b>GitHub</b> functionality into the easy-to-use <see cref="GitHubRepo"/> class.
     /// </summary>
     /// <remarks>
     /// <para>
-    /// The basic problem here is that the <b>GitHub OctoKit</b> and <b>LibGit2Sharp</b> packages 
-    /// don't really play that well together.  One problem is that quite a few types share the 
-    /// same names in both packages, leading to ambiguous symbol references when trying to use
-    /// both packages in the same program.
+    /// This class wraps the <b>Octokit</b> and <b>LibGit2Sharp</b> packages, adding methods for common scenerios.
+    /// The problem is that also these packages are nice, it's not always obvious how to perform many
+    /// operations.  This package addresses some of these issues via the `GitGubRepo` class.
     /// </para>
     /// <para>
-    /// Another problem is that you'll need to use GitHub credentials to do anything interesting
-    /// (like pushing a local repository to GitHub).  The Visual Studio git provider manages these credentials
-    /// for the developer, but there isn't really a standard for managing these credentials outside
-    /// of Visual Studio.
+    /// For example, <b>LibGit2Sharp</b> doesn't provide methods for operations like: <b>Fetch</b>, <b>Push</b>,
+    /// <b>Remove Branch</b>, or <b>Undo</b>.  <b>Octokit</b> doesn't have methods for <b>Remove Branch</b>
+    /// and also seems to be missing direct support for other common operations and some of the 
+    /// methods it does have, complete asynchronously which makes it harder to script a series of
+    /// GitHub related operations.
     /// </para>
     /// <para>
-    /// Finally, although <b>LibeGit2Sharp</b> is very powerful, it can be hard to understand and use,
-    /// especially for common basic operations.  This library includes very easy-to-use methods implementing
-    /// some of these operations.
+    /// Another annoyance with **Octokit** and **LibGit2Sharp** is that the define a lot of types with
+    /// the same names, like **Repository**.  This makes it more difficult to write code that uses
+    /// these libraries by forcing developers to use fully qualified type names or redefine type
+    /// names via **using statements**.  **GitHubRepo** helps avoid these conflicts for many scenarios.
     /// </para>
-    /// <para>
-    /// Our approach here is to using a combination of environment variables like <b>GITHUB_USERNAME</b>,
-    /// <b>GITHUB_PAT</b>, and <b>GITHUB_EMAIL</b> hold the credentials or alternatively, a secret
-    /// provider like <b>1Password</b> via <see cref="IProfileClient"/>.  The environment variables
-    /// take precedence if they exist.
-    /// </para>
-    /// <note>
-    /// We have an internal implementation of <see cref="IProfileClient"/> that can retrieve secrets
-    /// from <b>1Password</b> for NEONFORGE maintainers, but this is not generally available at this
-    /// time and may never be.
-    /// </note>
-    /// <note>
-    /// This functionality is currently <b>tied to GitHub</b> because that's where we're hosting our
-    /// projects.  We don't currently support other providers like GitLabs, etc. and may never do so.
-    /// If we were to eventually support other git services like GitLabs, we'd probably create another
-    /// class specific to that service as opposed to extending this class.
-    /// </note>
     /// </remarks>
     [System.Runtime.CompilerServices.CompilerGenerated]
     class NamespaceDoc
