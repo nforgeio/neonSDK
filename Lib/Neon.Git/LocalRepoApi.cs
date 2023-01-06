@@ -44,6 +44,7 @@ using GitHubSignature  = Octokit.Signature;
 using GitBranch     = LibGit2Sharp.Branch;
 using GitRepository = LibGit2Sharp.Repository;
 using GitSignature  = LibGit2Sharp.Signature;
+using Neon.Tasks;
 
 namespace Neon.Git
 {
@@ -120,6 +121,7 @@ namespace Neon.Git
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
         public async Task FetchAsync()
         {
+            await SyncContext.Clear;
             root.EnsureNotDisposed();
             root.EnsureLocalRepo();
 
@@ -147,6 +149,7 @@ namespace Neon.Git
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
         public async Task<bool> CommitAsync(string message = null)
         {
+            await SyncContext.Clear;
             root.EnsureNotDisposed();
             root.EnsureLocalRepo();
 
@@ -181,6 +184,7 @@ namespace Neon.Git
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
         public async Task<MergeStatus> PullAsync()
         {
+            await SyncContext.Clear;
             root.EnsureNotDisposed();
             root.EnsureLocalRepo();
 
@@ -210,6 +214,7 @@ namespace Neon.Git
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
         public async Task<bool> PushAsync()
         {
+            await SyncContext.Clear;
             root.EnsureNotDisposed();
             root.EnsureLocalRepo();
 
@@ -261,6 +266,7 @@ namespace Neon.Git
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
         public async Task CheckoutAsync(string branchName)
         {
+            await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
             root.EnsureNotDisposed();
             root.EnsureLocalRepo();
@@ -288,6 +294,7 @@ namespace Neon.Git
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
         public async Task<bool> CreateBranchAsync(string branchName, string sourceBranchName)
         {
+            await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(sourceBranchName), nameof(sourceBranchName));
             root.EnsureNotDisposed();
@@ -328,6 +335,7 @@ namespace Neon.Git
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
         public async Task<bool> CheckoutOriginAsync(string originBranchName, string branchName = null)
         {
+            await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(originBranchName), nameof(originBranchName));
             root.EnsureNotDisposed();
             root.EnsureLocalRepo();
@@ -356,6 +364,7 @@ namespace Neon.Git
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
         public async Task RemoveBranchAsync(string branchName)
         {
+            await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
             root.EnsureNotDisposed();
             root.EnsureLocalRepo();
@@ -390,6 +399,7 @@ namespace Neon.Git
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
         public async Task<MergeResult> MergeAsync(string branchName, bool throwOnConflict = true)
         {
+            await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
             root.EnsureNotDisposed();
             root.EnsureLocalRepo();
@@ -435,6 +445,7 @@ namespace Neon.Git
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
         public async Task UndoAsync()
         {
+            await SyncContext.Clear;
             root.EnsureNotDisposed();
             root.EnsureLocalRepo();
 

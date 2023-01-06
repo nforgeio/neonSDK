@@ -46,6 +46,7 @@ using GitHubRepositoryTag = Octokit.RepositoryTag;
 using GitBranch     = LibGit2Sharp.Branch;
 using GitRepository = LibGit2Sharp.Repository;
 using GitSignature  = LibGit2Sharp.Signature;
+using Neon.Tasks;
 
 namespace Neon.Git
 {
@@ -73,6 +74,7 @@ namespace Neon.Git
         /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
         public async Task<IReadOnlyList<GitHubRepositoryTag>> GetAllAsync()
         {
+            await SyncContext.Clear;
             root.EnsureNotDisposed();
 
             return await root.GitHubApi.Repository.GetAllTags(root.RemoteRepoPath.Owner, root.RemoteRepoPath.Name);
@@ -87,6 +89,7 @@ namespace Neon.Git
         /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
         public async Task<GitHubRepositoryTag> GetAsync(string tagName)
         {
+            await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(tagName), nameof(tagName));
             root.EnsureNotDisposed();
 
@@ -115,6 +118,7 @@ namespace Neon.Git
         /// <exception cref="InvalidOperationException">Thrown if the branch does not exist.</exception>
         public async Task CreateFromBranchAsync(string tagName, string branchName, string message = null)
         {
+            await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(tagName), nameof(tagName));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
             root.EnsureNotDisposed();
@@ -161,6 +165,7 @@ namespace Neon.Git
         /// <param name="message">Optionally specifies a creation message.</param>
         public async Task CreateFromCommitAsync(string tagName, string commitSha, string message = null)
         {
+            await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(tagName), nameof(tagName));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(commitSha), nameof(commitSha));
             root.EnsureNotDisposed();
@@ -200,6 +205,7 @@ namespace Neon.Git
         /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
         public async Task<bool> RemoveAsync(string tagName)
         {
+            await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(tagName), nameof(tagName));
             root.EnsureNotDisposed();
 

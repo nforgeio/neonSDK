@@ -47,6 +47,7 @@ using GitHubSignature  = Octokit.Signature;
 using GitBranch     = LibGit2Sharp.Branch;
 using GitRepository = LibGit2Sharp.Repository;
 using GitSignature  = LibGit2Sharp.Signature;
+using Neon.Tasks;
 
 namespace Neon.Git
 {
@@ -77,6 +78,7 @@ namespace Neon.Git
         /// <returns>The new release.</returns>
         public async Task<Release> CreateAsync(string tagName, string releaseName = null, string body = null, bool draft = false, bool prerelease = false)
         {
+            await SyncContext.Clear;
             root.EnsureNotDisposed();
 
             releaseName ??= tagName;
@@ -112,6 +114,7 @@ namespace Neon.Git
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
         public async Task<IReadOnlyList<Release>> GetAllAsync()
         {
+            await SyncContext.Clear;
             root.EnsureNotDisposed();
 
             return await root.GitHubApi.Repository.Release.GetAll(root.RemoteRepoPath.Owner, root.RemoteRepoPath.Name);
@@ -127,6 +130,7 @@ namespace Neon.Git
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
         public async Task<Octokit.Release> GetAsync(string releaseName)
         {
+            await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(releaseName), nameof(releaseName));
             root.EnsureNotDisposed();
 
@@ -147,6 +151,7 @@ namespace Neon.Git
         /// <exception cref="InvalidOperationException">Thrown when the relase no longer exists.</exception>
         public async Task<Release> RefreshAsync(Release release)
         {
+            await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(release != null, nameof(release));
             root.EnsureNotDisposed();
 
@@ -188,6 +193,7 @@ namespace Neon.Git
         /// </remarks>
         public async Task<Release> UpdateAsync(Release release, ReleaseUpdate releaseUpdate)
         {
+            await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(release != null, nameof(release));
             Covenant.Requires<ArgumentNullException>(releaseUpdate != null, nameof(releaseUpdate));
 
@@ -201,6 +207,7 @@ namespace Neon.Git
         /// <returns><c>true</c> when the release existed and was removed, <c>false</c> otherwise.</returns>
         public async Task<bool> RemoveAsync(string releaseName)
         {
+            await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(releaseName), nameof(releaseName));
             root.EnsureNotDisposed();
 
@@ -232,6 +239,7 @@ namespace Neon.Git
         /// <exception cref="NotSupportedException">Thrown when the releas has already been published.</exception>
         public async Task<ReleaseAsset> AddAssetAsync(Release release, string assetPath, string assetName = null, string contentType = "application/octet-stream")
         {
+            await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(release != null, nameof(release));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(assetPath), nameof(assetPath));
 
@@ -256,6 +264,7 @@ namespace Neon.Git
         /// <returns>The new <see cref="ReleaseAsset"/>.</returns>
         public async Task<ReleaseAsset> AddAssetAsync(Release release, Stream stream, string assetName, string contentType = "application/octet-stream")
         {
+            await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(release != null, nameof(release));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(assetName), nameof(assetName));
             Covenant.Requires<ArgumentNullException>(stream != null, nameof(stream));
@@ -320,6 +329,7 @@ namespace Neon.Git
         /// <exception cref="InvalidOperationException">Thrown if the release doesn't exist or when it's already published.</exception>
         public async Task<Release> PublishAsync(string releaseName)
         {
+            await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(releaseName), nameof(releaseName));
 
             var release = await GetAsync(releaseName);
@@ -362,6 +372,7 @@ namespace Neon.Git
         /// <exception cref="InvalidOperationException">Thrown if the release does not exist or it has not been published.</exception>
         public async Task<string> GetZipballUri(string releaseName)
         {
+            await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(releaseName), nameof(releaseName));
 
             var release = await GetAsync(releaseName);
@@ -395,6 +406,7 @@ namespace Neon.Git
         /// <exception cref="InvalidOperationException">Thrown if the release does not exist or it has not been published.</exception>
         public async Task DownloadZipballAsync(string releaseName, Stream output)
         {
+            await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(releaseName), nameof(releaseName));
             Covenant.Requires<ArgumentNullException>(output != null, nameof(output));
 
@@ -435,6 +447,7 @@ namespace Neon.Git
             bool        noMd5File   = false,
             long        maxPartSize = (long)(75 * ByteUnits.MebiBytes))
         {
+            await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(release != null, nameof(release));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(sourcePath), nameof(sourcePath));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(version), nameof(version));

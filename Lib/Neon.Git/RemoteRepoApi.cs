@@ -44,6 +44,7 @@ using GitHubSignature  = Octokit.Signature;
 using GitBranch     = LibGit2Sharp.Branch;
 using GitRepository = LibGit2Sharp.Repository;
 using GitSignature  = LibGit2Sharp.Signature;
+using Neon.Tasks;
 
 namespace Neon.Git
 {
@@ -75,6 +76,8 @@ namespace Neon.Git
         /// <returns>The associated <see cref="GitHubRepository"/>.</returns>
         public async Task<GitHubRepository> GetAsync()
         {
+            await SyncContext.Clear;
+
             return await root.GitHubApi.Repository.Get(root.RemoteRepoPath.Owner, root.RemoteRepoPath.Name);
         }
 
