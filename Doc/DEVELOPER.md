@@ -138,6 +138,7 @@ Follow the steps below to configure a development or test workstation:
 
     * https://github.com/nforgeio/nforgeio.github.io.git
     * https://github.com/nforgeio/documentation.git
+    * https://github.com/nforgeio/nforgeio.github.io.git
 
     You can do this manually or use the CMD script below: 
 
