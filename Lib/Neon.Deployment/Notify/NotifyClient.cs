@@ -40,10 +40,19 @@ using Neon.Common;
 namespace Neon.Deployment
 {
     /// <summary>
+    /// <para>
     /// Implements notification operations like sending an email or a Microsoft Teams message.
+    /// </para>
+    /// <note>
+    /// These notifications will be sent from the <b>devbot@neonforge.com</b> user because
+    /// that user doesn't enable multi-factor authentication (MFA) whereas our developer
+    /// Office accounts do enable MFA.  MFA prevents basic authentication from working.
+    /// </note>
     /// </summary>
     public class NotifyClient
     {
+        private const string devbotVault = "user-devbot";
+
         private string      username;
         private string      password;
 
@@ -53,8 +62,9 @@ namespace Neon.Deployment
         /// <param name="username">Optionally specifies the Office 365 username (like: "sally@neonforge.com").</param>
         /// <param name="password">Optionally specifies the password.</param>
         /// <remarks>
-        /// This constructor obtains these values from <b>neon-assistant</b> from the current
-        /// user's <b>NEONFORGE_LOGIN</b> secret when not specified explicitly.
+        /// This constructor obtains these values from <b>neon-assistant</b> from the 
+        /// <b>devbot@neonforge.com</b> user's <b>NEONFORGE_LOGIN</b> secret when not 
+        /// specified explicitly.
         /// </remarks>
         public NotifyClient(string username = null, string password = null)
         {
@@ -66,7 +76,7 @@ namespace Neon.Deployment
             }
             else
             {
-                this.username = profileClient.GetSecretValue("NEONFORGE_LOGIN[username]");
+                this.username = profileClient.GetSecretValue("NEONFORGE_LOGIN[username]", vault: devbotVault);
             }
 
             if (!string.IsNullOrEmpty(password))
@@ -75,12 +85,12 @@ namespace Neon.Deployment
             }
             else
             {
-                this.password = profileClient.GetSecretValue("NEONFORGE_LOGIN[password]");
+                this.password = profileClient.GetSecretValue("NEONFORGE_LOGIN[password]", vault: devbotVault);
             }
         }
 
         /// <summary>
-        /// Sends an email via the user's Office 356 account.
+        /// Sends an email via the <b>devbot@neonforge.com</b> Office 356 account.
         /// </summary>
         /// <param name="to">Specifies the target email addresses separated with commas.</param>
         /// <param name="subject">Specifies the subject line.</param>
@@ -103,6 +113,7 @@ namespace Neon.Deployment
                 IsBodyHtml = bodyAsHtml
             };
 
+            message.From = new MailAddress(username);
             message.To.Add(to);
 
             if (!string.IsNullOrEmpty(cc))
@@ -132,14 +143,14 @@ namespace Neon.Deployment
 
             try
             {
-                using (
-                    var smtp = new SmtpClient("smtp.office365.com", 587)
-                    {
-                        Credentials = new NetworkCredential(username, password),
-                        EnableSsl   = true
-                    })
+                using (var smtp = new SmtpClient("smtp.office365.com", 587) { Credentials = new NetworkCredential(username, password), EnableSsl = true})
                 {
-                    smtp.Send(message);
+                    smtp.Credentials           = new NetworkCredential(username, password);
+                    smtp.UseDefaultCredentials = false;
+                    smtp.EnableSsl             = true;
+                    smtp.DeliveryMethod        = SmtpDeliveryMethod.Network;
+
+                   smtp.Send(message);
                 }
             }
             finally
@@ -177,7 +188,14 @@ namespace Neon.Deployment
 
                 content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-                httpClient.SendSafeAsync(request).Wait();
+                request.Content = content;
+
+                var response = httpClient.SendAsync(request).Result;
+
+                if (response.StatusCode != HttpStatusCode.OK)
+                {
+                    throw new DeploymentException($"Teams Message Error: {response.Content.ReadAsStringAsync().Result}");
+                }
             }
         }
     }
