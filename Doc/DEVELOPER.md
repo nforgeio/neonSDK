@@ -122,6 +122,23 @@ Follow the steps below to configure a development or test workstation:
     * Check: **Use previews of the .NET SDK (requires restart)
     * Restart all Visual Studio instances
 
+18. **Clone** the related neonSDK repos to the same parent directory as **neonSDK** using the repo names for the folders:
+
+    * https://github.com/nforgeio/neonSDK.git
+    * https://github.com/nforgeio/documentation.git
+
+    You can do this manually or use the CMD script below: 
+
+    ```
+    cd "%NF_ROOT%\.."
+    mkdir neonSDK
+    git clone https://github.com/nforgeio/neonSDK.git
+
+    cd "%NF_ROOT%\.."
+    mkdir documentation
+    git clone https://github.com/nforgeio/documentation.git
+    ```
+
 16. **Clone** the https://github.com/nforgeio/neonSDK.git repository to your workstation:
 
     * **IMPORTANT:** All NEONFORGE related repositories must be cloned within the same parent directory and their folder names must be the same as the repo names.
@@ -134,24 +151,6 @@ Follow the steps below to configure a development or test workstation:
     * Answer the questions
     * Press ENTER to close the CMD window when the script is finished
   
-18. **Clone** the related neonSDK repos to the same parent directory as **neonSDK** using the repo names for the folders:
-
-    * https://github.com/nforgeio/nforgeio.github.io.git
-    * https://github.com/nforgeio/documentation.git
-    * https://github.com/nforgeio/nforgeio.github.io.git
-
-    You can do this manually or use the CMD script below: 
-
-    ```
-    cd "%NF_ROOT%\.."
-    mkdir nforgeio.github.io
-    git clone https://github.com/nforgeio/nforgeio.github.io.git
-
-    cd "%NF_ROOT%\.."
-    mkdir nforgeio.github.io
-    git clone https://github.com/nforgeio/documentation.git
-    ```
-
 19. **Close** any running instances of **Visual Studio**
 
 20. Install **7-Zip (32-bit)** (using the Windows *.msi* installer) from [here](http://www.7-zip.org/download.html)
