@@ -20,6 +20,7 @@ using System.Diagnostics.Contracts;
 using System.IO;
 
 using Neon.Common;
+using Octokit;
 
 namespace Neon.Deployment
 {
@@ -69,6 +70,92 @@ namespace Neon.Deployment
         /// Returns <c>true</c> if the class is signed-in.
         /// </summary>
         public static bool Signedin => masterPassword != null;
+
+        /// <summary>
+        /// <para>
+        /// This class requires that a <b>op.exe</b> v1 client be installed and if
+        /// the 1Password app is installed that it be version 8.0 or greater.
+        /// </para>
+        /// </summary>
+        /// <exception cref="NotSupportedException">Thrown when any of the checks failed.</exception>
+        public static void CheckInstallation()
+        {
+            // Check for the [op.exe] client presence and version.
+
+            ExecuteResponse response;
+
+            try
+            {
+                response = NeonHelper.ExecuteCapture("op.exe", new object[] { "--version" });
+            }
+            catch
+            {
+                throw new NotSupportedException("Cannot locate the 1Password [op.exe] v1 CLI.  This must be located on the PATH.");
+            }
+
+            if (response.ExitCode != 0)
+            {
+                throw new NotSupportedException($"1Password [op.exe] CLI returned [ExitCode={response.ExitCode}].");
+            }
+
+            try
+            {
+                var version = SemanticVersion.Parse(response.OutputText.Trim());
+
+                if (version >= SemanticVersion.Parse("2"))
+                {
+                    throw new NotSupportedException($"Installed 1Password [op.exe] CLI [Version={version}].  Only v1+ clients are supported at this time.");
+                }
+            }
+            catch (FormatException)
+            {
+                throw new NotSupportedException($"1Password [op.exe] CLI returned [Version={response.OutputText}] which cannot be parsed.");
+            }
+
+            // $hack(jefflill):
+            //
+            // Check for installed 1Password application version 7.x and throw an exception
+            // when present.  We never installed eealier 1Passwork versions, so we won't
+            // bother checking for those.
+
+            var probePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData", "Local", "1Password", "app", "7", "1Password.exe");
+
+            if (File.Exists(probePath))
+            {
+                throw new NotSupportedException("1Password v7.x is currently installed.  Only 1Password v8.x+ is supported.");
+            }
+        }
+
+        /// <summary>
+        /// <para>
+        /// Returns <c>true</c> if the 1Password CLI needs to be configured by
+        /// setting the <b>OP_DEVICE</b> environment variable.
+        /// </para>
+        /// <note>
+        /// The CLI requires <b>OP_DEVICE</b> to be set when the 1Password application
+        /// is not installed on the current machine.
+        /// </note>
+        /// </summary>
+        public static bool CliConfigRequired
+        {
+            get
+            {
+                if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("OP_DEVICE")))
+                {
+                    return false;
+                }
+
+                // $hack(jefflill):
+                //
+                // I'm hardcoding detecting the 1Password installation.  This won't work
+                // for 1Password v7.x or earlier but does work for v8 and hopefully future
+                // releases as well.
+
+                var probePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData", "Local", "1Password", "1password.sqlite");
+
+                return !File.Exists(probePath);
+            }
+        }
 
         /// <summary>
         /// Configures and signs into 1Password for the first time on a machine.  This
