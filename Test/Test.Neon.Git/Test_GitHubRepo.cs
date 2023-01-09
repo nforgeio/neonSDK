@@ -92,7 +92,7 @@ namespace TestGit
 
                         // Verify that we can reopen the existing repo.
 
-                        using (var repo = new GitHubRepo(tempFolder.Path))
+                        using (var repo = await GitHubRepo.OpenAsync(tempFolder.Path))
                         {
                             Assert.Equal("master", repo.Local.CurrentBranch.FriendlyName);
                             Assert.True(File.Exists(Path.Combine(repoPath, ".gitignore")));
@@ -105,14 +105,14 @@ namespace TestGit
 
                     using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
                     {
-                        Assert.Throws<RepositoryNotFoundException>(() => new GitHubRepo(tempFolder.Path));
+                        await Assert.ThrowsAsync<RepositoryNotFoundException>(async () => await GitHubRepo.OpenAsync(tempFolder.Path));
                     }
 
                     // Verify that we see an exception when trying to open an empty local repo folder.
 
                     using (var tempFolder = new TempFolder(prefix: "repo-", create: true))
                     {
-                        Assert.Throws<RepositoryNotFoundException>(() => new GitHubRepo(tempFolder.Path));
+                        await Assert.ThrowsAsync<RepositoryNotFoundException>(async () => await GitHubRepo.OpenAsync(tempFolder.Path));
                     }
                 });
         }

@@ -75,6 +75,9 @@ namespace Neon.Git
     /// that you'll use for subsequent operations.
     /// </para>
     /// <para>
+    /// <b>To open an existing local repository</b>, call <see cref="OpenAsync(string, string, string, string, string, IProfileClient)"/>.
+    /// </para>
+    /// <para>
     /// <b>To perform only GitHub account operations</b> Call the static <see cref="ConnectAsync(string, string, string, string, string, IProfileClient)"/>
     /// method to construct an instance without a local repository reference.
     /// </para>
@@ -253,6 +256,43 @@ namespace Neon.Git
             return await Task.FromResult(repo);
         }
 
+        /// <summary>
+        /// <para>
+        /// Creates a <see cref="GitHubRepo"/> that references an existing local git repository as well as
+        /// the associated GitHub remote repository API.
+        /// </para>
+        /// <para>
+        /// This requires GitHub credentials.  These can be passed explicitly as parameters or can be retrieved 
+        /// automatically  from the <b>GITHUB_USERNAME</b> and <b>GITHUB_PAT</b> environment variables or from 
+        /// the <b>GITHUB_PAT[username]</b> and <c>GITHUB_PAT[password]</c> secrets via an optional
+        /// <see cref="IProfileClient"/> implementation.
+        /// </para>
+        /// </summary>
+        /// <param name="localRepoFolder">Specifies the folder where the local git repository will be created or where it already exists.</param>
+        /// <param name="username">Optionally specifies the GitHub username.</param>
+        /// <param name="accessToken">Optionally specifies the GitHub Personal Access Token (PAT).</param>
+        /// <param name="email">Optionally specifies the GitHub email address for the current user.</param>
+        /// <param name="userAgent">
+        /// Optionally specifies the user-agent to be submitted with GitHub REST API calls.  This defaults to <b>"unknown"</b>.
+        /// </param>
+        /// <param name="profileClient">
+        /// Optionally specifies the <see cref="IProfileClient"/> instance to be used for retrieving secrets.
+        /// You may also add your <see cref="IProfileClient"/> to <see cref="NeonHelper.ServiceContainer"/>
+        /// and the instance will use that if this parameter is <c>null</c>.  Secrets will be queried only
+        /// when a profile client is available.
+        /// </param>
+        /// <exception cref="RepositoryNotFoundException">Thrown when the local repository doesn't exist.</exception>
+        public static async Task<GitHubRepo> OpenAsync(
+            string          localRepoFolder,
+            string          username      = null,
+            string          accessToken   = null,
+            string          email         = null,
+            string          userAgent     = null,
+            IProfileClient  profileClient = null)
+        {
+            return await Task.FromResult(new GitHubRepo(localRepoFolder, username, accessToken, email, userAgent, profileClient));
+        }
+
         //---------------------------------------------------------------------
         // Instance members
 
@@ -301,7 +341,7 @@ namespace Neon.Git
         /// when a profile client is available.
         /// </param>
         /// <exception cref="RepositoryNotFoundException">Thrown when the local repository doesn't exist.</exception>
-        public GitHubRepo(
+        private GitHubRepo(
             string          localRepoFolder,
             string          username      = null, 
             string          accessToken   = null, 
