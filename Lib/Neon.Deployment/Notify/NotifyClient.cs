@@ -170,10 +170,10 @@ namespace Neon.Deployment
         /// <param name="channelUri">Specifies the target Teams channel URI.</param>
         /// <param name="cardJson">
         /// <para>
-        /// Specifies the message formatted as the legancy <b>MessageCard format:</b>
+        /// Specifies the message as the legancy <b>MessageCard format:</b>
         /// </para>
         /// <para>
-        /// https://docs.microsoft.com/en-us/outlook/actionable-messages/message-card-reference<br/>
+        /// https://learn.microsoft.com/en-us/outlook/actionable-messages/message-card-reference<br/>
         /// https://messagecardplayground.azurewebsites.net/
         /// </para>
         /// <note>
