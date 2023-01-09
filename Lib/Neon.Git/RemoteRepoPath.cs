@@ -48,6 +48,40 @@ namespace Neon.Git
         // Static members
 
         /// <summary>
+        /// Equality operator.
+        /// </summary>
+        /// <param name="v1">Specifies the first value.</param>
+        /// <param name="v2">Specifies the second value.</param>
+        /// <returns><c>true</c> when the valuea are the same.</returns>
+        public static bool operator ==(RemoteRepoPath v1, RemoteRepoPath v2)
+        {
+            if ((v1 is null) != (v2 is null))
+            {
+                return false;
+            }
+
+            if (v1 is not null)
+            {
+                return v1.Equals(v2);
+            }
+            else
+            {
+                return v2.Equals(v1);
+            }
+        }
+
+        /// <summary>
+        /// Inequality operator.
+        /// </summary>
+        /// <param name="v1">Specifies the first value.</param>
+        /// <param name="v2">Specifies the second value.</param>
+        /// <returns><c>true</c> when the valuea are different.</returns>
+        public static bool operator !=(RemoteRepoPath v1, RemoteRepoPath v2)
+        {
+            return !(v1 == v2);
+        }
+
+        /// <summary>
         /// Parses a GitHub repository path.
         /// </summary>
         /// <param name="path">The path, like: <b>[SERVER/]OWNER/REPO</b></param>
@@ -95,6 +129,15 @@ namespace Neon.Git
                     throw new FormatException($"Invalid GitHub repository path: {path}");
             }
 
+            // Check for blank parts.
+
+            if (repoPath.Server == string.Empty ||
+                repoPath.Owner == string.Empty ||
+                repoPath.Name == string.Empty)
+            {
+                throw new FormatException($"Invalid GitHub repository path: {path}");
+            }
+
             return repoPath;
         }
 
@@ -127,6 +170,25 @@ namespace Neon.Git
         public override string ToString()
         {
             return $"{Server}/{Owner}/{Name}";
+        }
+
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (obj is RemoteRepoPath other)
+            {
+                return this.ToString() == other.ToString();
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode()
+        {
+            return ToString().GetHashCode();
         }
     }
 }
