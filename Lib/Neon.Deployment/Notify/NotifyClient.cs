@@ -173,7 +173,8 @@ namespace Neon.Deployment
         /// Specifies the message formatted as the legancy <b>MessageCard format:</b>
         /// </para>
         /// <para>
-        /// https://docs.microsoft.com/en-us/outlook/actionable-messages/message-card-reference
+        /// https://docs.microsoft.com/en-us/outlook/actionable-messages/message-card-reference<br/>
+        /// https://messagecardplayground.azurewebsites.net/
         /// </para>
         /// <note>
         /// Adaptive Cards are not supported by the Teams Connector at this time.
