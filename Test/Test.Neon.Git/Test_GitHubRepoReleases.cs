@@ -81,9 +81,10 @@ namespace TestGit
                         var release     = await repo.RemoteRepository.Release.CreateAsync(tagName: newTestTag, releaseName: newTestName, draft: true);
 
                         Assert.NotNull(release);
+                        Assert.NotNull(await repo.RemoteRepository.Release.FindAsync(newTestName));
                         Assert.NotNull(await repo.RemoteRepository.Release.GetAsync(newTestName));
                         Assert.True(await repo.RemoteRepository.Release.RemoveAsync(newTestName));
-                        Assert.Null(await repo.RemoteRepository.Release.GetAsync(newTestName));
+                        Assert.Null(await repo.RemoteRepository.Release.FindAsync(newTestName));
                         Assert.Equal(newTestName, release.Name);
                         Assert.True(release.Draft);
                         Assert.True(string.IsNullOrEmpty(release.Body));
@@ -91,6 +92,10 @@ namespace TestGit
                         // Verify that trying to delete a non-existent release returns FALSE.
 
                         Assert.False(await repo.RemoteRepository.Release.RemoveAsync(newTestName));
+
+                        // Verify that [GetAsync()] returns throws for a non-existant one.
+
+                        await Assert.ThrowsAsync<Octokit.NotFoundException>(async () => await repo.RemoteRepository.Release.GetAsync($"{Guid.NewGuid()}"));
                     }
                 });
         }
@@ -215,7 +220,7 @@ namespace TestGit
 
                         await repo.RemoteRepository.Release.PublishAsync(releaseName);
 
-                        release = await repo.RemoteRepository.Release.GetAsync(releaseName);
+                        release = await repo.RemoteRepository.Release.FindAsync(releaseName);
 
                         Assert.False(release.Draft);
                     }

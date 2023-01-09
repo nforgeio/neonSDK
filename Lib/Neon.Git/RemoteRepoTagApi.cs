@@ -71,7 +71,6 @@ namespace Neon.Git
         /// </summary>
         /// <returns>The list of tags.</returns>
         /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
-        /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
         public async Task<IReadOnlyList<GitHubRepositoryTag>> GetAllAsync()
         {
             await SyncContext.Clear;
@@ -81,13 +80,12 @@ namespace Neon.Git
         }
 
         /// <summary>
-        /// Returns a specific GitHub origin repository tag, if it exists.
+        /// Searches for a specific GitHub origin repository tag.
         /// </summary>
         /// <param name="tagName">Specifies the origin repository tag name.</param>
-        /// <returns>The <see cref="GitHubRepositoryTag"/> or <c>null</c> when the tag doesn't exist.</returns>
+        /// <returns>The requested <see cref="GitHubRepositoryTag"/> or <c>null</c> when the tag doesn't exist.</returns>
         /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
-        /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
-        public async Task<GitHubRepositoryTag> GetAsync(string tagName)
+        public async Task<GitHubRepositoryTag> FindAsync(string tagName)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(tagName), nameof(tagName));
@@ -96,8 +94,10 @@ namespace Neon.Git
             // $todo(jefflill):
             //
             // It's unfortunate to have to list all of these objects just to obtain a
-            // specific one.  We should come back and refactor this to use the low-level
-            // API.
+            // specific one.  Octokit doesn't appear to have an API for this but it
+            // looks like this may be possible via the REST API:
+            //
+            //      https://stackoverflow.com/questions/72429056/how-to-get-single-tag-information-using-github-api
 
             return (await GetAllAsync()).FirstOrDefault(tag => tag.Name.Equals(tagName, StringComparison.InvariantCultureIgnoreCase));
         }
@@ -105,8 +105,8 @@ namespace Neon.Git
         // $todo(jefflill):
         //
         // The tag create methods don't work.  Create functionality distinct from
-        // publishing releases isn't really important right now, so I'm going to
-        // comment-out the create methods.
+        // publishing releases so this isn't really important right now, so I'm
+        // going to comment-out the create methods.
 
 #if TODO
         /// <summary>
@@ -143,15 +143,12 @@ namespace Neon.Git
 
             var tag = await root.GitHubApi.Git.Tag.Create(root.RemoteRepoPath.Owner, root.RemoteRepoPath.Name, newTag);
 
-            // GitHub might not create the tag synchronously, so we'll wait for
-            // it to appear.
+            // GitHub might not create the tag synchronously, so we'll wait for it to appear.
 
             await root.WaitForGitHubAsync(
                 async () =>
                 {
-                    var tag = await GetAsync(tagName);
-
-                    var all = await GetAllAsync();
+                    var tag = await FindAsync(tagName);
 
                     return tag != null;
                 });
@@ -183,13 +180,12 @@ namespace Neon.Git
 
             await root.GitHubApi.Git.Tag.Create(root.RemoteRepoPath.Owner, root.RemoteRepoPath.Name, newTag);
 
-            // GitHub might not create the tag synchronously, so we'll wait for
-            // it to appear.
+            // GitHub might not create the tag synchronously, so we'll wait for it to appear.
 
             await root.WaitForGitHubAsync(
                 async () =>
                 {
-                    var tag = await GetAsync(tagName);
+                    var tag = await FindAsync(tagName);
 
                     return tag != null;
                 });
@@ -202,14 +198,13 @@ namespace Neon.Git
         /// <param name="tagName">Specifies the origin repository tag name.</param>
         /// <returns><c>true</c> if the tag existed and was removed, <c>false</c> otherwise.</returns>
         /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
-        /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
         public async Task<bool> RemoveAsync(string tagName)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(tagName), nameof(tagName));
             root.EnsureNotDisposed();
 
-            var tag = await GetAsync(tagName);
+            var tag = await FindAsync(tagName);
 
             if (tag == null)
             {
@@ -223,13 +218,12 @@ namespace Neon.Git
 
             await root.HttpClient.DeleteSafeAsync($"/repos/{root.RemoteRepoPath.Owner}/{root.RemoteRepoPath.Name}/git/refs/tags/{tagName}");
 
-            // GitHub might not delete the tag synchronously, so we'll wait for
-            // it to disappear.
+            // GitHub might not delete the tag synchronously, so we'll wait for it to disappear.
 
             await root.WaitForGitHubAsync(
                 async () =>
                 {
-                    var tag = await GetAsync(tagName);
+                    var tag = await FindAsync(tagName);
 
                     return tag == null;
                 });

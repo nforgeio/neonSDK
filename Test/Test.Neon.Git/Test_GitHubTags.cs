@@ -87,12 +87,12 @@ namespace TestGit
                         // Create and verify.
 
                         await repo.RemoteRepository.Tag.CreateFromBranchAsync(tagName, "master", "create test tag");
-                        Assert.NotNull(repo.RemoteRepository.Tag.GetAsync(tagName));
+                        Assert.NotNull(repo.RemoteRepository.Tag.FindAsync(tagName));
 
                         // Remove and verify.
 
                         await repo.RemoteRepository.Tag.RemoveAsync(tagName);
-                        Assert.Null(repo.RemoteRepository.Tag.GetAsync(tagName));
+                        Assert.Null(repo.RemoteRepository.Tag.FindAsync(tagName));
                     }
                 });
         }

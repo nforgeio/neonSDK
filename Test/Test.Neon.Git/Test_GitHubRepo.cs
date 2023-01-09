@@ -289,7 +289,7 @@ namespace TestGit
 
                             Assert.True(await repo.Local.CreateBranchAsync(newBranchName, "master"));
                             Assert.NotNull(repo.GitApi.Branches[newBranchName]);
-                            Assert.Null(await repo.RemoteRepository.Branch.GetAsync(newBranchName));
+                            Assert.Null(await repo.RemoteRepository.Branch.FindAsync(newBranchName));
 
                             // Verify that we see FALSE when trying to create an existing branch.
 
@@ -300,7 +300,7 @@ namespace TestGit
                             await repo.Local.CheckoutAsync("master");
                             repo.GitApi.Branches.Remove(repo.GitApi.Branches[newBranchName]);
                             Assert.Null(repo.GitApi.Branches[newBranchName]);
-                            Assert.Null(await repo.RemoteRepository.Branch.GetAsync(newBranchName));
+                            Assert.Null(await repo.RemoteRepository.Branch.FindAsync(newBranchName));
                         }
                     }
                 });
@@ -327,7 +327,7 @@ namespace TestGit
 
                             Assert.True(await repo.Local.CreateBranchAsync(newBranchName, "master"));
                             Assert.NotNull(repo.GitApi.Branches[newBranchName]);
-                            Assert.Null(await repo.RemoteRepository.Branch.GetAsync(newBranchName));
+                            Assert.Null(await repo.RemoteRepository.Branch.FindAsync(newBranchName));
 
                             // Create a test file in the new branch and commit.
 
@@ -369,7 +369,7 @@ namespace TestGit
 
                             Assert.True(await repo.Local.CreateBranchAsync(newBranchName, "master"));
                             Assert.NotNull(repo.GitApi.Branches[newBranchName]);
-                            Assert.Null(await repo.RemoteRepository.Branch.GetAsync(newBranchName));
+                            Assert.Null(await repo.RemoteRepository.Branch.FindAsync(newBranchName));
 
                             // Create a test file in the new branch and commit.
 
@@ -464,26 +464,31 @@ namespace TestGit
 
                             Assert.True(await repo.Local.CreateBranchAsync(newBranchName, "master"));
                             Assert.NotNull(repo.GitApi.Branches[newBranchName]);
-                            Assert.Null(await repo.RemoteRepository.Branch.GetAsync(newBranchName));
+                            Assert.Null(await repo.RemoteRepository.Branch.FindAsync(newBranchName));
                             Assert.Equal(newBranchName, repo.Local.CurrentBranch.FriendlyName);
 
                             // Push to remote and verify.
 
                             await repo.Local.PushAsync();
                             Assert.NotNull(repo.GitApi.Branches[newBranchName]);
-                            Assert.NotNull(await repo.RemoteRepository.Branch.GetAsync(newBranchName));
+                            Assert.NotNull(await repo.RemoteRepository.Branch.FindAsync(newBranchName));
 
                             // Switch back to master so we'll be able to delete the branch.
 
                             await repo.Local.CheckoutAsync("master");
                             Assert.Equal("master", repo.Local.CurrentBranch.FriendlyName);
 
+                            // Verify that [GetAsync()] returns an existing branch and throws for a non-existant one.
+
+                            Assert.NotNull(await repo.RemoteRepository.Branch.GetAsync(newBranchName));
+                            await Assert.ThrowsAsync<Octokit.NotFoundException>(async () => await repo.RemoteRepository.Branch.GetAsync($"{Guid.NewGuid()}"));
+
                             // Remove the new branch and verify.
 
                             await repo.Local.RemoveBranchAsync(newBranchName);
 
                             Assert.Null(repo.GitApi.Branches[newBranchName]);
-                            Assert.Null(await repo.RemoteRepository.Branch.GetAsync(newBranchName));
+                            Assert.Null(await repo.RemoteRepository.Branch.FindAsync(newBranchName));
                             Assert.Equal("master", repo.Local.CurrentBranch.FriendlyName);
                         }
                     }
