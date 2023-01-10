@@ -519,8 +519,8 @@ namespace Neon.Git
         /// </summary>
         /// <param name="relativePath">
         /// Specifies the path to the file relative to the local repository root folder.
-        /// This may include a leading slash and both forward and backslashes are allowed
-        /// as path separators.
+        /// This may include a leading slash (which is assumed when not present) and both 
+        /// forward and backslashes are allowed as path separators.
         /// </param>
         /// <returns>The GitHub URI for the file from the current branch.</returns>
         /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
