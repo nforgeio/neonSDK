@@ -59,7 +59,7 @@ namespace TestGit
 
                         using (var repo = await GitHubRepo.CloneAsync(GitTestHelper.RemoteTestRepo, tempFolder.Path))
                         {
-                            Assert.Equal(GitTestHelper.RemoteTestRepo, repo.RemoteRepoPath.ToString());
+                            Assert.Equal(GitTestHelper.RemoteTestRepo, repo.RemoteRepository.Path.ToString());
                             Assert.Equal("master", repo.Local.CurrentBranch.FriendlyName);
                             Assert.True(File.Exists(Path.Combine(repoPath, ".gitignore")));
                         }
@@ -85,7 +85,7 @@ namespace TestGit
 
                         using (var repo = await GitHubRepo.CloneAsync(GitTestHelper.RemoteTestRepo, tempFolder.Path))
                         {
-                            Assert.Equal(GitTestHelper.RemoteTestRepo, repo.RemoteRepoPath.ToString());
+                            Assert.Equal(GitTestHelper.RemoteTestRepo, repo.RemoteRepository.Path.ToString());
                             Assert.Equal("master", repo.Local.CurrentBranch.FriendlyName);
                             Assert.True(File.Exists(Path.Combine(repoPath, ".gitignore")));
                         }
@@ -96,7 +96,7 @@ namespace TestGit
                         {
                             Assert.Equal("master", repo.Local.CurrentBranch.FriendlyName);
                             Assert.True(File.Exists(Path.Combine(repoPath, ".gitignore")));
-                            Assert.Equal(RemoteRepoPath.Parse(GitTestHelper.RemoteTestRepo).ToString(), repo.RemoteRepoPath.ToString());
+                            Assert.Equal(RemoteRepoPath.Parse(GitTestHelper.RemoteTestRepo).ToString(), repo.RemoteRepository.Path.ToString());
                         }
                     }
 
@@ -559,7 +559,6 @@ namespace TestGit
 
                         Assert.Throws<ObjectDisposedException>(() => _ = repo.Remote);
                         Assert.Throws<ObjectDisposedException>(() => _ = repo.RemoteRepository);
-                        Assert.Throws<ObjectDisposedException>(() => _ = repo.RemoteRepoPath);
 
                         await Assert.ThrowsAsync<ObjectDisposedException>(async () => await repo.Local.CheckoutAsync("master"));
                         await Assert.ThrowsAsync<ObjectDisposedException>(async () => await repo.Local.CheckoutOriginAsync("master"));

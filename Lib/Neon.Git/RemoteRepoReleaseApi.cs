@@ -91,7 +91,7 @@ namespace Neon.Git
                 Body       = body
             };
 
-            var newRelease = await root.GitHubApi.Repository.Release.Create(root.RemoteRepoPath.Owner, root.RemoteRepoPath.Name, release);
+            var newRelease = await root.GitHubApi.Repository.Release.Create(root.RemoteRepository.Id, release);
 
             // GitHub doesn't appear to create releases synchronously, so we're going to wait for the new release to show up.
 
@@ -114,7 +114,7 @@ namespace Neon.Git
             await SyncContext.Clear;
             root.EnsureNotDisposed();
 
-            return await root.GitHubApi.Repository.Release.GetAll(root.RemoteRepoPath.Owner, root.RemoteRepoPath.Name);
+            return await root.GitHubApi.Repository.Release.GetAll(root.RemoteRepository.Id);
         }
 
         /// <summary>
@@ -132,7 +132,7 @@ namespace Neon.Git
 
             try
             {
-                return await root.GitHubApi.Repository.Release.Get(root.RemoteRepoPath.Owner, root.RemoteRepoPath.Name, releaseName);
+                return await root.GitHubApi.Repository.Release.Get(root.RemoteRepository.Id, releaseName);
             }
             catch (Octokit.NotFoundException)
             {
@@ -142,7 +142,7 @@ namespace Neon.Git
                 // revert to listing all of the releases and selecting from that.  This will optimize for
                 // the presumably common case where the release exists.
 
-                var allReleases = await root.GitHubApi.Repository.Release.GetAll(root.RemoteRepoPath.Owner, root.RemoteRepoPath.Name);
+                var allReleases = await root.GitHubApi.Repository.Release.GetAll(root.RemoteRepository.Id);
                 var release     = allReleases.FirstOrDefault(release => release.Name.Equals(releaseName, StringComparison.InvariantCultureIgnoreCase));
 
                 if (release != null)
@@ -178,7 +178,7 @@ namespace Neon.Git
                 // revert to listing all of the releases and selecting from that.  This will optimize for
                 // the presumably common case where the release exists.
 
-                var allReleases = await root.GitHubApi.Repository.Release.GetAll(root.RemoteRepoPath.Owner, root.RemoteRepoPath.Name);
+                var allReleases = await root.GitHubApi.Repository.Release.GetAll(root.RemoteRepository.Id);
 
                 return allReleases.FirstOrDefault(release => release.Name.Equals(releaseName, StringComparison.InvariantCultureIgnoreCase));
             }
@@ -238,7 +238,7 @@ namespace Neon.Git
             Covenant.Requires<ArgumentNullException>(release != null, nameof(release));
             Covenant.Requires<ArgumentNullException>(releaseUpdate != null, nameof(releaseUpdate));
 
-            return await root.GitHubApi.Repository.Release.Edit(root.RemoteRepoPath.Owner, root.RemoteRepoPath.Name, release.Id, releaseUpdate);
+            return await root.GitHubApi.Repository.Release.Edit(root.RemoteRepository.Id, release.Id, releaseUpdate);
         }
 
         /// <summary>
@@ -259,7 +259,7 @@ namespace Neon.Git
                 return false;
             }
 
-            await root.GitHubApi.Repository.Release.Delete(root.RemoteRepoPath.Owner, root.RemoteRepoPath.Name, release.Id);
+            await root.GitHubApi.Repository.Release.Delete(root.RemoteRepository.Id, release.Id);
 
             return true;
         }

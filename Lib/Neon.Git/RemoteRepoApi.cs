@@ -53,21 +53,53 @@ namespace Neon.Git
     /// </summary>
     public class RemoteRepoApi
     {
+        //---------------------------------------------------------------------
+        // Static members
+
+        /// <summary>
+        /// Creates a <see cref="GitHubRepo"/>.
+        /// </summary>
+        /// <param name="root">Specifies the root <see cref="GitHubRepo"/>.</param>
+        /// <param name="path">Specifies the GitHub path for the repository.</param>
+        /// <returns>The <see cref="GitHubRepo"/> instance.</returns>
+        internal static async Task<RemoteRepoApi> CreateAsync(GitHubRepo root, RemoteRepoPath path)
+        {
+            Covenant.Requires<ArgumentNullException>(root != null, nameof(root));
+            Covenant.Requires<ArgumentNullException>(path != null, nameof(path));
+
+            var repoApi = new RemoteRepoApi();
+
+            repoApi.root    = root;
+            repoApi.Path    = path;
+            repoApi.Branch  = new RemoteRepoBranchApi(root);
+            repoApi.Release = new RemoteRepoReleaseApi(root);
+            repoApi.Tag     = new RemoteRepoTagApi(root);
+            repoApi.Id      = (await root.GitHubApi.Repository.Get(path.Owner, path.Name)).Id;
+
+            return repoApi;
+        }
+
+        //---------------------------------------------------------------------
+        // Instance members
+
         private GitHubRepo  root;
 
         /// <summary>
         /// Internal constructor.
         /// </summary>
-        /// <param name="root">The root <see cref="GitHubRepo"/>.</param>
-        internal RemoteRepoApi(GitHubRepo root)
+        internal RemoteRepoApi()
         {
-            Covenant.Requires<ArgumentNullException>(root != null, nameof(root));
-
-            this.root    = root;
-            this.Branch  = new RemoteRepoBranchApi(root);
-            this.Release = new RemoteRepoReleaseApi(root);
-            this.Tag     = new RemoteRepoTagApi(root);
         }
+
+        /// <summary>
+        /// Returns the remote repository's ID.
+        /// </summary>
+        public long Id { get; private set; }
+
+        /// <summary>
+        /// Returns the GitHub repository path.
+        /// </summary>
+        public RemoteRepoPath Path { get; private set; }
 
         /// <summary>
         /// Returns the current <see cref="GitHubRepository"/> for the orgin repository
@@ -78,7 +110,7 @@ namespace Neon.Git
         {
             await SyncContext.Clear;
 
-            return await root.GitHubApi.Repository.Get(root.RemoteRepoPath.Owner, root.RemoteRepoPath.Name);
+            return await root.GitHubApi.Repository.Get(Id);
         }
 
         /// <summary>

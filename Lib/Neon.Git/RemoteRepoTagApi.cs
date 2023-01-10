@@ -76,7 +76,7 @@ namespace Neon.Git
             await SyncContext.Clear;
             root.EnsureNotDisposed();
 
-            return await root.GitHubApi.Repository.GetAllTags(root.RemoteRepoPath.Owner, root.RemoteRepoPath.Name);
+            return await root.GitHubApi.Repository.GetAllTags(root.RemoteRepository.Id);
         }
 
         /// <summary>
@@ -216,7 +216,7 @@ namespace Neon.Git
             //
             //      https://stackoverflow.com/questions/7247414/delete-a-tag-with-github-v3-api
 
-            await root.HttpClient.DeleteSafeAsync($"/repos/{root.RemoteRepoPath.Owner}/{root.RemoteRepoPath.Name}/git/refs/tags/{tagName}");
+            await root.HttpClient.DeleteSafeAsync($"/repos/{root.RemoteRepository.Path.Owner}/{root.RemoteRepository.Path.Name}/git/refs/tags/{tagName}");
 
             // GitHub might not delete the tag synchronously, so we'll wait for it to disappear.
 
