@@ -72,9 +72,12 @@ namespace Neon.Git
         /// </summary>
         /// <param name="newIssue">Specifies the new issue.</param>
         /// <returns>The new <see cref="Issue"/>.</returns>
+        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
         public async Task<Issue> CreateAsync(NewIssue newIssue)
         {
+            await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(newIssue != null, nameof(newIssue));
+            root.EnsureNotDisposed();
 
             return await root.GitHubApi.Issue.Create(root.Remote.Id, newIssue);
         }
@@ -85,10 +88,13 @@ namespace Neon.Git
         /// <param name="number">Specifies the issue number.</param>
         /// <param name="issueUpdate">Specifies the issue update.</param>
         /// <returns>The updated <see cref="Issue"/>.</returns>
+        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
         public async Task<Issue> UpdateAsync(int number, IssueUpdate issueUpdate)
         {
+            await SyncContext.Clear;
             Covenant.Requires<ArgumentException>(number > 0, nameof(number));
             Covenant.Requires<ArgumentNullException>(issueUpdate != null, nameof(issueUpdate));
+            root.EnsureNotDisposed();
 
             return await root.GitHubApi.Issue.Update(root.Remote.Id, number, issueUpdate);
         }
@@ -98,14 +104,17 @@ namespace Neon.Git
         /// </summary>
         /// <param name="number">Specifies the issue number.</param>
         /// <returns>The <see cref="Issue"/>.</returns>
+        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="Octokit.NotFoundException">Thrown when the issue doesn't exist</exception>
         public async Task<Issue> GetAsync(int number)
         {
+            await SyncContext.Clear;
             Covenant.Requires<ArgumentException>(number > 0, nameof(number));
+            root.EnsureNotDisposed();
 
             return await root.GitHubApi.Issue.Get(root.Remote.Id, number);
         }
 
-        // $todo(Jefflill): There's many more APIs to wrap here.
+        // $todo(Jefflill): There are many more sub-APIs to wrap here.
     }
 }

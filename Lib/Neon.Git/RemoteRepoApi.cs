@@ -64,6 +64,7 @@ namespace Neon.Git
         /// <returns>The <see cref="GitHubRepo"/> instance.</returns>
         internal static async Task<RemoteRepoApi> CreateAsync(GitHubRepo root, RemoteRepoPath path)
         {
+            await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(root != null, nameof(root));
             Covenant.Requires<ArgumentNullException>(path != null, nameof(path));
 
@@ -84,6 +85,7 @@ namespace Neon.Git
         // Instance members
 
         private GitHubRepo  root;
+        private string      cachedBaseUri;
 
         /// <summary>
         /// Internal constructor.
@@ -101,6 +103,35 @@ namespace Neon.Git
         /// Returns the GitHub repository path.
         /// </summary>
         public RemoteRepoPath Path { get; private set; }
+
+        /// <summary>
+        /// <para>
+        /// Returns the base URI for the repository on GitHub.
+        /// </para>
+        /// <note>
+        /// This includes the trailing slash.
+        /// </note>
+        /// </summary>
+        public string BaseUri
+        {
+            get
+            {
+                if (cachedBaseUri != null)
+                {
+                    return cachedBaseUri;
+                }
+
+                // We need to strip off the last segment of the URI
+                // (the "NAME-git" part).
+
+                var uri          = $"https://{root.Remote.Path}";
+                var lastSlashPos = uri.LastIndexOf('/');
+
+                Covenant.Assert(lastSlashPos > 0);
+
+                return cachedBaseUri = uri.Substring(0, lastSlashPos + 1);
+            }
+        }
 
         /// <summary>
         /// Returns the current <see cref="GitHubRepository"/> for the orgin repository

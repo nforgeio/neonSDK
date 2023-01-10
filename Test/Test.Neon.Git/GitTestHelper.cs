@@ -88,7 +88,7 @@ namespace TestGit
 
                 using (var repo = await GitHubRepo.CloneAsync(GitTestHelper.RemoteTestRepo, repoPath))
                 {
-                    var testFolder = Path.Combine(repo.LocalRepoFolder, TestFolder);
+                    var testFolder = Path.Combine(repo.Local.Folder, TestFolder);
 
                     if (Directory.Exists(testFolder) && Directory.GetFiles(testFolder, "*", SearchOption.AllDirectories).Length > 0)
                     {

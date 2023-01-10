@@ -76,6 +76,7 @@ namespace Neon.Git
         /// <param name="draft">Optionally indicates that the release won't be published immediately.</param>
         /// <param name="prerelease">Optionally indicates that the release is not production ready.</param>
         /// <returns>The new release.</returns>
+        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
         public async Task<Release> CreateAsync(string tagName, string releaseName = null, string body = null, bool draft = false, bool prerelease = false)
         {
             await SyncContext.Clear;
@@ -212,6 +213,7 @@ namespace Neon.Git
         /// <param name="release">Specifies the release being changed.</param>
         /// <param name="releaseUpdate">Specifies the release revisions.</param>
         /// <returns>The updated release.</returns>
+        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <remarks>
         /// <para>
         /// To update a release, you'll first need to:
@@ -237,6 +239,7 @@ namespace Neon.Git
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(release != null, nameof(release));
             Covenant.Requires<ArgumentNullException>(releaseUpdate != null, nameof(releaseUpdate));
+            root.EnsureNotDisposed();
 
             return await root.GitHubApi.Repository.Release.Edit(root.Remote.Id, release.Id, releaseUpdate);
         }
@@ -277,12 +280,14 @@ namespace Neon.Git
         /// <param name="assetName">Optionally specifies the file name to assign to the asset.  This defaults to the file name in <paramref name="assetPath"/>.</param>
         /// <param name="contentType">Optionally specifies the asset's <b>Content-Type</b>.  This defaults to: <b> application/octet-stream</b></param>
         /// <returns>The new <see cref="ReleaseAsset"/>.</returns>
+        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="NotSupportedException">Thrown when the releas has already been published.</exception>
         public async Task<ReleaseAsset> AddAssetAsync(Release release, string assetPath, string assetName = null, string contentType = "application/octet-stream")
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(release != null, nameof(release));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(assetPath), nameof(assetPath));
+            root.EnsureNotDisposed();
 
             using (var stream = File.OpenRead(assetPath))
             {
@@ -303,12 +308,14 @@ namespace Neon.Git
         /// <param name="assetName">Specifies the file name to assign to the asset.</param>
         /// <param name="contentType">Optionally specifies the asset's <b>Content-Type</b>.  This defaults to: <b> application/octet-stream</b></param>
         /// <returns>The new <see cref="ReleaseAsset"/>.</returns>
+        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
         public async Task<ReleaseAsset> AddAssetAsync(Release release, Stream stream, string assetName, string contentType = "application/octet-stream")
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(release != null, nameof(release));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(assetName), nameof(assetName));
             Covenant.Requires<ArgumentNullException>(stream != null, nameof(stream));
+            root.EnsureNotDisposed();
 
             var releaseName = release.Name;
 
@@ -345,11 +352,13 @@ namespace Neon.Git
         /// <param name="release">The target release.</param>
         /// <param name="asset">The target asset.</param>
         /// <returns>The asset URI.</returns>
+        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="InvalidOperationException">Thrown when the asset passed doesn't exist in the release.</exception>
         public string GetAssetUri(Release release, ReleaseAsset asset)
         {
             Covenant.Requires<ArgumentNullException>(release != null, nameof(release));
             Covenant.Requires<ArgumentNullException>(asset != null, nameof(asset));
+            root.EnsureNotDisposed();
 
             var releasedAsset = release.Assets.SingleOrDefault(a => a.Id == asset.Id);
 
@@ -366,11 +375,13 @@ namespace Neon.Git
         /// </summary>
         /// <param name="releaseName">Specifies the release name.</param>
         /// <returns>The published release.</returns>
+        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="InvalidOperationException">Thrown if the release doesn't exist or when it's already published.</exception>
         public async Task<Release> PublishAsync(string releaseName)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(releaseName), nameof(releaseName));
+            root.EnsureNotDisposed();
 
             var release = await GetAsync(releaseName);
 
@@ -408,11 +419,13 @@ namespace Neon.Git
         /// </summary>
         /// <param name="releaseName">Specifies the release name.</param>
         /// <returns>The zipball URI.</returns>
+        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="InvalidOperationException">Thrown if the release does not exist or it has not been published.</exception>
         public async Task<string> GetZipballUri(string releaseName)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(releaseName), nameof(releaseName));
+            root.EnsureNotDisposed();
 
             var release = await GetAsync(releaseName);
 
@@ -442,12 +455,14 @@ namespace Neon.Git
         /// <param name="releaseName">Specifies the release name.</param>
         /// <param name="output">Specifies the stream where the Zipball will be written.</param>
         /// <returns>The tracking <see cref="Task"/>.</returns>
+        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="InvalidOperationException">Thrown if the release does not exist or it has not been published.</exception>
         public async Task DownloadZipballAsync(string releaseName, Stream output)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(releaseName), nameof(releaseName));
             Covenant.Requires<ArgumentNullException>(output != null, nameof(output));
+            root.EnsureNotDisposed();
 
             var response = await root.HttpClient.GetSafeAsync(await GetZipballUri(releaseName));
 
@@ -468,6 +483,7 @@ namespace Neon.Git
         /// </param>
         /// <param name="maxPartSize">Optionally overrides the maximum part size (defaults to 75 MiB).</param>d
         /// <returns>The <see cref="DownloadManifest"/>.</returns>
+        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <remarks>
         /// <para>
         /// The release passed must be unpublished and you may upload other assets before calling this.
@@ -490,6 +506,7 @@ namespace Neon.Git
             Covenant.Requires<ArgumentNullException>(release != null, nameof(release));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(sourcePath), nameof(sourcePath));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(version), nameof(version));
+            root.EnsureNotDisposed();
 
             name     = name ?? Path.GetFileName(sourcePath);
             filename = filename ?? Path.GetFileName(sourcePath);

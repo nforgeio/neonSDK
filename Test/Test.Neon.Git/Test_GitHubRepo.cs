@@ -62,7 +62,26 @@ namespace TestGit
                             Assert.Equal(GitTestHelper.RemoteTestRepo, repo.Remote.Path.ToString());
                             Assert.Equal("master", repo.Local.CurrentBranch.FriendlyName);
                             Assert.True(File.Exists(Path.Combine(repoPath, ".gitignore")));
+
+                            // Exercise some other APIs.
+
                             Assert.Equal("https://github.com/neontest/neon-git", repo.Origin.Url);
+                            Assert.Equal("https://github.com/neontest/neon-git", repo.Origin.PushUrl);
+                            Assert.Equal("https://github.com/neontest/", repo.Remote.BaseUri);
+
+                            var validLocalPath = Path.Combine(repo.Local.Folder, "test", "foo.txt");
+
+                            Assert.Equal(validLocalPath, await repo.Local.GetLocalFilePathAsync(@"/test/foo.txt"));
+                            Assert.Equal(validLocalPath, await repo.Local.GetLocalFilePathAsync(@"test/foo.txt"));
+                            Assert.Equal(validLocalPath, await repo.Local.GetLocalFilePathAsync(@"\test\foo.txt"));
+                            Assert.Equal(validLocalPath, await repo.Local.GetLocalFilePathAsync(@"test\foo.txt"));
+
+                            var validRemoteUri = $"{repo.Remote.BaseUri}test/foo.txt";
+
+                            Assert.Equal(validRemoteUri, await repo.Local.GetRemoteFileUriAsync(@"/test/foo.txt"));
+                            Assert.Equal(validRemoteUri, await repo.Local.GetRemoteFileUriAsync(@"test/foo.txt"));
+                            Assert.Equal(validRemoteUri, await repo.Local.GetRemoteFileUriAsync(@"\test\foo.txt"));
+                            Assert.Equal(validRemoteUri, await repo.Local.GetRemoteFileUriAsync(@"test\foo.txt"));
                         }
                     }
                 });
@@ -552,7 +571,7 @@ namespace TestGit
 
                         repo.Dispose();
 
-                        Assert.Throws<ObjectDisposedException>(() => _ = repo.LocalRepoFolder);
+                        Assert.Throws<ObjectDisposedException>(() => _ = repo.Local.Folder);
                         Assert.Throws<ObjectDisposedException>(() => _ = repo.GitApi);
                         Assert.Throws<ObjectDisposedException>(() => _ = repo.Local.CurrentBranch);
                         Assert.Throws<ObjectDisposedException>(() => _ = repo.Local.CreateSignature());
