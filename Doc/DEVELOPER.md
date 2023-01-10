@@ -92,28 +92,23 @@ Follow the steps below to configure a development or test workstation:
 10. Install **Visual Studio 2022 Community 17.4+** from [here](https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030&passive=false)
 
   * Check **all workloads** on the first panel
+  * Select the **Individual Components** tab, search for **Git for Windows** and check that
   * Click **Install** (and take a coffee break)
   * Apply any pending **Visual Studio updates**
   * **Close** Visual Studio to install any updates
   * **NOTE:** You need sign into Visual Studio using a Windows account (like **sally@neonforge.com** for internal developers)
 
-11. Create a **shortcut** for Visual Studio and configure it to run as **administrator**.  To build and run neonSDK applications and services, **Visual Studio run with elevated privileges** to build neonSDK.
+11. Create a **shortcut** for Visual Studio and configure it to run as **administrator**.  To build and run neonSDK applications and services, **Visual Studio must have with elevated privileges**.
 
-12. Disable **Visual Studio YAML validation:**
-
-    * Start Visual Studio
-    * Select **Tools/Options...**
-    * Navigate to **Text Editor/YAML/General**
-    * Uncheck **YAML validation** at the top of the right panel
-
-13. Install Visual Studio Code and GO (needed for the Cadence proxy build):
+12. Install Visual Studio Code and GO:
 
     * Install **Visual Studio Code 64-bit** from [here](https://code.visualstudio.com/download)
+    * Create a desktop shortcut for Visual Studio Code and configure it to run as **administrator**.
     * Install **go1.17.2.windows-amd64.msi** from: [here](https://golang.org/dl/go1.17.2.windows-amd64.msi)
 
-14. Download the SysInternals utiliies from [here](https://download.sysinternals.com/files/SysinternalsSuite.zip) and extract them to a folder on your PATH.
+13. Download the **SysInternals utiliies** from [here](https://download.sysinternals.com/files/SysinternalsSuite.zip) and extract them to a folder on your PATH, like: **C:\Tools**.
 
-15. Install some SDKs:
+14. Install some SDKs:
 
    * Install **.NET Framework 4.8 Developer Pack** from [here](https://dotnet.microsoft.com/download/thank-you/net48-developer-pack)
    * Install **.NET 5.0 SDK 5.0.408** from [here](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-5.0.403-windows-x64-installer) (.NET SDK x64 installer)
@@ -121,50 +116,50 @@ Follow the steps below to configure a development or test workstation:
    * Install **.NET 6.0 SDK 6.0.402 x64** from [here](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-6.0.402-windows-x64-installer) (.NET SDK x64 installer)
    * Install **.NET 7.0 SDK 7.0.0 x64** from [here](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-7.0.0-windows-x64-installer) (.NET SDK x64 installer)
    
-16. **Visual Studio:** Enable preview .NET SDKs:
+15. **Visual Studio:** Enable preview .NET SDKs:
     * Open Visual Studio
     * Goto: **Tools/Options/Environment/Preview Features** (if present)
     * Check: **Use previews of the .NET SDK (requires restart)
     * Restart all Visual Studio instances
 
-17. **Clone** the https://github.com/nforgeio/neonSDK.git repository to your workstation:
+18. **Clone** the related neonSDK repos to the same parent directory as **neonSDK** using the repo names for the folders:
 
-    * **IMPORTANT:** All NEONFORGE related repositories must be cloned within the same parent directory and their folder names must be the same as the repo names.
-
-18. Configure the build **environment variables**:
-
-    * Open **File Explorer**
-    * Navigate to the directory holding the cloned repository
-    * **Right-click** on **buildenv.cmd** and then **Run as adminstrator**
-    * Press ENTER to close the CMD window when the script is finished
-  
-19. **Clone** the related neonSDK repos to the same parent directory as **neonSDK** using the repo names for the folders:
-
-    * https://github.com/nforgeio/cadence-samples.git
-    * https://github.com/nforgeio/nforgeio.github.io.git
+    * https://github.com/nforgeio/neonSDK.git
+    * https://github.com/nforgeio/documentation.git
 
     You can do this manually or use the CMD script below: 
 
     ```
     cd "%NF_ROOT%\.."
-    mkdir nforgeio.github.io
-    git clone https://github.com/nforgeio/nforgeio.github.io.git
+    mkdir neonSDK
+    git clone https://github.com/nforgeio/neonSDK.git
 
     cd "%NF_ROOT%\.."
-    mkdir cadence-samples
-    git clone https://github.com/nforgeio/cadence-samples.git
+    mkdir documentation
+    git clone https://github.com/nforgeio/documentation.git
     ```
 
-20. **Close** any running instances of **Visual Studio**
+16. **Clone** the https://github.com/nforgeio/neonSDK.git repository to your workstation:
 
-21. Install **7-Zip (32-bit)** (using the Windows *.msi* installer) from [here](http://www.7-zip.org/download.html)
+    * **IMPORTANT:** All NEONFORGE related repositories must be cloned within the same parent directory and their folder names must be the same as the repo names.
 
-22. Install **Cygwin - setup-x86-64.exe** (all packages and default path) from: [here](https://www.cygwin.com/setup-x86_64.exe)
-    then run this in a command window to add it to the PATH.
+17. Configure the build **environment variables**:
 
-23. *Optional:* Many server components are deployed to Linux, so you’ll need terminal and file management programs.  We’re currently 
-    standardizing on **PuTTY** for the terminal and **WinSCP** for file transfer.  Install both programs to their default
-    directories:
+    * Open **File Explorer**
+    * Navigate to the directory holding the cloned repository
+    * **Right-click** on **buildenv.cmd** and then **Run as adminstrator**
+    * Answer the questions
+    * Press ENTER to close the CMD window when the script is finished
+  
+19. **Close** any running instances of **Visual Studio**
+
+20. Install **7-Zip (32-bit)** (using the Windows *.msi* installer) from [here](http://www.7-zip.org/download.html)
+
+21. Install **Cygwin - setup-x86-64.exe** (all packages and default path) from: [here](https://www.cygwin.com/setup-x86_64.exe).
+    You'll need to choose a mirror and then add **C:\cygwin64\bin** to the **PATH**.
+
+22. *Optional:* Many server components are deployed to Linux, so you’ll need terminal and file management programs.  
+    Install both programs to their default directories:
 
     * Install **WinSCP** from [here](http://winscp.net/eng/download.php) (I typically use the "Explorer" interface)
     * Install **PuTTY** from [here](https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html)
@@ -176,7 +171,7 @@ Follow the steps below to configure a development or test workstation:
     
       ![WinSCP Hidden Files](Images/Developer/WinSCPHiddenFiles.png?raw=true)
 
-24. Confirm that the solution builds:
+23. Confirm that the solution builds:
 
     * Restart **Visual Studio** as **administrator** (to pick up the new environment variables)
     * Open **$/neonSDK.sln** (where **$** is the repo root directory)
@@ -184,30 +179,32 @@ Follow the steps below to configure a development or test workstation:
     * Click the **Install** link at the top of the solution explorer panel when there's a warning about a missing SDK.
     * Select **Build/Rebuild** Solution
 
-25. *Optional:* Install **Notepad++** from [here](https://notepad-plus-plus.org/download)
+24. *Optional:* Install **Notepad++** from [here](https://notepad-plus-plus.org/download)
 
-26. *Optional:* Install **Postman** REST API tool from [here](https://www.getpostman.com/postman)
+25. *Optional:* Install **Postman** REST API tool from [here](https://www.postman.com/downloads/)
 
-27. *Optional:* Install **Cmdr/Mini** command shell:
+26. *Optional:* Install **Cmdr/Mini** command shell:
 
   * **IMPORTANT: Don't install the Full version** to avoid installing Linux command line tools that might conflict with the Cygwin tools installed earlier.
-  * Download the ZIP archive from: [here](http://cmder.net/)
-  * Unzip it into a new folder and then ensure that this folder is in your **PATH**.
+  * Download the ZIP archive from: [here](https://cmder.app/)
+  * Unzip it into a new folder (like C:\Tools\Cmder**) and then ensure that this folder is in your **PATH**.
   * Create a desktop shortcut if you wish and configure it to run as administrator.
   * Consider removing the alias definitions in `$\vendor\user_aliases.cmd.default` file so that commands like `ls` will work properly.  I deleted all lines beneath the first `@echo off`.
   * Run Cmdr to complete the installation.
 
 27. *Optional:* Install the latest version of **XCP-ng Center** from [here](https://github.com/xcp-ng/xenadmin/releases) if you'll need to manage Virtual Machines hosted on XCP-ng.
 
-27. *Optional:* Maintainers who will be publishing releases will need to:
+28. *Optional:* Maintainers who will be publishing releases will need to:
+	
+    * Install: GitHub CLI (amd64) v1.9.2 or greater from: https://github.com/cli/cli/releases
+
+    * Download nuget.exe from https://www.nuget.org/downloads and copy it into your **C:\Tools** folder.
 
     * Obtain a nuget API key from a maintainer and install the key on your workstation via:
 	
-	  `dotnet nuget SetApiKey YOUR-KEY`
-	
-    * **Install:** GitHub CLI (amd64) v1.9.2 or greater from: https://github.com/cli/cli/releases
+	  `nuget SetApiKey YOUR-KEY`
 
-30. *Optional:* Disable **Visual Studio Complete Line Intellicode**.  I (jefflill) personally find this distracting.  This blog post agrees and describes how to disable this:
+29. *Optional:* Disable **Visual Studio Complete Line Intellicode**.  I (jefflill) personally find this distracting.  This blog post agrees and describes how to disable this:
 
     https://dotnetcoretutorials.com/2021/11/27/turning-off-visual-studio-2022-intellicode-complete-line-intellisense/
 
@@ -215,8 +212,8 @@ Follow the steps below to configure a development or test workstation:
     b. **Show whole line completions**
     c. **Show whole line completions on new lines**
 
-31. *Optional:* Create the **EDITOR** environment variable and point it to `C:\Program Files\Notepad++\notepad++.exe` or your favorite text editor executable.
+30. *Optional:* Create the **EDITOR** environment variable and point it to `C:\Program Files\Notepad++\notepad++.exe` or your favorite text editor executable.
 
-32: *Optional:* Maintainers will need to install **AWS client version 2** from: [here](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2-windows.html)
+31: *Optional:* Maintainers will need to install **AWS client version 2** from: [here](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2-windows.html)
 
-33: *Optional:* Maintainers authorized to perform releases will need to follow the README.md instructions in the neonCLOUD repo to configure credentials for the GitHub Releases and the Container Registry.
+32: *Optional:* Maintainers authorized to perform releases will need to follow the README.md instructions in the neonCLOUD repo to configure credentials for the GitHub Releases and the Container Registry.

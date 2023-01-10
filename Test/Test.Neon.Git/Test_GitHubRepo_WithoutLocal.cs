@@ -57,8 +57,7 @@ namespace TestGit
                     {
                         // These shouldn't throw any exceptions.
 
-                        _ = repo.RemoteRepository;
-                        _ = repo.RemoteRepoPath;
+                        _ = repo.Remote;
                     }
                 });
         }
@@ -78,7 +77,7 @@ namespace TestGit
                         Assert.Throws<NoLocalRepositoryException>(() => _ = repo.Local.CurrentBranch);
                         Assert.Throws<NoLocalRepositoryException>(() => _ = repo.Local.CreateSignature());
                         Assert.Throws<NoLocalRepositoryException>(() => _ = repo.Local.CreatePushOptions());
-                        Assert.Throws<NoLocalRepositoryException>(() => _ = repo.LocalRepoFolder);
+                        Assert.Throws<NoLocalRepositoryException>(() => _ = repo.Local.Folder);
                         Assert.Throws<NoLocalRepositoryException>(() => _ = repo.GitApi);
 
                         await Assert.ThrowsAsync<NoLocalRepositoryException>(async () => await repo.Local.CheckoutAsync("master"));

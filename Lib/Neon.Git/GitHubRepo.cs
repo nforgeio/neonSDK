@@ -46,6 +46,7 @@ using GitHubSignature  = Octokit.Signature;
 using GitBranch     = LibGit2Sharp.Branch;
 using GitRepository = LibGit2Sharp.Repository;
 using GitSignature  = LibGit2Sharp.Signature;
+using Neon.Tasks;
 
 namespace Neon.Git
 {
@@ -69,10 +70,11 @@ namespace Neon.Git
     /// that you'll use for subsequent operations.
     /// </para>
     /// <para>
-    /// <b>To manage an existing local repository</b>, use the <see cref="GitHubRepo(string, string, string, string, string, IProfileClient)"/>
-    /// constructor, passing the path the the local folder and optionally the branch to
-    /// be checked out as well as the GitHub credentials.  This returns the <see cref="GitHubRepo"/>
-    /// that you'll use for subsequent operations.
+    /// <b>To manage a GitHub repository that doesn't have a local clone</b>,
+    /// call <see cref="GitHubRepo.ConnectAsync(string, string, string, string, string, IProfileClient)"/>.
+    /// </para>
+    /// <para>
+    /// <b>To open an existing local repository</b>, call <see cref="OpenAsync(string, string, string, string, string, IProfileClient)"/>.
     /// </para>
     /// <para>
     /// <b>To perform only GitHub account operations</b> Call the static <see cref="ConnectAsync(string, string, string, string, string, IProfileClient)"/>
@@ -83,7 +85,7 @@ namespace Neon.Git
     /// associated local git repository.
     /// </para>
     /// <para>
-    /// The <see cref="RemoteRepository"/> property provides some easy-to-use methods for managing the associated
+    /// The <see cref="Remote"/> property provides some easy-to-use methods for managing the associated
     /// GitHub repository.  These implement some common operations and are easier to use than the stock
     /// Octokit implementations.
     /// </para>
@@ -130,18 +132,15 @@ namespace Neon.Git
             string          userAgent     = null,
             IProfileClient  profileClient = null)
         {
+            await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(remoteRepoPath), nameof(remoteRepoPath));
-
-            var repo = new GitHubRepo();
 
             if (string.IsNullOrEmpty(userAgent))
             {
                 userAgent = "unknown";
             }
 
-            repo.Local            = new LocalRepoApi(repo);
-            repo.RemoteRepository = new RemoteRepoApi(repo);
-            repo.RemoteRepoPath   = RemoteRepoPath.Parse(remoteRepoPath);
+            var repo = new GitHubRepo();
 
             repo.Credentials = GitHubCredentials.Load(
                 username:      username,
@@ -161,6 +160,9 @@ namespace Neon.Git
                         Username = repo.Credentials.Username,
                         Password = repo.Credentials.AccessToken
                     });
+
+            repo.Local  = new LocalRepoApi(repo, null);
+            repo.Remote = await RemoteRepoApi.CreateAsync(repo, RemoteRepoPath.Parse(remoteRepoPath));
 
             repo.CreateHttpClient(userAgent);
 
@@ -200,27 +202,16 @@ namespace Neon.Git
             string          userAgent     = null,
             IProfileClient  profileClient = null)
         {
+            await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(remoteRepoPath), nameof(remoteRepoPath));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(localRepoFolder), nameof(localRepoFolder));
-
-            var repo = new GitHubRepo();
-
-            repo.LocalRepoFolder  = localRepoFolder;
-            repo.Local            = new LocalRepoApi(repo);
-            repo.RemoteRepository = new RemoteRepoApi(repo);
-            repo.RemoteRepoPath   = RemoteRepoPath.Parse(remoteRepoPath);
-
-            if (Directory.Exists(localRepoFolder))
-            {
-                throw new LibGit2SharpException($"Local repository [{localRepoFolder}] folder already exists.");
-            }
-
-            Directory.CreateDirectory(localRepoFolder);
 
             if (string.IsNullOrEmpty(userAgent))
             {
                 userAgent = "unknown";
             }
+
+            var repo = new GitHubRepo();
 
             repo.Credentials = GitHubCredentials.Load(
                 username:      username,
@@ -241,43 +232,31 @@ namespace Neon.Git
                         Password = repo.Credentials.AccessToken
                     });
 
-            var remoteRepo = $"https://{repo.remoteRepoPath}";
+            repo.Local  = new LocalRepoApi(repo, localRepoFolder);
+            repo.Remote = await RemoteRepoApi.CreateAsync(repo, RemoteRepoPath.Parse(remoteRepoPath));
+
+            if (Directory.Exists(localRepoFolder))
+            {
+                throw new LibGit2SharpException($"Local repository [{localRepoFolder}] folder already exists.");
+            }
+
+            Directory.CreateDirectory(localRepoFolder);
+
+            var remoteRepo = $"https://{remoteRepoPath}";
             var options    = new CloneOptions() { BranchName = branchName };
 
-            GitRepository.Clone(remoteRepo, repo.localRepoFolder, options);
+            GitRepository.Clone(remoteRepo, localRepoFolder, options);
 
-            repo.GitApi = new GitRepository(repo.localRepoFolder);
+            repo.GitApi = new GitRepository(localRepoFolder);
 
             repo.CreateHttpClient(userAgent);
 
             return await Task.FromResult(repo);
         }
 
-        //---------------------------------------------------------------------
-        // Instance members
-
-        private bool                    isDisposed = false;
-        private CredentialsHandler      credentialsProvider;
-        private Remote                  cachedRemote;
-        private RemoteRepoPath          remoteRepoPath;
-        private string                  localRepoFolder;
-        private LocalRepoApi            localRepoApi;
-        private RemoteRepoApi           remoteRepoApi;
-        private GitRepository           localRepository;
-        private GitHubCredentials       githubCredentials;
-        private GitHubClient            githubServer;
-        private string                  userAgent;
-
-        /// <summary>
-        /// Private constructor.
-        /// </summary>
-        private GitHubRepo()
-        {
-        }
-
         /// <summary>
         /// <para>
-        /// Constructs a <see cref="GitHubRepo"/> that references an existing local git repository as well as
+        /// Creates a <see cref="GitHubRepo"/> that references an existing local git repository as well as
         /// the associated GitHub remote repository API.
         /// </para>
         /// <para>
@@ -301,24 +280,49 @@ namespace Neon.Git
         /// when a profile client is available.
         /// </param>
         /// <exception cref="RepositoryNotFoundException">Thrown when the local repository doesn't exist.</exception>
-        public GitHubRepo(
+        public static async Task<GitHubRepo> OpenAsync(
             string          localRepoFolder,
-            string          username      = null, 
-            string          accessToken   = null, 
-            string          email         = null, 
+            string          username      = null,
+            string          accessToken   = null,
+            string          email         = null,
             string          userAgent     = null,
             IProfileClient  profileClient = null)
         {
+            await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(localRepoFolder), nameof(localRepoFolder));
+
+            if (string.IsNullOrEmpty(userAgent))
+            {
+                userAgent = "unknown";
+            }
 
             if (!Directory.Exists(localRepoFolder))
             {
                 throw new RepositoryNotFoundException($"The local repo [{localRepoFolder}] folder does not exist.");
             }
 
-            this.GitApi           = new GitRepository(localRepoFolder);
-            this.Local            = new LocalRepoApi(this);
-            this.RemoteRepository = new RemoteRepoApi(this);
+            var repo = new GitHubRepo();
+
+            repo.Credentials = GitHubCredentials.Load(
+                username:      username,
+                accessToken:   accessToken,
+                email:         email,
+                profileClient: profileClient);
+
+            repo.GitHubApi = new GitHubClient(new Octokit.ProductHeaderValue(userAgent))
+            {
+                Credentials = new Octokit.Credentials(repo.Credentials.AccessToken)
+            };
+
+            repo.credentialsProvider = new CredentialsHandler(
+                (url, usernameFromUrl, types) =>
+                    new UsernamePasswordCredentials()
+                    {
+                        Username = repo.Credentials.Username,
+                        Password = repo.Credentials.AccessToken
+                    });
+
+            repo.CreateHttpClient(userAgent);
 
             // We're going to obtain the GitHub path for the repo from the origin's
             // push URL.  This will look something like:
@@ -327,37 +331,35 @@ namespace Neon.Git
             //
             // We'll just strip off the scheme and and what remains is the path.
 
-            var pushUrl        = new Uri(Remote.PushUrl);
+            repo.GitApi = new GitRepository(localRepoFolder);
+            repo.Local  = new LocalRepoApi(repo, localRepoFolder);
+
+            var pushUrl        = new Uri(repo.Origin.PushUrl);
             var remoteRepoPath = $"{pushUrl.Host}{pushUrl.AbsolutePath}";
 
-            this.RemoteRepoPath  = RemoteRepoPath.Parse(remoteRepoPath);
-            this.LocalRepoFolder = localRepoFolder;
+            repo.Remote  = await RemoteRepoApi.CreateAsync(repo, RemoteRepoPath.Parse(remoteRepoPath));
 
-            if (string.IsNullOrEmpty(userAgent))
-            {
-                userAgent = "unknown";
-            }
+            return repo;
+        }
 
-            this.Credentials = GitHubCredentials.Load(
-                username:      username,
-                accessToken:   accessToken,
-                email:         email,
-                profileClient: profileClient);
+        //---------------------------------------------------------------------
+        // Instance members
 
-            this.GitHubApi = new GitHubClient(new Octokit.ProductHeaderValue(userAgent))
-            {
-                Credentials = new Octokit.Credentials(Credentials.AccessToken)
-            };
+        private bool                    isDisposed = false;
+        private CredentialsHandler      credentialsProvider;
+        private Remote                  cachedRemote;
+        private LocalRepoApi            localRepoApi;
+        private RemoteRepoApi           remoteRepoApi;
+        private GitRepository           localRepository;
+        private GitHubCredentials       githubCredentials;
+        private GitHubClient            githubServer;
+        private string                  userAgent;
 
-            credentialsProvider = new CredentialsHandler(
-                (url, usernameFromUrl, types) =>
-                    new UsernamePasswordCredentials()
-                    {
-                        Username = Credentials.Username,
-                        Password = Credentials.AccessToken
-                    });
-
-            CreateHttpClient(userAgent);
+        /// <summary>
+        /// Private constructor.
+        /// </summary>
+        private GitHubRepo()
+        {
         }
 
         /// <summary>
@@ -401,42 +403,6 @@ namespace Neon.Git
             }
 
             isDisposed = true;
-        }
-
-        /// <summary>
-        /// Returns the path to the GitHub remote repository.
-        /// </summary>
-        /// <exception cref="ObjectDisposedException">Thrown when the instance is disposed.</exception>
-        /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
-        public RemoteRepoPath RemoteRepoPath
-        {
-            get
-            {
-                EnsureNotDisposed();
-
-                return remoteRepoPath;
-            }
-
-            set => remoteRepoPath = value;
-        }
-
-
-        /// <summary>
-        /// Returns the path to the local repository folder.
-        /// </summary>
-        /// <exception cref="ObjectDisposedException">Thrown when the instance is disposed.</exception>
-        /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
-        public string LocalRepoFolder
-        {
-            get
-            {
-                EnsureNotDisposed();
-                EnsureLocalRepo();
-
-                return localRepoFolder;
-            }
-
-            set => localRepoFolder = value;
         }
 
         /// <summary>
@@ -518,7 +484,7 @@ namespace Neon.Git
         /// </summary>
         /// <exception cref="ObjectDisposedException">Thrown when the instance is disposed.</exception>
         /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
-        public RemoteRepoApi RemoteRepository
+        public RemoteRepoApi Remote
         {
             get
             {
@@ -536,7 +502,7 @@ namespace Neon.Git
         /// <exception cref="ObjectDisposedException">Thrown when the instance is disposed.</exception>
         /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
         /// <exception cref="LibGit2SharpException">Thrown if the repository doesn't have a remote origin.</exception>
-        public Remote Remote
+        public Remote Origin
         {
             get
             {
@@ -552,7 +518,7 @@ namespace Neon.Git
 
                 if (cachedRemote == null)
                 {
-                    throw new LibGit2SharpException($"Local git repository [{LocalRepoFolder}] has no associated remote origin repository.");
+                    throw new LibGit2SharpException($"Local git repository [{Local.Folder}] has no associated remote origin repository.");
                 }
 
                 return cachedRemote;
@@ -657,6 +623,8 @@ namespace Neon.Git
         /// </remarks>
         internal async Task WaitForGitHubAsync(Func<Task<bool>> asyncPredicate)
         {
+            await SyncContext.Clear;
+
             // $hack(jefflill):
             //
             // We're going to hardcode this to wait up to 30 seconds, polling the

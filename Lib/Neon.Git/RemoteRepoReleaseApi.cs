@@ -34,6 +34,7 @@ using Neon.Cryptography;
 using Neon.Deployment;
 using Neon.IO;
 using Neon.Net;
+using Neon.Tasks;
 
 using LibGit2Sharp;
 using LibGit2Sharp.Handlers;
@@ -47,12 +48,11 @@ using GitHubSignature  = Octokit.Signature;
 using GitBranch     = LibGit2Sharp.Branch;
 using GitRepository = LibGit2Sharp.Repository;
 using GitSignature  = LibGit2Sharp.Signature;
-using Neon.Tasks;
 
 namespace Neon.Git
 {
     /// <summary>
-    /// Implements the friendly GitHub repository release related APIS.
+    /// Implements the friendly GitHub repository release related APIs.
     /// </summary>
     public class RemoteRepoReleaseApi
     {
@@ -76,6 +76,7 @@ namespace Neon.Git
         /// <param name="draft">Optionally indicates that the release won't be published immediately.</param>
         /// <param name="prerelease">Optionally indicates that the release is not production ready.</param>
         /// <returns>The new release.</returns>
+        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
         public async Task<Release> CreateAsync(string tagName, string releaseName = null, string body = null, bool draft = false, bool prerelease = false)
         {
             await SyncContext.Clear;
@@ -91,15 +92,14 @@ namespace Neon.Git
                 Body       = body
             };
 
-            var newRelease = await root.GitHubApi.Repository.Release.Create(root.RemoteRepoPath.Owner, root.RemoteRepoPath.Name, release);
+            var newRelease = await root.GitHubApi.Repository.Release.Create(root.Remote.Id, release);
 
-            // GitHub doesn't appear to create releases synchronously, so we're going
-            // to wait for the new release to show up.
+            // GitHub doesn't appear to create releases synchronously, so we're going to wait for the new release to show up.
 
             await root.WaitForGitHubAsync(
                 async () =>
                 {
-                    return await root.RemoteRepository.Release.GetAsync(releaseName) != null;
+                    return await root.Remote.Release.FindAsync(releaseName) != null;
                 });
 
             return newRelease;
@@ -110,37 +110,79 @@ namespace Neon.Git
         /// </summary>
         /// <returns>The list of releases.</returns>
         /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
-        /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
-        /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
         public async Task<IReadOnlyList<Release>> GetAllAsync()
         {
             await SyncContext.Clear;
             root.EnsureNotDisposed();
 
-            return await root.GitHubApi.Repository.Release.GetAll(root.RemoteRepoPath.Owner, root.RemoteRepoPath.Name);
+            return await root.GitHubApi.Repository.Release.GetAll(root.Remote.Id);
         }
 
         /// <summary>
-        /// Returns a specific GitHub origin repository release, if it exists.
+        /// Returns a specific GitHub origin repository release.
         /// </summary>
         /// <param name="releaseName">Specifies the origin repository release name.</param>
-        /// <returns>The <see cref="Octokit.Release"/> or <c>null</c> when the release doesn't exist.</returns>
+        /// <returns>The requested <see cref="Octokit.Release"/>.</returns>
         /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
-        /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
-        /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
+        /// <exception cref="Octokit.NotFoundException">Thrown when the release does not exist.</exception>
         public async Task<Octokit.Release> GetAsync(string releaseName)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(releaseName), nameof(releaseName));
             root.EnsureNotDisposed();
 
-            // $todo(jefflill):
-            //
-            // It's unfortunate to have to list all of these objects just to obtain a
-            // specific one.  We should come back and refactor this to use the low-level
-            // API.
+            try
+            {
+                return await root.GitHubApi.Repository.Release.Get(root.Remote.Id, releaseName);
+            }
+            catch (Octokit.NotFoundException)
+            {
+                // $hack(jefflill):
+                //
+                // The GitHub [Get()] called above only returns published (non-draft) releases so we'll
+                // revert to listing all of the releases and selecting from that.  This will optimize for
+                // the presumably common case where the release exists.
 
-            return (await GetAllAsync()).FirstOrDefault(release => release.Name.Equals(releaseName, StringComparison.InvariantCultureIgnoreCase));
+                var allReleases = await root.GitHubApi.Repository.Release.GetAll(root.Remote.Id);
+                var release     = allReleases.FirstOrDefault(release => release.Name.Equals(releaseName, StringComparison.InvariantCultureIgnoreCase));
+
+                if (release != null)
+                {
+                    return release;
+                }
+
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Searches for a specific GitHub origin repository release.
+        /// </summary>
+        /// <param name="releaseName">Specifies the origin repository release name.</param>
+        /// <returns>The requested <see cref="Octokit.Release"/> or <c>null</c> when it doesn't exist.</returns>
+        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
+        public async Task<Octokit.Release> FindAsync(string releaseName)
+        {
+            await SyncContext.Clear;
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(releaseName), nameof(releaseName));
+            root.EnsureNotDisposed();
+
+            try
+            {
+                return await GetAsync(releaseName);
+            }
+            catch (Octokit.NotFoundException)
+            {
+                // $hack(jefflill):
+                //
+                // The GitHub [[Get()]] called above only returns published (non-draft) releases so we'll
+                // revert to listing all of the releases and selecting from that.  This will optimize for
+                // the presumably common case where the release exists.
+
+                var allReleases = await root.GitHubApi.Repository.Release.GetAll(root.Remote.Id);
+
+                return allReleases.FirstOrDefault(release => release.Name.Equals(releaseName, StringComparison.InvariantCultureIgnoreCase));
+            }
         }
 
         /// <summary>
@@ -171,6 +213,7 @@ namespace Neon.Git
         /// <param name="release">Specifies the release being changed.</param>
         /// <param name="releaseUpdate">Specifies the release revisions.</param>
         /// <returns>The updated release.</returns>
+        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <remarks>
         /// <para>
         /// To update a release, you'll first need to:
@@ -196,8 +239,9 @@ namespace Neon.Git
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(release != null, nameof(release));
             Covenant.Requires<ArgumentNullException>(releaseUpdate != null, nameof(releaseUpdate));
+            root.EnsureNotDisposed();
 
-            return await root.GitHubApi.Repository.Release.Edit(root.RemoteRepoPath.Owner, root.RemoteRepoPath.Name, release.Id, releaseUpdate);
+            return await root.GitHubApi.Repository.Release.Edit(root.Remote.Id, release.Id, releaseUpdate);
         }
 
         /// <summary>
@@ -211,14 +255,14 @@ namespace Neon.Git
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(releaseName), nameof(releaseName));
             root.EnsureNotDisposed();
 
-            var release = await GetAsync(releaseName);
+            var release = await FindAsync(releaseName);
 
             if (release == null)
             {
                 return false;
             }
 
-            await root.GitHubApi.Repository.Release.Delete(root.RemoteRepoPath.Owner, root.RemoteRepoPath.Name, release.Id);
+            await root.GitHubApi.Repository.Release.Delete(root.Remote.Id, release.Id);
 
             return true;
         }
@@ -236,12 +280,14 @@ namespace Neon.Git
         /// <param name="assetName">Optionally specifies the file name to assign to the asset.  This defaults to the file name in <paramref name="assetPath"/>.</param>
         /// <param name="contentType">Optionally specifies the asset's <b>Content-Type</b>.  This defaults to: <b> application/octet-stream</b></param>
         /// <returns>The new <see cref="ReleaseAsset"/>.</returns>
+        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="NotSupportedException">Thrown when the releas has already been published.</exception>
         public async Task<ReleaseAsset> AddAssetAsync(Release release, string assetPath, string assetName = null, string contentType = "application/octet-stream")
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(release != null, nameof(release));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(assetPath), nameof(assetPath));
+            root.EnsureNotDisposed();
 
             using (var stream = File.OpenRead(assetPath))
             {
@@ -262,12 +308,14 @@ namespace Neon.Git
         /// <param name="assetName">Specifies the file name to assign to the asset.</param>
         /// <param name="contentType">Optionally specifies the asset's <b>Content-Type</b>.  This defaults to: <b> application/octet-stream</b></param>
         /// <returns>The new <see cref="ReleaseAsset"/>.</returns>
+        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
         public async Task<ReleaseAsset> AddAssetAsync(Release release, Stream stream, string assetName, string contentType = "application/octet-stream")
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(release != null, nameof(release));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(assetName), nameof(assetName));
             Covenant.Requires<ArgumentNullException>(stream != null, nameof(stream));
+            root.EnsureNotDisposed();
 
             var releaseName = release.Name;
 
@@ -280,13 +328,12 @@ namespace Neon.Git
 
             var newAsset = await root.GitHubApi.Repository.Release.UploadAsset(release, upload);
 
-            // GitHub doesn't appear to upload assets synchronously, so we're going
-            // to wait for the new asset to show up.
+            // GitHub doesn't appear to upload assets synchronously, so we're going to wait for the new asset to show up.
 
             await root.WaitForGitHubAsync(
                 async () =>
                 {
-                    var release = await root.RemoteRepository.Release.GetAsync(releaseName);
+                    var release = await root.Remote.Release.FindAsync(releaseName);
 
                     return release.Assets.Any(asset => asset.Id == newAsset.Id && newAsset.State == "uploaded");
                 });
@@ -305,11 +352,13 @@ namespace Neon.Git
         /// <param name="release">The target release.</param>
         /// <param name="asset">The target asset.</param>
         /// <returns>The asset URI.</returns>
+        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="InvalidOperationException">Thrown when the asset passed doesn't exist in the release.</exception>
         public string GetAssetUri(Release release, ReleaseAsset asset)
         {
             Covenant.Requires<ArgumentNullException>(release != null, nameof(release));
             Covenant.Requires<ArgumentNullException>(asset != null, nameof(asset));
+            root.EnsureNotDisposed();
 
             var releasedAsset = release.Assets.SingleOrDefault(a => a.Id == asset.Id);
 
@@ -326,11 +375,13 @@ namespace Neon.Git
         /// </summary>
         /// <param name="releaseName">Specifies the release name.</param>
         /// <returns>The published release.</returns>
+        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="InvalidOperationException">Thrown if the release doesn't exist or when it's already published.</exception>
         public async Task<Release> PublishAsync(string releaseName)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(releaseName), nameof(releaseName));
+            root.EnsureNotDisposed();
 
             var release = await GetAsync(releaseName);
 
@@ -348,15 +399,14 @@ namespace Neon.Git
 
             update.Draft = false;
 
-            await root.RemoteRepository.Release.UpdateAsync(release, update);
+            await root.Remote.Release.UpdateAsync(release, update);
 
-            // GitHub doesn't appear to publish releases synchronously, so we're going
-            // to wait for the new release to show up.
+            // GitHub doesn't appear to publish releases synchronously, so we're going to wait for the new release to show up.
 
             await root.WaitForGitHubAsync(
                 async () =>
                 {
-                    release = await root.RemoteRepository.Release.GetAsync(releaseName);
+                    release = await root.Remote.Release.FindAsync(releaseName);
 
                     return release != null && !release.Draft;
                 });
@@ -369,11 +419,13 @@ namespace Neon.Git
         /// </summary>
         /// <param name="releaseName">Specifies the release name.</param>
         /// <returns>The zipball URI.</returns>
+        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="InvalidOperationException">Thrown if the release does not exist or it has not been published.</exception>
         public async Task<string> GetZipballUri(string releaseName)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(releaseName), nameof(releaseName));
+            root.EnsureNotDisposed();
 
             var release = await GetAsync(releaseName);
 
@@ -403,12 +455,14 @@ namespace Neon.Git
         /// <param name="releaseName">Specifies the release name.</param>
         /// <param name="output">Specifies the stream where the Zipball will be written.</param>
         /// <returns>The tracking <see cref="Task"/>.</returns>
+        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="InvalidOperationException">Thrown if the release does not exist or it has not been published.</exception>
         public async Task DownloadZipballAsync(string releaseName, Stream output)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(releaseName), nameof(releaseName));
             Covenant.Requires<ArgumentNullException>(output != null, nameof(output));
+            root.EnsureNotDisposed();
 
             var response = await root.HttpClient.GetSafeAsync(await GetZipballUri(releaseName));
 
@@ -429,6 +483,7 @@ namespace Neon.Git
         /// </param>
         /// <param name="maxPartSize">Optionally overrides the maximum part size (defaults to 75 MiB).</param>d
         /// <returns>The <see cref="DownloadManifest"/>.</returns>
+        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <remarks>
         /// <para>
         /// The release passed must be unpublished and you may upload other assets before calling this.
@@ -451,6 +506,7 @@ namespace Neon.Git
             Covenant.Requires<ArgumentNullException>(release != null, nameof(release));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(sourcePath), nameof(sourcePath));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(version), nameof(version));
+            root.EnsureNotDisposed();
 
             name     = name ?? Path.GetFileName(sourcePath);
             filename = filename ?? Path.GetFileName(sourcePath);

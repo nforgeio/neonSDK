@@ -31,6 +31,7 @@ using System.Threading.Tasks;
 
 using Neon.Common;
 using Neon.Deployment;
+using Neon.Tasks;
 
 using LibGit2Sharp;
 using LibGit2Sharp.Handlers;
@@ -44,7 +45,6 @@ using GitHubSignature  = Octokit.Signature;
 using GitBranch     = LibGit2Sharp.Branch;
 using GitRepository = LibGit2Sharp.Repository;
 using GitSignature  = LibGit2Sharp.Signature;
-using Neon.Tasks;
 
 namespace Neon.Git
 {
@@ -53,20 +53,84 @@ namespace Neon.Git
     /// </summary>
     public class RemoteRepoApi
     {
+        //---------------------------------------------------------------------
+        // Static members
+
+        /// <summary>
+        /// Creates a <see cref="GitHubRepo"/>.
+        /// </summary>
+        /// <param name="root">Specifies the root <see cref="GitHubRepo"/>.</param>
+        /// <param name="path">Specifies the GitHub path for the repository.</param>
+        /// <returns>The <see cref="GitHubRepo"/> instance.</returns>
+        internal static async Task<RemoteRepoApi> CreateAsync(GitHubRepo root, RemoteRepoPath path)
+        {
+            await SyncContext.Clear;
+            Covenant.Requires<ArgumentNullException>(root != null, nameof(root));
+            Covenant.Requires<ArgumentNullException>(path != null, nameof(path));
+
+            var repoApi = new RemoteRepoApi();
+
+            repoApi.root    = root;
+            repoApi.Path    = path;
+            repoApi.Branch  = new RemoteRepoBranchApi(root);
+            repoApi.Issue   = new RemoteRepoIssueApi(root);
+            repoApi.Release = new RemoteRepoReleaseApi(root);
+            repoApi.Tag     = new RemoteRepoTagApi(root);
+            repoApi.Id      = (await root.GitHubApi.Repository.Get(path.Owner, path.Name)).Id;
+
+            return repoApi;
+        }
+
+        //---------------------------------------------------------------------
+        // Instance members
+
         private GitHubRepo  root;
+        private string      cachedBaseUri;
 
         /// <summary>
         /// Internal constructor.
         /// </summary>
-        /// <param name="root">The root <see cref="GitHubRepo"/>.</param>
-        internal RemoteRepoApi(GitHubRepo root)
+        internal RemoteRepoApi()
         {
-            Covenant.Requires<ArgumentNullException>(root != null, nameof(root));
+        }
 
-            this.root    = root;
-            this.Branch  = new RemoteRepoBranchApi(root);
-            this.Release = new RemoteRepoReleaseApi(root);
-            this.Tag     = new RemoteRepoTagApi(root);
+        /// <summary>
+        /// Returns the remote repository's ID.
+        /// </summary>
+        public long Id { get; private set; }
+
+        /// <summary>
+        /// Returns the GitHub repository path.
+        /// </summary>
+        public RemoteRepoPath Path { get; private set; }
+
+        /// <summary>
+        /// <para>
+        /// Returns the base URI for the repository on GitHub.
+        /// </para>
+        /// <note>
+        /// This includes the trailing slash.
+        /// </note>
+        /// </summary>
+        public string BaseUri
+        {
+            get
+            {
+                if (cachedBaseUri != null)
+                {
+                    return cachedBaseUri;
+                }
+
+                // We need to strip off the last segment of the URI
+                // (the "NAME-git" part).
+
+                var uri          = $"https://{root.Remote.Path}";
+                var lastSlashPos = uri.LastIndexOf('/');
+
+                Covenant.Assert(lastSlashPos > 0);
+
+                return cachedBaseUri = uri.Substring(0, lastSlashPos + 1);
+            }
         }
 
         /// <summary>
@@ -78,13 +142,18 @@ namespace Neon.Git
         {
             await SyncContext.Clear;
 
-            return await root.GitHubApi.Repository.Get(root.RemoteRepoPath.Owner, root.RemoteRepoPath.Name);
+            return await root.GitHubApi.Repository.Get(Id);
         }
 
         /// <summary>
         /// Returns the friendly GitHub branch related APIs.
         /// </summary>
         public RemoteRepoBranchApi Branch { get; private set; }
+
+        /// <summary>
+        /// Returns the friendly GitHub issue related APIs.
+        /// </summary>
+        public RemoteRepoIssueApi Issue { get; private set; }
 
         /// <summary>
         /// Returns the friendly GitHub release related APIs.
@@ -95,6 +164,7 @@ namespace Neon.Git
         /// Returns the friendly GitHub release related APIs.
         /// </summary>
         public RemoteRepoTagApi Tag { get; private set; }
+
         /// <summary>
         /// Creates a <see cref="GitSignature"/> from the repository's credentials.
         /// </summary>

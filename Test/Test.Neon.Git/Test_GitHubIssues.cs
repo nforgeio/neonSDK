@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:        Test_GitHubRepoTags.cs
+// FILE:        Test_GitHubRepoIssues.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
@@ -35,6 +35,8 @@ using Neon.Git;
 using Neon.IO;
 using Neon.Xunit;
 
+using Octokit;
+
 using Xunit;
 
 using Release = Octokit.Release;
@@ -44,58 +46,38 @@ namespace TestGit
     [Trait(TestTrait.Category, TestArea.NeonGit)]
     [Collection(TestCollection.NonParallel)]
     [CollectionDefinition(TestCollection.NonParallel, DisableParallelization = true)]
-    public class Test_GitHubRepoTags
+    public class Test_GitHubRepoIssues
     {
-        public Test_GitHubRepoTags()
+        public Test_GitHubRepoIssues()
         {
             GitTestHelper.EnsureMaintainer();
         }
 
         [MaintainerFact]
-        public async Task GetAll()
+        public async Task Create()
         {
-            // Verify that we can list tags without crashing.
+            // Verify that we can create an issue.
 
             await GitTestHelper.RunTestAsync(
                 async () =>
                 {
                     using (var repo = await GitHubRepo.ConnectAsync(GitTestHelper.RemoteTestRepo))
                     {
-                        await repo.Remote.Tag.GetAllAsync();
+                        var newIssue = await repo.Remote.Issue.CreateAsync(
+                            new NewIssue("Test Issue")
+                            {
+                                Body = "HELLO WORLD!"
+                            });
+
+                        var number = newIssue.Number;
+
+                        var issue = await repo.Remote.Issue.GetAsync(number);
+
+                        Assert.NotNull(newIssue);
+                        Assert.Equal(newIssue.Title, issue.Title);
+                        Assert.Equal(newIssue.Body, issue.Body);
                     }
                 });
         }
-
-        // $todo(jefflill):
-        //
-        // The tag create methods don't work.  Create/delete functionality isn't really
-        // important right now, so I'm going to comment them out.
-
-#if TODO
-        [MaintainerFact]
-        public async Task CreateRemove_FromBranch()
-        {
-            // Verify that we can create, get, and remove a tag created from a branch.
-
-            var tagName = $"test-{Guid.NewGuid()}";
-
-            await GitTestHelper.RunTestAsync(
-                async () =>
-                {
-                    using (var repo = await GitHubRepo.ConnectAsync(GitTestHelper.RemoteTestRepo))
-                    {
-                        // Create and verify.
-
-                        await repo.RemoteRepository.Tag.CreateFromBranchAsync(tagName, "master", "create test tag");
-                        Assert.NotNull(repo.RemoteRepository.Tag.FindAsync(tagName));
-
-                        // Remove and verify.
-
-                        await repo.RemoteRepository.Tag.RemoveAsync(tagName);
-                        Assert.Null(repo.RemoteRepository.Tag.FindAsync(tagName));
-                    }
-                });
-        }
-#endif
     }
 }

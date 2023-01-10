@@ -32,6 +32,7 @@ using System.Threading.Tasks;
 using Neon.Common;
 using Neon.Deployment;
 using Neon.Net;
+using Neon.Tasks;
 
 using LibGit2Sharp;
 using LibGit2Sharp.Handlers;
@@ -45,7 +46,6 @@ using GitHubSignature  = Octokit.Signature;
 using GitBranch     = LibGit2Sharp.Branch;
 using GitRepository = LibGit2Sharp.Repository;
 using GitSignature  = LibGit2Sharp.Signature;
-using Neon.Tasks;
 
 namespace Neon.Git
 {
@@ -70,35 +70,51 @@ namespace Neon.Git
         /// </summary>
         /// <returns>The list of branches.</returns>
         /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
-        /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
         public async Task<IReadOnlyList<GitHubBranch>> GetAllAsync()
         {
             await SyncContext.Clear;
             root.EnsureNotDisposed();
 
-            return await root.GitHubApi.Repository.Branch.GetAll(root.RemoteRepoPath.Owner, root.RemoteRepoPath.Name);
+            return await root.GitHubApi.Repository.Branch.GetAll(root.Remote.Id);
         }
 
         /// <summary>
-        /// Returns a specific GitHub origin repository branch, if it exists.
+        /// Returns a specific GitHub origin repository branch.
         /// </summary>
         /// <param name="branchName">Specifies the origin repository branch name.</param>
-        /// <returns>The <see cref="GitHubBranch"/> or <c>null</c> when the branch doesn't exist.</returns>
+        /// <returns>The requested <see cref="GitHubBranch"/>.</returns>
         /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
-        /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
+        /// <exception cref="Octokit.NotFoundException">Thrown when the branch does not exist.</exception>
         public async Task<GitHubBranch> GetAsync(string branchName)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
             root.EnsureNotDisposed();
 
-            // $todo(jefflill):
-            //
-            // It's unfortunate to have to list all of these objects just to obtain a
-            // specific one.  We should come back and refactor this to use the low-level
-            // API.
+            return await root.GitHubApi.Repository.Branch.Get(root.Remote.Id, branchName);
+        }
 
-            return (await GetAllAsync()).FirstOrDefault(branch => branch.Name.Equals(branchName, StringComparison.InvariantCultureIgnoreCase));
+        /// <summary>
+        /// Searches for a specific GitHub origin repository branch.
+        /// </summary>
+        /// <param name="branchName">Specifies the origin repository branch name.</param>
+        /// <returns>The requested <see cref="GitHubBranch"/> or <c>null</c> when it doesn't exist.</returns>
+        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="Octokit.NotFoundException">Thrown when the branch does not exist.</exception>
+        public async Task<GitHubBranch> FindAsync(string branchName)
+        {
+            await SyncContext.Clear;
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
+            root.EnsureNotDisposed();
+
+            try
+            {
+                return await root.GitHubApi.Repository.Branch.Get(root.Remote.Id, branchName);
+            }
+            catch (Octokit.NotFoundException)
+            {
+                return null;
+            }
         }
 
         /// <summary>
@@ -107,14 +123,13 @@ namespace Neon.Git
         /// <param name="branchName">Specifies the origin repository branch name.</param>
         /// <returns><c>true</c> if the branch existed and was removed, <c>false</c> otherwise.</returns>
         /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
-        /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
         public async Task<bool> RemoveAsync(string branchName)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
             root.EnsureNotDisposed();
 
-            var branch = await GetAsync(branchName);
+            var branch = await FindAsync(branchName);
 
             if (branch == null)
             {
@@ -126,7 +141,7 @@ namespace Neon.Git
             //
             //      https://github.com/orgs/community/discussions/24603
 
-            var uri = $"/repos/{root.RemoteRepoPath.Owner}/{root.RemoteRepoPath.Name}/git/heads/{branchName}";
+            var uri = $"/repos/{root.Remote.Path.Owner}/{root.Remote.Path.Name}/git/heads/{branchName}";
 
             NetHelper.EnsureSuccess(await root.GitHubApi.Connection.Delete(new Uri(uri)));
 

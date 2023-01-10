@@ -59,9 +59,15 @@ namespace Neon.Git
         /// Internal constructor.
         /// </summary>
         /// <param name="root">The root <see cref="GitHubRepo"/>.</param>
-        internal LocalRepoApi(GitHubRepo root)
+        /// <param name="localRepoFolder">
+        /// Specifies the path to the local repository folder.  This will be
+        /// <c>null</c> when the root <see cref="GitHubRepo"/> is only connected
+        /// to GitHub and there is no local repo.
+        /// </param>
+        internal LocalRepoApi(GitHubRepo root, string localRepoFolder)
         {
-            this.root = root;
+            this.root            = root;
+            this.Folder = localRepoFolder;
         }
 
         /// <summary>
@@ -74,7 +80,7 @@ namespace Neon.Git
         /// </summary>
         /// <exception cref="ObjectDisposedException">Thrown when the instance is disposed.</exception>
         /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
-        public string LocalRepoFolder => root.LocalRepoFolder;
+        public string Folder { get; private set; }
 
         /// <summary>
         /// Returns <c>true</c> when the local repos has uncommitted changes.
@@ -132,9 +138,9 @@ namespace Neon.Git
                 CredentialsProvider = root.CredentialsProvider
             };
 
-            var refSpecs = root.Remote.FetchRefSpecs.Select(spec => spec.Specification);
+            var refSpecs = root.Origin.FetchRefSpecs.Select(spec => spec.Specification);
 
-            Commands.Fetch(root.GitApi, root.Remote.Name, refSpecs, options, "fetching");
+            Commands.Fetch(root.GitApi, root.Origin.Name, refSpecs, options, "fetching");
 
             await Task.CompletedTask;
         }
@@ -226,13 +232,13 @@ namespace Neon.Git
 
             if (currentBranch == null)
             {
-                throw new LibGit2SharpException($"Local git repository [{root.LocalRepoFolder}] has no checked-out branch.");
+                throw new LibGit2SharpException($"Local git repository [{Folder}] has no checked-out branch.");
             }
 
             if (!currentBranch.IsTracking)
             {
                 root.GitApi.Branches.Update(currentBranch,
-                    updater => updater.Remote = root.Remote.Name,
+                    updater => updater.Remote = root.Origin.Name,
                     updater => updater.UpstreamBranch = currentBranch.CanonicalName);
             }
 
@@ -248,7 +254,7 @@ namespace Neon.Git
             await root.WaitForGitHubAsync(
                 async () =>
                 {
-                    var serverBranchUpdate = await root.RemoteRepository.Branch.GetAsync(currentBranch.FriendlyName);
+                    var serverBranchUpdate = await root.Remote.Branch.GetAsync(currentBranch.FriendlyName);
 
                     return serverBranchUpdate.Commit.Sha == currentBranch.Tip.Sha;
                 });
@@ -346,7 +352,7 @@ namespace Neon.Git
 
             if (created)
             {
-                root.GitApi.CreateBranch(branchName, $"{root.Remote.Name}/{originBranchName}");
+                root.GitApi.CreateBranch(branchName, $"{root.Origin.Name}/{originBranchName}");
             }
 
             await CheckoutAsync(branchName);
@@ -371,7 +377,7 @@ namespace Neon.Git
 
             // Remove the origin branch.
 
-            root.GitApi.Network.Push(root.Remote, $"+:refs/heads/{branchName}", CreatePushOptions());
+            root.GitApi.Network.Push(root.Origin, $"+:refs/heads/{branchName}", CreatePushOptions());
 
             // Remove the local branch.
 
@@ -453,6 +459,89 @@ namespace Neon.Git
             root.GitApi.RemoveUntrackedFiles();
 
             await Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// <para>
+        /// Converts a relative local repository file path like "/my-folder/test.txt" 
+        /// or "my-folder/test.txt into the actual local file system path for the file.
+        /// </para>
+        /// <note>
+        /// The local file doesn't need to actually exist.
+        /// </note>
+        /// </summary>
+        /// <param name="relativePath">
+        /// Specifies the path to the file relative to the local repository root folder.
+        /// This may include a leading slash and both forward and backslashes are allowed
+        /// as path separators.
+        /// </param>
+        /// <returns>The fully qualified file system path to the specified repo file.</returns>
+        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
+        public async Task<string> GetLocalFilePathAsync(string relativePath)
+        {
+            await SyncContext.Clear;
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(relativePath), nameof(relativePath));
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
+
+            if (NeonHelper.IsWindows)
+            {
+                relativePath = relativePath.Replace('/', '\\');
+
+                if (relativePath.StartsWith('\\'))
+                {
+                    relativePath = relativePath.Substring(1);
+                }
+            }
+            else
+            {
+                relativePath = relativePath.Replace('\\', '/');
+
+                if (relativePath.StartsWith('/'))
+                {
+                    relativePath = relativePath.Substring(1);
+                }
+            }
+
+            return await Task.FromResult(Path.GetFullPath(Path.Combine(root.Local.Folder, relativePath)));
+        }
+
+        /// <summary>
+        /// <para>
+        /// Converts a relative local repository file path like "/my-folder/test.txt" 
+        /// or "my-folder/test.txt to the remote GitHub URI for the file within the 
+        /// the currently checked out branch.
+        /// </para>
+        /// <note>
+        /// The local or remote file doesn't need to actually exist.
+        /// </note>
+        /// </summary>
+        /// <param name="relativePath">
+        /// Specifies the path to the file relative to the local repository root folder.
+        /// This may include a leading slash (which is assumed when not present) and both 
+        /// forward and backslashes are allowed as path separators.
+        /// </param>
+        /// <returns>The GitHub URI for the file from the current branch.</returns>
+        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
+        public async Task<string> GetRemoteFileUriAsync(string relativePath)
+        {
+            await SyncContext.Clear;
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(relativePath), nameof(relativePath));
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
+
+            relativePath = relativePath.Replace('\\', '/');
+
+            if (relativePath.StartsWith('/'))
+            {
+                relativePath = relativePath.Substring(1);
+            }
+
+            var uri = new Uri($"{root.Remote.BaseUri}{relativePath}");
+
+            return await Task.FromResult(uri.ToString());
         }
     }
 }

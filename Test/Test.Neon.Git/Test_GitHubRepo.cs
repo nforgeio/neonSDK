@@ -59,9 +59,29 @@ namespace TestGit
 
                         using (var repo = await GitHubRepo.CloneAsync(GitTestHelper.RemoteTestRepo, tempFolder.Path))
                         {
-                            Assert.Equal(GitTestHelper.RemoteTestRepo, repo.RemoteRepoPath.ToString());
+                            Assert.Equal(GitTestHelper.RemoteTestRepo, repo.Remote.Path.ToString());
                             Assert.Equal("master", repo.Local.CurrentBranch.FriendlyName);
                             Assert.True(File.Exists(Path.Combine(repoPath, ".gitignore")));
+
+                            // Exercise some other APIs.
+
+                            Assert.Equal("https://github.com/neontest/neon-git", repo.Origin.Url);
+                            Assert.Equal("https://github.com/neontest/neon-git", repo.Origin.PushUrl);
+                            Assert.Equal("https://github.com/neontest/", repo.Remote.BaseUri);
+
+                            var validLocalPath = Path.Combine(repo.Local.Folder, "test", "foo.txt");
+
+                            Assert.Equal(validLocalPath, await repo.Local.GetLocalFilePathAsync(@"/test/foo.txt"));
+                            Assert.Equal(validLocalPath, await repo.Local.GetLocalFilePathAsync(@"test/foo.txt"));
+                            Assert.Equal(validLocalPath, await repo.Local.GetLocalFilePathAsync(@"\test\foo.txt"));
+                            Assert.Equal(validLocalPath, await repo.Local.GetLocalFilePathAsync(@"test\foo.txt"));
+
+                            var validRemoteUri = $"{repo.Remote.BaseUri}test/foo.txt";
+
+                            Assert.Equal(validRemoteUri, await repo.Local.GetRemoteFileUriAsync(@"/test/foo.txt"));
+                            Assert.Equal(validRemoteUri, await repo.Local.GetRemoteFileUriAsync(@"test/foo.txt"));
+                            Assert.Equal(validRemoteUri, await repo.Local.GetRemoteFileUriAsync(@"\test\foo.txt"));
+                            Assert.Equal(validRemoteUri, await repo.Local.GetRemoteFileUriAsync(@"test\foo.txt"));
                         }
                     }
                 });
@@ -85,18 +105,18 @@ namespace TestGit
 
                         using (var repo = await GitHubRepo.CloneAsync(GitTestHelper.RemoteTestRepo, tempFolder.Path))
                         {
-                            Assert.Equal(GitTestHelper.RemoteTestRepo, repo.RemoteRepoPath.ToString());
+                            Assert.Equal(GitTestHelper.RemoteTestRepo, repo.Remote.Path.ToString());
                             Assert.Equal("master", repo.Local.CurrentBranch.FriendlyName);
                             Assert.True(File.Exists(Path.Combine(repoPath, ".gitignore")));
                         }
 
                         // Verify that we can reopen the existing repo.
 
-                        using (var repo = new GitHubRepo(tempFolder.Path))
+                        using (var repo = await GitHubRepo.OpenAsync(tempFolder.Path))
                         {
                             Assert.Equal("master", repo.Local.CurrentBranch.FriendlyName);
                             Assert.True(File.Exists(Path.Combine(repoPath, ".gitignore")));
-                            Assert.Equal(RemoteRepoPath.Parse(GitTestHelper.RemoteTestRepo).ToString(), repo.RemoteRepoPath.ToString());
+                            Assert.Equal(RemoteRepoPath.Parse(GitTestHelper.RemoteTestRepo).ToString(), repo.Remote.Path.ToString());
                         }
                     }
 
@@ -105,14 +125,14 @@ namespace TestGit
 
                     using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
                     {
-                        Assert.Throws<RepositoryNotFoundException>(() => new GitHubRepo(tempFolder.Path));
+                        await Assert.ThrowsAsync<RepositoryNotFoundException>(async () => await GitHubRepo.OpenAsync(tempFolder.Path));
                     }
 
                     // Verify that we see an exception when trying to open an empty local repo folder.
 
                     using (var tempFolder = new TempFolder(prefix: "repo-", create: true))
                     {
-                        Assert.Throws<RepositoryNotFoundException>(() => new GitHubRepo(tempFolder.Path));
+                        await Assert.ThrowsAsync<RepositoryNotFoundException>(async () => await GitHubRepo.OpenAsync(tempFolder.Path));
                     }
                 });
         }
@@ -262,7 +282,7 @@ namespace TestGit
 
                         using (var repo = await GitHubRepo.CloneAsync(GitTestHelper.RemoteTestRepo, repoPath))
                         {
-                            var remoteBranches = await repo.RemoteRepository.Branch.GetAllAsync();
+                            var remoteBranches = await repo.Remote.Branch.GetAllAsync();
 
                             Assert.Contains(remoteBranches, branch => branch.Name == "master");
                         }
@@ -289,7 +309,7 @@ namespace TestGit
 
                             Assert.True(await repo.Local.CreateBranchAsync(newBranchName, "master"));
                             Assert.NotNull(repo.GitApi.Branches[newBranchName]);
-                            Assert.Null(await repo.RemoteRepository.Branch.GetAsync(newBranchName));
+                            Assert.Null(await repo.Remote.Branch.FindAsync(newBranchName));
 
                             // Verify that we see FALSE when trying to create an existing branch.
 
@@ -300,7 +320,7 @@ namespace TestGit
                             await repo.Local.CheckoutAsync("master");
                             repo.GitApi.Branches.Remove(repo.GitApi.Branches[newBranchName]);
                             Assert.Null(repo.GitApi.Branches[newBranchName]);
-                            Assert.Null(await repo.RemoteRepository.Branch.GetAsync(newBranchName));
+                            Assert.Null(await repo.Remote.Branch.FindAsync(newBranchName));
                         }
                     }
                 });
@@ -327,7 +347,7 @@ namespace TestGit
 
                             Assert.True(await repo.Local.CreateBranchAsync(newBranchName, "master"));
                             Assert.NotNull(repo.GitApi.Branches[newBranchName]);
-                            Assert.Null(await repo.RemoteRepository.Branch.GetAsync(newBranchName));
+                            Assert.Null(await repo.Remote.Branch.FindAsync(newBranchName));
 
                             // Create a test file in the new branch and commit.
 
@@ -369,7 +389,7 @@ namespace TestGit
 
                             Assert.True(await repo.Local.CreateBranchAsync(newBranchName, "master"));
                             Assert.NotNull(repo.GitApi.Branches[newBranchName]);
-                            Assert.Null(await repo.RemoteRepository.Branch.GetAsync(newBranchName));
+                            Assert.Null(await repo.Remote.Branch.FindAsync(newBranchName));
 
                             // Create a test file in the new branch and commit.
 
@@ -464,26 +484,31 @@ namespace TestGit
 
                             Assert.True(await repo.Local.CreateBranchAsync(newBranchName, "master"));
                             Assert.NotNull(repo.GitApi.Branches[newBranchName]);
-                            Assert.Null(await repo.RemoteRepository.Branch.GetAsync(newBranchName));
+                            Assert.Null(await repo.Remote.Branch.FindAsync(newBranchName));
                             Assert.Equal(newBranchName, repo.Local.CurrentBranch.FriendlyName);
 
                             // Push to remote and verify.
 
                             await repo.Local.PushAsync();
                             Assert.NotNull(repo.GitApi.Branches[newBranchName]);
-                            Assert.NotNull(await repo.RemoteRepository.Branch.GetAsync(newBranchName));
+                            Assert.NotNull(await repo.Remote.Branch.FindAsync(newBranchName));
 
                             // Switch back to master so we'll be able to delete the branch.
 
                             await repo.Local.CheckoutAsync("master");
                             Assert.Equal("master", repo.Local.CurrentBranch.FriendlyName);
 
+                            // Verify that [GetAsync()] returns an existing branch and throws for a non-existant one.
+
+                            Assert.NotNull(await repo.Remote.Branch.GetAsync(newBranchName));
+                            await Assert.ThrowsAsync<Octokit.NotFoundException>(async () => await repo.Remote.Branch.GetAsync($"{Guid.NewGuid()}"));
+
                             // Remove the new branch and verify.
 
                             await repo.Local.RemoveBranchAsync(newBranchName);
 
                             Assert.Null(repo.GitApi.Branches[newBranchName]);
-                            Assert.Null(await repo.RemoteRepository.Branch.GetAsync(newBranchName));
+                            Assert.Null(await repo.Remote.Branch.FindAsync(newBranchName));
                             Assert.Equal("master", repo.Local.CurrentBranch.FriendlyName);
                         }
                     }
@@ -546,15 +571,14 @@ namespace TestGit
 
                         repo.Dispose();
 
-                        Assert.Throws<ObjectDisposedException>(() => _ = repo.LocalRepoFolder);
+                        Assert.Throws<ObjectDisposedException>(() => _ = repo.Local.Folder);
                         Assert.Throws<ObjectDisposedException>(() => _ = repo.GitApi);
                         Assert.Throws<ObjectDisposedException>(() => _ = repo.Local.CurrentBranch);
                         Assert.Throws<ObjectDisposedException>(() => _ = repo.Local.CreateSignature());
                         Assert.Throws<ObjectDisposedException>(() => _ = repo.Local.IsDirty);
 
+                        Assert.Throws<ObjectDisposedException>(() => _ = repo.Origin);
                         Assert.Throws<ObjectDisposedException>(() => _ = repo.Remote);
-                        Assert.Throws<ObjectDisposedException>(() => _ = repo.RemoteRepository);
-                        Assert.Throws<ObjectDisposedException>(() => _ = repo.RemoteRepoPath);
 
                         await Assert.ThrowsAsync<ObjectDisposedException>(async () => await repo.Local.CheckoutAsync("master"));
                         await Assert.ThrowsAsync<ObjectDisposedException>(async () => await repo.Local.CheckoutOriginAsync("master"));
