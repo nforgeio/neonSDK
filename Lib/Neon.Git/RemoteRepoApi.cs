@@ -31,6 +31,7 @@ using System.Threading.Tasks;
 
 using Neon.Common;
 using Neon.Deployment;
+using Neon.Tasks;
 
 using LibGit2Sharp;
 using LibGit2Sharp.Handlers;
@@ -44,7 +45,6 @@ using GitHubSignature  = Octokit.Signature;
 using GitBranch     = LibGit2Sharp.Branch;
 using GitRepository = LibGit2Sharp.Repository;
 using GitSignature  = LibGit2Sharp.Signature;
-using Neon.Tasks;
 
 namespace Neon.Git
 {
@@ -72,6 +72,7 @@ namespace Neon.Git
             repoApi.root    = root;
             repoApi.Path    = path;
             repoApi.Branch  = new RemoteRepoBranchApi(root);
+            repoApi.Issue   = new RemoteRepoIssueApi(root);
             repoApi.Release = new RemoteRepoReleaseApi(root);
             repoApi.Tag     = new RemoteRepoTagApi(root);
             repoApi.Id      = (await root.GitHubApi.Repository.Get(path.Owner, path.Name)).Id;
@@ -119,6 +120,11 @@ namespace Neon.Git
         public RemoteRepoBranchApi Branch { get; private set; }
 
         /// <summary>
+        /// Returns the friendly GitHub issue related APIs.
+        /// </summary>
+        public RemoteRepoIssueApi Issue { get; private set; }
+
+        /// <summary>
         /// Returns the friendly GitHub release related APIs.
         /// </summary>
         public RemoteRepoReleaseApi Release { get; private set; }
@@ -127,6 +133,7 @@ namespace Neon.Git
         /// Returns the friendly GitHub release related APIs.
         /// </summary>
         public RemoteRepoTagApi Tag { get; private set; }
+
         /// <summary>
         /// Creates a <see cref="GitSignature"/> from the repository's credentials.
         /// </summary>

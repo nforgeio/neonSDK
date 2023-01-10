@@ -34,6 +34,7 @@ using Neon.Cryptography;
 using Neon.Deployment;
 using Neon.IO;
 using Neon.Net;
+using Neon.Tasks;
 
 using LibGit2Sharp;
 using LibGit2Sharp.Handlers;
@@ -47,12 +48,11 @@ using GitHubSignature  = Octokit.Signature;
 using GitBranch     = LibGit2Sharp.Branch;
 using GitRepository = LibGit2Sharp.Repository;
 using GitSignature  = LibGit2Sharp.Signature;
-using Neon.Tasks;
 
 namespace Neon.Git
 {
     /// <summary>
-    /// Implements the friendly GitHub repository release related APIS.
+    /// Implements the friendly GitHub repository release related APIs.
     /// </summary>
     public class RemoteRepoReleaseApi
     {

@@ -69,10 +69,8 @@ namespace Neon.Git
     /// that you'll use for subsequent operations.
     /// </para>
     /// <para>
-    /// <b>To manage an existing local repository</b>, use the <see cref="GitHubRepo(string, string, string, string, string, IProfileClient)"/>
-    /// constructor, passing the path the the local folder and optionally the branch to
-    /// be checked out as well as the GitHub credentials.  This returns the <see cref="GitHubRepo"/>
-    /// that you'll use for subsequent operations.
+    /// <b>To manage a GitHub repository that doesn't have a local clone</b>,
+    /// call <see cref="GitHubRepo.ConnectAsync(string, string, string, string, string, IProfileClient)"/>.
     /// </para>
     /// <para>
     /// <b>To open an existing local repository</b>, call <see cref="OpenAsync(string, string, string, string, string, IProfileClient)"/>.
