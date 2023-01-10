@@ -75,7 +75,7 @@ namespace Neon.Git
             await SyncContext.Clear;
             root.EnsureNotDisposed();
 
-            return await root.GitHubApi.Repository.Branch.GetAll(root.RemoteRepository.Id);
+            return await root.GitHubApi.Repository.Branch.GetAll(root.Remote.Id);
         }
 
         /// <summary>
@@ -91,7 +91,7 @@ namespace Neon.Git
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
             root.EnsureNotDisposed();
 
-            return await root.GitHubApi.Repository.Branch.Get(root.RemoteRepository.Id, branchName);
+            return await root.GitHubApi.Repository.Branch.Get(root.Remote.Id, branchName);
         }
 
         /// <summary>
@@ -109,7 +109,7 @@ namespace Neon.Git
 
             try
             {
-                return await root.GitHubApi.Repository.Branch.Get(root.RemoteRepository.Id, branchName);
+                return await root.GitHubApi.Repository.Branch.Get(root.Remote.Id, branchName);
             }
             catch (Octokit.NotFoundException)
             {
@@ -141,7 +141,7 @@ namespace Neon.Git
             //
             //      https://github.com/orgs/community/discussions/24603
 
-            var uri = $"/repos/{root.RemoteRepository.Path.Owner}/{root.RemoteRepository.Path.Name}/git/heads/{branchName}";
+            var uri = $"/repos/{root.Remote.Path.Owner}/{root.Remote.Path.Name}/git/heads/{branchName}";
 
             NetHelper.EnsureSuccess(await root.GitHubApi.Connection.Delete(new Uri(uri)));
 

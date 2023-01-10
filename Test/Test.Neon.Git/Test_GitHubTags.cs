@@ -61,7 +61,7 @@ namespace TestGit
                 {
                     using (var repo = await GitHubRepo.ConnectAsync(GitTestHelper.RemoteTestRepo))
                     {
-                        await repo.RemoteRepository.Tag.GetAllAsync();
+                        await repo.Remote.Tag.GetAllAsync();
                     }
                 });
         }

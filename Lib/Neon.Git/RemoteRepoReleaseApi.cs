@@ -91,14 +91,14 @@ namespace Neon.Git
                 Body       = body
             };
 
-            var newRelease = await root.GitHubApi.Repository.Release.Create(root.RemoteRepository.Id, release);
+            var newRelease = await root.GitHubApi.Repository.Release.Create(root.Remote.Id, release);
 
             // GitHub doesn't appear to create releases synchronously, so we're going to wait for the new release to show up.
 
             await root.WaitForGitHubAsync(
                 async () =>
                 {
-                    return await root.RemoteRepository.Release.FindAsync(releaseName) != null;
+                    return await root.Remote.Release.FindAsync(releaseName) != null;
                 });
 
             return newRelease;
@@ -114,7 +114,7 @@ namespace Neon.Git
             await SyncContext.Clear;
             root.EnsureNotDisposed();
 
-            return await root.GitHubApi.Repository.Release.GetAll(root.RemoteRepository.Id);
+            return await root.GitHubApi.Repository.Release.GetAll(root.Remote.Id);
         }
 
         /// <summary>
@@ -132,7 +132,7 @@ namespace Neon.Git
 
             try
             {
-                return await root.GitHubApi.Repository.Release.Get(root.RemoteRepository.Id, releaseName);
+                return await root.GitHubApi.Repository.Release.Get(root.Remote.Id, releaseName);
             }
             catch (Octokit.NotFoundException)
             {
@@ -142,7 +142,7 @@ namespace Neon.Git
                 // revert to listing all of the releases and selecting from that.  This will optimize for
                 // the presumably common case where the release exists.
 
-                var allReleases = await root.GitHubApi.Repository.Release.GetAll(root.RemoteRepository.Id);
+                var allReleases = await root.GitHubApi.Repository.Release.GetAll(root.Remote.Id);
                 var release     = allReleases.FirstOrDefault(release => release.Name.Equals(releaseName, StringComparison.InvariantCultureIgnoreCase));
 
                 if (release != null)
@@ -178,7 +178,7 @@ namespace Neon.Git
                 // revert to listing all of the releases and selecting from that.  This will optimize for
                 // the presumably common case where the release exists.
 
-                var allReleases = await root.GitHubApi.Repository.Release.GetAll(root.RemoteRepository.Id);
+                var allReleases = await root.GitHubApi.Repository.Release.GetAll(root.Remote.Id);
 
                 return allReleases.FirstOrDefault(release => release.Name.Equals(releaseName, StringComparison.InvariantCultureIgnoreCase));
             }
@@ -238,7 +238,7 @@ namespace Neon.Git
             Covenant.Requires<ArgumentNullException>(release != null, nameof(release));
             Covenant.Requires<ArgumentNullException>(releaseUpdate != null, nameof(releaseUpdate));
 
-            return await root.GitHubApi.Repository.Release.Edit(root.RemoteRepository.Id, release.Id, releaseUpdate);
+            return await root.GitHubApi.Repository.Release.Edit(root.Remote.Id, release.Id, releaseUpdate);
         }
 
         /// <summary>
@@ -259,7 +259,7 @@ namespace Neon.Git
                 return false;
             }
 
-            await root.GitHubApi.Repository.Release.Delete(root.RemoteRepository.Id, release.Id);
+            await root.GitHubApi.Repository.Release.Delete(root.Remote.Id, release.Id);
 
             return true;
         }
@@ -326,7 +326,7 @@ namespace Neon.Git
             await root.WaitForGitHubAsync(
                 async () =>
                 {
-                    var release = await root.RemoteRepository.Release.FindAsync(releaseName);
+                    var release = await root.Remote.Release.FindAsync(releaseName);
 
                     return release.Assets.Any(asset => asset.Id == newAsset.Id && newAsset.State == "uploaded");
                 });
@@ -388,14 +388,14 @@ namespace Neon.Git
 
             update.Draft = false;
 
-            await root.RemoteRepository.Release.UpdateAsync(release, update);
+            await root.Remote.Release.UpdateAsync(release, update);
 
             // GitHub doesn't appear to publish releases synchronously, so we're going to wait for the new release to show up.
 
             await root.WaitForGitHubAsync(
                 async () =>
                 {
-                    release = await root.RemoteRepository.Release.FindAsync(releaseName);
+                    release = await root.Remote.Release.FindAsync(releaseName);
 
                     return release != null && !release.Draft;
                 });

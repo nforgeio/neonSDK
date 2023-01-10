@@ -144,9 +144,9 @@ namespace TestGit
         {
             using (var repo = await GitHubRepo.ConnectAsync(GitTestHelper.RemoteTestRepo))
             {
-                foreach (var release in await repo.RemoteRepository.Release.GetAllAsync())
+                foreach (var release in await repo.Remote.Release.GetAllAsync())
                 {
-                    await repo.RemoteRepository.Release.RemoveAsync(release.Name);
+                    await repo.Remote.Release.RemoveAsync(release.Name);
                 }
             }
         }
@@ -159,9 +159,9 @@ namespace TestGit
         {
             using (var repo = await GitHubRepo.ConnectAsync(GitTestHelper.RemoteTestRepo))
             {
-                foreach (var tag in await repo.RemoteRepository.Tag.GetAllAsync())
+                foreach (var tag in await repo.Remote.Tag.GetAllAsync())
                 {
-                    await repo.RemoteRepository.Tag.RemoveAsync(tag.Name);
+                    await repo.Remote.Tag.RemoveAsync(tag.Name);
                 }
             }
         }

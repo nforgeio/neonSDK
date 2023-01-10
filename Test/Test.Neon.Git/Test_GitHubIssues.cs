@@ -63,7 +63,7 @@ namespace TestGit
                 {
                     using (var repo = await GitHubRepo.ConnectAsync(GitTestHelper.RemoteTestRepo))
                     {
-                        var newIssue = await repo.RemoteRepository.Issue.CreateAsync(
+                        var newIssue = await repo.Remote.Issue.CreateAsync(
                             new NewIssue("Test Issue")
                             {
                                 Body = "HELLO WORLD!"
@@ -71,7 +71,7 @@ namespace TestGit
 
                         var number = newIssue.Number;
 
-                        var issue = await repo.RemoteRepository.Issue.GetAsync(number);
+                        var issue = await repo.Remote.Issue.GetAsync(number);
 
                         Assert.NotNull(newIssue);
                         Assert.Equal(newIssue.Title, issue.Title);

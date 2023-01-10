@@ -76,7 +76,7 @@ namespace Neon.Git
         {
             Covenant.Requires<ArgumentNullException>(newIssue != null, nameof(newIssue));
 
-            return await root.GitHubApi.Issue.Create(root.RemoteRepository.Id, newIssue);
+            return await root.GitHubApi.Issue.Create(root.Remote.Id, newIssue);
         }
 
         /// <summary>
@@ -90,7 +90,7 @@ namespace Neon.Git
             Covenant.Requires<ArgumentException>(number > 0, nameof(number));
             Covenant.Requires<ArgumentNullException>(issueUpdate != null, nameof(issueUpdate));
 
-            return await root.GitHubApi.Issue.Update(root.RemoteRepository.Id, number, issueUpdate);
+            return await root.GitHubApi.Issue.Update(root.Remote.Id, number, issueUpdate);
         }
 
         /// <summary>
@@ -103,7 +103,7 @@ namespace Neon.Git
         {
             Covenant.Requires<ArgumentException>(number > 0, nameof(number));
 
-            return await root.GitHubApi.Issue.Get(root.RemoteRepository.Id, number);
+            return await root.GitHubApi.Issue.Get(root.Remote.Id, number);
         }
 
         // $todo(Jefflill): There's many more APIs to wrap here.

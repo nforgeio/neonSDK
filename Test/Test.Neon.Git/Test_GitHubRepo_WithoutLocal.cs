@@ -57,7 +57,7 @@ namespace TestGit
                     {
                         // These shouldn't throw any exceptions.
 
-                        _ = repo.RemoteRepository;
+                        _ = repo.Remote;
                     }
                 });
         }

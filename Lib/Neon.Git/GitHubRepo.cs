@@ -84,7 +84,7 @@ namespace Neon.Git
     /// associated local git repository.
     /// </para>
     /// <para>
-    /// The <see cref="RemoteRepository"/> property provides some easy-to-use methods for managing the associated
+    /// The <see cref="Remote"/> property provides some easy-to-use methods for managing the associated
     /// GitHub repository.  These implement some common operations and are easier to use than the stock
     /// Octokit implementations.
     /// </para>
@@ -159,8 +159,8 @@ namespace Neon.Git
                         Password = repo.Credentials.AccessToken
                     });
 
-            repo.Local            = new LocalRepoApi(repo);
-            repo.RemoteRepository = await RemoteRepoApi.CreateAsync(repo, RemoteRepoPath.Parse(remoteRepoPath));
+            repo.Local  = new LocalRepoApi(repo);
+            repo.Remote = await RemoteRepoApi.CreateAsync(repo, RemoteRepoPath.Parse(remoteRepoPath));
 
             repo.CreateHttpClient(userAgent);
 
@@ -229,9 +229,9 @@ namespace Neon.Git
                         Password = repo.Credentials.AccessToken
                     });
 
-            repo.LocalRepoFolder  = localRepoFolder;
-            repo.Local            = new LocalRepoApi(repo);
-            repo.RemoteRepository = await RemoteRepoApi.CreateAsync(repo, RemoteRepoPath.Parse(remoteRepoPath));
+            repo.LocalRepoFolder = localRepoFolder;
+            repo.Local           = new LocalRepoApi(repo);
+            repo.Remote          = await RemoteRepoApi.CreateAsync(repo, RemoteRepoPath.Parse(remoteRepoPath));
 
             if (Directory.Exists(localRepoFolder))
             {
@@ -331,11 +331,11 @@ namespace Neon.Git
             repo.GitApi = new GitRepository(localRepoFolder);
             repo.Local  = new LocalRepoApi(repo);
 
-            var pushUrl        = new Uri(repo.Remote.PushUrl);
+            var pushUrl        = new Uri(repo.Origin.PushUrl);
             var remoteRepoPath = $"{pushUrl.Host}{pushUrl.AbsolutePath}";
 
-            repo.RemoteRepository = await RemoteRepoApi.CreateAsync(repo, RemoteRepoPath.Parse(remoteRepoPath));
-            repo.LocalRepoFolder  = localRepoFolder;
+            repo.Remote          = await RemoteRepoApi.CreateAsync(repo, RemoteRepoPath.Parse(remoteRepoPath));
+            repo.LocalRepoFolder = localRepoFolder;
 
             return repo;
         }
@@ -501,7 +501,7 @@ namespace Neon.Git
         /// </summary>
         /// <exception cref="ObjectDisposedException">Thrown when the instance is disposed.</exception>
         /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
-        public RemoteRepoApi RemoteRepository
+        public RemoteRepoApi Remote
         {
             get
             {
@@ -519,7 +519,7 @@ namespace Neon.Git
         /// <exception cref="ObjectDisposedException">Thrown when the instance is disposed.</exception>
         /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
         /// <exception cref="LibGit2SharpException">Thrown if the repository doesn't have a remote origin.</exception>
-        public Remote Remote
+        public Remote Origin
         {
             get
             {

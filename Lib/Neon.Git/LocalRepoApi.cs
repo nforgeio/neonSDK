@@ -132,9 +132,9 @@ namespace Neon.Git
                 CredentialsProvider = root.CredentialsProvider
             };
 
-            var refSpecs = root.Remote.FetchRefSpecs.Select(spec => spec.Specification);
+            var refSpecs = root.Origin.FetchRefSpecs.Select(spec => spec.Specification);
 
-            Commands.Fetch(root.GitApi, root.Remote.Name, refSpecs, options, "fetching");
+            Commands.Fetch(root.GitApi, root.Origin.Name, refSpecs, options, "fetching");
 
             await Task.CompletedTask;
         }
@@ -232,7 +232,7 @@ namespace Neon.Git
             if (!currentBranch.IsTracking)
             {
                 root.GitApi.Branches.Update(currentBranch,
-                    updater => updater.Remote = root.Remote.Name,
+                    updater => updater.Remote = root.Origin.Name,
                     updater => updater.UpstreamBranch = currentBranch.CanonicalName);
             }
 
@@ -248,7 +248,7 @@ namespace Neon.Git
             await root.WaitForGitHubAsync(
                 async () =>
                 {
-                    var serverBranchUpdate = await root.RemoteRepository.Branch.GetAsync(currentBranch.FriendlyName);
+                    var serverBranchUpdate = await root.Remote.Branch.GetAsync(currentBranch.FriendlyName);
 
                     return serverBranchUpdate.Commit.Sha == currentBranch.Tip.Sha;
                 });
@@ -346,7 +346,7 @@ namespace Neon.Git
 
             if (created)
             {
-                root.GitApi.CreateBranch(branchName, $"{root.Remote.Name}/{originBranchName}");
+                root.GitApi.CreateBranch(branchName, $"{root.Origin.Name}/{originBranchName}");
             }
 
             await CheckoutAsync(branchName);
@@ -371,7 +371,7 @@ namespace Neon.Git
 
             // Remove the origin branch.
 
-            root.GitApi.Network.Push(root.Remote, $"+:refs/heads/{branchName}", CreatePushOptions());
+            root.GitApi.Network.Push(root.Origin, $"+:refs/heads/{branchName}", CreatePushOptions());
 
             // Remove the local branch.
 
