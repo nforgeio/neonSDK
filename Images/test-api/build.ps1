@@ -35,7 +35,7 @@ $branch            = GitBranch $env:NF_ROOT
 
 DeleteFolder bin
 
-$result = mkdir bin
+mkdir bin | Out-Null
 ThrowOnExitCode
 
 dotnet publish "$nfServices\$appname\$appname.csproj" -c Release -o "$pwd\bin" 
