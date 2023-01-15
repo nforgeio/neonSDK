@@ -145,6 +145,16 @@ NOTE: The constant must be formatted exactly like:
 within the C# source file to be parsed correctly where [NAME] is the constant
 name and [VERSION] will be returned as value.
 
+---------------------------------------
+neon-build dotnet-version GLOBAL-JSON-PATH
+
+Calls <b>dotnet --info</b> with the working directory holding the <b>global.json</b> 
+file specified on the command line and parses the .NET SDK version (like ""7.0.102"")
+as well as the .NET runtime version (like ""7.0.2"").
+
+The command writes the SDK version to the first output line and the corresponding
+runtime version to the second line.
+
 ----------------------------------------------------
 neon-build pack-version CSPATH CONSTANT CSPROJ
 
@@ -542,6 +552,11 @@ ARGUMENTS:
                     case "read-version":
 
                         ReadVersion(commandLine);
+                        break;
+
+                    case "dotnet-version":
+
+                        DotnetVersion(commandLine);
                         break;
 
                     case "pack-version":

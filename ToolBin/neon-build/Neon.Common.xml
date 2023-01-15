@@ -908,39 +908,6 @@
             will point to the same underlying buffers.
             </remarks>
         </member>
-        <member name="T:Neon.Common.CatchAllException">
-            <summary>
-            <para>
-            Thrown by <see cref="M:Neon.Common.ExceptionResult.ThrowOnError"/> and <see cref="T:Neon.Common.ExceptionResult`1"/>
-            when the type for the exception identified by <see cref="P:Neon.Common.ExceptionResult.ExceptionType"/> doesn't
-            exist in the current <see cref="T:System.AppDomain"/>.
-            </para>
-            <para>
-            This can happen when a remote process throws an exception from an assembly it references but
-            is not referenced by the calling process.  In these cases, you'll need to catch this exception
-            and then examine the <see cref="P:Neon.Common.CatchAllException.ExceptionType"/> property to identify the exception and potentially
-            the <see cref="P:System.Exception.Message"/> property as well.
-            </para>
-            </summary>
-        </member>
-        <member name="M:Neon.Common.CatchAllException.#ctor(System.Exception)">
-            <summary>
-            Constructs an instance from the exception passed.
-            </summary>
-            <param name="e">The exception being wrapped.</param>
-        </member>
-        <member name="M:Neon.Common.CatchAllException.#ctor(System.String,System.String)">
-            <summary>
-            Constructs an instance from an exception type name and an optional message.
-            </summary>
-            <param name="exceptionType">The fully qualified exception type name.</param>
-            <param name="message">The optional exception message.</param>
-        </member>
-        <member name="P:Neon.Common.CatchAllException.ExceptionType">
-            <summary>
-            Returns the fully qualified name of the wrapped exception type.
-            </summary>
-        </member>
         <member name="T:Neon.Common.CommandLine">
             <summary>
             Performs common operations on application a DOS or Linux command line.
@@ -1310,6 +1277,26 @@
             The argument comparison is case sensitive.
             </note>
             </remarks>
+        </member>
+        <member name="M:Neon.Common.CommandLine.Preprocess(System.Collections.Generic.Dictionary{System.String,System.String},System.Text.RegularExpressions.Regex)">
+            <summary>
+            <para>
+            Preprocesses the command line by using <see cref="T:Neon.IO.PreprocessReader"/> to replace any 
+            environment variable, profile, or secret references like <b>&lt;password:MY-PASSWORD$gt;</b>
+            in the command line arguments.
+            </para>
+            <note>
+            <b>IMPORTANT:</b> You must register an <see cref="T:Neon.Deployment.IProfileClient"/> implementation with
+            <see cref="P:Neon.Common.NeonHelper.ServiceContainer"/> for this to work.
+            </note>
+            </summary>
+            <param name="variables">Optionally specifies variables to be incuded in the preprocessing.</param>
+            <param name="variableRegex">
+            Optionally specifies the regular expression that will be used to locate and process
+            any variable references.  This defaults to <see cref="P:Neon.IO.PreprocessReader.AngleVariableExpansionRegex"/>
+            but may be set to any expressions supported by <see cref="T:Neon.IO.PreprocessReader"/>.
+            </param>
+            <returns>A new <see cref="T:Neon.Common.CommandLine"/> including any changes.</returns>
         </member>
         <member name="M:Neon.Common.CommandLine.ToString">
             <summary>
@@ -1735,119 +1722,6 @@
             <returns>The parsed value.</returns>
             <exception cref="T:System.Collections.Generic.KeyNotFoundException">Thrown if the variable does not exists and <paramref name="required"/>=<c>true</c>.</exception>
             <exception cref="T:System.FormatException">Thrown if the variable could not be parsed or the <paramref name="validator"/> returned an error.</exception>
-        </member>
-        <member name="T:Neon.Common.ExceptionResult">
-            <summary>
-            Used to marshal a possible exception from a remote process to the local caller.
-            Use this type for remote methods that return <c>void</c> or the derived
-            <see cref="T:Neon.Common.ExceptionResult`1"/> type for remote methods that return
-            a result.
-            </summary>
-            <remarks>
-            <note>
-            This is typically be used internally by frameworks like <b>Neon.Cadence</b> to
-            bring exception handling functionality when calling remote processes (like
-            workflows and activities in that case).
-            </note>
-            <para>
-            This works by setting the <see cref="P:Neon.Common.ExceptionResult.ExceptionType"/> property to the fully qualified
-            name of the exception type and <see cref="P:Neon.Common.ExceptionResult.ExceptionMessage"/> to the exception message
-            (which may be <c>null</c>) in the remote process and then serializing the instance 
-            to JSON or some other format to be transmitted back to the caller.
-            </para>
-            <para>
-            The local caller will then call <see cref="M:Neon.Common.ExceptionResult.ThrowOnError"/> which will attempt to rethrow
-            the exception with the same <see cref="P:Neon.Common.ExceptionResult.ExceptionType"/>.  This is accomplished by reflecting
-            all assemblies currently loaded in the <see cref="T:System.AppDomain"/> looking for exception
-            types.  Exception types that have a default constructor or constructors with a string
-            message parameter or a message and inner exception message parameters will be 
-            cached internally in a dictionary that maps the type name to the exception type.
-            </para>
-            <para>
-            If <see cref="M:Neon.Common.ExceptionResult.ThrowOnError"/> can locate a local exception type that has a conforming
-            constructor, then that exception type will be thrown with the <see cref="P:Neon.Common.ExceptionResult.ExceptionMessage"/>.
-            A <see cref="T:Neon.Common.CatchAllException"/> will be thrown instead, if a conforming local
-            exception doesn't exist.
-            </para>
-            </remarks>
-        </member>
-        <member name="F:Neon.Common.ExceptionResult.ExceptionThrower.DefaultConstructor">
-            <summary>
-            Set to the local exception's default constructor (if any).
-            </summary>
-        </member>
-        <member name="F:Neon.Common.ExceptionResult.ExceptionThrower.MessageConstructor">
-            <summary>
-            Set to the local exception's constructor that accepts a single string message argument (if any).
-            </summary>
-        </member>
-        <member name="F:Neon.Common.ExceptionResult.ExceptionThrower.MessageInnerConstructor">
-            <summary>
-            Set to the local exception's constructor that accepts tring message and
-            inner exception arguments (if any).
-            </summary>
-        </member>
-        <member name="M:Neon.Common.ExceptionResult.ExceptionThrower.Throw(System.String)">
-            <summary>
-            Throws a local exception type, including the message passed.
-            </summary>
-            <param name="message">The exception message.</param>
-        </member>
-        <member name="M:Neon.Common.ExceptionResult.#cctor">
-            <summary>
-            Static constructor.
-            </summary>
-        </member>
-        <member name="M:Neon.Common.ExceptionResult.#ctor">
-            <summary>
-            Default constructor.
-            </summary>
-        </member>
-        <member name="M:Neon.Common.ExceptionResult.#ctor(System.Exception)">
-            <summary>
-            Constructs an instance from an exception.
-            </summary>
-            <param name="e">The source exception.</param>
-        </member>
-        <member name="P:Neon.Common.ExceptionResult.ExceptionType">
-            <summary>
-            The fully qualified name of the exception type to be rethrown or <c>null</c>
-            when there was no error.
-            </summary>
-        </member>
-        <member name="P:Neon.Common.ExceptionResult.ExceptionMessage">
-            <summary>
-            Optionally specifies the exception message when <see cref="P:Neon.Common.ExceptionResult.ExceptionType"/> is not <c>null</c>.
-            </summary>
-        </member>
-        <member name="M:Neon.Common.ExceptionResult.ThrowOnError">
-            <summary>
-            This method does nothing in <see cref="P:Neon.Common.ExceptionResult.ExceptionType"/> is <c>null</c> or empty, otherwise
-            it attempts to throw the local exception type with the same name as <see cref="P:Neon.Common.ExceptionResult.ExceptionType"/>
-            and if that's not possible, it'll throw a <see cref="T:Neon.Common.CatchAllException"/> including
-            the type name for the exception and message.
-            </summary>
-        </member>
-        <member name="T:Neon.Common.ExceptionResult`1">
-            <summary>
-            Used to marshal a possible exception from a remote process to the local caller.
-            Use this type for remote methods that return a result or the base
-            <see cref="T:Neon.Common.ExceptionResult"/> type for remote methods that return
-            <c>void</c>.
-            </summary>
-            <typeparam name="TResult"></typeparam>
-        </member>
-        <member name="M:Neon.Common.ExceptionResult`1.#ctor">
-            <summary>
-            Default constructor.
-            </summary>
-        </member>
-        <member name="P:Neon.Common.ExceptionResult`1.Result">
-            <summary>
-            The operation result.  This is returned when the base class
-            <see cref="P:Neon.Common.ExceptionResult.ExceptionType"/> is not <c>null</c>
-            or empty.
-            </summary>
         </member>
         <member name="T:Neon.Common.GlobPattern">
             <summary>
@@ -2701,6 +2575,13 @@
             Constructor.
             </summary>
         </member>
+        <member name="M:Neon.Common.ServiceContainer.Clone">
+            <summary>
+            Returns a clone of the instance.  This can be useful for unit testing to save
+            the service container before executing a test and then restoring it afterwards.
+            </summary>
+            <returns>The cloned instance.</returns>
+        </member>
         <member name="P:Neon.Common.ServiceContainer.Item(System.Int32)">
             <inheritdoc/>
         </member>
@@ -2743,7 +2624,7 @@
         <member name="M:Neon.Common.ServiceContainer.GetService``1">
             <summary>
             This is a convenience generic method that returns the service
-            already cast to requested type.  This only works for reference types.
+            already cast to requested type.
             </summary>
             <typeparam name="TService">Specifies the desired service type.</typeparam>
             <returns>The service instance if it exists or <c>null</c>.</returns>
@@ -4354,24 +4235,29 @@
             Enumerates the known CPU architectures.
             </summary>
         </member>
-        <member name="F:Neon.Common.CpuArchitecture.Amd32">
+        <member name="F:Neon.Common.CpuArchitecture.unknown">
             <summary>
-            32-bit AMD/Intel
+            The CPU architecture is not known.
             </summary>
         </member>
-        <member name="F:Neon.Common.CpuArchitecture.Amd64">
+        <member name="F:Neon.Common.CpuArchitecture.amd32">
             <summary>
-            64-bit AMD/Intel
+            32-bit AMD/Intel.
             </summary>
         </member>
-        <member name="F:Neon.Common.CpuArchitecture.Arm32">
+        <member name="F:Neon.Common.CpuArchitecture.amd64">
             <summary>
-            32-bit ARM
+            64-bit AMD/Intel.
             </summary>
         </member>
-        <member name="F:Neon.Common.CpuArchitecture.Arm64">
+        <member name="F:Neon.Common.CpuArchitecture.arm32">
             <summary>
-            64-bit ARM
+            32-bit ARM.
+            </summary>
+        </member>
+        <member name="F:Neon.Common.CpuArchitecture.arm64">
+            <summary>
+            64-bit ARM.
             </summary>
         </member>
         <member name="T:Neon.Common.ExecuteException">
@@ -4727,6 +4613,43 @@
         <member name="P:Neon.Common.NeonHelper.UserHomeFolder">
             <summary>
             Returns the path to the current user's HOME folder.
+            </summary>
+        </member>
+        <member name="P:Neon.Common.NeonHelper.UserNeonDevFolder">
+            <summary>
+            <para>
+            Returns the path to the development folder for NEONFORGE developers.  This folder
+            is used to hold build and test related files and is named <b>.neondev</b> under
+            the current user's home folder.
+            </para>
+            <para>Related: <see cref="P:Neon.Common.NeonHelper.UserNeonDevBuildFolder"/>, <see cref="P:Neon.Common.NeonHelper.UserNeonDevTestFolder"/></para>
+            <note>
+            This property ensures that the folder exists.
+            </note>
+            </summary>
+        </member>
+        <member name="P:Neon.Common.NeonHelper.UserNeonDevBuildFolder">
+            <summary>
+            <para>
+            Returns the path to the development/build folder for NEONFORGE developers.  This folder
+            is used to hold build related files and is named <b>.neondev/build</b> under
+            the current user's home folder.
+            </para>
+            <note>
+            This property ensures that the folder exists.
+            </note>
+            </summary>
+        </member>
+        <member name="P:Neon.Common.NeonHelper.UserNeonDevTestFolder">
+            <summary>
+            <para>
+            Returns the path to the development/build folder for NEONFORGE developers.  This folder
+            is used to hold unit test related files and is named <b>.neondev/test</b> under
+            the current user's home folder.
+            </para>
+            <note>
+            This property ensures that the folder exists.
+            </note>
             </summary>
         </member>
         <member name="M:Neon.Common.NeonHelper.EscapeCsv(System.String)">
@@ -5430,7 +5353,7 @@
             <summary>
             Asynchronously waits for all of the <see cref="T:System.Threading.Tasks.Task"/>s passed to complete.
             </summary>
-            <param name="tasks">Specifies the tasks being waited on..</param>
+            <param name="tasks">Specifies the tasks being waited on.</param>
             <param name="timeout">Optionally specifies a timeout.</param>
             <param name="cancellationToken">Optionally a cancellation token.</param>
             <param name="timeoutMessage">
@@ -5962,14 +5885,14 @@
             Determines the minimum <see cref="T:System.TimeSpan"/> value.
             </summary>
             <param name="values">The values to compare.</param>
-            <returns>The minimum of the values passed or <see cref="F:System.TimeSpan.Zero"/> when nothing is passed..</returns>
+            <returns>The minimum of the values passed or <see cref="F:System.TimeSpan.Zero"/> when nothing is passed.</returns>
         </member>
         <member name="M:Neon.Common.NeonHelper.Max(System.TimeSpan[])">
             <summary>
             Determines the maximum <see cref="T:System.TimeSpan"/> value.
             </summary>
             <param name="values">The values to compare.</param>
-            <returns>The minimum of the values passed or <see cref="F:System.TimeSpan.Zero"/> when nothing is passed..</returns>
+            <returns>The minimum of the values passed or <see cref="F:System.TimeSpan.Zero"/> when nothing is passed.</returns>
         </member>
         <member name="M:Neon.Common.NeonHelper.DetectOS">
             <summary>
@@ -6040,7 +5963,7 @@
         </member>
         <member name="P:Neon.Common.NeonHelper.IsMaintainer">
             <summary>
-            Indicates whether the current user is a neonFORGE maintainer.  This is determined by the
+            Indicates whether the current user is a NEONFORGE maintainer.  This is determined by the
             presence of the <b>NF_MAINTAINER</b> environment variable.
             </summary>
         </member>
@@ -6691,6 +6614,17 @@
             Launches the default browser to display the specified URI.
             </summary>
             <param name="uri">The target URI.</param>
+        </member>
+        <member name="M:Neon.Common.NeonHelper.OpenPlatformBrowser(System.String,System.Boolean)">
+            <summary>
+            Launches the platform (i.e. Edge for Windows or Safari for OS/X) browser to display the specified URI,
+            optionally opening a new browser window.
+            </summary>
+            <param name="uri">The target URI.</param>
+            <param name="newWindow">
+            Optionally opens the URI in a new platform browser window.  By default,
+            this method will open the URI in as new browser tab.
+            </param>
         </member>
         <member name="M:Neon.Common.NeonHelper.ExecuteShell(System.String)">
             <summary>
@@ -8050,7 +7984,7 @@
             where SCHEMA-VERSION is the <b>Neon.ModelGen</b> assembly version and
             SCHEMA is a simple integer schema version number.  The version will be
             incremented if or when the code generated by future versions of the
-            <b>Neon.ModelGen</b> assembly changes enough to become incompatable
+            <b>Neon.ModelGen</b> assembly changes enough to become incompatible
             with older versions of the <b>Neon.Xunit.XunitExtensions.ValidateController()</b>
             method.  This is likely to never change, but future proofing is always
             a good idea.
@@ -8341,6 +8275,107 @@
             <param name="jObject">The <see cref="T:Newtonsoft.Json.Linq.JObject"/> or <c>null</c>.</param>
             <returns>The cloned instance.</returns>
         </member>
+        <member name="T:Neon.Deployment.DownloadManifest">
+            <summary>
+            Describes a download including its parts
+            </summary>
+        </member>
+        <member name="M:Neon.Deployment.DownloadManifest.#ctor">
+            <summary>
+            Default constructor.
+            </summary>
+        </member>
+        <member name="P:Neon.Deployment.DownloadManifest.Name">
+            <summary>
+            Identifies the download.
+            </summary>
+        </member>
+        <member name="P:Neon.Deployment.DownloadManifest.Version">
+            <summary>
+            The download version (this may be <c>null</c>).
+            </summary>
+        </member>
+        <member name="P:Neon.Deployment.DownloadManifest.Filename">
+            <summary>
+            The download file name.
+            </summary>
+        </member>
+        <member name="P:Neon.Deployment.DownloadManifest.Size">
+            <summary>
+            The overall size of the download.
+            </summary>
+        </member>
+        <member name="P:Neon.Deployment.DownloadManifest.Md5">
+            <summary>
+            The MD5 hash for the entire download.
+            </summary>
+        </member>
+        <member name="P:Neon.Deployment.DownloadManifest.Parts">
+            <summary>
+            The download parts.
+            </summary>
+        </member>
+        <member name="T:Neon.Deployment.DownloadPart">
+            <summary>
+            Downloads may be split into one or more parts.  This class includes the
+            zero-based part <see cref="P:Neon.Deployment.DownloadPart.Number"/> which specifies the order in which
+            this part will be assembled back into the reconsitituted download.  The
+            class also includes the <see cref="P:Neon.Deployment.DownloadPart.Uri"/> used to retrieve the part,
+            the part <see cref="P:Neon.Deployment.DownloadPart.Size"/>, as well as the optional <see cref="P:Neon.Deployment.DownloadPart.Md5"/>
+            has for the part.
+            </summary>
+        </member>
+        <member name="M:Neon.Deployment.DownloadPart.#ctor">
+            <summary>
+            Default constructor.
+            </summary>
+        </member>
+        <member name="P:Neon.Deployment.DownloadPart.Number">
+            <summary>
+            The zero-based index specifying where this part will be assembled
+            back into the reconsitituted download.
+            </summary>
+        </member>
+        <member name="P:Neon.Deployment.DownloadPart.Uri">
+            <summary>
+            The URI to the part data.
+            </summary>
+        </member>
+        <member name="P:Neon.Deployment.DownloadPart.Size">
+            <summary>
+            Actual size of the part in bytes after being downloaded. 
+            </summary>
+        </member>
+        <member name="P:Neon.Deployment.DownloadPart.Md5">
+            <summary>
+            Optionally set to the MD5 hash of the part data (without any compression).
+            </summary>
+        </member>
+        <member name="T:Neon.Deployment.DownloadProgressDelegate">
+            <summary>
+            Describes the callback used to monitor and possibly cancel the download of file composed of
+            one or more parts specified by a <see cref="T:Neon.Deployment.DownloadManifest"/>.
+            </summary>
+            <param name="progressType">Passed indicating the current operation being performed.</param>
+            <param name="percentComplete">Passed as the approximate percentage of the file downloaded (between 0..100).</param>
+            <returns><c>true</c> if the download is to continue or <c>false</c> to cancel it.</returns>
+        </member>
+        <member name="T:Neon.Deployment.DownloadProgressType">
+            <summary>
+            Enumerates the types of progress indications raised when downloading a multi-part
+            file specified by a <see cref="T:Neon.Deployment.DownloadManifest"/>.
+            </summary>
+        </member>
+        <member name="F:Neon.Deployment.DownloadProgressType.Check">
+            <summary>
+            An existing local file is being verified.
+            </summary>
+        </member>
+        <member name="F:Neon.Deployment.DownloadProgressType.Download">
+            <summary>
+            The file is being downloaded.
+            </summary>
+        </member>
         <member name="T:Neon.Deployment.IProfileClient">
             <summary>
             <para>
@@ -8352,7 +8387,7 @@
             <list type="bullet">
             <item>
             <para>
-            Gaining access to secrets.  neonFORGE has standardized on 1Password for password management
+            Gaining access to secrets.  NEONFORGE has standardized on 1Password for password management
             and the Neon Profile Service abstracts the details of authenticating with 1Password and
             accessing secrets.
             </para>
@@ -8386,12 +8421,12 @@
             addresses assigned to other developers.
             </para>
             <para>
-            neonFORGE's internal implementation simply persists profile values on the local workstation
+            NEONFORGE's internal implementation simply persists profile values on the local workstation
             as a YAML file which is referenced by our profile service.
             </para>
             </item>
             <item>
-            Abstracting access to the user's master password.  neonFORGE has implemented an internal  
+            Abstracting access to the user's master password.  NEONFORGE has implemented an internal  
             Windows application that implements a profile service that prompts the developer for their
             master 1Password, optionally caching it for a period of time so the user won't be prompted
             as often.  This server also handles profile and secret lookup.
@@ -8404,10 +8439,22 @@
             to <c>false</c> and the cached can be cleared via <see cref="M:Neon.Deployment.IProfileClient.ClearCache"/>
             </para>
             <para>
-            The <b>Neon.Deployment.ProfileClient</b> implementation communicates with the <b>neon-assistant</b>
+            The <b>Neon.Deployment.MaintainerProfileClient</b> implementation communicates with the <b>neon-assistant</b>
             to retrieve profile values and secrets.  <b>neon-assistant</b> manages profile values directly but
             communicates with 1Password.com to obtain secrets, which can take a second or two.  Caching will
             improve performance and also take some load off of 1Password. 
+            </para>
+            <para>
+            Caching may be used to solve the problem where a tool like <b>neon-assistant</b> is signed-in
+            when a long running operation starts but signs-out automatically before the operation completes,
+            potentially failing when a secret is requested after that point.  This can be mitigated by having
+            your operations request all required secrets and profiles up front and then cache them so these
+            will be available later.
+            </para>
+            <para>
+            Some <see cref="T:Neon.Deployment.IProfileClient"/> implementations may also cache secrets elsewhere, like process
+            environment variables such that other profile instances constructed by the process or subprocesses
+            can also take advantage of the cached values.
             </para>
             </summary>
             <remarks>
@@ -9687,6 +9734,60 @@
             <param name="messageFunc">Optionally specifies a function used to retrieve the message text.</param>
             <param name="attributeSetter">Optionally specifies a function that can add attributes to the event.</param>
         </member>
+        <member name="M:Neon.Diagnostics.LoggerExtensions.LogWithLevelEx(Microsoft.Extensions.Logging.ILogger,Microsoft.Extensions.Logging.LogLevel,System.String,System.Action{Neon.Diagnostics.LogAttributes})">
+            <summary>
+            Logs a message with the specified <see cref="T:Microsoft.Extensions.Logging.LogLevel"/>.
+            </summary>
+            <param name="logger">Specifies the logger.</param>
+            <param name="logLevel">Specifies the <see cref="T:Microsoft.Extensions.Logging.LogLevel"/>.</param>
+            <param name="message">Specifies the message.</param>
+            <param name="attributeSetter">Specifies an action that can be used to add attributes to the event being logged.</param>
+            <remarks>
+            This method is intended mostly to avoid processing interpolated strings and attributes
+            when the current log level prevents any log from being emitted, for better performance.
+            </remarks>
+        </member>
+        <member name="M:Neon.Diagnostics.LoggerExtensions.LogWithLevelEx(Microsoft.Extensions.Logging.ILogger,Microsoft.Extensions.Logging.LogLevel,System.Func{System.String},System.Action{Neon.Diagnostics.LogAttributes})">
+            <summary>
+            Logs a message retrieved via a message function with the specified <see cref="T:Microsoft.Extensions.Logging.LogLevel"/>.
+            </summary>
+            <param name="logger">Specifies the logger.</param>
+            <param name="logLevel">Specifies the <see cref="T:Microsoft.Extensions.Logging.LogLevel"/>.</param>
+            <param name="messageFunc">The message function.</param>
+            <param name="attributeSetter">Optionally specifies an action that can be used to add attributes to the event being logged.</param>
+            <remarks>
+            This method is intended mostly to avoid processing interpolated strings and attributes
+            when the current log level prevents any log from being emitted, for better performance.
+            </remarks>
+        </member>
+        <member name="M:Neon.Diagnostics.LoggerExtensions.LogWithLevelEx(Microsoft.Extensions.Logging.ILogger,Microsoft.Extensions.Logging.LogLevel,System.Exception,System.String,System.Action{Neon.Diagnostics.LogAttributes})">
+            <summary>
+            Logs an exception retrieved via a message function with the specified <see cref="T:Microsoft.Extensions.Logging.LogLevel"/>.
+            </summary>
+            <param name="logger">Specifies the logger.</param>
+            <param name="logLevel">Specifies the <see cref="T:Microsoft.Extensions.Logging.LogLevel"/>.</param>
+            <param name="exception">Specifies the exception.</param>
+            <param name="message">Optionally specifies the event message.</param>
+            <param name="attributeSetter">Optionally specifies an action that can be used to add attributes to the event being logged.</param>
+            <remarks>
+            This method is intended mostly to avoid processing attributes when the current 
+            log level prevents any log from being emitted, for better performance.
+            </remarks>
+        </member>
+        <member name="M:Neon.Diagnostics.LoggerExtensions.LogWithLevelEx(Microsoft.Extensions.Logging.ILogger,Microsoft.Extensions.Logging.LogLevel,System.Exception,System.Func{System.String},System.Action{Neon.Diagnostics.LogAttributes})">
+            <summary>
+            Logs an exception with a message returned by a custom message function with the specified <see cref="T:Microsoft.Extensions.Logging.LogLevel"/>.
+            </summary>
+            <param name="logger">Specifies the logger.</param>
+            <param name="logLevel">Specifies the <see cref="T:Microsoft.Extensions.Logging.LogLevel"/>.</param>
+            <param name="exception">The exception.</param>
+            <param name="messageFunc">Specifies the message function.</param>
+            <param name="attributeSetter">Optionally specifies an action that can be used to add attributes to the event being logged.</param>
+            <remarks>
+            This method is intended mostly to avoid processing attributes when the current 
+            log level prevents any log from being emitted, for better performance.
+            </remarks>
+        </member>
         <member name="M:Neon.Diagnostics.LoggerExtensions.LogCriticalEx(Microsoft.Extensions.Logging.ILogger,System.String,System.Action{Neon.Diagnostics.LogAttributes})">
             <summary>
             Logs a critical message.
@@ -9726,7 +9827,7 @@
         </member>
         <member name="M:Neon.Diagnostics.LoggerExtensions.LogCriticalEx(Microsoft.Extensions.Logging.ILogger,System.Exception,System.Func{System.String},System.Action{Neon.Diagnostics.LogAttributes})">
             <summary>
-            Logs a critical exception with a message returned by a custom message function..
+            Logs a critical exception with a message returned by a custom message function.
             </summary>
             <param name="logger">Specifies the logger.</param>
             <param name="exception">The exception.</param>
@@ -10073,6 +10174,11 @@
         <member name="T:Neon.Diagnostics.NullLogger">
             <summary>
             Implements a <b>do-nothing</b> <see cref="T:Microsoft.Extensions.Logging.ILogger"/>.
+            </summary>
+        </member>
+        <member name="P:Neon.Diagnostics.NullLogger.Instance">
+            <summary>
+            Returns a <see cref="T:Neon.Diagnostics.NullLogger"/> instance.
             </summary>
         </member>
         <member name="M:Neon.Diagnostics.NullLogger.BeginScope``1(``0)">
@@ -10491,6 +10597,74 @@
             underlying stream.  The stream position will be advanced
             past the requested bytes.
             </remarks>
+        </member>
+        <member name="T:Neon.IO.FixedLengthStream">
+            <summary>
+            <para>
+            Implements a specialized stream that wraps another stream that does not support
+            seeking such that the <see cref="P:Neon.IO.FixedLengthStream.Length"/> property will return a specific value.
+            </para>
+            <para>
+            This is useful for situations such as a web request handler that needs to process
+            the body stream which does not implement <see cref="P:Neon.IO.FixedLengthStream.Length"/> but where this length
+            is required.
+            </para>
+            <para>
+            To use, simply construct an instance, passing the source stream and its length
+            (often obtained via an HTTP <b>Content-Length</b> header.
+            </para>
+            <note>
+            <para>
+            This stream is really intended just for reading data and does not support:
+            </para>
+            </note>
+            <list type="bullet">
+            <item>writing</item>
+            <item>seeking</item>
+            <item>setting the length</item>
+            </list>
+            </summary>
+        </member>
+        <member name="M:Neon.IO.FixedLengthStream.#ctor(System.IO.Stream,System.Int64)">
+            <summary>
+            Constructor.
+            </summary>
+            <param name="stream">The source stream.</param>
+            <param name="length">The stream length.</param>
+        </member>
+        <member name="P:Neon.IO.FixedLengthStream.CanRead">
+            <inheritdoc/>
+        </member>
+        <member name="P:Neon.IO.FixedLengthStream.CanSeek">
+            <inheritdoc/>
+        </member>
+        <member name="P:Neon.IO.FixedLengthStream.CanWrite">
+            <inheritdoc/>
+        </member>
+        <member name="P:Neon.IO.FixedLengthStream.Length">
+            <summary>
+            <para>
+            Returns the fixed stream length passed to the constructor.
+            </para>
+            </summary>
+        </member>
+        <member name="P:Neon.IO.FixedLengthStream.Position">
+            <inheritdoc/>
+        </member>
+        <member name="M:Neon.IO.FixedLengthStream.Flush">
+            <inheritdoc/>
+        </member>
+        <member name="M:Neon.IO.FixedLengthStream.Read(System.Byte[],System.Int32,System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Neon.IO.FixedLengthStream.Seek(System.Int64,System.IO.SeekOrigin)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Neon.IO.FixedLengthStream.SetLength(System.Int64)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Neon.IO.FixedLengthStream.Write(System.Byte[],System.Int32,System.Int32)">
+            <inheritdoc/>
         </member>
         <member name="T:Neon.IO.IStaticDirectory">
             <summary>
@@ -11053,7 +11227,7 @@
             <para><b>Secret and profile Values</b></para>
             <para>
             This class can integrate with a <see cref="T:Neon.Deployment.IProfileClient"/> implementation added to
-            <see cref="F:Neon.Common.NeonHelper.serviceContainer"/>.  This provides a way to abstract access to
+            <see cref="P:Neon.Common.NeonHelper.ServiceContainer"/>.  This provides a way to abstract access to
             secrets and profile values from an external source.  Three item types are supported:
             </para>
             <list type="table">
@@ -11061,7 +11235,7 @@
                 <term><b>secret</b></term>
                 <description>
                 <para>
-                Secret passwords are often protected by a password manager.  neonFORGE has standardized
+                Secret passwords are often protected by a password manager.  NEONFORGE has standardized
                 internally on 1Password for example.  Passwords are often required to satisfy complexity
                 and other rules.
                 </para>
@@ -11092,25 +11266,30 @@
                 </para>
                 <para>
                 Profile values are simply named by a string.  There is currently no concept of a source, 
-                location like secrets can have.
+                location like secrets may have.
                 </para>
                 </description>
             </item>
             </list>
             <para>
             Secrets and profile values can be referenced via <b>&lt;TYPE:NAME[:SOURCE]&gt;</b>
-            where <b>TYPE</b> is one of <b>password</b>, <b>secret</b> (value), or <b>profile</b> and <b>NAME</b>
+            where <b>TYPE</b> is one of <b>env</b>, <b>secret</b> (value), or <b>profile</b> and <b>NAME</b>
             identifies the secret or profile value and <b>source</b> optionally specifies the secret source
             (this is ignored for profile values).
             </para>
+            <para>
+            By default, a secret reference is replaced by the <b>password</b> property within the 
+            named secret.  Use can use the square bracket syntax to select a different secret property.
+            </para>
+            <para>
+            <b>Examples:</b>
+            </para>
             <code>
-            $&lt;password:my-password:my-vault&gt;    # password from specific source
-            $&lt;password:my-password&gt;             # password from default source
-            $&lt;secret:my-secret;my-vault&gt;        # secret from specific source
-            $&lt;secret:my-secret&gt;                 # secret from default source
-            $&lt;secret:my-secret[username]&gt;       # retrieve [username] from secret
-            $&lt;secret:my-secret[password]&gt;       # retrieve [password] from secret
-            $&lt;profile:my-profile&gt;               # profile value
+            $&lt;secret:my-secret;my-vault&gt;      # secret from specific source
+            $&lt;secret:my-secret&gt;               # secret password from default source
+            $&lt;secret:my-secret[username]&gt;     # retrieve [username] from secret
+            $&lt;secret:my-secret[password]&gt;     # retrieve [password] from secret
+            $&lt;profile:my-profile&gt;             # profile value
             </code>
             <para>
             This class will throw <see cref="T:Neon.Deployment.ProfileException"/> when it encounters a secret/profile
@@ -11136,8 +11315,8 @@
             <para>
             A variable expansion <see cref="T:System.Text.RegularExpressions.Regex"/> that matches normal variables like <b>$&lt;NAME&gt;</b>, environment
             variables like <b>$&lt;env:NAME&gt;</b>, profile value references like <b>$&lt;profile:NAME&gt;</b> and
-            secret references like <b>$&lt;secret:NAME&gt;</b>, <b>$&lt;secret:NAME:VAULT&gt;</b>, <b>$&lt;secret:NAME[PROPERTY]&gt;</b>
-            or <b>$&lt;secret:NAME[PROPERTY]:VAULT&gt;</b>
+            secret references like <b>$&lt;secret:NAME&gt;</b>, <b>$&lt;secret:NAME:SOURCE&gt;</b>, <b>$&lt;secret:NAME[PROPERTY]&gt;</b>
+            or <b>$&lt;secret:NAME[PROPERTY]:SOURCE&gt;</b>
             </para>
             <para>
             You can set the <see cref="P:Neon.IO.PreprocessReader.VariableExpansionRegex"/> property to this value to change the
@@ -11150,8 +11329,8 @@
             <para>
             A variable expansion <see cref="T:System.Text.RegularExpressions.Regex"/> that matches normal variables like <b>${NAME}</b>, environment
             variables like <b>${env:NAME}</b>, profile value references like <b>${profile:NAME}</b> and
-            secret references like <b>${secret:NAME}</b>, <b>${secret:NAME:VAULT}</b>, <b>${secret:NAME[PROPERTY]}</b>
-            or <b>${secret:NAME[PROPERTY]:VAULT}</b>
+            secret references like <b>${secret:NAME}</b>, <b>${secret:NAME:SOURCE}</b>, <b>${secret:NAME[PROPERTY]}</b>
+            or <b>${secret:NAME[PROPERTY]:SOURCE}</b>
             </para>
             <para>
             You can set the <see cref="P:Neon.IO.PreprocessReader.VariableExpansionRegex"/> property to this value to change the
@@ -11164,8 +11343,8 @@
             <para>
             A variable expansion <see cref="T:System.Text.RegularExpressions.Regex"/> that matches normal variables like <b>$(NAME)</b>, environment
             variables like <b>$(env:NAME)</b>, profile value references like <b>$(profile:NAME)</b> and
-            secret references like <b>$(secret:NAME)</b>, <b>$(secret:NAME:VAULT)</b>, <b>$(secret:NAME[PROPERTY])</b>
-            or <b>$(secret:NAME[PROPERTY]:VAULT)</b>
+            secret references like <b>$(secret:NAME)</b>, <b>$(secret:NAME:SOURCE)</b>, <b>$(secret:NAME[PROPERTY])</b>
+            or <b>$(secret:NAME[PROPERTY]:SOURCE)</b>
             </para>
             <para>
             You can set the <see cref="P:Neon.IO.PreprocessReader.VariableExpansionRegex"/> property to this value to change the
@@ -11177,7 +11356,7 @@
             <summary>
             The default variable expansion <see cref="T:System.Text.RegularExpressions.Regex"/> that matches normal variables like <b>$&lt;test&gt;</b>, environment
             variables like <b>&lt;env:test&gt;</b>, profile references like <b>&lt;profile:my-profile&gt;</b>, and secret
-            references like <b>&lt;secret:my-secret:my-vault&gt;</b>.  You can set the <see cref="P:Neon.IO.PreprocessReader.VariableExpansionRegex"/>
+            references like <b>&lt;secret:NAME:SOURCE&gt;</b>.  You can set the <see cref="P:Neon.IO.PreprocessReader.VariableExpansionRegex"/>
             property to this value to change the <see cref="T:Neon.IO.PreprocessReader"/> behavior.
             </summary>
         </member>
@@ -11892,11 +12071,13 @@
             when this is <c>null</c> or empty.
             </summary>
         </member>
-        <member name="M:Neon.IO.TempFolder.#ctor(System.String)">
+        <member name="M:Neon.IO.TempFolder.#ctor(System.String,System.String,System.Boolean)">
             <summary>
             Creates a temporary folder.
             </summary>
             <param name="folder">Optionally overrides <see cref="P:Neon.IO.TempFolder.Root"/> as the parent folder for this instance.</param>
+            <param name="prefix">Optionally specifies a prefix to be added to the temporary directory name.</param>
+            <param name="create">Optionally controls whether the temporary folder should actuall be created.  This defaults to <c>true</c>.</param>
         </member>
         <member name="P:Neon.IO.TempFolder.Path">
             <summary>
@@ -12062,6 +12243,12 @@
             <summary>
             Optionally overrides the uploaded content's MIME type.  This defaults 
             to <b>application/octet-stream</b>.
+            </summary>
+        </member>
+        <member name="P:Neon.ModelGen.BodyStreamAttribute.IncludeContentSize">
+            <summary>
+            Indicates that a <b>Content-Size</b> header will be included in the request,
+            passing the size of the input stream.  This defaults to <c>false</c>.
             </summary>
         </member>
         <member name="P:Neon.ModelGen.BodyStreamAttribute.BufferSize">
@@ -12614,10 +12801,65 @@
             Returns the group name.
             </summary>
         </member>
+        <member name="T:Neon.Net.HttpApiException">
+            <summary>
+            Thrown by ASP.NET web API implementations to optionally specify an error code
+            that can ultimately be deserialized as the HTTP reason phrase by clients.
+            </summary>
+            <remarks>
+            <para>
+            The basic idea here is that non-type REST services will typically need to return
+            a computer readable code to specify business logic level errors so that client
+            programs can easily identify and handle problems without the need for parsing
+            a potentially localized error message.
+            </para>
+            <note>
+            We're restricting error codes to 1-32 characters including ASCII letters, digits, 
+            undercores, dots, or dashes.
+            </note>
+            <note>
+            This error code will be transmitted back to the client as the <b>>HTTP reason phrase</b>
+            when specified or the standard reason phrase associated with the HTTP status code otherwise.
+            </note>
+            </remarks>
+        </member>
+        <member name="M:Neon.Net.HttpApiException.#ctor(System.String,System.String,System.Net.HttpStatusCode)">
+            <summary>
+            Constructor.
+            </summary>
+            <param name="message">Optionally specifies the exception message.</param>
+            <param name="errorCode">Optionally specifies the <see cref="T:System.Net.HttpStatusCode"/>.  This </param>
+            <param name="statusCode">Optionally specifies the HTTP status code.  This defaults to <see cref="F:System.Net.HttpStatusCode.BadRequest"/>.</param>
+            <remarks>
+            <note>
+            <paramref name="errorCode"/> is restricted to 1-32 characters including ASCII letters, digits, 
+            undercores, dots, or dashes.
+            </note>
+            </remarks>
+        </member>
+        <member name="P:Neon.Net.HttpApiException.StatusCode">
+            <summary>
+            Returns the HTTP status code.
+            </summary>
+        </member>
+        <member name="P:Neon.Net.HttpApiException.ErrorCode">
+            <summary>
+            Returns the business logic error code or <c>null</c>.
+            </summary>
+        </member>
         <member name="T:Neon.Net.HttpException">
             <summary>
-            Describes an HTTP error.
+            Describes an HTTP error.  These are commonly thrown by <see cref="T:Neon.Net.JsonClient"/> as well as
+            HTTP clients generated by <b>neon-modelgen</b>.
             </summary>
+            <remarks>
+            <note>
+            The <see cref="P:Neon.Net.HttpException.ReasonPhrase"/> property may be used as a way for services to return the computer
+            readable specific error type.  This is configured by default by <b>Neon.Web</b> builder extensions
+            and REST services may specify these codes to our base controller <b>Requires()</b> methods or
+            by throwning a <b>HttpApiException</b>.
+            </note>
+            </remarks>
         </member>
         <member name="M:Neon.Net.HttpException.GetMessage(System.String,System.String,System.String,System.Net.HttpStatusCode)">
             <summary>
@@ -13583,6 +13825,29 @@
             <returns>The encode JWT.</returns>
             <exception cref="T:System.InvalidOperationException">Thrown if the JWT wasn't parsed from a string.</exception>
         </member>
+        <member name="T:Neon.Net.LocalHostSection">
+            <summary>
+            Returned by <see cref="M:Neon.Net.NetHelper.ListLocalHostsSections"/> holding information about
+            a named section of host entries within the local <b>$/etc/hosts</b> file.
+            </summary>
+        </member>
+        <member name="M:Neon.Net.LocalHostSection.#ctor(System.String,System.Collections.Generic.Dictionary{System.String,System.Net.IPAddress})">
+            <summary>
+            Constructor.
+            </summary>
+            <param name="name">Identifies the section.</param>
+            <param name="hostEntries">The dictionary of hostname/address entries.</param>
+        </member>
+        <member name="P:Neon.Net.LocalHostSection.Name">
+            <summary>
+            Returns the section name.
+            </summary>
+        </member>
+        <member name="P:Neon.Net.LocalHostSection.HostEntries">
+            <summary>
+            Returns the dictionary of hostname/address entries.
+            </summary>
+        </member>
         <member name="T:Neon.Net.NamespaceDoc">
             <summary>
             This namespace defines <see cref="T:Neon.Net.JsonClient"/> which makes calling REST APIs easier as well
@@ -13728,30 +13993,43 @@
             </summary>
             <returns>The generated <see cref="T:System.Net.IPAddress"/>.</returns>
         </member>
-        <member name="M:Neon.Net.NetHelper.ModifyLocalHosts(System.Collections.Generic.Dictionary{System.String,System.Net.IPAddress},System.String)">
+        <member name="F:Neon.Net.NetHelper.HostsSectionBeginMarker">
+            <summary>
+            Line prefix indicating the start of an <b>$/etc/hosts</b> section.
+            </summary>
+        </member>
+        <member name="F:Neon.Net.NetHelper.HostsSectionEndMarker">
+            <summary>
+            Line prefix indicating the end of an <b>$/etc/hosts</b> section.
+            </summary>
+        </member>
+        <member name="M:Neon.Net.NetHelper.ValidateHostsSection(System.String)">
+            <summary>
+            Validates a hosts section name.
+            </summary>
+            <param name="section">The section name being checked.</param>
+            <exception cref="T:System.ArgumentNullException">Thrown for empty or <c>null</c> sections.</exception>
+            <exception cref="T:System.ArgumentException">Thrown when the exception includes an invalid character.</exception>
+        </member>
+        <member name="M:Neon.Net.NetHelper.ModifyLocalHosts(System.String,System.Collections.Generic.Dictionary{System.String,System.Net.IPAddress})">
             <summary>
             <para>
-            Used to temporarily modify the <b>hosts</b> file used by the DNS resolver
-            for testing, debugging or other purposes.
+            Used to modify the <b>$/etc/hosts</b> file used by the DNS resolver for testing, debugging 
+            and possibly other purposes.
             </para>
             <note>
             <b>WARNING:</b> Modifying the <b>hosts</b> file will impact all processes
-            on the system, not just the current one and this is designed to be used by
-            a single process at a time.
+            on the system, not just the current process.
             </note>
             </summary>
-            <param name="hostEntries">A dictionary mapping the hostnames to an IP address or <c>null</c>.</param>
             <param name="section">
             <para>
-            Optionally specifies the string to use to mark the hostnames section.  This
-            defaults to <b>MODIFY</b> which will delimit the section with <b># NEON-BEGIN-MODIFY</b>
-            and <b># NEON-END-MODIFY</b>.  You may pass a different string to identify a custom section.
+            Specifies the string to use to delimit the host names section.  This is required and
+            must be a non-empty string consisting of up to 63 non-control ASCII characters.  Section
+            names are case sensitive.
             </para>
-            <note>
-            The string passed must be a valid DNS hostname label that must begin with a letter
-            followed by letters, digits or dashes.  The maximum length is 63 characters.
-            </note>
             </param>
+            <param name="hostEntries">A dictionary mapping the hostnames to an IP address or <c>null</c>.</param>
             <remarks>
             <note>
             This method requires elevated administrative privileges.
@@ -13923,6 +14201,20 @@
             </summary>
             <param name="uri">The source URI.</param>
             <returns>The equivalent S3 URI.</returns>
+        </member>
+        <member name="M:Neon.Net.NetHelper.EnsureSuccess(System.Net.HttpStatusCode,System.String)">
+            <summary>
+            <para>
+            Ensures that the status code passed indicates an HTTP request completed successfully.
+            </para>
+            <note>
+            Status codes between 400-499 are considered to indicate success.
+            </note>
+            </summary>
+            <param name="statusCode">Specifies the status code.</param>
+            <param name="reasonPhrase">Optionally specifies the reason phrase to be included in any exception thrown.</param>
+            <returns>The status code passed.</returns>
+            <exception cref="T:Neon.Net.HttpException">Thrown for non-success status codes.</exception>
         </member>
         <member name="T:Neon.Net.NetworkCidr">
             <summary>
@@ -14674,8 +14966,8 @@
             </note>
             <para>
             Choose a category name that can be used to easily identify the affected
-            component.  For example, <b>couchbase:my-cluster</b> to identify a
-            specific Couchbase cluster.
+            component.  For example, <b>yugabyte:my-cluster</b> to identify a
+            specific YugaBYte database cluster.
             </para>
             </remarks>
         </member>
@@ -14874,8 +15166,8 @@
             </note>
             <para>
             Choose a category name that can be used to easily identify the affected
-            component.  For example, <b>couchbase:my-cluster</b> to identify a
-            specific Couchbase cluster.
+            component.  For example, <b>yugabyte:my-cluster</b> to identify a
+            specific YugaBYte database cluster.
             </para>
             </remarks>
         </member>
@@ -18057,75 +18349,6 @@
         </member>
         <member name="M:ICSharpCode.SharpZipLib.Zip.StaticStringDataSource.GetSource">
             <inheritdoc/>
-        </member>
-        <member name="T:ThisAssembly">
-            <summary>Provides access to the current assembly information.</summary>
-        </member>
-        <member name="T:ThisAssembly.Git">
-            <summary>Provides access to the git information for the current assembly.</summary>
-        </member>
-        <member name="F:ThisAssembly.Git.IsDirty">
-            <summary>IsDirty: true</summary>
-        </member>
-        <member name="F:ThisAssembly.Git.IsDirtyString">
-            <summary>IsDirtyString: true</summary>
-        </member>
-        <member name="F:ThisAssembly.Git.RepositoryUrl">
-            <summary>Repository URL: https://github.com/nforgeio/neonsdk.git</summary>
-        </member>
-        <member name="F:ThisAssembly.Git.Branch">
-            <summary>Branch: jeff</summary>
-        </member>
-        <member name="F:ThisAssembly.Git.Commit">
-            <summary>Commit: b7a2376</summary>
-        </member>
-        <member name="F:ThisAssembly.Git.Sha">
-            <summary>Sha: b7a237660cc5864c9f1e52a4e7e089106852ac11</summary>
-        </member>
-        <member name="F:ThisAssembly.Git.CommitDate">
-            <summary>Commit date: 2022-10-20T21:53:03-07:00</summary>
-        </member>
-        <member name="F:ThisAssembly.Git.Commits">
-            <summary>Commits on top of base version: 212</summary>
-        </member>
-        <member name="F:ThisAssembly.Git.Tag">
-            <summary>Tag: </summary>
-        </member>
-        <member name="F:ThisAssembly.Git.BaseTag">
-            <summary>Base tag: </summary>
-        </member>
-        <member name="T:ThisAssembly.Git.BaseVersion">
-            <summary>Provides access to the base version information used to determine the <see cref="T:ThisAssembly.Git.SemVer" />.</summary>      
-        </member>
-        <member name="F:ThisAssembly.Git.BaseVersion.Major">
-            <summary>Major: 0</summary>
-        </member>
-        <member name="F:ThisAssembly.Git.BaseVersion.Minor">
-            <summary>Minor: 0</summary>
-        </member>
-        <member name="F:ThisAssembly.Git.BaseVersion.Patch">
-            <summary>Patch: 0</summary>
-        </member>
-        <member name="T:ThisAssembly.Git.SemVer">
-            <summary>Provides access to SemVer information for the current assembly.</summary>
-        </member>
-        <member name="F:ThisAssembly.Git.SemVer.Major">
-            <summary>Major: 0</summary>
-        </member>
-        <member name="F:ThisAssembly.Git.SemVer.Minor">
-            <summary>Minor: 0</summary>
-        </member>
-        <member name="F:ThisAssembly.Git.SemVer.Patch">
-            <summary>Patch: 212</summary>
-        </member>
-        <member name="F:ThisAssembly.Git.SemVer.Label">
-            <summary>Label: </summary>
-        </member>
-        <member name="F:ThisAssembly.Git.SemVer.DashLabel">
-            <summary>Label with dash prefix: </summary>
-        </member>
-        <member name="F:ThisAssembly.Git.SemVer.Source">
-            <summary>Source: Default</summary>
         </member>
     </members>
 </doc>

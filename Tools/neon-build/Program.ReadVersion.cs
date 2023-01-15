@@ -28,7 +28,7 @@ namespace NeonBuild
     public static partial class Program
     {
         /// <summary>
-        /// Reads named version constant from a C# source file and writes it to SDTOUT.
+        /// Reads named version constant from a C# source file and writes it to STDOUT.
         /// </summary>
         /// <param name="commandLine">The command line.</param>
         private static void ReadVersion(CommandLine commandLine)

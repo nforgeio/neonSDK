@@ -23,7 +23,8 @@
 ARG         ORGANIZATION
 ARG         BASE_ORGANIZATION
 ARG         CLUSTER_VERSION
-FROM        mcr.microsoft.com/dotnet/aspnet:7.0.2-jammy-amd64
+ARG         BASE_IMAGE
+FROM        $BASE_IMAGE
 MAINTAINER  marcus@neonforge.com
 STOPSIGNAL  SIGTERM
 ARG         APPNAME
