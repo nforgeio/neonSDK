@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.IO;
 using System.IO.Pipes;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 
@@ -44,16 +45,22 @@ namespace Neon.Deployment
         /// <param name="container">Specifies the certificate container, like: "Sectigo_20220830143311"</param>
         /// <param name="password">Specifies the certificate password.</param>
         /// <param name="timestampUri">Specifies the URI for the certificate timestamp service, like: http://timestamp.sectigo.com</param>
-        /// <param name="signToolPath">Optionally specifies the path to the <b>signtool.exe</b>.  We'll look for this on the path by default.</param>
+        /// <exception cref="PlatformNotSupportedException">Thrown when executed on a non 64-bit Windows machine.</exception>
+        /// <remarks>
+        /// <note>
+        /// This method uses the Windows version of <b>signtool.exe</b> embedded into the
+        /// the <b>Neon.Deployment</b> library and to perform the code signing and this 
+        /// tool runs only on Windows.
+        /// </note>
+        /// </remarks>
         public static void Sign(
-            string targetPath, 
-            string provider, 
-            string thumbPrint, 
-            string certBase64, 
-            string container, 
-            string password, 
-            string timestampUri,
-            string signToolPath = null)
+            string      targetPath, 
+            string      provider, 
+            string      thumbPrint, 
+            string      certBase64, 
+            string      container, 
+            string      password, 
+            string      timestampUri)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(targetPath), nameof(targetPath));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(provider), nameof(provider));
@@ -62,8 +69,7 @@ namespace Neon.Deployment
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(container), nameof(container));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(password), nameof(password));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(timestampUri), nameof(timestampUri));
-
-            signToolPath ??= "signtool.exe";
+            Covenant.Requires<PlatformNotSupportedException>(NeonHelper.IsWindows && NeonHelper.Is64BitOS, "This is supported only for 64-bit Windows.");
 
             // Strip out any CR/LFs from the certificate base64, convert to bytes 
             // and write to a temporary file so we'll be able to pass its path
@@ -72,24 +78,112 @@ namespace Neon.Deployment
             certBase64 = certBase64.Replace("\r", string.Empty);
             certBase64 = certBase64.Replace("\n", string.Empty);
 
-            using (var tempCertFile = new TempFile())
+            using (var tempFolder = new TempFolder())
             {
-                File.WriteAllBytes(tempCertFile.Path, Convert.FromBase64String(certBase64));
+                var tempCertPath = Path.Combine(tempFolder.Path, "certificate.cer");
+                var signToolPath = Path.Combine(tempFolder.Path, "signtool.exe");
+
+                File.WriteAllBytes(tempCertPath, Convert.FromBase64String(certBase64));
+                ExtractSignTool(signToolPath);
 
                 NeonHelper.ExecuteCapture(signToolPath,
-                new object[]
-                {
-                    "sign",
-                    "/f", tempCertFile.Path,
-                    "/fd", "sha256",
-                    "/tr", timestampUri,
-                    "/td", "sha256",
-                    "/csp", provider,
-                    "/sha1", thumbPrint,
-                    "/k", $"[{{{{{password}}}}}]={container}",
-                    targetPath
-                })
+                    new object[]
+                    {
+                        "sign",
+                        "/f", tempCertPath,
+                        "/fd", "sha256",
+                        "/tr", timestampUri,
+                        "/td", "sha256",
+                        "/csp", provider,
+                        "/sha1", thumbPrint,
+                        "/k", $"[{{{{{password}}}}}]={container}",
+                        targetPath
+                    })
                 .EnsureSuccess();
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="targetPath"></param>
+        /// <param name="provider"></param>
+        /// <param name="thumbPrint"></param>
+        /// <param name="certBase64"></param>
+        /// <param name="container"></param>
+        /// <param name="password"></param>
+        /// <param name="timestampUri"></param>
+        /// <returns></returns>
+        /// <exception cref="PlatformNotSupportedException">Thrown when executed on a non 64-bit Windows machine.</exception>
+        /// <remarks>
+        /// <note>
+        /// This method uses the Windows version of <b>signtool.exe</b> embedded into the
+        /// the <b>Neon.Deployment</b> library and to perform the code signing and this 
+        /// tool runs only on Windows.
+        /// </note>
+        /// </remarks>
+        public static bool IsReady(
+            string      targetPath, 
+            string      provider, 
+            string      thumbPrint, 
+            string      certBase64, 
+            string      container, 
+            string      password, 
+            string      timestampUri)
+        {
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(targetPath), nameof(targetPath));
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(provider), nameof(provider));
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(thumbPrint), nameof(thumbPrint));
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(certBase64), nameof(certBase64));
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(container), nameof(container));
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(password), nameof(password));
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(timestampUri), nameof(timestampUri));
+            Covenant.Requires<PlatformNotSupportedException>(NeonHelper.IsWindows && NeonHelper.Is64BitOS, "This is supported only for 64-bit Windows.");
+
+            // We're going to verify that code signing can complete by signing
+            // a copy of the [signtool.exe] itself.  This verifies that the parameters
+            // are correct and also that the code-signing token is actually available.
+
+            try
+            {
+                using (var tempFile = new TempFile(suffix: ".exe"))
+                {
+                    ExtractSignTool(tempFile.Path);
+                    Sign(
+                        targetPath:   tempFile.Path,
+                        provider:     provider,
+                        thumbPrint:   thumbPrint,
+                        certBase64:   certBase64,
+                        container:    container,
+                        password:     password,
+                        timestampUri: timestampUri);
+                }
+            }
+            catch
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Extracts the <b>signtool.exe</b> binary from the embedded resource
+        /// to the specified path.
+        /// </summary>
+        /// <param name="targetPath">The target path for the binary.</param>
+        private static void ExtractSignTool(string targetPath)
+        {
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(targetPath));
+
+            var assembly = Assembly.GetExecutingAssembly();
+
+            using (var signToolStream = assembly.GetManifestResourceStream("Neon.Deployment.Resources.signtool.exe"))
+            {
+                using (var output = File.Create(targetPath))
+                {
+                    signToolStream.CopyTo(output);
+                }
             }
         }
     }

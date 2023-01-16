@@ -110,9 +110,9 @@ namespace Neon.Common
                 return new StreamReader(
                     assembly.GetManifestResourceStream(resourceName),
                     encoding ?? Encoding.UTF8,
-                    bufferSize: 8192,
+                    bufferSize:                       8192,
                     detectEncodingFromByteOrderMarks: true,
-                    leaveOpen: false);
+                    leaveOpen:                        false);
             }
 
             /// <inheritdoc/>

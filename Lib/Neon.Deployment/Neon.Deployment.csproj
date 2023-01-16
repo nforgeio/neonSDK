@@ -18,8 +18,16 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="Resources\signtool.exe" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<Compile Include="$(SolutionDir)\Lib\Neon.BuildInfo\AssemblyAttributes.cs" Link="Properties\AssemblyAttributes.cs" />
 		<Compile Include="$(SolutionDir)\Lib\Neon.BuildInfo\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Include="Resources\signtool.exe" />
 	</ItemGroup>
 
 	<ItemGroup>
