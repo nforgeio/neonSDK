@@ -40,35 +40,40 @@ namespace Neon.Deployment
         /// </summary>
         /// <param name="targetPath">Specifies the path to the file being signed.</param>
         /// <param name="provider">Specifies the certificate provider, like: "eToken Base Cryptographic Provider"</param>
-        /// <param name="thumbPrint">Specifies the certificate's SHA1 thumbprint.</param>
+        /// <param name="thumbprint">Specifies the certificate's SHA1 thumbprint.</param>
         /// <param name="certBase64">Specifies the base64 encoded public certificate (multi-line values are allowed).</param>
         /// <param name="container">Specifies the certificate container, like: "Sectigo_20220830143311"</param>
-        /// <param name="password">Specifies the certificate password.</param>
         /// <param name="timestampUri">Specifies the URI for the certificate timestamp service, like: http://timestamp.sectigo.com</param>
+        /// <param name="password">Specifies the certificate password.</param>
         /// <exception cref="PlatformNotSupportedException">Thrown when executed on a non 64-bit Windows machine.</exception>
         /// <remarks>
+        /// <note>
+        /// <b>WARNING!</b> Be very careful when using this method with Extended Validation (EV) code signing 
+        /// USB tokens.  Using an incorrect password can brick EV tokens since thay typically allow only a 
+        /// very limited number of signing attempts with invalid passwords.
+        /// </note>
         /// <note>
         /// This method uses the Windows version of <b>signtool.exe</b> embedded into the
         /// the <b>Neon.Deployment</b> library and to perform the code signing and this 
         /// tool runs only on Windows.
         /// </note>
         /// </remarks>
-        public static void Sign(
+        public static void SignProgram(
             string      targetPath, 
             string      provider, 
-            string      thumbPrint, 
+            string      thumbprint, 
             string      certBase64, 
             string      container, 
-            string      password, 
-            string      timestampUri)
+            string      timestampUri,
+            string      password)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(targetPath), nameof(targetPath));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(provider), nameof(provider));
-            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(thumbPrint), nameof(thumbPrint));
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(thumbprint), nameof(thumbprint));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(certBase64), nameof(certBase64));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(container), nameof(container));
-            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(password), nameof(password));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(timestampUri), nameof(timestampUri));
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(password), nameof(password));
             Covenant.Requires<PlatformNotSupportedException>(NeonHelper.IsWindows && NeonHelper.Is64BitOS, "This is supported only for 64-bit Windows.");
 
             // Strip out any CR/LFs from the certificate base64, convert to bytes 
@@ -95,7 +100,7 @@ namespace Neon.Deployment
                         "/tr", timestampUri,
                         "/td", "sha256",
                         "/csp", provider,
-                        "/sha1", thumbPrint,
+                        "/sha1", thumbprint,
                         "/k", $"[{{{{{password}}}}}]={container}",
                         targetPath
                     })
@@ -106,16 +111,20 @@ namespace Neon.Deployment
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="targetPath"></param>
-        /// <param name="provider"></param>
-        /// <param name="thumbPrint"></param>
-        /// <param name="certBase64"></param>
-        /// <param name="container"></param>
-        /// <param name="password"></param>
-        /// <param name="timestampUri"></param>
-        /// <returns></returns>
+        /// <param name="provider">Specifies the certificate provider, like: "eToken Base Cryptographic Provider"</param>
+        /// <param name="thumbprint">Specifies the certificate's SHA1 thumbprint.</param>
+        /// <param name="certBase64">Specifies the base64 encoded public certificate (multi-line values are allowed).</param>
+        /// <param name="container">Specifies the certificate container, like: "Sectigo_20220830143311"</param>
+        /// <param name="timestampUri">Specifies the URI for the certificate timestamp service, like: http://timestamp.sectigo.com</param>
+        /// <param name="password">Specifies the certificate password.</param>
+        /// <returns><c>true</c> when signing is available.</returns>
         /// <exception cref="PlatformNotSupportedException">Thrown when executed on a non 64-bit Windows machine.</exception>
         /// <remarks>
+        /// <note>
+        /// <b>WARNING!</b> Be very careful when using this method with Extended Validation (EV) code signing 
+        /// USB tokens.  Using an incorrect password can brick EV tokens since thay typically allow only a 
+        /// very limited number of signing attempts with invalid passwords.
+        /// </note>
         /// <note>
         /// This method uses the Windows version of <b>signtool.exe</b> embedded into the
         /// the <b>Neon.Deployment</b> library and to perform the code signing and this 
@@ -123,21 +132,19 @@ namespace Neon.Deployment
         /// </note>
         /// </remarks>
         public static bool IsReady(
-            string      targetPath, 
             string      provider, 
-            string      thumbPrint, 
+            string      thumbprint, 
             string      certBase64, 
             string      container, 
-            string      password, 
-            string      timestampUri)
+            string      timestampUri,
+            string      password)
         {
-            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(targetPath), nameof(targetPath));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(provider), nameof(provider));
-            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(thumbPrint), nameof(thumbPrint));
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(thumbprint), nameof(thumbprint));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(certBase64), nameof(certBase64));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(container), nameof(container));
-            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(password), nameof(password));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(timestampUri), nameof(timestampUri));
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(password), nameof(password));
             Covenant.Requires<PlatformNotSupportedException>(NeonHelper.IsWindows && NeonHelper.Is64BitOS, "This is supported only for 64-bit Windows.");
 
             // We're going to verify that code signing can complete by signing
@@ -149,14 +156,15 @@ namespace Neon.Deployment
                 using (var tempFile = new TempFile(suffix: ".exe"))
                 {
                     ExtractSignTool(tempFile.Path);
-                    Sign(
+
+                    SignProgram(
                         targetPath:   tempFile.Path,
                         provider:     provider,
-                        thumbPrint:   thumbPrint,
+                        thumbprint:   thumbprint,
                         certBase64:   certBase64,
                         container:    container,
-                        password:     password,
-                        timestampUri: timestampUri);
+                        timestampUri: timestampUri,
+                        password:     password);
                 }
             }
             catch
