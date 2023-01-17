@@ -329,13 +329,19 @@ namespace Neon.Git
             //
             //      https://github.com/neontest/neon-git
             //
-            // We'll just strip off the scheme and and what remains is the path.
+            // We'll just strip off the scheme and the rtailing ".git" and what
+            // remains is the path.
 
             repo.GitApi = new GitRepository(localRepoFolder);
             repo.Local  = new LocalRepoApi(repo, localRepoFolder);
 
             var pushUrl        = new Uri(repo.Origin.PushUrl);
             var remoteRepoPath = $"{pushUrl.Host}{pushUrl.AbsolutePath}";
+
+            if (remoteRepoPath.EndsWith(".git"))
+            {
+                remoteRepoPath = remoteRepoPath.Substring(0, remoteRepoPath.Length - ".git".Length);
+            }
 
             repo.Remote = await RemoteRepoApi.CreateAsync(repo, RemoteRepoPath.Parse(remoteRepoPath));
 
