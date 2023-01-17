@@ -242,15 +242,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neon.BuildInfo", "Lib\Neon.
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Websites", "Websites", "{DE53660E-76A8-4172-AF2F-009BF1843050}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neon.Git", "Lib\Neon.Git\Neon.Git.csproj", "{2F703F90-B5AC-4136-B352-7114EE325DE8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neon.GitHub", "Lib\Neon.GitHub\Neon.GitHub.csproj", "{2F703F90-B5AC-4136-B352-7114EE325DE8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Neon.Git", "Test\Test.Neon.Git\Test.Neon.Git.csproj", "{ABDB6137-0C9D-4329-8386-A59FBD48E5D6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Neon.GitHub", "Test\Test.Neon.GitHub\Test.Neon.GitHub.csproj", "{ABDB6137-0C9D-4329-8386-A59FBD48E5D6}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Neon.HyperV", "Test\Test.Neon.HyperV\Test.Neon.HyperV.csproj", "{78F1D25D-E26C-48AA-B6E4-E745A134BCBC}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Neon.Xunit", "Test\Test.Neon.Xunit\Test.Neon.Xunit.csproj", "{42551621-A16A-4B38-8EA2-751A2186153C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeploymentTests", "User\jefflill\DeploymentTests\DeploymentTests.csproj", "{855010FB-B5D7-47AC-954B-B9F7D62A8112}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeploymentTests", "User\jefflill\DeploymentTests\DeploymentTests.csproj", "{855010FB-B5D7-47AC-954B-B9F7D62A8112}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

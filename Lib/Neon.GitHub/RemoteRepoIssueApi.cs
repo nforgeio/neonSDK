@@ -49,7 +49,7 @@ using GitBranch     = LibGit2Sharp.Branch;
 using GitRepository = LibGit2Sharp.Repository;
 using GitSignature  = LibGit2Sharp.Signature;
 
-namespace Neon.Git
+namespace Neon.GitHub
 {
     /// <summary>
     /// Implements the friendly GitHub repository issue related APIs.

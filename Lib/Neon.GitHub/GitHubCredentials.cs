@@ -36,7 +36,7 @@ using Neon.Deployment;
 
 using Octokit;
 
-namespace Neon.Git
+namespace Neon.GitHub
 {
     /// <summary>
     /// Used internally to obtain the current user's GitHub from enviroment

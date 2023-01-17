@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:        GitTestHelper.cs
+// FILE:        GitHubTestHelper.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
@@ -31,18 +31,18 @@ using Microsoft.Extensions.DependencyInjection;
 
 using Neon.Common;
 using Neon.Deployment;
-using Neon.Git;
+using Neon.GitHub;
 using Neon.IO;
 using Neon.Xunit;
 
 using Xunit;
 
-namespace TestGit
+namespace TestGitHub
 {
     /// <summary>
     /// Git testing helpers.
     /// </summary>
-    public static class GitTestHelper
+    public static class GitHubTestHelper
     {
         /// <summary>
         /// Identifies the GitHub repo we'll use for testing the <b>Neon.Git</b> library.
@@ -86,7 +86,7 @@ namespace TestGit
             {
                 var repoPath = tempFolder.Path;
 
-                using (var repo = await GitHubRepo.CloneAsync(GitTestHelper.RemoteTestRepo, repoPath))
+                using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepo, repoPath))
                 {
                     var testFolder = Path.Combine(repo.Local.Folder, TestFolder);
 
@@ -110,7 +110,7 @@ namespace TestGit
             {
                 var repoPath = tempFolder.Path;
 
-                using (var repo = await GitHubRepo.CloneAsync(GitTestHelper.RemoteTestRepo, repoPath))
+                using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepo, repoPath))
                 {
                     // We need to check out the remote test branches first.
 
@@ -142,7 +142,7 @@ namespace TestGit
         /// <returns>The tracking <see cref="Task"/>.</returns>
         public static async Task RemoveTestReleasesAsync()
         {
-            using (var repo = await GitHubRepo.ConnectAsync(GitTestHelper.RemoteTestRepo))
+            using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepo))
             {
                 foreach (var release in await repo.Remote.Release.GetAllAsync())
                 {
@@ -157,7 +157,7 @@ namespace TestGit
         /// <returns>The tracking <see cref="Task"/>.</returns>
         public static async Task RemoveTestTagsAsync()
         {
-            using (var repo = await GitHubRepo.ConnectAsync(GitTestHelper.RemoteTestRepo))
+            using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepo))
             {
                 foreach (var tag in await repo.Remote.Tag.GetAllAsync())
                 {

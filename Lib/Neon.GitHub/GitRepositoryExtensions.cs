@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:	    NoLocalRepositoryException.cs
+// FILE:	    GitRepositoryExtensions.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
@@ -37,28 +37,39 @@ using LibGit2Sharp.Handlers;
 
 using Octokit;
 
-using GitHubBranch = Octokit.Branch;
+using GitHubBranch     = Octokit.Branch;
 using GitHubRepository = Octokit.Repository;
-using GitHubSignature = Octokit.Signature;
+using GitHubSignature  = Octokit.Signature;
 
-using GitBranch = LibGit2Sharp.Branch;
+using GitBranch     = LibGit2Sharp.Branch;
 using GitRepository = LibGit2Sharp.Repository;
-using GitSignature = LibGit2Sharp.Signature;
+using GitSignature  = LibGit2Sharp.Signature;
 
-namespace Neon.Git
+namespace Neon.GitHub
 {
     /// <summary>
-    /// Thrown when a local repository operation is performed on a <see cref="GitHubRepo"/>
-    /// that has no association with a local git repository.
+    /// Implements handy <see cref="GitRepository"/> extension methods.
     /// </summary>
-    public class NoLocalRepositoryException : LibGit2SharpException
+    public static class GitRepositoryExtensions
     {
         /// <summary>
-        /// Constructor.
+        /// Returns a local git repository is changes pending a commit.
         /// </summary>
-        public NoLocalRepositoryException()
-            : base($"[{nameof(GitHubRepo)}] is not associated with a local git repository.")
+        /// <param name="localRepo">The local git repository.</param>
+        /// <returns><c>true</c> when the repository has pending changes.</returns>
+        public static bool IsDirty(this GitRepository localRepo)
         {
+            return localRepo.RetrieveStatus().IsDirty;
+        }
+
+        /// <summary>
+        /// Returns the current checked-out branch for the local git repository.
+        /// </summary>
+        /// <param name="localRepo">The local git repository.</param>
+        /// <returns>The current <see cref="GitBranch"/>.</returns>
+        public static GitBranch CurrentBranch(this GitRepository localRepo)
+        {
+            return localRepo.Branches.SingleOrDefault(branch => branch.IsCurrentRepositoryHead);
         }
     }
 }

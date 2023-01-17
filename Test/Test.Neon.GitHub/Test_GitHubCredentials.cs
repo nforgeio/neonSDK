@@ -28,13 +28,13 @@ using LibGit2Sharp;
 
 using Neon.Common;
 using Neon.Deployment;
-using Neon.Git;
+using Neon.GitHub;
 using Neon.IO;
 using Neon.Xunit;
 
 using Xunit;
 
-namespace TestGit
+namespace TestGitHub
 {
     [Trait(TestTrait.Category, TestArea.NeonGit)]
     [Collection(TestCollection.NonParallel)]
@@ -48,7 +48,7 @@ namespace TestGit
 
         public Test_GitHubCredentials()
         {
-            GitTestHelper.EnsureMaintainer();
+            GitHubTestHelper.EnsureMaintainer();
         }
 
         /// <summary>

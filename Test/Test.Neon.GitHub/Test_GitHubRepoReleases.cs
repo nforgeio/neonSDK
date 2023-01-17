@@ -31,7 +31,7 @@ using LibGit2Sharp;
 
 using Neon.Common;
 using Neon.Deployment;
-using Neon.Git;
+using Neon.GitHub;
 using Neon.IO;
 using Neon.Xunit;
 
@@ -39,7 +39,7 @@ using Xunit;
 
 using Release = Octokit.Release;
 
-namespace TestGit
+namespace TestGitHub
 {
     [Trait(TestTrait.Category, TestArea.NeonGit)]
     [Collection(TestCollection.NonParallel)]
@@ -48,7 +48,7 @@ namespace TestGit
     {
         public Test_GitHubRepoReleases()
         {
-            GitTestHelper.EnsureMaintainer();
+            GitHubTestHelper.EnsureMaintainer();
         }
 
         [MaintainerFact]
@@ -56,10 +56,10 @@ namespace TestGit
         {
             // Verify that we can list releases without crashing.
 
-            await GitTestHelper.RunTestAsync(
+            await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
-                    using (var repo = await GitHubRepo.ConnectAsync(GitTestHelper.RemoteTestRepo))
+                    using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepo))
                     {
                         await repo.Remote.Release.GetAllAsync();
                     }
@@ -71,10 +71,10 @@ namespace TestGit
         {
             // Verify that we can create, get and then remove a GitHub release.
 
-            await GitTestHelper.RunTestAsync(
+            await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
-                    using (var repo = await GitHubRepo.ConnectAsync(GitTestHelper.RemoteTestRepo))
+                    using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepo))
                     {
                         var newTestName = $"test-{Guid.NewGuid()}";
                         var newTestTag  = $"test-{Guid.NewGuid()}";
@@ -105,10 +105,10 @@ namespace TestGit
         {
             // Verify that we can edit and existing release.
 
-            await GitTestHelper.RunTestAsync(
+            await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
-                    using (var repo = await GitHubRepo.ConnectAsync(GitTestHelper.RemoteTestRepo))
+                    using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepo))
                     {
                         var newTestName = $"test-{Guid.NewGuid()}";
                         var newTestTag  = $"test-{Guid.NewGuid()}";
@@ -134,10 +134,10 @@ namespace TestGit
         {
             // Verify that we can add a file asset to a release.
 
-            await GitTestHelper.RunTestAsync(
+            await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
-                    using (var repo = await GitHubRepo.ConnectAsync(GitTestHelper.RemoteTestRepo))
+                    using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepo))
                     {
                         var releaseName = $"test-{Guid.NewGuid()}";
                         var newTestTag  = $"test-{Guid.NewGuid()}";
@@ -169,10 +169,10 @@ namespace TestGit
         {
             // Verify that we can add a stream asset to a release.
 
-            await GitTestHelper.RunTestAsync(
+            await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
-                    using (var repo = await GitHubRepo.ConnectAsync(GitTestHelper.RemoteTestRepo))
+                    using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepo))
                     {
                         var releaseName = $"test-{Guid.NewGuid()}";
                         var newTestTag  = $"test-{Guid.NewGuid()}";
@@ -205,10 +205,10 @@ namespace TestGit
         {
             // Verify that we can publish a release.
 
-            await GitTestHelper.RunTestAsync(
+            await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
-                    using (var repo = await GitHubRepo.ConnectAsync(GitTestHelper.RemoteTestRepo))
+                    using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepo))
                     {
                         var releaseName = $"test-{Guid.NewGuid()}";
                         var newTestTag  = $"test-{Guid.NewGuid()}";
@@ -232,10 +232,10 @@ namespace TestGit
         {
             // Publish a release and download its source code as a Zipball.
 
-            await GitTestHelper.RunTestAsync(
+            await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
-                    using (var repo = await GitHubRepo.ConnectAsync(GitTestHelper.RemoteTestRepo))
+                    using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepo))
                     {
                         var releaseName = $"test-{Guid.NewGuid()}";
                         var newTestTag  = $"test-{Guid.NewGuid()}";
@@ -288,10 +288,10 @@ namespace TestGit
         {
             // Verify that we can publish a release with a multi-part download.
 
-            await GitTestHelper.RunTestAsync(
+            await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
-                    using (var repo = await GitHubRepo.ConnectAsync(GitTestHelper.RemoteTestRepo))
+                    using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepo))
                     {
                         var releaseName = $"test-{Guid.NewGuid()}";
                         var newTestTag  = $"test-{Guid.NewGuid()}";

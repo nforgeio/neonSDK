@@ -27,13 +27,13 @@ using System.Threading.Tasks;
 using LibGit2Sharp;
 
 using Neon.Common;
-using Neon.Git;
+using Neon.GitHub;
 using Neon.IO;
 using Neon.Xunit;
 
 using Xunit;
 
-namespace TestGit
+namespace TestGitHub
 {
     [Trait(TestTrait.Category, TestArea.NeonGit)]
     [Collection(TestCollection.NonParallel)]
@@ -42,7 +42,7 @@ namespace TestGit
     {
         public Test_GitHubRepo_WithoutLocal()
         {
-            GitTestHelper.EnsureMaintainer();
+            GitHubTestHelper.EnsureMaintainer();
         }
 
         [MaintainerFact]
@@ -50,10 +50,10 @@ namespace TestGit
         {
             // Verify that we can connect to a GitHub account without a local git repo.
 
-            await GitTestHelper.RunTestAsync(
+            await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
-                    using (var repo = await GitHubRepo.ConnectAsync(GitTestHelper.RemoteTestRepo))
+                    using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepo))
                     {
                         // These shouldn't throw any exceptions.
 
@@ -68,10 +68,10 @@ namespace TestGit
             // Verify that [NoLocalRepositoryException] are thrown when we attempt local
             // rep[ository options on repos that are not associated with a local repo.
 
-            await GitTestHelper.RunTestAsync(
+            await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
-                    using (var repo = await GitHubRepo.ConnectAsync(GitTestHelper.RemoteTestRepo))
+                    using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepo))
                     {
                         Assert.Throws<NoLocalRepositoryException>(() => _ = repo.Local.IsDirty);
                         Assert.Throws<NoLocalRepositoryException>(() => _ = repo.Local.CurrentBranch);

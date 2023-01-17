@@ -1,5 +1,5 @@
-﻿Neon.Git
-========
+﻿Neon.GitHub
+===========
 
 Combines local **git** and remote **GitHub** functionality into the easy-to-use **GitHubRepo** class.
 
@@ -18,4 +18,4 @@ the same names, like **Repository**.  This makes it more difficult to write code
 these libraries by forcing developers to use fully qualified type names or redefine type names 
 via **using statements**.  **GitHubRepo** helps avoid these conflicts for many scenarios.
 
-You can get started here: [Neon.Git](https://sdk.neonforge.com/N_Neon_Git.htm)
+You can get started here: [Neon.Git](https://sdk.neonforge.com/N_Neon_GitHub.htm)

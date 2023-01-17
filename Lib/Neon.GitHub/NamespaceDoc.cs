@@ -26,7 +26,7 @@ using Neon.Deployment;
 
 using Octokit;
 
-namespace Neon.Git
+namespace Neon.GitHub
 {
     /// <summary>
     /// Combines <b>git</b> and <b>GitHub</b> functionality into the easy-to-use <see cref="GitHubRepo"/> class.

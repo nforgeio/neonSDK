@@ -27,13 +27,13 @@ using System.Threading.Tasks;
 using LibGit2Sharp;
 
 using Neon.Common;
-using Neon.Git;
+using Neon.GitHub;
 using Neon.IO;
 using Neon.Xunit;
 
 using Xunit;
 
-namespace TestGit
+namespace TestGitHub
 {
     [Trait(TestTrait.Category, TestArea.NeonGit)]
     [Collection(TestCollection.NonParallel)]
