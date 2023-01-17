@@ -40,7 +40,6 @@ namespace Neon.Deployment
         /// </summary>
         /// <param name="targetPath">Specifies the path to the file being signed.</param>
         /// <param name="provider">Specifies the certificate provider, like: "eToken Base Cryptographic Provider"</param>
-        /// <param name="thumbprint">Specifies the certificate's SHA1 thumbprint.</param>
         /// <param name="certBase64">Specifies the base64 encoded public certificate (multi-line values are allowed).</param>
         /// <param name="container">Specifies the certificate container, like: "Sectigo_20220830143311"</param>
         /// <param name="timestampUri">Specifies the URI for the certificate timestamp service, like: http://timestamp.sectigo.com</param>
@@ -61,7 +60,6 @@ namespace Neon.Deployment
         public static void SignProgram(
             string      targetPath, 
             string      provider, 
-            string      thumbprint, 
             string      certBase64, 
             string      container, 
             string      timestampUri,
@@ -69,7 +67,6 @@ namespace Neon.Deployment
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(targetPath), nameof(targetPath));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(provider), nameof(provider));
-            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(thumbprint), nameof(thumbprint));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(certBase64), nameof(certBase64));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(container), nameof(container));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(timestampUri), nameof(timestampUri));
@@ -100,7 +97,6 @@ namespace Neon.Deployment
                         "/tr", timestampUri,
                         "/td", "sha256",
                         "/csp", provider,
-                        "/sha1", thumbprint,
                         "/k", $"[{{{{{password}}}}}]={container}",
                         targetPath
                     })
@@ -112,7 +108,6 @@ namespace Neon.Deployment
         /// 
         /// </summary>
         /// <param name="provider">Specifies the certificate provider, like: "eToken Base Cryptographic Provider"</param>
-        /// <param name="thumbprint">Specifies the certificate's SHA1 thumbprint.</param>
         /// <param name="certBase64">Specifies the base64 encoded public certificate (multi-line values are allowed).</param>
         /// <param name="container">Specifies the certificate container, like: "Sectigo_20220830143311"</param>
         /// <param name="timestampUri">Specifies the URI for the certificate timestamp service, like: http://timestamp.sectigo.com</param>
@@ -133,14 +128,12 @@ namespace Neon.Deployment
         /// </remarks>
         public static bool IsReady(
             string      provider, 
-            string      thumbprint, 
             string      certBase64, 
             string      container, 
             string      timestampUri,
             string      password)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(provider), nameof(provider));
-            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(thumbprint), nameof(thumbprint));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(certBase64), nameof(certBase64));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(container), nameof(container));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(timestampUri), nameof(timestampUri));
@@ -160,7 +153,6 @@ namespace Neon.Deployment
                     SignProgram(
                         targetPath:   tempFile.Path,
                         provider:     provider,
-                        thumbprint:   thumbprint,
                         certBase64:   certBase64,
                         container:    container,
                         timestampUri: timestampUri,
