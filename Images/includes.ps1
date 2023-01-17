@@ -49,21 +49,21 @@ $ncTools    = "$ncRoot\Tools"
 #------------------------------------------------------------------------------
 # Global constants.
 
-# neonSDK release Version.
+# neonKUBE container image tag.
+#
+# Note that we determine the currently checked-out Git branch for local neonKUBE 
+# repo.  If that's a release branch, then we'll just use the neonKUBE version,
+# otherwise, we'll append the branch name with a leading period to the tag.
+#
+# This helps to isolate container images between different branches so developers 
+# can work on different cluster images in parallel.
 
-$neonSDK_Version = $(& neon-build read-version "$nfRoot\Lib\Neon.Common\Build.cs" NeonSdkVersion)
-ThrowOnExitCode
+$neonKUBE_Tag   = "neonkube-" + $neonKUBE_Version
+$neonKubeBranch = GitBranch $env:NK_ROOT
 
-$neonSDK_Tag = "neonsdk-" + $neonSDK_Version
-
-# Override the common image tag if the [NEON_CONTAINER_TAG_OVERRIDE] is defined.\
-# This is used for development purposes.
-
-$tagOverride = $env:NEON_CONTAINER_TAG_OVERRIDE
-
-if (-not [System.String]::IsNullOrEmpty($tagOverride))
+if (-not $neonKubeBranch.StartsWith("release-"))
 {
-	$neonSDK_Tag = $tagOverride
+	$neonKUBE_Tag = "$neonKUBE_Tag.$neonKubeBranch"
 }
 
 #------------------------------------------------------------------------------
