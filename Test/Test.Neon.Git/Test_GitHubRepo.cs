@@ -558,6 +558,26 @@ namespace TestGit
         }
 
         [MaintainerFact]
+        public async Task Open_NeonKube()
+        {
+            // Verify that we can open the neonKUBE repo when present
+            // at the standard location.
+
+            var repoPath = Environment.GetEnvironmentVariable("NK_ROOT");
+
+            if (string.IsNullOrEmpty(repoPath) || !Directory.Exists(repoPath) || !File.Exists(Path.Combine(repoPath, "neonKUBE.sln")))
+            {
+                return;
+            }
+
+            using (var repo = await GitHubRepo.OpenAsync(repoPath))
+            {
+                Assert.NotNull(repo.Local.CurrentBranch);
+                Assert.NotEmpty(repo.Local.CurrentBranch.FriendlyName);
+            }
+        }
+
+        [MaintainerFact]
         public async Task ObjectDisposedException()
         {
             // Verify that [ObjectDisposedException] is thrown calling APIs on a disposed [GitHubRepo] instance.
