@@ -427,7 +427,7 @@ namespace Neon.Git
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(releaseName), nameof(releaseName));
             root.EnsureNotDisposed();
 
-            var release = await GetAsync(releaseName);
+            var release = await FindAsync(releaseName);
 
             if (release == null)
             {

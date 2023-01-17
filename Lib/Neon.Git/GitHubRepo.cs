@@ -32,6 +32,7 @@ using System.Threading.Tasks;
 
 using Neon.Common;
 using Neon.Deployment;
+using Neon.Tasks;
 
 using LibGit2Sharp;
 using LibGit2Sharp.Handlers;
@@ -46,7 +47,6 @@ using GitHubSignature  = Octokit.Signature;
 using GitBranch     = LibGit2Sharp.Branch;
 using GitRepository = LibGit2Sharp.Repository;
 using GitSignature  = LibGit2Sharp.Signature;
-using Neon.Tasks;
 
 namespace Neon.Git
 {
@@ -337,7 +337,7 @@ namespace Neon.Git
             var pushUrl        = new Uri(repo.Origin.PushUrl);
             var remoteRepoPath = $"{pushUrl.Host}{pushUrl.AbsolutePath}";
 
-            repo.Remote  = await RemoteRepoApi.CreateAsync(repo, RemoteRepoPath.Parse(remoteRepoPath));
+            repo.Remote = await RemoteRepoApi.CreateAsync(repo, RemoteRepoPath.Parse(remoteRepoPath));
 
             return repo;
         }
