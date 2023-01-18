@@ -144,7 +144,7 @@ namespace TestGitHub
                 SaveAndClearEnvCredentials();
                 Environment.SetEnvironmentVariable("NC_USER", saveNcUser);
 
-                var credentials = new GitHubCredentials(profileClient: new MaintainerProfileClient());
+                var credentials = new GitHubCredentials(profileClient: new MaintainerProfile());
 
                 Assert.NotEmpty(credentials.Username);
                 Assert.NotEmpty(credentials.AccessToken);
@@ -172,7 +172,7 @@ namespace TestGitHub
                 Environment.SetEnvironmentVariable("NC_USER", saveNcUser);
                 Environment.SetEnvironmentVariable("GITHUB_USERNAME", testUsername);
 
-                var credentials = new GitHubCredentials(profileClient: new MaintainerProfileClient());
+                var credentials = new GitHubCredentials(profileClient: new MaintainerProfile());
 
                 Assert.Equal(testUsername, credentials.Username);
                 Assert.NotEmpty(credentials.AccessToken);

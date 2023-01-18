@@ -68,7 +68,7 @@ namespace Neon.Deployment
         /// </remarks>
         public NotifyClient(string username = null, string password = null)
         {
-            var profileClient = new MaintainerProfileClient();
+            var profileClient = new MaintainerProfile();
 
             if (!string.IsNullOrEmpty(username))
             {

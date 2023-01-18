@@ -70,7 +70,7 @@ namespace Test.Neon.XenServer
 
             try
             {
-                var profileClient = new MaintainerProfileClient();
+                var profileClient = new MaintainerProfile();
 
                 hostAddress  = profileClient.GetProfileValue(name: "xen-test.host");
                 hostUsername = profileClient.GetSecretValue(name: "xenserver_login[username]", vault: "group-devops");

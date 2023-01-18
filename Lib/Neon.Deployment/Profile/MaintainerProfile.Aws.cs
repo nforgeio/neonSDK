@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:	    MaintainerProfileClient.Aws.cs
+// FILE:	    MaintainerProfile.Aws.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
@@ -30,7 +30,7 @@ using Neon.Common;
 
 namespace Neon.Deployment
 {
-    public partial class MaintainerProfileClient
+    public partial class MaintainerProfile
     {
         /// <summary>
         /// <para>

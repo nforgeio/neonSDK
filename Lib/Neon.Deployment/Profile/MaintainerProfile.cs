@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:	    MaintainerProfileClient.cs
+// FILE:	    MaintainerProfile.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
@@ -39,11 +39,11 @@ namespace Neon.Deployment
     /// <note>
     /// This class uses process environment variables like <b>NEONASSISTANT_CACHE_PROFILE_[name=value</b>
     /// and <b>NEONASSISTANT_CACHE_SECRET_name=value</b> to cache profile and secret values such that
-    /// other <see cref="MaintainerProfileClient"/> instances within the current process and
+    /// other <see cref="MaintainerProfile"/> instances within the current process and
     /// subprocesses can take advantage of cached values as well.
     /// </note>
     /// </remarks>
-    public partial class MaintainerProfileClient : IProfileClient
+    public partial class MaintainerProfile : IProfileClient
     {
         private readonly string             pipeName;
         private readonly TimeSpan           connectTimeout;
@@ -58,11 +58,11 @@ namespace Neon.Deployment
         /// constructing from Powershell scripts.
         /// </para>
         /// <note>
-        /// <see cref="MaintainerProfileClient"/> currently only supports Windows.
+        /// <see cref="MaintainerProfile"/> currently only supports Windows.
         /// </note>
         /// </summary>
         /// <exception cref="NotSupportedException">Thrown when not running on Windows.</exception>
-        public MaintainerProfileClient()
+        public MaintainerProfile()
             : this(DeploymentHelper.NeonProfileServicePipe)
         {
         }
@@ -72,15 +72,15 @@ namespace Neon.Deployment
         /// Constructor with optional client timeout.
         /// </para>
         /// <note>
-        /// <see cref="MaintainerProfileClient"/> currently supports only Windows.
+        /// <see cref="MaintainerProfile"/> currently supports only Windows.
         /// </note>
         /// </summary>
         /// <param name="pipeName">Specifies the server pipe name.</param>
         /// <param name="connectTimeout">Optionally specifies the connection timeout.  This defaults to <b>10 seconds</b>.</param>
         /// <exception cref="NotSupportedException">Thrown when not running on Windows.</exception>
-        public MaintainerProfileClient(string pipeName, TimeSpan connectTimeout = default)
+        public MaintainerProfile(string pipeName, TimeSpan connectTimeout = default)
         {
-            Covenant.Requires<NotSupportedException>(NeonHelper.IsWindows, $"[{nameof(MaintainerProfileClient)}] currently only supports Windows.");
+            Covenant.Requires<NotSupportedException>(NeonHelper.IsWindows, $"[{nameof(MaintainerProfile)}] currently only supports Windows.");
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(pipeName), nameof(pipeName));
 
             this.pipeName = pipeName;

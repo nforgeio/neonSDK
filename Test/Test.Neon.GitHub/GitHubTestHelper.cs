@@ -191,7 +191,7 @@ namespace TestGitHub
 
             try
             {
-                NeonHelper.ServiceContainer.AddSingleton<IProfileClient>(new MaintainerProfileClient());
+                NeonHelper.ServiceContainer.AddSingleton<IProfileClient>(new MaintainerProfile());
 
                 await RemoveTestBranchesAsync();
                 await RemoveTestReleasesAsync();

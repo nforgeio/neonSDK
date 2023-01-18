@@ -67,7 +67,7 @@ namespace TestDeployment
 
             // Fetch the required secrets.
 
-            var profileClient = new MaintainerProfileClient();
+            var profileClient = new MaintainerProfile();
 
             provider     = profileClient.GetSecretValue("codesign_token[provider]",     vault: "group-devops");
             certBase64   = profileClient.GetSecretValue("codesign_token[pubcert]",      vault: "group-devops");

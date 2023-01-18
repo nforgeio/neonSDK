@@ -82,7 +82,7 @@ COMMANDS:
                 //
                 // This is required by: CommandLine.Preprocess()
 
-                NeonHelper.ServiceContainer.AddSingleton<IProfileClient>(new MaintainerProfileClient());
+                NeonHelper.ServiceContainer.AddSingleton<IProfileClient>(new MaintainerProfile());
 
                 CommandLine = new CommandLine(args).Preprocess();
 
@@ -305,7 +305,7 @@ COMMANDS:
                     return cachedGithubToken;
                 }
 
-                var profileClient = new MaintainerProfileClient();
+                var profileClient = new MaintainerProfile();
 
                 return cachedGithubToken = profileClient.GetSecretPassword("GITHUB_PAT");
             }

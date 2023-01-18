@@ -41,7 +41,7 @@ This is from the NotifyClient.  <b>We hope you like it!</b>
 
         private static void SendTeamsMessage()
         {
-            var profileClient = new MaintainerProfileClient();
+            var profileClient = new MaintainerProfile();
 
             var devopsChannelUri = profileClient.GetSecretValue("TEAM_DEVBOT_CHANNEL[value]", vault: "user-devbot");
 
