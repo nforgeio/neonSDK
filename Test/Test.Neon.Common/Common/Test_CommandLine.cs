@@ -326,6 +326,22 @@ namespace TestCommon
         }
 
         [Fact]
+        public void Option_OptionalValue()
+        {
+            // Verify that an option can optionally have a value.
+
+            var commandLine = new CommandLine(new string[] { "--option" });
+
+            Assert.True(commandLine.HasOption("--option"));
+            Assert.Equal(string.Empty, commandLine.GetOption("--option"));
+
+            commandLine = new CommandLine(new string[] { "--option=value" });
+
+            Assert.True(commandLine.HasOption("--option"));
+            Assert.Equal("value", commandLine.GetOption("--option"));
+        }
+
+        [Fact]
         public void Preprocess()
         {
             // Verify that references like $<env:VARIABLE> are converted correctly when 
