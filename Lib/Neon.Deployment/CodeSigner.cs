@@ -57,7 +57,7 @@ namespace Neon.Deployment
         /// tool runs only on Windows.
         /// </note>
         /// </remarks>
-        public static void SignProgram(
+        public static void SignBinary(
             string      targetPath, 
             string      provider, 
             string      certBase64, 
@@ -150,7 +150,7 @@ namespace Neon.Deployment
                 {
                     ExtractSignTool(tempFile.Path);
 
-                    SignProgram(
+                    SignBinary(
                         targetPath:   tempFile.Path,
                         provider:     provider,
                         certBase64:   certBase64,
