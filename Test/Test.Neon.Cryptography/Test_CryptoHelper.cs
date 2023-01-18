@@ -118,6 +118,19 @@ namespace TestCryptography
             {
                 Assert.NotEqual(hash1String, CryptoHelper.ComputeMD5String(ms));
             }
+
+            // Verify helpers that compute hashes from a file.
+
+            using (var tempFile = new TempFile())
+            {
+                var hashBytes  = CryptoHelper.ComputeMD5Bytes(hashInputBytes1);
+                var hashString = CryptoHelper.ComputeMD5String(hashInputBytes1);
+
+                File.WriteAllBytes(tempFile.Path, hashInputBytes1);
+
+                Assert.Equal(hashBytes, CryptoHelper.ComputeMD5BytesFromFile(tempFile.Path));
+                Assert.Equal(hashString, CryptoHelper.ComputeMD5StringFromFile(tempFile.Path));
+            }
         }
 
         [Fact]
@@ -191,6 +204,19 @@ namespace TestCryptography
             using (var ms = new MemoryStream(hashInputBytes2))
             {
                 Assert.NotEqual(hash1String, CryptoHelper.ComputeSHA1String(ms));
+            }
+
+            // Verify helpers that compute hashes from a file.
+
+            using (var tempFile = new TempFile())
+            {
+                var hashBytes  = CryptoHelper.ComputeSHA1Bytes(hashInputBytes1);
+                var hashString = CryptoHelper.ComputeSHA1String(hashInputBytes1);
+
+                File.WriteAllBytes(tempFile.Path, hashInputBytes1);
+
+                Assert.Equal(hashBytes, CryptoHelper.ComputeSHA1BytesFromFile(tempFile.Path));
+                Assert.Equal(hashString, CryptoHelper.ComputeSHA1StringFromFile(tempFile.Path));
             }
         }
 
@@ -266,6 +292,19 @@ namespace TestCryptography
             {
                 Assert.NotEqual(hash1String, CryptoHelper.ComputeSHA256String(ms));
             }
+
+            // Verify helpers that compute hashes from a file.
+
+            using (var tempFile = new TempFile())
+            {
+                var hashBytes  = CryptoHelper.ComputeSHA256Bytes(hashInputBytes1);
+                var hashString = CryptoHelper.ComputeSHA256String(hashInputBytes1);
+
+                File.WriteAllBytes(tempFile.Path, hashInputBytes1);
+
+                Assert.Equal(hashBytes, CryptoHelper.ComputeSHA256BytesFromFile(tempFile.Path));
+                Assert.Equal(hashString, CryptoHelper.ComputeSHA256StringFromFile(tempFile.Path));
+            }
         }
 
         [Fact]
@@ -339,6 +378,19 @@ namespace TestCryptography
             using (var ms = new MemoryStream(hashInputBytes2))
             {
                 Assert.NotEqual(hash1String, CryptoHelper.ComputeSHA512String(ms));
+            }
+
+            // Verify helpers that compute hashes from a file.
+
+            using (var tempFile = new TempFile())
+            {
+                var hashBytes  = CryptoHelper.ComputeSHA512Bytes(hashInputBytes1);
+                var hashString = CryptoHelper.ComputeSHA512String(hashInputBytes1);
+
+                File.WriteAllBytes(tempFile.Path, hashInputBytes1);
+
+                Assert.Equal(hashBytes, CryptoHelper.ComputeSHA512BytesFromFile(tempFile.Path));
+                Assert.Equal(hashString, CryptoHelper.ComputeSHA512StringFromFile(tempFile.Path));
             }
         }
 
