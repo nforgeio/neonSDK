@@ -172,7 +172,11 @@ namespace Neon.GitHub
         /// <summary>
         /// Clones a GitHub repository to a local folder.
         /// </summary>
-        /// <param name="remoteRepoPath">Specifies the GitHub remote repository path, like: <b>[SERVER/]OWNER/REPO</b></param>
+        /// <param name="remoteRepoPath">
+        /// Specifies the GitHub remote repository path, like: <b>[SERVER/]OWNER/REPO</b> or
+        /// <b>[SERVER/]OWNER/REPO-git</b>.  Note that this method will append <b>"-git"</b>
+        /// to the path when that's not already present.
+        /// </param>
         /// <param name="localRepoFolder">Specifies the folder where the local git repository will be created or where it already exists.</param>
         /// <param name="branchName">
         /// Optionally specifies the branch to be checked out after the clone operation completes.
@@ -205,6 +209,11 @@ namespace Neon.GitHub
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(remoteRepoPath), nameof(remoteRepoPath));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(localRepoFolder), nameof(localRepoFolder));
+
+            if (!remoteRepoPath.EndsWith("-git"))
+            {
+                remoteRepoPath += "-git";
+            }
 
             if (string.IsNullOrEmpty(userAgent))
             {
