@@ -2160,7 +2160,7 @@ namespace Neon.Common
 
         /// <summary>
         /// Returns the name of the Docker CLI execuable for the current platform.  This will
-        /// be the fully qualified pathj to <b>docker.exe</b> on Windows and just <b>docker</b>
+        /// be the fully qualified path to <b>docker.exe</b> on Windows and just <b>docker</b>
         /// on Linux and OS/X.
         /// </summary>
         /// <returns>The path to the Docker CLI or <c>null</c> when it couldn't be located.</returns>
