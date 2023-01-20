@@ -307,7 +307,7 @@ COMMANDS:
 
                 var profileClient = new MaintainerProfile();
 
-                return cachedGithubToken = profileClient.GetSecretPassword("GITHUB_PAT");
+                return cachedGithubToken = profileClient.GetSecretPassword("GITHUB[accesstoken]");
             }
         }
     }

@@ -38,10 +38,8 @@ namespace Neon.Deployment
     /// a good practice to call <see cref="ClearCredentials()"/>.
     /// </para>
     /// <note>
-    /// This class currently requires that the <b>GITHUB_PAT</b> (personal access token) 
-    /// and <b>GITHUB_LOGIN</b> variables be available via 1Password for the current user.
-    /// We need <b>GITHUB_LOGIN</b> right now so we can login and screen-scrap the GitHub
-    /// website for package operations that don't have REST endpoints yet.
+    /// This class currently requires that the <b>GITHUB_PAT</b> environment variable or
+    /// <b>GITHUB[accesstoken]</b> secret be available via 1Password for the current user.
     /// </note>
     /// </remarks>
     public static partial class GitHub
@@ -76,7 +74,7 @@ namespace Neon.Deployment
                 {
                     var profile = new MaintainerProfile();
 
-                    AccessToken = profile.GetSecretPassword("GITHUB_PAT[password]");
+                    AccessToken = profile.GetSecretPassword("GITHUB[accesstoken]");
 
                     Environment.SetEnvironmentVariable("GITHUB_PAT", AccessToken);
                 }
