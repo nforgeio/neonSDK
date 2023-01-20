@@ -40,7 +40,7 @@ namespace pubcore
         /// <summary>
         /// Tool version number.
         /// </summary>
-        public const string Version = "3.0";
+        public const string Version = "3.1";
 
         /// <summary>
         /// Program entry point.
@@ -316,12 +316,16 @@ $@"@echo off
 
                 // Finish up
 
+                Console.WriteLine();
                 Console.WriteLine($"Publish time:   {stopwatch.Elapsed}");
+                Console.WriteLine();
+
                 Environment.Exit(0);
             }
             catch (Exception e)
             {
                 Console.Error.WriteLine($"** ERROR: [{e.GetType().Name}]: {e.Message}");
+
                 Environment.Exit(1);
             }
         }
