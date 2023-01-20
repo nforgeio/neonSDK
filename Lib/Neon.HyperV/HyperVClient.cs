@@ -147,7 +147,7 @@ namespace Neon.HyperV
 
             // Extract the VM name.
 
-            vm.Name = rawMachine.Name;
+            vm.Name = (string)rawMachine.Name;
 
             // Extract the VM state.
 
