@@ -66,7 +66,7 @@ namespace Neon.GitHub
         /// </param>
         internal LocalRepoApi(GitHubRepo root, string localRepoFolder)
         {
-            this.root            = root;
+            this.root   = root;
             this.Folder = localRepoFolder;
         }
 
@@ -196,6 +196,11 @@ namespace Neon.GitHub
 
             var options = new PullOptions()
             {
+                FetchOptions = new FetchOptions()
+                {
+                    CredentialsProvider = root.CredentialsProvider
+                },
+
                 MergeOptions = new MergeOptions()
                 {
                     FailOnConflict = true

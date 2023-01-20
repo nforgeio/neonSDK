@@ -100,6 +100,8 @@ namespace TestGitHub
                 using (var repo = await GitHubRepo.CloneAsync("github.com/nforgeio/neon-devops", repoPath))
                 {
                     Assert.True(File.Exists(Path.Combine(repoPath, "README.md")));
+
+                    await repo.Local.PullAsync();
                 }
             }
         }
