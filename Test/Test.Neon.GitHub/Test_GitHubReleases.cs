@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:        Test_GitHubRepoReleases.cs
+// FILE:        Test_GitHubReleases.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
@@ -44,9 +44,9 @@ namespace TestGitHub
     [Trait(TestTrait.Category, TestArea.NeonGit)]
     [Collection(TestCollection.NonParallel)]
     [CollectionDefinition(TestCollection.NonParallel, DisableParallelization = true)]
-    public class Test_GitHubRepoReleases
+    public class Test_GitHubReleases
     {
-        public Test_GitHubRepoReleases()
+        public Test_GitHubReleases()
         {
             GitHubTestHelper.EnsureMaintainer();
         }
@@ -93,7 +93,7 @@ namespace TestGitHub
 
                         Assert.False(await repo.Remote.Release.RemoveAsync(newTestName));
 
-                        // Verify that [GetAsync()] returns throws for a non-existant one.
+                        // Verify that [GetAsync()] returns throws for a non-existent one.
 
                         await Assert.ThrowsAsync<Octokit.NotFoundException>(async () => await repo.Remote.Release.GetAsync($"{Guid.NewGuid()}"));
                     }

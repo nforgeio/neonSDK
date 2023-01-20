@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:        Test_GitHubRepoIssues.cs
+// FILE:        Test_GitHubIssues.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
@@ -46,9 +46,9 @@ namespace TestGitHub
     [Trait(TestTrait.Category, TestArea.NeonGit)]
     [Collection(TestCollection.NonParallel)]
     [CollectionDefinition(TestCollection.NonParallel, DisableParallelization = true)]
-    public class Test_GitHubRepoIssues
+    public class Test_GitHubIssues
     {
-        public Test_GitHubRepoIssues()
+        public Test_GitHubIssues()
         {
             GitHubTestHelper.EnsureMaintainer();
         }

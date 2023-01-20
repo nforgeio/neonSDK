@@ -174,8 +174,8 @@ namespace Neon.GitHub
         /// </summary>
         /// <param name="remoteRepoPath">
         /// Specifies the GitHub remote repository path, like: <b>[SERVER/]OWNER/REPO</b> or
-        /// <b>[SERVER/]OWNER/REPO-git</b>.  Note that this method will append <b>"-git"</b>
-        /// to the path when that's not already present.
+        /// <b>[SERVER/]OWNER/REPO-git</b>.  You may also include the ".git" suffix if desired,
+        /// but this is optional.
         /// </param>
         /// <param name="localRepoFolder">Specifies the folder where the local git repository will be created or where it already exists.</param>
         /// <param name="branchName">
@@ -210,10 +210,9 @@ namespace Neon.GitHub
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(remoteRepoPath), nameof(remoteRepoPath));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(localRepoFolder), nameof(localRepoFolder));
 
-            if (!remoteRepoPath.EndsWith("-git"))
-            {
-                remoteRepoPath += "-git";
-            }
+            var repoPath = RemoteRepoPath.Parse(remoteRepoPath);
+
+            remoteRepoPath = repoPath.ToString();
 
             if (string.IsNullOrEmpty(userAgent))
             {
@@ -242,7 +241,7 @@ namespace Neon.GitHub
                     });
 
             repo.Local  = new LocalRepoApi(repo, localRepoFolder);
-            repo.Remote = await RemoteRepoApi.CreateAsync(repo, RemoteRepoPath.Parse(remoteRepoPath));
+            repo.Remote = await RemoteRepoApi.CreateAsync(repo, repoPath);
 
             if (Directory.Exists(localRepoFolder))
             {
@@ -251,10 +250,19 @@ namespace Neon.GitHub
 
             Directory.CreateDirectory(localRepoFolder);
 
-            var remoteRepo = $"https://{remoteRepoPath}";
-            var options    = new CloneOptions() { BranchName = branchName };
+            var remoteRepoUri = $"https://{remoteRepoPath}";
+            var options       = new CloneOptions() 
+            { 
+                BranchName          = branchName,
+                CredentialsProvider = repo.credentialsProvider
+            };
 
-            GitRepository.Clone(remoteRepo, localRepoFolder, options);
+            if (!remoteRepoUri.EndsWith(".git"))
+            {
+                remoteRepoUri += ".git";
+            }
+
+            GitRepository.Clone(remoteRepoUri, localRepoFolder, options);
 
             repo.GitApi = new GitRepository(localRepoFolder);
 

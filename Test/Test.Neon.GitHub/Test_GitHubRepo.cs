@@ -47,12 +47,9 @@ namespace TestGitHub
         }
 
         [MaintainerFact]
-        public async Task Clone_WithGit()
+        public async Task Clone_Public()
         {
-            // Verify that we can clone the repo to a temporary local folder
-            // using a path that ends with "-git";
-
-            Covenant.Assert(GitHubTestHelper.RemoteTestRepo.EndsWith("-git"));
+            // Verify that we can clone a public repo to a temporary local folder.
 
             await GitHubTestHelper.RunTestAsync(
                 async () =>
@@ -61,7 +58,7 @@ namespace TestGitHub
                     {
                         var repoPath = tempFolder.Path;
 
-                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepo, tempFolder.Path))
+                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepo, repoPath))
                         {
                             Assert.Equal(GitHubTestHelper.RemoteTestRepo, repo.Remote.Path.ToString());
                             Assert.Equal("master", repo.Local.CurrentBranch.FriendlyName);
@@ -69,8 +66,8 @@ namespace TestGitHub
 
                             // Exercise some other APIs.
 
-                            Assert.Equal("https://github.com/neontest/neon-git", repo.Origin.Url);
-                            Assert.Equal("https://github.com/neontest/neon-git", repo.Origin.PushUrl);
+                            Assert.Equal("https://github.com/neontest/neon-git.git", repo.Origin.Url);
+                            Assert.Equal("https://github.com/neontest/neon-git.git", repo.Origin.PushUrl);
                             Assert.Equal("https://github.com/neontest/", repo.Remote.BaseUri);
 
                             var validLocalPath = Path.Combine(repo.Local.Folder, "test", "foo.txt");
@@ -92,52 +89,19 @@ namespace TestGitHub
         }
 
         [MaintainerFact]
-        public async Task Clone_WithoutGit()
+        public async Task Clone_Private()
         {
-            // Verify that we can clone the repo to a temporary local folder
-            // using a path that does not end with "-git";
+            // Verify that we can clone a private repo to a temporary local folder.
 
-            Covenant.Assert(GitHubTestHelper.RemoteTestRepo.EndsWith("-git"));
+            using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
+            {
+                var repoPath = tempFolder.Path;
 
-            var testRepoPath = GitHubTestHelper.RemoteTestRepo.Substring(0, GitHubTestHelper.RemoteTestRepo.Length - "-git".Length);
-
-            Covenant.Assert(!testRepoPath.EndsWith("-git"));
-
-            await GitHubTestHelper.RunTestAsync(
-                async () =>
+                using (var repo = await GitHubRepo.CloneAsync("github.com/nforgeio/neon-devops", repoPath))
                 {
-                    using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
-                    {
-                        var repoPath = tempFolder.Path;
-
-                        using (var repo = await GitHubRepo.CloneAsync(testRepoPath, tempFolder.Path))
-                        {
-                            Assert.Equal(GitHubTestHelper.RemoteTestRepo, repo.Remote.Path.ToString());
-                            Assert.Equal("master", repo.Local.CurrentBranch.FriendlyName);
-                            Assert.True(File.Exists(Path.Combine(repoPath, ".gitignore")));
-
-                            // Exercise some other APIs.
-
-                            Assert.Equal("https://github.com/neontest/neon-git", repo.Origin.Url);
-                            Assert.Equal("https://github.com/neontest/neon-git", repo.Origin.PushUrl);
-                            Assert.Equal("https://github.com/neontest/", repo.Remote.BaseUri);
-
-                            var validLocalPath = Path.Combine(repo.Local.Folder, "test", "foo.txt");
-
-                            Assert.Equal(validLocalPath, await repo.Local.GetLocalFilePathAsync(@"/test/foo.txt"));
-                            Assert.Equal(validLocalPath, await repo.Local.GetLocalFilePathAsync(@"test/foo.txt"));
-                            Assert.Equal(validLocalPath, await repo.Local.GetLocalFilePathAsync(@"\test\foo.txt"));
-                            Assert.Equal(validLocalPath, await repo.Local.GetLocalFilePathAsync(@"test\foo.txt"));
-
-                            var validRemoteUri = $"{repo.Remote.BaseUri}test/foo.txt";
-
-                            Assert.Equal(validRemoteUri, await repo.Local.GetRemoteFileUriAsync(@"/test/foo.txt"));
-                            Assert.Equal(validRemoteUri, await repo.Local.GetRemoteFileUriAsync(@"test/foo.txt"));
-                            Assert.Equal(validRemoteUri, await repo.Local.GetRemoteFileUriAsync(@"\test\foo.txt"));
-                            Assert.Equal(validRemoteUri, await repo.Local.GetRemoteFileUriAsync(@"test\foo.txt"));
-                        }
-                    }
-                });
+                    Assert.True(File.Exists(Path.Combine(repoPath, "README.md")));
+                }
+            }
         }
 
         [MaintainerFact]
@@ -156,7 +120,7 @@ namespace TestGitHub
 
                         // Clone the initial repo and then dispose it.
 
-                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepo, tempFolder.Path))
+                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepo, repoPath))
                         {
                             Assert.Equal(GitHubTestHelper.RemoteTestRepo, repo.Remote.Path.ToString());
                             Assert.Equal("master", repo.Local.CurrentBranch.FriendlyName);
@@ -165,7 +129,7 @@ namespace TestGitHub
 
                         // Verify that we can reopen the existing repo.
 
-                        using (var repo = await GitHubRepo.OpenAsync(tempFolder.Path))
+                        using (var repo = await GitHubRepo.OpenAsync(repoPath))
                         {
                             Assert.Equal("master", repo.Local.CurrentBranch.FriendlyName);
                             Assert.True(File.Exists(Path.Combine(repoPath, ".gitignore")));
@@ -202,7 +166,7 @@ namespace TestGitHub
                     {
                         var repoPath = tempFolder.Path;
 
-                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepo, tempFolder.Path))
+                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepo, repoPath))
                         {
                             Assert.True(File.Exists(Path.Combine(repoPath, ".gitignore")));
                             await repo.Local.FetchAsync();
@@ -551,7 +515,7 @@ namespace TestGitHub
                             await repo.Local.CheckoutAsync("master");
                             Assert.Equal("master", repo.Local.CurrentBranch.FriendlyName);
 
-                            // Verify that [GetAsync()] returns an existing branch and throws for a non-existant one.
+                            // Verify that [GetAsync()] returns an existing branch and throws for a non-existent one.
 
                             Assert.NotNull(await repo.Remote.Branch.GetAsync(newBranchName));
                             await Assert.ThrowsAsync<Octokit.NotFoundException>(async () => await repo.Remote.Branch.GetAsync($"{Guid.NewGuid()}"));
