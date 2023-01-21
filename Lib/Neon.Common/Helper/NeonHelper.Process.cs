@@ -776,7 +776,7 @@ namespace Neon.Common
         /// </note>
         /// <para>
         /// You can optionally specify the <paramref name="outputAction"/> and/or <paramref name="errorAction"/>
-        /// callbacks to receive the process output as it is received.  <paramref name="outputAction"/> will 
+        /// callbacks to receive the process output text as it is received.  <paramref name="outputAction"/> will 
         /// be called with both the STDOUT and STDERR streams if <paramref name="errorAction"/> is <c>null</c>
         /// otherwise it will called only with STDOUT text.
         /// </para>
@@ -854,7 +854,7 @@ namespace Neon.Common
         /// </note>
         /// <para>
         /// You can optionally specify the <paramref name="outputAction"/> and/or <paramref name="errorAction"/>
-        /// callbacks to receive the process output as it is received.  <paramref name="outputAction"/> will 
+        /// callbacks to receive the process output text as it is received.  <paramref name="outputAction"/> will 
         /// be called with both the STDOUT and STDERR streams if <paramref name="errorAction"/> is <c>null</c>
         /// otherwise it will called only with STDOUT text.
         /// </para>
