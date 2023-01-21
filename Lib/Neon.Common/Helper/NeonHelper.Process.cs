@@ -57,6 +57,7 @@ namespace Neon.Common
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(program), nameof(program));
 
             var programExtensions = new string[] { ".exe", ".cmd" };
+            var hasExtension      = Path.HasExtension(program);
 
             if (!NeonHelper.IsWindows)
             {
@@ -67,15 +68,17 @@ namespace Neon.Common
             {
                 return program; // The path is already fully qualified or is relative.
             }
-            else if (Path.HasExtension(program))
+            else if (hasExtension && File.Exists(program))
             {
-                if (File.Exists(program))
-                {
-                    return program; // The program exists in the current directory.
-                }
+                // Program (with extension) exists in the current directory.
+
+                return program;
             }
-            else
+            else if (!hasExtension)
             {
+                // Check whether the program exists in the current directory with
+                // one of the known extensions.
+
                 foreach (var extension in programExtensions)
                 {
                     var withExtension = program + extension;
@@ -86,6 +89,8 @@ namespace Neon.Common
                     }
                 }
             }
+
+            // Search for the program on the PATH.
 
             var path = Environment.GetEnvironmentVariable("PATH");
 
@@ -110,7 +115,7 @@ namespace Neon.Common
                     // For programs paths without an extension, we're going
                     // to try appending ".exe" and ".cmd".
 
-                    if (string.IsNullOrEmpty(Path.GetExtension(fullPath)))
+                    if (!hasExtension)
                     {
                         foreach (var extension in programExtensions)
                         {
@@ -125,7 +130,7 @@ namespace Neon.Common
                 }
                 catch
                 {
-                    // Ignoring any directories that don't exist or have security restrictions.
+                    // Ignoring any PATH directories that don't exist or have security restrictions.
                 }
             }
 
