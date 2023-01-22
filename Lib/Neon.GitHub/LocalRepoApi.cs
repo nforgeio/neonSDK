@@ -544,7 +544,7 @@ namespace Neon.GitHub
                 relativePath = relativePath.Substring(1);
             }
 
-            var uri = new Uri($"{root.Remote.BaseUri}{relativePath}");
+            var uri = new Uri($"{root.Remote.BaseUri}{root.Remote.Path.Name}/{relativePath}");
 
             return await Task.FromResult(uri.ToString());
         }

@@ -112,6 +112,11 @@ namespace Neon.GitHub
         }
 
         /// <summary>
+        /// Returns the remote repo name.
+        /// </summary>
+        public string Name => Path.Name;
+
+        /// <summary>
         /// Returns the GitHub repository path.
         /// </summary>
         public RemoteRepoPath Path { get; private set; }
