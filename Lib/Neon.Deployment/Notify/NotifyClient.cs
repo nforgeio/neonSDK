@@ -188,8 +188,7 @@ namespace Neon.Deployment
                 var content = new StringContent(cardJson, Encoding.UTF8);
 
                 content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-
-                request.Content = content;
+                request.Content             = content;
 
                 var response = httpClient.SendAsync(request).Result;
 

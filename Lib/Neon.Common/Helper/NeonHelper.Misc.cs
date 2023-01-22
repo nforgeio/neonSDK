@@ -134,7 +134,7 @@ namespace Neon.Common
             //
             //      https://github.com/nforgeio/neonKUBE/issues/737
             //
-            // We're going to handle this by limiting the recursion depth to 8.
+            // We're going to handle this by limiting the recursion depth.
 
             if (aggregate != null && depth < 4)
             {

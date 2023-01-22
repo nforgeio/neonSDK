@@ -113,6 +113,12 @@ namespace Neon.Common
         public const string DateFormatTZ = "yyyy-MM-ddTHH:mm:ss.fffZ";
 
         /// <summary>
+        /// Returns the date format string used for serialize dates with second
+        /// precision to strings like: <b>2018-06-05T14:30:13.000Z</b>
+        /// </summary>
+        public const string DateFormatSecondTZ = "yyyy-MM-ddTHH:mm:ssZ";
+
+        /// <summary>
         /// Returns the date format string used for serialize dates with millisecond
         /// precision to strings like: <b>2018-06-05T14:30:13.000+00:00</b>
         /// </summary>
