@@ -61,7 +61,7 @@ namespace TestGitHub
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
-                    using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepo))
+                    using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepoPath))
                     {
                         var newIssue = await repo.Remote.Issue.CreateAsync(
                             new NewIssue("Test Issue")

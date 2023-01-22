@@ -411,6 +411,11 @@ namespace Neon.GitHub
         internal CredentialsHandler CredentialsProvider => credentialsProvider;
 
         /// <summary>
+        /// Returns the respository name.
+        /// </summary>
+        public string Name => Remote.Name;
+
+        /// <summary>
         /// Returns the lower-level OctoKit <see cref="GitHubClient"/> API that can be used
         /// to manage GitGub assets.
         /// </summary>

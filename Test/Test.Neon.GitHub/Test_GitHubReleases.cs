@@ -59,7 +59,7 @@ namespace TestGitHub
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
-                    using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepo))
+                    using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepoPath))
                     {
                         await repo.Remote.Release.GetAllAsync();
                     }
@@ -74,7 +74,7 @@ namespace TestGitHub
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
-                    using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepo))
+                    using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepoPath))
                     {
                         var newTestName = $"test-{Guid.NewGuid()}";
                         var newTestTag  = $"test-{Guid.NewGuid()}";
@@ -108,7 +108,7 @@ namespace TestGitHub
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
-                    using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepo))
+                    using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepoPath))
                     {
                         var newTestName = $"test-{Guid.NewGuid()}";
                         var newTestTag  = $"test-{Guid.NewGuid()}";
@@ -137,7 +137,7 @@ namespace TestGitHub
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
-                    using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepo))
+                    using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepoPath))
                     {
                         var releaseName = $"test-{Guid.NewGuid()}";
                         var newTestTag  = $"test-{Guid.NewGuid()}";
@@ -172,7 +172,7 @@ namespace TestGitHub
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
-                    using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepo))
+                    using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepoPath))
                     {
                         var releaseName = $"test-{Guid.NewGuid()}";
                         var newTestTag  = $"test-{Guid.NewGuid()}";
@@ -208,7 +208,7 @@ namespace TestGitHub
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
-                    using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepo))
+                    using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepoPath))
                     {
                         var releaseName = $"test-{Guid.NewGuid()}";
                         var newTestTag  = $"test-{Guid.NewGuid()}";
@@ -235,7 +235,7 @@ namespace TestGitHub
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
-                    using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepo))
+                    using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepoPath))
                     {
                         var releaseName = $"test-{Guid.NewGuid()}";
                         var newTestTag  = $"test-{Guid.NewGuid()}";
@@ -291,7 +291,7 @@ namespace TestGitHub
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
-                    using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepo))
+                    using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepoPath))
                     {
                         var releaseName = $"test-{Guid.NewGuid()}";
                         var newTestTag  = $"test-{Guid.NewGuid()}";
