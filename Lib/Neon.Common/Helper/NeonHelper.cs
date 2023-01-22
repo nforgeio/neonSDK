@@ -114,7 +114,7 @@ namespace Neon.Common
 
         /// <summary>
         /// Returns the date format string used for serialize dates with second
-        /// precision to strings like: <b>2018-06-05T14:30:13.000Z</b>
+        /// precision to strings like: <b>2018-06-05T14:30:13Z</b>
         /// </summary>
         public const string DateFormatSecondTZ = "yyyy-MM-ddTHH:mm:ssZ";
 
