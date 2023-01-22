@@ -79,7 +79,7 @@ namespace TestGitHub
                             Assert.Equal(validLocalPath, await repo.Local.GetLocalFilePathAsync(@"\test\foo.txt"));
                             Assert.Equal(validLocalPath, await repo.Local.GetLocalFilePathAsync(@"test\foo.txt"));
 
-                            var validRemoteUri = $"{repo.Remote.BaseUri}{repo.Remote.Name}/test/foo.txt";
+                            var validRemoteUri = $"{repo.Remote.BaseUri}{repo.Remote.Name}/blob/{repo.Local.CurrentBranch.FriendlyName}/test/foo.txt";
 
                             Assert.Equal(validRemoteUri, await repo.Local.GetRemoteFileUriAsync(@"/test/foo.txt"));
                             Assert.Equal(validRemoteUri, await repo.Local.GetRemoteFileUriAsync(@"test/foo.txt"));
