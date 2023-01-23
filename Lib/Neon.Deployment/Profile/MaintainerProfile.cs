@@ -47,7 +47,7 @@ namespace Neon.Deployment
     {
         private readonly string             pipeName;
         private readonly TimeSpan           connectTimeout;
-        private bool                        cacheEnabled            = false;
+        private bool                        cacheEnabled            = true;
         private bool                        useMemoryCacheOnly      = false;
         private bool                        useEnvironmentCacheOnly = false;
         private object                      syncLock                = new object();
