@@ -60,5 +60,27 @@ namespace Neon.Common
                 return timespan >= minTimespan ? timespan : minTimespan;
             }
         }
+
+        /// <summary>
+        /// Rounds positive values up to the nearest second and negative
+        /// values down to the nearest second.
+        /// </summary>
+        /// <param name="value">The input value.</param>
+        /// <returns>The outpot value rounded to seconds.</returns>
+        public static TimeSpan RoundToSeconds(this TimeSpan value)
+        {
+            if (value > TimeSpan.Zero)
+            {
+                return TimeSpan.FromSeconds(Math.Ceiling(value.TotalSeconds));
+            }
+            else if (value < TimeSpan.Zero)
+            {
+                return TimeSpan.FromSeconds(Math.Floor(value.TotalSeconds));
+            }
+            else
+            {
+                return value;
+            }
+        }
     }
 }
