@@ -297,7 +297,6 @@ namespace Neon.Common
 
             if (NeonHelper.IsWindows)
             {
-                Environment.SetEnvironmentVariable("USERPROFILE", folder);
                 Environment.SetEnvironmentVariable("HOME", folder);
                 Environment.SetEnvironmentVariable("USERPROFILE", folder);
                 Environment.SetEnvironmentVariable("KUBECONFIG", Path.Combine(folder, ".kube", "config"));
