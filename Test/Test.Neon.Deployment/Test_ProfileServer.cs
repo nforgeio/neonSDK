@@ -54,13 +54,6 @@ namespace TestDeployment
         private const string pipeName = "9621a996-b35f-4f84-8c6c-7ff72cb69106";
 
         /// <summary>
-        /// Delay to be introduced by the profile client between sending the request
-        /// and reading the response.  This is used to detect potential race conditions
-        /// when communicating with the server.
-        /// </summary>
-        private readonly TimeSpan ClientDebugDelay = TimeSpan.FromMilliseconds(10);
-
-        /// <summary>
         /// Sets handlers that return reasonable default values.
         /// </summary>
         /// <param name="server">The assistant erver.</param>
@@ -327,6 +320,125 @@ namespace TestDeployment
                 server.Start();
 
                 Assert.Throws<ProfileException>(() => client.GetSecretValue("test"));
+            }
+        }
+
+        [Fact]
+        public void SecretCaching_InMemory()
+        {
+            // Verify that in-memory secret caching works.
+
+            var client = new MaintainerProfile(pipeName)
+            {
+                CacheEnabled = true
+            };
+
+            using (var server = new ProfileServer(pipeName))
+            {
+                SetDefaultHandlers(server);
+
+                server.Start();
+
+                // Request a secret to load it into the cache.
+
+                const string expectedValue = "test-secret";
+
+                Assert.Equal(expectedValue, client.GetSecretValue("test"));
+
+                // Allow in-memory caching only and verify.
+
+                client.UseMemoryCacheOnly = true;
+                Assert.Equal(expectedValue, client.GetSecretValue("test"));
+            }
+        }
+
+        [Fact]
+        public void SecretCaching_EnvironmentVars()
+        {
+            // Verify that environment variable secret caching works.
+            var client = new MaintainerProfile(pipeName)
+            {
+                CacheEnabled = true
+            };
+
+            using (var server = new ProfileServer(pipeName))
+            {
+                SetDefaultHandlers(server);
+
+                server.Start();
+
+                // Request a secret to load it into the cache.
+
+                const string expectedValue = "test-secret";
+
+                Assert.Equal(expectedValue, client.GetSecretValue("test"));
+
+                // Allow environment caching only and verify.
+
+                client.UseEnvironmentCacheOnly = true;
+                Assert.Equal(expectedValue, client.GetSecretValue("test"));
+            }
+        }
+
+        [Fact]
+        public void ProfileCaching_InMemory()
+        {
+            // Verify that in-memory profile caching works.
+
+            var client = new MaintainerProfile(pipeName)
+            {
+                CacheEnabled = true
+            };
+
+            using (var server = new ProfileServer(pipeName))
+            {
+                SetDefaultHandlers(server);
+
+                server.GetSecretValueHandler = (request, name, value, masterpassword) => throw new Exception("test exception");
+
+                server.Start();
+
+                // Request a profile value to load it into the cache.
+
+                const string expectedValue = "test-profile";
+
+                Assert.Equal(expectedValue, client.GetProfileValue("test"));
+
+                // Allow in-memory caching only and verify.
+
+                client.UseMemoryCacheOnly = true;
+                Assert.Equal(expectedValue, client.GetProfileValue("test"));
+            }
+        }
+
+        [Fact]
+        public void ProfileCaching_EnvironmentVars()
+        {
+            // Verify that environment variable profile caching works.
+
+            var client = new MaintainerProfile(pipeName)
+            {
+                CacheEnabled = true
+            };
+
+            using (var server = new ProfileServer(pipeName))
+            {
+                SetDefaultHandlers(server);
+
+                server.GetSecretValueHandler = (request, name, value, masterpassword) => throw new Exception("test exception");
+
+                server.Start();
+
+                // Request a profile value to load it into the cache.
+
+                const string expectedValue = "test-profile";
+
+                Assert.Equal(expectedValue, client.GetProfileValue("test"));
+
+                // Allow environment caching only and verify.
+
+                client.UseEnvironmentCacheOnly = true;
+                Assert.Equal(expectedValue, client.GetProfileValue("test"));
             }
         }
     }

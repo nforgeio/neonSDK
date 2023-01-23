@@ -47,10 +47,12 @@ namespace Neon.Deployment
     {
         private readonly string             pipeName;
         private readonly TimeSpan           connectTimeout;
-        private bool                        cacheEnabled;
-        private object                      syncLock     = new object();
-        private Dictionary<string, string>  profileCache = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
-        private Dictionary<string, string>  secretCache  = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+        private bool                        cacheEnabled            = false;
+        private bool                        useMemoryCacheOnly      = false;
+        private bool                        useEnvironmentCacheOnly = false;
+        private object                      syncLock                = new object();
+        private Dictionary<string, string>  profileCache            = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+        private Dictionary<string, string>  secretCache             = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
 
         /// <summary>
         /// <para>
@@ -102,10 +104,55 @@ namespace Neon.Deployment
             {
                 if (!value)
                 {
+                    useMemoryCacheOnly           = false;
+                    useEnvironmentCacheOnly = false;
+
                     ClearCache();
                 }
 
                 cacheEnabled = value;
+            }
+        }
+
+        /// <summary>
+        /// <b>UNIT TESTING ONLY:</b> This property is really intended only for unit
+        /// tests verifying that caching is actually working.  This defaults to <c>false</c>
+        /// for new profile client instances and may be set to <c>true</c> in unit tests
+        /// to only retrieve cached values.
+        /// </summary>
+        internal bool UseMemoryCacheOnly
+        {
+            get => useMemoryCacheOnly;
+
+            set
+            {
+                if (value)
+                {
+                    cacheEnabled = true;
+                }
+
+                useMemoryCacheOnly = value;
+            }
+        }
+
+        /// <summary>
+        /// <b>UNIT TESTING ONLY:</b> This property is really intended only for unit
+        /// tests verifying that caching is actually working.  This defaults to <c>false</c>
+        /// for new profile client instances and may be set to <c>true</c> in unit tests
+        /// to only retrieve values cached as environment variables.
+        /// </summary>
+        internal bool UseEnvironmentCacheOnly
+        {
+            get => useEnvironmentCacheOnly;
+
+            set
+            {
+                if (value)
+                {
+                    cacheEnabled = true;
+                }
+
+                useEnvironmentCacheOnly = value;
             }
         }
 
@@ -165,7 +212,7 @@ namespace Neon.Deployment
             {
                 lock (syncLock)
                 {
-                    if (profileCache.TryGetValue(name, out var value))
+                    if (!UseEnvironmentCacheOnly && profileCache.TryGetValue(name, out var value))
                     {
                         return value;
                     }
@@ -176,6 +223,18 @@ namespace Neon.Deployment
                     {
                         return cachedEnvironmentValue;
                     }
+                }
+            }
+
+            if (UseMemoryCacheOnly || UseEnvironmentCacheOnly)
+            {
+                if (nullOnNotFound)
+                {
+                    return null;
+                }
+                else
+                {
+                    throw new ProfileException($"[{name}] profile value not found in the cache.", ProfileStatus.NotFound);
                 }
             }
 
@@ -221,7 +280,7 @@ namespace Neon.Deployment
             {
                 lock (syncLock)
                 {
-                    if (secretCache.TryGetValue(cacheKey, out var value))
+                    if (!UseEnvironmentCacheOnly && secretCache.TryGetValue(cacheKey, out var value))
                     {
                         return value;
                     }
@@ -232,6 +291,18 @@ namespace Neon.Deployment
                     {
                         return cachedEnvironmentValue;
                     }
+                }
+            }
+
+            if (UseMemoryCacheOnly || UseEnvironmentCacheOnly)
+            {
+                if (nullOnNotFound)
+                {
+                    return null;
+                }
+                else
+                {
+                    throw new ProfileException($"[{name}] profile value not found in the cache.", ProfileStatus.NotFound);
                 }
             }
 
@@ -287,7 +358,7 @@ namespace Neon.Deployment
             {
                 lock (syncLock)
                 {
-                    if (secretCache.TryGetValue(cacheKey, out var value))
+                    if (!UseEnvironmentCacheOnly && secretCache.TryGetValue(cacheKey, out var value))
                     {
                         return value;
                     }
@@ -298,6 +369,18 @@ namespace Neon.Deployment
                     {
                         return cachedEnvironmentValue;
                     }
+                }
+            }
+
+            if (UseMemoryCacheOnly || UseEnvironmentCacheOnly)
+            {
+                if (nullOnNotFound)
+                {
+                    return null;
+                }
+                else
+                {
+                    throw new ProfileException($"[{name}] profile value not found in the cache.", ProfileStatus.NotFound);
                 }
             }
 
