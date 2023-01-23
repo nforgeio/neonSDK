@@ -121,7 +121,10 @@ namespace TestDeployment
             // Verify that the server is able to handle multiple requests
             // submitted one at a time.
 
-            var client = new MaintainerProfile(pipeName);
+            var client = new MaintainerProfile(pipeName)
+            {
+                CacheEnabled = false
+            };
 
             using (var server = new ProfileServer(pipeName))
             {
@@ -154,7 +157,10 @@ namespace TestDeployment
             // Verify that the server is able to handle multiple requests
             // submitted in parallel but with only one server thread.
 
-            var client = new MaintainerProfile(pipeName);
+            var client = new MaintainerProfile(pipeName)
+            {
+                CacheEnabled = false
+            };
 
             using (var server = new ProfileServer(pipeName, threadCount: 1))
             {
@@ -198,7 +204,10 @@ namespace TestDeployment
         [Repeat(repeatCount)]
         public void GetProfileValue(int repeatCount)
         {
-            var client = new MaintainerProfile(pipeName);
+            var client = new MaintainerProfile(pipeName)
+            {
+                CacheEnabled = false
+            };
 
             using (var server = new ProfileServer(pipeName))
             {
@@ -213,7 +222,10 @@ namespace TestDeployment
         [Repeat(repeatCount)]
         public void GetProfileValue_Exception(int repeatCount)
         {
-            var client = new MaintainerProfile(pipeName);
+            var client = new MaintainerProfile(pipeName)
+            {
+                CacheEnabled = false
+            };
 
             using (var server = new ProfileServer(pipeName))
             {
@@ -231,7 +243,10 @@ namespace TestDeployment
         [Repeat(repeatCount)]
         public void GetSecretPassword(int repeatCount)
         {
-            var client = new MaintainerProfile(pipeName);
+            var client = new MaintainerProfile(pipeName)
+            {
+                CacheEnabled = false
+            };
 
             using (var server = new ProfileServer(pipeName))
             {
@@ -246,7 +261,10 @@ namespace TestDeployment
         [Repeat(repeatCount)]
         public void GetSecretPassword_UsingMasterPassword(int repeatCount)
         {
-            var client = new MaintainerProfile(pipeName);
+            var client = new MaintainerProfile(pipeName)
+            {
+                CacheEnabled = false
+            };
 
             using (var server = new ProfileServer(pipeName))
             {
@@ -261,7 +279,10 @@ namespace TestDeployment
         [Repeat(repeatCount)]
         public void GetSecretPassword_Exception(int repeatCount)
         {
-            var client = new MaintainerProfile(pipeName);
+            var client = new MaintainerProfile(pipeName)
+            {
+                CacheEnabled = false
+            };
 
             using (var server = new ProfileServer(pipeName))
             {
@@ -279,7 +300,10 @@ namespace TestDeployment
         [Repeat(repeatCount)]
         public void GetSecretValue(int repeatCount)
         {
-            var client = new MaintainerProfile(pipeName);
+            var client = new MaintainerProfile(pipeName)
+            {
+                CacheEnabled = false
+            };
 
             using (var server = new ProfileServer(pipeName))
             {
@@ -294,7 +318,10 @@ namespace TestDeployment
         [Repeat(repeatCount)]
         public void GetSecretValue_UsingMasterPassword(int repeatCount)
         {
-            var client = new MaintainerProfile(pipeName);
+            var client = new MaintainerProfile(pipeName)
+            {
+                CacheEnabled = false
+            };
 
             using (var server = new ProfileServer(pipeName))
             {
@@ -309,7 +336,10 @@ namespace TestDeployment
         [Repeat(repeatCount)]
         public void GetSecretValue_Exception(int repeatCount)
         {
-            var client = new MaintainerProfile(pipeName);
+            var client = new MaintainerProfile(pipeName)
+            {
+                CacheEnabled = false
+            };
 
             using (var server = new ProfileServer(pipeName))
             {
@@ -328,10 +358,9 @@ namespace TestDeployment
         {
             // Verify that in-memory secret caching works.
 
-            var client = new MaintainerProfile(pipeName)
-            {
-                CacheEnabled = true
-            };
+            var client = new MaintainerProfile(pipeName);
+
+            Assert.True(client.CacheEnabled);
 
             using (var server = new ProfileServer(pipeName))
             {
@@ -356,10 +385,10 @@ namespace TestDeployment
         public void SecretCaching_EnvironmentVars()
         {
             // Verify that environment variable secret caching works.
-            var client = new MaintainerProfile(pipeName)
-            {
-                CacheEnabled = true
-            };
+
+            var client = new MaintainerProfile(pipeName);
+
+            Assert.True(client.CacheEnabled);
 
             using (var server = new ProfileServer(pipeName))
             {
@@ -385,10 +414,9 @@ namespace TestDeployment
         {
             // Verify that in-memory profile caching works.
 
-            var client = new MaintainerProfile(pipeName)
-            {
-                CacheEnabled = true
-            };
+            var client = new MaintainerProfile(pipeName);
+
+            Assert.True(client.CacheEnabled);
 
             using (var server = new ProfileServer(pipeName))
             {
@@ -416,10 +444,9 @@ namespace TestDeployment
         {
             // Verify that environment variable profile caching works.
 
-            var client = new MaintainerProfile(pipeName)
-            {
-                CacheEnabled = true
-            };
+            var client = new MaintainerProfile(pipeName);
+
+            Assert.True(client.CacheEnabled);
 
             using (var server = new ProfileServer(pipeName))
             {
