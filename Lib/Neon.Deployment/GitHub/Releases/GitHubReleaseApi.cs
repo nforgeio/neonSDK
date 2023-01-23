@@ -110,15 +110,6 @@ namespace Neon.Deployment
                             break;
                         }
                     }
-
-                    var newTag = new NewTag()
-                    {
-                        Message = $"release-tag: {tagName}",
-                        Tag     = tagName,
-                        Object  = "",
-                    };
-
-                    client.Git.Tag.Create(repoPath.Owner, repoPath.Repo, newTag).Wait();
                 }
             }
 
