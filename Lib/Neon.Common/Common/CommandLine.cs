@@ -212,6 +212,7 @@ namespace Neon.Common
                 if (input[p] == '"')
                 {
                     pEnd = input.IndexOf('"', p + 1);
+
                     if (pEnd == -1)
                     {
                         // Unbalanced quote
@@ -227,6 +228,7 @@ namespace Neon.Common
                 else
                 {
                     pEnd = input.IndexOfAny(wsChars, p);
+
                     if (pEnd == -1)
                     {
 
@@ -353,6 +355,7 @@ namespace Neon.Common
             }
 
             args = new String[list.Count];
+
             list.CopyTo(0, args, 0, list.Count);
 
             return args;
@@ -378,6 +381,7 @@ namespace Neon.Common
             }
 
             pos = path.LastIndexOfAny(new char[] { '\\', '/', ':' });
+
             if (pos == -1)
             {
                 return Directory.GetFiles(".", path);
@@ -1100,21 +1104,41 @@ namespace Neon.Common
         }
 
         /// <summary>
+        /// Handles redaction of command line arguments and/or options for the <see cref="ToFormatted(string, bool, bool, Redactor)"/>
+        /// method.  Return <c>null</c> if no redaction is required for the item or the string to be used instead.
+        /// </summary>
+        /// <param name="commandLine">The command line.</param>
+        /// <param name="index">Zero based index of the item.</param>
+        /// <param name="item">The item string.</param>
+        /// <param name="isOption"><c>true</c> when the item is a command line options.</param>
+        /// <returns><c>null</c> when no redaction is required or else the string to be substituted.</returns>
+        public delegate string Redactor(CommandLine commandLine, int index, string item, bool isOption);
+
+        /// <summary>
         /// Converts the command line into a nicely formatted (potentially multi-line) string
         /// suitable for including in logs.
         /// </summary>
+        /// <param name="programName">Specifies the program name.</param>
         /// <param name="withBars">Optionally include bars above and below the formatted command.</param>
+        /// <param name="withLineContinuation">Optionally include line continuation characters appropriate for the current operating system.</param>
+        /// <param name="redactor">Optionally passed as a redactor.  See <see cref="Redactor"/>.</param>
         /// <returns>The formatted string.</returns>
-        public string ToFormatted(bool withBars = false)
+        public string ToFormatted(string programName, bool withBars = false, bool withLineContinuation = false, Redactor redactor = null)
         {
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(programName), nameof(programName));
+
             var items            = Original.Items;
             var itemCount        = items.Count();
-            var programName      = items.First();
             var sb               = new StringBuilder();
             var bar              = new string('-', 40);
-            var lineContinuation = NeonHelper.IsWindows ? " ^" : " \\";
+            var lineContinuation = string.Empty;
 
-            if (itemCount == 1)
+            if (withLineContinuation)
+            {
+                lineContinuation = NeonHelper.IsWindows ? " ^" : " \\";
+            }
+
+            if (itemCount == 0)
             {
                 if (withBars)
                 {
@@ -1139,17 +1163,29 @@ namespace Neon.Common
                 sb.AppendLine($"{programName}{lineContinuation}");
 
                 var lastItemIndex = itemCount - 1;
-                var itemIndex     = 1;
+                var itemIndex     = 0;
 
-                foreach (var item in items.Skip(1))
+                foreach (var item in items)
                 {
+                    var currentItem = item;
+
+                    if (redactor != null)
+                    {
+                        var redactedItem = redactor(this, itemIndex, currentItem, currentItem.StartsWith("-"));
+
+                        if (redactedItem != null)
+                        {
+                            currentItem = redactedItem;
+                        }
+                    }
+
                     if (itemIndex != lastItemIndex)
                     {
-                        sb.AppendLine($"    {item}{lineContinuation}");
+                        sb.AppendLine($"    {currentItem}{lineContinuation}");
                     }
                     else
                     {
-                        sb.AppendLine($"    {item}");
+                        sb.AppendLine($"    {currentItem}");
                     }
 
                     itemIndex++;
