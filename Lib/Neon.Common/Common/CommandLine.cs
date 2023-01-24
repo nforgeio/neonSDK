@@ -1130,7 +1130,7 @@ namespace Neon.Common
             var items            = Original.Items;
             var itemCount        = items.Count();
             var sb               = new StringBuilder();
-            var bar              = new string('-', 40);
+            var bar              = new string('-', 80);
             var lineContinuation = string.Empty;
 
             if (withLineContinuation)

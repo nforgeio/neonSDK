@@ -482,7 +482,7 @@ $@"test{lineContinuation}
         {
             var lineContinuation = NeonHelper.IsWindows ? " ^" : " \\";
             var expected         = string.Empty;
-            var bar              = new string('-', 40);
+            var bar              = new string('-', 80);
 
             // Verify: Commandline.ToFormatted() with bars
 
@@ -544,7 +544,7 @@ test{lineContinuation}
         {
             var lineContinuation = string.Empty;
             var expected         = string.Empty;
-            var bar              = new string('-', 40);
+            var bar              = new string('-', 80);
 
             // Verify: Commandline.ToFormatted() with bars
 
