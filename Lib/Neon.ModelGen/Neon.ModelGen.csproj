@@ -1,10 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<OutputType>Library</OutputType>
 		<RootNamespace>Neon.ModelGen</RootNamespace>
-		<Version>3.0.0</Version>
+		<Version>10000.0.2735-dev-master</Version>
 		<Description>
 			JSON data model generator library for C# intended for people inetgrating this functionality into stand-alone solutiuons.
 
