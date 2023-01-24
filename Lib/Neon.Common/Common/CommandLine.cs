@@ -1086,5 +1086,70 @@ namespace Neon.Common
 
             return sb.ToString();
         }
+
+        /// <summary>
+        /// Converts the command line into a nicely formatted (potentially multi-line) string
+        /// suitable for including in logs.
+        /// </summary>
+        /// <param name="withBars">Optionally include bars above and below the formatted command.</param>
+        /// <returns>The formatted string.</returns>
+        public string ToFormatted(bool withBars = false)
+        {
+            var programName      = Items.First();
+            var sb               = new StringBuilder();
+            var bar              = new string('-', 40);
+            var lineContinuation = NeonHelper.IsWindows ? " ^" : " \\";
+            var itemCount        = Items.Count();
+
+            if (itemCount == 1)
+            {
+                if (withBars)
+                {
+                    sb.AppendLine(bar);
+                }
+
+                sb.AppendLine(programName);
+
+                if (withBars)
+                {
+                    sb.AppendLine(bar);
+                }
+            }
+            else
+            {
+                if (withBars)
+                {
+                    sb.AppendLine(bar);
+                    sb.AppendLine();
+                }
+
+                sb.AppendLine($"{programName}{lineContinuation}");
+
+                var lastItemIndex = itemCount - 1;
+                var itemIndex     = 1;
+
+                foreach (var item in Items.Skip(1))
+                {
+                    if (itemIndex != lastItemIndex)
+                    {
+                        sb.AppendLine($"    {item}{lineContinuation}");
+                    }
+                    else
+                    {
+                        sb.AppendLine($"    {item}");
+                    }
+
+                    itemIndex++;
+                }
+
+                if (withBars)
+                {
+                    sb.AppendLine();
+                    sb.AppendLine(bar);
+                }
+            }
+
+            return sb.ToString();
+        }
     }
 }

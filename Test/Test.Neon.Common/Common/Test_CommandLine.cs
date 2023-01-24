@@ -379,5 +379,99 @@ namespace TestCommon
                 Environment.SetEnvironmentVariable("TEST_MYENVVAR2", null);
             }
         }
+
+        [Fact]
+        public void AsString()
+        {
+            // Verify: Commandline.ToString()
+
+            Assert.Equal("test", new CommandLine("test").ToString());
+            Assert.Equal("test p1", new CommandLine("test", "p1").ToString());
+            Assert.Equal("test p1 p2", new CommandLine("test", "p1", "p2").ToString());
+            Assert.Equal("test p1 p2 p3", new CommandLine("test", "p1", "p2", "p3").ToString());
+            Assert.Equal("test p1=foo", new CommandLine("test", "p1=foo").ToString());
+            Assert.Equal("test \"p1=foo bar\"", new CommandLine("test", "p1=foo bar").ToString());
+        }
+
+        [Fact]
+        public void AsFormatted_WithoutBars()
+        {
+            var lineContinuation = NeonHelper.IsWindows ? "^" : "\\";
+
+            // Verify: Commandline.ToFormatted() with bars
+
+            Assert.Equal($"test{NeonHelper.LineEnding}", new CommandLine("test").ToFormatted());
+
+            Assert.Equal(
+$@"test {lineContinuation}
+    p1
+",
+                new CommandLine("test", "p1").ToFormatted());
+
+            Assert.Equal(
+$@"test {lineContinuation}
+    p1 {lineContinuation}
+    p2
+",
+                new CommandLine("test", "p1", "p2").ToFormatted());
+
+        Assert.Equal(
+$@"test {lineContinuation}
+    p1 {lineContinuation}
+    p2 {lineContinuation}
+    p3=""hello world!""
+",
+                new CommandLine("test", "p1", "p2", "p3=\"hello world!\"").ToFormatted());
+        }
+
+        [Fact]
+        public void AsFormatted_WithBars()
+        {
+            var lineContinuation = NeonHelper.IsWindows ? "^" : "\\";
+            var expected         = string.Empty;
+            var bar              = new string('-', 40);
+
+            // Verify: Commandline.ToFormatted() with bars
+
+            expected =
+$@"{bar}
+test
+{bar}
+";
+            Assert.Equal(expected, new CommandLine("test").ToFormatted(withBars: true));
+
+            expected =
+    $@"{bar}
+
+test {lineContinuation}
+    p1
+
+{bar}
+";
+            Assert.Equal(expected, new CommandLine("test", "p1").ToFormatted(withBars: true));
+
+            expected =
+    $@"{bar}
+
+test {lineContinuation}
+    p1 {lineContinuation}
+    p2
+
+{bar}
+";
+            Assert.Equal(expected, new CommandLine("test", "p1", "p2").ToFormatted(withBars: true));
+
+            expected =
+    $@"{bar}
+
+test {lineContinuation}
+    p1 {lineContinuation}
+    p2 {lineContinuation}
+    p3=""hello world!""
+
+{bar}
+";
+            Assert.Equal(expected, new CommandLine("test", "p1", "p2", "p3=\"hello world!\"").ToFormatted(withBars: true));
+        }
     }
 }
