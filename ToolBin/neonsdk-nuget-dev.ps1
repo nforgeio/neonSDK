@@ -306,6 +306,7 @@ try
     # Save the publish version to [$/build/nuget/version.text] so release tools can
     # determine the current release.
 
+    [System.IO.Directory]::CreateDirectory("$nfRoot\build\nuget") | Out-Null
     [System.IO.File]::WriteAllText("$nfRoot\build\nuget\version.txt", $neonSdkVersion)
 
     #------------------------------------------------------------------------------
