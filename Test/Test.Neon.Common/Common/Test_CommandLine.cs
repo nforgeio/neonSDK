@@ -422,6 +422,16 @@ $@"test {lineContinuation}
     p3=""hello world!""
 ",
                 new CommandLine("test", "p1", "p2", "p3=\"hello world!\"").ToFormatted());
+
+            // Verify that shifting the command line still formats the original.
+
+        Assert.Equal(
+$@"test {lineContinuation}
+    p1 {lineContinuation}
+    p2 {lineContinuation}
+    p3=""hello world!""
+",
+                new CommandLine("test", "p1", "p2", "p3=\"hello world!\"").Shift(1).ToFormatted());
         }
 
         [Fact]
@@ -472,6 +482,15 @@ test {lineContinuation}
 {bar}
 ";
             Assert.Equal(expected, new CommandLine("test", "p1", "p2", "p3=\"hello world!\"").ToFormatted(withBars: true));
+
+            // Verify that shifting the command line still formats the original.
+
+            expected =
+$@"{bar}
+test
+{bar}
+";
+            Assert.Equal(expected, new CommandLine("test").Shift(1).ToFormatted(withBars: true));
         }
     }
 }

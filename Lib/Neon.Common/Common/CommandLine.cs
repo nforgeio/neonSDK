@@ -517,6 +517,7 @@ namespace Neon.Common
             }
 
             arguments = valueList.ToArray();
+            Original  = this;
         }
 
         /// <summary>
@@ -565,6 +566,11 @@ namespace Neon.Common
 
             return definition;
         }
+
+        /// <summary>
+        /// Returns the original unshifted command line.
+        /// </summary>
+        public CommandLine Original { get; private set; }
 
         /// <summary>
         /// Returns the array of command line arguments (including both
@@ -860,7 +866,10 @@ namespace Neon.Common
                     }
                 }
 
-                return new CommandLine(items.ToArray());
+                return new CommandLine(items.ToArray())
+                {
+                    Original = this
+                };
             }
             else
             {
@@ -889,7 +898,10 @@ namespace Neon.Common
                     args.Add(item);
                 }
 
-                return new CommandLine(args.ToArray());
+                return new CommandLine(args.ToArray())
+                {
+                    Original = this
+                };
             }
         }
 
@@ -1095,11 +1107,12 @@ namespace Neon.Common
         /// <returns>The formatted string.</returns>
         public string ToFormatted(bool withBars = false)
         {
-            var programName      = Items.First();
+            var items            = Original.Items;
+            var itemCount        = items.Count();
+            var programName      = items.First();
             var sb               = new StringBuilder();
             var bar              = new string('-', 40);
             var lineContinuation = NeonHelper.IsWindows ? " ^" : " \\";
-            var itemCount        = Items.Count();
 
             if (itemCount == 1)
             {
@@ -1128,7 +1141,7 @@ namespace Neon.Common
                 var lastItemIndex = itemCount - 1;
                 var itemIndex     = 1;
 
-                foreach (var item in Items.Skip(1))
+                foreach (var item in items.Skip(1))
                 {
                     if (itemIndex != lastItemIndex)
                     {
