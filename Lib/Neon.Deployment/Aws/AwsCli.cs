@@ -633,62 +633,106 @@ namespace Neon.Deployment
             S3Remove(manifestUri);
             S3Remove(partsFolder, recursive: true, include: $"{partsFolder}*");
 
-            // We're going to upload the parts first, while initializing the download manifest as we go.
+            // We're going to upload the parts first, initializing the download manifest as we go.
+            // Then, we'll upload the manifest after the parts have been uploaded.
 
             var manifest = new DownloadManifest() { Name = name, Version = version, Filename = filename };
 
-            using (var input = File.OpenRead(sourcePath))
-            {
-                var partCount   = NeonHelper.PartitionCount(input.Length, maxPartSize);
-                var partNumber  = 0;
-                var partStart   = 0L;
-                var cbRemaining = input.Length;
+            // We're going to use two streams here, one to compute the part MD5
+            // and the other to actually upload the part to S3 and we're going to
+            // do this in parallel threads to increase the throughput.
 
-                manifest.Md5   = CryptoHelper.ComputeMD5String(input);
-                input.Position = 0;
-
-                while (cbRemaining > 0)
+            var uploadTask = Task.Run(
+                () =>
                 {
-                    var partSize = Math.Min(cbRemaining, maxPartSize);
-                    var part     = new DownloadPart()
+                    using (var input = File.OpenRead(sourcePath))
                     {
-                        Uri    = $"{partsFolder}part-{partNumber:000#}",
-                        Number = partNumber,
-                        Size   = partSize,
-                    };
+                        var partCount   = NeonHelper.PartitionCount(input.Length, maxPartSize);
+                        var partNumber  = 0;
+                        var partStart   = 0L;
+                        var cbRemaining = input.Length;
 
-                    // We're going to use two substreams here, one to compute the part has
-                    // and the other to actually upload the part to S3 and we're going to
-                    // do this in parallel worker threads to increase the throughput.
-
-                    using (var uploadPartStream = new SubStream(input, partStart, partSize))
-                    {
-                        using (var md5PartStream = new SubStream(input, partStart, partSize))
+                        while (cbRemaining > 0)
                         {
-                            var md5Task    = Task.Run(() => part.Md5 = CryptoHelper.ComputeMD5String(md5PartStream));
-                            var uploadTask = Task.Run(() => S3Upload(uploadPartStream, part.Uri, publicReadAccess: publicReadAccess));
+                            var partSize = Math.Min(cbRemaining, maxPartSize);
+                            var part     = new DownloadPart()
+                            {
+                                Uri    = $"{partsFolder}part-{partNumber:000#}",
+                                Number = partNumber,
+                                Size   = partSize,
+                            };
 
-                            md5Task.Wait();
-                            uploadTask.Wait();
+                            using (var uploadPartStream = new SubStream(input, partStart, partSize))
+                            {
+                                S3Upload(uploadPartStream, part.Uri, publicReadAccess: publicReadAccess);
+                            }
+
+                            // Loop to handle the next part (if any).
+
+                            partNumber++;
+                            partStart   += partSize;
+                            cbRemaining -= partSize;
+
+                            if (progressAction != null)
+                            {
+                                progressAction(Math.Min(99L, (long)(100.0 * (double)partNumber / (double)partCount)));
+                            }
                         }
                     }
+                });
 
-                    manifest.Parts.Add(part);
-
-                    // Loop to handle the next part (if any).
-
-                    partNumber++;
-                    partStart   += partSize;
-                    cbRemaining -= partSize;
-
-                    if (progressAction != null)
+            var md5Task = Task.Run(
+                () =>
+                { 
+                    using (var input = File.OpenRead(sourcePath))
                     {
-                        progressAction(Math.Min(99L, (long)(100.0 * (double)partNumber / (double)partCount)));
-                    }
-                }
+                        var partCount   = NeonHelper.PartitionCount(input.Length, maxPartSize);
+                        var partNumber  = 0;
+                        var partStart   = 0L;
+                        var cbRemaining = input.Length;
 
-                manifest.Size = manifest.Parts.Sum(part => part.Size);
-            }
+                        // Compute the entire file MD5 hashes.
+
+                        manifest.Md5   = CryptoHelper.ComputeMD5String(input);
+                        input.Position = 0;
+
+                        // Compute the part MD5 hashes.
+
+                        while (cbRemaining > 0)
+                        {
+                            var partSize = Math.Min(cbRemaining, maxPartSize);
+                            var part     = new DownloadPart()
+                            {
+                                Uri    = $"{partsFolder}part-{partNumber:000#}",
+                                Number = partNumber,
+                                Size   = partSize,
+                            };
+
+                            using (var md5PartStream = new SubStream(input, partStart, partSize))
+                            {
+                                part.Md5 = CryptoHelper.ComputeMD5String(md5PartStream);
+                            }
+
+                            manifest.Parts.Add(part);
+
+                            // Loop to handle the next part (if any).
+
+                            partNumber++;
+                            partStart   += partSize;
+                            cbRemaining -= partSize;
+
+                            if (progressAction != null)
+                            {
+                                progressAction(Math.Min(99L, (long)(100.0 * (double)partNumber / (double)partCount)));
+                            }
+                        }
+
+                        manifest.Size = manifest.Parts.Sum(part => part.Size);
+                    }
+                });
+
+            uploadTask.Wait();
+            md5Task.Wait();
 
             // Upload the manifest.
 
