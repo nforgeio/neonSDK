@@ -1138,30 +1138,22 @@ namespace Neon.Common
                 lineContinuation = NeonHelper.IsWindows ? " ^" : " \\";
             }
 
+            if (withBars)
+            {
+                sb.AppendLine(bar);
+            }
+
             if (itemCount == 0)
             {
-                if (withBars)
-                {
-                    sb.AppendLine(bar);
-                }
-
-                sb.AppendLine(programName);
-
-                if (withBars)
-                {
-                    sb.AppendLine(bar);
-                }
+                sb.AppendLine($"{programName}");
             }
             else
             {
-                if (withBars)
-                {
-                    sb.AppendLine(bar);
-                    sb.AppendLine();
-                }
-
                 sb.AppendLine($"{programName}{lineContinuation}");
+            }
 
+            if (itemCount > 0)
+            {
                 var lastItemIndex = itemCount - 1;
                 var itemIndex     = 0;
 
@@ -1190,12 +1182,11 @@ namespace Neon.Common
 
                     itemIndex++;
                 }
+            }
 
-                if (withBars)
-                {
-                    sb.AppendLine();
-                    sb.AppendLine(bar);
-                }
+            if (withBars)
+            {
+                sb.AppendLine(bar);
             }
 
             return sb.ToString();

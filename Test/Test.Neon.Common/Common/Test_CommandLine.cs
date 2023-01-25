@@ -495,33 +495,27 @@ test
 
             expected =
 $@"{bar}
-
 test{lineContinuation}
     p1
-
 {bar}
 ";
             Assert.Equal(expected, new CommandLine("p1").ToFormatted("test", withBars: true, withLineContinuation: true));
 
             expected =
 $@"{bar}
-
 test{lineContinuation}
     p1{lineContinuation}
     p2
-
 {bar}
 ";
             Assert.Equal(expected, new CommandLine("p1", "p2").ToFormatted("test", withBars: true, withLineContinuation: true));
 
             expected =
 $@"{bar}
-
 test{lineContinuation}
     p1{lineContinuation}
     p2{lineContinuation}
     p3=""hello world!""
-
 {bar}
 ";
             Assert.Equal(expected, new CommandLine("p1", "p2", "p3=\"hello world!\"").ToFormatted("test", withBars: true, withLineContinuation: true));
@@ -530,10 +524,8 @@ test{lineContinuation}
 
             expected =
 $@"{bar}
-
 test{lineContinuation}
     p1
-
 {bar}
 ";
             Assert.Equal(expected, new CommandLine("p1").Shift(1).ToFormatted("test", withBars: true, withLineContinuation: true));
@@ -557,33 +549,27 @@ test
 
             expected =
     $@"{bar}
-
 test{lineContinuation}
     p1
-
 {bar}
 ";
             Assert.Equal(expected, new CommandLine("p1").ToFormatted("test", withBars: true));
 
             expected =
 $@"{bar}
-
 test{lineContinuation}
     p1{lineContinuation}
     p2
-
 {bar}
 ";
             Assert.Equal(expected, new CommandLine("p1", "p2").ToFormatted("test", withBars: true));
 
             expected =
 $@"{bar}
-
 test{lineContinuation}
     p1{lineContinuation}
     p2{lineContinuation}
     p3=""hello world!""
-
 {bar}
 ";
             Assert.Equal(expected, new CommandLine("p1", "p2", "p3=\"hello world!\"").ToFormatted("test", withBars: true));
@@ -592,10 +578,8 @@ test{lineContinuation}
 
             expected =
 $@"{bar}
-
 test{lineContinuation}
     p1
-
 {bar}
 ";
             Assert.Equal(expected, new CommandLine("p1").Shift(1).ToFormatted("test", withBars: true));
