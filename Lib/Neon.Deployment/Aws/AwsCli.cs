@@ -657,20 +657,15 @@ namespace Neon.Deployment
                         Size   = partSize,
                     };
 
-                    // We're going to use two substreams here, one to compute the part has
-                    // and the other to actually upload the part to S3 and we're going to
-                    // do this in parallel worker threads to increase the throughput.
+                    // We're going to use a substream to compute the MD5 hash for the part
+                    // as well as to actually upload the part to S3.
 
-                    using (var uploadPartStream = new SubStream(input, partStart, partSize))
+                    using (var partStream = new SubStream(input, partStart, partSize))
                     {
-                        using (var md5PartStream = new SubStream(input, partStart, partSize))
-                        {
-                            var md5Task    = Task.Run(() => part.Md5 = CryptoHelper.ComputeMD5String(md5PartStream));
-                            var uploadTask = Task.Run(() => S3Upload(uploadPartStream, part.Uri, publicReadAccess: publicReadAccess));
+                        part.Md5            = CryptoHelper.ComputeMD5String(partStream);
+                        partStream.Position = 0;
 
-                            md5Task.Wait();
-                            uploadTask.Wait();
-                        }
+                        S3Upload(partStream, part.Uri, publicReadAccess: publicReadAccess);
                     }
 
                     manifest.Parts.Add(part);
