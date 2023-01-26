@@ -829,6 +829,7 @@ namespace Neon.HyperV
                 }
 
                 powershell.Execute($"{HyperVNamespace}New-VMSwitch -Name '{switchName}' -NetAdapterName '{targetAdapter}'");
+                WaitForNetworkSwitch();
             }
             catch (Exception e)
             {
@@ -863,10 +864,22 @@ namespace Neon.HyperV
                 }
             }
 
-            // Creating an internal switch may disrupt the network for a brief period of
-            // time.  Hyper-V Manager warns about this when creating an internal switch
-            // manually.  We're going to pause for 5 seconds to hopefully let this settle
-            // out and then perform an innocous Hyper-V operation until it succeeds.
+            WaitForNetworkSwitch();
+        }
+
+        /// <summary>
+        /// Waits for network functionality to be restored after creating a new virtual
+        /// switch because networking can be disrupted for a period of time after switch
+        /// creation.
+        /// </summary>
+        private void WaitForNetworkSwitch()
+        {
+
+            // Creating an internal (and perhaps external) switch may disrupt the network
+            // for a brief period of time.  Hyper-V Manager warns about this when creating
+            // an internal switch manually.  We're going to pause for 5 seconds to hopefully
+            // let this settle out and then perform an innocous Hyper-V operation until it
+            // succeeds.
             //
             //      https://github.com/nforgeio/neonSDK/issues/50
 
