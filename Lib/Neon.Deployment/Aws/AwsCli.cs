@@ -542,7 +542,6 @@ namespace Neon.Deployment
         /// <param name="maxPartSize">Optionally overrides the maximum part size (defaults to 75 MiB).</param>
         /// <param name="publicReadAccess">Optionally grant the upload public read access.</param>
         /// <param name="progressAction">Optional action called as the file is uploaded, passing the <c>long</c> percent complete.</param>
-        /// <returns>The <see cref="DownloadManifest"/> information.</returns>
         /// <returns>The <see cref="DownloadManifest"/> information as well as the URI to the uploaded manifest.</returns>
         /// <remarks>
         /// <para>
@@ -584,6 +583,11 @@ namespace Neon.Deployment
         /// <para>
         /// The URI returned in this case will be <b>https://s3.uswest.amazonaws.com/mybucket/myfile.json.manifest</b>.
         /// </para>
+        /// <note>
+        /// This method uses two threads for uploading the parts because it seems to take
+        /// the <b>AWS CLI</b> tool several seconds to actually start the upload, resulting
+        /// in a lot of wasted uploading time.
+        /// </note>
         /// </remarks>
         public static (DownloadManifest manifest, string manifestUri) S3UploadMultiPart(
             string          sourcePath, 
@@ -638,11 +642,16 @@ namespace Neon.Deployment
 
             var manifest = new DownloadManifest() { Name = name, Version = version, Filename = filename };
 
-            // We're going to use two streams here, one to compute the part MD5
-            // and the other to actually upload the part to S3 and we're going to
-            // do this in parallel threads to increase the throughput.
+            // We're going to use three threads here, one to compute the part MD5
+            // and the other two to actually upload the parts to S3, with one uploading
+            // the even parts and the other handling the odd parts.
 
-            var uploadTask = Task.Run(
+            // $todo(jefflill):
+            //
+            // It would probably be way better to ditch the AWS CLI here and recode
+            // to upload to AWS directly.
+
+            var uploadEvenTask = Task.Run(
                 () =>
                 {
                     using (var input = File.OpenRead(sourcePath))
@@ -662,9 +671,54 @@ namespace Neon.Deployment
                                 Size   = partSize,
                             };
 
-                            using (var uploadPartStream = new SubStream(input, partStart, partSize))
+                            if (!NeonHelper.IsOdd(partNumber))
                             {
-                                S3Upload(uploadPartStream, part.Uri, publicReadAccess: publicReadAccess);
+                                using (var uploadPartStream = new SubStream(input, partStart, partSize))
+                                {
+                                    S3Upload(uploadPartStream, part.Uri, publicReadAccess: publicReadAccess);
+                                }
+                            }
+
+                            // Loop to handle the next part (if any).
+
+                            partNumber++;
+                            partStart   += partSize;
+                            cbRemaining -= partSize;
+
+                            if (progressAction != null)
+                            {
+                                progressAction(Math.Min(99L, (long)(100.0 * (double)partNumber / (double)partCount)));
+                            }
+                        }
+                    }
+                });
+
+            var uploadOddTask = Task.Run(
+                () =>
+                {
+                    using (var input = File.OpenRead(sourcePath))
+                    {
+                        var partCount   = NeonHelper.PartitionCount(input.Length, maxPartSize);
+                        var partNumber  = 0;
+                        var partStart   = 0L;
+                        var cbRemaining = input.Length;
+
+                        while (cbRemaining > 0)
+                        {
+                            var partSize = Math.Min(cbRemaining, maxPartSize);
+                            var part     = new DownloadPart()
+                            {
+                                Uri    = $"{partsFolder}part-{partNumber:000#}",
+                                Number = partNumber,
+                                Size   = partSize,
+                            };
+
+                            if (NeonHelper.IsOdd(partNumber))
+                            {
+                                using (var uploadPartStream = new SubStream(input, partStart, partSize))
+                                {
+                                    S3Upload(uploadPartStream, part.Uri, publicReadAccess: publicReadAccess);
+                                }
                             }
 
                             // Loop to handle the next part (if any).
@@ -696,8 +750,6 @@ namespace Neon.Deployment
                         manifest.Md5   = CryptoHelper.ComputeMD5String(input);
                         input.Position = 0;
 
-                        // Compute the part MD5 hashes.
-
                         while (cbRemaining > 0)
                         {
                             var partSize = Math.Min(cbRemaining, maxPartSize);
@@ -707,6 +759,8 @@ namespace Neon.Deployment
                                 Number = partNumber,
                                 Size   = partSize,
                             };
+
+                            // Compute the part hash.
 
                             using (var md5PartStream = new SubStream(input, partStart, partSize))
                             {
@@ -731,7 +785,8 @@ namespace Neon.Deployment
                     }
                 });
 
-            uploadTask.Wait();
+            uploadEvenTask.Wait();
+            uploadOddTask.Wait();
             md5Task.Wait();
 
             // Upload the manifest.

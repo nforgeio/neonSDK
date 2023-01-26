@@ -372,6 +372,9 @@ namespace Neon.Deployment
         /// Take care that any assets already published have names that won't conflict with the asset
         /// part names, which will be formatted like: <b>part-##</b>
         /// </note>
+        /// <note>
+        /// Unlike the S3 implementation, this method uploads the parts to GitHub on a single thread.
+        /// </note>
         /// </remarks>
         public DownloadManifest UploadMultipartAsset(
             string      repo,
