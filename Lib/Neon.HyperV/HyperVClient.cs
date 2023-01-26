@@ -34,6 +34,7 @@ using Microsoft.Win32;
 
 using Neon.Common;
 using Neon.Net;
+using Neon.Retry;
 using Neon.Windows;
 
 using Newtonsoft.Json.Linq;
@@ -828,6 +829,20 @@ namespace Neon.HyperV
                 }
 
                 powershell.Execute($"{HyperVNamespace}New-VMSwitch -Name '{switchName}' -NetAdapterName '{targetAdapter}'");
+
+                // Creating an internal switch may disrupt the network for a short period
+                // of time.  Hyper-V Manager warns about this when creating an internal switch
+                // manually.  We're going to pause for 10 seconds to hopefully let this settle
+                // out and then perform some DNS lookups for the current machine, until that
+                // succeeds.
+                //
+                //      https://github.com/nforgeio/neonSDK/issues/50
+
+                Thread.Sleep(TimeSpan.FromSeconds(10));
+
+                var retry = new LinearRetryPolicy(e => true, retryInterval: TimeSpan.FromSeconds(1), timeout: TimeSpan.FromSeconds(30));
+
+                retry.Invoke(() => Dns.GetHostEntry(Environment.MachineName));
             }
             catch (Exception e)
             {
