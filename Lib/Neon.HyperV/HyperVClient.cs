@@ -315,7 +315,7 @@ namespace Neon.HyperV
 
             // Create the virtual machine.
 
-            var command = $"{HyperVNamespace}New-VM -Name '{machineName}' -MemoryStartupBytes {memorySize}  -Generation 1";
+            var command = $"{HyperVNamespace}New-VM -Name '{machineName}' -MemoryStartupBytes {memorySize} -Generation 1";
 
             if (!string.IsNullOrEmpty(drivePath))
             {
