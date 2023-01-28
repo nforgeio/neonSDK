@@ -35,7 +35,7 @@ using Neon.Diagnostics;
 using Neon.IO;
 using Neon.Net;
 using Neon.Service;
-using Neon.Tasks;
+using NeonTask;
 using Neon.Xunit;
 
 using Prometheus;

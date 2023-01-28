@@ -27,7 +27,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Neon.Tasks
+namespace NeonTask
 {
     /// <summary>
     /// Used to convert a <see cref="Task"/> into an awaitable that that does not

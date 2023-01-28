@@ -27,7 +27,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Neon.Tasks;
+using NeonTask;
 
 namespace Neon.Common
 {

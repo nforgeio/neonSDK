@@ -27,7 +27,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Neon.Tasks
+namespace NeonTask
 {
     /// <summary>
     /// Enumerates the <see cref="SyncContext"/> modes, configured by setting <see cref="SyncContext.Mode"/>.

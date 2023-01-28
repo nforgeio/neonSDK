@@ -31,7 +31,7 @@ using Microsoft.AspNetCore.SignalR.Protocol;
 
 using Neon.Common;
 using Neon.Diagnostics;
-using Neon.Tasks;
+using NeonTask;
 
 using NATS;
 using NATS.Client;

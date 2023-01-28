@@ -29,7 +29,7 @@ using System.Threading.Tasks;
 
 using Neon.Diagnostics;
 using Neon.Collections;
-using Neon.Tasks;
+using NeonTask;
 using System.Runtime.CompilerServices;
 
 namespace Neon.Common

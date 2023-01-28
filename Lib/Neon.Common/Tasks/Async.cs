@@ -26,7 +26,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Neon.Tasks
+namespace NeonTask
 {
     /// <summary>
     /// <see cref="Task"/> related utilities.

@@ -25,7 +25,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Neon.Tasks
+namespace NeonTask
 {
     /// <summary>
     /// Defines an interface that completes a future operation asynchronously.

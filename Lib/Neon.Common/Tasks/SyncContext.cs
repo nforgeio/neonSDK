@@ -28,7 +28,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Neon.Tasks
+namespace NeonTask
 {
     /// <summary>
     /// Used by public <c>async</c> library methods to reset the current task

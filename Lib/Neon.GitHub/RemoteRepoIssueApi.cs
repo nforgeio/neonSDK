@@ -34,7 +34,7 @@ using Neon.Cryptography;
 using Neon.Deployment;
 using Neon.IO;
 using Neon.Net;
-using Neon.Tasks;
+using NeonTask;
 
 using LibGit2Sharp;
 using LibGit2Sharp.Handlers;

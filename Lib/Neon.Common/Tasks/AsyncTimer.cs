@@ -30,9 +30,9 @@ using Microsoft.Extensions.Logging;
 
 using Neon.Common;
 using Neon.Diagnostics;
-using Neon.Tasks;
+using NeonTask;
 
-namespace Neon.Tasks
+namespace NeonTask
 {
     /// <summary>
     /// Implements a timer that runs on a background <see cref="Task"/>.

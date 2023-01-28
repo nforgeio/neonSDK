@@ -29,7 +29,7 @@ using System.Threading.Tasks;
 using Neon.Common;
 using Neon.Diagnostics;
 using Neon.IO;
-using Neon.Tasks;
+using NeonTask;
 using Neon.Xunit;
 
 using Xunit;

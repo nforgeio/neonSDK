@@ -26,7 +26,7 @@ using Microsoft.Net.Http.Headers;
 
 using Neon.Common;
 using Neon.Data;
-using Neon.Tasks;
+using NeonTask;
 
 namespace Neon.Web
 {

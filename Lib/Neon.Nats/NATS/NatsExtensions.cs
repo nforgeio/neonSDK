@@ -30,7 +30,7 @@ using Neon.Common;
 using Neon.Data;
 using Neon.Diagnostics;
 using Neon.Net;
-using Neon.Tasks;
+using NeonTask;
 
 namespace NATS.Client
 {

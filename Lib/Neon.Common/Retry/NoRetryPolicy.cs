@@ -22,7 +22,7 @@ using System.Diagnostics.Contracts;
 using System.Text;
 using System.Threading.Tasks;
 
-using Neon.Tasks;
+using NeonTask;
 
 #pragma warning disable CS0067 // Event is never used
 

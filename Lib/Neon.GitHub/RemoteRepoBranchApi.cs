@@ -32,7 +32,7 @@ using System.Threading.Tasks;
 using Neon.Common;
 using Neon.Deployment;
 using Neon.Net;
-using Neon.Tasks;
+using NeonTask;
 
 using LibGit2Sharp;
 using LibGit2Sharp.Handlers;

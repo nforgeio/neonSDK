@@ -39,7 +39,7 @@ using Neon.Diagnostics;
 using Neon.IO;
 using Neon.Net;
 using Neon.Retry;
-using Neon.Tasks;
+using NeonTask;
 using Neon.Time;
 
 using DnsClient;

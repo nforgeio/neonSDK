@@ -25,7 +25,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Neon.Tasks
+namespace NeonTask
 {
     /// <summary>
     /// Implements an <c>async</c>/<c>await</c> friendly equivalent of <see cref="Mutex"/>.

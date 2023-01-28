@@ -26,7 +26,7 @@ using System.Threading.Tasks;
 
 using Neon.Common;
 using Neon.Retry;
-using Neon.Tasks;
+using NeonTask;
 
 namespace Neon.Xunit
 {

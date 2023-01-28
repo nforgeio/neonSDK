@@ -29,7 +29,7 @@ using Newtonsoft.Json.Serialization;
 
 using Neon.Common;
 using Neon.Deployment;
-using Neon.Tasks;
+using NeonTask;
 
 namespace Neon.IO
 {

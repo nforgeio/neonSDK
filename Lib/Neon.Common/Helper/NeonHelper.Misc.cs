@@ -16,7 +16,7 @@
 // limitations under the License.
 
 using Neon.Data;
-using Neon.Tasks;
+using NeonTask;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;

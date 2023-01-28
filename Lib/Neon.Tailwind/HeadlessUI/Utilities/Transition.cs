@@ -27,7 +27,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
 using Microsoft.Extensions.Logging;
 
-using Neon.Tasks;
+using NeonTask;
 
 namespace Neon.Tailwind
 {

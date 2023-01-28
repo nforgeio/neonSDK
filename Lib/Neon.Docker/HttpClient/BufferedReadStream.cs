@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using System.Buffers;
 #endif
 
-using Neon.Tasks;
+using NeonTask;
 
 namespace Microsoft.Net.Http.Client
 {
