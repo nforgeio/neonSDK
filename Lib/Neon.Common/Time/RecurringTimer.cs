@@ -24,7 +24,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-using NeonTask;
+using Neon.Tasks;
 
 namespace Neon.Time
 {

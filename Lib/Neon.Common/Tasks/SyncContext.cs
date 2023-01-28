@@ -28,7 +28,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace NeonTask
+namespace Neon.Tasks
 {
     /// <summary>
     /// Used by public <c>async</c> library methods to reset the current task
@@ -102,7 +102,7 @@ namespace NeonTask
     /// code won't run on the UI thread either.
     /// </para>
     /// <code language="C#">
-    /// using Neon.Task;
+    /// using Neon.Tasks;
     /// 
     /// public async Task&lt;string&gt; HelloAsync()
     /// {
@@ -169,7 +169,7 @@ namespace NeonTask
         /// look something like:
         /// </para>
         /// <code language="C#">
-        /// using Neon.Task;
+        /// using Neon.Tasks;
         /// 
         /// public async Task&lt;string&gt; HelloAsync()
         /// {

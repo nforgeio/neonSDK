@@ -25,7 +25,7 @@ using System.Threading.Tasks;
 using Microsoft.Net.Http.Server;
 
 using Neon.Common;
-using NeonTask;
+using Neon.Tasks;
 
 namespace Neon.Xunit
 {

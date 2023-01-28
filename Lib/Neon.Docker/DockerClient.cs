@@ -35,7 +35,7 @@ using Newtonsoft.Json.Linq;
 using Neon.Common;
 using Neon.Net;
 using Neon.Retry;
-using NeonTask;
+using Neon.Tasks;
 
 namespace Neon.Docker
 {

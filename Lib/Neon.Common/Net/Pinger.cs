@@ -27,7 +27,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Neon.Common;
-using NeonTask;
+using Neon.Tasks;
 
 // $todo(jefflill):
 //

@@ -27,7 +27,7 @@ using Microsoft.Extensions.Caching.Distributed;
 using Neon.Common;
 using Neon.Diagnostics;
 using Neon.Service;
-using NeonTask;
+using Neon.Tasks;
 
 namespace NeonBlazorProxy
 {

@@ -908,7 +908,7 @@ namespace Neon.ModelGen
             writer.WriteLine($"using Neon.Diagnostics;");
             writer.WriteLine($"using Neon.Net;");
             writer.WriteLine($"using Neon.Retry;");
-            writer.WriteLine($"using NeonTask;");
+            writer.WriteLine($"using Neon.Tasks;");
             writer.WriteLine();
 
             if (Settings.RoundTrip)

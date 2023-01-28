@@ -32,7 +32,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 using Neon.Common;
-using NeonTask;
+using Neon.Tasks;
 
 namespace Neon.Docker
 {

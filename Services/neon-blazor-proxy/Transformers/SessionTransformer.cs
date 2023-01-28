@@ -29,7 +29,7 @@ using Microsoft.Extensions.Logging;
 using Neon.Common;
 using Neon.Cryptography;
 using Neon.Diagnostics;
-using NeonTask;
+using Neon.Tasks;
 
 using DnsClient;
 

@@ -32,7 +32,7 @@ using Neon.Collections;
 using Neon.Common;
 using Neon.Diagnostics;
 using Neon.Net;
-using NeonTask;
+using Neon.Tasks;
 
 namespace Neon.Common
 {

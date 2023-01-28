@@ -28,7 +28,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Neon.Common;
-using NeonTask;
+using Neon.Tasks;
 
 using Npgsql;
 

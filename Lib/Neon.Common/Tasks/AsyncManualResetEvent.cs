@@ -31,7 +31,7 @@ using System.Threading.Tasks;
 // require a global background thread (or something) to poll for timeouts.
 // Kind of icky, but this would be useful.
 
-namespace NeonTask
+namespace Neon.Tasks
 {
     /// <summary>
     /// Implements an <c>async</c>/<c>await</c> friendly equivalent of <see cref="ManualResetEvent"/>.

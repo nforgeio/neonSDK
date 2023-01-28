@@ -31,7 +31,7 @@ using System.Threading.Tasks;
 
 using Neon.Common;
 using Neon.Retry;
-using NeonTask;
+using Neon.Tasks;
 
 namespace Neon.Net
 {

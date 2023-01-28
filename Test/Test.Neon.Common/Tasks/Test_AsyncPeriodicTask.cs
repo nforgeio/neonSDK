@@ -25,7 +25,7 @@ using System.Threading.Tasks;
 
 using Neon.Common;
 using Neon.Retry;
-using NeonTask;
+using Neon.Tasks;
 using Neon.Xunit;
 
 using Xunit;

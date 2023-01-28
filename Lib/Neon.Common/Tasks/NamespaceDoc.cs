@@ -23,7 +23,7 @@ using System.Reflection;
 
 using Neon.Common;
 
-namespace NeonTask
+namespace Neon.Tasks
 {
     /// <summary>
     /// This namespace includes a handful of types that implement the async equivalent of

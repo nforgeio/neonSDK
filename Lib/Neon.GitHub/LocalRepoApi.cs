@@ -31,7 +31,7 @@ using System.Threading.Tasks;
 
 using Neon.Common;
 using Neon.Deployment;
-using NeonTask;
+using Neon.Tasks;
 
 using LibGit2Sharp;
 using LibGit2Sharp.Handlers;

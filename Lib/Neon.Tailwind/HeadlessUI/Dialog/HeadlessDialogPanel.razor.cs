@@ -17,7 +17,7 @@
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using NeonTask;
+using Neon.Tasks;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;

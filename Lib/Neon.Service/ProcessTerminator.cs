@@ -30,7 +30,7 @@ using Microsoft.Extensions.Logging;
 
 using Neon.Common;
 using Neon.Diagnostics;
-using NeonTask;
+using Neon.Tasks;
 
 namespace Neon.Service
 {

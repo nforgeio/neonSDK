@@ -26,7 +26,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
 using Neon.Diagnostics;
-using NeonTask;
+using Neon.Tasks;
 
 namespace Neon.Retry
 {

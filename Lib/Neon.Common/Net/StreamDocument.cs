@@ -39,7 +39,7 @@ using Neon.Collections;
 using Neon.Diagnostics;
 using Neon.ModelGen;
 using Neon.Retry;
-using NeonTask;
+using Neon.Tasks;
 
 namespace Neon.Net
 {

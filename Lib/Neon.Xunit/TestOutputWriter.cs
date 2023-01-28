@@ -27,7 +27,7 @@ using Neon.Common;
 using Neon.Cryptography;
 using Neon.Diagnostics;
 using Neon.IO;
-using NeonTask;
+using Neon.Tasks;
 using Neon.Xunit;
 
 using Xunit;

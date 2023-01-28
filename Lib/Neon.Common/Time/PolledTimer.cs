@@ -20,7 +20,7 @@ using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 
 using Neon.Common;
-using NeonTask;
+using Neon.Tasks;
 
 namespace Neon.Time
 {

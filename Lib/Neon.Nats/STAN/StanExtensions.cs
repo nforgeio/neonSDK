@@ -32,7 +32,7 @@ using Neon.Common;
 using Neon.Data;
 using Neon.Diagnostics;
 using Neon.Net;
-using NeonTask;
+using Neon.Tasks;
 
 namespace STAN.Client
 {

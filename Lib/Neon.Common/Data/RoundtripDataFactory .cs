@@ -35,7 +35,7 @@ using Newtonsoft.Json.Serialization;
 
 using Neon.Diagnostics;
 using Neon.Common;
-using NeonTask;
+using Neon.Tasks;
 
 namespace Neon.Data
 {

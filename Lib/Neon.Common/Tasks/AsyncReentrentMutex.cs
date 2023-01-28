@@ -26,7 +26,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace NeonTask
+namespace Neon.Tasks
 {
     /// <summary>
     /// Extends <see cref="AsyncMutex"/> to support reentrancy.

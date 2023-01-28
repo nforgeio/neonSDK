@@ -25,7 +25,7 @@ using System.Threading.Tasks;
 
 using Neon.Diagnostics;
 
-namespace NeonTask
+namespace Neon.Tasks
 {
     /// <summary>
     /// Implements a common asynchronous coding pattern where an asynchronous

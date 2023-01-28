@@ -35,7 +35,7 @@ using Neon.Common;
 using Neon.Cryptography;
 using Neon.Diagnostics;
 using Neon.Service;
-using NeonTask;
+using Neon.Tasks;
 using Neon.Web;
 
 using DnsClient;
