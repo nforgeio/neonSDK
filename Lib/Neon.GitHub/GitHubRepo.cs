@@ -108,7 +108,7 @@ namespace Neon.GitHub
         /// <param name="remoteRepoPath">Specifies the GitHub remote repository path, like: <b>[SERVER/]OWNER/REPO</b></param>
         /// <param name="username">Optionally specifies the GitHub username.</param>
         /// <param name="accessToken">Optionally specifies the GitHub Personal Access Token (PAT).</param>
-        /// <param name="password">Optionall specifies the GitHub password.</param>
+        /// <param name="password">Optionally specifies the GitHub password.</param>
         /// <param name="email">Optionally specifies the GitHub email address for the current user.</param>
         /// <param name="userAgent">
         /// Optionally specifies the user-agent to be submitted with GitHub REST API calls.  This defaults to <b>"unknown"</b>.
@@ -172,7 +172,7 @@ namespace Neon.GitHub
         /// </param>
         /// <param name="username">Optionally specifies the GitHub username.</param>
         /// <param name="accessToken">Optionally specifies the GitHub Personal Access Token (PAT).</param>
-        /// <param name="password">Optionall specifies the GitHub password.</param>
+        /// <param name="password">Optionally specifies the GitHub password.</param>
         /// <param name="email">Optionally specifies the GitHub email address for the current user.</param>
         /// <param name="userAgent">
         /// Optionally specifies the user-agent to be submitted with GitHub REST API calls.  This defaults to <b>"unknown"</b>.
@@ -261,7 +261,7 @@ namespace Neon.GitHub
         /// <param name="localRepoFolder">Specifies the folder where the local git repository will be created or where it already exists.</param>
         /// <param name="username">Optionally specifies the GitHub username.</param>
         /// <param name="accessToken">Optionally specifies the GitHub Personal Access Token (PAT).</param>
-        /// <param name="password">Optionall specifies the GitHub password.</param>
+        /// <param name="password">Optionally specifies the GitHub password.</param>
         /// <param name="email">Optionally specifies the GitHub email address for the current user.</param>
         /// <param name="userAgent">
         /// Optionally specifies the user-agent to be submitted with GitHub REST API calls.  This defaults to <b>"unknown"</b>.
@@ -526,7 +526,7 @@ namespace Neon.GitHub
         /// </summary>
         /// <param name="username">Optionally specifies the GitHub username.</param>
         /// <param name="accessToken">Optionally specifies the GitHub Personal Access Token (PAT).</param>
-        /// <param name="password">Optionall specifies the GitHub password.</param>
+        /// <param name="password">Optionally specifies the GitHub password.</param>
         /// <param name="email">Optionally specifies the GitHub email address for the current user.</param>
         /// <param name="profileClient">
         /// Optionally specifies the <see cref="IProfileClient"/> instance to be used for retrieving secrets.

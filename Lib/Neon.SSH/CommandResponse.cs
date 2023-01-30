@@ -144,14 +144,24 @@ namespace Neon.SSH
                     return string.Empty;
                 }
 
-                return $"[exitcode={ExitCode}]: {ErrorText}";
+                // Use the [ErrorText] by default unless it's empty, otherwise use
+                // the [OutputText], because ome commands don't write errors to SDTOUT.
+
+                var summary = ErrorText;
+
+                if (string.IsNullOrEmpty(summary))
+                {
+                    summary = OutputText;
+                }
+
+                return $"[exitcode={ExitCode}]: {summary}";
             }
         }
 
         /// <summary>
         /// Converts the original command into a Bash command.
         /// </summary>
-        /// <param name="comment">Optionall specifies a comment string to be included.</param>
+        /// <param name="comment">Optionally specifies a comment string to be included.</param>
         /// <returns>The Bash command string.</returns>
         public string ToBash(string comment = null)
         {
