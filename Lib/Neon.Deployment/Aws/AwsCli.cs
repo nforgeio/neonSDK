@@ -207,16 +207,6 @@ namespace Neon.Deployment
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(sourcePath), nameof(sourcePath));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(targetUri), nameof(targetUri));
 
-            // $todo(jefflill):
-            //
-            // Hardcoding [max_concurrent_requests = 5] for now, down from the default value: 10.
-            // I believe the higher setting is making uploads less reliable and may also consume
-            // too much bandwidth.  We should probably make this a parameter.
-            //
-            // Note this changes this setting system side.
-
-            ExecuteSafe("configure", "set", "default.s3.max_concurrent_requests", "5");
-
             // Perform the upload.
 
             var s3Uri = NetHelper.ToAwsS3Uri(targetUri);

@@ -102,7 +102,7 @@ namespace Neon.Tasks
     /// code won't run on the UI thread either.
     /// </para>
     /// <code language="C#">
-    /// using Neon.Task;
+    /// using Neon.Tasks;
     /// 
     /// public async Task&lt;string&gt; HelloAsync()
     /// {
@@ -169,7 +169,7 @@ namespace Neon.Tasks
         /// look something like:
         /// </para>
         /// <code language="C#">
-        /// using Neon.Task;
+        /// using Neon.Tasks;
         /// 
         /// public async Task&lt;string&gt; HelloAsync()
         /// {
