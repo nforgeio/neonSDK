@@ -2918,6 +2918,25 @@ rm -rf /etc/neon-init/*
             }
         }
 
+        /// <summary>
+        /// Changes a user password.
+        /// </summary>
+        /// <param name="username">The username.</param>
+        /// <param name="password">The new password.</param>
+        public void SetPassword(string username, string password)
+        {
+            var bundle = new CommandBundle("bash ./setpasswd.sh");
+
+            bundle.AddFile("setpasswd.sh",
+$@"
+cat <<EOF | passwd {username}
+{password}
+{password}
+EOF
+");
+            SudoCommand(bundle).EnsureSuccess();
+        }
+
         /// <inheritdoc/>
         public override string ToString()
         {
