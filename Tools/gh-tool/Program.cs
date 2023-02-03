@@ -177,7 +177,7 @@ COMMANDS:
                                 commandWords += word;
                             }
 
-                            Console.Error.WriteLine($"*** ERROR: [{commandWords}] command does not support [{option.Key}].");
+                            Console.Error.WriteLine($"*** ERROR: [{commandWords}] command does not support the [{option.Key}] option.");
                             Program.Exit(1);
                         }
                     }
@@ -307,7 +307,7 @@ COMMANDS:
 
                 var profileClient = new MaintainerProfile();
 
-                return cachedGithubToken = profileClient.GetSecretPassword("GITHUB_PAT");
+                return cachedGithubToken = profileClient.GetSecretPassword("GITHUB[accesstoken]");
             }
         }
     }

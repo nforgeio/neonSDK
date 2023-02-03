@@ -1525,6 +1525,8 @@ namespace Neon.Service
                 Logger.LogInformationEx(() => $"Starting [{Name}]");
             }
 
+            Logger.LogInformationEx(() => $".NET Runtime: {System.Environment.Version}");
+
             // Initialize the health status paths when enabled on Linux and
             // deploy the health and ready check tools.  We'll log any
             // errors and disable status generation if we have trouble

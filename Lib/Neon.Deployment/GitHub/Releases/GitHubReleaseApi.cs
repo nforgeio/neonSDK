@@ -110,15 +110,6 @@ namespace Neon.Deployment
                             break;
                         }
                     }
-
-                    var newTag = new NewTag()
-                    {
-                        Message = $"release-tag: {tagName}",
-                        Tag     = tagName,
-                        Object  = "",
-                    };
-
-                    client.Git.Tag.Create(repoPath.Owner, repoPath.Repo, newTag).Wait();
                 }
             }
 
@@ -381,6 +372,9 @@ namespace Neon.Deployment
         /// Take care that any assets already published have names that won't conflict with the asset
         /// part names, which will be formatted like: <b>part-##</b>
         /// </note>
+        /// <note>
+        /// Unlike the S3 implementation, this method uploads the parts to GitHub on a single thread.
+        /// </note>
         /// </remarks>
         public DownloadManifest UploadMultipartAsset(
             string      repo,
@@ -400,81 +394,120 @@ namespace Neon.Deployment
             name     = name ?? Path.GetFileName(sourcePath);
             filename = filename ?? Path.GetFileName(sourcePath);
 
-            using (var input = File.OpenRead(sourcePath))
-            {
-                if (input.Length == 0)
+            // We're going to use two streams here, one to compute the part MD5
+            // and the other to actually upload the part to S3 and we're going to
+            // do this in parallel threads to increase the throughput.
+
+            var manifest   = new DownloadManifest() { Name = name, Version = version, Filename = filename };
+            var assetParts = new List<ReleaseAsset>();
+
+            var uploadTask = Task.Run(
+                () =>
                 {
-                    throw new IOException($"Asset at [{sourcePath}] cannot be empty.");
-                }
-
-                var assetPartMap = new List<Tuple<ReleaseAsset, DownloadPart>>();
-                var manifest     = new DownloadManifest() { Name = name, Version = version, Filename = filename };
-                var partCount    = NeonHelper.PartitionCount(input.Length, maxPartSize);
-                var partNumber   = 0;
-                var partStart    = 0L;
-                var cbRemaining  = input.Length;
-
-                manifest.Md5   = CryptoHelper.ComputeMD5String(input);
-                input.Position = 0;
-
-                while (cbRemaining > 0)
-                {
-                    var partSize = Math.Min(cbRemaining, maxPartSize);
-                    var part     = new DownloadPart()
+                    using (var input = File.OpenRead(sourcePath))
                     {
-                        Number = partNumber,
-                        Size   = partSize,
-                    };
+                        if (input.Length == 0)
+                        {
+                            throw new IOException($"Asset at [{sourcePath}] cannot be empty.");
+                        }
 
-                    // We're going to use a substream to compute the MD5 hash for the part
-                    // as well as to actually upload the part to the GitHub release.
+                        var partCount   = NeonHelper.PartitionCount(input.Length, maxPartSize);
+                        var partNumber  = 0;
+                        var partStart   = 0L;
+                        var cbRemaining = input.Length;
 
-                    using (var partStream = new SubStream(input, partStart, partSize))
-                    {
-                        part.Md5            = CryptoHelper.ComputeMD5String(partStream);
-                        partStream.Position = 0;
+                        while (cbRemaining > 0)
+                        {
+                            var partSize = Math.Min(cbRemaining, maxPartSize);
 
-                        var asset = GitHub.Releases.UploadAsset(repo, release, partStream, $"part-{partNumber:0#}");
+                            using (var uploadPartStream = new SubStream(input, partStart, partSize))
+                            {
+                                var asset = GitHub.Releases.UploadAsset(repo, release, uploadPartStream, $"part-{partNumber:0#}");
 
-                        assetPartMap.Add(new Tuple<ReleaseAsset, DownloadPart>(asset, part));
+                                assetParts.Add(asset);
+                            }
+
+                            // Loop to handle the next part (if any).
+
+                            partNumber++;
+                            partStart   += partSize;
+                            cbRemaining -= partSize;
+                        }
                     }
+                });
 
-                    manifest.Parts.Add(part);
-
-                    // Loop to handle the next part (if any).
-
-                    partNumber++;
-                    partStart   += partSize;
-                    cbRemaining -= partSize;
-                }
-
-                manifest.Size = manifest.Parts.Sum(part => part.Size);
-
-                // Publish the release.
-
-                var releaseUpdate = release.ToUpdate();
-
-                releaseUpdate.Draft = false;
-
-                release = GitHub.Releases.Update(repo, release, releaseUpdate);
-
-                // Now that the release has been published, we can go back and fill in
-                // the asset URIs for each of the download parts.
-
-                foreach (var item in assetPartMap)
+            var md5Task = Task.Run(
+                () =>
                 {
-                    item.Item2.Uri = GitHub.Releases.GetAssetUri(release, item.Item1);
-                }
+                    using (var input = File.OpenRead(sourcePath))
+                    {
+                        if (input.Length == 0)
+                        {
+                            throw new IOException($"Asset at [{sourcePath}] cannot be empty.");
+                        }
 
-                // Write the MD5 file unless disabled.
+                        var partCount   = NeonHelper.PartitionCount(input.Length, maxPartSize);
+                        var partNumber  = 0;
+                        var partStart   = 0L;
+                        var cbRemaining = input.Length;
 
-                if (!noMd5File)
-                {
-                    File.WriteAllText($"{sourcePath}.md5", manifest.Md5);
-                }
+                        manifest.Md5   = CryptoHelper.ComputeMD5String(input);
+                        input.Position = 0;
 
-                return manifest;
+                        while (cbRemaining > 0)
+                        {
+                            var partSize = Math.Min(cbRemaining, maxPartSize);
+                            var part     = new DownloadPart()
+                            {
+                                Number = partNumber,
+                                Size   = partSize,
+                            };
+
+                            using (var md5PartStream = new SubStream(input, partStart, partSize))
+                            {
+                                part.Md5 = CryptoHelper.ComputeMD5String(md5PartStream);
+                            }
+
+                            manifest.Parts.Add(part);
+
+                            // Loop to handle the next part (if any).
+
+                            partNumber++;
+                            partStart   += partSize;
+                            cbRemaining -= partSize;
+                        }
+
+                        manifest.Size = manifest.Parts.Sum(part => part.Size);
+                    }
+                });
+
+            uploadTask.Wait();
+            md5Task.Wait();
+
+            // Publish the release.
+
+            var releaseUpdate = release.ToUpdate();
+
+            releaseUpdate.Draft = false;
+
+            release = GitHub.Releases.Update(repo, release, releaseUpdate);
+
+            // Now that the release has been published, we can go back and fill in
+            // the asset URIs for each of the download parts.
+
+            for (int partNumber = 0; partNumber < manifest.Parts.Count; partNumber++)
+            {
+                manifest.Parts[partNumber].Uri = GitHub.Releases.GetAssetUri(release, assetParts[partNumber]);
             }
+
+            // Write the MD5 file unless disabled.
+
+            if (!noMd5File)
+            {
+                File.WriteAllText($"{sourcePath}.md5", manifest.Md5);
+            }
+
+            return manifest;
         }
     }
 }

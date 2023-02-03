@@ -34,6 +34,7 @@ using Microsoft.Win32;
 
 using Neon.Common;
 using Neon.Net;
+using Neon.Retry;
 using Neon.Windows;
 
 using Newtonsoft.Json.Linq;
@@ -147,7 +148,7 @@ namespace Neon.HyperV
 
             // Extract the VM name.
 
-            vm.Name = rawMachine.Name;
+            vm.Name = (string)rawMachine.Name;
 
             // Extract the VM state.
 
@@ -314,7 +315,7 @@ namespace Neon.HyperV
 
             // Create the virtual machine.
 
-            var command = $"{HyperVNamespace}New-VM -Name '{machineName}' -MemoryStartupBytes {memorySize}  -Generation 1";
+            var command = $"{HyperVNamespace}New-VM -Name '{machineName}' -MemoryStartupBytes {memorySize} -Generation 1";
 
             if (!string.IsNullOrEmpty(drivePath))
             {
@@ -828,6 +829,7 @@ namespace Neon.HyperV
                 }
 
                 powershell.Execute($"{HyperVNamespace}New-VMSwitch -Name '{switchName}' -NetAdapterName '{targetAdapter}'");
+                WaitForNetworkSwitch();
             }
             catch (Exception e)
             {
@@ -861,6 +863,31 @@ namespace Neon.HyperV
                     powershell.Execute($"{NetNatNamespace}New-NetNAT -Name '{switchName}' -InternalIPInterfaceAddressPrefix {subnet}");
                 }
             }
+
+            WaitForNetworkSwitch();
+        }
+
+        /// <summary>
+        /// Waits for network functionality to be restored after creating a new virtual
+        /// switch because networking can be disrupted for a period of time after switch
+        /// creation.
+        /// </summary>
+        private void WaitForNetworkSwitch()
+        {
+
+            // Creating an internal (and perhaps external) switch may disrupt the network
+            // for a brief period of time.  Hyper-V Manager warns about this when creating
+            // an internal switch manually.  We're going to pause for 5 seconds to hopefully
+            // let this settle out and then perform an innocous Hyper-V operation until it
+            // succeeds.
+            //
+            //      https://github.com/nforgeio/neonSDK/issues/50
+
+            Thread.Sleep(TimeSpan.FromSeconds(5));
+
+            var retry = new LinearRetryPolicy(e => true, retryInterval: TimeSpan.FromSeconds(1), timeout: TimeSpan.FromSeconds(30));
+
+            retry.Invoke(() => ListVms());
         }
 
         /// <summary>

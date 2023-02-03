@@ -57,7 +57,8 @@ namespace Neon.GitHub
         // Static members
 
         /// <summary>
-        /// Creates a <see cref="GitHubRepo"/>.
+        /// Creates a <see cref="GitHubRepo"/> that references and existing remote
+        /// GitHub repo.
         /// </summary>
         /// <param name="root">Specifies the root <see cref="GitHubRepo"/>.</param>
         /// <param name="path">Specifies the GitHub path for the repository.</param>
@@ -76,7 +77,6 @@ namespace Neon.GitHub
             repoApi.Issue   = new RemoteRepoIssueApi(root);
             repoApi.Release = new RemoteRepoReleaseApi(root);
             repoApi.Tag     = new RemoteRepoTagApi(root);
-            repoApi.Id      = (await root.GitHubApi.Repository.Get(path.Owner, path.Name)).Id;
 
             return repoApi;
         }
@@ -86,6 +86,7 @@ namespace Neon.GitHub
 
         private GitHubRepo  root;
         private string      cachedBaseUri;
+        private long        cachedId = -1;
 
         /// <summary>
         /// Internal constructor.
@@ -97,7 +98,23 @@ namespace Neon.GitHub
         /// <summary>
         /// Returns the remote repository's ID.
         /// </summary>
-        public long Id { get; private set; }
+        public long Id
+        {
+            get
+            {
+                if (cachedId != -1)
+                {
+                    return cachedId;
+                }
+
+                return cachedId = root.GitHubApi.Repository.Get(Path.Owner, Path.Name).Result.Id;
+            }
+        }
+
+        /// <summary>
+        /// Returns the remote repo name.
+        /// </summary>
+        public string Name => Path.Name;
 
         /// <summary>
         /// Returns the GitHub repository path.

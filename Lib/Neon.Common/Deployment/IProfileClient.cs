@@ -158,19 +158,5 @@ namespace Neon.Deployment
         /// Clears any cached values.
         /// </summary>
         void ClearCache();
-
-        /// <summary>
-        /// <para>
-        /// Submits a low-level request to the profile provider, passing a command and optional arguments.
-        /// This is temporarily used by the <c>Neon.Deployment.GitHub</c> APIs to workaround the lack of
-        /// a complete REST API for GHCR.
-        /// </para>
-        /// <note>
-        /// Implementation of this is optional and you may throw a <see cref="NotImplementedException"/>.
-        /// </note>
-        /// </summary>
-        /// <param name="args">The request arguments.</param>
-        /// <returns>The command result.</returns>
-        string Call(Dictionary<string, string> args);
     }
 }

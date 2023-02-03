@@ -49,11 +49,13 @@ namespace Neon.GitHub
         // Static members
 
         /// <summary>
-        /// Loads the current user's GitHub credentials and email address.  These area 
-        /// secret manager like 1Password via an <see cref="IProfileClient"/> implementation.
+        /// Loads the current user's GitHub credentials and email address from the parameters
+        /// passed, from environment variables of a password manager like 1Password accessed
+        /// via an <see cref="IProfileClient"/> implementation.
         /// </summary>
         /// <param name="username">Optionally specifies the GitHub username.</param>
         /// <param name="accessToken">Optionally specifies the GitHub Personal Access Token (PAT).</param>
+        /// <param name="password">Optionally specifies the password.</param>
         /// <param name="email">Optionally specifies the GitHub email address for the current user.</param>
         /// <param name="profileClient">
         /// Optionally specifies the <see cref="IProfileClient"/> instance to be used for retrieving secrets.
@@ -65,21 +67,29 @@ namespace Neon.GitHub
         /// <remarks>
         /// <para>
         /// This works by first trying to obtain each part of the credentials via environment
-        /// variables: <b>GITHUB_USERNAME</b>, <b>GITHUB_PAT</b>, and <b>GITHIB_EMAIL</b>.
+        /// variables: <b>GITHUB_USERNAME</b>, <b>GITHUB_PASSWORD</b> <b>GITHUB_PAT</b>, and <b>GITHUB_EMAIL</b>.
         /// </para>
+        /// <note>
+        /// <b>accessToken</b> is required and must be passed as explicit parameters or be located
+        /// from environment variables or a password manager.  <b>password</b> is optional.
+        /// </note>
         /// <para>
         /// For any credential parts that couldn't be located as environment variables, the 
         /// method will attempt to load the missing parts as via an <see cref="IProfileClient"/>
         /// implementation, if available.
         /// </para>
         /// <para>
-        /// The method extracts the credentials from the <b>GITHUB_PAT</b> secret in the
-        /// current user's vault as <b>GITHUB_PAT[username]</b>, <b>GITHUB_PAT[password]</b>
-        /// (the token), and <b>GITHUB_PAT[email]</b>.
+        /// The method extracts the credentials from the <b>GITHUB</b> secret in the
+        /// current user's vault as <b>GITHUB[username]</b>, <b>GITHUB[password]</b>,
+        /// <b>GITHUB[accesstoken]</b>, and <b>GITHUB[email]</b>.
         /// </para>
         /// </remarks>
-        public static GitHubCredentials Load(string username = null, string accessToken = null, string email = null, IProfileClient profileClient = null) 
-            => new GitHubCredentials(username, accessToken, email, profileClient);
+        public static GitHubCredentials Load(
+            string         username      = null, 
+            string         accessToken   = null, 
+            string         password      = null, 
+            string         email         = null, 
+            IProfileClient profileClient = null) => new GitHubCredentials(username, accessToken, password, email, profileClient);
 
         //-----------------------------------------------------------------
         // Instance members
@@ -89,6 +99,7 @@ namespace Neon.GitHub
         /// </summary>
         /// <param name="username">Optionally specifies the GitHub username.</param>
         /// <param name="accessToken">Optionally specifies the GitHub Personal Access Token (PAT).</param>
+        /// <param name="password">Optionally specifies the password.</param>
         /// <param name="email">Optionally specifies the GitHub email address for the current user.</param>
         /// <param name="profileClient">
         /// Optionally specifies the <see cref="IProfileClient"/> instance to be used for retrieving secrets.
@@ -99,6 +110,7 @@ namespace Neon.GitHub
         internal GitHubCredentials(
             string username              = null, 
             string accessToken           = null, 
+            string password              = null,
             string email                 = null, 
             IProfileClient profileClient = null)
         {
@@ -113,7 +125,7 @@ namespace Neon.GitHub
 
                 if (profile != null && string.IsNullOrEmpty(username))
                 {
-                    username = profile.GetSecretValue("GITHUB_PAT[username]");
+                    username = profile.GetSecretValue("GITHUB[username]");
                 }
 
                 if (string.IsNullOrEmpty(username))
@@ -131,12 +143,25 @@ namespace Neon.GitHub
 
                 if (profile != null && string.IsNullOrEmpty(accessToken))
                 {
-                    accessToken = profile.GetSecretValue("GITHUB_PAT[password]");
+                    accessToken = profile.GetSecretValue("GITHUB[accesstoken]", nullOnNotFound: true);
                 }
 
                 if (string.IsNullOrEmpty(accessToken))
                 {
-                    throw new InvalidOperationException("Could not locate GitHub email address.");
+                    throw new InvalidOperationException($"[{nameof(accessToken)}] is required.");
+                }
+            }
+
+            //-----------------------------------------------------------------
+            // Fetch the password token (this is optional):
+
+            if (string.IsNullOrEmpty(password))
+            {
+                password = Environment.GetEnvironmentVariable("GITHUB_PASSWORD");
+
+                if (profile != null && string.IsNullOrEmpty(password))
+                {
+                    password = profile.GetSecretValue("GITHUB[password]", nullOnNotFound: true);
                 }
             }
 
@@ -149,7 +174,7 @@ namespace Neon.GitHub
 
                 if (profile != null && string.IsNullOrEmpty(Email))
                 {
-                    email = profile.GetSecretValue("GITHUB_PAT[email]");
+                    email = profile.GetSecretValue("GITHUB[email]");
                 }
 
                 if (string.IsNullOrEmpty(email))
@@ -163,6 +188,7 @@ namespace Neon.GitHub
 
             this.Username    = username;
             this.AccessToken = accessToken;
+            this.Password    = password;
             this.Email       = email;
         }
 
@@ -172,9 +198,15 @@ namespace Neon.GitHub
         public string Username { get; private set; }
 
         /// <summary>
-        /// Returns the user's GitHub Personal Access Token (PAT).
+        /// Returns the user's GitHub Personal Access Token (PAT) or
+        /// <c>null</c> whenh unknown.
         /// </summary>
         public string AccessToken { get; private set; }
+
+        /// <summary>
+        /// Returns the user's password or <c>null</c> when unknown.
+        /// </summary>
+        public string Password { get; private set; }
 
         /// <summary>
         /// Returns the user's GitHub email address.

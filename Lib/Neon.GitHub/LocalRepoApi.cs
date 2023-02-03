@@ -66,7 +66,7 @@ namespace Neon.GitHub
         /// </param>
         internal LocalRepoApi(GitHubRepo root, string localRepoFolder)
         {
-            this.root            = root;
+            this.root   = root;
             this.Folder = localRepoFolder;
         }
 
@@ -196,6 +196,11 @@ namespace Neon.GitHub
 
             var options = new PullOptions()
             {
+                FetchOptions = new FetchOptions()
+                {
+                    CredentialsProvider = root.CredentialsProvider
+                },
+
                 MergeOptions = new MergeOptions()
                 {
                     FailOnConflict = true
@@ -335,7 +340,7 @@ namespace Neon.GitHub
         /// </summary>
         /// <param name="originBranchName">Specifies the GitHub origin repository branch name.</param>
         /// <param name="branchName">Optionally specifies the local branch name.  This defaults to <paramref name="originBranchName"/>.</param>
-        /// <returns><c>true</c> if the local branch didn't already exist and was created from the GitHib origin repository, <c>false</c> otherwise.</returns>
+        /// <returns><c>true</c> if the local branch didn't already exist and was created from the GitHub origin repository, <c>false</c> otherwise.</returns>
         /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
@@ -539,7 +544,7 @@ namespace Neon.GitHub
                 relativePath = relativePath.Substring(1);
             }
 
-            var uri = new Uri($"{root.Remote.BaseUri}{relativePath}");
+            var uri = new Uri($"{root.Remote.BaseUri}{root.Remote.Path.Name}/blob/{CurrentBranch.FriendlyName}/{relativePath}");
 
             return await Task.FromResult(uri.ToString());
         }

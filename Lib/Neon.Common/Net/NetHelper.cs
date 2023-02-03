@@ -1157,13 +1157,20 @@ namespace Neon.Net
                         {
                             // This is the interface handling the routable address.
 
+                            // $note(jefflill):
+                            //
+                            // We're only going to use IPv4 nameservers.
+
                             return new NetworkConfiguration()
                             {
                                 InterfaceName = @interface.Name,
                                 Address       = routableIpAddress.ToString(),
                                 Subnet        = new NetworkCidr(routableIpAddress, unicastAddress.IPv4Mask).ToString(),
                                 Gateway       = ipProperties.GatewayAddresses.FirstOrDefault(gatewayAddr => gatewayAddr.Address.AddressFamily == AddressFamily.InterNetwork).Address.ToString(),
-                                NameServers   = ipProperties.DnsAddresses.Select(address => address.ToString()).ToArray()
+                                NameServers   = ipProperties.DnsAddresses
+                                    .Where(address => address.AddressFamily == AddressFamily.InterNetwork)
+                                    .Select(address => address.ToString())
+                                    .ToArray()
                             };
                         }
                     }

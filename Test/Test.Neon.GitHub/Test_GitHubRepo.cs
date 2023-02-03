@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -46,9 +47,9 @@ namespace TestGitHub
         }
 
         [MaintainerFact]
-        public async Task Clone()
+        public async Task Clone_Public()
         {
-            // Verify that we can clone the repo to a temporary local folder.
+            // Verify that we can clone a public repo to a temporary local folder.
 
             await GitHubTestHelper.RunTestAsync(
                 async () =>
@@ -57,16 +58,18 @@ namespace TestGitHub
                     {
                         var repoPath = tempFolder.Path;
 
-                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepo, tempFolder.Path))
+                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepoPath, repoPath))
                         {
-                            Assert.Equal(GitHubTestHelper.RemoteTestRepo, repo.Remote.Path.ToString());
+                            Assert.Equal(GitHubTestHelper.RemoteTestRepoPath, repo.Remote.Path.ToString());
                             Assert.Equal("master", repo.Local.CurrentBranch.FriendlyName);
                             Assert.True(File.Exists(Path.Combine(repoPath, ".gitignore")));
+                            Assert.Equal(GitHubTestHelper.RemoteRepoName, repo.Name);
+                            Assert.Equal(GitHubTestHelper.RemoteRepoName, repo.Remote.Name);
 
                             // Exercise some other APIs.
 
-                            Assert.Equal("https://github.com/neontest/neon-git", repo.Origin.Url);
-                            Assert.Equal("https://github.com/neontest/neon-git", repo.Origin.PushUrl);
+                            Assert.Equal("https://github.com/neontest/neon-git.git", repo.Origin.Url);
+                            Assert.Equal("https://github.com/neontest/neon-git.git", repo.Origin.PushUrl);
                             Assert.Equal("https://github.com/neontest/", repo.Remote.BaseUri);
 
                             var validLocalPath = Path.Combine(repo.Local.Folder, "test", "foo.txt");
@@ -76,7 +79,7 @@ namespace TestGitHub
                             Assert.Equal(validLocalPath, await repo.Local.GetLocalFilePathAsync(@"\test\foo.txt"));
                             Assert.Equal(validLocalPath, await repo.Local.GetLocalFilePathAsync(@"test\foo.txt"));
 
-                            var validRemoteUri = $"{repo.Remote.BaseUri}test/foo.txt";
+                            var validRemoteUri = $"{repo.Remote.BaseUri}{repo.Remote.Name}/blob/{repo.Local.CurrentBranch.FriendlyName}/test/foo.txt";
 
                             Assert.Equal(validRemoteUri, await repo.Local.GetRemoteFileUriAsync(@"/test/foo.txt"));
                             Assert.Equal(validRemoteUri, await repo.Local.GetRemoteFileUriAsync(@"test/foo.txt"));
@@ -85,6 +88,24 @@ namespace TestGitHub
                         }
                     }
                 });
+        }
+
+        [MaintainerFact]
+        public async Task Clone_Private()
+        {
+            // Verify that we can clone a private repo to a temporary local folder.
+
+            using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
+            {
+                var repoPath = tempFolder.Path;
+
+                using (var repo = await GitHubRepo.CloneAsync("github.com/nforgeio/neon-devops", repoPath))
+                {
+                    Assert.True(File.Exists(Path.Combine(repoPath, "README.md")));
+
+                    await repo.Local.PullAsync();
+                }
+            }
         }
 
         [MaintainerFact]
@@ -103,20 +124,20 @@ namespace TestGitHub
 
                         // Clone the initial repo and then dispose it.
 
-                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepo, tempFolder.Path))
+                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepoPath, repoPath))
                         {
-                            Assert.Equal(GitHubTestHelper.RemoteTestRepo, repo.Remote.Path.ToString());
+                            Assert.Equal(GitHubTestHelper.RemoteTestRepoPath, repo.Remote.Path.ToString());
                             Assert.Equal("master", repo.Local.CurrentBranch.FriendlyName);
                             Assert.True(File.Exists(Path.Combine(repoPath, ".gitignore")));
                         }
 
                         // Verify that we can reopen the existing repo.
 
-                        using (var repo = await GitHubRepo.OpenAsync(tempFolder.Path))
+                        using (var repo = await GitHubRepo.OpenAsync(repoPath))
                         {
                             Assert.Equal("master", repo.Local.CurrentBranch.FriendlyName);
                             Assert.True(File.Exists(Path.Combine(repoPath, ".gitignore")));
-                            Assert.Equal(RemoteRepoPath.Parse(GitHubTestHelper.RemoteTestRepo).ToString(), repo.Remote.Path.ToString());
+                            Assert.Equal(RemoteRepoPath.Parse(GitHubTestHelper.RemoteTestRepoPath).ToString(), repo.Remote.Path.ToString());
                         }
                     }
 
@@ -149,7 +170,7 @@ namespace TestGitHub
                     {
                         var repoPath = tempFolder.Path;
 
-                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepo, tempFolder.Path))
+                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepoPath, repoPath))
                         {
                             Assert.True(File.Exists(Path.Combine(repoPath, ".gitignore")));
                             await repo.Local.FetchAsync();
@@ -184,9 +205,9 @@ namespace TestGitHub
                             var repoPath1 = tempFolder1.Path;
                             var repoPath2 = tempFolder2.Path;
 
-                            using (var repo1 = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepo, repoPath1))
+                            using (var repo1 = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepoPath, repoPath1))
                             {
-                                using (var repo2 = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepo, repoPath2))
+                                using (var repo2 = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepoPath, repoPath2))
                                 {
                                     // Clone the remote repo to two local folders:
                                     // Create a new text file named with GUID to the first repo
@@ -244,7 +265,7 @@ namespace TestGitHub
                         var newBranchName = $"testbranch-{Guid.NewGuid()}";
                         var testFilePath  = Path.Combine(repoPath, GitHubTestHelper.TestFolder, $"{Guid.NewGuid()}.txt");
 
-                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepo, repoPath))
+                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepoPath, repoPath))
                         {
                             // Create the new branch and verify that it's now currently checked out.
 
@@ -280,7 +301,7 @@ namespace TestGitHub
                     {
                         var repoPath = tempFolder.Path;
 
-                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepo, repoPath))
+                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepoPath, repoPath))
                         {
                             var remoteBranches = await repo.Remote.Branch.GetAllAsync();
 
@@ -303,7 +324,7 @@ namespace TestGitHub
                         var repoPath      = tempFolder.Path;
                         var newBranchName = $"testbranch-{Guid.NewGuid()}";
 
-                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepo, repoPath))
+                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepoPath, repoPath))
                         {
                             // Create a new local branch and verify.
 
@@ -341,7 +362,7 @@ namespace TestGitHub
                         var newBranchName = $"testbranch-{Guid.NewGuid()}";
                         var testFilePath  = Path.Combine(repoPath, GitHubTestHelper.TestFolder, $"{Guid.NewGuid()}.txt");
 
-                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepo, repoPath))
+                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepoPath, repoPath))
                         {
                             // Create a new local branch and verify.
 
@@ -383,7 +404,7 @@ namespace TestGitHub
                         var newBranchName = $"testbranch-{Guid.NewGuid()}";
                         var testFilePath  = Path.Combine(repoPath, GitHubTestHelper.TestFolder, $"{Guid.NewGuid()}.txt");
 
-                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepo, repoPath))
+                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepoPath, repoPath))
                         {
                             // Create a new local branch and verify.
 
@@ -444,7 +465,7 @@ namespace TestGitHub
                         var newBranchName = $"testbranch-{Guid.NewGuid()}";
                         var testFilePath  = Path.Combine(repoPath, GitHubTestHelper.TestFolder, $"{Guid.NewGuid()}.txt");
 
-                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepo, repoPath))
+                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepoPath, repoPath))
                         {
                             // Verify that undo doesn't barf when there are no changes.
 
@@ -476,7 +497,7 @@ namespace TestGitHub
                         var repoPath      = tempFolder.Path;
                         var newBranchName = $"testbranch-{Guid.NewGuid()}";
 
-                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepo, repoPath))
+                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepoPath, repoPath))
                         {
                             Assert.Equal("master", repo.Local.CurrentBranch.FriendlyName);
 
@@ -498,7 +519,7 @@ namespace TestGitHub
                             await repo.Local.CheckoutAsync("master");
                             Assert.Equal("master", repo.Local.CurrentBranch.FriendlyName);
 
-                            // Verify that [GetAsync()] returns an existing branch and throws for a non-existant one.
+                            // Verify that [GetAsync()] returns an existing branch and throws for a non-existent one.
 
                             Assert.NotNull(await repo.Remote.Branch.GetAsync(newBranchName));
                             await Assert.ThrowsAsync<Octokit.NotFoundException>(async () => await repo.Remote.Branch.GetAsync($"{Guid.NewGuid()}"));
@@ -533,7 +554,7 @@ namespace TestGitHub
 
                         // Clone the remote repo, create a new test branch, and push it to GitHub.
 
-                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepo, repoPath))
+                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepoPath, repoPath))
                         {
                             await repo.Local.CreateBranchAsync(newBranchName, "master");
                             Assert.True(repo.GitApi.Branches[newBranchName] != null);
@@ -547,7 +568,7 @@ namespace TestGitHub
                         NeonHelper.DeleteFolderContents(repoPath);
                         Directory.Delete(repoPath);
 
-                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepo, repoPath, newBranchName))
+                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepoPath, repoPath, newBranchName))
                         {
                             Assert.Equal(newBranchName, repo.Local.CurrentBranch.FriendlyName);
                             Assert.True(repo.GitApi.Branches[newBranchName] != null);
@@ -587,7 +608,7 @@ namespace TestGitHub
                 {
                     using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
                     {
-                        var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepo, tempFolder.Path);
+                        var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepoPath, tempFolder.Path);
 
                         repo.Dispose();
 

@@ -41,10 +41,11 @@ namespace TestGitHub
     [CollectionDefinition(TestCollection.NonParallel, DisableParallelization = true)]
     public class Test_GitHubCredentials
     {
-        private string saveUsername;
-        private string saveAccessToken;
-        private string saveEmail;
-        private string saveNcUser;
+        private string      savedUsername;
+        private string      savedAccessToken;
+        private string      savedPassword;
+        private string      savedEmail;
+        private string      savedNcUser;
 
         public Test_GitHubCredentials()
         {
@@ -59,13 +60,15 @@ namespace TestGitHub
         /// </summary>
         private void SaveAndClearEnvCredentials()
         {
-            saveUsername    = Environment.GetEnvironmentVariable("GITHUB_USERNAME");
-            saveAccessToken = Environment.GetEnvironmentVariable("GITHUB_PAT");
-            saveEmail       = Environment.GetEnvironmentVariable("GITHUB_EMAIL");
-            saveNcUser      = Environment.GetEnvironmentVariable("NC_USER");
+            savedUsername    = Environment.GetEnvironmentVariable("GITHUB_USERNAME");
+            savedAccessToken = Environment.GetEnvironmentVariable("GITHUB_PAT");
+            savedPassword    = Environment.GetEnvironmentVariable("GITHUB_PASSWORD");
+            savedEmail       = Environment.GetEnvironmentVariable("GITHUB_EMAIL");
+            savedNcUser      = Environment.GetEnvironmentVariable("NC_USER");
 
             Environment.SetEnvironmentVariable("GITHUB_USERNAME", null);
             Environment.SetEnvironmentVariable("GITHUB_PAT", null);
+            Environment.SetEnvironmentVariable("GITHUB_PASSWORD", null);
             Environment.SetEnvironmentVariable("GITHUB_EMAIL", null);
             Environment.SetEnvironmentVariable("NC_USER", null);
         }
@@ -75,10 +78,11 @@ namespace TestGitHub
         /// </summary>
         private void RestoreEnvCredentials()
         {
-            Environment.SetEnvironmentVariable("GITHUB_USERNAME", saveUsername);
-            Environment.SetEnvironmentVariable("GITHUB_PAT", saveAccessToken);
-            Environment.SetEnvironmentVariable("GITHUB_EMAIL", saveEmail);
-            Environment.SetEnvironmentVariable("NC_USER", saveNcUser);
+            Environment.SetEnvironmentVariable("GITHUB_USERNAME", savedUsername);
+            Environment.SetEnvironmentVariable("GITHUB_PAT", savedAccessToken);
+            Environment.SetEnvironmentVariable("GITHUB_PASSWORD", savedPassword);
+            Environment.SetEnvironmentVariable("GITHUB_EMAIL", savedEmail);
+            Environment.SetEnvironmentVariable("NC_USER", savedNcUser);
         }
 
         [MaintainerFact]
@@ -105,23 +109,48 @@ namespace TestGitHub
 
                 // Expecting failure with only: GITHUB_USERNAME
 
-                Environment.SetEnvironmentVariable("GITHUB_USERNAME", saveUsername);
+                Environment.SetEnvironmentVariable("GITHUB_USERNAME", savedUsername);
                 Assert.Throws<InvalidOperationException>(() => new GitHubCredentials());
 
                 // Expecting failure with only: GITHUB_USERNAME and GITHUB_PAT
 
-                Environment.SetEnvironmentVariable("GITHUB_PAT", saveAccessToken);
+                Environment.SetEnvironmentVariable("GITHUB_PAT", savedAccessToken);
                 Assert.Throws<InvalidOperationException>(() => new GitHubCredentials());
 
-                // Expecting success with all credential variables.
+                // Expecting success with all credential variables exccept password.
 
-                Environment.SetEnvironmentVariable("GITHUB_EMAIL", saveEmail);
+                Environment.SetEnvironmentVariable("GITHUB_EMAIL", savedEmail);
 
                 var credentials = new GitHubCredentials();
 
-                Assert.Equal(saveUsername, credentials.Username);
-                Assert.Equal(saveAccessToken, credentials.AccessToken);
-                Assert.Equal(saveEmail, credentials.Email);
+                Assert.Equal(savedUsername, credentials.Username);
+                Assert.Equal(savedAccessToken, credentials.AccessToken);
+                Assert.Equal(savedEmail, credentials.Email);
+
+                // Expecting success with all credential variables including password.
+
+                Environment.SetEnvironmentVariable("GITHUB_EMAIL", savedEmail);
+                Environment.SetEnvironmentVariable("GITHUB_PASSWORD", "my-password");
+
+                credentials = new GitHubCredentials();
+
+                Assert.Equal(savedUsername, credentials.Username);
+                Assert.Equal(savedAccessToken, credentials.AccessToken);
+                Assert.Equal("my-password", credentials.Password);
+                Assert.Equal(savedEmail, credentials.Email);
+
+                // Expecting success with all credential with both password and PAT.
+
+                Environment.SetEnvironmentVariable("GITHUB_EMAIL", savedEmail);
+                Environment.SetEnvironmentVariable("GITHUB_PAT", savedAccessToken);
+                Environment.SetEnvironmentVariable("GITHUB_PASSWORD", "my-password");
+
+                credentials = new GitHubCredentials();
+
+                Assert.Equal(savedUsername, credentials.Username);
+                Assert.Equal(savedAccessToken, credentials.AccessToken);
+                Assert.Equal("my-password", credentials.Password);
+                Assert.Equal(savedEmail, credentials.Email);
             }
             finally
             {
@@ -142,7 +171,7 @@ namespace TestGitHub
                 // Expecting failure with no credential variables.
 
                 SaveAndClearEnvCredentials();
-                Environment.SetEnvironmentVariable("NC_USER", saveNcUser);
+                Environment.SetEnvironmentVariable("NC_USER", savedNcUser);
 
                 var credentials = new GitHubCredentials(profileClient: new MaintainerProfile());
 
@@ -169,7 +198,7 @@ namespace TestGitHub
                 const string testUsername = "TEST_USERNAME_122737373";
 
                 SaveAndClearEnvCredentials();
-                Environment.SetEnvironmentVariable("NC_USER", saveNcUser);
+                Environment.SetEnvironmentVariable("NC_USER", savedNcUser);
                 Environment.SetEnvironmentVariable("GITHUB_USERNAME", testUsername);
 
                 var credentials = new GitHubCredentials(profileClient: new MaintainerProfile());
@@ -200,10 +229,12 @@ namespace TestGitHub
                 var credentials = new GitHubCredentials(
                     username:    testUsername,
                     accessToken: "1234567890",
+                    password:    "my-password",
                     email:       "sally@test.com");
 
                 Assert.Equal(testUsername, credentials.Username);
                 Assert.Equal("1234567890", credentials.AccessToken);
+                Assert.Equal("my-password", credentials.Password);
                 Assert.Equal("sally@test.com", credentials.Email);
             }
             finally

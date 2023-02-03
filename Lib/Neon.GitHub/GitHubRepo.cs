@@ -47,6 +47,7 @@ using GitHubSignature  = Octokit.Signature;
 using GitBranch     = LibGit2Sharp.Branch;
 using GitRepository = LibGit2Sharp.Repository;
 using GitSignature  = LibGit2Sharp.Signature;
+using Neon.Diagnostics;
 
 namespace Neon.GitHub
 {
@@ -64,20 +65,20 @@ namespace Neon.GitHub
     /// <remarks>
     /// <para>
     /// <b>To clone a GitHub repository</b>, call the <c>static</c>
-    /// <see cref="CloneAsync(string, string, string, string, string, string, string, IProfileClient)"/>
+    /// <see cref="CloneAsync(string, string, string, string, string, string, string, string, IProfileClient)"/>
     /// method, passing the GitHub repository path, path the the local folder and optionally the branch to
     /// be checked out as well as the GitHub credentials.  This returns the <see cref="GitHubRepo"/>
     /// that you'll use for subsequent operations.
     /// </para>
     /// <para>
     /// <b>To manage a GitHub repository that doesn't have a local clone</b>,
-    /// call <see cref="GitHubRepo.ConnectAsync(string, string, string, string, string, IProfileClient)"/>.
+    /// call <see cref="GitHubRepo.ConnectAsync(string, string, string, string, string, string, IProfileClient)"/>.
     /// </para>
     /// <para>
-    /// <b>To open an existing local repository</b>, call <see cref="OpenAsync(string, string, string, string, string, IProfileClient)"/>.
+    /// <b>To open an existing local repository</b>, call <see cref="OpenAsync(string, string, string, string, string, string, IProfileClient)"/>.
     /// </para>
     /// <para>
-    /// <b>To perform only GitHub account operations</b> Call the static <see cref="ConnectAsync(string, string, string, string, string, IProfileClient)"/>
+    /// <b>To perform only GitHub account operations</b> Call the static <see cref="ConnectAsync(string, string, string, string, string, string, IProfileClient)"/>
     /// method to construct an instance without a local repository reference.
     /// </para>
     /// <para>
@@ -107,6 +108,7 @@ namespace Neon.GitHub
         /// <param name="remoteRepoPath">Specifies the GitHub remote repository path, like: <b>[SERVER/]OWNER/REPO</b></param>
         /// <param name="username">Optionally specifies the GitHub username.</param>
         /// <param name="accessToken">Optionally specifies the GitHub Personal Access Token (PAT).</param>
+        /// <param name="password">Optionally specifies the GitHub password.</param>
         /// <param name="email">Optionally specifies the GitHub email address for the current user.</param>
         /// <param name="userAgent">
         /// Optionally specifies the user-agent to be submitted with GitHub REST API calls.  This defaults to <b>"unknown"</b>.
@@ -120,6 +122,10 @@ namespace Neon.GitHub
         /// <returns>The new <see cref="GitHubRepo"/> instance.</returns>
         /// <remarks>
         /// <note>
+        /// At least one of <b>accesstoken</b> or <b>password</b> must be passed or be available via
+        /// environment variables or the profile provider.
+        /// </note>
+        /// <note>
         /// <see cref="NoLocalRepositoryException"/> will be thrown whenever operations on the non-existent
         /// repository are attempted for <see cref="GitHubRepo"/> instance returned by this method.
         /// </note>
@@ -128,6 +134,7 @@ namespace Neon.GitHub
             string          remoteRepoPath,
             string          username      = null, 
             string          accessToken   = null, 
+            string          password      = null,
             string          email         = null, 
             string          userAgent     = null,
             IProfileClient  profileClient = null)
@@ -135,36 +142,17 @@ namespace Neon.GitHub
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(remoteRepoPath), nameof(remoteRepoPath));
 
-            if (string.IsNullOrEmpty(userAgent))
-            {
-                userAgent = "unknown";
-            }
-
             var repo = new GitHubRepo();
 
-            repo.Credentials = GitHubCredentials.Load(
-                username:      username,
-                accessToken:   accessToken,
-                email:         email,
-                profileClient: profileClient);
+            repo.SetUserAgent(userAgent);
+            repo.ConfigureCredentials(username, accessToken, password, email, profileClient);
 
-            repo.GitHubApi = new GitHubClient(new Octokit.ProductHeaderValue(userAgent))
-            {
-                Credentials = new Octokit.Credentials(repo.Credentials.AccessToken)
-            };
 
-            repo.credentialsProvider = new CredentialsHandler(
-                (url, usernameFromUrl, types) =>
-                    new UsernamePasswordCredentials()
-                    {
-                        Username = repo.Credentials.Username,
-                        Password = repo.Credentials.AccessToken
-                    });
-
-            repo.Local  = new LocalRepoApi(repo, null);
+            repo.Local = new LocalRepoApi(repo, null);
             repo.Remote = await RemoteRepoApi.CreateAsync(repo, RemoteRepoPath.Parse(remoteRepoPath));
 
-            repo.CreateHttpClient(userAgent);
+
+            repo.CreateHttpClient();
 
             return await Task.FromResult(repo);
         }
@@ -172,7 +160,11 @@ namespace Neon.GitHub
         /// <summary>
         /// Clones a GitHub repository to a local folder.
         /// </summary>
-        /// <param name="remoteRepoPath">Specifies the GitHub remote repository path, like: <b>[SERVER/]OWNER/REPO</b></param>
+        /// <param name="remoteRepoPath">
+        /// Specifies the GitHub remote repository path, like: <b>[SERVER/]OWNER/REPO</b> or
+        /// <b>[SERVER/]OWNER/REPO-git</b>.  You may also include the ".git" suffix if desired,
+        /// but this is optional.
+        /// </param>
         /// <param name="localRepoFolder">Specifies the folder where the local git repository will be created or where it already exists.</param>
         /// <param name="branchName">
         /// Optionally specifies the branch to be checked out after the clone operation completes.
@@ -180,6 +172,7 @@ namespace Neon.GitHub
         /// </param>
         /// <param name="username">Optionally specifies the GitHub username.</param>
         /// <param name="accessToken">Optionally specifies the GitHub Personal Access Token (PAT).</param>
+        /// <param name="password">Optionally specifies the GitHub password.</param>
         /// <param name="email">Optionally specifies the GitHub email address for the current user.</param>
         /// <param name="userAgent">
         /// Optionally specifies the user-agent to be submitted with GitHub REST API calls.  This defaults to <b>"unknown"</b>.
@@ -192,12 +185,19 @@ namespace Neon.GitHub
         /// </param>
         /// <returns>The new <see cref="GitHubRepo"/> instance.</returns>
         /// <exception cref="LibGit2SharpException">Thrown when the local folder already exists.</exception>
+        /// <remarks>
+        /// <note>
+        /// At least one of <b>accesstoken</b> or <b>password</b> must be passed or be available via
+        /// environment variables or the profile provider.
+        /// </note>
+        /// </remarks>
         public static async Task<GitHubRepo> CloneAsync(
             string          remoteRepoPath, 
             string          localRepoFolder,
             string          branchName    = null,
             string          username      = null, 
             string          accessToken   = null, 
+            string          password      = null,
             string          email         = null, 
             string          userAgent     = null,
             IProfileClient  profileClient = null)
@@ -206,34 +206,17 @@ namespace Neon.GitHub
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(remoteRepoPath), nameof(remoteRepoPath));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(localRepoFolder), nameof(localRepoFolder));
 
-            if (string.IsNullOrEmpty(userAgent))
-            {
-                userAgent = "unknown";
-            }
+            var repoPath = RemoteRepoPath.Parse(remoteRepoPath);
+
+            remoteRepoPath = repoPath.ToString();
 
             var repo = new GitHubRepo();
 
-            repo.Credentials = GitHubCredentials.Load(
-                username:      username,
-                accessToken:   accessToken,
-                email:         email,
-                profileClient: profileClient);
-
-            repo.GitHubApi = new GitHubClient(new Octokit.ProductHeaderValue(userAgent))
-            {
-                Credentials = new Octokit.Credentials(repo.Credentials.AccessToken)
-            };
-
-            repo.credentialsProvider = new CredentialsHandler(
-                (url, usernameFromUrl, types) =>
-                    new UsernamePasswordCredentials()
-                    {
-                        Username = repo.Credentials.Username,
-                        Password = repo.Credentials.AccessToken
-                    });
+            repo.SetUserAgent(userAgent);
+            repo.ConfigureCredentials(username, accessToken, password, email, profileClient);
 
             repo.Local  = new LocalRepoApi(repo, localRepoFolder);
-            repo.Remote = await RemoteRepoApi.CreateAsync(repo, RemoteRepoPath.Parse(remoteRepoPath));
+            repo.Remote = await RemoteRepoApi.CreateAsync(repo, repoPath);
 
             if (Directory.Exists(localRepoFolder))
             {
@@ -242,14 +225,23 @@ namespace Neon.GitHub
 
             Directory.CreateDirectory(localRepoFolder);
 
-            var remoteRepo = $"https://{remoteRepoPath}";
-            var options    = new CloneOptions() { BranchName = branchName };
+            var remoteRepoUri = $"https://{remoteRepoPath}";
+            var options       = new CloneOptions() 
+            { 
+                BranchName          = branchName,
+                CredentialsProvider = repo.credentialsProvider
+            };
 
-            GitRepository.Clone(remoteRepo, localRepoFolder, options);
+            if (!remoteRepoUri.EndsWith(".git"))
+            {
+                remoteRepoUri += ".git";
+            }
+
+            GitRepository.Clone(remoteRepoUri, localRepoFolder, options);
 
             repo.GitApi = new GitRepository(localRepoFolder);
 
-            repo.CreateHttpClient(userAgent);
+            repo.CreateHttpClient();
 
             return await Task.FromResult(repo);
         }
@@ -261,14 +253,15 @@ namespace Neon.GitHub
         /// </para>
         /// <para>
         /// This requires GitHub credentials.  These can be passed explicitly as parameters or can be retrieved 
-        /// automatically  from the <b>GITHUB_USERNAME</b> and <b>GITHUB_PAT</b> environment variables or from 
-        /// the <b>GITHUB_PAT[username]</b> and <c>GITHUB_PAT[password]</c> secrets via an optional
-        /// <see cref="IProfileClient"/> implementation.
+        /// automatically  from the <b>GITHUB_USERNAME</b>, <b>GITHUB_PASSWPORD</b>, <b>GITHUB_PAT</b> and 
+        /// <b>GITHUB_EMAIL</b> environment variables or from the <b>GITHUB[username]</b>, <b>GITHUB[password]</b>, 
+        /// <b>GITHUB[accesstoken]</b> and <b>GITHUB[email]</b> secrets via an optional <see cref="IProfileClient"/>.
         /// </para>
         /// </summary>
         /// <param name="localRepoFolder">Specifies the folder where the local git repository will be created or where it already exists.</param>
         /// <param name="username">Optionally specifies the GitHub username.</param>
         /// <param name="accessToken">Optionally specifies the GitHub Personal Access Token (PAT).</param>
+        /// <param name="password">Optionally specifies the GitHub password.</param>
         /// <param name="email">Optionally specifies the GitHub email address for the current user.</param>
         /// <param name="userAgent">
         /// Optionally specifies the user-agent to be submitted with GitHub REST API calls.  This defaults to <b>"unknown"</b>.
@@ -280,21 +273,23 @@ namespace Neon.GitHub
         /// when a profile client is available.
         /// </param>
         /// <exception cref="RepositoryNotFoundException">Thrown when the local repository doesn't exist.</exception>
+        /// <remarks>
+        /// <note>
+        /// At least one of <b>accesstoken</b> or <b>password</b> must be passed or be available via
+        /// environment variables or the profile provider.
+        /// </note>
+        /// </remarks>
         public static async Task<GitHubRepo> OpenAsync(
             string          localRepoFolder,
             string          username      = null,
             string          accessToken   = null,
+            string          password      = null,
             string          email         = null,
             string          userAgent     = null,
             IProfileClient  profileClient = null)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(localRepoFolder), nameof(localRepoFolder));
-
-            if (string.IsNullOrEmpty(userAgent))
-            {
-                userAgent = "unknown";
-            }
 
             if (!Directory.Exists(localRepoFolder))
             {
@@ -303,26 +298,9 @@ namespace Neon.GitHub
 
             var repo = new GitHubRepo();
 
-            repo.Credentials = GitHubCredentials.Load(
-                username:      username,
-                accessToken:   accessToken,
-                email:         email,
-                profileClient: profileClient);
-
-            repo.GitHubApi = new GitHubClient(new Octokit.ProductHeaderValue(userAgent))
-            {
-                Credentials = new Octokit.Credentials(repo.Credentials.AccessToken)
-            };
-
-            repo.credentialsProvider = new CredentialsHandler(
-                (url, usernameFromUrl, types) =>
-                    new UsernamePasswordCredentials()
-                    {
-                        Username = repo.Credentials.Username,
-                        Password = repo.Credentials.AccessToken
-                    });
-
-            repo.CreateHttpClient(userAgent);
+            repo.SetUserAgent(userAgent);
+            repo.ConfigureCredentials(username, accessToken, password, email, profileClient);
+            repo.CreateHttpClient();
 
             // We're going to obtain the GitHub path for the repo from the origin's
             // push URL.  This will look something like:
@@ -333,7 +311,6 @@ namespace Neon.GitHub
             // remains is the path.
 
             repo.GitApi = new GitRepository(localRepoFolder);
-            repo.Local  = new LocalRepoApi(repo, localRepoFolder);
 
             var pushUrl        = new Uri(repo.Origin.PushUrl);
             var remoteRepoPath = $"{pushUrl.Host}{pushUrl.AbsolutePath}";
@@ -343,6 +320,7 @@ namespace Neon.GitHub
                 remoteRepoPath = remoteRepoPath.Substring(0, remoteRepoPath.Length - ".git".Length);
             }
 
+            repo.Local  = new LocalRepoApi(repo, localRepoFolder);
             repo.Remote = await RemoteRepoApi.CreateAsync(repo, RemoteRepoPath.Parse(remoteRepoPath));
 
             return repo;
@@ -431,6 +409,11 @@ namespace Neon.GitHub
         /// Returns the [LibGit2Sharp] credentials provider.
         /// </summary>
         internal CredentialsHandler CredentialsProvider => credentialsProvider;
+
+        /// <summary>
+        /// Returns the respository name.
+        /// </summary>
+        public string Name => Remote.Name;
 
         /// <summary>
         /// Returns the lower-level OctoKit <see cref="GitHubClient"/> API that can be used
@@ -539,10 +522,94 @@ namespace Neon.GitHub
         internal HttpClient HttpClient { get; private set; }
 
         /// <summary>
+        /// Configures the GitHub credentials for the instance.
+        /// </summary>
+        /// <param name="username">Optionally specifies the GitHub username.</param>
+        /// <param name="accessToken">Optionally specifies the GitHub Personal Access Token (PAT).</param>
+        /// <param name="password">Optionally specifies the GitHub password.</param>
+        /// <param name="email">Optionally specifies the GitHub email address for the current user.</param>
+        /// <param name="profileClient">
+        /// Optionally specifies the <see cref="IProfileClient"/> instance to be used for retrieving secrets.
+        /// You may also add your <see cref="IProfileClient"/> to <see cref="NeonHelper.ServiceContainer"/>
+        /// and the instance will use that if this parameter is <c>null</c>.  Secrets will be queried only
+        /// when a profile client is available.
+        /// </param>
+        /// <remarks>
+        /// <note>
+        /// At least one of <b>accesstoken</b> or <b>password</b> must be passed or be available via
+        /// environment variables or the profile provider.
+        /// </note>
+        /// </remarks>
+        private void ConfigureCredentials(
+            string username              = null,
+            string accessToken           = null,
+            string password              = null,
+            string email                 = null,
+            IProfileClient profileClient = null)
+        {
+            Credentials = GitHubCredentials.Load(
+                username:      username,
+                accessToken:   accessToken,
+                password:      password,
+                email:         email,
+                profileClient: profileClient);
+
+            GitHubApi = new GitHubClient(new Octokit.ProductHeaderValue(userAgent))
+            {
+                Credentials = new Octokit.Credentials(Credentials.AccessToken)
+            };
+
+            LibGit2Sharp.Credentials libCredentials;
+
+            // We're going to default to using [accesstoken] when [password]
+            // is also available.
+
+            if (!string.IsNullOrEmpty(Credentials.AccessToken))
+            {
+                libCredentials =
+                    new UsernamePasswordCredentials()
+                    {
+                        Username = Credentials.Username,
+                        Password = Credentials.AccessToken
+                    };
+
+            }
+            else if (!string.IsNullOrEmpty(Credentials.Password))
+            {
+                libCredentials = 
+                    new UsernamePasswordCredentials()
+                    {
+                        Username = Credentials.Username,
+                        Password = Credentials.Password
+                    };
+            }
+            else
+            {
+                Covenant.Assert(false, "GITHUB [accesstoken] or [password] is expected.");
+                return;
+            }
+
+            credentialsProvider = new CredentialsHandler((url, usernameFromUrl, types) => libCredentials);
+        }
+
+        /// <summary>
+        /// Sets the <see cref="userAgent"/> field.
+        /// </summary>
+        /// <param name="userAgent">The user-agent string (may be <c>null</c> or empty.</param>
+        private void SetUserAgent(string userAgent)
+        {
+            if (string.IsNullOrEmpty(userAgent))
+            {
+                userAgent = "unknown";
+            }
+
+            this.userAgent = userAgent;
+        }
+
+        /// <summary>
         /// Creates and initializes <see cref="HttpClient"/>.
         /// </summary>
-        /// <param name="userAgent">Specifies the User-Agent to be included in HTTP requests.</param>
-        private void CreateHttpClient(string userAgent)
+        private void CreateHttpClient()
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(userAgent), nameof(userAgent));
 
@@ -550,8 +617,6 @@ namespace Neon.GitHub
             {
                 return;
             }
-
-            this.userAgent = userAgent;
 
             HttpClient = new HttpClient(
                 new HttpClientHandler()
@@ -565,8 +630,16 @@ namespace Neon.GitHub
 
             // Initialize the HTTP client User-Agent and bearer token.
 
-            HttpClient.BaseAddress                         = GitHubApi.BaseAddress;
-            HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Credentials.AccessToken);
+            HttpClient.BaseAddress = GitHubApi.BaseAddress;
+
+            if (!string.IsNullOrEmpty(Credentials.AccessToken))
+            {
+                HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Credentials.AccessToken);
+            }
+            else
+            {
+                Covenant.Assert(false, "GitHub [AccessToken] is required.");
+            }
 
             HttpClient.DefaultRequestHeaders.Add("User-Agent", userAgent);
             HttpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github+json"));

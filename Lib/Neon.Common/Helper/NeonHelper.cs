@@ -113,6 +113,12 @@ namespace Neon.Common
         public const string DateFormatTZ = "yyyy-MM-ddTHH:mm:ss.fffZ";
 
         /// <summary>
+        /// Returns the date format string used for serialize dates with second
+        /// precision to strings like: <b>2018-06-05T14:30:13Z</b>
+        /// </summary>
+        public const string DateFormatSecondTZ = "yyyy-MM-ddTHH:mm:ssZ";
+
+        /// <summary>
         /// Returns the date format string used for serialize dates with millisecond
         /// precision to strings like: <b>2018-06-05T14:30:13.000+00:00</b>
         /// </summary>
@@ -266,12 +272,42 @@ namespace Neon.Common
                 }
                 else if (NeonHelper.IsLinux || NeonHelper.IsOSX)
                 {
-                    return System.Environment.GetEnvironmentVariable("HOME");
+                    return Environment.GetEnvironmentVariable("HOME");
                 }
                 else
                 {
                     throw new NotImplementedException();
                 }
+            }
+        }
+
+        /// <summary>
+        /// Sets the appropriate variables for the operating system to
+        /// change the current user's home folder to the specified path.
+        /// </summary>
+        /// <param name="folder">Specifies the new home folder.</param>
+        public static void SetUserHomeFolder(string folder)
+        {
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(folder), nameof(folder));
+
+            if (!Directory.Exists(folder))
+            {
+                throw new DirectoryNotFoundException(folder);
+            }
+
+            if (NeonHelper.IsWindows)
+            {
+                Environment.SetEnvironmentVariable("HOME", folder);
+                Environment.SetEnvironmentVariable("USERPROFILE", folder);
+                Environment.SetEnvironmentVariable("KUBECONFIG", Path.Combine(folder, ".kube", "config"));
+            }
+            else if (NeonHelper.IsLinux || NeonHelper.IsOSX)
+            {
+                Environment.SetEnvironmentVariable("HOME", folder);
+            }
+            else
+            {
+                throw new NotImplementedException();
             }
         }
 
