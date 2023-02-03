@@ -37,6 +37,8 @@ using Microsoft.Extensions.Primitives;
 
 using Neon.Common;
 
+using AsyncKeyedLock;
+
 using MessagePack;
 
 using NATS.Client;
@@ -56,7 +58,12 @@ namespace Neon.Web.SignalR
         public static IServiceCollection AddNeonNats(this ISignalRServerBuilder signalrBuilder)
         {
             signalrBuilder.AddMessagePackProtocol()
-                .Services.AddResponseCompression(opts =>
+                .Services.AddSingleton(new AsyncKeyedLocker<string>(o =>
+                {
+                    o.PoolSize = 100;
+                    o.PoolInitialFill = 5;
+                }))
+                .AddResponseCompression(opts =>
                 {
                     opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[] { "application/octet-stream" });
                 })
@@ -74,7 +81,7 @@ namespace Neon.Web.SignalR
         public static IServiceCollection AddNeonNats(this ISignalRServerBuilder signalrBuilder, string natConnectionString)
         {
             var connectionFactory = new ConnectionFactory();
-            var options           = ConnectionFactory.GetDefaultOptions();
+            var options = ConnectionFactory.GetDefaultOptions();
 
             options.Servers = new string[] { natConnectionString };
 

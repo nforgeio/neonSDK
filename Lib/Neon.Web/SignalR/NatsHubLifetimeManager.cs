@@ -33,6 +33,8 @@ using Neon.Common;
 using Neon.Diagnostics;
 using Neon.Tasks;
 
+using AsyncKeyedLock;
+
 using NATS;
 using NATS.Client;
 
@@ -44,17 +46,17 @@ namespace Neon.Web.SignalR
     /// <typeparam name="THub">The type of <see cref="Hub"/> to manage connections for.</typeparam>
     public class NatsHubLifetimeManager<THub> : HubLifetimeManager<THub>, IDisposable where THub : Hub
     {
-        private readonly ConnectionFactory       natsConnectionFactory = new ConnectionFactory();
-        private readonly HubConnectionStore      hubConnections        = new HubConnectionStore();
-        private readonly ClientResultsManager    clientResultsManager  = new();
-        private readonly SemaphoreSlim           connectionLock        = new SemaphoreSlim(1);
-        private readonly NatsSubscriptionManager connections;
-        private readonly NatsSubscriptionManager groups;
-        private readonly NatsSubscriptionManager users;
-        private readonly ILogger                 logger;
-        private readonly IConnection             nats;
-        private readonly NatsSubjects            subjects;
-        private readonly string                  serverName;
+        private readonly ConnectionFactory                     natsConnectionFactory = new ConnectionFactory();
+        private readonly HubConnectionStore                    hubConnections        = new HubConnectionStore();
+        private readonly ClientResultsManager                  clientResultsManager  = new();
+        private readonly AsyncKeyedLocker<string>              lockProvider;
+        private readonly NatsSubscriptionManager               connections;
+        private readonly NatsSubscriptionManager               groups;
+        private readonly NatsSubscriptionManager               users;
+        private readonly ILogger<NatsHubLifetimeManager<THub>> logger;
+        private readonly IConnection                           nats;
+        private readonly NatsSubjects                          subjects;
+        private readonly string                                serverName;
 
         private int internalAckId;
 
@@ -62,26 +64,31 @@ namespace Neon.Web.SignalR
         /// Constructs the <see cref="NatsHubLifetimeManager{THub}"/> with types from Dependency Injection.
         /// </summary>
         /// <param name="connection">The NATS <see cref="IConnection"/>.</param>
-        public NatsHubLifetimeManager(IConnection connection)
-            : this(connection, logger: null)
-        {
-
-        }
+        /// <param name="lockProvider">Async lock provider.</param>
+        public NatsHubLifetimeManager(
+            IConnection connection,
+            AsyncKeyedLocker<string> lockProvider) 
+            => new NatsHubLifetimeManager<THub>(connection, lockProvider, loggerFactory: null);
 
         /// <summary>
         /// Constructs the <see cref="NatsHubLifetimeManager{THub}"/> with types from Dependency Injection.
         /// </summary>
-        /// <param name="logger">The logger to write information about what the class is doing.</param>
+        /// <param name="loggerFactory">The logger factory.</param>
+        /// <param name="lockProvider">Async lock provider.</param>
         /// <param name="connection">The NATS <see cref="IConnection"/>.</param>
-        public NatsHubLifetimeManager(IConnection connection, ILogger logger = null)
+        public NatsHubLifetimeManager(
+            IConnection connection,
+            AsyncKeyedLocker<string> lockProvider,
+            ILoggerFactory loggerFactory = null)
         {
-            this.serverName  = GenerateServerName();
-            this.nats        = connection;
-            this.logger      = (ILogger)logger;
-            this.users       = new NatsSubscriptionManager(this.logger);
-            this.groups      = new NatsSubscriptionManager(this.logger);
-            this.connections = new NatsSubscriptionManager(this.logger);
-            this.subjects    = new NatsSubjects($"Neon.SignalR.{typeof(THub).FullName}");
+            this.serverName   = GenerateServerName();
+            this.nats         = connection;
+            this.logger       = loggerFactory?.CreateLogger<NatsHubLifetimeManager<THub>>();
+            this.users        = new NatsSubscriptionManager(lockProvider, loggerFactory);
+            this.groups       = new NatsSubscriptionManager(lockProvider, loggerFactory);
+            this.connections  = new NatsSubscriptionManager(lockProvider, loggerFactory);
+            this.subjects     = new NatsSubjects($"Neon.SignalR.{typeof(THub).FullName}");
+            this.lockProvider = lockProvider;
 
             _ = SubscribeToAllAsync();
             _ = SubscribeToGroupManagementSubjectAsync();
@@ -102,10 +109,8 @@ namespace Neon.Web.SignalR
                 throw new NATSConnectionException("The connection to NATS is closed");
             }
 
-            await connectionLock.WaitAsync();
-
-            try
-            {
+            using (await lockProvider.LockAsync(typeof(THub).FullName))
+            { 
                 await NeonHelper.WaitForAsync(
                     async () =>
                     {
@@ -113,16 +118,12 @@ namespace Neon.Web.SignalR
 
                         return !nats.IsReconnecting();
                     },
-                timeout:      TimeSpan.FromSeconds(60),
+                timeout: TimeSpan.FromSeconds(60),
                 pollInterval: TimeSpan.FromMilliseconds(250));
 
                 nats.Flush();
 
                 logger?.LogDebugEx("Connected to NATS.");
-            }
-            finally
-            {
-                connectionLock.Release();
             }
         }
 
@@ -537,7 +538,7 @@ namespace Neon.Web.SignalR
             var feature    = connection.Features.Get<INatsFeature>()!;
             var groupNames = feature.Groups;
 
-            lock (groupNames)
+            using (await lockProvider.LockAsync(subjects.Group(groupName)))
             {
                 // Connection already in group
                 if (!groupNames.Add(groupName))
@@ -568,7 +569,7 @@ namespace Neon.Web.SignalR
 
             if (groupNames != null)
             {
-                lock (groupNames)
+                using (await lockProvider.LockAsync(subjects.Group(groupName)))
                 {
                     groupNames.Remove(groupName);
                 }
