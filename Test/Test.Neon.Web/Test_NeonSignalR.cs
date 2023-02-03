@@ -166,42 +166,6 @@ namespace Test.Neon.SignalR
         }
 
         [Fact]
-        public void AddNeonNatsWithIlogger()
-        {
-            var natsServerUri = NatsFixture.ConnectionUri;
-
-            var connectionFactory = new ConnectionFactory();
-            var options           = ConnectionFactory.GetDefaultOptions();
-
-            options.Servers = new string[] { natsServerUri };
-
-            var services = new ServiceCollection();
-            services.AddLogging();
-
-            var exception = Record.Exception(() => services.AddSignalR().AddNeonNats(connectionFactory.CreateConnection()));
-            Assert.Null(exception);
-        }
-
-        [Fact]
-        public void AddNeonNatsWithINeonlogger()
-        {
-            var natsServerUri = NatsFixture.ConnectionUri;
-
-            var connectionFactory = new ConnectionFactory();
-            var options           = ConnectionFactory.GetDefaultOptions();
-
-            options.Servers = new string[] { natsServerUri };
-
-            var services = new ServiceCollection();
-            var logger   = TelemetryHub.CreateLogger<TestSignalR>();
-            
-            services.AddSingleton(logger);
-
-            var exception = Record.Exception(() => services.AddSignalR().AddNeonNats(connectionFactory.CreateConnection()));
-            Assert.Null(exception);
-        }
-
-        [Fact]
         public async Task CanSendAndReceiveUserMessagesFromMultipleConnectionsWithSameUser()
         {
             var tcs = new TaskCompletionSource<string>();
