@@ -69,7 +69,13 @@ namespace Neon.Common
     /// </para>
     /// <code language="none">
     /// 
-    ///     -&lt;option name&gt;[=&lt;value&gt;]
+    ///     --&lt;option name&gt;[=&lt;value&gt;]
+    ///     
+    ///     You can also use single or double quotes around option values that
+    ///     include spaces or other special characters:
+    /// 
+    ///     --&lt;option name&gt;[='&lt;value&gt;']
+    ///     --&lt;option name&gt;[="&lt;value&gt;"]
     /// 
     /// </code>
     /// <para>
@@ -179,6 +185,8 @@ namespace Neon.Common
 
         //---------------------------------------------------------------------
         // Static members
+
+        private readonly char[] specialChars = new char[] { ' ', '\t', '<', '>', ':', '|', '&', '^' };
 
         /// <summary>
         /// Parses the argument string passed into a <see cref="CommandLine" />
@@ -648,6 +656,13 @@ namespace Neon.Common
                 {
                     if (options.TryGetValue(name, out value) && !string.IsNullOrEmpty(value))
                     {
+                        // Strip off any leading and trailing single or double quotes.
+
+                        if (value.Length > 1 && (value.StartsWith("'") && value.EndsWith("'")) || (value.StartsWith("\"") && value.EndsWith("\"")))
+                        {
+                            value = value.Substring(1, value.Length - 2);
+                        }
+
                         return value;
                     }
                 }
@@ -665,6 +680,13 @@ namespace Neon.Common
             {
                 if (options.TryGetValue(optionName, out value))
                 {
+                    // Strip off any leading and trailing single or double quotes.
+
+                    if (value.Length > 1 && (value.StartsWith("'") && value.EndsWith("'")) || (value.StartsWith("\"") && value.EndsWith("\"")))
+                    {
+                        value = value.Substring(1, value.Length - 2);
+                    }
+
                     return value;
                 }
 
@@ -1077,26 +1099,60 @@ namespace Neon.Common
         /// double quotes.
         /// </summary>
         /// <returns>The command line string.</returns>
+        /// <exception cref="InvalidOperationException">Thrown if a command line argument includes both single and double quotes.</exception>
         public override string ToString()
         {
             var sb = new StringBuilder();
 
             for (int i = 0; i < Items.Length; i++)
             {
-                var arg = Items[i];
+                var item = Items[i];
 
-                if (i > 0)
+                var isOption       = item.StartsWith("-");
+                var hasSingleQuote = item.Contains('\'');
+                var hasDoubleQuote = item.Contains('"');
+                var hasSpecialChar = hasSingleQuote || hasDoubleQuote || item.IndexOfAny(specialChars) != -1;
+                var equalPos       = item.IndexOf('=');
+
+                if (hasSingleQuote && hasDoubleQuote)
                 {
-                    sb.Append(' ');
+                    throw new InvalidOperationException($"Command line argument [index={i}] includes both single and double quotes and cannot be rendered.");
                 }
 
-                if (arg.IndexOf(' ') != -1)
+                if (!hasSpecialChar)
                 {
-                    sb.AppendFormat("\"{0}\"", arg);
+                    sb.AppendWithSeparator(item);
+                }
+                else if (isOption && equalPos != -1)
+                {
+                    // Command line option with value.
+
+                    var optionName  = item.Substring(0, equalPos);
+                    var optionValue = item.Substring(equalPos + 1);
+
+                    if (hasDoubleQuote)
+                    {
+                        optionValue = $"'{optionValue}'";
+                    }
+                    else
+                    {
+                        optionValue = $"\"{optionValue}\"";
+                    }
+
+                    sb.AppendWithSeparator($"{optionName}={optionValue}");
                 }
                 else
                 {
-                    sb.Append(arg);
+                    // Command line argument.
+
+                    if (hasDoubleQuote)
+                    {
+                        sb.AppendWithSeparator($"'{item}'");
+                    }
+                    else
+                    {
+                        sb.AppendWithSeparator($"\"{item}\"");
+                    }
                 }
             }
 
@@ -1168,6 +1224,52 @@ namespace Neon.Common
                         if (redactedItem != null)
                         {
                             currentItem = redactedItem;
+                        }
+                    }
+
+                    var isOption       = item.StartsWith("-");
+                    var hasSingleQuote = item.Contains('\'');
+                    var hasDoubleQuote = item.Contains('"');
+                    var hasSpecialChar = hasSingleQuote || hasDoubleQuote || item.IndexOfAny(specialChars) != -1;
+                    var equalPos       = item.IndexOf('=');
+
+                    if (hasSingleQuote && hasDoubleQuote)
+                    {
+                        throw new InvalidOperationException($"Command line argument [index={itemIndex}] includes both single and double quotes and cannot be rendered.");
+                    }
+
+                    if (hasSpecialChar)
+                    {
+                        if (isOption && equalPos != -1)
+                        {
+                            // Command line option with value.
+
+                            var optionName  = item.Substring(0, equalPos);
+                            var optionValue = item.Substring(equalPos + 1);
+
+                            if (hasDoubleQuote)
+                            {
+                                optionValue = $"'{optionValue}'";
+                            }
+                            else
+                            {
+                                optionValue = $"\"{optionValue}\"";
+                            }
+
+                            currentItem = $"{optionName}={optionValue}";
+                        }
+                        else
+                        {
+                            // Command line argument.
+
+                            if (hasDoubleQuote)
+                            {
+                                currentItem = $"'{item}'";
+                            }
+                            else
+                            {
+                                currentItem = $"\"{item}\"";
+                            }
                         }
                     }
 
