@@ -844,14 +844,8 @@ rm {HostFolders.Home(Username)}/askpass
         /// <returns><c>true</c> when a reboot is required.</returns>
         public bool UpgradeLinuxDistribution()
         {
-            // $todo(jefflill):
-            //
-            // We haven't actually tested this yet.  Seems like we'll probably need to
-            // reboot the node and report that to the caller.
-
             SudoCommand("safe-apt-get update -yq", RunOptions.Defaults | RunOptions.FaultOnError);
             SudoCommand("safe-apt-get dist-upgrade -yq", RunOptions.Defaults | RunOptions.FaultOnError);
-            SudoCommand("do-release-upgrade --mode server", RunOptions.Defaults | RunOptions.FaultOnError);
 
             return FileExists("/var/run/reboot-required");
         }
