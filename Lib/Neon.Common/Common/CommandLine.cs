@@ -1049,9 +1049,46 @@ namespace Neon.Common
         /// <summary>
         /// <para>
         /// Preprocesses the command line by using <see cref="PreprocessReader"/> to replace any 
-        /// environment variable, profile, or secret references like <b>&lt;password:MY-PASSWORD$gt;</b>
-        /// in the command line arguments.
+        /// environment variable, profile, or secret references in the command line arguments, like:
         /// </para>
+        /// <list type="table">
+        /// <item>
+        ///     <term><c>${env:VARIABLE}</c></term>
+        ///     <description>
+        ///     Replaced with the environment <b>VARIABLE</b> 
+        ///     </description>
+        /// </item>
+        /// <item>
+        ///     <term><c>${profile:VALUE}</c></term>
+        ///     <description>
+        ///     Replaced with the profile <b>VALUE</b>
+        ///     </description>
+        /// </item>
+        /// <item>
+        ///     <term><c>${password:SECRET}</c></term>
+        ///     <description>
+        ///     Replaced with the password field of the <b>SECRET</b>
+        ///     </description>
+        /// </item>
+        /// <item>
+        ///     <term><c>${password:SECRET:SOURCE}</c></term>
+        ///     <description>
+        ///     Replaced with the password field of the <b>SECRET</b> obtained from <b>SOURCE</b>
+        ///     </description>
+        /// </item>
+        /// <item>
+        ///     <term><c>${password:SECRET[PROPERTY]}</c></term>
+        ///     <description>
+        ///     Replaced with the PROPERTY field of the <b>SECRET</b>
+        ///     </description>
+        /// </item>
+        /// <item>
+        ///     <term><c>${password:SECRET[PROPERTY]:SOURCE}</c></term>
+        ///     <description>
+        ///     Replaced with the PROPERTY field of the <b>SECRET</b> obtained from <b>SOURCE</b>
+        ///     </description>
+        /// </item>
+        /// </list>
         /// <note>
         /// <b>IMPORTANT:</b> You must register an <see cref="IProfileClient"/> implementation with
         /// <see cref="NeonHelper.ServiceContainer"/> for this to work.
@@ -1060,13 +1097,13 @@ namespace Neon.Common
         /// <param name="variables">Optionally specifies variables to be incuded in the preprocessing.</param>
         /// <param name="variableRegex">
         /// Optionally specifies the regular expression that will be used to locate and process
-        /// any variable references.  This defaults to <see cref="PreprocessReader.AngleVariableExpansionRegex"/>
+        /// any variable references.  This defaults to <see cref="PreprocessReader.CurlyVariableExpansionRegex"/>
         /// but may be set to any expressions supported by <see cref="PreprocessReader"/>.
         /// </param>
         /// <returns>A new <see cref="CommandLine"/> including any changes.</returns>
         public CommandLine Preprocess(Dictionary<string, string> variables = null, Regex variableRegex = null)
         {
-            variableRegex ??= PreprocessReader.AngleVariableExpansionRegex;
+            variableRegex ??= PreprocessReader.CurlyVariableExpansionRegex;
 
             // We're simply going to serialize the current command line's arguments
             // and options to a string (one item to a line) and then use [PreprocessReader]
