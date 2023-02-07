@@ -1053,13 +1053,13 @@ namespace Neon.Common
         /// </para>
         /// <list type="table">
         /// <item>
-        ///     <term><c>${env:VARIABLE}</c></term>
+        ///     <term><c>$(env:VARIABLE)</c></term>
         ///     <description>
         ///     Replaced with the environment <b>VARIABLE</b> 
         ///     </description>
         /// </item>
         /// <item>
-        ///     <term><c>${profile:VALUE}</c></term>
+        ///     <term><c>$(profile:VALUE)</c></term>
         ///     <description>
         ///     Replaced with the profile <b>VALUE</b>
         ///     </description>
@@ -1089,6 +1089,10 @@ namespace Neon.Common
         ///     </description>
         /// </item>
         /// </list>
+        /// <note>
+        /// <b>IMORTANT:</b> You'll probably need to surround variable references with single
+        /// quotes on Linux to prevent Bash from interpreting these as Bash variables.
+        /// </note>
         /// <note>
         /// <b>IMPORTANT:</b> You must register an <see cref="IProfileClient"/> implementation with
         /// <see cref="NeonHelper.ServiceContainer"/> for this to work.
