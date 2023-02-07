@@ -370,7 +370,7 @@ namespace TestCommon
         [Fact]
         public void Preprocess()
         {
-            // Verify that references like $<env:VARIABLE> are converted correctly when 
+            // Verify that references like ${env:VARIABLE} are converted correctly when 
             // preprocessing a command line (using [PreprocessReader]).
 
             try
@@ -384,7 +384,7 @@ namespace TestCommon
                     { "TEST_MYVAR2", "value2" }
                 };
 
-                var commandLine = new CommandLine(new string[] { "$<env:TEST_MYENVVAR1>", "$<env:TEST_MYENVVAR2>", "--test1", "--test2=$<env:TEST_MYENVVAR2>", "$<TEST_MYVAR1>", "$<TEST_MYVAR2>" });
+                var commandLine = new CommandLine(new string[] { "${env:TEST_MYENVVAR1}", "${env:TEST_MYENVVAR2}", "--test1", "--test2=${env:TEST_MYENVVAR2}", "${TEST_MYVAR1}", "${TEST_MYVAR2}" });
                 var processed   = commandLine.Preprocess(variables);
 
                 Assert.Equal(6, processed.Items.Count());

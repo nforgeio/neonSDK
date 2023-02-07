@@ -1066,7 +1066,7 @@ namespace Neon.Common
         /// <returns>A new <see cref="CommandLine"/> including any changes.</returns>
         public CommandLine Preprocess(Dictionary<string, string> variables = null, Regex variableRegex = null)
         {
-            variableRegex ??= PreprocessReader.AngleVariableExpansionRegex;
+            variableRegex ??= PreprocessReader.CurlyVariableExpansionRegex;
 
             // We're simply going to serialize the current command line's arguments
             // and options to a string (one item to a line) and then use [PreprocessReader]
