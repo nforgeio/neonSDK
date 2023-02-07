@@ -50,6 +50,9 @@ NOTE: Command line arguments and options may include references to
       ${{secret:NAME[PROPERTY]:SOURCE}}   - PROPERTY value from NAME secret at SOURCE
       ${{env:NAME}}                       - environment variable
 
+      For Linux, you'll need to surround these references with single quotes
+      to prevent Bash from interpreting them as Bash variable references.
+
 ---------------------------------------------------------------------
 neon-build version
 
