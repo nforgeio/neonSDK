@@ -370,7 +370,7 @@ namespace TestCommon
         [Fact]
         public void Preprocess()
         {
-            // Verify that references like $<env:VARIABLE> are converted correctly when 
+            // Verify that references like ${env:VARIABLE} are converted correctly when 
             // preprocessing a command line (using [PreprocessReader]).
 
             try

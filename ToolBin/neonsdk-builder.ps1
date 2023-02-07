@@ -148,7 +148,7 @@ try
         Write-Info "*******************************************************************************"
         Write-Info ""
 
-        & "$msbuild" "$nfSolution" -t:restore -verbosity:minimal
+        & dotnet restore "$nfSolution"
 
         if (-not $?)
         {
