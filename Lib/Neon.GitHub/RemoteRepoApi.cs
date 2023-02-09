@@ -193,5 +193,26 @@ namespace Neon.GitHub
 
             return new Committer(root.Credentials.Username, root.Credentials.Email, DateTimeOffset.Now);
         }
+
+        /// <summary>
+        /// Returns the commits for a named branch in decending order by date/time..
+        /// </summary>
+        /// <param name="branch">Specifies the branch name.</param>
+        /// <param name="since">Optionally specifies that only commits <b>before</b> the date/time are to be returned.</param>
+        /// <param name="until">Optionally specifies that only commits <b>after</b> the date/time are to be returned.</param>
+        /// <returns>The commits in decending order by date/time.</returns>
+        public async Task<IEnumerable<GitHubCommit>> GetCommitsAsync(string branch, DateTimeOffset? since = null, DateTimeOffset? until = null)
+        {
+            await SyncContext.Clear;
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branch), nameof(branch));
+
+            return await root.GitHubApi.Repository.Commit.GetAll(root.Remote.Id,
+                new CommitRequest()
+                {
+                    Sha   = branch,
+                    Since = since,
+                    Until = until
+                });
+        }
     }
 }

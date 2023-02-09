@@ -548,5 +548,62 @@ namespace Neon.GitHub
 
             return await Task.FromResult(uri.ToString());
         }
+
+        /// <summary>
+        /// Returns the local commits in decending order by commit date/time.
+        /// </summary>
+        /// <returns>The local commits in decending order by commit date/time.</returns>
+        public async Task<IEnumerable<LibGit2Sharp.Commit>> GetCommitsAsync()
+        {
+            return await Task.FromResult(root.GitApi.Commits.ToList());
+        }
+
+        /// <summary>
+        /// Determines whether the local repo is behind the remote banch.
+        /// </summary>
+        /// <returns><c>true</c> when the local repo is behind the remote branch.</returns>
+        public async Task<bool> IsBehindAsync()
+        {
+            await SyncContext.Clear;
+
+            var localCommits  = await GetCommitsAsync();
+            var localTipSha   = localCommits.First().Id.Sha;
+            var remoteCommits = await root.Remote.GetCommitsAsync(CurrentBranch.FriendlyName);
+            var remoteTipSha  = remoteCommits.First().Sha;
+
+            if (localTipSha == remoteTipSha)
+            {
+                return false;   // Local and remote branches are at the same commit
+            }
+
+            // We're behind when the local branch doesn't include the tip commit
+            // of the remote branch.
+
+            return !localCommits.Any(localCommit => localCommit.Id.Sha == remoteTipSha);
+        }
+
+        /// <summary>
+        /// Determines whether the local repo is ahead of the remote banch.
+        /// </summary>
+        /// <returns><c>true</c> when the local repo is ahead of the remote branch.</returns>
+        public async Task<bool> IsAheadAsync()
+        {
+            await SyncContext.Clear;
+
+            var localCommits  = await GetCommitsAsync();
+            var localTipSha   = localCommits.First().Id.Sha;
+            var remoteCommits = await root.Remote.GetCommitsAsync(CurrentBranch.FriendlyName);
+            var remoteTipSha  = remoteCommits.First().Sha;
+
+            if (localTipSha == remoteTipSha)
+            {
+                return false;   // Local and remote branches are at the same commit
+            }
+
+            // We're ahead when the local branch tip commit is not present
+            // in the remote branch.
+
+            return !remoteCommits.Any(remoteCommit => remoteCommit.Sha == localTipSha);
+        }
     }
 }

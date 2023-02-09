@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design.Serialization;
 using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
@@ -28,9 +29,12 @@ using System.Threading.Tasks;
 using LibGit2Sharp;
 
 using Neon.Common;
+using Neon.Deployment;
 using Neon.GitHub;
 using Neon.IO;
 using Neon.Xunit;
+
+using Octokit;
 
 using Xunit;
 
@@ -633,6 +637,145 @@ namespace TestGitHub
                         await Assert.ThrowsAsync<ObjectDisposedException>(async () => await repo.Local.UndoAsync());
 
                         Assert.Throws<ObjectDisposedException>(() => repo.NormalizeBranchName("master"));
+                    }
+                });
+        }
+
+        [MaintainerFact]
+        public async Task GetCommits()
+        {
+            await GitHubTestHelper.RunTestAsync(
+                async () =>
+                {
+                    using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
+                    {
+                        var repoPath = tempFolder.Path;
+
+                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepoPath, repoPath))
+                        {
+                            //-------------------------------------------------
+                            // Verify that commits returned by GitHub are sorted in decending order by date.
+
+                            var remoteCommits = (await repo.Remote.GetCommitsAsync("master")).ToList();
+
+                            Assert.NotNull(remoteCommits);
+                            Assert.NotEmpty(remoteCommits);   // Repos always have at least one commit
+
+                            var orderedRemoteCommits = remoteCommits.OrderByDescending(commit => commit.Commit.Author.Date).ToList();
+
+                            Assert.Equal(remoteCommits.Count, orderedRemoteCommits.Count);
+
+                            for (int i = 0; i < remoteCommits.Count; i++)
+                            {
+                                Assert.Equal(remoteCommits[i].Sha, orderedRemoteCommits[i].Sha);
+                            }
+
+                            //-------------------------------------------------
+                            // Verify that commits returned by the local repo are also sorted in decending order by date
+
+                            var localCommits = (await repo.Local.GetCommitsAsync()).ToList();
+
+                            Assert.NotNull(remoteCommits);
+                            Assert.NotEmpty(remoteCommits);   // Repos always have at least one commit
+
+                            var orderedLocalCommits = remoteCommits.OrderByDescending(commit => commit.Commit.Author.Date).ToList();
+
+                            Assert.Equal(localCommits.Count, orderedLocalCommits.Count);
+
+                            for (int i = 0; i < remoteCommits.Count; i++)
+                            {
+                                Assert.Equal(localCommits[i].Sha, orderedLocalCommits[i].Sha);
+                            }
+                        }
+                    }
+                });
+        }
+
+        [MaintainerFact]
+        public async Task Commit_NotAheadOrBehind()
+        {
+            await GitHubTestHelper.RunTestAsync(
+                async () =>
+                {
+                    //-------------------------------------------------
+                    // Clone a repo and then verify that the the local repo is not ahead
+                    // or behind on commits (since both local and remote should be on the
+                    // same commit.
+
+                    using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
+                    {
+                        var repoPath = tempFolder.Path;
+
+                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepoPath, repoPath))
+                        {
+                            Assert.False(await repo.Local.IsAheadAsync());
+                            Assert.False(await repo.Local.IsBehindAsync());
+                        }
+                    }
+                });
+        }
+
+        [MaintainerFact]
+        public async Task Commit_IsAhead()
+        {
+            await GitHubTestHelper.RunTestAsync(
+                async () =>
+                {
+                    //-------------------------------------------------
+                    // Clone a repo add a file and perform a local commit and then verify
+                    // that the the local repo is ahead of the remote.
+
+                    using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
+                    {
+                        var repoPath = tempFolder.Path;
+
+                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepoPath, repoPath))
+                        {
+                            var testFolder = Path.Combine(tempFolder.Path, GitHubTestHelper.TestFolder);
+
+                            Directory.CreateDirectory(testFolder);
+
+                            File.WriteAllText(Path.Combine(testFolder, $"{Guid.NewGuid()}.txt"), "HELLO WORLD!");
+                            await repo.Local.CommitAsync();
+
+                            Assert.True(await repo.Local.IsAheadAsync());
+                            Assert.False(await repo.Local.IsBehindAsync());
+                        }
+                    }
+                });
+        }
+
+        [MaintainerFact]
+        public async Task Commit_IsBehind()
+        {
+            await GitHubTestHelper.RunTestAsync(
+                async () =>
+                {
+                    //-------------------------------------------------
+                    // Clone two repos.  In the first, add a file, commit that and push
+                    // to GitHub.  Then verify that the second repos is now behind.
+
+                    using (var tempFolder1 = new TempFolder(prefix: "repo-", create: false))
+                    {
+                        using (var tempFolder2 = new TempFolder(prefix: "repo-", create: false))
+                        {
+                            using (var repo1 = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepoPath, tempFolder1.Path))
+                            {
+                                using (var repo2 = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepoPath, tempFolder2.Path))
+                                {
+                                    var testFolder1 = Path.Combine(tempFolder1.Path, GitHubTestHelper.TestFolder);
+
+                                    Directory.CreateDirectory(testFolder1);
+
+                                    File.WriteAllText(Path.Combine(testFolder1, $"{Guid.NewGuid()}.txt"), "HELLO WORLD!");
+                                    await repo1.Local.CommitAsync();
+                                    await repo1.Local.PushAsync();
+
+                                    Assert.False(await repo2.Local.IsAheadAsync());
+                                    Assert.True(await repo2.Local.IsBehindAsync());
+                                }
+                            }
+                        }
                     }
                 });
         }
