@@ -31,6 +31,8 @@ using Neon.Cryptography;
 using Neon.IO;
 using Neon.Net;
 using Neon.Retry;
+using Neon.Tasks;
+using System.Diagnostics;
 
 namespace Neon.Deployment
 {
@@ -632,14 +634,32 @@ namespace Neon.Deployment
 
             var manifest = new DownloadManifest() { Name = name, Version = version, Filename = filename };
 
-            // We're going to use three threads here, one to compute the part MD5
+            // $note(jefflill):
+            //
+            // We're going to use three threads here, one to compute the overall MD5
             // and the other two to actually upload the parts to S3, with one uploading
             // the even parts and the other handling the odd parts.
+            //
+            // This all is intended as a performance enhancement.  Computing the overall
+            // MD5 in parallel is an obvious optimization.  The even/odd part uploading
+            // is an attempt to increase upload throughput by filling in the upload gaps 
+            // during the time when the [aws-cli] is starting up and presumably authenticating
+            // with AWS or something and not transmitting data.
+
+            // $hack(jefflill):
+            //
+            // Just having the two upload tasks didn't really fill in the gaps.  I had hoped
+            // that there'd be enough jitter for one task to get ahead of the other so these
+            // gaps would go away.  It mitigate this, I'm going to delay the start of the
+            // odd stream by half the time it took the even stream to upload it's first part.
 
             // $todo(jefflill):
             //
             // It would probably be way better to ditch the AWS CLI here and recode
             // to upload to AWS directly.
+
+            var startOddEvent = new AsyncAutoResetEvent();
+            var firstPartTime = TimeSpan.Zero;
 
             var uploadEvenTask = Task.Run(
                 () =>
@@ -650,6 +670,7 @@ namespace Neon.Deployment
                         var partNumber  = 0;
                         var partStart   = 0L;
                         var cbRemaining = input.Length;
+                        var stopwatch   = new Stopwatch();
 
                         while (cbRemaining > 0)
                         {
@@ -665,7 +686,19 @@ namespace Neon.Deployment
                             {
                                 using (var uploadPartStream = new SubStream(input, partStart, partSize))
                                 {
+                                    if (partNumber == 0)
+                                    {
+                                        stopwatch.Start();
+                                    }
+
                                     S3Upload(uploadPartStream, part.Uri, publicReadAccess: publicReadAccess);
+
+                                    if (partNumber == 0)
+                                    {
+                                        stopwatch.Stop();
+                                        firstPartTime = stopwatch.Elapsed;
+                                        startOddEvent.Set();
+                                    }
                                 }
                             }
 
@@ -684,8 +717,16 @@ namespace Neon.Deployment
                 });
 
             var uploadOddTask = Task.Run(
-                () =>
+                async () =>
                 {
+                    // Wait for the event task to upload the first part and then
+                    // delay for 1/2 the time it took to upload that first part.
+                    // This is intended to have the even/off part uploads overlap
+                    // and improve transmission throughput.
+
+                    await startOddEvent.WaitAsync();
+                    await Task.Delay(firstPartTime.Multiply(0.5));
+
                     using (var input = File.OpenRead(sourcePath))
                     {
                         var partCount   = NeonHelper.PartitionCount(input.Length, maxPartSize);

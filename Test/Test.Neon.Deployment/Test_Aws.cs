@@ -258,7 +258,7 @@ namespace TestDeployment
             Assert.Equal(bytes, download);
         }
 
-        [Theory]
+        [MaintainerTheory]
         [InlineData(false)]
         [InlineData(true)]
         public async Task S3_MultiPart(bool publicReadAccess)
@@ -274,13 +274,18 @@ namespace TestDeployment
                 // 1000 byte parts and one 900 byte part being uploaded
                 // (the last part).
 
+                const int maxPartSize  = 25000000;                              // 25 MB
+                const int fileSize     = 10 * maxPartSize - (maxPartSize / 2);  // Last part will be 1/2 the other part sizes
+                const int lastPartSize = fileSize % maxPartSize;
+                int partCount          = (int)Math.Ceiling((double)fileSize / (double)maxPartSize);
+
                 var tempPath    = Path.Combine(tempFolder.Path, "multi-part.test");
                 var tempName    = Path.GetFileName(tempPath);
-                var uploadBytes = NeonHelper.GetCryptoRandomBytes(9900);
+                var uploadBytes = NeonHelper.GetCryptoRandomBytes(fileSize);
 
                 File.WriteAllBytes(tempPath, uploadBytes);
 
-                var upload = AwsCli.S3UploadMultiPart(tempPath, TestBucketHttpsRef, "1.0", maxPartSize: 1000, publicReadAccess: publicReadAccess);
+                var upload = AwsCli.S3UploadMultiPart(tempPath, TestBucketHttpsRef, "1.0", maxPartSize: maxPartSize, publicReadAccess: publicReadAccess);
 
                 // Validate the Download information.
 
@@ -289,8 +294,8 @@ namespace TestDeployment
                 Assert.Equal(tempName, manifest.Name);
                 Assert.Equal("1.0", manifest.Version);
                 Assert.Equal(tempName, manifest.Filename);
-                Assert.Equal(9900, manifest.Size);
-                Assert.Equal(10, manifest.Parts.Count);
+                Assert.Equal(fileSize, manifest.Size);
+                Assert.Equal(partCount, manifest.Parts.Count);
                 Assert.Equal(CryptoHelper.ComputeMD5String(uploadBytes), manifest.Md5);
 
                 // Verify that the download information matches our expections.
@@ -306,13 +311,13 @@ namespace TestDeployment
                         Assert.Equal(partNumber, part.Number);
                         Assert.Equal($"{TestBucketHttpsRef}/{tempName}.parts/part-{partNumber:000#}", part.Uri);
 
-                        if (partNumber < 9)
+                        if (partNumber < partCount - 1)
                         {
-                            Assert.Equal(1000, part.Size);
+                            Assert.Equal(maxPartSize, part.Size);
                         }
                         else
                         {
-                            Assert.Equal(900, part.Size);
+                            Assert.Equal(lastPartSize, part.Size);
                         }
 
                         using (var substream = new SubStream(uploadStream, partOffset, part.Size))
@@ -368,7 +373,7 @@ namespace TestDeployment
                     await DeploymentHelper.DownloadMultiPartAsync($"{TestBucketHttpsRef}/{tempName}.manifest", targetPath);
 
                     Assert.True(File.Exists(targetPath));
-                    Assert.Equal(9900L, new FileInfo(targetPath).Length);
+                    Assert.Equal((long)fileSize, new FileInfo(targetPath).Length);
                 }
             }
         }
