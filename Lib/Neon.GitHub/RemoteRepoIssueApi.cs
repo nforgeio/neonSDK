@@ -115,6 +115,20 @@ namespace Neon.GitHub
             return await root.GitHubApi.Issue.Get(root.Remote.Id, number);
         }
 
+        /// <summary>
+        /// Returns repository issues that satisfy a <see cref="RepositoryIssueRequest"/>.
+        /// </summary>
+        /// <param name="request">Specifies an issue filter and other request properties.</param>
+        /// <returns></returns>
+        public async Task<IEnumerable<Issue>> GetIssuesAsync(RepositoryIssueRequest request)
+        {
+            await SyncContext.Clear;
+            Covenant.Requires<ArgumentNullException>(request != null, nameof(request));
+            root.EnsureNotDisposed();
+
+            return await root.GitHubApi.Issue.GetAllForRepository(root.Remote.Id, request);
+        }
+
         // $todo(Jefflill): There are many more sub-APIs to wrap here.
     }
 }
