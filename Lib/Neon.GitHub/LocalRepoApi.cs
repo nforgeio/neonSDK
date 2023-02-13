@@ -282,14 +282,34 @@ namespace Neon.GitHub
             root.EnsureNotDisposed();
             root.EnsureLocalRepo();
 
+            // Try the local branch first and if that doesn't exist, try the remote branch.
+
             var branch = root.GitApi.Branches[branchName];
 
-            if (branch == null)
+            if (branch != null)
             {
-                throw new LibGit2SharpException($"Branch [{branchName}] does not exist.");
+                // The branch is already local so we can check it out immediately.
+
+                Commands.Checkout(root.GitApi, branch);
+            }
+            else
+            {
+                var remoteBranch = root.GitApi.Branches[$"origin/{branchName}"];
+
+                if (remoteBranch == null)
+                {
+                    throw new LibGit2SharpException($"Branch [{branchName}] does not exist locally or remote.");
+                }
+
+                // Create local branch with the specified name and then configure it
+                // to track the remote branch and then check out the local branch.
+
+                branch = root.GitApi.CreateBranch(branchName);
+
+                root.GitApi.Branches.Update(branch, branch => branch.TrackedBranch = remoteBranch.CanonicalName);
+                Commands.Checkout(root.GitApi, branch);
             }
 
-            Commands.Checkout(root.GitApi, branch);
             await Task.CompletedTask;
         }
 

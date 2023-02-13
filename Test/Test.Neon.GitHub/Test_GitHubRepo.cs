@@ -541,7 +541,7 @@ namespace TestGitHub
         }
 
         [MaintainerFact]
-        public async Task Remote_Checkout()
+        public async Task Checkout()
         {
             // Verify that we can checkout an existing remote branch to the
             // local repo with the same name (the default) or to a new branch
@@ -561,6 +561,7 @@ namespace TestGitHub
                         using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepoPath, repoPath))
                         {
                             await repo.Local.CreateBranchAsync(newBranchName, "master");
+                            Assert.Equal(newBranchName, repo.Local.CurrentBranch.FriendlyName);
                             Assert.True(repo.GitApi.Branches[newBranchName] != null);
                             Assert.True(repo.GitApi.Branches[newBranchName].IsCurrentRepositoryHead);
                             await repo.Local.PushAsync();
@@ -568,6 +569,8 @@ namespace TestGitHub
 
                         // Delete all repo files, re-clone the remote repo and then verify that
                         // we can checkout the remote with the new branch.
+                        //
+                        // Then verify that we can switch back and forth between local branches.
 
                         NeonHelper.DeleteFolderContents(repoPath);
                         Directory.Delete(repoPath);
@@ -577,6 +580,15 @@ namespace TestGitHub
                             Assert.Equal(newBranchName, repo.Local.CurrentBranch.FriendlyName);
                             Assert.True(repo.GitApi.Branches[newBranchName] != null);
                             Assert.True(repo.GitApi.Branches[newBranchName].IsCurrentRepositoryHead);
+
+                            await repo.Local.CheckoutAsync("master");
+                            Assert.Equal("master", repo.Local.CurrentBranch.FriendlyName);
+
+                            await repo.Local.CheckoutAsync(newBranchName);
+                            Assert.Equal(newBranchName, repo.Local.CurrentBranch.FriendlyName);
+
+                            await repo.Local.CheckoutAsync("master");
+                            Assert.Equal("master", repo.Local.CurrentBranch.FriendlyName);
                         }
                     }
                 });
