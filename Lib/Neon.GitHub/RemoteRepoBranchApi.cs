@@ -62,6 +62,8 @@ namespace Neon.GitHub
         /// <param name="root">The root <see cref="GitHubRepo"/>.</param>
         internal RemoteRepoBranchApi(GitHubRepo root)
         {
+            Covenant.Requires<ArgumentNullException>(root != null, nameof(root));
+
             this.root = root;
         }
 

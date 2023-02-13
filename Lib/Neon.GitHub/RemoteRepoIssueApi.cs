@@ -64,8 +64,17 @@ namespace Neon.GitHub
         /// <param name="root">The root <see cref="GitHubRepo"/>.</param>
         internal RemoteRepoIssueApi(GitHubRepo root)
         {
-            this.root = root;
+            Covenant.Requires<ArgumentNullException>(root != null, nameof(root));
+
+            this.root    = root;
+            this.Comment = new RemoteRepoIssueCommentApi(root);
         }
+
+        /// <summary>
+        /// Returns the <see cref="RemoteRepoIssueCommentApi"/> which can be used to
+        /// manage issue comments.
+        /// </summary>
+        public RemoteRepoIssueCommentApi Comment { get; private set; }
 
         /// <summary>
         /// Creates a new repo issue.

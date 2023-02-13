@@ -63,6 +63,8 @@ namespace Neon.GitHub
         /// <param name="root">The root <see cref="GitHubRepo"/>.</param>
         internal RemoteRepoTagApi(GitHubRepo root)
         {
+            Covenant.Requires<ArgumentNullException>(root != null, nameof(root));
+
             this.root = root;
         }
 

@@ -158,5 +158,100 @@ namespace TestGitHub
                     }
                 });
         }
+
+        [MaintainerFact]
+        public async Task Comments()
+        {
+            // Verify that the issue comment API works.
+
+            await GitHubTestHelper.RunTestAsync(
+                async () =>
+                {
+                    using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepoPath))
+                    {
+                        var title = $"Test Issue: {Guid.NewGuid()}";
+                        var issue = await repo.Remote.Issue.CreateAsync(
+                            new NewIssue(title)
+                            {
+                                Body = "HELLO WORLD!"
+                            });
+
+                        //-----------------------------------------------------
+                        // Verify that the issue body does not count as a comment.
+
+                        var comments = await repo.Remote.Issue.Comment.GetAllForIssue(issue.Number);
+
+                        Assert.Empty(comments);
+
+                        //-----------------------------------------------------
+                        // Add a comment and verify.
+
+                        var comment1 = await repo.Remote.Issue.Comment.CreateAsync(issue.Number, "COMMENT: 1");
+
+                        Assert.NotNull(comment1);
+                        Assert.Equal("COMMENT: 1", comment1.Body);
+
+                        comments = await repo.Remote.Issue.Comment.GetAllForIssue(issue.Number);
+
+                        Assert.Single(comments);
+                        Assert.Equal("COMMENT: 1", comments.First().Body);
+
+                        //-----------------------------------------------------
+                        // Add a second comment and verify.
+
+                        var comment2 = await repo.Remote.Issue.Comment.CreateAsync(issue.Number, "COMMENT: 2");
+
+                        Assert.NotNull(comment2);
+                        Assert.Equal("COMMENT: 2", comment2.Body);
+
+                        comments = await repo.Remote.Issue.Comment.GetAllForIssue(issue.Number);
+
+                        Assert.Equal(2, comments.Count());
+                        Assert.Equal("COMMENT: 1", comments.First().Body);
+                        Assert.Equal("COMMENT: 2", comments.Skip(1).First().Body);
+
+                        //-----------------------------------------------------
+                        // Fetch comments by ID.
+
+                        var comment = await repo.Remote.Issue.Comment.GetAsync(comment1.Id);
+
+                        Assert.Equal(comment1.Body, comment.Body);
+
+                        comment = await repo.Remote.Issue.Comment.GetAsync(comment2.Id);
+
+                        Assert.Equal(comment2.Body, comment.Body);
+
+                        //-----------------------------------------------------
+                        // Fetch all open comments for the repository and verify that the
+                        // two comments exist.
+
+                        comments = await repo.Remote.Issue.Comment.GetAllForRepository();
+
+                        Assert.Contains(comments, comment => comment.Id == comment1.Id);
+                        Assert.Contains(comments, comment => comment.Id == comment2.Id);
+
+                        //-----------------------------------------------------
+                        // Update a comment.
+
+                        var updatedComment = await repo.Remote.Issue.Comment.UpdateAsync(comment2.Id, "COMMENT: 2A");
+
+                        Assert.Equal("COMMENT: 2A", updatedComment.Body);
+
+                        comment = await repo.Remote.Issue.Comment.GetAsync(comment2.Id);
+
+                        Assert.Equal(updatedComment.Body, comment.Body);
+
+                        //-----------------------------------------------------
+                        // Delete a comment.
+
+                        await repo.Remote.Issue.Comment.DeleteAsync(comment2.Id);
+
+                        comments = await repo.Remote.Issue.Comment.GetAllForRepository();
+
+                        Assert.Contains(comments, comment => comment.Id == comment1.Id);
+                        Assert.DoesNotContain(comments, comment => comment.Id == comment2.Id);
+                    }
+                });
+        }
     }
 }

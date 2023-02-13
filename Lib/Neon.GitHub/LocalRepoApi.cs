@@ -66,6 +66,8 @@ namespace Neon.GitHub
         /// </param>
         internal LocalRepoApi(GitHubRepo root, string localRepoFolder)
         {
+            Covenant.Requires<ArgumentNullException>(root != null, nameof(root));
+
             this.root   = root;
             this.Folder = localRepoFolder;
         }
