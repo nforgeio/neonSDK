@@ -34,7 +34,7 @@ using Neon.Deployment;
 using Neon.GitHub;
 using Neon.IO;
 using Neon.Xunit;
-
+using Octokit;
 using Xunit;
 
 namespace TestGitHub
@@ -172,6 +172,25 @@ namespace TestGitHub
         }
 
         /// <summary>
+        /// Closes any open issues.
+        /// </summary>
+        /// <returns>The tracking <see cref="Task"/>.</returns>
+        public static async Task CloseIssuesAsync()
+        {
+            using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepoPath))
+            {
+                foreach (var issue in await repo.Remote.Issue.GetAllAsync())
+                {
+                    var update = issue.ToUpdate();
+
+                    update.State = ItemState.Closed;
+
+                    await repo.Remote.Issue.UpdateAsync(issue.Number, update);
+                }
+            }
+        }
+
+        /// <summary>
         /// <para>
         /// Used to run a unit test in a context where <see cref="NeonHelper.ServiceContainer"/>"/> includes
         /// our <see cref="IProfileClient"/> implementation for maintainers that fetches secrets from 
@@ -201,6 +220,7 @@ namespace TestGitHub
                 await RemoveTestBranchesAsync();
                 await RemoveTestReleasesAsync();
                 await RemoveTestTagsAsync();
+                await CloseIssuesAsync();
 
                 await action();
             }
@@ -211,6 +231,7 @@ namespace TestGitHub
                 await RemoveTestBranchesAsync();
                 await RemoveTestReleasesAsync();
                 await RemoveTestTagsAsync();
+                await CloseIssuesAsync();
             }
         }
     }

@@ -79,5 +79,84 @@ namespace TestGitHub
                     }
                 });
         }
+
+        [MaintainerFact]
+        public async Task GetSearch()
+        {
+            // Verify that we can get and search for issues.
+
+            await GitHubTestHelper.RunTestAsync(
+                async () =>
+                {
+                    using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepoPath))
+                    {
+                        var title1 = $"Test Issue: {Guid.NewGuid()}";
+                        var title2 = $"Test Issue: {Guid.NewGuid()}";
+
+                        var newIssue1 = await repo.Remote.Issue.CreateAsync(
+                            new NewIssue(title1)
+                            {
+                                Body = "HELLO WORLD!"
+                            });
+
+                        var newIssue2 = await repo.Remote.Issue.CreateAsync(
+                            new NewIssue(title2)
+                            {
+                                Body = "HELLO WORLD!"
+                            });
+
+                        //-----------------------------------------------------
+                        // Verify that we can fetch the issue by ID.
+
+                        var issue = await repo.Remote.Issue.GetAsync(newIssue1.Number);
+
+                        Assert.NotNull(issue);
+                        Assert.Equal(newIssue1.Id, issue.Id);
+                        Assert.Equal(newIssue1.Title, issue.Title);
+
+                        //-----------------------------------------------------
+                        // Verify that GetAllAsync() with a request works.
+
+                        Assert.Contains(await repo.Remote.Issue.GetAllAsync(), issue => issue.Id == newIssue1.Id && newIssue1.Title == title1);
+
+                        //-----------------------------------------------------
+                        // Verify that GetAllAsync() works.
+
+                        var request = new RepositoryIssueRequest()
+                        {
+                            State = ItemStateFilter.Open
+                        };
+
+                        Assert.Contains(await repo.Remote.Issue.GetAllAsync(request), issue => issue.Id == newIssue1.Id && newIssue1.Title == title1);
+
+                        //-----------------------------------------------------
+                        // Verify that SearchAsync() works.
+
+                        var searchRequest = new SearchIssuesRequest()
+                        {
+                            State   = ItemState.Open,
+                            PerPage = 100
+                        };
+
+                        var found = await repo.Remote.Issue.SearchAsync(searchRequest);
+
+                        Assert.Contains(found.Items, issue => issue.Id == newIssue1.Id && newIssue1.Title == title1);
+
+                        //-----------------------------------------------------
+                        // Verify that SearchAllAsync() works.
+
+                        searchRequest = new SearchIssuesRequest()
+                        {
+                            State   = ItemState.Open,
+                            PerPage = 1
+                        };
+
+                        var issues = await repo.Remote.Issue.SearchAllAsync(searchRequest);
+
+                        Assert.Contains(issues, issue => issue.Id == newIssue1.Id && newIssue1.Title == title1);
+                        Assert.Contains(issues, issue => issue.Id == newIssue2.Id && newIssue2.Title == title2);
+                    }
+                });
+        }
     }
 }
