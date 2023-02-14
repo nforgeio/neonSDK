@@ -71,7 +71,7 @@ namespace Neon.GitHub
         /// Returns all branches from the GitHub origin repository.
         /// </summary>
         /// <returns>The list of branches.</returns>
-        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
         public async Task<IReadOnlyList<GitHubBranch>> GetAllAsync()
         {
             await SyncContext.Clear;
@@ -85,7 +85,7 @@ namespace Neon.GitHub
         /// </summary>
         /// <param name="branchName">Specifies the origin repository branch name.</param>
         /// <returns>The requested <see cref="GitHubBranch"/>.</returns>
-        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="Octokit.NotFoundException">Thrown when the branch does not exist.</exception>
         public async Task<GitHubBranch> GetAsync(string branchName)
         {
@@ -101,8 +101,7 @@ namespace Neon.GitHub
         /// </summary>
         /// <param name="branchName">Specifies the origin repository branch name.</param>
         /// <returns>The requested <see cref="GitHubBranch"/> or <c>null</c> when it doesn't exist.</returns>
-        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
-        /// <exception cref="Octokit.NotFoundException">Thrown when the branch does not exist.</exception>
+        /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
         public async Task<GitHubBranch> FindAsync(string branchName)
         {
             await SyncContext.Clear;
@@ -124,7 +123,7 @@ namespace Neon.GitHub
         /// </summary>
         /// <param name="branchName">Specifies the origin repository branch name.</param>
         /// <returns><c>true</c> if the branch existed and was removed, <c>false</c> otherwise.</returns>
-        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
         public async Task<bool> RemoveAsync(string branchName)
         {
             await SyncContext.Clear;
@@ -146,6 +145,103 @@ namespace Neon.GitHub
             var uri = $"/repos/{root.Remote.Path.Owner}/{root.Remote.Path.Name}/git/heads/{branchName}";
 
             NetHelper.EnsureSuccess(await root.GitHubApi.Connection.Delete(new Uri(uri)));
+
+            return true;
+        }
+
+        /// <summary>
+        /// <para>
+        /// Converts a relative local repository file path like "/my-folder/test.txt" 
+        /// or "my-folder/test.txt to the remote GitHub URI for the file within the 
+        /// the currently checked out branch.
+        /// </para>
+        /// <note>
+        /// The local or remote file doesn't need to actually exist.
+        /// </note>
+        /// </summary>
+        /// <param name="branchName">Specifies the origin repository branch name.</param>
+        /// <param name="relativePath">
+        /// Specifies the path to the file relative to the local repository root folder.
+        /// This may include a leading slash (which is assumed when not present) and both 
+        /// forward and backslashes are allowed as path separators.
+        /// </param>
+        /// <param name="raw">
+        /// Optionally returns the link to the raw file bytes as opposed to the URL
+        /// for the GitHub HTML page for the file.
+        /// </param>
+        /// <returns>The GitHub URI for the file from the current branch.</returns>
+        /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
+        /// <remarks>
+        /// <note>
+        /// This method <b>does not</b> ensure that the target file actually exists in the repo.
+        /// </note>
+        /// </remarks>
+        public async Task<string> GetRemoteFileUriAsync(string branchName, string relativePath, bool raw = false)
+        {
+            await SyncContext.Clear;
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(relativePath), nameof(relativePath));
+            root.EnsureNotDisposed();
+
+            relativePath = relativePath.Replace('\\', '/');
+
+            if (relativePath.StartsWith('/'))
+            {
+                relativePath = relativePath.Substring(1);
+            }
+
+            if (raw)
+            {
+                return new Uri($"https://raw.githubusercontent.com/{root.Remote.Path.Owner}/{root.Remote.Path.Name}/{branchName}/{relativePath}").ToString();
+            }
+            else
+            {
+                return new Uri($"{root.Remote.BaseUri}{root.Remote.Path.Name}/blob/{branchName}/{relativePath}").ToString();
+            }
+        }
+
+        /// <summary>
+        /// Copies the contents of a file in a specific repo branch to a stream.
+        /// </summary>
+        /// <param name="branchName">Specifies the origin repository branch name.</param>
+        /// <param name="relativePath">
+        /// Specifies the path to the file relative to the remote repository root folder.
+        /// This may include a leading slash (which is assumed when not present) and both 
+        /// forward and backslashes are allowed as path separators.
+        /// </param>
+        /// <param name="output">Specifies the stream where the remote file contents will be copied.</param>
+        /// <returns><c>true</c> if the file exists and was downloaded, <c>false</c> when the file doesn't exist.</returns>
+        /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="Octokit.NotFoundException">Thrown if the branch doesn't exist.</exception>
+        public async Task<bool> GetBranchFileAsync(string branchName, string relativePath, Stream output)
+        {
+            await SyncContext.Clear;
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(relativePath), nameof(relativePath));
+            Covenant.Requires<ArgumentNullException>(output != null, nameof(output));
+            root.EnsureNotDisposed();
+
+            // This ensures that the branch actually exists.
+
+            await root.GitHubApi.Repository.Branch.Get(root.Remote.Id, branchName);
+
+            // Fetch the file, returning FALSE when the file doesn't exist.
+
+            var fileUri  = await GetRemoteFileUriAsync(branchName, relativePath, raw: true);
+            var response = await root.HttpClient.GetAsync(fileUri);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                if (response.StatusCode == HttpStatusCode.NotFound)
+                {
+                    return false;
+                }
+
+                response.EnsureSuccessStatusCode();
+            }
+
+            await response.Content.CopyToAsync(output);
 
             return true;
         }

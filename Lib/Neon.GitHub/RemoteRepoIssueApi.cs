@@ -81,7 +81,7 @@ namespace Neon.GitHub
         /// </summary>
         /// <param name="newIssue">Specifies the new issue.</param>
         /// <returns>The new <see cref="Issue"/>.</returns>
-        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
         public async Task<Issue> CreateAsync(NewIssue newIssue)
         {
             await SyncContext.Clear;
@@ -97,7 +97,7 @@ namespace Neon.GitHub
         /// <param name="number">Specifies the issue number.</param>
         /// <param name="issueUpdate">Specifies the issue update.</param>
         /// <returns>The updated <see cref="Issue"/>.</returns>
-        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
         public async Task<Issue> UpdateAsync(int number, IssueUpdate issueUpdate)
         {
             await SyncContext.Clear;
@@ -113,7 +113,7 @@ namespace Neon.GitHub
         /// </summary>
         /// <param name="number">Specifies the issue number.</param>
         /// <returns>The <see cref="Issue"/>.</returns>
-        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="Octokit.NotFoundException">Thrown when the issue doesn't exist</exception>
         public async Task<Issue> GetAsync(int number)
         {

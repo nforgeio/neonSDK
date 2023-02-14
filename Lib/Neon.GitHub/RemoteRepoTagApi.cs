@@ -72,7 +72,7 @@ namespace Neon.GitHub
         /// Returns all tags from the GitHub origin repository.
         /// </summary>
         /// <returns>The list of tags.</returns>
-        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
         public async Task<IReadOnlyList<GitHubRepositoryTag>> GetAllAsync()
         {
             await SyncContext.Clear;
@@ -86,7 +86,7 @@ namespace Neon.GitHub
         /// </summary>
         /// <param name="tagName">Specifies the origin repository tag name.</param>
         /// <returns>The requested <see cref="GitHubRepositoryTag"/> or <c>null</c> when the tag doesn't exist.</returns>
-        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
         public async Task<GitHubRepositoryTag> FindAsync(string tagName)
         {
             await SyncContext.Clear;
@@ -199,7 +199,7 @@ namespace Neon.GitHub
         /// </summary>
         /// <param name="tagName">Specifies the origin repository tag name.</param>
         /// <returns><c>true</c> if the tag existed and was removed, <c>false</c> otherwise.</returns>
-        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
         public async Task<bool> RemoveAsync(string tagName)
         {
             await SyncContext.Clear;

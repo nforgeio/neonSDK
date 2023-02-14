@@ -78,7 +78,7 @@ namespace Neon.GitHub
         /// <param name="draft">Optionally indicates that the release won't be published immediately.</param>
         /// <param name="prerelease">Optionally indicates that the release is not production ready.</param>
         /// <returns>The new release.</returns>
-        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
         public async Task<Release> CreateAsync(string tagName, string releaseName = null, string body = null, bool draft = false, bool prerelease = false)
         {
             await SyncContext.Clear;
@@ -111,7 +111,7 @@ namespace Neon.GitHub
         /// Returns all releases from the GitHub origin repository.
         /// </summary>
         /// <returns>The list of releases.</returns>
-        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
         public async Task<IReadOnlyList<Release>> GetAllAsync()
         {
             await SyncContext.Clear;
@@ -125,7 +125,7 @@ namespace Neon.GitHub
         /// </summary>
         /// <param name="releaseName">Specifies the origin repository release name.</param>
         /// <returns>The requested <see cref="Octokit.Release"/>.</returns>
-        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="Octokit.NotFoundException">Thrown when the release does not exist.</exception>
         public async Task<Octokit.Release> GetAsync(string releaseName)
         {
@@ -162,7 +162,7 @@ namespace Neon.GitHub
         /// </summary>
         /// <param name="releaseName">Specifies the origin repository release name.</param>
         /// <returns>The requested <see cref="Octokit.Release"/> or <c>null</c> when it doesn't exist.</returns>
-        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
         public async Task<Octokit.Release> FindAsync(string releaseName)
         {
             await SyncContext.Clear;
@@ -215,7 +215,7 @@ namespace Neon.GitHub
         /// <param name="release">Specifies the release being changed.</param>
         /// <param name="releaseUpdate">Specifies the release revisions.</param>
         /// <returns>The updated release.</returns>
-        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <remarks>
         /// <para>
         /// To update a release, you'll first need to:
@@ -282,7 +282,7 @@ namespace Neon.GitHub
         /// <param name="assetName">Optionally specifies the file name to assign to the asset.  This defaults to the file name in <paramref name="assetPath"/>.</param>
         /// <param name="contentType">Optionally specifies the asset's <b>Content-Type</b>.  This defaults to: <b> application/octet-stream</b></param>
         /// <returns>The new <see cref="ReleaseAsset"/>.</returns>
-        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="NotSupportedException">Thrown when the releas has already been published.</exception>
         public async Task<ReleaseAsset> AddAssetAsync(Release release, string assetPath, string assetName = null, string contentType = "application/octet-stream")
         {
@@ -310,7 +310,7 @@ namespace Neon.GitHub
         /// <param name="assetName">Specifies the file name to assign to the asset.</param>
         /// <param name="contentType">Optionally specifies the asset's <b>Content-Type</b>.  This defaults to: <b> application/octet-stream</b></param>
         /// <returns>The new <see cref="ReleaseAsset"/>.</returns>
-        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
         public async Task<ReleaseAsset> AddAssetAsync(Release release, Stream stream, string assetName, string contentType = "application/octet-stream")
         {
             await SyncContext.Clear;
@@ -354,7 +354,7 @@ namespace Neon.GitHub
         /// <param name="release">The target release.</param>
         /// <param name="asset">The target asset.</param>
         /// <returns>The asset URI.</returns>
-        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="InvalidOperationException">Thrown when the asset passed doesn't exist in the release.</exception>
         public string GetAssetUri(Release release, ReleaseAsset asset)
         {
@@ -377,7 +377,7 @@ namespace Neon.GitHub
         /// </summary>
         /// <param name="releaseName">Specifies the release name.</param>
         /// <returns>The published release.</returns>
-        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="InvalidOperationException">Thrown if the release doesn't exist or when it's already published.</exception>
         public async Task<Release> PublishAsync(string releaseName)
         {
@@ -421,7 +421,7 @@ namespace Neon.GitHub
         /// </summary>
         /// <param name="releaseName">Specifies the release name.</param>
         /// <returns>The zipball URI.</returns>
-        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="InvalidOperationException">Thrown if the release does not exist or it has not been published.</exception>
         public async Task<string> GetZipballUri(string releaseName)
         {
@@ -457,7 +457,7 @@ namespace Neon.GitHub
         /// <param name="releaseName">Specifies the release name.</param>
         /// <param name="output">Specifies the stream where the Zipball will be written.</param>
         /// <returns>The tracking <see cref="Task"/>.</returns>
-        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="InvalidOperationException">Thrown if the release does not exist or it has not been published.</exception>
         public async Task DownloadZipballAsync(string releaseName, Stream output)
         {
@@ -485,7 +485,7 @@ namespace Neon.GitHub
         /// </param>
         /// <param name="maxPartSize">Optionally overrides the maximum part size (defaults to 75 MiB).</param>d
         /// <returns>The <see cref="DownloadManifest"/>.</returns>
-        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <remarks>
         /// <para>
         /// The release passed must be unpublished and you may upload other assets before calling this.
