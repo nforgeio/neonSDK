@@ -211,10 +211,10 @@ namespace Neon.GitHub
         /// forward and backslashes are allowed as path separators.
         /// </param>
         /// <param name="output">Specifies the stream where the remote file contents will be copied.</param>
-        /// <returns><c>true</c> if the file exists and was downloaded, <c>false</c> when the file doesn't exist.</returns>
+        /// <returns>The tracking <see cref="Task"/>.</returns>
         /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
-        /// <exception cref="Octokit.NotFoundException">Thrown if the branch doesn't exist.</exception>
-        public async Task<bool> GetBranchFileAsync(string branchName, string relativePath, Stream output)
+        /// <exception cref="Octokit.NotFoundException">Thrown if the branch or file file doesn't exist.</exception>
+        public async Task GetBranchFileAsync(string branchName, string relativePath, Stream output)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
@@ -235,15 +235,64 @@ namespace Neon.GitHub
             {
                 if (response.StatusCode == HttpStatusCode.NotFound)
                 {
-                    return false;
+                    throw new Octokit.NotFoundException($"Remote file not found: {relativePath}", HttpStatusCode.NotFound);
                 }
 
                 response.EnsureSuccessStatusCode();
             }
 
             await response.Content.CopyToAsync(output);
+        }
 
-            return true;
+        /// <summary>
+        /// Retieves the contents file in a specific repo branch as text.
+        /// </summary>
+        /// <param name="branchName">Specifies the origin repository branch name.</param>
+        /// <param name="relativePath">
+        /// Specifies the path to the file relative to the remote repository root folder.
+        /// This may include a leading slash (which is assumed when not present) and both 
+        /// forward and backslashes are allowed as path separators.
+        /// </param>
+        /// <returns>The file text.</returns>
+        /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="Octokit.NotFoundException">Thrown if the branch or the file doesn't exist.</exception>
+        public async Task<string> GetBranchFileAsTextAsync(string branchName, string relativePath)
+        {
+            await SyncContext.Clear;
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(relativePath), nameof(relativePath));
+            root.EnsureNotDisposed();
+
+            // This ensures that the branch actually exists.
+
+            await root.GitHubApi.Repository.Branch.Get(root.Remote.Id, branchName);
+
+            // Fetch the file, returning FALSE when the file doesn't exist.
+
+            var fileUri  = await GetRemoteFileUriAsync(branchName, relativePath, raw: true);
+            var response = await root.HttpClient.GetAsync(fileUri);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                if (response.StatusCode == HttpStatusCode.NotFound)
+                {
+                    throw new Octokit.NotFoundException($"Remote file not found: {relativePath}", HttpStatusCode.NotFound);
+                }
+
+                response.EnsureSuccessStatusCode();
+            }
+
+            using (var ms = new MemoryStream())
+            {
+                await response.Content.CopyToAsync(ms);
+
+                ms.Position = 0;
+
+                using (var reader = new StreamReader(ms))
+                {
+                    return reader.ReadToEnd();
+                }
+            }
         }
     }
 }

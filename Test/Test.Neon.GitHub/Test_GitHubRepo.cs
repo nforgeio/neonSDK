@@ -810,6 +810,8 @@ namespace TestGitHub
                     // and then verify that we can download the file directly from the
                     // remote repo.  Then verify that we get a FALSE result when the remote
                     // file doesn't exist.
+                    //
+                    // Also verify that we can read a remot file as text.
 
                     using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
                     {
@@ -829,7 +831,7 @@ namespace TestGitHub
 
                             using (var ms = new MemoryStream())
                             {
-                                Assert.True(await repo.Remote.Branch.GetBranchFileAsync("master", $"/{GitHubTestHelper.TestFolder}/{fileName}", ms));
+                                await repo.Remote.Branch.GetBranchFileAsync("master", $"/{GitHubTestHelper.TestFolder}/{fileName}", ms);
 
                                 ms.Position = 0;
 
@@ -838,8 +840,15 @@ namespace TestGitHub
                                     Assert.Equal("HELLO WORLD!", reader.ReadToEnd());
                                 }
 
-                                Assert.False(await repo.Remote.Branch.GetBranchFileAsync("master", $"/{GitHubTestHelper.TestFolder}/{fileName}.bad", ms));
+                                await Assert.ThrowsAsync<Octokit.NotFoundException>((async () => await repo.Remote.Branch.GetBranchFileAsync("master", $"/{GitHubTestHelper.TestFolder}/{fileName}.bad", ms)));
                             }
+
+                            Assert.Equal("HELLO WORLD!", await repo.Remote.Branch.GetBranchFileAsTextAsync("master", $"/{GitHubTestHelper.TestFolder}/{fileName}"));
+
+                            // Verify that we detect missing remote branches and files.
+
+                            await Assert.ThrowsAsync<Octokit.NotFoundException>(async () => await repo.Remote.Branch.GetBranchFileAsTextAsync("bad", $"/{GitHubTestHelper.TestFolder}/{fileName}"));
+                            await Assert.ThrowsAsync<Octokit.NotFoundException>(async () => await repo.Remote.Branch.GetBranchFileAsTextAsync("master", $"/{GitHubTestHelper.TestFolder}/{fileName}.bad"));
                         }
                     }
                 });
