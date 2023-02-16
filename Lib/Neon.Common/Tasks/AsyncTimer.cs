@@ -149,7 +149,7 @@ namespace Neon.Tasks
         /// <summary>
         /// Ensures that the instance is not disposed.
         /// </summary>
-        /// <exception cref="ObjectDisposedException">Thrown then the instance is disposed.</exception>
+        /// <exception cref="ObjectDisposedException">Thrown when the instance is disposed.</exception>
         private void CheckDisposed()
         {
             if (isDisposed)
@@ -189,7 +189,7 @@ namespace Neon.Tasks
         /// <c>null</c> and no callback was specified in constructor or a previous call to 
         /// <see cref="Start(TimeSpan, bool, Func{Task})"/>.
         /// </exception>
-        /// <exception cref="ObjectDisposedException">Thrown then the instance is disposed.</exception>
+        /// <exception cref="ObjectDisposedException">Thrown when the instance is disposed.</exception>
         public void Start(TimeSpan interval = default, bool delayFirstTick = false, Func<Task> callback = null)
         {
             Covenant.Requires<ArgumentException>(interval >= TimeSpan.Zero, nameof(interval));
@@ -253,7 +253,7 @@ namespace Neon.Tasks
         /// <summary>
         /// Stops the timer.
         /// </summary>
-        /// <exception cref="ObjectDisposedException">Thrown then the instance is disposed.</exception>
+        /// <exception cref="ObjectDisposedException">Thrown when the instance is disposed.</exception>
         public void Stop()
         {
             lock (syncLock)

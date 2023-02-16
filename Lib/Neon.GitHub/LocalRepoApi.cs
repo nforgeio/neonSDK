@@ -66,6 +66,8 @@ namespace Neon.GitHub
         /// </param>
         internal LocalRepoApi(GitHubRepo root, string localRepoFolder)
         {
+            Covenant.Requires<ArgumentNullException>(root != null, nameof(root));
+
             this.root   = root;
             this.Folder = localRepoFolder;
         }
@@ -122,7 +124,7 @@ namespace Neon.GitHub
         /// Fetches information from the associated GitHub origin repository.
         /// </summary>
         /// <returns>The tracking <see cref="Task"/>.</returns>
-        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
         public async Task FetchAsync()
@@ -150,7 +152,7 @@ namespace Neon.GitHub
         /// </summary>
         /// <param name="message">Optionally specifies the commit message.  This defaults to <b>unspecified changes"</b>.</param>
         /// <returns><c>true</c> when changes were comitted, <c>false</c> when there were no pending changes.</returns>
-        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
         public async Task<bool> CommitAsync(string message = null)
@@ -185,7 +187,7 @@ namespace Neon.GitHub
         /// </note>
         /// </summary>
         /// <returns>The <see cref="MergeStatus"/> for the operation.</returns>
-        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
         public async Task<MergeStatus> PullAsync()
@@ -220,7 +222,7 @@ namespace Neon.GitHub
         /// local branch.
         /// </summary>
         /// <returns><c>true</c> when commits were pushed, <c>false</c> when there were no pending commits.</returns>
-        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
         public async Task<bool> PushAsync()
@@ -242,7 +244,7 @@ namespace Neon.GitHub
 
             if (!currentBranch.IsTracking)
             {
-                root.GitApi.Branches.Update(currentBranch,
+                currentBranch = root.GitApi.Branches.Update(currentBranch,
                     updater => updater.Remote = root.Origin.Name,
                     updater => updater.UpstreamBranch = currentBranch.CanonicalName);
             }
@@ -259,9 +261,19 @@ namespace Neon.GitHub
             await root.WaitForGitHubAsync(
                 async () =>
                 {
-                    var serverBranchUpdate = await root.Remote.Branch.GetAsync(currentBranch.FriendlyName);
+                    // It may take some time for the new branch to be created
+                    // on GitHub, so we're going to ignore [NotFoundException].
 
-                    return serverBranchUpdate.Commit.Sha == currentBranch.Tip.Sha;
+                    try
+                    {
+                        var serverBranchUpdate = await root.Remote.Branch.GetAsync(currentBranch.FriendlyName);
+
+                        return serverBranchUpdate.Commit.Sha == currentBranch.Tip.Sha;
+                    }
+                    catch (Octokit.NotFoundException)
+                    {
+                        return false;
+                    }
                 });
 
             return await Task.FromResult(true);
@@ -272,7 +284,7 @@ namespace Neon.GitHub
         /// </summary>
         /// <param name="branchName">Specifies the local branch to be checked out.</param>
         /// <returns>The tracking <see cref="Task"/>.</returns>
-        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
         public async Task CheckoutAsync(string branchName)
@@ -282,14 +294,34 @@ namespace Neon.GitHub
             root.EnsureNotDisposed();
             root.EnsureLocalRepo();
 
+            // Try the local branch first and if that doesn't exist, try the remote branch.
+
             var branch = root.GitApi.Branches[branchName];
 
-            if (branch == null)
+            if (branch != null)
             {
-                throw new LibGit2SharpException($"Branch [{branchName}] does not exist.");
+                // The branch is already local so we can check it out immediately.
+
+                Commands.Checkout(root.GitApi, branch);
+            }
+            else
+            {
+                var remoteBranch = root.GitApi.Branches[$"origin/{branchName}"];
+
+                if (remoteBranch == null)
+                {
+                    throw new LibGit2SharpException($"Branch [{branchName}] does not exist locally or remote.");
+                }
+
+                // Create local branch with the specified name and then configure it
+                // to track the remote branch and then check out the local branch.
+
+                branch = root.GitApi.CreateBranch(branchName);
+                branch = root.GitApi.Branches.Update(branch, branch => branch.TrackedBranch = remoteBranch.CanonicalName);
+
+                Commands.Checkout(root.GitApi, branch);
             }
 
-            Commands.Checkout(root.GitApi, branch);
             await Task.CompletedTask;
         }
 
@@ -300,7 +332,7 @@ namespace Neon.GitHub
         /// <param name="branchName">Identifies the branch to being created.</param>
         /// <param name="sourceBranchName">Identifies the source branch.</param>
         /// <returns><c>true</c> if the branch didn't already exist and was created, <c>false</c> otherwise.</returns>
-        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
         public async Task<bool> CreateBranchAsync(string branchName, string sourceBranchName)
@@ -341,7 +373,7 @@ namespace Neon.GitHub
         /// <param name="originBranchName">Specifies the GitHub origin repository branch name.</param>
         /// <param name="branchName">Optionally specifies the local branch name.  This defaults to <paramref name="originBranchName"/>.</param>
         /// <returns><c>true</c> if the local branch didn't already exist and was created from the GitHub origin repository, <c>false</c> otherwise.</returns>
-        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
         public async Task<bool> CheckoutOriginAsync(string originBranchName, string branchName = null)
@@ -370,7 +402,7 @@ namespace Neon.GitHub
         /// </summary>
         /// <param name="branchName">Specifies the branch to be removed.</param>
         /// <returns><c>true</c> if the branch existed and was removed, <c>false</c> otherwise.</returns>
-        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
         public async Task RemoveBranchAsync(string branchName)
@@ -405,7 +437,7 @@ namespace Neon.GitHub
         /// A <see cref="MergeResult"/> for successful merges or when the merged failed and 
         /// <paramref name="throwOnConflict"/> is <c>false</c>.
         /// </returns>
-        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
         public async Task<MergeResult> MergeAsync(string branchName, bool throwOnConflict = true)
@@ -451,7 +483,7 @@ namespace Neon.GitHub
         /// Reverts any uncommitted changes in the current local repository branch.
         /// </summary>
         /// <returns>The tracking <see cref="Task"/>.</returns>
-        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
         public async Task UndoAsync()
@@ -481,7 +513,7 @@ namespace Neon.GitHub
         /// as path separators.
         /// </param>
         /// <returns>The fully qualified file system path to the specified repo file.</returns>
-        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
         public async Task<string> GetLocalFilePathAsync(string relativePath)
         {
@@ -527,10 +559,19 @@ namespace Neon.GitHub
         /// This may include a leading slash (which is assumed when not present) and both 
         /// forward and backslashes are allowed as path separators.
         /// </param>
+        /// <param name="raw">
+        /// Optionally returns the link to the raw file bytes as opposed to the URL
+        /// for the GitHub HTML page for the file.
+        /// </param>
         /// <returns>The GitHub URI for the file from the current branch.</returns>
-        /// <exception cref="ObjectDisposedException">Thrown then the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
-        public async Task<string> GetRemoteFileUriAsync(string relativePath)
+        /// <remarks>
+        /// <note>
+        /// This method <b>does not</b> ensure that the target file actually exists in the repo.
+        /// </note>
+        /// </remarks>
+        public async Task<string> GetRemoteFileUriAsync(string relativePath, bool raw = false)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(relativePath), nameof(relativePath));
@@ -544,9 +585,14 @@ namespace Neon.GitHub
                 relativePath = relativePath.Substring(1);
             }
 
-            var uri = new Uri($"{root.Remote.BaseUri}{root.Remote.Path.Name}/blob/{CurrentBranch.FriendlyName}/{relativePath}");
-
-            return await Task.FromResult(uri.ToString());
+            if (raw)
+            {
+                return new Uri($"https://raw.githubusercontent.com/{root.Remote.Path.Owner}/{root.Remote.Path.Name}/{CurrentBranch.FriendlyName}/{relativePath}").ToString();
+            }
+            else
+            {
+                return new Uri($"{root.Remote.BaseUri}{root.Remote.Path.Name}/blob/{CurrentBranch.FriendlyName}/{relativePath}").ToString();
+            }
         }
 
         /// <summary>
