@@ -87,15 +87,9 @@ namespace Neon.Service
         /// <summary>
         /// Constructs a processor that counts logged events by <see cref="LogLevel"/>.
         /// </summary>
-        /// <param name="metricsPrefix">Optionally specifies a prefix to be prepended to to the counter name.</param>
-        public LogMetricsProcessor(string metricsPrefix = null)
+        public LogMetricsProcessor()
         {
-            var counterName = "neon_log_events";
-
-            if (!string.IsNullOrEmpty(metricsPrefix))
-            {
-                counterName = $"{metricsPrefix}_{counterName}";
-            }
+            var counterName = $"{NeonHelper.NeonMetricsPrefix}_log_events_total";
 
             logCounter = Metrics.CreateCounter(counterName, "Logged event count.", "level" );
 

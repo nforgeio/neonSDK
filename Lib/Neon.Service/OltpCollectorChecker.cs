@@ -132,7 +132,7 @@ namespace Neon.Service
 
             OtlpCollectorChecker.service          = service;
             OtlpCollectorChecker.collectorUri     = collectorUri;
-            OtlpCollectorChecker.unavailableCount = Metrics.CreateCounter($"{service.MetricsPrefix}_otlp_collector_unavailable", "Number of times the OTLP Collector service has transitioned to being unavailable.");
+            OtlpCollectorChecker.unavailableCount = Metrics.CreateCounter($"{NeonHelper.NeonMetricsPrefix}_otlp_collector_unavailable_total", "Number of times the OTLP Collector service has transitioned to being unavailable.");
 
             dns = new LookupClient(new LookupClientOptions()
             {

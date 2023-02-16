@@ -25,12 +25,12 @@ namespace NeonBlazorProxy
     public sealed class KestrelMetrics : IMetricsConsumer<Yarp.Telemetry.Consumption.KestrelMetrics>
     {
         private static readonly Counter Connections = Metrics.CreateCounter(
-            "neonblazorproxy_kestrel_connections",
+            "neonblazorproxy_kestrel_connections_total",
             "Number of incomming connections opened"
             );
 
         private static readonly Counter TlsHandshakes = Metrics.CreateCounter(
-            "neonblazorproxy_kestrel_tls_Handshakes",
+            "neonblazorproxy_kestrel_tls_Handshakes_total",
             "Numer of TLS handshakes started"
             );
 
@@ -40,7 +40,7 @@ namespace NeonBlazorProxy
             );
 
         private static readonly Counter _failedTlsHandshakes = Metrics.CreateCounter(
-            "neonblazorproxy_kestrel_failed_tls_handshakes",
+            "neonblazorproxy_kestrel_failed_tls_handshakes_total",
             "Number of TLS handshakes that failed"
             );
 

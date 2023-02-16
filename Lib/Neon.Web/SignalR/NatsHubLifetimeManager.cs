@@ -104,13 +104,15 @@ namespace Neon.Web.SignalR
         {
             await SyncContext.Clear;
 
+            using var activity = TelemetryHub.ActivitySource?.StartActivity();
+
             if (nats.IsClosed() && !nats.IsReconnecting())
             {
                 throw new NATSConnectionException("The connection to NATS is closed");
             }
 
             using (await lockProvider.LockAsync(typeof(THub).FullName))
-            { 
+            {
                 await NeonHelper.WaitForAsync(
                     async () =>
                     {
@@ -131,6 +133,8 @@ namespace Neon.Web.SignalR
         public override async Task OnConnectedAsync(HubConnectionContext connection)
         {
             await SyncContext.Clear;
+
+            using var activity = TelemetryHub.ActivitySource?.StartActivity();
 
             await EnsureNatsServerConnection();
 
@@ -156,6 +160,8 @@ namespace Neon.Web.SignalR
         public override async Task OnDisconnectedAsync(HubConnectionContext connection)
         {
             await SyncContext.Clear;
+
+            using var activity = TelemetryHub.ActivitySource?.StartActivity();
 
             hubConnections.Remove(connection);
 
@@ -203,6 +209,8 @@ namespace Neon.Web.SignalR
         {
             await SyncContext.Clear;
 
+            using var activity = TelemetryHub.ActivitySource?.StartActivity();
+
             Covenant.Requires<ArgumentNullException>(connectionId != null, nameof(connectionId));
             Covenant.Requires<ArgumentNullException>(groupName != null, nameof(groupName));
 
@@ -223,6 +231,8 @@ namespace Neon.Web.SignalR
         {
             await SyncContext.Clear;
 
+            using var activity = TelemetryHub.ActivitySource?.StartActivity();
+
             Covenant.Requires<ArgumentNullException>(connectionId != null, nameof(connectionId));
             Covenant.Requires<ArgumentNullException>(groupName != null, nameof(groupName));
 
@@ -234,7 +244,7 @@ namespace Neon.Web.SignalR
 
                 await RemoveGroupAsyncCore(connection, groupName);
             }
-            
+
             await SendGroupActionAndWaitForAckAsync(connectionId, groupName, GroupAction.Remove);
         }
 
@@ -242,6 +252,8 @@ namespace Neon.Web.SignalR
         public override async Task SendAllAsync(string methodName, object[] args, CancellationToken cancellationToken = default)
         {
             await SyncContext.Clear;
+
+            using var activity = TelemetryHub.ActivitySource?.StartActivity();
 
             Covenant.Requires<ArgumentNullException>(methodName != null, nameof(methodName));
             Covenant.Requires<ArgumentNullException>(args != null, nameof(args));
@@ -253,6 +265,8 @@ namespace Neon.Web.SignalR
         public override async Task SendAllExceptAsync(string methodName, object[] args, IReadOnlyList<string> excludedConnectionIds, CancellationToken cancellationToken = default)
         {
             await SyncContext.Clear;
+
+            using var activity = TelemetryHub.ActivitySource?.StartActivity();
 
             Covenant.Requires<ArgumentNullException>(methodName != null, nameof(methodName));
             Covenant.Requires<ArgumentNullException>(args != null, nameof(args));
@@ -266,6 +280,8 @@ namespace Neon.Web.SignalR
         {
             await SyncContext.Clear;
 
+            using var activity = TelemetryHub.ActivitySource?.StartActivity();
+
             Covenant.Requires<ArgumentNullException>(connectionId != null, nameof(connectionId));
             Covenant.Requires<ArgumentNullException>(methodName != null, nameof(methodName));
             Covenant.Requires<ArgumentNullException>(args != null, nameof(args));
@@ -277,6 +293,8 @@ namespace Neon.Web.SignalR
         public override async Task SendConnectionsAsync(IReadOnlyList<string> connectionIds, string methodName, object[] args, CancellationToken cancellationToken = default)
         {
             await SyncContext.Clear;
+
+            using var activity = TelemetryHub.ActivitySource?.StartActivity();
 
             Covenant.Requires<ArgumentNullException>(connectionIds != null, nameof(connectionIds));
             Covenant.Requires<ArgumentNullException>(methodName != null, nameof(methodName));
@@ -298,6 +316,8 @@ namespace Neon.Web.SignalR
         {
             await SyncContext.Clear;
 
+            using var activity = TelemetryHub.ActivitySource?.StartActivity();
+
             Covenant.Requires<ArgumentNullException>(groupName != null, nameof(groupName));
             Covenant.Requires<ArgumentNullException>(methodName != null, nameof(methodName));
             Covenant.Requires<ArgumentNullException>(args != null, nameof(args));
@@ -309,6 +329,8 @@ namespace Neon.Web.SignalR
         public override async Task SendGroupExceptAsync(string groupName, string methodName, object[] args, IReadOnlyList<string> excludedConnectionIds, CancellationToken cancellationToken = default)
         {
             await SyncContext.Clear;
+
+            using var activity = TelemetryHub.ActivitySource?.StartActivity();
 
             Covenant.Requires<ArgumentNullException>(groupName != null, nameof(groupName));
             Covenant.Requires<ArgumentNullException>(methodName != null, nameof(methodName));
@@ -322,6 +344,8 @@ namespace Neon.Web.SignalR
         public override async Task SendGroupsAsync(IReadOnlyList<string> groupNames, string methodName, object[] args, CancellationToken cancellationToken = default)
         {
             await SyncContext.Clear;
+
+            using var activity = TelemetryHub.ActivitySource?.StartActivity();
 
             Covenant.Requires<ArgumentNullException>(groupNames != null, nameof(groupNames));
             Covenant.Requires<ArgumentNullException>(methodName != null, nameof(methodName));
@@ -343,6 +367,8 @@ namespace Neon.Web.SignalR
         {
             await SyncContext.Clear;
 
+            using var activity = TelemetryHub.ActivitySource?.StartActivity();
+
             Covenant.Requires<ArgumentNullException>(userId != null, nameof(userId));
             Covenant.Requires<ArgumentNullException>(methodName != null, nameof(methodName));
             Covenant.Requires<ArgumentNullException>(args != null, nameof(args));
@@ -354,6 +380,8 @@ namespace Neon.Web.SignalR
         public override async Task SendUsersAsync(IReadOnlyList<string> userIds, string methodName, object[] args, CancellationToken cancellationToken = default)
         {
             await SyncContext.Clear;
+
+            using var activity = TelemetryHub.ActivitySource?.StartActivity();
 
             Covenant.Requires<ArgumentNullException>(userIds != null, nameof(userIds));
             Covenant.Requires<ArgumentNullException>(methodName != null, nameof(methodName));
@@ -380,7 +408,9 @@ namespace Neon.Web.SignalR
         private async Task PublishAsync(string subject, byte[] payload)
         {
             await SyncContext.Clear;
-            
+
+            using var activity = TelemetryHub.ActivitySource?.StartActivity();
+
             await EnsureNatsServerConnection();
 
             logger?.LogDebugEx($"Publishing message to NATS subject: [Subject={subject}].");
@@ -392,6 +422,8 @@ namespace Neon.Web.SignalR
         {
             await SyncContext.Clear;
 
+            using var activity = TelemetryHub.ActivitySource?.StartActivity();
+
             var userSubject = subjects.User(connection.UserIdentifier!);
 
             await users.RemoveSubscriptionAsync(userSubject, connection, this);
@@ -400,7 +432,9 @@ namespace Neon.Web.SignalR
         private async Task SubscribeToConnectionAsync(HubConnectionContext connection)
         {
             await SyncContext.Clear;
-            
+
+            using var activity = TelemetryHub.ActivitySource?.StartActivity();
+
             var connectionSubject = subjects.Connection(connection.ConnectionId);
 
             await connections.AddSubscriptionAsync(connectionSubject, connection, async (subjectName, subscriptions) =>
@@ -410,6 +444,8 @@ namespace Neon.Web.SignalR
                 EventHandler<MsgHandlerEventArgs> handler = async (sender, args) =>
                 {
                     await SyncContext.Clear;
+
+                    using var activity = TelemetryHub.ActivitySource?.StartActivity("message-event-handler");
 
                     logger?.LogDebugEx($"Received message from NATS subject: [Subject={connectionSubject}].");
 
@@ -440,6 +476,8 @@ namespace Neon.Web.SignalR
         {
             await SyncContext.Clear;
 
+            using var activity = TelemetryHub.ActivitySource?.StartActivity();
+
             var connectionSubject = subjects.Connection(connection.ConnectionId);
 
             await connections.RemoveSubscriptionAsync(connectionSubject, connection, this);
@@ -448,6 +486,8 @@ namespace Neon.Web.SignalR
         private async Task SubscribeToUserAsync(HubConnectionContext connection)
         {
             await SyncContext.Clear;
+
+            using var activity = TelemetryHub.ActivitySource?.StartActivity();
 
             var userSubject = subjects.User(connection.UserIdentifier!);
 
@@ -458,6 +498,8 @@ namespace Neon.Web.SignalR
                 EventHandler<MsgHandlerEventArgs> handler = async (sender, args) =>
                 {
                     await SyncContext.Clear;
+
+                    using var activity = TelemetryHub.ActivitySource?.StartActivity("user-event");
 
                     logger?.LogDebugEx($"Received message from NATS subject: [Subject={userSubject}].");
 

@@ -69,6 +69,8 @@ namespace Neon.Web.SignalR
         {
             await SyncContext.Clear;
 
+            using var activity = TelemetryHub.ActivitySource?.StartActivity();
+
             using (await lockProvider.LockAsync($"{connection.ConnectionId}-{id}"))
             {
                 logger?.LogDebugEx($"Subscribing to subject: [Subject={id}]");
@@ -113,6 +115,10 @@ namespace Neon.Web.SignalR
         /// <returns>The tracking <see cref="Task"/>.</returns>
         public async Task RemoveSubscriptionAsync(string id, HubConnectionContext connection, object state)
         {
+            await SyncContext.Clear;
+
+            using var activity = TelemetryHub.ActivitySource?.StartActivity();
+
             using (await lockProvider.LockAsync($"{connection.ConnectionId}-{id}"))
             {
                 logger?.LogDebugEx($"Unsubscribing from NATS subject: [Subject={id}] [Connection={connection.ConnectionId}]");

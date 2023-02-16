@@ -25,28 +25,28 @@ namespace NeonBlazorProxy
     public sealed class SocketMetrics : IMetricsConsumer<SocketsMetrics>
     {
         private static readonly Counter _outgoingConnectionsEstablished = Metrics.CreateCounter(
-            "neonblazorproxy_sockets_outgoing_connections_established",
+            "neonblazorproxy_sockets_outgoing_connections_established_total",
             "Number of outgoing (Connect) Socket connections established"
             );
 
 
         private static readonly Counter _incomingConnectionsEstablished = Metrics.CreateCounter(
-            "neonblazorproxy_sockets_incomming_connections_established",
+            "neonblazorproxy_sockets_incomming_connections_established_total",
             "Number of incoming (Accept) Socket connections established"
             );
 
         private static readonly Counter _bytesReceived = Metrics.CreateCounter(
-            "neonblazorproxy_sockets_bytes_recieved",
+            "neonblazorproxy_sockets_bytes_recieved_total",
             "Number of bytes received"
             );
 
         private static readonly Counter _bytesSent = Metrics.CreateCounter(
-            "neonblazorproxy_sockets_bytes_sent",
+            "neonblazorproxy_sockets_bytes_sent_total",
             "Number of bytes sent"
             );
 
         private static readonly Counter _datagramsReceived = Metrics.CreateCounter(
-            "neonblazorproxy_sockets_datagrams_received",
+            "neonblazorproxy_sockets_datagrams_received_total",
             "Number of datagrams received"
             );
 

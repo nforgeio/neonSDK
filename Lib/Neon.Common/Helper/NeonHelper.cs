@@ -156,7 +156,7 @@ namespace Neon.Common
         /// <summary>
         /// Returns the prefix to be used for Neon related Prometheus names.
         /// </summary>
-        public const string NeonMetricsPrefix = "neon.";
+        public const string NeonMetricsPrefix = "neonsdk";
 
         /// <summary>
         /// The URI for the public AWS S3 bucket where we persist cluster VM images 

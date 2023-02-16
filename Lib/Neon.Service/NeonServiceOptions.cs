@@ -72,14 +72,6 @@ namespace Neon.Service
         public TracerProvider TracerProvider { get; set; }
 
         /// <summary>
-        /// Optionally specifies prefix to be used by metrics counters, overridding a prefix based on the
-        /// service name.  This prefix may include only alphanumeric characters and underscores.  By default,
-        /// this will be set to the service name with any non-alphanumeric characters converted to underscores.
-        /// In either case, the class will add a trailing underscore when not already present.
-        /// </summary>
-        public string MetricsPrefix { get; set; } = null;
-
-        /// <summary>
         /// <para>
         /// Optionally specifies the folder path where the service will maintain the <b>health-status</b>
         /// file and deploy the <b>health-check</b> and <b>ready-check</b> binaries.  See the class 

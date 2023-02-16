@@ -46,13 +46,12 @@ namespace Neon.Service
         /// metrics counter.
         /// </summary>
         /// <param name="loggerOptions">The <see cref="OpenTelemetryLoggerOptions"/> options to where the exporter will be added.</param>
-        /// <param name="metricsPrefix">Optionally specifies a prefix to be prepended to to the counter name.</param>
         /// <returns>The <paramref name="loggerOptions"/> to enable fluent style programming.</returns>
-        public static OpenTelemetryLoggerOptions AddLogMetricsProcessor(this OpenTelemetryLoggerOptions loggerOptions, string metricsPrefix = null)
+        public static OpenTelemetryLoggerOptions AddLogMetricsProcessor(this OpenTelemetryLoggerOptions loggerOptions)
         {
             Covenant.Requires<ArgumentNullException>(loggerOptions != null, nameof(loggerOptions));
 
-            return loggerOptions.AddProcessor(new LogMetricsProcessor(metricsPrefix));
+            return loggerOptions.AddProcessor(new LogMetricsProcessor());
         }
     }
 }
