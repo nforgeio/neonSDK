@@ -89,6 +89,13 @@ namespace TestGitHub
                             Assert.Equal(validRemoteUri, await repo.Local.GetRemoteFileUriAsync(@"test/foo.txt"));
                             Assert.Equal(validRemoteUri, await repo.Local.GetRemoteFileUriAsync(@"\test\foo.txt"));
                             Assert.Equal(validRemoteUri, await repo.Local.GetRemoteFileUriAsync(@"test\foo.txt"));
+
+                            var validRawRemoteUri = $"https://raw.githubusercontent.com/{repo.Remote.Owner}/{repo.Remote.Name}/{repo.Local.CurrentBranch.FriendlyName}/test/foo.txt";
+
+                            Assert.Equal(validRawRemoteUri, await repo.Local.GetRemoteFileUriAsync(@"/test/foo.txt", raw: true));
+                            Assert.Equal(validRawRemoteUri, await repo.Local.GetRemoteFileUriAsync(@"test/foo.txt", raw: true));
+                            Assert.Equal(validRawRemoteUri, await repo.Local.GetRemoteFileUriAsync(@"\test\foo.txt", raw: true));
+                            Assert.Equal(validRawRemoteUri, await repo.Local.GetRemoteFileUriAsync(@"test\foo.txt", raw: true));
                         }
                     }
                 });
@@ -505,7 +512,7 @@ namespace TestGitHub
                         {
                             Assert.Equal("master", repo.Local.CurrentBranch.FriendlyName);
 
-                            // Create a local branch only and verify.
+                            // Create a local branch and verify.
 
                             Assert.True(await repo.Local.CreateBranchAsync(newBranchName, "master"));
                             Assert.NotNull(repo.GitApi.Branches[newBranchName]);
@@ -541,7 +548,7 @@ namespace TestGitHub
         }
 
         [MaintainerFact]
-        public async Task Remote_Checkout()
+        public async Task Checkout()
         {
             // Verify that we can checkout an existing remote branch to the
             // local repo with the same name (the default) or to a new branch
@@ -561,6 +568,7 @@ namespace TestGitHub
                         using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepoPath, repoPath))
                         {
                             await repo.Local.CreateBranchAsync(newBranchName, "master");
+                            Assert.Equal(newBranchName, repo.Local.CurrentBranch.FriendlyName);
                             Assert.True(repo.GitApi.Branches[newBranchName] != null);
                             Assert.True(repo.GitApi.Branches[newBranchName].IsCurrentRepositoryHead);
                             await repo.Local.PushAsync();
@@ -568,6 +576,8 @@ namespace TestGitHub
 
                         // Delete all repo files, re-clone the remote repo and then verify that
                         // we can checkout the remote with the new branch.
+                        //
+                        // Then verify that we can switch back and forth between local branches.
 
                         NeonHelper.DeleteFolderContents(repoPath);
                         Directory.Delete(repoPath);
@@ -577,6 +587,15 @@ namespace TestGitHub
                             Assert.Equal(newBranchName, repo.Local.CurrentBranch.FriendlyName);
                             Assert.True(repo.GitApi.Branches[newBranchName] != null);
                             Assert.True(repo.GitApi.Branches[newBranchName].IsCurrentRepositoryHead);
+
+                            await repo.Local.CheckoutAsync("master");
+                            Assert.Equal("master", repo.Local.CurrentBranch.FriendlyName);
+
+                            await repo.Local.CheckoutAsync(newBranchName);
+                            Assert.Equal(newBranchName, repo.Local.CurrentBranch.FriendlyName);
+
+                            await repo.Local.CheckoutAsync("master");
+                            Assert.Equal("master", repo.Local.CurrentBranch.FriendlyName);
                         }
                     }
                 });
@@ -775,6 +794,61 @@ namespace TestGitHub
                                     Assert.True(await repo2.Local.IsBehindAsync());
                                 }
                             }
+                        }
+                    }
+                });
+        }
+
+        [MaintainerFact]
+        public async Task GetRemoteFile()
+        {
+            await GitHubTestHelper.RunTestAsync(
+                async () =>
+                {
+                    //-------------------------------------------------
+                    // Clone a repo add a file and perform a local commit and then push
+                    // and then verify that we can download the file directly from the
+                    // remote repo.  Then verify that we get a FALSE result when the remote
+                    // file doesn't exist.
+                    //
+                    // Also verify that we can read a remot file as text.
+
+                    using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
+                    {
+                        var repoPath = tempFolder.Path;
+
+                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepoPath, repoPath))
+                        {
+                            var testFolder = Path.Combine(tempFolder.Path, GitHubTestHelper.TestFolder);
+                            var fileName   = $"{Guid.NewGuid()}.txt";
+                            var filePath   = Path.Combine(testFolder, fileName);
+
+                            Directory.CreateDirectory(testFolder);
+
+                            File.WriteAllText(filePath, "HELLO WORLD!");
+                            await repo.Local.CommitAsync();
+                            await repo.Local.PushAsync();
+
+                            using (var ms = new MemoryStream())
+                            {
+                                await repo.Remote.Branch.GetBranchFileAsync("master", $"/{GitHubTestHelper.TestFolder}/{fileName}", ms);
+
+                                ms.Position = 0;
+
+                                using (var reader = new StreamReader(ms))
+                                {
+                                    Assert.Equal("HELLO WORLD!", reader.ReadToEnd());
+                                }
+
+                                await Assert.ThrowsAsync<Octokit.NotFoundException>((async () => await repo.Remote.Branch.GetBranchFileAsync("master", $"/{GitHubTestHelper.TestFolder}/{fileName}.bad", ms)));
+                            }
+
+                            Assert.Equal("HELLO WORLD!", await repo.Remote.Branch.GetBranchFileAsTextAsync("master", $"/{GitHubTestHelper.TestFolder}/{fileName}"));
+
+                            // Verify that we detect missing remote branches and files.
+
+                            await Assert.ThrowsAsync<Octokit.NotFoundException>(async () => await repo.Remote.Branch.GetBranchFileAsTextAsync("bad", $"/{GitHubTestHelper.TestFolder}/{fileName}"));
+                            await Assert.ThrowsAsync<Octokit.NotFoundException>(async () => await repo.Remote.Branch.GetBranchFileAsTextAsync("master", $"/{GitHubTestHelper.TestFolder}/{fileName}.bad"));
                         }
                     }
                 });

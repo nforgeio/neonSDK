@@ -112,6 +112,11 @@ namespace Neon.GitHub
         }
 
         /// <summary>
+        /// Returns the remote repo owner.
+        /// </summary>
+        public string Owner => Path.Owner;
+
+        /// <summary>
         /// Returns the remote repo name.
         /// </summary>
         public string Name => Path.Name;
