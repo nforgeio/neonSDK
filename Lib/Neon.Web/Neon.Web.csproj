@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-        <TargetFrameworks>net6.0; net7.0</TargetFrameworks>
+        <TargetFrameworks>net7.0</TargetFrameworks>
         <OutputType>Library</OutputType>
 		<RootNamespace>Neon.Web</RootNamespace>
 		<Version>3.0.0</Version>
@@ -26,24 +26,24 @@
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 		<PackageReference Include="AsyncKeyedLock" Version="6.1.1" />
 		<PackageReference Include="Microsoft.Net.Http.Headers" Version="2.2.8" />
-        <PackageReference Include="MessagePack" Version="2.4.35" />
-        <PackageReference Include="NATS.Client" Version="1.0.1" />
+        <PackageReference Include="MessagePack" Version="2.4.59" />
+        <PackageReference Include="NATS.Client" Version="1.0.3" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.9" />
-		<PackageReference Include="Microsoft.AspNetCore.TestHost" Version="6.0.9" />
-		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="6.0.9" />
-		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="6.0.9" />
-		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.NewtonsoftJson" Version="6.0.9" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="7.0.3" />
+		<PackageReference Include="Microsoft.AspNetCore.TestHost" Version="7.0.3" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="7.0.3" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="7.0.3" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.NewtonsoftJson" Version="7.0.3" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.9" />
-		<PackageReference Include="Microsoft.AspNetCore.TestHost" Version="6.0.9" />
-		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="6.0.9" />
-		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="6.0.9" />
-		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.NewtonsoftJson" Version="6.0.9" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="7.0.3" />
+		<PackageReference Include="Microsoft.AspNetCore.TestHost" Version="7.0.3" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="7.0.3" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="7.0.3" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.NewtonsoftJson" Version="7.0.3" />
 	</ItemGroup>
 
 	<ItemGroup>

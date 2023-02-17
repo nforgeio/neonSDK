@@ -29,37 +29,23 @@ using OpenTelemetry.Trace;
 
 namespace Neon.Web
 {
-    /// <summary>
-    /// Neon.Web Tracing Instrumentation.
-    /// </summary>
-    public static class TracerProviderBuilderExtensions
+    internal static class TraceContext
     {
-        /// <summary>
-        /// The assembly name.
-        /// </summary>
         internal static readonly AssemblyName AssemblyName = typeof(TracerProviderBuilderExtensions).Assembly.GetName();
 
-        /// <summary>
-        /// The activity source name.
-        /// </summary>
         internal static readonly string ActivitySourceName = AssemblyName.Name;
 
-        /// <summary>
-        /// The version.
-        /// </summary>
         internal static readonly Version Version = AssemblyName.Version;
 
-        /// <summary>
-        /// Adds Neon.Web to the tracing pipeline.
-        /// </summary>
-        /// <param name="builder"></param>
-        /// <returns></returns>
-        public static TracerProviderBuilder AddNeonWeb(
-            this TracerProviderBuilder builder)
-        {
-            builder.AddSource(ActivitySourceName);
+        internal static ActivitySource ActivitySource => Cached.Source.Value;
 
-            return builder;
+        static class Cached
+        {
+            internal static readonly Lazy<ActivitySource> Source = new Lazy<ActivitySource>(
+            () =>
+            {
+                return new ActivitySource(ActivitySourceName, Version.ToString());
+            });
         }
     }
 }

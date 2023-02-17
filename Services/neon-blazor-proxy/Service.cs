@@ -218,16 +218,17 @@ namespace NeonBlazorProxy
         /// <inheritdoc/>
         protected override bool OnTracerConfig(TracerProviderBuilder builder)
         {
-            builder.AddHttpClientInstrumentation();
-            builder.AddAspNetCoreInstrumentation();
-            builder.AddOtlpExporter(
-                options =>
-                {
-                    options.ExportProcessorType = ExportProcessorType.Batch;
-                    options.BatchExportProcessorOptions = new BatchExportProcessorOptions<Activity>();
-                    options.Endpoint = new Uri(NeonHelper.NeonKubeOtelCollectorUri);
-                    options.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.Grpc;
-                });
+            builder.AddHttpClientInstrumentation()
+                .AddAspNetCoreInstrumentation()
+                .AddOtlpExporter(
+                    options =>
+                    {
+                        options.ExportProcessorType = ExportProcessorType.Batch;
+                        options.BatchExportProcessorOptions = new BatchExportProcessorOptions<Activity>();
+                        options.Endpoint = new Uri(NeonHelper.NeonKubeOtelCollectorUri);
+                        options.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.Grpc;
+                    });
+
             return true;
         }
     }
