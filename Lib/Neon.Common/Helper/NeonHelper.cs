@@ -260,6 +260,11 @@ namespace Neon.Common
         }
 
         /// <summary>
+        /// Returns the default user home.  This is not affected by calls to <see cref="SetUserHomeFolder(string)"/>.
+        /// </summary>
+        public static string DefaultUserHomeFolder { get; private set; } = UserHomeFolder;
+
+        /// <summary>
         /// Returns the path to the current user's HOME folder.
         /// </summary>
         public static string UserHomeFolder
