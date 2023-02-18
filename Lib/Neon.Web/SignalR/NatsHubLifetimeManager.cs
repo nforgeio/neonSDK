@@ -104,7 +104,7 @@ namespace Neon.Web.SignalR
         {
             await SyncContext.Clear;
 
-            using var activity = TelemetryHub.ActivitySource?.StartActivity();
+            using var activity = TraceContext.ActivitySource?.StartActivity();
 
             if (nats.IsClosed() && !nats.IsReconnecting())
             {
@@ -134,7 +134,7 @@ namespace Neon.Web.SignalR
         {
             await SyncContext.Clear;
 
-            using var activity = TelemetryHub.ActivitySource?.StartActivity();
+            using var activity = TraceContext.ActivitySource?.StartActivity();
 
             await EnsureNatsServerConnection();
 
@@ -161,7 +161,7 @@ namespace Neon.Web.SignalR
         {
             await SyncContext.Clear;
 
-            using var activity = TelemetryHub.ActivitySource?.StartActivity();
+            using var activity = TraceContext.ActivitySource?.StartActivity();
 
             hubConnections.Remove(connection);
 
@@ -209,7 +209,7 @@ namespace Neon.Web.SignalR
         {
             await SyncContext.Clear;
 
-            using var activity = TelemetryHub.ActivitySource?.StartActivity();
+            using var activity = TraceContext.ActivitySource?.StartActivity();
 
             Covenant.Requires<ArgumentNullException>(connectionId != null, nameof(connectionId));
             Covenant.Requires<ArgumentNullException>(groupName != null, nameof(groupName));
@@ -231,7 +231,7 @@ namespace Neon.Web.SignalR
         {
             await SyncContext.Clear;
 
-            using var activity = TelemetryHub.ActivitySource?.StartActivity();
+            using var activity = TraceContext.ActivitySource?.StartActivity();
 
             Covenant.Requires<ArgumentNullException>(connectionId != null, nameof(connectionId));
             Covenant.Requires<ArgumentNullException>(groupName != null, nameof(groupName));
@@ -253,7 +253,7 @@ namespace Neon.Web.SignalR
         {
             await SyncContext.Clear;
 
-            using var activity = TelemetryHub.ActivitySource?.StartActivity();
+            using var activity = TraceContext.ActivitySource?.StartActivity();
 
             Covenant.Requires<ArgumentNullException>(methodName != null, nameof(methodName));
             Covenant.Requires<ArgumentNullException>(args != null, nameof(args));
@@ -266,7 +266,7 @@ namespace Neon.Web.SignalR
         {
             await SyncContext.Clear;
 
-            using var activity = TelemetryHub.ActivitySource?.StartActivity();
+            using var activity = TraceContext.ActivitySource?.StartActivity();
 
             Covenant.Requires<ArgumentNullException>(methodName != null, nameof(methodName));
             Covenant.Requires<ArgumentNullException>(args != null, nameof(args));
@@ -280,7 +280,7 @@ namespace Neon.Web.SignalR
         {
             await SyncContext.Clear;
 
-            using var activity = TelemetryHub.ActivitySource?.StartActivity();
+            using var activity = TraceContext.ActivitySource?.StartActivity();
 
             Covenant.Requires<ArgumentNullException>(connectionId != null, nameof(connectionId));
             Covenant.Requires<ArgumentNullException>(methodName != null, nameof(methodName));
@@ -294,7 +294,7 @@ namespace Neon.Web.SignalR
         {
             await SyncContext.Clear;
 
-            using var activity = TelemetryHub.ActivitySource?.StartActivity();
+            using var activity = TraceContext.ActivitySource?.StartActivity();
 
             Covenant.Requires<ArgumentNullException>(connectionIds != null, nameof(connectionIds));
             Covenant.Requires<ArgumentNullException>(methodName != null, nameof(methodName));
@@ -316,7 +316,7 @@ namespace Neon.Web.SignalR
         {
             await SyncContext.Clear;
 
-            using var activity = TelemetryHub.ActivitySource?.StartActivity();
+            using var activity = TraceContext.ActivitySource?.StartActivity();
 
             Covenant.Requires<ArgumentNullException>(groupName != null, nameof(groupName));
             Covenant.Requires<ArgumentNullException>(methodName != null, nameof(methodName));
@@ -330,7 +330,7 @@ namespace Neon.Web.SignalR
         {
             await SyncContext.Clear;
 
-            using var activity = TelemetryHub.ActivitySource?.StartActivity();
+            using var activity = TraceContext.ActivitySource?.StartActivity();
 
             Covenant.Requires<ArgumentNullException>(groupName != null, nameof(groupName));
             Covenant.Requires<ArgumentNullException>(methodName != null, nameof(methodName));
@@ -345,7 +345,7 @@ namespace Neon.Web.SignalR
         {
             await SyncContext.Clear;
 
-            using var activity = TelemetryHub.ActivitySource?.StartActivity();
+            using var activity = TraceContext.ActivitySource?.StartActivity();
 
             Covenant.Requires<ArgumentNullException>(groupNames != null, nameof(groupNames));
             Covenant.Requires<ArgumentNullException>(methodName != null, nameof(methodName));
@@ -367,7 +367,7 @@ namespace Neon.Web.SignalR
         {
             await SyncContext.Clear;
 
-            using var activity = TelemetryHub.ActivitySource?.StartActivity();
+            using var activity = TraceContext.ActivitySource?.StartActivity();
 
             Covenant.Requires<ArgumentNullException>(userId != null, nameof(userId));
             Covenant.Requires<ArgumentNullException>(methodName != null, nameof(methodName));
@@ -381,7 +381,7 @@ namespace Neon.Web.SignalR
         {
             await SyncContext.Clear;
 
-            using var activity = TelemetryHub.ActivitySource?.StartActivity();
+            using var activity = TraceContext.ActivitySource?.StartActivity();
 
             Covenant.Requires<ArgumentNullException>(userIds != null, nameof(userIds));
             Covenant.Requires<ArgumentNullException>(methodName != null, nameof(methodName));
@@ -409,7 +409,7 @@ namespace Neon.Web.SignalR
         {
             await SyncContext.Clear;
 
-            using var activity = TelemetryHub.ActivitySource?.StartActivity();
+            using var activity = TraceContext.ActivitySource?.StartActivity();
 
             await EnsureNatsServerConnection();
 
@@ -422,7 +422,7 @@ namespace Neon.Web.SignalR
         {
             await SyncContext.Clear;
 
-            using var activity = TelemetryHub.ActivitySource?.StartActivity();
+            using var activity = TraceContext.ActivitySource?.StartActivity();
 
             var userSubject = subjects.User(connection.UserIdentifier!);
 
@@ -433,7 +433,7 @@ namespace Neon.Web.SignalR
         {
             await SyncContext.Clear;
 
-            using var activity = TelemetryHub.ActivitySource?.StartActivity();
+            using var activity = TraceContext.ActivitySource?.StartActivity();
 
             var connectionSubject = subjects.Connection(connection.ConnectionId);
 
@@ -445,7 +445,7 @@ namespace Neon.Web.SignalR
                 {
                     await SyncContext.Clear;
 
-                    using var activity = TelemetryHub.ActivitySource?.StartActivity("message-event-handler");
+                    using var activity = TraceContext.ActivitySource?.StartActivity("message-event-handler");
 
                     logger?.LogDebugEx($"Received message from NATS subject: [Subject={connectionSubject}].");
 
@@ -476,7 +476,7 @@ namespace Neon.Web.SignalR
         {
             await SyncContext.Clear;
 
-            using var activity = TelemetryHub.ActivitySource?.StartActivity();
+            using var activity = TraceContext.ActivitySource?.StartActivity();
 
             var connectionSubject = subjects.Connection(connection.ConnectionId);
 
@@ -487,7 +487,7 @@ namespace Neon.Web.SignalR
         {
             await SyncContext.Clear;
 
-            using var activity = TelemetryHub.ActivitySource?.StartActivity();
+            using var activity = TraceContext.ActivitySource?.StartActivity();
 
             var userSubject = subjects.User(connection.UserIdentifier!);
 
@@ -499,7 +499,7 @@ namespace Neon.Web.SignalR
                 {
                     await SyncContext.Clear;
 
-                    using var activity = TelemetryHub.ActivitySource?.StartActivity("user-event");
+                    using var activity = TraceContext.ActivitySource?.StartActivity("user-event");
 
                     logger?.LogDebugEx($"Received message from NATS subject: [Subject={userSubject}].");
 

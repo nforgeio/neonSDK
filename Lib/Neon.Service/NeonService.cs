@@ -927,7 +927,8 @@ namespace Neon.Service
                     var tracerProviderBuilder = Sdk.CreateTracerProviderBuilder()
                         .AddSource(name, version)
                         .SetSampler(OtlpCollectorChecker.Sampler)
-                        .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(name, version));
+                        .SetResourceBuilder(ResourceBuilder.CreateDefault()
+                        .AddService(name, serviceVersion: version));
 
                     // Give the derived service a chance to customize the trace pipeline.
 

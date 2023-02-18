@@ -69,7 +69,7 @@ namespace Neon.Web.SignalR
         {
             await SyncContext.Clear;
 
-            using var activity = TelemetryHub.ActivitySource?.StartActivity();
+            using var activity = TraceContext.ActivitySource?.StartActivity();
 
             using (await lockProvider.LockAsync($"{connection.ConnectionId}-{id}"))
             {
@@ -117,7 +117,7 @@ namespace Neon.Web.SignalR
         {
             await SyncContext.Clear;
 
-            using var activity = TelemetryHub.ActivitySource?.StartActivity();
+            using var activity = TraceContext.ActivitySource?.StartActivity();
 
             using (await lockProvider.LockAsync($"{connection.ConnectionId}-{id}"))
             {
