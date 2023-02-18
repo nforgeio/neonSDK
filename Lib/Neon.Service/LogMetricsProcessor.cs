@@ -52,7 +52,7 @@ namespace Neon.Service
     /// errors, requiring further investigation.
     /// </para>
     /// <para>
-    /// This is very easy to use.  Simply call <see cref="OtelConfigExtensions.AddLogMetricsProcessor(OpenTelemetryLoggerOptions, string)"/>.
+    /// This is very easy to use.  Simply call <see cref="OtelConfigExtensions.AddLogMetricsProcessor(OpenTelemetryLoggerOptions)"/>.
     /// </para>
     /// </remarks>
     public class LogMetricsProcessor : BaseProcessor<LogRecord>
