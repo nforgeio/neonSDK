@@ -309,7 +309,7 @@ namespace Neon.Deployment
         /// <param name="name">The password name with optional property.</param>
         /// <param name="vault">Optionally specifies a specific vault.</param>
         /// <returns>The requested password (from the password's [password] field).</returns>
-        /// <exception cref="OnePasswordException">Thrown for 1Password related problems.</exception>
+        /// <exception cref="OnePasswordException">Thrown when the requested secret or proerty doesn't exist or for other 1Password related problems.</exception>
         /// <remarks>
         /// <para>
         /// The <paramref name="name"/> parameter may optionally specify the desired
@@ -386,7 +386,7 @@ retry:          var response = NeonHelper.ExecuteCapture("op",
         /// <param name="name">The password name with optional property.</param>
         /// <param name="vault">Optionally specifies a specific vault.</param>
         /// <returns>The requested value (from the password's <b>value</b> field).</returns>
-        /// <exception cref="OnePasswordException">Thrown for 1Password related problems.</exception>
+        /// <exception cref="OnePasswordException">Thrown when the requested secret or proerty doesn't exist or for other 1Password related problems.</exception>
         /// <remarks>
         /// <para>
         /// The <paramref name="name"/> parameter may optionally specify the desired
