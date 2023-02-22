@@ -288,7 +288,7 @@ namespace Neon.GitHub
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(release != null, nameof(release));
-            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(assetName), nameof(assetName));
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(assetPath), nameof(assetPath));
             root.EnsureNotDisposed();
 
             assetName ??= Path.GetFileName(assetPath);
