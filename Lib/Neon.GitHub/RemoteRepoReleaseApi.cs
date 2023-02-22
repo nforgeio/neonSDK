@@ -288,8 +288,10 @@ namespace Neon.GitHub
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(release != null, nameof(release));
-            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(assetPath), nameof(assetPath));
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(assetName), nameof(assetName));
             root.EnsureNotDisposed();
+
+            assetName ??= Path.GetFileName(assetPath);
 
             using (var stream = File.OpenRead(assetPath))
             {
