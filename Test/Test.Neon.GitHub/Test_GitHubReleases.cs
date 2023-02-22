@@ -83,7 +83,7 @@ namespace TestGitHub
                         Assert.NotNull(release);
                         Assert.NotNull(await repo.Remote.Release.FindAsync(newTestName));
                         Assert.NotNull(await repo.Remote.Release.GetAsync(newTestName));
-                        Assert.True(await repo.Remote.Release.RemoveAsync(newTestName));
+                        Assert.True(await repo.Remote.Release.DeleteAsync(newTestName));
                         Assert.Null(await repo.Remote.Release.FindAsync(newTestName));
                         Assert.Equal(newTestName, release.Name);
                         Assert.True(release.Draft);
@@ -91,7 +91,7 @@ namespace TestGitHub
 
                         // Verify that trying to delete a non-existent release returns FALSE.
 
-                        Assert.False(await repo.Remote.Release.RemoveAsync(newTestName));
+                        Assert.False(await repo.Remote.Release.DeleteAsync(newTestName));
 
                         // Verify that [GetAsync()] returns throws for a non-existent one.
 

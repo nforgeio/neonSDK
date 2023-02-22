@@ -247,26 +247,33 @@ namespace Neon.GitHub
         }
 
         /// <summary>
-        /// Removes an origin release, if it exists.
+        /// <para>
+        /// Removes a GitHub release by name, if it exists.
+        /// </para>
+        /// <note>
+        /// It's possible to have multiple releases with the same name.  This method
+        /// will remove all of them.
+        /// </note>
         /// </summary>
         /// <param name="releaseName">Specifies the release name.</param>
-        /// <returns><c>true</c> when the release existed and was removed, <c>false</c> otherwise.</returns>
-        public async Task<bool> RemoveAsync(string releaseName)
+        /// <returns><c>true</c> when one or more releases were removed, <c>false</c> otherwise.</returns>
+        public async Task<bool> DeleteAsync(string releaseName)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(releaseName), nameof(releaseName));
             root.EnsureNotDisposed();
 
-            var release = await FindAsync(releaseName);
+            var removed = false;
 
-            if (release == null)
+            foreach (var release in (await GetAllAsync())
+                .Where(release => release.Name.Equals(releaseName, StringComparison.InvariantCultureIgnoreCase)))
             {
-                return false;
+                await root.GitHubApi.Repository.Release.Delete(root.Remote.Id, release.Id);
+
+                removed = true;
             }
 
-            await root.GitHubApi.Repository.Release.Delete(root.Remote.Id, release.Id);
-
-            return true;
+            return removed;
         }
 
         /// <summary>

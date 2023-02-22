@@ -151,7 +151,7 @@ namespace TestGitHub
             {
                 foreach (var release in await repo.Remote.Release.GetAllAsync())
                 {
-                    await repo.Remote.Release.RemoveAsync(release.Name);
+                    await repo.Remote.Release.DeleteAsync(release.Name);
                 }
             }
         }
