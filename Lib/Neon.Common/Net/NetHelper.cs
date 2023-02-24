@@ -1009,7 +1009,11 @@ namespace Neon.Net
         /// <summary>
         /// Returns a free TCP port for a local network interface.
         /// </summary>
-        /// <param name="address">The target interface's IP address.</param>
+        /// <param name="address">
+        /// Optionally specifies the target interface's IP address.  This defaults to
+        /// <see cref="IPAddress.Any"/> where an unused port will be returned that is
+        /// available on all network interfaces.
+        /// </param>
         /// <returns>The free port number.</returns>
         /// <exception cref="NetworkException">Thrown when there are no available ports.</exception>
         /// <remarks>
@@ -1031,9 +1035,9 @@ namespace Neon.Net
         /// </para>
         /// </note>
         /// </remarks>
-        public static int GetUnusedTcpPort(IPAddress address)
+        public static int GetUnusedTcpPort(IPAddress address = null)
         {
-            Covenant.Requires<ArgumentNullException>(address != null, nameof(address));
+            address ??= IPAddress.Any;
 
             try
             {
