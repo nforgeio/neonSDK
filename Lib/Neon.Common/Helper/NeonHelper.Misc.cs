@@ -1571,11 +1571,11 @@ namespace Neon.Common
         }
 
         /// <summary>
-        /// Returns the fully qualified path to the folder where the executable resides.
-        /// This will include the terminating "\".
+        /// Returns the fully qualified path to the folder where the current executable 
+        /// resides.  This includes a terminating "\".
         /// </summary>
         /// <returns>Path to the folder holding the executable</returns>
-        public static string GetBaseDirectory()
+        public static string GetApplicationFolder()
         {
             var directory = AppContext.BaseDirectory;
 
