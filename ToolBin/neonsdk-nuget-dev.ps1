@@ -408,7 +408,7 @@ try
         Publish Neon.CSharp                         $neonSdkVersion
         Publish Neon.Deployment                     $neonSdkVersion
         Publish Neon.Docker                         $neonSdkVersion
-        Publish Neon.GitHUb                         $neonSdkVersion
+        Publish Neon.GitHub                         $neonSdkVersion
         Publish Neon.JsonConverters                 $neonSdkVersion
         Publish Neon.HyperV                         $neonSdkVersion
         Publish Neon.Service                        $neonSdkVersion
