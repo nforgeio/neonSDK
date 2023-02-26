@@ -30,7 +30,7 @@
         <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="7.0.3" />
         <PackageReference Include="OpenTelemetry.Instrumentation.StackExchangeRedis" Version="1.0.0-rc9.7" />
         <PackageReference Include="prometheus-net" Version="8.0.0" />
-        <PackageReference Include="prometheus-net.AspNetCore" Version="7.0.0" />
+        <PackageReference Include="prometheus-net.AspNetCore" Version="8.0.0" />
         <PackageReference Include="prometheus-net.DotNetRuntime" Version="4.4.0" />
         <PackageReference Include="Yarp.ReverseProxy" Version="1.1.1" />
         <PackageReference Include="Yarp.Telemetry.Consumption" Version="1.1.1" />
