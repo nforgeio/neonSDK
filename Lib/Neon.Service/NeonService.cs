@@ -720,7 +720,7 @@ namespace Neon.Service
         private string                          readyCheckPath;
         private IRetryPolicy                    healthRetryPolicy = new LinearRetryPolicy(e => e is IOException, maxAttempts: 10, retryInterval: TimeSpan.FromMilliseconds(100));
         private Uri                             traceCollectorUri;
-        private MetricServer                    metricServer;
+        private KestrelMetricServer             metricServer;
         private MetricPusher                    metricPusher;
         private IDisposable                     metricCollector;
         private string                          terminationMessagePath;
@@ -1608,7 +1608,7 @@ namespace Neon.Service
                     case MetricsMode.Scrape:
                     case MetricsMode.ScrapeIgnoreErrors:
 
-                        metricServer = new MetricServer(MetricsOptions.Port, MetricsOptions.Path);
+                        metricServer = new KestrelMetricServer(MetricsOptions.Port, MetricsOptions.Path);
                         metricServer.Start();
                         break;
 
