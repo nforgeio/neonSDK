@@ -1,62 +1,64 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<TargetFrameworks>netstandard2.0; net6.0; net7.0</TargetFrameworks>
-		<OutputType>Library</OutputType>
-		<RootNamespace>Neon.Service</RootNamespace>
-		<Version>3.0.0</Version>
-		<Description>Service library supporting application deployment as containers as well as in-process for testing</Description>
-		<PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
-		<IsPackable>true</IsPackable>
-		<PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.Service/README.md</PackageProjectUrl>
-		<RepositoryType>git</RepositoryType>
-		<RepositoryUrl>https://github.com/nforgeio/neonSDK</RepositoryUrl>
-		<PackageLicenseFile>LICENSE</PackageLicenseFile>
-		<Configurations>Debug;Release</Configurations>
-		<PackageIcon>nuget-icon.png</PackageIcon>
-		<PackageTags>kubernetes docker service</PackageTags>
-	</PropertyGroup>
+    <PropertyGroup>
+        <TargetFrameworks>netstandard2.0; net6.0; net7.0</TargetFrameworks>
+        <OutputType>Library</OutputType>
+        <RootNamespace>Neon.Service</RootNamespace>
+        <Version>3.0.0</Version>
+        <Description>Service library supporting application deployment as containers as well as in-process for testing</Description>
+        <PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
+        <IsPackable>true</IsPackable>
+        <PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.Service/README.md</PackageProjectUrl>
+        <RepositoryType>git</RepositoryType>
+        <RepositoryUrl>https://github.com/nforgeio/neonSDK</RepositoryUrl>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <Configurations>Debug;Release</Configurations>
+        <PackageIcon>nuget-icon.png</PackageIcon>
+        <PackageTags>kubernetes docker service</PackageTags>
+    </PropertyGroup>
 
-	<ItemGroup>
-		<PackageReference Include="DnsClient" Version="1.6.1" />
-		<PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0" />
-		<PackageReference Include="prometheus-net" Version="8.0.0" />
-		<PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
-	</ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="DnsClient" Version="1.6.1" />
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0" />
+        <PackageReference Include="prometheus-net" Version="8.0.0" />
+        <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
+    </ItemGroup>
 
-	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
-		<PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.4.0-beta.1 " />
-		<PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.0.0-rc9.6" />
-		<PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.0.0-rc9.6" />
-	</ItemGroup>
+    <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+        <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.4.0-beta.1 " />
+        <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.0.0-rc9.6" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.0.0-rc9.6" />
+        <PackageReference Include="prometheus-net.AspNetCore" Version="8.0.0" />
+    </ItemGroup>
 
-	<ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
-		<PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.4.0-beta.1 " />
-		<PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.0.0-rc9.6" />
-		<PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.0.0-rc9.6" />
-	</ItemGroup>
+    <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
+        <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.4.0-beta.1 " />
+        <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.0.0-rc9.6" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.0.0-rc9.6" />
+        <PackageReference Include="prometheus-net.AspNetCore" Version="8.0.0" />
+    </ItemGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\..\Lib\Neon.BuildInfo\Neon.BuildInfo.csproj" />
-		<ProjectReference Include="..\Neon.Common\Neon.Common.csproj" />
-		<ProjectReference Include="..\Neon.Cryptography\Neon.Cryptography.csproj" />
-	</ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\Lib\Neon.BuildInfo\Neon.BuildInfo.csproj" />
+        <ProjectReference Include="..\Neon.Common\Neon.Common.csproj" />
+        <ProjectReference Include="..\Neon.Cryptography\Neon.Cryptography.csproj" />
+    </ItemGroup>
 
-	<ItemGroup>
-		<EmbeddedResource Include="Resources/**/*" />
-	</ItemGroup>
+    <ItemGroup>
+        <EmbeddedResource Include="Resources/**/*" />
+    </ItemGroup>
 
-	<ItemGroup>
-		<Folder Include="Properties\" />
-		<Folder Include="Resources\" />
-	</ItemGroup>
+    <ItemGroup>
+        <Folder Include="Properties\" />
+        <Folder Include="Resources\" />
+    </ItemGroup>
 
-	<ItemGroup>
-		<None Include="..\nuget-icon.png" Pack="true" PackagePath="" />
-		<None Include="..\..\LICENSE" Pack="true" PackagePath="" />
-	</ItemGroup>
+    <ItemGroup>
+        <None Include="..\nuget-icon.png" Pack="true" PackagePath="" />
+        <None Include="..\..\LICENSE" Pack="true" PackagePath="" />
+    </ItemGroup>
 
-	<!--
+    <!--
 	NOTE(jefflill):
 	===============
 	

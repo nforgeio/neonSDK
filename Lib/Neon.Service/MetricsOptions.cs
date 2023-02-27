@@ -116,7 +116,11 @@ namespace Neon.Service
         /// Specifies the URL path for the local HTTP listener that exposes metrics
         /// for scraping by Prometheus.  This defaults to <b>"metrics/"</b>.
         /// </summary>
+#if NET6_0_OR_GREATER
+        public string Path { get; set; } = "/metrics";
+#else
         public string Path { get; set; } = "metrics/";
+#endif
 
         /// <summary>
         /// Specifies the target Prometheus Pushgateway for <see cref="MetricsMode.Push"/> mode.
@@ -195,7 +199,17 @@ namespace Neon.Service
                     {
                         throw new ArgumentNullException("Metrics [Path] is required.");
                     }
+#if NET6_0_OR_GREATER
+                    if (Path.EndsWith("/"))
+                    {
+                        throw new ArgumentNullException($"Metrics [Path={Path}] cannot end with a slash [/].");
+                    }
 
+                    if (!Path.StartsWith("/"))
+                    {
+                        throw new ArgumentNullException($"Metrics [Path={Path}] must start with a slash [/].");
+                    }
+#else
                     if (Path.StartsWith("/"))
                     {
                         throw new ArgumentNullException($"Metrics [Path={Path}] cannot start with a slash [/].");
@@ -205,6 +219,7 @@ namespace Neon.Service
                     {
                         throw new ArgumentNullException($"Metrics [Path={Path}] must end with a slash [/].");
                     }
+#endif
                     break;
 
                 case MetricsMode.Push:
