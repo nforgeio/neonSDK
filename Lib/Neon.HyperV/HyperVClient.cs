@@ -391,7 +391,7 @@ namespace Neon.HyperV
             {
                 try
                 {
-                    powershell.Execute($"{HyperVNamespace}Set-VM -CheckpointType Disabled -Name '{machineName}'");
+                    powershell.Execute($"{HyperVNamespace}Set-VM -Name '{machineName}' -CheckpointType Disabled");
                 }
                 catch (Exception e)
                 {
@@ -588,7 +588,7 @@ namespace Neon.HyperV
         /// <param name="machineName">The machine name.</param>
         /// <returns>The list of fully qualified virtual drive file paths.</returns>
         /// <exception cref="HyperVException">Thrown for errors.</exception>
-        public List<string> GetVmDrives(string machineName)
+        public IEnumerable<string> GetVmDrives(string machineName)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
             CheckDisposed();
@@ -891,7 +891,7 @@ namespace Neon.HyperV
         }
 
         /// <summary>
-        /// Removes a named virtual switch, it it exists as well as any associated NAT (with the same name).
+        /// Removes a named virtual switch, if it exists as well as any associated NAT (with the same name).
         /// </summary>
         /// <param name="switchName">The target switch name.</param>
         /// <param name="ignoreMissing">Optionally ignore missing items.</param>
@@ -939,7 +939,7 @@ namespace Neon.HyperV
         /// <param name="waitForAddresses">Optionally wait until at least one adapter has been able to acquire at least one IPv4 address.</param>
         /// <returns>The list of network adapters.</returns>
         /// <exception cref="HyperVException">Thrown for errors.</exception>
-        public List<VirtualNetworkAdapter> GetVmNetworkAdapters(string machineName, bool waitForAddresses = false)
+        public List<VirtualNetworkAdapter> ListVmNetworkAdapters(string machineName, bool waitForAddresses = false)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
             CheckDisposed();
