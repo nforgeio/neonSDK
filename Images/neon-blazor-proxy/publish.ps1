@@ -42,7 +42,7 @@ function Build
 		[switch]$latest = $false
 	)
 
-	$registry    = GetKubeSetupRegistry "neon-blazor-proxy"
+	$registry    = GetKubeStageRegistry "neon-blazor-proxy"
 	$tag         = "$version"
 	$tagAsLatest = TagAsLatest
 	$tagOverride = $env:DEBUG_TAG

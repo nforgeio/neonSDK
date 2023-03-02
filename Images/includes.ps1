@@ -122,16 +122,6 @@ function Get-DotnetBaseImage
 }
 
 #------------------------------------------------------------------------------
-# This returns the value of the [$publishAsPubic] global variable set by publish
-# scripts.  This controls whether container images are published to public or
-# private/internal container registries.
-
-function IsPublic
-{
-	return $publishAsPubic
-}
-
-#------------------------------------------------------------------------------
 # Returns $true if images built from the current Git branch should be tagged
 # with [:latest] when pushed to Docker Hub.  This will return [$true] for any
 # release branch starting with "release-" as well as the MASTER branch.
@@ -159,7 +149,7 @@ function GetSdkRegistry($image)
 	# For now, we're going to use the neonkube image repo for all images because
 	# the publish scripts in the other repos can't handle multiple image repos yet.
 
-	return GetKubeSetupRegistry $image
+	return GetKubeStageRegistry $image
 }
 
 #------------------------------------------------------------------------------
@@ -172,7 +162,7 @@ function SdkRegistryOrg
 	# For now, we're going to use the neonkube image repo for all images because
 	# the publish scripts in the other repos can't handle multiple image repos yet.
 
-	return KubeSetupRegistryOrg
+	return KubeStageRegistryOrg
 }
 
 #------------------------------------------------------------------------------
@@ -182,26 +172,19 @@ function SdkRegistryOrg
 # otherwise it will be pushed to "ghcr.io/neonrelease-dev/".  The MAIN registry
 # holds the neonKUBE images tagged by cluster version.
 
-function GetKubeSetupRegistry($image)
+function GetKubeStageRegistry($image)
 {
-	$org = KubeSetupRegistryOrg
+	$org = KubeStageRegistryOrg
 	
 	return "$org/$image"
 }
 
 #------------------------------------------------------------------------------
-# Returns the neonKUBE SETUP registry organization corresponding to the current git branch.
+# Returns the neonKUBE staging container image registy.
 
-function KubeSetupRegistryOrg
+function KubeStageRegistryOrg
 {
-	if (IsPublic)
-	{
-		return "ghcr.io/neonkube"
-	}
-	else
-	{
-		return "ghcr.io/neonkube-dev"
-	}
+	return "ghcr.io/neonkube-stage"
 }
 
 #------------------------------------------------------------------------------
@@ -219,18 +202,11 @@ function GetKubeBaseRegistry($image)
 }
 
 #------------------------------------------------------------------------------
-# Returns the neonKUBE BASE registry organization corresponding to the current git branch.
+# Returns the neonKUBE staging base container image registry.
 
 function KubeBaseRegistryOrg
 {
-	if (IsPublic)
-	{
-		return "ghcr.io/neonkube-base"
-	}
-	else
-	{
-		return "ghcr.io/neonkube-base-dev"
-	}
+	return "ghcr.io/neonkube-base-dev"
 }
 
 #------------------------------------------------------------------------------
@@ -247,18 +223,11 @@ function GetNeonCloudRegistry($image)
 }
 
 #------------------------------------------------------------------------------
-# Returns the neonCLOUD registry organization corresponding to the current git branch.
+# Returns the neonCLOUD container image registry .
 
 function NeonCloudRegistryOrg
 {
-	if (IsPublic)
-	{
-		return "ghcr.io/neonrelease"
-	}
-	else
-	{
-		return "ghcr.io/neonrelease-dev"
-	}
+	return "ghcr.io/neonrelease-dev"
 }
 
 #------------------------------------------------------------------------------

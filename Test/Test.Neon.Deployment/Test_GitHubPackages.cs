@@ -38,13 +38,12 @@ namespace TestDeployment
     [CollectionDefinition(TestCollection.NonParallel, DisableParallelization = true)]
     public partial class Test_GitHubPackages
     {
-        [Fact]
-        //[Fact(Skip = "Must be run manually")]
+        [MaintainerFact]
         public async Task ListPackages()
         {
             // Verify that we can list container packages.
 
-            var packages = await GitHub.Packages.ListAsync("neonkube-dev", packageType: GitHubPackageType.Container, includeVersions: true);
+            var packages = await GitHub.Packages.ListAsync("neonkube-stage", packageType: GitHubPackageType.Container, includeVersions: true);
 
             Assert.NotEmpty(packages);
         }
