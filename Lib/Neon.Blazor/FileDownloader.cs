@@ -43,7 +43,7 @@ namespace Neon.Blazor
                 jsModule = await JS.InvokeAsync<IJSObjectReference>("import", "./_content/Neon.Blazor/interop.js");
             }
 
-            await JS.InvokeVoidAsync("triggerFileDownload", fileUrl, fileName);
+            await jsModule.InvokeVoidAsync("triggerFileDownload", fileUrl, fileName);
         }
     }
 }
