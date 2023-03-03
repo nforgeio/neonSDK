@@ -17,7 +17,7 @@ export function blazorDispatchEvent(eventName) {
     dataLayer.push({ 'event': eventName })
 };
 
-function triggerFileDownload(url, fileName) {
+export function triggerFileDownload(url, fileName) {
     const anchorElement = document.createElement('a');
     anchorElement.href = url;
     anchorElement.download = fileName ?? '';
