@@ -42,9 +42,10 @@ namespace Neon.Blazor
         public static IServiceCollection AddNeonBlazor(
             this IServiceCollection builder)
         {
-            builder.AddHttpContextAccessor();
-            builder.AddScoped<BodyOutlet>();
-            builder.AddScoped<MobileDetector>();
+            builder.AddHttpContextAccessor()
+                .AddScoped<BodyOutlet>()
+                .AddScoped<MobileDetector>()
+                .AddScoped<FileDownloader>();
 
             return builder;
         }
