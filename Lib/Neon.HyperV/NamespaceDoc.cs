@@ -26,7 +26,8 @@ using Neon.Common;
 namespace Neon.HyperV
 {
     /// <summary>
-    /// Internal namespace.
+    /// <b>INTERNAL USE ONLY:</b> This class library is not intended to be generally useful 
+    /// and may have future breaking changes.
     /// </summary>
     [System.Runtime.CompilerServices.CompilerGenerated]
     class NamespaceDoc

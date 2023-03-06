@@ -22,8 +22,6 @@
 		<Compile Include="$(SolutionDir)\Lib\Neon.BuildInfo\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
 
 		<!-- $todo(jefflill): Remove this when we're ready to test the WMI implementation -->
-		
-		<Compile Remove="Wmi\**" />
 	</ItemGroup>
 
 	<ItemGroup>
