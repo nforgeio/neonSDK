@@ -254,6 +254,11 @@ namespace Neon.Diagnostics
 
             if (Activity.Current != null)
             {
+                if (exception != null)
+                {
+                    Activity.Current?.RecordException(exception);
+                }
+
                 var context = Activity.Current.Context;
 
                 logAttributes.Add(LogAttributeNames.TraceId, context.TraceId.ToString());
