@@ -600,8 +600,6 @@ namespace Neon.Deployment
                 Covenant.Assert(false, $"Invalid [{nameof(targetFolderUri)}={targetFolderUri}].");
             }
 
-            Covenant.Assert(uriCheck.Scheme == "https", $"Invalid scheme in [{nameof(targetFolderUri)}={targetFolderUri}].  Only [https://] is supported.");
-
             name     = name ?? Path.GetFileName(sourcePath);
             filename = filename ?? Path.GetFileName(sourcePath);
 
