@@ -46,7 +46,7 @@ namespace Neon.Deployment
         /// <summary>
         /// The download version (this may be <c>null</c>).
         /// </summary>
-        [JsonProperty(PropertyName = "Version", Required = Required.Always)]
+        [JsonProperty(PropertyName = "Version", Required = Required.AllowNull)]
         public string Version { get; set; }
 
         /// <summary>
