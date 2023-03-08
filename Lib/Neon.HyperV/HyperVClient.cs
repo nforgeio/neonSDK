@@ -250,7 +250,14 @@ namespace Neon.HyperV
 
             // Create the virtual machine.
 
-            hypervDriver.NewVM(machineName, processorCount: processorCount, startupMemoryBytes: (long)ByteUnits.Parse(memorySize), generation: 1, checkpointDrives: checkpointDrives);
+            hypervDriver.NewVM(
+                machineName, 
+                processorCount:     processorCount, 
+                startupMemoryBytes: (long)ByteUnits.Parse(memorySize), 
+                generation:         1, 
+                drivePath:          drivePath,
+                switchName:         switchName, 
+                checkpointDrives:   checkpointDrives);
 
             // We need to do some extra configuration for nested virtual machines:
             //

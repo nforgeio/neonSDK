@@ -219,11 +219,11 @@ namespace TestHyperV
                             // Create a DVD ISO file and verify that we can add and remove it
                             // from the VM.
 
-                            var cdBuilder = new CDBuilder();
-                            var isoPath   = Path.Combine(tempFolder.Path, "test.iso");
+                            var isoBuilder = new CDBuilder();
+                            var isoPath    = Path.Combine(tempFolder.Path, "test.iso");
 
-                            cdBuilder.AddFile("hello.txt", Encoding.UTF8.GetBytes("HELLO WORLD!"));
-                            cdBuilder.Build(isoPath);
+                            isoBuilder.AddFile("hello.txt", Encoding.UTF8.GetBytes("HELLO WORLD!"));
+                            isoBuilder.Build(isoPath);
 
                             driver.InsertVmDvdDrive(testVmName, isoPath);
                             driver.EjectDvdDrive(testVmName);

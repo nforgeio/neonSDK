@@ -30,6 +30,31 @@ using Neon.Net;
 
 namespace Neon.HyperV
 {
+    //-------------------------------------------------------------------------
+    // IMPLEMENTATION NOTE:
+    //
+    // Microsoft doesn't really have a nice Hyper-V API other than the PowerShell
+    // cmdlets.  Hyper-V can be controlled via WMI but I couldn't find much in the
+    // way of documentation for how that works.  I was able to hack around and get
+    // some things working a few months late December 2022 but I abandoned that 
+    // effort in favor of a new approach described here:
+    //
+    //      https://github.com/jscarle/HyperV.NET
+    //
+    // The gist of this is to use ILSpy to decompile the Hyper-V cmdlets and adapt
+    // that code here.
+    //
+    // Here's an explaination of how to obtain the source code for a cmdlet:
+    //
+    //      https://learn.microsoft.com/en-us/archive/blogs/luisdem/get-the-source-code-of-the-powershell-cmdlets
+    //
+    // The basic approach is to use this PowerShell command to locate the cmdlet DLL
+    // that includes the code implementing a specific Hyper-V related PowerShell COMMAND:
+    //
+    //      (Get-Command COMMAND).dll
+    //
+    // and then fire up ILSpy to have a look.
+
     /// <summary>
     /// Uses WMI to implement <see cref="IHyperVDriver"/>.
     /// </summary>
