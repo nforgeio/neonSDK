@@ -250,11 +250,7 @@ namespace Neon.HyperV
 
             // Create the virtual machine.
 
-            hypervDriver.NewVM(machineName, startupMemoryBytes: (long)ByteUnits.Parse(memorySize), generation: 1);
-
-            // We need to configure the VM's processor count, min/max memory, and checkpoint settings.
-
-            hypervDriver.SetVM(machineName, processorCount: processorCount, startupMemoryBytes: (long)ByteUnits.Parse(memorySize), checkpointDrives: checkpointDrives);
+            hypervDriver.NewVM(machineName, processorCount: processorCount, startupMemoryBytes: (long)ByteUnits.Parse(memorySize), generation: 1, checkpointDrives: checkpointDrives);
 
             // We need to do some extra configuration for nested virtual machines:
             //
@@ -512,7 +508,7 @@ namespace Neon.HyperV
             }
 
             EjectVmDvd(machineName);
-            hypervDriver.AddVmDvdDrive(machineName, isoPath, controllerLocation: 0, controllerNumber: 1);
+            hypervDriver.InsertVmDvdDrive(machineName, isoPath);
         }
 
         /// <summary>
@@ -530,7 +526,7 @@ namespace Neon.HyperV
                 throw new HyperVException($"Virtual machine [{machineName}] does not exist.");
             }
 
-            hypervDriver.RemoveVmDvdDrive(machineName);
+            hypervDriver.EjectDvdDrive(machineName);
         }
 
         /// <summary>

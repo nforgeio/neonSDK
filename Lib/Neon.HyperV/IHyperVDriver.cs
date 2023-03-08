@@ -58,17 +58,21 @@ namespace Neon.HyperV
         /// Creates a new virtual machine.
         /// </summary>
         /// <param name="machineName">Specifies the virtual machine name.</param>
+        /// <param name="processorCount">Specifies the number of virtual processors.</param>
         /// <param name="startupMemoryBytes">Specifies the machine RAM in bytes.</param>
         /// <param name="generation">Specifies the virtual machine generation (defaults to <b>1</b>).</param>
         /// <param name="drivePath">Optionally specifies the path to an existing boot drive.</param>
         /// <param name="switchName">Optionally specifies the name of the switch to which the VM should be connected.</param>
+        /// <param name="checkpointDrives">Optionally specifies that drive checkpointing is enabled.</param>
         /// <exception cref="HyperVException">Thrown for errors.</exception>
         void NewVM(
             string      machineName,
+            int         processorCount,
             long        startupMemoryBytes,
-            int         generation = 1,
-            string      drivePath  = null,
-            string      switchName = null);
+            int         generation       = 1,
+            string      drivePath        = null,
+            string      switchName       = null,
+            bool        checkpointDrives = false);
 
         /// <summary>
         /// Sets virtual machine properties.
@@ -78,7 +82,7 @@ namespace Neon.HyperV
         /// <param name="startupMemoryBytes">Optionally specifies the machine RAM in bytes.</param>
         /// <param name="checkpointDrives">Optionally specifies whether drive checking pointing is enabled.</param>
         /// <exception cref="HyperVException">Thrown for errors.</exception>
-        void SetVM(
+        void SetVm(
             string      machineName,
             int?        processorCount     = null,
             long?       startupMemoryBytes = null,
@@ -144,40 +148,19 @@ namespace Neon.HyperV
         void EnableVmNestedVirtualization(string machineName);
 
         /// <summary>
-        /// Adds a DVD drive to a virtual machine.
+        /// Inserts an ISO file as a DVD drive to a virtual machine.
         /// </summary>
         /// <param name="machineName">Specifies the virtual machine name.</param>
         /// <param name="isoPath">Specifies the path to the existing virtual DVD drive (ISO file).</param>
-        /// <param name="controllerLocation">
-        /// Specifies the number of the location on the controller at which the DVD drive
-        /// is to be added.
-        /// </param>
-        /// <param name="controllerNumber">
-        /// Specifies the number of the controller to which the DVD drive is to be added.
-        /// </param>
         /// <exception cref="HyperVException">Thrown for errors.</exception>
-        void AddVmDvdDrive(
-            string      machineName,
-            string      isoPath,
-            int         controllerLocation,
-            int         controllerNumber);
+        void InsertVmDvdDrive(string machineName, string isoPath);
 
         /// <summary>
-        /// Removes a DVD drive from a virtual machine.
+        /// Ejects a DVD drive from a virtual machine.
         /// </summary>
         /// <param name="machineName">Specifies the virtual machine name.</param>
-        /// <param name="controllerLocation">
-        /// Specifies the number of the location on the controller at which the DVD drive
-        /// is to be added.
-        /// </param>
-        /// <param name="controllerNumber">
-        /// Specifies the number of the controller to which the DVD drive is to be added.
-        /// </param>
         /// <exception cref="HyperVException">Thrown for errors.</exception>
-        void RemoveVmDvdDrive(
-            string      machineName,
-            int         controllerLocation = 0,
-            int         controllerNumber   = 1);
+        void EjectDvdDrive(string machineName);
 
         /// <summary>
         /// Lists the paths of the virtual drives attached to a virtual machine.

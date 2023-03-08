@@ -92,11 +92,13 @@ namespace Neon.HyperV
 
         /// <inheritdoc/>
         public void NewVM(
-            string      machineName, 
+            string      machineName,
+            int         processorCount,
             long        startupMemoryBytes,
-            int         generation = 1,
-            string      drivePath  = null,
-            string      switchName = null)
+            int         generation       = 1,
+            string      drivePath        = null,
+            string      switchName       = null,
+            bool        checkPointDrives = false)
         {
             throw new NotImplementedException();
         }
@@ -119,25 +121,22 @@ namespace Neon.HyperV
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// Adds a DVD drive to a virtual machine.
-        /// </summary>
-        /// <param name="machineName">Specifies the virtual machine name.</param>
-        /// <param name="isoPath">Specifies the path to the existing virtual DVD drive (ISO file).</param>
-        /// <param name="controllerLocation">
-        /// Specifies the number of the location on the controller at which the DVD drive
-        /// is to be added.
-        /// </param>
-        /// <param name="controllerNumber">
-        /// Specifies the number of the controller to which the DVD drive is to be added.
-        /// </param>
-        /// <exception cref="HyperVException">Thrown for errors.</exception>
-        public void AddVmDvdDrive(
-            string      machineName,
-            string      isoPath,
-            int         controllerLocation,
-            int         controllerNumber)
+        /// <inheritdoc/>
+        public void InsertVmDvdDrive(string machineName, string isoPath)
         {
+            CheckDisposed();
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(isoPath), nameof(isoPath));
+
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc/>
+        public void EjectDvdDrive(string machineName)
+        {
+            CheckDisposed();
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
+
             throw new NotImplementedException();
         }
 
@@ -220,12 +219,6 @@ namespace Neon.HyperV
         }
 
         /// <inheritdoc/>
-        public void RemoveVmDvdDrive(string machineName, int controllerLocation = 0, int controllerNumber = 1)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <inheritdoc/>
         public void RemoveSwitch(string switchName)
         {
             throw new NotImplementedException();
@@ -244,7 +237,7 @@ namespace Neon.HyperV
         }
 
         /// <inheritdoc/>
-        public void SetVM(string machineName, int? processorCount = null, long? startupMemoryBytes = null, bool? checkpointDrives = null)
+        public void SetVm(string machineName, int? processorCount = null, long? startupMemoryBytes = null, bool? checkpointDrives = null)
         {
             throw new NotImplementedException();
         }

@@ -146,6 +146,11 @@ namespace Neon.HyperV
 
             vm.Name = (string)rawMachine.Name;
 
+            // Extract the processor count and memory size.
+
+            vm.ProcessorCount  = (int)rawMachine.ProcessorCount;
+            vm.MemorySizeBytes = (long)rawMachine.MemoryStartup;
+
             // Extract the VM state.
 
             switch ((string)rawMachine.State)
@@ -200,14 +205,17 @@ namespace Neon.HyperV
 
         /// <inheritdoc/>
         public void NewVM(
-            string      machineName, 
+            string      machineName,
+            int         processorCount,
             long        startupMemoryBytes,
-            int         generation = 1,
-            string      drivePath  = null,
-            string      switchName = null)
+            int         generation       = 1,
+            string      drivePath        = null,
+            string      switchName       = null,
+            bool        checkPointDrives = false)
         {
             CheckDisposed();
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
+            Covenant.Requires<ArgumentException>(processorCount > 0, nameof(processorCount));
             Covenant.Requires<ArgumentException>(startupMemoryBytes > 0, nameof(startupMemoryBytes));
             Covenant.Requires<ArgumentException>(generation == 1 || generation == 2, nameof(generation));
 
@@ -231,6 +239,10 @@ namespace Neon.HyperV
             {
                 throw new HyperVException(e.Message, e);
             }
+
+            // Disable drive checkpoints.
+
+            SetVm(machineName, processorCount: processorCount, checkpointDrives: false);
         }
 
         /// <inheritdoc/>
@@ -251,16 +263,30 @@ namespace Neon.HyperV
         }
 
         /// <inheritdoc/>
-        public void AddVmDvdDrive(string machineName, string isoPath, int controllerLocation, int controllerNumber)
+        public void InsertVmDvdDrive(string machineName, string isoPath)
         {
             CheckDisposed();
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
-            Covenant.Requires<ArgumentException>(controllerLocation >= 0, nameof(controllerLocation));
-            Covenant.Requires<ArgumentException>(controllerNumber >= 1, nameof(controllerNumber));
 
             try
             {
-                powershell.Execute($"Add-VMDvdDrive -VMName '{machineName}' -Path '{isoPath}' -ControllerLocation {controllerLocation} -ControllerNumber {controllerNumber}");
+                powershell.Execute($"Set-VMDvdDrive -VMName '{machineName}' -Path '{isoPath}'");
+            }
+            catch (Exception e)
+            {
+                throw new HyperVException(e.Message, e);
+            }
+        }
+
+        /// <inheritdoc/>
+        public void EjectDvdDrive(string machineName)
+        {
+            CheckDisposed();
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
+
+            try
+            {
+                powershell.Execute($"Set-VMDvdDrive -VMName '{machineName}' -Path $null");
             }
             catch (Exception e)
             {
@@ -276,7 +302,7 @@ namespace Neon.HyperV
 
             try
             {
-                powershell.Execute($"Mount-VHD '{drivePath}' -ReadOnly");
+                powershell.Execute($"Dismount-VHD '{drivePath}'");
             }
             catch (Exception e)
             {
@@ -673,24 +699,6 @@ namespace Neon.HyperV
         }
 
         /// <inheritdoc/>
-        public void RemoveVmDvdDrive(string machineName, int controllerLocation = 0, int controllerNumber = 1)
-        {
-            CheckDisposed();
-            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
-            Covenant.Requires<ArgumentException>(controllerLocation >= 0, nameof(controllerLocation));
-            Covenant.Requires<ArgumentException>(controllerNumber > 0, nameof(controllerNumber));
-
-            try
-            {
-                powershell.Execute($"Remove-VMDvdDrive -VMName '{machineName}' -ControllerNumber {controllerLocation} -ControllerLocation {controllerNumber}");
-            }
-            catch (Exception e)
-            {
-                throw new HyperVException(e.Message, e);
-            }
-        }
-
-        /// <inheritdoc/>
         public void RemoveSwitch(string switchName)
         {
             CheckDisposed();
@@ -764,11 +772,11 @@ namespace Neon.HyperV
         }
 
         /// <inheritdoc/>
-        public void SetVM(string machineName, int? processorCount = null, long? startupMemoryBytes = null, bool? checkpointDrives = null)
+        public void SetVm(string machineName, int? processorCount = null, long? startupMemoryBytes = null, bool? checkpointDrives = null)
         {
             CheckDisposed();
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
-            Covenant.Requires<ArgumentException>(!processorCount.HasValue || processorCount.Value > 1, nameof(processorCount));
+            Covenant.Requires<ArgumentException>(!processorCount.HasValue || processorCount.Value > 0, nameof(processorCount));
             Covenant.Requires<ArgumentException>(!startupMemoryBytes.HasValue || startupMemoryBytes.Value > 1, nameof(startupMemoryBytes));
 
             try
