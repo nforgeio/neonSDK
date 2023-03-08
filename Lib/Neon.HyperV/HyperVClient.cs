@@ -24,29 +24,18 @@
 
 #define USE_POWERSHELL
 
+using Microsoft.Win32;
+using Neon.Common;
+using Neon.Net;
+using Neon.Retry;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.Contracts;
-using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
-using System.Net.Sockets;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
-
-using Microsoft.Win32;
-
-using Neon.Common;
-using Neon.Net;
-using Neon.Retry;
-
-using Newtonsoft.Json.Linq;
-using YamlDotNet.Serialization.Utilities;
 
 namespace Neon.HyperV
 {
@@ -664,7 +653,7 @@ namespace Neon.HyperV
 
             if (addNat)
             {
-                if (GetNatByName(switchName) == null)
+                if (FindNatByName(switchName) == null)
                 {
                     hypervDriver.NewNat(switchName, subnet);
                 }
@@ -777,7 +766,7 @@ namespace Neon.HyperV
         /// <param name="address">The desired IP address.</param>
         /// <returns>The <see cref="VirtualIPAddress"/> or <c>null</c> when it doesn't exist.</returns>
         /// <exception cref="HyperVException">Thrown for errors.</exception>
-        public VirtualIPAddress GetIPAddress(string address)
+        public VirtualIPAddress FindIPAddress(string address)
         {
             CheckDisposed();
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(address), nameof(address));
@@ -803,7 +792,7 @@ namespace Neon.HyperV
         /// <param name="natName">The desired NAT name.</param>
         /// <returns>The <see cref="VirtualNat"/> or <c>null</c> if the NAT doesn't exist.</returns>
         /// <exception cref="HyperVException">Thrown for errors.</exception>
-        public VirtualNat GetNatByName(string natName)
+        public VirtualNat FindNatByName(string natName)
         {
             CheckDisposed();
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(natName), nameof(natName));
@@ -817,7 +806,7 @@ namespace Neon.HyperV
         /// <param name="subnet">The desired NAT subnet.</param>
         /// <returns>The <see cref="VirtualNat"/> or <c>null</c> if the NAT doesn't exist.</returns>
         /// <exception cref="HyperVException">Thrown for errors.</exception>
-        public VirtualNat GetNatBySubnet(string subnet)
+        public VirtualNat FindNatBySubnet(string subnet)
         {
             CheckDisposed();
 
