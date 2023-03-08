@@ -484,9 +484,7 @@ namespace Neon.HyperV
             CheckDisposed();
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(drivePath), nameof(drivePath));
 
-            hypervDriver.MountVhd(drivePath);
             hypervDriver.OptimizeVhd(drivePath);
-            hypervDriver.DismountVhd(drivePath);
         }
 
         /// <summary>
