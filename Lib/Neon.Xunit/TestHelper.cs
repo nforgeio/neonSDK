@@ -28,6 +28,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Neon.Common;
+using Neon.Deployment;
 using Neon.Diagnostics;
 using Neon.IO;
 using Neon.Service;
@@ -745,24 +746,29 @@ namespace Neon.Xunit
         public static string NeonForgeTestAssetsFolder => NeonHelper.UserNeonDevTestFolder;
 
         /// <summary>
-        /// Returns the path to the Ubuntu VHDX file suitable for basic unit testing.  This
-        /// will be located in the <see cref="NeonForgeTestAssetsFolder"/> and will be
-        /// downloaded from S3 if it's not already present.
+        /// Returns the path to a Ubuntu VHDX manifest suitable for basic unit testing.  This
+        /// will be located in the <see cref="NeonForgeTestAssetsFolder"/> and will be downloaded 
+        /// from S3 if it's not already present.
         /// </summary>
+        /// <remarks>
+        /// <para>
+        /// This is simply a copy of the base image used for constructing neonKUBE node images
+        /// and is Ubuntu 22.04 with these key changes (amongst others):
+        /// </para>
+        /// <list type="bullet">
+        /// <item>User credentials are: <b>sysadmin/sysadmin0000</b></item>
+        /// <item><b>sudo</b> password prompting is disabled. </item>
+        /// <item><b>sshd</b> is enabled.</item>
+        /// <item>SNAP has been removed.</item>
+        /// <item><b>unzip</b> is installed to support <b>LinuxSshProxy</b> commands.</item>
+        /// </list>
+        /// </remarks>
         /// <returns>Path to the VHDX file.</returns>
         public static string GetUbuntuTestVhdxPath()
         {
-            var vhdxPath         = Path.Combine(NeonForgeTestAssetsFolder, "unit-test.vhdx");
-            var testAssetsBucket = "https://neon-public.s3.us-west-2.amazonaws.com/test-assets";
-            var testVhdxUri      = $"{testAssetsBucket}/unit-test.vhdx";
-            var testVhdxSizeUri  = $"{testAssetsBucket}/unit-test.vhdx.size";
-
-            // $todo(jefflill):
-            //
-            // We should probably change this to downloading a multi-part file so we
-            // can recover from partially downloaded or corrupted files.  We're going
-            // to hack this for the time being by checking the size of the file against
-            // the size from the [unit-test.vhdx.size] blob on S3 next to the VHDX.
+            var testVhdxUri = "https://neon-public.s3.us-west-2.amazonaws.com/test-assets/ubuntu-22.04.hyperv.amd64.vhdx";
+            var filename    = new Uri(testVhdxUri).Segments.Last();
+            var vhdxPath    = Path.Combine(NeonForgeTestAssetsFolder, filename);
 
             var handler = new HttpClientHandler()
             {
@@ -771,17 +777,9 @@ namespace Neon.Xunit
 
             using (var httpClient = new HttpClient(handler, disposeHandler: true))
             {
-                var expectedSize = long.Parse(httpClient.GetStringSafeAsync(testVhdxSizeUri).Result.Trim());
-
-                if (!File.Exists(vhdxPath) || new FileInfo(vhdxPath).Length != expectedSize)
+                if (!File.Exists(vhdxPath))
                 {
-                    NeonHelper.DeleteFile(vhdxPath);
                     httpClient.GetToFileSafeAsync(testVhdxUri, vhdxPath).WaitWithoutAggregate();
-
-                    if (new FileInfo(vhdxPath).Length != expectedSize)
-                    {
-                        throw new InvalidDataException($"Size of [{testVhdxUri}] does not match the size at [{testVhdxSizeUri}].  Please update the size on S3.");
-                    }
                 }
             }
 

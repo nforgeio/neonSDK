@@ -600,8 +600,6 @@ namespace Neon.Deployment
                 Covenant.Assert(false, $"Invalid [{nameof(targetFolderUri)}={targetFolderUri}].");
             }
 
-            Covenant.Assert(uriCheck.Scheme == "https", $"Invalid scheme in [{nameof(targetFolderUri)}={targetFolderUri}].  Only [https://] is supported.");
-
             name     = name ?? Path.GetFileName(sourcePath);
             filename = filename ?? Path.GetFileName(sourcePath);
 
@@ -758,10 +756,11 @@ namespace Neon.Deployment
                             partStart   += partSize;
                             cbRemaining -= partSize;
 
-                            if (progressAction != null)
-                            {
-                                progressAction(Math.Min(99L, (long)(100.0 * (double)partNumber / (double)partCount)));
-                            }
+                            // $hack(jefflill):
+                            //
+                            // We're only invoking the progress action for even parts above
+                            // to avoid confustion when it appears that progress is bouncing
+                            // around.
                         }
                     }
                 });

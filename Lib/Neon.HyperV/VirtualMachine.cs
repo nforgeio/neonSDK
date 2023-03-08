@@ -39,6 +39,16 @@ namespace Neon.HyperV
         public string Name { get; set; }
 
         /// <summary>
+        /// The number of virtual processors.
+        /// </summary>
+        public int ProcessorCount { get; set; }
+
+        /// <summary>
+        /// The memory size in bytes.
+        /// </summary>
+        public long MemorySizeBytes { get; set; }
+
+        /// <summary>
         /// The current machine state.
         /// </summary>
         public VirtualMachineState State { get; set; }
