@@ -15,8 +15,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#define TEST_POWERSHELL_DRIVER
-#undef TEST_WMI_DRIVER
+// Define these to enable unit tests for each driver.
+
+#undef TEST_POWERSHELL_DRIVER
+#define TEST_WMI_DRIVER
 
 using System;
 using System.Collections.Generic;

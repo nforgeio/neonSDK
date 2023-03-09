@@ -60,7 +60,7 @@ namespace Neon.HyperV
     /// </summary>
     internal sealed class HyperVWmiDriver : IHyperVDriver
     {
-        private HyperVClient    client;
+        private HyperVClient client;
 
         /// <summary>
         /// Constructor.
@@ -117,13 +117,13 @@ namespace Neon.HyperV
 
         /// <inheritdoc/>
         public void NewVM(
-            string      machineName,
-            int         processorCount,
-            long        startupMemoryBytes,
-            int         generation       = 1,
-            string      drivePath        = null,
-            string      switchName       = null,
-            bool        checkPointDrives = false)
+            string machineName,
+            int processorCount,
+            long startupMemoryBytes,
+            int generation = 1,
+            string drivePath = null,
+            string switchName = null,
+            bool checkPointDrives = false)
         {
             throw new NotImplementedException();
         }
