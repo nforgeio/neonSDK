@@ -28,6 +28,10 @@ using System.Threading.Tasks;
 using Neon.Common;
 using Neon.Net;
 
+using Microsoft.Vhd.PowerShell.Cmdlets;
+using Microsoft.HyperV.PowerShell;
+using System.Management.Automation;
+
 namespace Neon.HyperV
 {
     //-------------------------------------------------------------------------
@@ -60,6 +64,57 @@ namespace Neon.HyperV
     /// </summary>
     internal sealed class HyperVWmiDriver : IHyperVDriver
     {
+        //---------------------------------------------------------------------
+        // Private types
+
+        private class Watcher : IOperationWatcher
+        {
+            public bool ShouldContinue(string description) => true;
+            public bool ShouldProcess(string description) => true;
+
+            public void Watch(WatchableTask task)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void WriteError(ErrorRecord record)
+            {
+                Error = record;
+            }
+
+            public void WriteObject(object output)
+            {
+                Output.Add(output);
+            }
+
+            public void WriteVerbose(string message)
+            {
+            }
+
+            public void WriteWarning(string message)
+            {
+            }
+
+            public ErrorRecord Error { get; private set; }
+            public List<object> Output { get; private set; } = new List<object>();
+
+            /// <summary>
+            /// Wraps any exception reported as an error as a <see cref="HyperVException"/>
+            /// and throws that.
+            /// </summary>
+            /// <exception cref="HyperVException">Thrown when an error was reported.</exception>
+            public void ThrowOnError()
+            {
+                if (Error != null)
+                {
+                    throw new HyperVException(Error.Exception.Message, Error.Exception); 
+                }
+            }
+        }
+
+        //---------------------------------------------------------------------
+        // Implementation
+
         private HyperVClient client;
 
         /// <summary>
@@ -117,13 +172,13 @@ namespace Neon.HyperV
 
         /// <inheritdoc/>
         public void NewVM(
-            string machineName,
-            int processorCount,
-            long startupMemoryBytes,
-            int generation = 1,
-            string drivePath = null,
-            string switchName = null,
-            bool checkPointDrives = false)
+            string      machineName,
+            int         processorCount,
+            long        startupMemoryBytes,
+            int         generation       = 1,
+            string      drivePath        = null,
+            string      switchName       = null,
+            bool        checkPointDrives = false)
         {
             throw new NotImplementedException();
         }
@@ -137,7 +192,17 @@ namespace Neon.HyperV
         /// <inheritdoc/>
         public void DismountVhd(string drivePath)
         {
-            throw new NotImplementedException();
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(drivePath), nameof(drivePath));
+
+            var cmdlet = new DismountVHD()
+            {
+                Path = new string[] { drivePath }
+            };
+
+            var watcher = new Watcher();
+
+            cmdlet.PerformOperation(watcher);
+            watcher.ThrowOnError();
         }
 
         /// <inheritdoc/>
@@ -198,7 +263,16 @@ namespace Neon.HyperV
         /// <inheritdoc/>
         public void MountVhd(string drivePath, bool readOnly = false)
         {
-            throw new NotImplementedException();
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(drivePath), nameof(drivePath));
+
+            var cmdlet = new MountVhd()
+            {
+                Path = new string[] { drivePath }
+            };
+
+            var watcher = new Watcher();
+
+            cmdlet.PerformOperation(watcher);
         }
 
         /// <inheritdoc/>
@@ -216,7 +290,22 @@ namespace Neon.HyperV
         /// <inheritdoc/>
         public void NewVhd(string drivePath, bool isDynamic, long sizeBytes, int blockSizeBytes)
         {
-            throw new NotImplementedException();
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(drivePath), nameof(drivePath));
+            Covenant.Requires<ArgumentException>(sizeBytes > 0, nameof(sizeBytes));
+            Covenant.Requires<ArgumentException>(blockSizeBytes > 0, nameof(blockSizeBytes));
+
+            var cmdlet = new NewVhd()
+            {
+                Path           = new string[] { drivePath },
+                Dynamic        = isDynamic,
+                SizeBytes      = (ulong)sizeBytes,
+                BlockSizeBytes = (uint)blockSizeBytes
+            };
+
+            var watcher = new Watcher();
+
+            cmdlet.PerformOperation(watcher);
+            watcher.ThrowOnError();
         }
 
         /// <inheritdoc/>
@@ -228,7 +317,17 @@ namespace Neon.HyperV
         /// <inheritdoc/>
         public void OptimizeVhd(string drivePath)
         {
-            throw new NotImplementedException();
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(drivePath), nameof(drivePath));
+
+            var cmdlet = new OptimizeVhd()
+            {
+                Path = new string[] { drivePath }
+            };
+
+            var watcher = new Watcher();
+
+            cmdlet.PerformOperation(watcher);
+            watcher.ThrowOnError();
         }
 
         /// <inheritdoc/>

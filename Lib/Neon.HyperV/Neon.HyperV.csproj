@@ -15,7 +15,7 @@
 		<Configurations>Debug;Release</Configurations>
 		<PackageIcon>nuget-icon.png</PackageIcon>
 		<PackageTags>kubernetes</PackageTags>
-		<NoWarn>$(NoWarn);CA1416;CS0219;CS0067;CS0414;CS0618;CS0253</NoWarn>
+		<NoWarn>$(NoWarn);CA1416;CS0219;CS0067;CS0414;CS0618;CS0253;CS1591</NoWarn>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -38,6 +38,30 @@
 	<ItemGroup>
 		<None Include="..\nuget-icon.png" Pack="true" PackagePath="" />
 		<None Include="..\..\LICENSE" Pack="true" PackagePath="" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Update="Microsoft.HyperV.PowerShell.Cmdlet.CmdletResources.Designer.cs">
+	    <DesignTime>True</DesignTime>
+	    <AutoGen>True</AutoGen>
+	    <DependentUpon>Microsoft.HyperV.PowerShell.Cmdlet.CmdletResources.resx</DependentUpon>
+	  </Compile>
+	  <Compile Update="Microsoft.HyperV.PowerShell.Objects.Designer.cs">
+	    <DesignTime>True</DesignTime>
+	    <AutoGen>True</AutoGen>
+	    <DependentUpon>Microsoft.HyperV.PowerShell.Objects.resx</DependentUpon>
+	  </Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Update="Microsoft.HyperV.PowerShell.Cmdlet.CmdletResources.resx">
+	    <Generator>ResXFileCodeGenerator</Generator>
+	    <LastGenOutput>Microsoft.HyperV.PowerShell.Cmdlet.CmdletResources.Designer.cs</LastGenOutput>
+	  </EmbeddedResource>
+	  <EmbeddedResource Update="Microsoft.HyperV.PowerShell.Objects.resx">
+	    <Generator>ResXFileCodeGenerator</Generator>
+	    <LastGenOutput>Microsoft.HyperV.PowerShell.Objects.Designer.cs</LastGenOutput>
+	  </EmbeddedResource>
 	</ItemGroup>
 
 </Project>

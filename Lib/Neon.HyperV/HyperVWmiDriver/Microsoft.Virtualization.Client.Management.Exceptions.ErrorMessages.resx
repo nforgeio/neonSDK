@@ -1,0 +1,223 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+<resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>1.3</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><data name="IncompatibleVersionInspectVhdDialog"><value>This version of InspectVhdDialog cannot be used to manage servers running Hyper-V in Windows Server 2012 R2 and earlier versions.</value></data>
+  <data name="VirtualHardDiskIdMismatch"><value>The ID of the differencing disk does not match the ID of the parent virtual hard disk. If you continue, this action might corrupt the virtual hard disk file and could result in data loss.</value></data>
+  <data name="DeleteVHDSnapshotFailed"><value>Deleting the VHD Snapshot '{1}' within the VHD Set file '{0}' failed.</value></data>
+  <data name="ModifyPoolFailed"><value>Modifying the resource pool with name '{0}' failed.</value></data>
+  <data name="AddDeviceFailed"><value>Adding the device '{0}' to '{1}' failed.</value></data>
+  <data name="OptimizeVHDSet"><value>Optimizing the VHDS Set file '{0}' failed.</value></data>
+  <data name="ServerCallFailed_RpcCallFailed"><value>The computer '{0}' failed to perform the requested operation because the RPC call failed.</value></data>
+  <data name="GetVirtualHardDiskInfoFailed"><value>Getting the information for virtual disk '{0}' failed.</value></data>
+  <data name="ModifyEthernetFeatureSettingsFailed"><value>Modifying features of the Ethernet connection failed.</value></data>
+  <data name="CompactVirtualHardDiskFailed"><value>Compacting the virtual disk '{0}' failed.</value></data>
+  <data name="TakeSnapshotFailed"><value>Taking a checkpoint of '{0}' failed.</value></data>
+  <data name="KDSUtilities_NewLocalKPNotSupportedInSHSMode"><value>A local key protector may not be created in Secure Hosting Service mode.</value></data>
+  <data name="TaskFailed_ServiceNotRunning"><value>The Virtual Machine Management service is not running. Start the service and then try the operation again.</value></data>
+  <data name="ServiceError_AccessDenied"><value>Access Denied</value></data>
+  <data name="OperationFailed_InvalidParameter"><value>The operation was passed a parameter that was not valid.</value></data>
+  <data name="AddBootSourceFailed"><value>Adding boot source settings for '{0}' failed.</value></data>
+  <data name="ConnectionIssue_RpcServerUnavailableOnCallback"><value>RPC server unavailable. Unable to establish communication between '{0}' and '{1}'.</value></data>
+  <data name="OperationFailed_OutOfMemory"><value>The server ran out of available memory.</value></data>
+  <data name="InvalidProperty"><value>Property '{1}' does not exist in class '{0}'.</value></data>
+  <data name="SetVirtualHardDiskSettingDataFailed"><value>Setting properties on the virtual hard disk '{0}' failed.</value></data>
+  <data name="OperationFailed_StatusInUse"><value>The operation cannot be performed while the object is in use.</value></data>
+  <data name="OperationFailed_NotSupported"><value>The operation is not supported.</value></data>
+  <data name="DataFileError_AccessDenied"><value>Access Denied.</value></data>
+  <data name="CreateSwitchFailed"><value>Creating the switch '{0}' failed.</value></data>
+  <data name="GrantVMConnectAccessFailed"><value>Failed to grant virtual machine connection access to WMI class path '{0}'.</value></data>
+  <data name="SetVHDSnapshotInformationFailed"><value>Setting the VHD Snapshot '{1}' within the VHD Set file '{0}' failed.</value></data>
+  <data name="OperationFailed_UnknownErrorCode"><value>The operation failed with error code '{0}'.</value></data>
+  <data name="DeleteSwitchFailed"><value>Deleting the switch '{0}' failed.</value></data>
+  <data name="StartReplicationFailed"><value>Start replication for virtual machine '{0}' failed.</value></data>
+  <data name="CommitReplicaFailed"><value>Failed to remove recovery points for virtual machine '{0}'.</value></data>
+  <data name="ServiceError_StatusInvalidParameter"><value>Status Invalid Parameter</value></data>
+  <data name="ModifyDeviceSettingFailed"><value>Modifying the properties of the device '{0}' failed.</value></data>
+  <data name="CalculateVideoMemoryRequirements"><value>Calculation of video memory requirements for resolution '{0}' and monitors '{1}' failed.</value></data>
+  <data name="NetworkUtilities_NicNotFound"><value>Physical network adapter '{0}' not found.</value></data>
+  <data name="ChangeReplicationModeToPrimaryFailed"><value>Changing to primary replication mode for Replica virtual machine '{0}' failed.</value></data>
+  <data name="DeleteDirectoryFailed"><value>Deleting the directory '{0}' failed.</value></data>
+  <data name="RemoveKvpItemsFailed"><value>Failed to remove items for key-value pair exchange.</value></data>
+  <data name="RemoveReplicationAuthSettingFailed"><value>Removing the authorization entry failed.</value></data>
+  <data name="CreateVirtualDiskFailed"><value>Creating the disk at location '{0}' failed.</value></data>
+  <data name="InvalidMethodReturnValue"><value>The server method '{0}' returned a value of '{1}', which is not valid.</value></data>
+  <data name="ServiceError_DependentServicesRunning"><value>Dependent Services Running</value></data>
+  <data name="ServiceError_StatusInvalidName"><value>Status Invalid Name</value></data>
+  <data name="KeyboardDeviceFailed"><value>Interacting with the virtual machine's keyboard device failed.</value></data>
+  <data name="Shutdown_GenericFailure"><value>This occurs if the current state of the virtual machine does not support reboot and shut down. For example, integration services might not be installed. If the virtual machine is running an operating system that supports reboot and shut down, ensure that integration services are installed and enabled in the virtual machine settings.</value></data>
+  <data name="DataFileError_SharingViolation"><value>Sharing Violation.</value></data>
+  <data name="DismountAssignableDeviceFailed"><value>Dismounting an assignable device failed.</value></data>
+  <data name="AttachVirtualHardDiskFailed"><value>Attaching the virtual disk '{0}' failed.</value></data>
+  <data name="OperationFailed_TimedOut"><value>The operation timed out.</value></data>
+  <data name="DeleteDataFileFailed"><value>Deleting the file '{0}' failed.</value></data>
+  <data name="TaskFailed_NotConnected"><value>The connection to the remote computer was lost, possibly due to network connectivity problems. Try connecting to the remote computer again.</value></data>
+  <data name="ValidatePersistentReservationSupportFailed"><value>Validating the file system '{0}' for Persistent Reservations support failed.</value></data>
+  <data name="OperationFailed_IncorrectType"><value>The operation was called on an invalid type.</value></data>
+  <data name="RebootRequired"><value>A reboot is required to complete the operation.</value></data>
+  <data name="GetVirtualHardDiskInfoParsingError"><value>There was a problem parsing the information returned by the server.</value></data>
+  <data name="RemoveEthernetFeatureSettingsFailed"><value>Removing features of the Ethernet connection failed.</value></data>
+  <data name="OperationFailed_TaskDeleted"><value>Information is no longer available about this task because the object that monitors the progress no longer exists. This may occur when many tasks are being processed.</value></data>
+  <data name="ImportReplicationFailed"><value>Import replication for virtual machine '{0}' from '{1}' failed.</value></data>
+  <data name="OperationFailed_InvalidState"><value>The operation cannot be performed while the object is in its current state.</value></data>
+  <data name="AddReplicationSettingsFailed"><value>Adding replication settings of '{0}' failed.</value></data>
+  <data name="MergeVirtualDiskFailed"><value>Merging virtual disk '{0}' to '{1}' failed.</value></data>
+  <data name="DeleteDeviceFailed"><value>Deleting the device '{0}' failed.</value></data>
+  <data name="ModifyVirtualSystemSettingFailed"><value>Modifying the properties of '{0}' failed.</value></data>
+  <data name="ConnectionIssue_AccessDeniedOnCallback"><value>Access denied. Unable to establish communication between '{0}' and '{1}'. </value></data>
+  <data name="ServiceError_ServiceDependencyFailure"><value>Service Dependency Failure</value></data>
+  <data name="DeleteVirtualSystemSettingFailed"><value>Deleting '{0}' failed.</value></data>
+  <data name="ReverseReplicationSettingsFailed"><value>Reverse replication settings of '{0}' failed.</value></data>
+  <data name="KeyboardTypeScanCodesFailed_TooManyCharacters"><value>The text cannot be typed because it contains too many characters.</value></data>
+  <data name="DeleteResourcePoolFailed"><value>Deleting the resource pool with pool ID '{0}' failed.</value></data>
+  <data name="ServiceError_ServiceMarkedForDeletion"><value>Service Marked For Deletion</value></data>
+  <data name="ServiceError_ServiceLogonFailure"><value>Service Log On Failure</value></data>
+  <data name="InvalidParameter_WmiObjectPathInvalid"><value>The WMI object path '{0}' is not valid.</value></data>
+  <data name="CreateVirtualSystemSuccededButObjectPathNotFound"><value>Creating the virtual machine succeeded, but we could not find the created virtual machine object.</value></data>
+  <data name="AddReplicationAuthSettingsFailed"><value>Adding the authorization entry failed.</value></data>
+  <data name="SetStateFailed"><value>'{0}' failed to change state.</value></data>
+  <data name="CopyFileToGuestFailed"><value>Failed to copy file "{0}" to "{1}" in the virtual machine.</value></data>
+  <data name="ImportSnapshotDefinitionsFailed"><value>Importing checkpoints from location '{0}' failed.</value></data>
+  <data name="AddSwitchPortsFailed"><value>Adding ports to the switch '{0}' failed.</value></data>
+  <data name="ConvertVirtualHardDiskFailed"><value>Converting the virtual disk '{0}' to file '{1}' failed.</value></data>
+  <data name="ConnectionIssue_ReallyUnknown"><value>Could not connect to the Virtual Machine Management service on computer '{0}'.</value></data>
+  <data name="DeleteReplicationAuthSettingsFailed"><value>Deleting the authorization entry '{0}' failed.</value></data>
+  <data name="WmiObjectPath_CannotConvertClassRefToInstanceId"><value>The WMI class path '{0}' cannot be converted to a CIM instance identifier.</value></data>
+  <data name="ModifySecuritySettingsFailed"><value>Modifying the security settings failed.</value></data>
+  <data name="ConnectionIssue_RpcServerUnavailable"><value>Cannot connect to the RPC service on computer '{0}'. Make sure your RPC service is running.</value></data>
+  <data name="ConnectionIssue_CredSspNotConfiguredOnClient"><value>CredSSP authentication is currently disabled in the client configuration. Change the client configuration and try the request again.</value></data>
+  <data name="ServiceError_ServiceDisabled"><value>Service Disabled</value></data>
+  <data name="ConnectionIssue_InvalidClass"><value>The Hyper-V Management Tools could not access an expected WMI class on computer '{0}'. This may indicate that the Hyper-V Platform is not installed on the computer or that the version of the Hyper-V Platform is incompatible with these management tools.</value></data>
+  <data name="ServiceError_NotSupported"><value>Not Supported</value></data>
+  <data name="GetVHDSetInformationFailed"><value>Getting information about the VHD Set file '{0}' failed.</value></data>
+  <data name="DeleteVirtualMachineFailed"><value>Deleting '{0}' failed.</value></data>
+  <data name="AddDeviceSucceededButObjectPathNotFound"><value>Adding the device '{0}' to '{1}' succeeded, but we could not find the created device object.</value></data>
+  <data name="ServiceError_UnknownFailure"><value>Unknown Failure</value></data>
+  <data name="ModifyReplicationAuthSettingsFailed"><value>Modifying the authorization entry '{0}' failed.</value></data>
+  <data name="InvalidMethod"><value>Method '{1}' does not exist or is defined incorrectly in class '{0}'.</value></data>
+  <data name="ResynchronizationFailed"><value>Resynchronization for virtual machine '{0}' failed.</value></data>
+  <data name="RevertReplicaFailed"><value>Failed to cancel failover for '{0}'.</value></data>
+  <data name="ServiceError_ServiceCannotAcceptControl"><value>Service Cannot Accept Control</value></data>
+  <data name="OperationFailed_AccessDenied"><value>You do not have permission to perform the operation. Contact your administrator if you believe you should have permission to perform this operation.</value></data>
+  <data name="DisableGPUForVirtualization"><value>Disable GPU '{0}' for virtualization failed.</value></data>
+  <data name="AddEthernetFeatureSettingsFailed"><value>Adding features to the Ethernet connection failed.</value></data>
+  <data name="ModifySwitchPortsFailed"><value>Modifying switch ports failed.</value></data>
+  <data name="InvalidPropertyValue"><value>The object contained a value in property '{0}' that is not valid.</value></data>
+  <data name="DeleteSwitchPortsFailed"><value>Removing the virtual switch ports failed.</value></data>
+  <data name="ServiceError_ServiceRequestTimeout"><value>Service Request Timeout</value></data>
+  <data name="ServiceError_ServiceDatabaseLocked"><value>Service Database Locked</value></data>
+  <data name="InjectNonMaskableInterruptFailed"><value>Failed to inject a non-maskable interrupt into the virtual machine '{0}'.</value></data>
+  <data name="ModifyVirtualizationSettingsFailed"><value>Modifying the Hyper-V settings on '{0}' failed.</value></data>
+  <data name="CreateTestSystemFailed"><value>Unable to create the test virtual machine for virtual machine '{0}'.</value></data>
+  <data name="ServiceError_ServiceNoThread"><value>Service No Thread</value></data>
+  <data name="MigrationOperationFailed"><value>Migration operation on '{0}' failed.</value></data>
+  <data name="CreateVirtualSystemFailed"><value>Creating the virtual machine failed.</value></data>
+  <data name="ServerCallFailed_Unknown"><value>The operation on computer '{0}' failed: {1}</value></data>
+  <data name="ModifyPoolResourcesFailed"><value>Modifying the allocation properties of the resource pool with pool id '{0}' failed.</value></data>
+  <data name="TestNetworkConnectivityFailed"><value>Testing the connectivity of network adapter '{0}' failed.</value></data>
+  <data name="GeneratingWorldWideNamesFailed"><value>Generating World Wide Names failed.</value></data>
+  <data name="VirtualHardDiskChainBroken"><value>The chain of virtual hard disks is broken. The system cannot locate the parent virtual hard disk '{0}' for the child virtual hard disk '{1}'.</value></data>
+  <data name="OperationFailed_ExpectedAffectedElementNotFound"><value>The operation succeeded, but we could not find the expected resulting object.</value></data>
+  <data name="ModifyVirtualSwitchFailed"><value>Modifying the switch '{0}' failed.</value></data>
+  <data name="CreatePool"><value>Creating the resource pool with pool ID '{0}' failed.</value></data>
+  <data name="RevokeVMConnectAccessFailed"><value>Failed to revoke virtual machine connection access from WMI class path '{0}'.</value></data>
+  <data name="ApplySnapshotFailed"><value>Applying the checkpoint '{0}' to its virtual machine '{1}' failed.</value></data>
+  <data name="IntegrationComponentRebootFailed"><value>Failed to reboot the virtual machine.</value></data>
+  <data name="CopyDataFileFailed"><value>Copying the file '{0}' failed.</value></data>
+  <data name="ServiceError_StatusDuplicateName"><value>Status Duplicate Name</value></data>
+  <data name="IncompatibleVersionVmBrowser"><value>This version of Hyper-V Manager cannot be used to manage servers running Hyper-V in Windows Server 2012 R2 and earlier versions.</value></data>
+  <data name="ResizeVirtualHardDiskFailed"><value>Resizing the virtual disk '{0}' failed.</value></data>
+  <data name="ServiceError_PathNotFound"><value>Path Not Found</value></data>
+  <data name="ModifyFailoverReplicationServiceSettingsFailed"><value>Modifying the properties of '{0}' failed.</value></data>
+  <data name="ObjectDeleted"><value>Hyper-V encountered an error trying to access an object on computer '{0}' because the object was not found. The object might have been deleted. Verify that the Virtual Machine Management service on the computer is running.</value></data>
+  <data name="ValidateVirtualHardDiskFailed"><value>Validating the virtual hard disk '{0}' failed.</value></data>
+  <data name="Shutdown_NotReady"><value>The system cannot process the reboot or shutdown request at this time.</value></data>
+  <data name="ServiceError_InvalidServiceControl"><value>Invalid Service Control</value></data>
+  <data name="RestoreLKGVMKeyProtectorFailed"><value>Restoring the last known good key protector failed.</value></data>
+  <data name="RemoteObjectNotFound"><value>Hyper-V encountered an error trying to access an object on computer '{0}' because the object was not found. The object might have been deleted, or you might not have permission to perform the task. Verify that the Virtual Machine Management service on the computer is running. If the service is running, try to perform the task again by using Run as Administrator.</value></data>
+  <data name="ImportComputerSystemFailed"><value>Importing the virtual machine from file '{0}' failed.</value></data>
+  <data name="RequestReplicationStateChangeFailed"><value>'{0}' failed to change ongoing replication state.</value></data>
+  <data name="ConnectionIssue_NotInstalled"><value>Hyper-V has not been installed on computer '{0}'.</value></data>
+  <data name="DataFileError_InvalidPath"><value>Invalid path.</value></data>
+  <data name="DetachVirtualHardDiskFailed"><value>Detaching the virtual disk '{0}' failed.</value></data>
+  <data name="ConnectionIssue_ServerResolutionException"><value>The computer '{0}' could not be resolved. Make sure you typed the machine name correctly and that you have network access.</value></data>
+  <data name="DataFileError_DirectoryNotEmpty"><value>Directory not empty.</value></data>
+  <data name="ServiceError_StatusServiceExists"><value>Status Service Exists</value></data>
+  <data name="IntegrationComponentShutdownFailed"><value>Failed to shut down the virtual machine.</value></data>
+  <data name="ServiceError_StatusCircularDependency"><value>Status Circular Dependency</value></data>
+  <data name="ConnectionIssue_Unknown"><value>Could not connect to the Virtual Machine Management service on computer '{0}': {2}.</value></data>
+  <data name="ServiceError_ServiceAlreadyPaused"><value>Service Already Paused</value></data>
+  <data name="SetVMKeyProtectorFailed"><value>Setting the key protector failed.</value></data>
+  <data name="RealizePlannedComputerSystemFailed"><value>Failed to complete the process of reconfiguring the virtual machine '{0}'.</value></data>
+  <data name="ModifyMigrationNetworkSettingsFailed"><value>Modifying the migration network settings for '{0}' failed.</value></data>
+  <data name="ApplyReplicaFailed"><value>Apply recovery checkpoint '{0}' for virtual machine '{1}' failed.</value></data>
+  <data name="MountAssignableDeviceFailed"><value>Mounting an assignable device failed.</value></data>
+  <data name="GetVMKeyProtectorFailed"><value>Getting the key protector failed.</value></data>
+  <data name="ConnectionIssue_ConnectedWithDifferentCredentials"><value>A connection to computer '{0}' could not be established because there is already a connection using a different set of user credentials.</value></data>
+  <data name="ConnectionIssue_AccessDenied"><value>You do not have the required permission to complete this task. Contact the administrator of the authorization policy for the computer '{0}'.</value></data>
+  <data name="ArgumentOutOfRange_InvalidEnumValue"><value>'{0}' is not a valid member of the '{1}' enumeration.</value></data>
+  <data name="DataFileError_InvalidObject"><value>Path not found.</value></data>
+  <data name="ExportComputerSystemFailed"><value>Exporting '{0}' to folder '{1}' failed.</value></data>
+  <data name="ResetReplicationStatisticsFailed"><value>Resetting the replication statistics for '{0}' failed.</value></data>
+  <data name="Shutdown_ShutdownInProgress"><value>Another reboot or shutdown operation is already in progress.</value></data>
+  <data name="ReconnectParentDiskFailed"><value>Reconnecting the virtual disk '{0}' to its parent disk '{1}' failed.</value></data>
+  <data name="ModifyStorageSettingFailed"><value>Modifying the storage settings failed.</value></data>
+  <data name="IncompatibleVersionVmConnect"><value>This version of Virtual Machine Connection cannot be used to manage servers running Hyper-V in Windows Server 2012 R2 and earlier versions.</value></data>
+  <data name="CancelTaskFailed"><value>Canceling the task failed.</value></data>
+  <data name="ServerCallFailed_UnknownProviderError"><value>The computer '{0}' failed to perform the requested operation.</value></data>
+  <data name="GetMountedStorageImageFailed"><value>Getting the mounted storage instance for the path '{0}' failed.</value></data>
+  <data name="ModifyResourcePoolSettingsFailed"><value>Modifying the properties of the resource pool '{0}' failed.</value></data>
+  <data name="ServerCallFailed_TimedOut"><value>The operation on computer '{0}' failed because it timed out.</value></data>
+  <data name="ExternalFcPortToSwitchConnectionError"><value>An external fibre channel port must always have a connection to a virtual fibre channel switch.</value></data>
+  <data name="ImportComputerSystemSuccededButObjectPathNotFound"><value>Importing the virtual machine from file '{0}' succeeded, but we could not find the created virtual machine object.</value></data>
+  <data name="ArgumentOutOfRange_NoSupportedAssociations"><value>The are no supported associations for the given namespace "{0}".</value></data>
+  <data name="ServiceError_ServiceNotActive"><value>Service Not Active</value></data>
+  <data name="OperationFailed_FileNotFound"><value>The operation failed because the file was not found.</value></data>
+  <data name="ServiceError_StatusInvalidServiceAccount"><value>Status Invalid Service Account</value></data>
+  <data name="EnableGPUForVirtualization"><value>Enable GPU '{0}' for virtualization failed.</value></data>
+  <data name="Shutdown_MachineLocked"><value>The machine is locked. An interactive reboot or shutdown cannot proceed while the machine is locked.</value></data>
+  <data name="ControlMetricsByDefinitionFailed"><value>Changing the '{0}' metric for '{1}' to state '{2}' failed.</value></data>
+  <data name="ServerCallFailed_OutOfMemoryOrDiskSpace"><value>The computer '{0}' failed to perform the requested operation because it is out of memory or disk space.</value></data>
+  <data name="RequestSwitchExtensionStateChangeFailed"><value>Enabling or disabling extension '{0}' failed.</value></data>
+  <data name="DeleteVirtualSystemSettingTreeFailed"><value>Deleting checkpoint tree rooted with '{0}' failed.</value></data>
+  <data name="RemoveReplicationSettingsFailed"><value>Remove replication settings of '{0}' failed.</value></data>
+  <data name="ServiceError_ServiceDependencyDeleted"><value>Service Dependency Deleted</value></data>
+  <data name="ConnectionIssue_UserCredentialsNotSupportedOnLocalhost"><value>User credentials cannot be used for local connections.</value></data>
+  <data name="UpgradeVMConfigurationVersionFailed"><value>Upgrading the configuration version of '{0}' failed.</value></data>
+  <data name="ControlMetricsFailed"><value>Changing all metrics for '{0}' to state '{1}' failed.</value></data>
+  <data name="OperationFailed_Unavailable"><value>The operation is not available.</value></data>
+  <data name="ServerCallFailed_ReallyUnknown"><value>The operation on computer '{0}' failed: An unknown error occurred.</value></data>
+  <data name="GetVHDSnapshotInformationFailed"><value>Getting information about a VHD Snapshot within the VHD Set file '{0}' failed.</value></data>
+  <data name="ValidatePlannedComputerSystemFailed"><value>Validating the virtual machine '{0}' failed.</value></data>
+  <data name="AddMigrationNetworkSettingsFailed"><value>Adding the migration network settings for '{0}' failed.</value></data>
+  <data name="CreatePlannedSystemFailed"><value>Creating the planned virtual machine failed.</value></data>
+  <data name="OperationFailed_ObjectNotFound"><value>The operation failed because the object was not found.</value></data>
+  <data name="GetVMConnectAccessFailed"><value>Failed to get virtual machine connection access for WMI class path '{0}'.</value></data>
+  <data name="ServiceError_ServiceAlreadyRunning"><value>Service Already Running</value></data>
+  <data name="RemoveMigrationNetworkSettingsFailed"><value>Removing the migration network settings for '{0}' failed.</value></data>
+  </root>
