@@ -21,7 +21,10 @@ using System.Diagnostics.Contracts;
 using System.Dynamic;
 using System.IO;
 using System.Linq;
+using System.Management.Automation;
+using System.Management.Automation.Runspaces;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -29,8 +32,6 @@ using Neon.Common;
 using Neon.Net;
 
 using Microsoft.Vhd.PowerShell.Cmdlets;
-using Microsoft.HyperV.PowerShell;
-using System.Management.Automation;
 
 namespace Neon.HyperV
 {
@@ -67,47 +68,56 @@ namespace Neon.HyperV
         //---------------------------------------------------------------------
         // Private types
 
-        private class Watcher : IOperationWatcher
+        /// <summary>
+        /// Holds arguments being passed to a cmdlet.
+        /// </summary>
+        private class CmdletArgs
         {
-            public bool ShouldContinue(string description) => true;
-            public bool ShouldProcess(string description) => true;
-
-            public void Watch(WatchableTask task)
-            {
-                throw new NotImplementedException();
-            }
-
-            public void WriteError(ErrorRecord record)
-            {
-                Error = record;
-            }
-
-            public void WriteObject(object output)
-            {
-                Output.Add(output);
-            }
-
-            public void WriteVerbose(string message)
-            {
-            }
-
-            public void WriteWarning(string message)
-            {
-            }
-
-            public ErrorRecord Error { get; private set; }
-            public List<object> Output { get; private set; } = new List<object>();
+            private Dictionary<string, object> args = new Dictionary<string, object>();
 
             /// <summary>
-            /// Wraps any exception reported as an error as a <see cref="HyperVException"/>
-            /// and throws that.
+            /// Adds a switch argument.
             /// </summary>
-            /// <exception cref="HyperVException">Thrown when an error was reported.</exception>
-            public void ThrowOnError()
+            /// <param name="name">Specifies the switch name.</param>
+            public void AddSwitch(string name)
             {
-                if (Error != null)
+                Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(name), nameof(name));
+
+                args.Add(name, null);
+            }
+
+            /// <summary>
+            /// Adds a named argument.
+            /// </summary>
+            /// <param name="name">Specifes the argument name.</param>
+            /// <param name="value">Specifies the argument value.</param>
+            public void AddArg(string name, object value)
+            {
+                Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(name), nameof(name));
+                Covenant.Requires<ArgumentNullException>(value != null, nameof(value));
+
+                args.Add(name, value);
+            }
+
+            /// <summary>
+            /// Copies the arguments to a <see cref="PowerShell"/> instance to prepare for
+            /// a command execution.
+            /// </summary>
+            /// <param name="powershell"></param>
+            public void CopyArgsTo(PowerShell powershell)
+            {
+                Covenant.Requires<ArgumentNullException>(powershell != null, nameof(powershell));
+
+                foreach (var arg in args)
                 {
-                    throw new HyperVException(Error.Exception.Message, Error.Exception); 
+                    if (arg.Value == null)
+                    {
+                        powershell.AddParameter(arg.Key);
+                    }
+                    else
+                    {
+                        powershell.AddParameter(arg.Key, arg.Value);
+                    }
                 }
             }
         }
@@ -170,6 +180,39 @@ namespace Neon.HyperV
             }
         }
 
+        /// <summary>
+        /// Invokes the <typeparamref name="TCmdlet"/> cmdlet with the parameters passed.
+        /// </summary>
+        /// <typeparam name="TCmdlet">Specifies the target cmdlet implementation.</typeparam>
+        /// <param name="args">Specifies any arguments to be passed.</param>
+        /// <returns>The comand results.</returns>
+        private IList<PSObject> Invoke<TCmdlet>(CmdletArgs args)
+            where TCmdlet : PSCmdlet, new()
+        {
+            Covenant.Requires<ArgumentNullException>(args != null, nameof(args)); 
+
+            var cmdletAttr          = typeof(TCmdlet).GetCustomAttribute<CmdletAttribute>();
+            var cmdletName          = $"{cmdletAttr.VerbName}-{cmdletAttr.NounName}";
+            var initialSessionState = InitialSessionState.Create();
+
+            initialSessionState.Commands.Add(new SessionStateCmdletEntry(cmdletName, typeof(TCmdlet), null));
+
+            using (var runspace = RunspaceFactory.CreateRunspace(initialSessionState))
+            {
+                runspace.Open();
+
+                using (var powershell = PowerShell.Create(runspace))
+                {
+                    powershell.Runspace = runspace;
+
+                    powershell.AddCommand(cmdletName);
+                    args?.CopyArgsTo(powershell);
+
+                    return powershell.Invoke();
+                }
+            }
+        }
+
         /// <inheritdoc/>
         public void NewVM(
             string      machineName,
@@ -194,15 +237,11 @@ namespace Neon.HyperV
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(drivePath), nameof(drivePath));
 
-            var cmdlet = new DismountVHD()
-            {
-                Path = new string[] { drivePath }
-            };
+            var args = new CmdletArgs();
 
-            var watcher = new Watcher();
+            args.AddArg("Path", drivePath);
 
-            cmdlet.PerformOperation(watcher);
-            watcher.ThrowOnError();
+            Invoke<DismountVHD>(args);
         }
 
         /// <inheritdoc/>
@@ -265,14 +304,11 @@ namespace Neon.HyperV
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(drivePath), nameof(drivePath));
 
-            var cmdlet = new MountVhd()
-            {
-                Path = new string[] { drivePath }
-            };
+            var args = new CmdletArgs();
 
-            var watcher = new Watcher();
+            args.AddArg("Path", drivePath);
 
-            cmdlet.PerformOperation(watcher);
+            Invoke<MountVhd>(args);
         }
 
         /// <inheritdoc/>
@@ -294,18 +330,22 @@ namespace Neon.HyperV
             Covenant.Requires<ArgumentException>(sizeBytes > 0, nameof(sizeBytes));
             Covenant.Requires<ArgumentException>(blockSizeBytes > 0, nameof(blockSizeBytes));
 
-            var cmdlet = new NewVhd()
+            var args = new CmdletArgs();
+
+            if (isDynamic)
             {
-                Path           = new string[] { drivePath },
-                Dynamic        = isDynamic,
-                SizeBytes      = (ulong)sizeBytes,
-                BlockSizeBytes = (uint)blockSizeBytes
-            };
+                args.AddSwitch("Dynamic");
+            }
+            else
+            {
+                args.AddSwitch("Fixed");
+            }
 
-            var watcher = new Watcher();
+            args.AddArg("Path", drivePath);
+            args.AddArg("SizeBytes", sizeBytes);
+            args.AddArg("BlockSizeBytes", blockSizeBytes);
 
-            cmdlet.PerformOperation(watcher);
-            watcher.ThrowOnError();
+            Invoke<NewVhd>(args);
         }
 
         /// <inheritdoc/>
@@ -319,15 +359,11 @@ namespace Neon.HyperV
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(drivePath), nameof(drivePath));
 
-            var cmdlet = new OptimizeVhd()
-            {
-                Path = new string[] { drivePath }
-            };
+            var args = new CmdletArgs();
 
-            var watcher = new Watcher();
+            args.AddArg("Path", drivePath);
 
-            cmdlet.PerformOperation(watcher);
-            watcher.ThrowOnError();
+            Invoke<OptimizeVhd>(args);
         }
 
         /// <inheritdoc/>
@@ -351,7 +387,15 @@ namespace Neon.HyperV
         /// <inheritdoc/>
         public void ResizeVhd(string drivePath, long sizeBytes)
         {
-            throw new NotImplementedException();
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(drivePath), nameof(drivePath));
+            Covenant.Requires<ArgumentException>(sizeBytes > 0, nameof(sizeBytes));
+
+            var args = new CmdletArgs();
+
+            args.AddArg("Path", drivePath);
+            args.AddArg("SizeBytes", sizeBytes);
+
+            Invoke<ResizeVhd>(args);
         }
 
         /// <inheritdoc/>

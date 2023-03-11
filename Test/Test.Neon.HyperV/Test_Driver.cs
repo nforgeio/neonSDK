@@ -139,6 +139,7 @@ namespace TestHyperV
                         driver.NewVhd(drivePath, isDynamic, sizeBytes: driveSize, blockSizeBytes: blockSize);
                         Assert.True(File.Exists(drivePath));
 
+                        driver.ResizeVhd(drivePath, sizeBytes: driveSize * 2);
                         driver.MountVhd(drivePath, readOnly: true);
                         driver.OptimizeVhd(drivePath);
                         driver.DismountVhd(drivePath);

@@ -48,7 +48,7 @@ some files will be overwritten and be effectively lost.
 
 6. Rename the broken `StackFrame(fNeedFileInfo: true)` parameter to `needFileInfo`.
 
-6. Modify any `new ResourceManager()` calls to prefix the resource name with
+7. Modify any `new ResourceManager()` calls to prefix the resource name with
    `WmiPortHelper.ResourceRoot` so these can be loaded from the new assembly:
 
    Change:
@@ -63,3 +63,10 @@ some files will be overwritten and be effectively lost.
    new ResourceManager(WmiHelper.GetResourceName("..."));
    ```
 
+8. Edit **VirtualizationCmdletBase.cs** to have `CurrentFileSystemLocation` return the
+   current directory:
+
+   ```
+   //protected string CurrentFileSystemLocation => base.SessionState.Path.CurrentFileSystemLocation.Path;
+   protected string CurrentFileSystemLocation => Environment.CurrentDirectory;
+  ```

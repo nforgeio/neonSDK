@@ -105,9 +105,10 @@ internal abstract class VirtualizationCmdletBase : PSCmdlet, IServerParameters, 
 		}
 	}
 
-	protected string CurrentFileSystemLocation => base.SessionState.Path.CurrentFileSystemLocation.Path;
+    //protected string CurrentFileSystemLocation => base.SessionState.Path.CurrentFileSystemLocation.Path;
+    protected string CurrentFileSystemLocation => Environment.CurrentDirectory;
 
-	protected virtual void NormalizeParameters()
+    protected virtual void NormalizeParameters()
 	{
 	}
 
