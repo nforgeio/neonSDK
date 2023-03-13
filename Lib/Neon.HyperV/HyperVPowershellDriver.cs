@@ -190,7 +190,7 @@ namespace Neon.HyperV
 
             // $note(jefflill):
             // 
-            // We don't currently support VMs with multiple network adapters; we'll
+            // We don't currently support VMs with multiple network adapters and will
             // only capture the name of the switch connected to the first adapter.
 
             var adapters = (JArray)rawMachine.NetworkAdapters;
@@ -219,7 +219,7 @@ namespace Neon.HyperV
             Covenant.Requires<ArgumentException>(startupMemoryBytes > 0, nameof(startupMemoryBytes));
             Covenant.Requires<ArgumentException>(generation == 1 || generation == 2, nameof(generation));
 
-            var command = $"{HyperVNamespace}New-VM -Name '{machineName}' -MemoryStartupBytes {startupMemoryBytes} -Generation 1";
+            var command = $"{HyperVNamespace}New-VM -Name '{machineName}' -MemoryStartupBytes {startupMemoryBytes} -Generation {generation}";
 
             if (!string.IsNullOrEmpty(drivePath))
             {
@@ -240,7 +240,7 @@ namespace Neon.HyperV
                 throw new HyperVException(e.Message, e);
             }
 
-            // Disable drive checkpoints.
+            // Disable drive checkpointing.
 
             SetVm(machineName, processorCount: processorCount, checkpointDrives: false);
         }
@@ -438,82 +438,52 @@ namespace Neon.HyperV
         }
 
         /// <inheritdoc/>
-        public IEnumerable<VirtualNetworkAdapter> ListVmNetAdapters(string machineName, bool waitForAddresses = false)
+        public IEnumerable<VirtualNetworkAdapter> ListVmNetAdapters(string machineName)
         {
             CheckDisposed();
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
 
             try
             {
-                var stopwatch = new Stopwatch();
+                var adapters  = new List<VirtualNetworkAdapter>();
+                var rawAdapters = powershell.ExecuteJson($"{HyperVNamespace}Get-VMNetworkAdapter -VMName '{machineName}'");
 
-                while (true)
+                foreach (dynamic rawAdapter in rawAdapters)
                 {
-                    var adapters    = new List<VirtualNetworkAdapter>();
-                    var rawAdapters = powershell.ExecuteJson($"{HyperVNamespace}Get-VMNetworkAdapter -VMName '{machineName}'");
-
-                    adapters.Clear();
-
-                    foreach (dynamic rawAdapter in rawAdapters)
+                    var adapter = new VirtualNetworkAdapter()
                     {
-                        var adapter
-                            = new VirtualNetworkAdapter()
-                            {
-                                Name           = rawAdapter.Name,
-                                VMName         = rawAdapter.VMName,
-                                IsManagementOs = ((string)rawAdapter.IsManagementOs).Equals("True", StringComparison.InvariantCultureIgnoreCase),
-                                SwitchName     = rawAdapter.SwitchName,
-                                MacAddress     = rawAdapter.MacAddress,
-                                Status         = (string)((JArray)rawAdapter.Status).FirstOrDefault()
-                            };
+                        Name           = rawAdapter.Name,
+                        VMName         = rawAdapter.VMName,
+                        IsManagementOs = ((string)rawAdapter.IsManagementOs).Equals("True", StringComparison.InvariantCultureIgnoreCase),
+                        SwitchName     = rawAdapter.SwitchName,
+                        MacAddress     = rawAdapter.MacAddress,
+                        Status         = (string)((JArray)rawAdapter.Status).FirstOrDefault()
+                    };
 
-                        // Parse the IP addresses.
+                    // Parse the IP addresses.
 
-                        var addresses = (JArray)rawAdapter.IPAddresses;
+                    var addresses = (JArray)rawAdapter.IPAddresses;
 
-                        if (addresses.Count > 0)
+                    if (addresses.Count > 0)
+                    {
+                        foreach (string address in addresses)
                         {
-                            foreach (string address in addresses)
+                            if (!string.IsNullOrEmpty(address))
                             {
-                                if (!string.IsNullOrEmpty(address))
-                                {
-                                    var ipAddress = IPAddress.Parse(address.Trim());
+                                var ipAddress = IPAddress.Parse(address.Trim());
 
-                                    if (ipAddress.AddressFamily == AddressFamily.InterNetwork)
-                                    {
-                                        adapter.Addresses.Add(IPAddress.Parse(address.Trim()));
-                                    }
+                                if (ipAddress.AddressFamily == AddressFamily.InterNetwork)
+                                {
+                                    adapter.Addresses.Add(IPAddress.Parse(address.Trim()));
                                 }
                             }
                         }
-
-                        adapters.Add(adapter);
                     }
 
-                    var retry = false;
-
-                    foreach (var adapter in adapters)
-                    {
-                        if (adapter.Addresses.Count == 0 && waitForAddresses)
-                        {
-                            if (stopwatch.Elapsed >= TimeSpan.FromSeconds(30))
-                            {
-                                throw new TimeoutException($"Network adapter [{adapter.Name}] for virtual machine [{machineName}] was not able to acquire an IP address.");
-                            }
-
-                            retry = true;
-                            break;
-                        }
-                    }
-
-                    if (retry)
-                    {
-                        Thread.Sleep(TimeSpan.FromSeconds(1));
-                        continue;
-                    }
-
-                    return adapters;
+                    adapters.Add(adapter);
                 }
+
+                return adapters;
             }
             catch (Exception e)
             {

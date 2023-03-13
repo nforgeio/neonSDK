@@ -732,15 +732,14 @@ namespace Neon.HyperV
         /// Returns the virtual network adapters attached to the named virtual machine.
         /// </summary>
         /// <param name="machineName">The machine name.</param>
-        /// <param name="waitForAddresses">Optionally wait until at least one adapter has been able to acquire at least one IPv4 address.</param>
         /// <returns>The list of network adapters.</returns>
         /// <exception cref="HyperVException">Thrown for errors.</exception>
-        public IEnumerable<VirtualNetworkAdapter> ListVmNetworkAdapters(string machineName, bool waitForAddresses = false)
+        public IEnumerable<VirtualNetworkAdapter> ListVmNetworkAdapters(string machineName)
         {
             CheckDisposed();
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
 
-            return hypervDriver.ListVmNetAdapters(machineName, waitForAddresses: waitForAddresses);
+            return hypervDriver.ListVmNetAdapters(machineName);
         }
 
         /// <summary>

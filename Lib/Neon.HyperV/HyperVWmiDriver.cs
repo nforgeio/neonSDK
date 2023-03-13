@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Dynamic;
 using System.IO;
@@ -24,14 +25,20 @@ using System.Linq;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 using System.Net;
+using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+
+using Microsoft.Vhd.PowerShell.Cmdlets;
+using Microsoft.HyperV.PowerShell.Commands;
 
 using Neon.Common;
 using Neon.Net;
-
-using Microsoft.Vhd.PowerShell.Cmdlets;
+using Microsoft.HyperV.PowerShell;
+using System.Runtime.CompilerServices;
+using Microsoft.Virtualization.Client.Management;
 
 namespace Neon.HyperV
 {
@@ -71,9 +78,24 @@ namespace Neon.HyperV
         /// <summary>
         /// Holds arguments being passed to a cmdlet.
         /// </summary>
-        private class CmdletArgs
+        private struct CmdletArgs
         {
+            //-----------------------------------------------------------------
+            // Static members
+
+            private static readonly object switchValue = "is-switch";
+
+            //-----------------------------------------------------------------
+            // Instance members
+
             private Dictionary<string, object> args = new Dictionary<string, object>();
+
+            /// <summary>
+            /// Default constructor.
+            /// </summary>
+            public CmdletArgs()
+            {
+            }
 
             /// <summary>
             /// Adds a switch argument.
@@ -83,18 +105,17 @@ namespace Neon.HyperV
             {
                 Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(name), nameof(name));
 
-                args.Add(name, null);
+                args.Add(name, switchValue);
             }
 
             /// <summary>
             /// Adds a named argument.
             /// </summary>
             /// <param name="name">Specifes the argument name.</param>
-            /// <param name="value">Specifies the argument value.</param>
-            public void AddArg(string name, object value)
+            /// <param name="value">Specifies the argument value which may be <c>null</c>.</param>
+            public void Add(string name, object value)
             {
                 Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(name), nameof(name));
-                Covenant.Requires<ArgumentNullException>(value != null, nameof(value));
 
                 args.Add(name, value);
             }
@@ -110,7 +131,7 @@ namespace Neon.HyperV
 
                 foreach (var arg in args)
                 {
-                    if (arg.Value == null)
+                    if (object.ReferenceEquals(arg.Value, switchValue))
                     {
                         powershell.AddParameter(arg.Key);
                     }
@@ -119,6 +140,14 @@ namespace Neon.HyperV
                         powershell.AddParameter(arg.Key, arg.Value);
                     }
                 }
+            }
+
+            /// <summary>
+            /// Clears and existing arguments.
+            /// </summary>
+            public void Clear()
+            {
+                args.Clear();
             }
         }
 
@@ -186,31 +215,71 @@ namespace Neon.HyperV
         /// <typeparam name="TCmdlet">Specifies the target cmdlet implementation.</typeparam>
         /// <param name="args">Specifies any arguments to be passed.</param>
         /// <returns>The comand results.</returns>
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
         private IList<PSObject> Invoke<TCmdlet>(CmdletArgs args)
             where TCmdlet : PSCmdlet, new()
         {
-            Covenant.Requires<ArgumentNullException>(args != null, nameof(args)); 
-
-            var cmdletAttr          = typeof(TCmdlet).GetCustomAttribute<CmdletAttribute>();
-            var cmdletName          = $"{cmdletAttr.VerbName}-{cmdletAttr.NounName}";
-            var initialSessionState = InitialSessionState.Create();
-
-            initialSessionState.Commands.Add(new SessionStateCmdletEntry(cmdletName, typeof(TCmdlet), null));
-
-            using (var runspace = RunspaceFactory.CreateRunspace(initialSessionState))
+            try
             {
-                runspace.Open();
+                var cmdletAttr          = typeof(TCmdlet).GetCustomAttribute<CmdletAttribute>();
+                var cmdletName          = $"{cmdletAttr.VerbName}-{cmdletAttr.NounName}";
+                var initialSessionState = InitialSessionState.Create();
 
-                using (var powershell = PowerShell.Create(runspace))
+                initialSessionState.Commands.Add(new SessionStateCmdletEntry(cmdletName, typeof(TCmdlet), null));
+
+                using (var runspace = RunspaceFactory.CreateRunspace(initialSessionState))
                 {
-                    powershell.Runspace = runspace;
+                    runspace.Open();
 
-                    powershell.AddCommand(cmdletName);
-                    args?.CopyArgsTo(powershell);
+                    using (var powershell = PowerShell.Create(runspace))
+                    {
+                        powershell.Runspace = runspace;
 
-                    return powershell.Invoke();
+                        powershell.AddCommand(cmdletName);
+                        args.CopyArgsTo(powershell);
+
+                        return powershell.Invoke();
+                    }
                 }
             }
+            catch (Exception e)
+            {
+                throw new HyperVException(e);
+            }
+        }
+
+        /// <summary>
+        /// Waits for a VM to exist and then optionally waits for it to transition to
+        /// a specific state.
+        /// </summary>
+        /// <param name="machineName">Specifies the machine name.</param>
+        /// <param name="state">Optionally specifies the required state.</param>
+        private void WaitForVm(string machineName, VirtualMachineState? state = null)
+        {
+            // $hack(jefflill):
+            //
+            // It appears that the VM operations are returning before they actually
+            // complete so we're going to hack around that using this method.
+
+            NeonHelper.WaitFor(
+                () =>
+                {
+                    var vm = ListVms().SingleOrDefault(vm => vm.Name.Equals(machineName));
+
+                    if (vm == null)
+                    {
+                        return false;
+                    }
+
+                    if (state.HasValue)
+                    {
+                        return vm.State == state;
+                    }
+
+                    return true;
+                },
+                timeout:      TimeSpan.FromMinutes(30),
+                pollInterval: TimeSpan.FromSeconds(1));
         }
 
         /// <inheritdoc/>
@@ -223,13 +292,49 @@ namespace Neon.HyperV
             string      switchName       = null,
             bool        checkPointDrives = false)
         {
-            throw new NotImplementedException();
+            CheckDisposed();
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
+            Covenant.Requires<ArgumentException>(processorCount > 0, nameof(processorCount));
+            Covenant.Requires<ArgumentException>(startupMemoryBytes > 0, nameof(startupMemoryBytes));
+            Covenant.Requires<ArgumentException>(generation == 1 || generation == 2, nameof(generation));
+
+            var args = new CmdletArgs();
+
+            args.Add("Name", machineName);
+            args.Add("MemoryStartupBytes", startupMemoryBytes);
+            args.Add("Generation", generation);
+
+            if (!string.IsNullOrEmpty(drivePath))
+            {
+                args.Add("VHDPath", drivePath);
+            }
+
+            if (!string.IsNullOrEmpty(switchName))
+            {
+                args.Add("SwitchName", switchName);
+            }
+
+            Invoke<NewVM>(args);
+            WaitForVm(machineName);
+
+            // Disable drive checkpointing.
+
+            SetVm(machineName, processorCount: processorCount, checkpointDrives: false);
         }
 
         /// <inheritdoc/>
         public void AddVmDrive(string machineName, string drivePath)
         {
-            throw new NotImplementedException();
+            CheckDisposed();
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(drivePath), nameof(drivePath));
+
+            var args = new CmdletArgs();
+
+            args.Add("VMName", machineName);
+            args.Add("Path", drivePath);
+
+            Invoke<AddVMHardDiskDrive>(args);
         }
 
         /// <inheritdoc/>
@@ -239,7 +344,7 @@ namespace Neon.HyperV
 
             var args = new CmdletArgs();
 
-            args.AddArg("Path", drivePath);
+            args.Add("Path", drivePath);
 
             Invoke<DismountVHD>(args);
         }
@@ -247,7 +352,25 @@ namespace Neon.HyperV
         /// <inheritdoc/>
         public void EnableVmNestedVirtualization(string machineName)
         {
-            throw new NotImplementedException();
+            CheckDisposed();
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
+
+            // Enable nested virtualization for the VM.
+
+            var args = new CmdletArgs();
+
+            args.Add("VMName", machineName);
+            args.Add("ExposeVirtualizationExtensions", true);
+
+            Invoke<SetVMProcessor>(args);
+
+            // Enable MAC address spoofing for the VMs network adapter.
+
+            args.Clear();
+            args.Add("VMName", machineName);
+            args.Add("MacAddressSpoofing", "On");
+
+            Invoke<SetVMNetworkAdapter>(args);
         }
 
         /// <inheritdoc/>
@@ -257,7 +380,12 @@ namespace Neon.HyperV
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(isoPath), nameof(isoPath));
 
-            throw new NotImplementedException();
+            var args = new CmdletArgs();
+
+            args.Add("VMName", machineName);
+            args.Add("Path", isoPath);
+
+            Invoke<SetVMDvdDrive>(args);
         }
 
         /// <inheritdoc/>
@@ -266,37 +394,184 @@ namespace Neon.HyperV
             CheckDisposed();
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
 
-            throw new NotImplementedException();
+            var args = new CmdletArgs();
+
+            args.Add("VMname", machineName);
+            args.Add("Path", null);
+
+            Invoke<SetVMDvdDrive>(args);
         }
 
         /// <inheritdoc/>
         public IEnumerable<VirtualNat> ListNats()
         {
+            CheckDisposed();
+
             throw new NotImplementedException();
         }
 
         /// <inheritdoc/>
         public IEnumerable<VirtualSwitch> ListSwitches()
         {
-            throw new NotImplementedException();
+            CheckDisposed();
+
+            var switches = new List<VirtualSwitch>();
+
+            foreach (var @switch in Invoke<GetVMSwitch>(new CmdletArgs()))
+            {
+                switches.Add(
+                    new VirtualSwitch()
+                    {
+                         Name = (string)@switch.Members["Name"].Value,
+                         Type = NeonHelper.ParseEnum<VirtualSwitchType>((string)@switch.Members["SwitchType"].Value)
+                    });
+            }
+
+            return switches;
         }
 
         /// <inheritdoc/>
         public IEnumerable<string> ListVmDrives(string machineName)
         {
-            throw new NotImplementedException();
+            CheckDisposed();
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
+
+            var args = new CmdletArgs();
+
+            args.Add("VMName", machineName);
+
+            var drives = new List<string>();
+
+            foreach (var drive in Invoke<GetVMHardDiskDrive>(args))
+            {
+                drives.Add((string)drive.Members["Path"].Value);
+            }
+
+            return drives;
         }
 
         /// <inheritdoc/>
-        public IEnumerable<VirtualNetworkAdapter> ListVmNetAdapters(string machineName, bool waitForAddresses = false)
+        public IEnumerable<VirtualNetworkAdapter> ListVmNetAdapters(string machineName)
         {
-            throw new NotImplementedException();
+            CheckDisposed();
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
+
+            var args = new CmdletArgs();
+
+            args.Add("VMName", machineName);
+
+            var adapters = new List<VirtualNetworkAdapter>();
+
+            foreach (var rawAdapter in Invoke<GetVMNetworkAdapter>(args))
+            {
+                var adapter = new VirtualNetworkAdapter()
+                {
+                    Name           = (string)rawAdapter.Members["Name"].Value,
+                    VMName         = (string)rawAdapter.Members["VMName"].Value,
+                    IsManagementOs = (bool)rawAdapter.Members["IsManagementOs"].Value,
+                    SwitchName     = (string)rawAdapter.Members["SwitchName"].Value,
+                    MacAddress     = (string)rawAdapter.Members["MacAddress"].Value
+                };
+
+                var statusItems = (Microsoft.HyperV.PowerShell.VMNetworkAdapterOperationalStatus[])rawAdapter.Members["Status"].Value;
+
+                if (statusItems?.Length > 0)
+                {
+                    adapter.Status = statusItems.First().ToString();
+                }
+
+                // Parse the IP addresses.
+
+                var addresses = (string[])rawAdapter.Members["IPAddresses"].Value;
+
+                if (addresses.Length > 0)
+                {
+                    foreach (string address in addresses)
+                    {
+                        if (!string.IsNullOrEmpty(address))
+                        {
+                            var ipAddress = IPAddress.Parse(address.Trim());
+
+                            if (ipAddress.AddressFamily == AddressFamily.InterNetwork)
+                            {
+                                adapter.Addresses.Add(IPAddress.Parse(address.Trim()));
+                            }
+                        }
+                    }
+                }
+
+                adapters.Add(adapter);
+            }
+
+            return adapters;
         }
 
         /// <inheritdoc/>
         public IEnumerable<VirtualMachine> ListVms()
         {
-            throw new NotImplementedException();
+            CheckDisposed();
+
+            var machines = new List<VirtualMachine>();
+
+            foreach (var rawMachine in Invoke<GetVM>(new CmdletArgs()))
+            {
+                var vm = new VirtualMachine();
+
+                vm.Name            = (string)rawMachine.Members["Name"].Value;
+                vm.ProcessorCount  = (int)(long)rawMachine.Members["ProcessorCount"].Value;
+                vm.MemorySizeBytes = (long)rawMachine.Members["MemoryStartup"].Value;
+
+                switch (rawMachine.Members["State"].Value.ToString())
+                {
+                    case "Off":
+
+                        vm.State = VirtualMachineState.Off;
+                        break;
+
+                    case "Starting":
+
+                        vm.State = VirtualMachineState.Starting;
+                        break;
+
+                    case "Running":
+
+                        vm.State = VirtualMachineState.Running;
+                        break;
+
+                    case "Paused":
+
+                        vm.State = VirtualMachineState.Paused;
+                        break;
+
+                    case "Saved":
+
+                        vm.State = VirtualMachineState.Saved;
+                        break;
+
+                    default:
+
+                        vm.State = VirtualMachineState.Unknown;
+                        break;
+                }
+
+                // Extract the connected switch name from the first network adapter (if any).
+
+                // $note(jefflill):
+                // 
+                // We don't currently support VMs with multiple network adapters and will
+                // only capture the name of the switch connected to the first adapter.
+
+                var adapters = (IList<VMNetworkAdapter>)rawMachine.Members["NetworkAdapters"].Value;
+
+                if (adapters.Count > 0)
+                {
+                    vm.SwitchName = adapters[0].SwitchName;
+                }
+
+                machines.Add(vm);
+            }
+
+            return machines;
         }
 
         /// <inheritdoc/>
@@ -306,7 +581,7 @@ namespace Neon.HyperV
 
             var args = new CmdletArgs();
 
-            args.AddArg("Path", drivePath);
+            args.Add("Path", drivePath);
 
             Invoke<MountVhd>(args);
         }
@@ -314,6 +589,16 @@ namespace Neon.HyperV
         /// <inheritdoc/>
         public void NewNetIPAddress(string switchName, IPAddress address, NetworkCidr subnet)
         {
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(switchName), nameof(switchName));
+            Covenant.Requires<ArgumentNullException>(address != null, nameof(address));
+            Covenant.Requires<ArgumentNullException>(subnet != null, nameof(subnet));
+
+            var args = new CmdletArgs();
+
+            args.Add("IPAddress", address);
+            args.Add("PrefixLength", subnet.PrefixLength);
+            args.Add("InterfaceAlias", $"vEthernet ({switchName})");
+
             throw new NotImplementedException();
         }
 
@@ -341,9 +626,9 @@ namespace Neon.HyperV
                 args.AddSwitch("Fixed");
             }
 
-            args.AddArg("Path", drivePath);
-            args.AddArg("SizeBytes", sizeBytes);
-            args.AddArg("BlockSizeBytes", blockSizeBytes);
+            args.Add("Path", drivePath);
+            args.Add("SizeBytes", sizeBytes);
+            args.Add("BlockSizeBytes", blockSizeBytes);
 
             Invoke<NewVhd>(args);
         }
@@ -351,7 +636,23 @@ namespace Neon.HyperV
         /// <inheritdoc/>
         public void NewSwitch(string switchName, string targetAdapter = null, bool @internal = false)
         {
-            throw new NotImplementedException();
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(switchName), nameof(switchName));
+
+            var args = new CmdletArgs();
+
+            args.Add("Name", switchName);
+
+            if (targetAdapter != null)
+            {
+                args.Add("NetAdapterName", targetAdapter);
+            }
+
+            if (@internal)
+            {
+                args.Add("SwitchType", "Internal");
+            }
+
+            Invoke<NewVMSwitch>(args);
         }
 
         /// <inheritdoc/>
@@ -361,7 +662,7 @@ namespace Neon.HyperV
 
             var args = new CmdletArgs();
 
-            args.AddArg("Path", drivePath);
+            args.Add("Path", drivePath);
 
             Invoke<OptimizeVhd>(args);
         }
@@ -373,15 +674,37 @@ namespace Neon.HyperV
         }
 
         /// <inheritdoc/>
-        public void RemoveVm(string switchName)
+        public void RemoveVm(string machineName)
         {
-            throw new NotImplementedException();
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
+
+            var args = new CmdletArgs();
+
+            args.Add("Name", machineName);
+            args.AddSwitch("Force");
+
+            Invoke<RemoveVM>(args);
+
+            // $hack(jefflill):
+            //
+            // It appears that RemoveVM doesn't actually wait for the VM to be removed
+            // so we're going to wait explicitly.
+
+            NeonHelper.WaitFor(() => !ListVms().Any(vm => vm.Name == machineName), 
+                timeout:      TimeSpan.FromMinutes(30),
+                pollInterval: TimeSpan.FromSeconds(1));
         }
 
         /// <inheritdoc/>
         public void RemoveSwitch(string switchName)
         {
-            throw new NotImplementedException();
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(switchName), nameof(switchName));
+
+            var args = new CmdletArgs();
+
+            args.Add("Name", switchName);
+
+            Invoke<RemoveVMSwitch>(args);
         }
 
         /// <inheritdoc/>
@@ -392,34 +715,89 @@ namespace Neon.HyperV
 
             var args = new CmdletArgs();
 
-            args.AddArg("Path", drivePath);
-            args.AddArg("SizeBytes", sizeBytes);
+            args.Add("Path", drivePath);
+            args.Add("SizeBytes", sizeBytes);
 
             Invoke<ResizeVhd>(args);
         }
 
         /// <inheritdoc/>
-        public void SaveVm(string drivePath)
+        public void SaveVm(string machineName)
         {
-            throw new NotImplementedException();
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
+
+            var args = new CmdletArgs();
+
+            args.Add("Name", machineName);
+
+            Invoke<SaveVM>(args);
+            WaitForVm(machineName, VirtualMachineState.Saved);
         }
 
         /// <inheritdoc/>
         public void SetVm(string machineName, int? processorCount = null, long? startupMemoryBytes = null, bool? checkpointDrives = null)
         {
-            throw new NotImplementedException();
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
+
+            var args = new CmdletArgs();
+
+            args.Add("Name", machineName);
+            args.AddSwitch("StaticMemory");
+
+            if (processorCount.HasValue)
+            {
+                args.Add("ProcessorCount", processorCount);
+            }
+
+            if (startupMemoryBytes.HasValue)
+            {
+                args.Add("MemoryStartupBytes", startupMemoryBytes);
+            }
+
+            if (checkpointDrives.HasValue)
+            {
+                if (checkpointDrives.Value)
+                {
+                    args.Add("CheckpointType", "Enabled");
+                }
+                else
+                {
+                    args.Add("CheckpointType", "Disabled");
+                }
+            }
+
+            Invoke<SetVM>(args);
         }
 
         /// <inheritdoc/>
         public void StartVm(string machineName)
         {
-            throw new NotImplementedException();
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
+
+            var args = new CmdletArgs();
+
+            args.Add("Name", machineName);
+
+            Invoke<StartVM>(args);
+            WaitForVm(machineName, VirtualMachineState.Running);
         }
 
         /// <inheritdoc/>
         public void StopVm(string machineName, bool turnOff = false)
         {
-            throw new NotImplementedException();
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
+
+            var args = new CmdletArgs();
+
+            args.Add("Name", machineName);
+
+            if (turnOff)
+            {
+                args.AddSwitch("TurnOff");
+            }
+
+            Invoke<StopVM>(args);
+            WaitForVm(machineName, VirtualMachineState.Off);
         }
 
         /// <inheritdoc/>

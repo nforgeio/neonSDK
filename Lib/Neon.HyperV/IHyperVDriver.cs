@@ -280,10 +280,9 @@ namespace Neon.HyperV
         /// Lists the network adapters attached to a virtual machine.
         /// </summary>
         /// <param name="machineName">Specifies the virtual machine.</param>
-        /// <param name="waitForAddresses">Optionally wait for the adapters to obtain their IP addresses.</param>
         /// <returns>The <see cref="VirtualNetworkAdapter"/> instances.</returns>
         /// <exception cref="HyperVException">Thrown for errors.</exception>
-        IEnumerable<VirtualNetworkAdapter> ListVmNetAdapters(string machineName, bool waitForAddresses = false);
+        IEnumerable<VirtualNetworkAdapter> ListVmNetAdapters(string machineName);
 
         /// <summary>
         /// <para>

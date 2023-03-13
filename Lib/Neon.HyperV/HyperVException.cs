@@ -43,5 +43,14 @@ namespace Neon.HyperV
             : base(message, innerException)
         {
         }
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="e">Optionally specifies an inner exception.</param>
+        public HyperVException(Exception e = null)
+            : base(e.Message, e)
+        {
+        }
     }
 }
