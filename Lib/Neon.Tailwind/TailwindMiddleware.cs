@@ -65,15 +65,11 @@ namespace Neon.Tailwind
                 RedirectStandardError  = true
             };
 
-            var currentProcess      = Process.GetCurrentProcess();
-            var parentPropertyInfo  = typeof(Process).GetProperty("ParentProcessId", BindingFlags.Instance | BindingFlags.NonPublic);
-            var parentProcess       = Process.GetProcessById((int)parentPropertyInfo.GetValue(currentProcess));
-
-            File.WriteAllText(pidFile, parentProcess.Id.ToString());
-
             process = Process.Start(processStartInfo);
             process.EnableRaisingEvents = true;
-            
+
+            File.WriteAllText(pidFile, process.Id.ToString());
+
             cancellationToken.Register(((IDisposable)this).Dispose);
         }
 

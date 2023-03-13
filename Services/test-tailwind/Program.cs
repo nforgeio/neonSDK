@@ -43,7 +43,7 @@ namespace TestTailwind
 
             if (NeonHelper.IsDevWorkstation)
             {
-                app.RunTailwind();
+                app.RunTailwind(script: "dev");
             }
 
             // Configure the HTTP request pipeline.
