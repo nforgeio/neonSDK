@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 // FILE:	    Service.cs
 // CONTRIBUTOR: Marcus Bowyer
-// COPYRIGHT:   Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -84,7 +84,7 @@ namespace NeonBlazorProxy
         /// Counts cache lookups.
         /// </summary>
         public static readonly Counter CacheLookupsRequested = Metrics.CreateCounter(
-            "neonblazorproxy_cache_lookups",
+            "neonblazorproxy_cache_lookups_total",
             "Number of Cache lookups requested"
             );
 
@@ -92,7 +92,7 @@ namespace NeonBlazorProxy
         /// Counts the items persisted to the cache.
         /// </summary>
         public static readonly Counter CacheItemsStored = Metrics.CreateCounter(
-            "neonblazorproxy_cache_items_stored",
+            "neonblazorproxy_cache_items_stored_total",
             "Number of items stored in the Cache"
             );
 
@@ -100,7 +100,7 @@ namespace NeonBlazorProxy
         /// Counts cache hits.
         /// </summary>
         public static readonly Counter CacheHits = Metrics.CreateCounter(
-            "neonblazorproxy_cache_hits",
+            "neonblazorproxy_cache_hits_total",
             "Number of Cache hits"
             );
 
@@ -108,7 +108,7 @@ namespace NeonBlazorProxy
         /// Counts cache misses.
         /// </summary>
         public static readonly Counter CacheMisses = Metrics.CreateCounter(
-            "neonblazorproxy_cache_misses",
+            "neonblazorproxy_cache_misses_total",
             "Number of Cache misses"
             );
 
@@ -142,7 +142,7 @@ namespace NeonBlazorProxy
         /// </summary>
         /// <param name="name">The service name.</param>
         public Service(string name)
-             : base(name, version: Build.NeonSdkVersion, options: new NeonServiceOptions() { MetricsPrefix = "neonblazorproxy" })
+             : base(name, version: Build.NeonSdkVersion)
         {
         }
 
@@ -218,16 +218,17 @@ namespace NeonBlazorProxy
         /// <inheritdoc/>
         protected override bool OnTracerConfig(TracerProviderBuilder builder)
         {
-            builder.AddHttpClientInstrumentation();
-            builder.AddAspNetCoreInstrumentation();
-            builder.AddOtlpExporter(
-                options =>
-                {
-                    options.ExportProcessorType = ExportProcessorType.Batch;
-                    options.BatchExportProcessorOptions = new BatchExportProcessorOptions<Activity>();
-                    options.Endpoint = new Uri(NeonHelper.NeonKubeOtelCollectorUri);
-                    options.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.Grpc;
-                });
+            builder.AddHttpClientInstrumentation()
+                .AddAspNetCoreInstrumentation()
+                .AddOtlpExporter(
+                    options =>
+                    {
+                        options.ExportProcessorType = ExportProcessorType.Batch;
+                        options.BatchExportProcessorOptions = new BatchExportProcessorOptions<Activity>();
+                        options.Endpoint = new Uri(NeonHelper.NeonKubeOtelCollectorUri);
+                        options.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.Grpc;
+                    });
+
             return true;
         }
     }

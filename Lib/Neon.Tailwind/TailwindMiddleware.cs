@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------------
 // FILE:	    TailwindMiddleware.cs
 // CONTRIBUTOR: Marcus Bowyer
-// COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Neon.Common;
+using Neon.IO;
 using Neon.Tailwind;
 
 namespace Neon.Tailwind
@@ -40,6 +41,20 @@ namespace Neon.Tailwind
         [UnsupportedOSPlatform("browser")]
         public NodeRunner(string executable, string[] args, CancellationToken cancellationToken = default)
         {
+            var pidFile = $"{AppContext.BaseDirectory}tailwind.pid";
+
+            if (File.Exists(pidFile))
+            {
+                try 
+                { 
+                    var pid = int.Parse(File.ReadAllText(pidFile));
+                    Process.GetProcesses().Where(p => p.Id == pid).FirstOrDefault()?.Kill();
+                }
+                catch
+                {
+                    // not running
+                }
+            }
             
             var processStartInfo = new ProcessStartInfo(executable)
             {
@@ -50,8 +65,10 @@ namespace Neon.Tailwind
                 RedirectStandardError  = true
             };
 
-            process                      = Process.Start(processStartInfo);
+            process = Process.Start(processStartInfo);
             process.EnableRaisingEvents = true;
+
+            File.WriteAllText(pidFile, process.Id.ToString());
 
             cancellationToken.Register(((IDisposable)this).Dispose);
         }

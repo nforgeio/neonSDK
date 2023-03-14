@@ -2,9 +2,10 @@
 
 	<PropertyGroup>
 		<TargetFrameworks>net7.0</TargetFrameworks>
+		<OutputType>Library</OutputType>
+		<RootNamespace>Test.ModelGenCli</RootNamespace>
 		<PlatformTarget>x64</PlatformTarget>
 		<IsPackable>false</IsPackable>
-		<RootNamespace>Test.ModelGenCli</RootNamespace>
 		<Configurations>Debug;Release</Configurations>
 		<GenerateDocumentationFile>false</GenerateDocumentationFile>
 	</PropertyGroup>
@@ -26,13 +27,13 @@
 
 	<ItemGroup>
 		<PackageReference Include="LiquidTestReports.Markdown" Version="1.1.1-beta" />
-		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.2" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0" />
 		<PackageReference Include="xunit" Version="2.4.2" />
 		<PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
-		<PackageReference Include="coverlet.collector" Version="3.1.2">
+		<PackageReference Include="coverlet.collector" Version="3.2.0">
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
@@ -41,6 +42,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\..\Lib\Neon.BuildInfo\Neon.BuildInfo.csproj" />
 		<ProjectReference Include="..\..\Lib\Neon.Common\Neon.Common.csproj" />
+		<ProjectReference Include="..\..\Lib\Neon.CSharp\Neon.CSharp.csproj" />
 		<ProjectReference Include="..\..\Lib\Neon.ModelGen\Neon.ModelGen.csproj" />
 		<ProjectReference Include="..\..\Lib\Neon.Xunit\Neon.Xunit.csproj" />
 		<ProjectReference Include="..\..\Tools\neon-modelgen\neon-modelgen.csproj" />

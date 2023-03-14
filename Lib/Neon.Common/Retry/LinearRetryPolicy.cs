@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------------
 // FILE:	    LinearRetryPolicy.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -48,8 +48,8 @@ namespace Neon.Retry
     /// </note>
     /// <para>
     /// Choose a category name that can be used to easily identify the affected
-    /// component.  For example, <b>couchbase:my-cluster</b> to identify a
-    /// specific Couchbase cluster.
+    /// component.  For example, <b>yugabyte:my-cluster</b> to identify a
+    /// specific YugaBYte database cluster.
     /// </para>
     /// </remarks>
     public class LinearRetryPolicy : RetryPolicyBase, IRetryPolicy

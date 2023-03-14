@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------------
 // FILE:	    TempFolder.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using Neon.Common;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -43,8 +45,12 @@ namespace Neon.IO
         /// Creates a temporary folder.
         /// </summary>
         /// <param name="folder">Optionally overrides <see cref="Root"/> as the parent folder for this instance.</param>
-        public TempFolder(string folder = null)
+        /// <param name="prefix">Optionally specifies a prefix to be added to the temporary directory name.</param>
+        /// <param name="create">Optionally controls whether the temporary folder should actuall be created.  This defaults to <c>true</c>.</param>
+        public TempFolder(string folder = null, string prefix = null, bool create = true)
         {
+            prefix ??= string.Empty;
+
             if (string.IsNullOrEmpty(folder))
             {
                 folder = Root;
@@ -52,7 +58,7 @@ namespace Neon.IO
 
             if (string.IsNullOrEmpty(folder))
             {
-                Path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), Guid.NewGuid().ToString());
+                Path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"{prefix}{Guid.NewGuid()}");
             }
             else
             {
@@ -61,7 +67,10 @@ namespace Neon.IO
                 Path = System.IO.Path.Combine(folder, Guid.NewGuid().ToString());
             }
 
-            Directory.CreateDirectory(Path);
+            if (create)
+            {
+                Directory.CreateDirectory(Path);
+            }
         }
 
         /// <summary>
@@ -78,6 +87,7 @@ namespace Neon.IO
             {
                 try
                 {
+                    NeonHelper.DeleteFolderContents(Path);
                     Directory.Delete(Path, recursive: true);
 
                     Path = null;

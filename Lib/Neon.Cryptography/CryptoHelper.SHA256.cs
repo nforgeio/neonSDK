@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------------
 // FILE:	    CryptoHelper.SHA256.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ namespace Neon.Cryptography
         /// formatted as a lowercase hex string.
         /// </summary>
         /// <param name="input">The input string.</param>
-        /// <returns>The hash HEX string.</returns>
+        /// <returns>The hash as a HEX string.</returns>
         public static string ComputeSHA256String(string input)
         {
             return NeonHelper.ToHex(ComputeSHA256Bytes(input));
@@ -62,7 +62,7 @@ namespace Neon.Cryptography
         /// formatted as a lowercase hex string.
         /// </summary>
         /// <param name="input">The input bytes.</param>
-        /// <returns>The hash HEX string.</returns>
+        /// <returns>The hash as a HEX string.</returns>
         public static string ComputeSHA256String(byte[] input)
         {
             return NeonHelper.ToHex(ComputeSHA256Bytes(input));
@@ -74,10 +74,26 @@ namespace Neon.Cryptography
         /// hex string.
         /// </summary>
         /// <param name="input">The stream.</param>
-        /// <returns>The hash HEX string.</returns>
+        /// <returns>The hash as a HEX string.</returns>
         public static string ComputeSHA256String(Stream input)
         {
             return NeonHelper.ToHex(ComputeSHA256Bytes(input));
+        }
+
+        /// <summary>
+        /// Computes the SHA256 hash for file and returns the result
+        /// formatted as a lowercase hex string.
+        /// </summary>
+        /// <param name="path">The source file path.</param>
+        /// <returns>The hash as a HEX string.</returns>
+        public static string ComputeSHA256StringFromFile(string path)
+        {
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(path), nameof(path));
+
+            using (var stream = File.OpenRead(path))
+            {
+                return ComputeSHA256String(stream);
+            }
         }
 
         /// <summary>
@@ -85,7 +101,7 @@ namespace Neon.Cryptography
         /// as a byte array.
         /// </summary>
         /// <param name="input">The input string.</param>
-        /// <returns>The hash bytes.</returns>
+        /// <returns>The hash as a byte array.</returns>
         public static byte[] ComputeSHA256Bytes(string input)
         {
             if (string.IsNullOrEmpty(input))
@@ -101,7 +117,7 @@ namespace Neon.Cryptography
         /// as a byte array.
         /// </summary>
         /// <param name="input">The input bytes.</param>
-        /// <returns>The hash bytes.</returns>
+        /// <returns>The hash as a byte array.</returns>
         public static byte[] ComputeSHA256Bytes(byte[] input)
         {
             if (input == null || input.Length == 0)
@@ -121,7 +137,7 @@ namespace Neon.Cryptography
         /// hex string.
         /// </summary>
         /// <param name="input">The stream.</param>
-        /// <returns>The hash HEX string.</returns>
+        /// <returns>The hash as a byte array.</returns>
         public static byte[] ComputeSHA256Bytes(Stream input)
         {
             Covenant.Requires<ArgumentNullException>(input != null, nameof(input));
@@ -142,6 +158,22 @@ namespace Neon.Cryptography
                 {
                     return hash;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Computes the SHA256 hash for file and returns the result
+        /// returns the result as a byte array.
+        /// </summary>
+        /// <param name="path">The source file path.</param>
+        /// <returns>The hash as a byte array.</returns>
+        public static byte[] ComputeSHA256BytesFromFile(string path)
+        {
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(path), nameof(path));
+
+            using (var stream = File.OpenRead(path))
+            {
+                return ComputeSHA256Bytes(stream);
             }
         }
     }

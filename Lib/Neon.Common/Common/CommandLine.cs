@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------------
 // FILE:	    CommandLine.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -69,7 +69,13 @@ namespace Neon.Common
     /// </para>
     /// <code language="none">
     /// 
-    ///     -&lt;option name&gt;[=&lt;value&gt;]
+    ///     --&lt;option name&gt;[=&lt;value&gt;]
+    ///     
+    ///     You can also use single or double quotes around option values that
+    ///     include spaces or other special characters:
+    /// 
+    ///     --&lt;option name&gt;[='&lt;value&gt;']
+    ///     --&lt;option name&gt;[="&lt;value&gt;"]
     /// 
     /// </code>
     /// <para>
@@ -180,6 +186,8 @@ namespace Neon.Common
         //---------------------------------------------------------------------
         // Static members
 
+        private readonly char[] specialChars = new char[] { ' ', '\t', '<', '>', ':', '|', '&', '^' };
+
         /// <summary>
         /// Parses the argument string passed into a <see cref="CommandLine" />
         /// instance, dealing with quoted parameters, etc.
@@ -212,6 +220,7 @@ namespace Neon.Common
                 if (input[p] == '"')
                 {
                     pEnd = input.IndexOf('"', p + 1);
+
                     if (pEnd == -1)
                     {
                         // Unbalanced quote
@@ -227,6 +236,7 @@ namespace Neon.Common
                 else
                 {
                     pEnd = input.IndexOfAny(wsChars, p);
+
                     if (pEnd == -1)
                     {
 
@@ -353,6 +363,7 @@ namespace Neon.Common
             }
 
             args = new String[list.Count];
+
             list.CopyTo(0, args, 0, list.Count);
 
             return args;
@@ -378,6 +389,7 @@ namespace Neon.Common
             }
 
             pos = path.LastIndexOfAny(new char[] { '\\', '/', ':' });
+
             if (pos == -1)
             {
                 return Directory.GetFiles(".", path);
@@ -517,6 +529,7 @@ namespace Neon.Common
             }
 
             arguments = valueList.ToArray();
+            Original  = this;
         }
 
         /// <summary>
@@ -565,6 +578,11 @@ namespace Neon.Common
 
             return definition;
         }
+
+        /// <summary>
+        /// Returns the original unshifted command line.
+        /// </summary>
+        public CommandLine Original { get; private set; }
 
         /// <summary>
         /// Returns the array of command line arguments (including both
@@ -638,6 +656,13 @@ namespace Neon.Common
                 {
                     if (options.TryGetValue(name, out value) && !string.IsNullOrEmpty(value))
                     {
+                        // Strip off any leading and trailing single or double quotes.
+
+                        if (value.Length > 1 && (value.StartsWith("'") && value.EndsWith("'")) || (value.StartsWith("\"") && value.EndsWith("\"")))
+                        {
+                            value = value.Substring(1, value.Length - 2);
+                        }
+
                         return value;
                     }
                 }
@@ -655,6 +680,13 @@ namespace Neon.Common
             {
                 if (options.TryGetValue(optionName, out value))
                 {
+                    // Strip off any leading and trailing single or double quotes.
+
+                    if (value.Length > 1 && (value.StartsWith("'") && value.EndsWith("'")) || (value.StartsWith("\"") && value.EndsWith("\"")))
+                    {
+                        value = value.Substring(1, value.Length - 2);
+                    }
+
                     return value;
                 }
 
@@ -860,7 +892,10 @@ namespace Neon.Common
                     }
                 }
 
-                return new CommandLine(items.ToArray());
+                return new CommandLine(items.ToArray())
+                {
+                    Original = this
+                };
             }
             else
             {
@@ -889,7 +924,10 @@ namespace Neon.Common
                     args.Add(item);
                 }
 
-                return new CommandLine(args.ToArray());
+                return new CommandLine(args.ToArray())
+                {
+                    Original = this
+                };
             }
         }
 
@@ -1011,9 +1049,50 @@ namespace Neon.Common
         /// <summary>
         /// <para>
         /// Preprocesses the command line by using <see cref="PreprocessReader"/> to replace any 
-        /// environment variable, profile, or secret references like <b>&lt;password:MY-PASSWORD$gt;</b>
-        /// in the command line arguments.
+        /// environment variable, profile, or secret references in the command line arguments, like:
         /// </para>
+        /// <list type="table">
+        /// <item>
+        ///     <term><c>$(env:VARIABLE)</c></term>
+        ///     <description>
+        ///     Replaced with the environment <b>VARIABLE</b> 
+        ///     </description>
+        /// </item>
+        /// <item>
+        ///     <term><c>$(profile:VALUE)</c></term>
+        ///     <description>
+        ///     Replaced with the profile <b>VALUE</b>
+        ///     </description>
+        /// </item>
+        /// <item>
+        ///     <term><c>${password:SECRET}</c></term>
+        ///     <description>
+        ///     Replaced with the password field of the <b>SECRET</b>
+        ///     </description>
+        /// </item>
+        /// <item>
+        ///     <term><c>${password:SECRET:SOURCE}</c></term>
+        ///     <description>
+        ///     Replaced with the password field of the <b>SECRET</b> obtained from <b>SOURCE</b>
+        ///     </description>
+        /// </item>
+        /// <item>
+        ///     <term><c>${password:SECRET[PROPERTY]}</c></term>
+        ///     <description>
+        ///     Replaced with the PROPERTY field of the <b>SECRET</b>
+        ///     </description>
+        /// </item>
+        /// <item>
+        ///     <term><c>${password:SECRET[PROPERTY]:SOURCE}</c></term>
+        ///     <description>
+        ///     Replaced with the PROPERTY field of the <b>SECRET</b> obtained from <b>SOURCE</b>
+        ///     </description>
+        /// </item>
+        /// </list>
+        /// <note>
+        /// <b>IMORTANT:</b> You'll probably need to surround variable references with single
+        /// quotes on Linux to prevent Bash from interpreting these as Bash variables.
+        /// </note>
         /// <note>
         /// <b>IMPORTANT:</b> You must register an <see cref="IProfileClient"/> implementation with
         /// <see cref="NeonHelper.ServiceContainer"/> for this to work.
@@ -1022,13 +1101,13 @@ namespace Neon.Common
         /// <param name="variables">Optionally specifies variables to be incuded in the preprocessing.</param>
         /// <param name="variableRegex">
         /// Optionally specifies the regular expression that will be used to locate and process
-        /// any variable references.  This defaults to <see cref="PreprocessReader.AngleVariableExpansionRegex"/>
+        /// any variable references.  This defaults to <see cref="PreprocessReader.CurlyVariableExpansionRegex"/>
         /// but may be set to any expressions supported by <see cref="PreprocessReader"/>.
         /// </param>
         /// <returns>A new <see cref="CommandLine"/> including any changes.</returns>
         public CommandLine Preprocess(Dictionary<string, string> variables = null, Regex variableRegex = null)
         {
-            variableRegex ??= PreprocessReader.AngleVariableExpansionRegex;
+            variableRegex ??= PreprocessReader.CurlyVariableExpansionRegex;
 
             // We're simply going to serialize the current command line's arguments
             // and options to a string (one item to a line) and then use [PreprocessReader]
@@ -1061,27 +1140,196 @@ namespace Neon.Common
         /// double quotes.
         /// </summary>
         /// <returns>The command line string.</returns>
+        /// <exception cref="InvalidOperationException">Thrown if a command line argument includes both single and double quotes.</exception>
         public override string ToString()
         {
             var sb = new StringBuilder();
 
             for (int i = 0; i < Items.Length; i++)
             {
-                var arg = Items[i];
+                var item = Items[i];
 
-                if (i > 0)
+                var isOption       = item.StartsWith("-");
+                var hasSingleQuote = item.Contains('\'');
+                var hasDoubleQuote = item.Contains('"');
+                var hasSpecialChar = hasSingleQuote || hasDoubleQuote || item.IndexOfAny(specialChars) != -1;
+                var equalPos       = item.IndexOf('=');
+
+                if (hasSingleQuote && hasDoubleQuote)
                 {
-                    sb.Append(' ');
+                    throw new InvalidOperationException($"Command line argument [index={i}] includes both single and double quotes and cannot be rendered.");
                 }
 
-                if (arg.IndexOf(' ') != -1)
+                if (!hasSpecialChar)
                 {
-                    sb.AppendFormat("\"{0}\"", arg);
+                    sb.AppendWithSeparator(item);
+                }
+                else if (isOption && equalPos != -1)
+                {
+                    // Command line option with value.
+
+                    var optionName  = item.Substring(0, equalPos);
+                    var optionValue = item.Substring(equalPos + 1);
+
+                    if (hasDoubleQuote)
+                    {
+                        optionValue = $"'{optionValue}'";
+                    }
+                    else
+                    {
+                        optionValue = $"\"{optionValue}\"";
+                    }
+
+                    sb.AppendWithSeparator($"{optionName}={optionValue}");
                 }
                 else
                 {
-                    sb.Append(arg);
+                    // Command line argument.
+
+                    if (hasDoubleQuote)
+                    {
+                        sb.AppendWithSeparator($"'{item}'");
+                    }
+                    else
+                    {
+                        sb.AppendWithSeparator($"\"{item}\"");
+                    }
                 }
+            }
+
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Handles redaction of command line arguments and/or options for the <see cref="ToFormatted(string, bool, bool, Redactor)"/>
+        /// method.  Return <c>null</c> if no redaction is required for the item or the string to be used instead.
+        /// </summary>
+        /// <param name="commandLine">The command line.</param>
+        /// <param name="index">Zero based index of the item.</param>
+        /// <param name="item">The item string.</param>
+        /// <param name="isOption"><c>true</c> when the item is a command line options.</param>
+        /// <returns><c>null</c> when no redaction is required or else the string to be substituted.</returns>
+        public delegate string Redactor(CommandLine commandLine, int index, string item, bool isOption);
+
+        /// <summary>
+        /// Converts the command line into a nicely formatted (potentially multi-line) string
+        /// suitable for including in logs.
+        /// </summary>
+        /// <param name="programName">Specifies the program name.</param>
+        /// <param name="withBars">Optionally include bars above and below the formatted command.</param>
+        /// <param name="withLineContinuation">Optionally include line continuation characters appropriate for the current operating system.</param>
+        /// <param name="redactor">Optionally passed as a redactor.  See <see cref="Redactor"/>.</param>
+        /// <returns>The formatted string.</returns>
+        public string ToFormatted(string programName, bool withBars = false, bool withLineContinuation = false, Redactor redactor = null)
+        {
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(programName), nameof(programName));
+
+            var items            = Original.Items;
+            var itemCount        = items.Count();
+            var sb               = new StringBuilder();
+            var bar              = new string('-', 80);
+            var lineContinuation = string.Empty;
+
+            if (withLineContinuation)
+            {
+                lineContinuation = NeonHelper.IsWindows ? " ^" : " \\";
+            }
+
+            if (withBars)
+            {
+                sb.AppendLine(bar);
+            }
+
+            if (itemCount == 0)
+            {
+                sb.AppendLine($"{programName}");
+            }
+            else
+            {
+                sb.AppendLine($"{programName}{lineContinuation}");
+            }
+
+            if (itemCount > 0)
+            {
+                var lastItemIndex = itemCount - 1;
+                var itemIndex     = 0;
+
+                foreach (var item in items)
+                {
+                    var currentItem = item;
+
+                    if (redactor != null)
+                    {
+                        var redactedItem = redactor(this, itemIndex, currentItem, currentItem.StartsWith("-"));
+
+                        if (redactedItem != null)
+                        {
+                            currentItem = redactedItem;
+                        }
+                    }
+
+                    var isOption       = item.StartsWith("-");
+                    var hasSingleQuote = item.Contains('\'');
+                    var hasDoubleQuote = item.Contains('"');
+                    var hasSpecialChar = hasSingleQuote || hasDoubleQuote || item.IndexOfAny(specialChars) != -1;
+                    var equalPos       = item.IndexOf('=');
+
+                    if (hasSingleQuote && hasDoubleQuote)
+                    {
+                        throw new InvalidOperationException($"Command line argument [index={itemIndex}] includes both single and double quotes and cannot be rendered.");
+                    }
+
+                    if (hasSpecialChar)
+                    {
+                        if (isOption && equalPos != -1)
+                        {
+                            // Command line option with value.
+
+                            var optionName  = item.Substring(0, equalPos);
+                            var optionValue = item.Substring(equalPos + 1);
+
+                            if (hasDoubleQuote)
+                            {
+                                optionValue = $"'{optionValue}'";
+                            }
+                            else
+                            {
+                                optionValue = $"\"{optionValue}\"";
+                            }
+
+                            currentItem = $"{optionName}={optionValue}";
+                        }
+                        else
+                        {
+                            // Command line argument.
+
+                            if (hasDoubleQuote)
+                            {
+                                currentItem = $"'{item}'";
+                            }
+                            else
+                            {
+                                currentItem = $"\"{item}\"";
+                            }
+                        }
+                    }
+
+                    if (itemIndex != lastItemIndex)
+                    {
+                        sb.AppendLine($"    {currentItem}{lineContinuation}");
+                    }
+                    else
+                    {
+                        sb.AppendLine($"    {currentItem}");
+                    }
+
+                    itemIndex++;
+                }
+            }
+
+            if (withBars)
+            {
+                sb.AppendLine(bar);
             }
 
             return sb.ToString();

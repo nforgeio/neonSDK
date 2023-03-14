@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 // FILE:	    DnsMetrics.cs
 // CONTRIBUTOR: Marcus Bowyer
-// COPYRIGHT:   Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ namespace NeonBlazorProxy
         public static int DnsLookupsRequested = 0;
 
         private static readonly Counter _dnsLookupsRequested = Metrics.CreateCounter(
-            "neonblazorproxy_dns_lookups_requested",
+            "neonblazorproxy_dns_lookups_requested_total",
             "Number of DNS lookups requested"
             );
 

@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------------
 // FILE:	    NeonHelper.Misc.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -134,7 +134,7 @@ namespace Neon.Common
             //
             //      https://github.com/nforgeio/neonKUBE/issues/737
             //
-            // We're going to handle this by limiting the recursion depth to 8.
+            // We're going to handle this by limiting the recursion depth.
 
             if (aggregate != null && depth < 4)
             {
@@ -700,7 +700,7 @@ namespace Neon.Common
         /// <summary>
         /// Asynchronously waits for all of the <see cref="Task"/>s passed to complete.
         /// </summary>
-        /// <param name="tasks">Specifies the tasks being waited on..</param>
+        /// <param name="tasks">Specifies the tasks being waited on.</param>
         /// <param name="timeout">Optionally specifies a timeout.</param>
         /// <param name="cancellationToken">Optionally a cancellation token.</param>
         /// <param name="timeoutMessage">
@@ -1571,11 +1571,11 @@ namespace Neon.Common
         }
 
         /// <summary>
-        /// Returns the fully qualified path to the folder where the executable resides.
-        /// This will include the terminating "\".
+        /// Returns the fully qualified path to the folder where the current executable 
+        /// resides.  This includes a terminating "\".
         /// </summary>
         /// <returns>Path to the folder holding the executable</returns>
-        public static string GetBaseDirectory()
+        public static string GetApplicationFolder()
         {
             var directory = AppContext.BaseDirectory;
 
@@ -2160,7 +2160,7 @@ namespace Neon.Common
 
         /// <summary>
         /// Returns the name of the Docker CLI execuable for the current platform.  This will
-        /// be the fully qualified pathj to <b>docker.exe</b> on Windows and just <b>docker</b>
+        /// be the fully qualified path to <b>docker.exe</b> on Windows and just <b>docker</b>
         /// on Linux and OS/X.
         /// </summary>
         /// <returns>The path to the Docker CLI or <c>null</c> when it couldn't be located.</returns>
@@ -2383,7 +2383,7 @@ namespace Neon.Common
         /// Determines the minimum <see cref="TimeSpan"/> value.
         /// </summary>
         /// <param name="values">The values to compare.</param>
-        /// <returns>The minimum of the values passed or <see cref="TimeSpan.Zero"/> when nothing is passed..</returns>
+        /// <returns>The minimum of the values passed or <see cref="TimeSpan.Zero"/> when nothing is passed.</returns>
         public static TimeSpan Min(params TimeSpan[] values)
         {
             if (values == null || values.Length == 0)
@@ -2408,7 +2408,7 @@ namespace Neon.Common
         /// Determines the maximum <see cref="TimeSpan"/> value.
         /// </summary>
         /// <param name="values">The values to compare.</param>
-        /// <returns>The minimum of the values passed or <see cref="TimeSpan.Zero"/> when nothing is passed..</returns>
+        /// <returns>The minimum of the values passed or <see cref="TimeSpan.Zero"/> when nothing is passed.</returns>
         public static TimeSpan Max(params TimeSpan[] values)
         {
             if (values == null || values.Length == 0)

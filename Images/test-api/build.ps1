@@ -2,7 +2,7 @@
 #------------------------------------------------------------------------------
 # FILE:         build.ps1
 # CONTRIBUTOR:  Jeff Lill
-# COPYRIGHT:    Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+# COPYRIGHT:    Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ $branch            = GitBranch $env:NF_ROOT
 
 DeleteFolder bin
 
-$result = mkdir bin
+mkdir bin | Out-Null
 ThrowOnExitCode
 
 dotnet publish "$nfServices\$appname\$appname.csproj" -c Release -o "$pwd\bin" 
@@ -49,7 +49,9 @@ ThrowOnExitCode
 
 # Build the image.
 
-$result = Invoke-CaptureStreams "docker build -t ${registry}:${tag} --build-arg `"APPNAME=$appname`" --build-arg `"ORGANIZATION=$organization`" --build-arg `"BASE_ORGANIZATION=$base_organization`" --build-arg `"CLUSTER_VERSION=neonsdk-$neonSDK_Version`" --build-arg `"BRANCH=$branch`" ." -interleave
+$baseImage = Get-DotnetBaseImage "$nfRoot\Services\global.json"
+
+Invoke-CaptureStreams "docker build -t ${registry}:${tag} --build-arg `"APPNAME=$appname`" --build-arg `"ORGANIZATION=$organization`" --build-arg `"BASE_ORGANIZATION=$base_organization`" --build-arg `"CLUSTER_VERSION=neonsdk-$neonSDK_Version`" --build-arg `"BASE_IMAGE=$baseImage`" --build-arg `"BRANCH=$branch`" ." -interleave | Out-Null
 
 # Clean up
 

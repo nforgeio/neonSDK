@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------------
 // FILE:	    OtelConfigExtensions.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -46,13 +46,12 @@ namespace Neon.Service
         /// metrics counter.
         /// </summary>
         /// <param name="loggerOptions">The <see cref="OpenTelemetryLoggerOptions"/> options to where the exporter will be added.</param>
-        /// <param name="metricsPrefix">Optionally specifies a prefix to be prepended to to the counter name.</param>
         /// <returns>The <paramref name="loggerOptions"/> to enable fluent style programming.</returns>
-        public static OpenTelemetryLoggerOptions AddLogMetricsProcessor(this OpenTelemetryLoggerOptions loggerOptions, string metricsPrefix = null)
+        public static OpenTelemetryLoggerOptions AddLogMetricsProcessor(this OpenTelemetryLoggerOptions loggerOptions)
         {
             Covenant.Requires<ArgumentNullException>(loggerOptions != null, nameof(loggerOptions));
 
-            return loggerOptions.AddProcessor(new LogMetricsProcessor(metricsPrefix));
+            return loggerOptions.AddProcessor(new LogMetricsProcessor());
         }
     }
 }

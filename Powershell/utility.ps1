@@ -2,7 +2,7 @@
 #------------------------------------------------------------------------------
 # FILE:         utility.ps1
 # CONTRIBUTOR:  Jeff Lill
-# COPYRIGHT:    Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+# COPYRIGHT:    Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -515,96 +515,8 @@ function DeleteFolder
 
 	if (Test-Path $Path) 
 	{ 
-		$result = Remove-Item -Recurse $Path 
+		Remove-Item -Recurse $Path | Out-Null
 	} 
-}
-
-#------------------------------------------------------------------------------
-# Logs into Docker using the named credentials from the current user's 1Password
-# user folder.
-#
-# ARGUMENTS:
-#
-#   server              - the server endpoint, typically one of:
-#
-#       ghcr.io
-#       docker.io
-#
-#   loginCredentials    - Identifies the 1Password login to use, typically one of:
-#
-#       GITHUB_PAT   * recommended for GitHub package operations
-#       GITHUB_LOGIN
-#       DOCKER_LOGIN
-
-function Login-Docker
-{
-    [CmdletBinding()]
-    param (
-        [Parameter(Position=0, Mandatory=$true)]
-        [string]$server,
-        [Parameter(Position=1, Mandatory=$true)]
-        [string]$credentials
-    )
-
-    # Logout if we are already logged in (for CI/CD)
-
-    Logout-Docker $server -CIOnly
-
-    # Login
-
-    $username = $(Get-SecretValue "$credentials[username]")
-    $password = $(Get-SecretValue "$credentials[password]")
-    
-    Write-Output $password | docker login $server -u $username --password-stdin
-
-    $exitCode = $LastExitCode
-
-    if ($exitCode -ne 0)
-    {
-        throw "Docker login failed: server=[$server] username=[$username]"
-    }
-}
-
-#------------------------------------------------------------------------------
-# Logs out of Docker, optionally logging out of a specific server.
-#
-# ARGUMENTS:
-#
-#   server      - optionally specifies the server to log out from, typically
-#                 one of:
-#
-#                       docker.io
-#                       ghcr.io
-#
-#   CIOnly      - optionally logs out only when the current script is running
-#                 a CI job.  This is nice to avoid logging develepers out on
-#                 their own workstations when running local CI tests.
-
-function Logout-Docker
-{
-    [CmdletBinding()]
-    param (
-        [Parameter(Position=0, Mandatory=$false)]
-        [string]$server = $null,
-        [Parameter(Position=1, Mandatory=$false)]
-        [switch]$CIOnly = $false
-    )
-
-    if ($CIOnly -and $env:CI -eq "true")
-    {
-        return;
-    }
-
-    if (![System.String]::IsNullOrEmpty($server))
-    {
-        docker logout $server
-    }
-    else
-    {
-        docker logout
-    }
-
-    # $hack(jefflill): Do we care about checking the exit code here?
 }
 
 #------------------------------------------------------------------------------
@@ -725,7 +637,7 @@ function Push-DockerImage
 				$baseImage = $fields[0] + ":" + $baseTag
 
 				Write-Info "tag image: $image --> $baseImage"
-				$result = Invoke-CaptureStreams "docker tag $image $baseImage" -interleave
+				Invoke-CaptureStreams "docker tag $image $baseImage" -interleave | Out-Null
 			}
 
 			return

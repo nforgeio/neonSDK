@@ -3,8 +3,8 @@
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
         <OutputType>Exe</OutputType>
+		<RootNamespace>NeonBlazorProxy</RootNamespace>
         <IsPackable>false</IsPackable>
-        <RootNamespace>NeonBlazorProxy</RootNamespace>
         <ServerGarbageCollection>true</ServerGarbageCollection>
         <ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
         <AssemblyName>neon-blazor-proxy</AssemblyName>
@@ -26,12 +26,12 @@
     <ItemGroup>
         <PackageReference Include="CommandLineParser" Version="2.9.1" />
         <PackageReference Include="DnsClient" Version="1.6.1" />
-        <PackageReference Include="EnyimMemcachedCore" Version="2.5.4" />
-        <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="7.0.0-rc.2.22476.2" />
-        <PackageReference Include="OpenTelemetry.Instrumentation.StackExchangeRedis" Version="1.0.0-rc9.7" />
-        <PackageReference Include="prometheus-net" Version="6.0.0" />
-        <PackageReference Include="prometheus-net.AspNetCore" Version="6.0.0" />
-        <PackageReference Include="prometheus-net.DotNetRuntime" Version="4.2.4" />
+        <PackageReference Include="EnyimMemcachedCore" Version="2.6.4" />
+        <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="7.0.3" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.StackExchangeRedis" Version="1.0.0-rc9.8" />
+        <PackageReference Include="prometheus-net" Version="8.0.0" />
+        <PackageReference Include="prometheus-net.AspNetCore" Version="8.0.0" />
+        <PackageReference Include="prometheus-net.DotNetRuntime" Version="4.4.0" />
         <PackageReference Include="Yarp.ReverseProxy" Version="1.1.1" />
         <PackageReference Include="Yarp.Telemetry.Consumption" Version="1.1.1" />
     </ItemGroup>

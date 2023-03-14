@@ -32,18 +32,15 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 
 using Neon.Common;
-using Neon.Kube;
 using Neon.Xunit;
 
-using Xunit;
-
-using Couchbase;
 using NATS.Client;
+using Xunit;
 
 // NOTE: We're not testing [NatsStreamingFixture] here because we can't run
 //       it at the same time as the [NatsFixture] (by default) due to port 
 //       conflicts.  We'll test [NatsStreamingFixture] by composing it with
-//       the CouchbaseFixture in the Couchbase unit tests.
+//       the YugaByteFixture.
 
 namespace TestXunit
 {
@@ -115,7 +112,7 @@ namespace TestXunit
                     composedFixture.AddFixture("container", new ContainerFixture(),
                         containerFixture =>
                         {
-                            containerFixture.StartAsComposed("my-container", $"{NeonHelper.NeonLibraryBranchRegistry}/test:latest");
+                            containerFixture.StartAsComposed("my-container", $"{NeonHelper.NeonSdkBranchRegistry}/test:latest");
                         });
 
                     composedFixture.AddFixture("hosts", new HostsFixture());
@@ -177,7 +174,7 @@ namespace TestXunit
 $@"version: '3'
 services:
   my-service:
-    image: {NeonHelper.NeonLibraryBranchRegistry}/test:latest
+    image: {NeonHelper.NeonSdkBranchRegistry}/test:latest
     deploy:
       replicas: 2
 ";

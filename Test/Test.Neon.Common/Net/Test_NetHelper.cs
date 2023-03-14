@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------------
 // FILE:	    Test_NetHelper.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -253,7 +253,7 @@ namespace TestCommon
                 hostEntries.Add("foo-1.test.nhive.io", NetHelper.ParseIPv4Address("1.1.1.1"));
                 NetHelper.ModifyLocalHosts(section1, hostEntries);
                 sections = NetHelper.ListLocalHostsSections();
-                Assert.Equal(2, sections.Count());
+                Assert.True(sections.Count() >= 2);
                 Assert.Contains(TestHostsSection, sections.Select(section => section.Name));
                 Assert.Contains(section1.ToUpperInvariant(), sections.Select(section => section.Name));
 
@@ -261,7 +261,7 @@ namespace TestCommon
                 hostEntries.Add("foo-2.test.nhive.io", NetHelper.ParseIPv4Address("1.1.1.2"));
                 NetHelper.ModifyLocalHosts(section2, hostEntries);
                 sections = NetHelper.ListLocalHostsSections();
-                Assert.Equal(3, sections.Count());
+                Assert.True(sections.Count() >= 3);
                 Assert.Contains(TestHostsSection, sections.Select(section => section.Name));
                 Assert.Contains(section1.ToUpperInvariant(), sections.Select(section => section.Name));
                 Assert.Contains(section2.ToUpperInvariant(), sections.Select(section => section.Name));

@@ -13,6 +13,13 @@
 		<PublishTrimmed>false</PublishTrimmed>
 	</PropertyGroup>
 
+	<PropertyGroup>
+		<PublishSingleFile>false</PublishSingleFile>
+		<SelfContained>true</SelfContained>
+		<PublishTrimmed>false</PublishTrimmed>
+		<PublishReadyToRun>true</PublishReadyToRun>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<Compile Include="$(SolutionDir)\Lib\Neon.BuildInfo\AssemblyAttributes.cs" Link="Properties\AssemblyAttributes.cs" />
 		<Compile Include="$(SolutionDir)\Lib\Neon.BuildInfo\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />

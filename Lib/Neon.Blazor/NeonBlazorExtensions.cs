@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------------
 // FILE:	    NeonBlazorExtensions.cs
 // CONTRIBUTOR: Marcus Bowyer
-// COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -42,9 +42,10 @@ namespace Neon.Blazor
         public static IServiceCollection AddNeonBlazor(
             this IServiceCollection builder)
         {
-            builder.AddHttpContextAccessor();
-            builder.AddScoped<BodyOutlet>();
-            builder.AddScoped<MobileDetector>();
+            builder.AddHttpContextAccessor()
+                .AddScoped<BodyOutlet>()
+                .AddScoped<MobileDetector>()
+                .AddScoped<FileDownloader>();
 
             return builder;
         }

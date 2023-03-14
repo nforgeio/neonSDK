@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------------
 // FILE:	    ProfileResponse.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -146,7 +147,7 @@ namespace Neon.Deployment
 
                     return new ProfileResponse()
                     {
-                        Value   = result,
+                        Value   = Encoding.UTF8.GetString(Convert.FromBase64String(result)),
                         JObject = null,
                         Error   = null
                     };
@@ -158,7 +159,7 @@ namespace Neon.Deployment
                         return new ProfileResponse()
                         {
                             Value   = null,
-                            JObject = JObject.Parse(responseLine.Substring(colonPos + 1)),
+                            JObject = JObject.Parse(Encoding.UTF8.GetString(Convert.FromBase64String(result))),
                             Error   = null
                         };
                     }
@@ -174,7 +175,7 @@ namespace Neon.Deployment
                         Status  = statusCode,
                         Value   = null,
                         JObject = null,
-                        Error   = responseLine.Substring(colonPos + 1).Trim()
+                        Error   = result
                     };
 
                 default:
@@ -229,11 +230,11 @@ namespace Neon.Deployment
 
             if (Value != null)
             {
-                return $"OK: {Value}";
+                return $"OK: {Convert.ToBase64String(Encoding.UTF8.GetBytes(Value))}";
             }
             else
             {
-                return $"OK-JSON: {JObject.ToString(Formatting.None)}";
+                return $"OK-JSON: {Convert.ToBase64String(Encoding.UTF8.GetBytes(JObject.ToString(Formatting.None)))}";
             }
         }
     }

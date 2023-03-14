@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------------
 // FILE:	    ServiceContainer.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ using Newtonsoft.Json.Serialization;
 
 using Neon.Diagnostics;
 using System.Collections;
+using System.ComponentModel;
 
 namespace Neon.Common
 {
@@ -83,16 +84,33 @@ namespace Neon.Common
 
         // $todo(jefflill)
         //
-        // Using [syncRoot] to implement threadsafety via a [Monitor] may introduce
+        // Using [syncRoot] to implement thread safety via a [Monitor] may introduce
         // some performance overhead for ASP.NET sites with lots of traffic.  It
         // may be worth investigating whether a [SpinLock] might be better or perhaps
-        // even reimplementing this using concurrent collections.
+        // even reimplementing this using a concurrent collections.
 
         /// <summary>
         /// Constructor.
         /// </summary>
         public ServiceContainer()
         {
+        }
+
+        /// <summary>
+        /// Returns a clone of the instance.  This can be useful for unit testing to save
+        /// the service container before executing a test and then restoring it afterwards.
+        /// </summary>
+        /// <returns>The cloned instance.</returns>
+        public ServiceContainer Clone()
+        {
+            var clone = new ServiceContainer();
+
+            foreach (var item in this)
+            {
+                clone.Add(item);
+            }
+
+            return clone;
         }
 
         //---------------------------------------------------------------------
@@ -270,12 +288,11 @@ namespace Neon.Common
 
         /// <summary>
         /// This is a convenience generic method that returns the service
-        /// already cast to requested type.  This only works for reference types.
+        /// already cast to requested type.
         /// </summary>
         /// <typeparam name="TService">Specifies the desired service type.</typeparam>
         /// <returns>The service instance if it exists or <c>null</c>.</returns>
         public TService GetService<TService>()
-            where TService : class
         {
             return (TService)GetService(typeof(TService));
         }

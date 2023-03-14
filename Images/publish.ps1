@@ -2,7 +2,7 @@
 #------------------------------------------------------------------------------
 # FILE:         publish.ps1
 # CONTRIBUTOR:  Jeff Lill
-# COPYRIGHT:    Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+# COPYRIGHT:    Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -155,7 +155,7 @@ try
     Write-Info "********************************************************************************"
     Write-Info ""
 
-    & "$msbuild" "$nfSolution" -t:restore -verbosity:quiet
+    & nuget restore "$nfSolution"
 
     if (-not $?)
     {
@@ -194,7 +194,7 @@ try
 
     if (!$noprune)
     {
-        $result = Invoke-CaptureStreams "docker system prune -af" -interleave
+        Invoke-CaptureStreams "docker system prune -af" -interleave | Out-Null
     }
 
     # NOTE: 
@@ -208,7 +208,6 @@ try
 
     if ($other)
     {
-        Publish "$image_root\couchbase-dev"
         Publish "$image_root\nats"
         Publish "$image_root\nats-streaming"
         Publish "$image_root\playground"
@@ -218,7 +217,6 @@ try
     if ($test)
     {
         Publish "$image_root\test"
-        Publish "$image_root\test-cadence"
     }
 
     if ($services)
@@ -236,7 +234,7 @@ try
 
     if (!$noprune)
     {
-        $result = Invoke-CaptureStreams "docker system prune -af" -interleave
+        Invoke-CaptureStreams "docker system prune -af" -interleave | Out-Null
     }
 }
 catch

@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------------
 // FILE:	    NeonService.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -602,8 +602,8 @@ namespace Neon.Service
 
         private const string disableHealthChecks  = "DISABLED";
 
-        private static readonly char[] equalArray = new char[] { '=' };
-        private static readonly Gauge infoGauge   = Metrics.CreateGauge("neon_service_info", "Describes your service version.", "version");
+        private static readonly char[] equalArray  = new char[] { '=' };
+        private static readonly Gauge infoGauge = Metrics.CreateGauge($"{NeonHelper.NeonMetricsPrefix}_service_info", "Describes your service version.", "version");
 
         // WARNING:
         //
@@ -720,7 +720,11 @@ namespace Neon.Service
         private string                          readyCheckPath;
         private IRetryPolicy                    healthRetryPolicy = new LinearRetryPolicy(e => e is IOException, maxAttempts: 10, retryInterval: TimeSpan.FromMilliseconds(100));
         private Uri                             traceCollectorUri;
+#if NET6_0_OR_GREATER
+        private KestrelMetricServer             metricServer;
+#else
         private MetricServer                    metricServer;
+#endif
         private MetricPusher                    metricPusher;
         private IDisposable                     metricCollector;
         private string                          terminationMessagePath;
@@ -884,7 +888,7 @@ namespace Neon.Service
                                                     });
                                             }
 
-                                            options.AddLogMetricsProcessor(MetricsPrefix);
+                                            options.AddLogMetricsProcessor();
                                             options.AddConsoleJsonExporter();
                                         }
                                     });
@@ -927,7 +931,8 @@ namespace Neon.Service
                     var tracerProviderBuilder = Sdk.CreateTracerProviderBuilder()
                         .AddSource(name, version)
                         .SetSampler(OtlpCollectorChecker.Sampler)
-                        .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(name, version));
+                        .SetResourceBuilder(ResourceBuilder.CreateDefault()
+                        .AddService(name, serviceVersion: version));
 
                     // Give the derived service a chance to customize the trace pipeline.
 
@@ -951,33 +956,8 @@ namespace Neon.Service
 
                 // Initialize the metrics prefix and counters.
 
-                var normalizedPrefix = string.Empty;
-
-                if (string.IsNullOrEmpty(options.MetricsPrefix))
-                {
-                    options.MetricsPrefix = this.Name;
-                }
-
-                foreach (var ch in options.MetricsPrefix)
-                {
-                    if (char.IsLetterOrDigit(ch) || ch == '_')
-                    {
-                        normalizedPrefix += ch;
-                    }
-                    else
-                    {
-                        normalizedPrefix += '_';
-                    }
-                }
-
-                while (normalizedPrefix.Contains("__"))
-                {
-                    normalizedPrefix = normalizedPrefix.Replace("__", "_");
-                }
-
-                this.MetricsPrefix  = normalizedPrefix;
-                this.runtimeCount   = Metrics.CreateCounter($"{MetricsPrefix}_runtime_seconds", "Service runtime in seconds.");
-                this.unhealthyCount = Metrics.CreateCounter($"{MetricsPrefix}_unhealthy_transitions", "Service [unhealthy] transitions.");
+                this.runtimeCount   = Metrics.CreateCounter($"{NeonHelper.NeonMetricsPrefix}_service_runtime_seconds", "Service runtime in seconds.");
+                this.unhealthyCount = Metrics.CreateCounter($"{NeonHelper.NeonMetricsPrefix}_service_unhealthy_transitions_total", "Service [unhealthy] transitions.");
 
                 // Detect unhandled application exceptions and log them.
 
@@ -1105,18 +1085,6 @@ namespace Neon.Service
         /// Returns the service version or <b>"unknown"</b>.
         /// </summary>
         public string Version { get; private set; }
-
-        /// <summary>
-        /// <para>
-        /// Returns the prefix to be used when creating metrics counters for this service.
-        /// This will be set to the prefix passed to the constructor or one derived from
-        /// the service name.
-        /// </para>
-        /// <note>
-        /// The prefix returned includes a trailing underscore.
-        /// </note>
-        /// </summary>
-        public string MetricsPrefix { get; private set; }
 
         /// <summary>
         /// Provides support for retrieving environment variables as well as
@@ -1525,6 +1493,8 @@ namespace Neon.Service
                 Logger.LogInformationEx(() => $"Starting [{Name}]");
             }
 
+            Logger.LogInformationEx(() => $".NET Runtime: {System.Environment.Version}");
+
             // Initialize the health status paths when enabled on Linux and
             // deploy the health and ready check tools.  We'll log any
             // errors and disable status generation if we have trouble
@@ -1641,8 +1611,11 @@ namespace Neon.Service
 
                     case MetricsMode.Scrape:
                     case MetricsMode.ScrapeIgnoreErrors:
-
+#if NET6_0_OR_GREATER
+                        metricServer = new KestrelMetricServer(MetricsOptions.Port, MetricsOptions.Path);
+#else
                         metricServer = new MetricServer(MetricsOptions.Port, MetricsOptions.Path);
+#endif
                         metricServer.Start();
                         break;
 

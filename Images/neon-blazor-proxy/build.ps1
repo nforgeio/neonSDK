@@ -2,7 +2,7 @@
 #------------------------------------------------------------------------------
 # FILE:         build.ps1
 # CONTRIBUTOR:  Marcus Bowyer
-# COPYRIGHT:    Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+# COPYRIGHT:    Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 #
 # Builds the Neon [neon-blazor-proxy] image.
 #
@@ -21,7 +21,7 @@ $organization = SdkRegistryOrg
 
 DeleteFolder bin
 
-$result = mkdir bin
+mkdir bin | Out-Null
 ThrowOnExitCode
 
 dotnet publish "$nfServices\$appname\$appname.csproj" -c Release -o "$pwd\bin"
@@ -35,7 +35,9 @@ ThrowOnExitCode
 
 # Build the image.
 
-$result = Invoke-CaptureStreams "docker build -t ${registry}:${tag} --build-arg `"APPNAME=$appname`" --build-arg `"ORGANIZATION=$organization`" ." -interleave
+$baseImage = Get-DotnetBaseImage "$nfRoot\Services\global.json"
+
+Invoke-CaptureStreams "docker build -t ${registry}:${tag} --build-arg `"APPNAME=$appname`" --build-arg `"ORGANIZATION=$organization`" --build-arg `"BASE_IMAGE=$baseImage`" ." -interleave | Out-Null
 
 # Clean up
 

@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------------
 // FILE:	    Test_GitHubPackages.cs
 // CONTRIBUTOR: Marcus Bowyer
-// COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,13 +38,12 @@ namespace TestDeployment
     [CollectionDefinition(TestCollection.NonParallel, DisableParallelization = true)]
     public partial class Test_GitHubPackages
     {
-        [Fact]
-        //[Fact(Skip = "Must be run manually")]
+        [MaintainerFact]
         public async Task ListPackages()
         {
             // Verify that we can list container packages.
 
-            var packages = await GitHub.Packages.ListAsync("neonkube-dev", packageType: GitHubPackageType.Container, includeVersions: true);
+            var packages = await GitHub.Packages.ListAsync("neonkube-stage", packageType: GitHubPackageType.Container, includeVersions: true);
 
             Assert.NotEmpty(packages);
         }

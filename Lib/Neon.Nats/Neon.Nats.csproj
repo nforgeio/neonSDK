@@ -3,8 +3,8 @@
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<OutputType>Library</OutputType>
-		<Version>3.0.0</Version>
 		<RootNamespace>Neon.Nats</RootNamespace>
+		<Version>3.0.0</Version>
 		<Description>NATS messaging extensions</Description>
 		<PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
 		<IsPackable>true</IsPackable>
@@ -23,7 +23,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="NATS.Client" Version="1.0.1" />
+		<PackageReference Include="NATS.Client" Version="1.0.3" />
 		<PackageReference Include="STAN.Client" Version="0.3.0" />
 	</ItemGroup>
 

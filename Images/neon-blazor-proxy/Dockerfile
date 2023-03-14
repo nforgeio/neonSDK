@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # FILE:         Dockerfile
 # CONTRIBUTOR:  Marcus Bowyer
-# COPYRIGHT:    Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+# COPYRIGHT:    Copyright ï¿½ 2005-2023 by NEONFORGE LLC.  All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,8 @@
 # limitations under the License.
 
 ARG         ORGANIZATION
-FROM        mcr.microsoft.com/dotnet/aspnet:7.0.0-jammy-amd64
+ARG         BASE_IMAGE
+FROM        $BASE_IMAGE
 MAINTAINER  marcus@neonforge.com
 STOPSIGNAL  SIGTERM
 ARG         APPNAME

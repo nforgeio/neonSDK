@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------------
 // FILE:	    TestArea.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,11 +30,6 @@ namespace Neon.Xunit
     /// </summary>
     public static class TestArea
     {
-        /// <summary>
-        /// Identifies <b>Neon.Cadence</b> tests.
-        /// </summary>
-        public const string NeonCadence = "Neon.Cadence";
-
         /// <summary>
         /// Identifies <b>Neon.ModelGen</b> tests.
         /// </summary>
@@ -121,13 +116,23 @@ namespace Neon.Xunit
         public const string NeonCloud = "Neon.Cloud";
 
         /// <summary>
-        /// Identfies <b>Neon.JsonConverters</b> tests.
+        /// Identifies <b>Neon.JsonConverters</b> tests.
         /// </summary>
         public const string NeonJsonConverters = "Neon.JsonConverters";
 
         /// <summary>
-        /// Identfies <b>Neon.XenServer</b> tests.
+        /// Identifies <b>Neon.XenServer</b> tests.
         /// </summary>
         public const string NeonXenServer = "Neon.XenServer";
+
+        /// <summary>
+        /// Identifies <b>Neon.HyperV</b> unit tests.
+        /// </summary>
+        public const string NeonHyperV = "Neon.HyperV";
+
+        /// <summary>
+        /// Identifies the <b>Neon.Git</b> unit tests.
+        /// </summary>
+        public const string NeonGit = "Neon.Git";
     }
 }

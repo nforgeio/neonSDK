@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------------
 // FILE:	    NetHelper.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
@@ -1008,7 +1009,11 @@ namespace Neon.Net
         /// <summary>
         /// Returns a free TCP port for a local network interface.
         /// </summary>
-        /// <param name="address">The target interface's IP address.</param>
+        /// <param name="address">
+        /// Optionally specifies the target interface's IP address.  This defaults to
+        /// <see cref="IPAddress.Any"/> where an unused port will be returned that is
+        /// available on all network interfaces.
+        /// </param>
         /// <returns>The free port number.</returns>
         /// <exception cref="NetworkException">Thrown when there are no available ports.</exception>
         /// <remarks>
@@ -1030,9 +1035,9 @@ namespace Neon.Net
         /// </para>
         /// </note>
         /// </remarks>
-        public static int GetUnusedTcpPort(IPAddress address)
+        public static int GetUnusedTcpPort(IPAddress address = null)
         {
-            Covenant.Requires<ArgumentNullException>(address != null, nameof(address));
+            address ??= IPAddress.Any;
 
             try
             {
@@ -1156,13 +1161,20 @@ namespace Neon.Net
                         {
                             // This is the interface handling the routable address.
 
+                            // $note(jefflill):
+                            //
+                            // We're only going to use IPv4 nameservers.
+
                             return new NetworkConfiguration()
                             {
                                 InterfaceName = @interface.Name,
                                 Address       = routableIpAddress.ToString(),
                                 Subnet        = new NetworkCidr(routableIpAddress, unicastAddress.IPv4Mask).ToString(),
                                 Gateway       = ipProperties.GatewayAddresses.FirstOrDefault(gatewayAddr => gatewayAddr.Address.AddressFamily == AddressFamily.InterNetwork).Address.ToString(),
-                                NameServers   = ipProperties.DnsAddresses.Select(address => address.ToString()).ToArray()
+                                NameServers   = ipProperties.DnsAddresses
+                                    .Where(address => address.AddressFamily == AddressFamily.InterNetwork)
+                                    .Select(address => address.ToString())
+                                    .ToArray()
                             };
                         }
                     }
@@ -1224,7 +1236,27 @@ namespace Neon.Net
                     throw new ArgumentException($"Only HTTPS or S3 URI schemes are allowed: {uri}", nameof(uri));
             }
         }
+
+        /// <summary>
+        /// <para>
+        /// Ensures that the status code passed indicates an HTTP request completed successfully.
+        /// </para>
+        /// <note>
+        /// Status codes between 400-499 are considered to indicate success.
+        /// </note>
+        /// </summary>
+        /// <param name="statusCode">Specifies the status code.</param>
+        /// <param name="reasonPhrase">Optionally specifies the reason phrase to be included in any exception thrown.</param>
+        /// <returns>The status code passed.</returns>
+        /// <exception cref="HttpException">Thrown for non-success status codes.</exception>
+        public static HttpStatusCode EnsureSuccess(HttpStatusCode statusCode,string reasonPhrase = null)
+        {
+            if (400 <= (int)statusCode && (int)statusCode <= 499)
+            {
+                return statusCode;
+            }
+
+            throw new HttpException(reasonPhrase: reasonPhrase, statusCode: statusCode);
+        }
     }
 }
-
-

@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------------
 // FILE:	    HyperVClient.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,6 +14,15 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+// $todo(jefflill):
+//
+// Define this variable to enable the old (and slow) PowerShell implementation as opposed
+// to the new WMI approach.  We're going to keep the old code around for a while just in
+// case we need to revert, but we should eventually remove this variable along with the
+// PowerShell implementation.
+
+#define USE_POWERSHELL
 
 using System;
 using System.Collections.Generic;
@@ -34,9 +43,10 @@ using Microsoft.Win32;
 
 using Neon.Common;
 using Neon.Net;
-using Neon.Windows;
+using Neon.Retry;
 
 using Newtonsoft.Json.Linq;
+using YamlDotNet.Serialization.Utilities;
 
 namespace Neon.HyperV
 {
@@ -56,22 +66,6 @@ namespace Neon.HyperV
         // Static members
 
         /// <summary>
-        /// The Hyper-V cmdlet namespace prefix used to avoid conflicts with things
-        /// like the VMware cmdlets.
-        /// </summary>
-        private const string HyperVNamespace = @"Hyper-V\";
-
-        /// <summary>
-        /// The Hyper-V namespace prefix for the TCP/IP related cmdlets.
-        /// </summary>
-        private const string NetTcpIpNamespace = @"NetTCPIP\";
-
-        /// <summary>
-        /// The Hyper-V namespace prefix for the NAT related cmdlets.
-        /// </summary>
-        private const string NetNatNamespace = @"NetNat\";
-
-        /// <summary>
         /// Returns the path to the user's default Hyper-V virtual drive folder.
         /// </summary>
         public static string DefaultDriveFolder => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Hyper-V", "Virtual hard disks");
@@ -79,7 +73,7 @@ namespace Neon.HyperV
         //---------------------------------------------------------------------
         // Instance members
 
-        private PowerShell      powershell;
+        private IHyperVDriver     hypervDriver;
 
         /// <summary>
         /// Default constructor to be used to manage Hyper-V objects
@@ -92,7 +86,11 @@ namespace Neon.HyperV
                 throw new NotSupportedException($"{nameof(HyperVClient)} is only supported on Windows.");
             }
 
-            powershell = new PowerShell();
+#if USE_POWERSHELL
+            hypervDriver = new HyperVPowershellDriver(this);
+#else
+            hyperv = new HyperVWmi(this);
+#endif
         }
 
         /// <summary>
@@ -111,16 +109,13 @@ namespace Neon.HyperV
         {
             if (disposing)
             {
-                if (powershell != null)
-                {
-                    powershell.Dispose();
-                    powershell = null;
-                }
+                hypervDriver?.Dispose();
+                hypervDriver = null;
 
                 GC.SuppressFinalize(this);
             }
 
-            powershell = null;
+            hypervDriver = null;
         }
 
         /// <summary>
@@ -129,75 +124,10 @@ namespace Neon.HyperV
         /// <exception cref="ObjectDisposedException">Thrown if the instance has been disposed.</exception>
         private void CheckDisposed()
         {
-            if (powershell == null)
+            if (hypervDriver == null)
             {
                 throw new ObjectDisposedException(nameof(HyperVClient));
             }
-        }
-
-        /// <summary>
-        /// Extracts virtual machine properties from a dynamic PowerShell result.
-        /// </summary>
-        /// <param name="rawMachine">The dynamic machine properties.</param>
-        /// <returns>The parsed <see cref="VirtualMachine"/>.</returns>
-        private VirtualMachine ExtractVm(dynamic rawMachine)
-        {
-            var vm = new VirtualMachine();
-
-            // Extract the VM name.
-
-            vm.Name = rawMachine.Name;
-
-            // Extract the VM state.
-
-            switch ((string)rawMachine.State)
-            {
-                case "Off":
-
-                    vm.State = VirtualMachineState.Off;
-                    break;
-
-                case "Starting":
-
-                    vm.State = VirtualMachineState.Starting;
-                    break;
-
-                case "Running":
-
-                    vm.State = VirtualMachineState.Running;
-                    break;
-
-                case "Paused":
-
-                    vm.State = VirtualMachineState.Paused;
-                    break;
-
-                case "Saved":
-
-                    vm.State = VirtualMachineState.Saved;
-                    break;
-
-                default:
-
-                    vm.State = VirtualMachineState.Unknown;
-                    break;
-            }
-
-            // Extract the connected switch name from the first network adapter (if any).
-
-            // $note(jefflill):
-            // 
-            // We don't currently support VMs with multiple network adapters; we'll
-            // only capture the name of the switch connected to the first adapter.
-
-            var adapters = (JArray)rawMachine.NetworkAdapters;
-
-            if (adapters.Count > 0)
-            {
-                vm.SwitchName = ((dynamic)adapters[0]).SwitchName;
-            }
-
-            return vm;
         }
 
         /// <summary>
@@ -250,10 +180,11 @@ namespace Neon.HyperV
         /// Optionally specifies any additional virtual drives to be created and 
         /// then attached to the new virtual machine.
         /// </param>
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
         /// <remarks>
         /// <note>
         /// The <see cref="VirtualDrive.Path"/> property of <paramref name="extraDrives"/> may be
-        /// passed as <c>null</c> or empty.  In this case, the drive name will default to
+        /// passed as <c>null</c> or empty.  In this case, the drive location will default to
         /// being located in the standard Hyper-V virtual drivers folder and will be named
         /// <b>MACHINE-NAME-#.vhdx</b>, where <b>#</b> is the one-based index of the drive
         /// in the enumeration.
@@ -270,8 +201,15 @@ namespace Neon.HyperV
             string                      switchName        = null,
             IEnumerable<VirtualDrive>   extraDrives       = null)
         {
-            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
             CheckDisposed();
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(memorySize), nameof(memorySize));
+            Covenant.Requires<ArgumentException>(processorCount > 0, nameof(processorCount));
+
+            if (VmExists(machineName))
+            {
+                throw new HyperVException($"Virtual machine [{machineName}] already exists.");
+            }
 
             memorySize = ByteUnits.Parse(memorySize).ToString();
 
@@ -307,41 +245,27 @@ namespace Neon.HyperV
 
             if (driveSize != null)
             {
-                powershell.Execute($"{HyperVNamespace}Resize-VHD -Path '{drivePath}' -SizeBytes {driveSize}");
+                hypervDriver.ResizeVhd(drivePath, ((long)ByteUnits.Parse(driveSize)));
             }
 
             // Create the virtual machine.
 
-            var command = $"{HyperVNamespace}New-VM -Name '{machineName}' -MemoryStartupBytes {memorySize}  -Generation 1";
+            hypervDriver.NewVM(
+                machineName, 
+                processorCount:     processorCount, 
+                startupMemoryBytes: (long)ByteUnits.Parse(memorySize), 
+                generation:         1, 
+                drivePath:          drivePath,
+                switchName:         switchName, 
+                checkpointDrives:   checkpointDrives);
 
-            if (!string.IsNullOrEmpty(drivePath))
-            {
-                command += $" -VHDPath '{drivePath}'";
-            }
+            // We need to do some extra configuration for nested virtual machines:
+            //
+            //      https://docs.microsoft.com/en-us/virtualization/hyper-v-on-windows/user-guide/nested-virtualization
 
-            if (!string.IsNullOrEmpty(switchName))
+            if (IsNestedVirtualization)
             {
-                command += $" -SwitchName '{switchName}'";
-            }
-
-            try
-            {
-                powershell.Execute(command);
-            }
-            catch (Exception e)
-            {
-                throw new HyperVException(e.Message, e);
-            }
-
-            // We need to configure the VM's processor count and min/max memory settings.
-
-            try
-            {
-                powershell.Execute($"{HyperVNamespace}Set-VM -Name '{machineName}' -ProcessorCount {processorCount} -StaticMemory -MemoryStartupBytes {memorySize}");
-            }
-            catch (Exception e)
-            {
-                throw new HyperVException(e.Message, e);
+                hypervDriver.EnableVmNestedVirtualization(machineName);
             }
 
             // Create and attach any additional drives as required.
@@ -364,51 +288,11 @@ namespace Neon.HyperV
 
                     NeonHelper.DeleteFile(drive.Path);
 
-                    var fixedOrDynamic = drive.IsDynamic ? "-Dynamic" : "-Fixed";
-
-                    try
-                    {
-                        powershell.Execute($"{HyperVNamespace}New-VHD -Path '{drive.Path}' {fixedOrDynamic} -SizeBytes {drive.Size} -BlockSizeBytes 1MB");
-                        powershell.Execute($"{HyperVNamespace}Add-VMHardDiskDrive -VMName '{machineName}' -Path \"{drive.Path}\"");
-                    }
-                    catch (Exception e)
-                    {
-                        throw new HyperVException(e.Message, e);
-                    }
+                    hypervDriver.NewVhd(drivePath, drive.IsDynamic, (long)drive.Size, (int)ByteUnits.MebiBytes);
+                    hypervDriver.AddVmDrive(machineName, drivePath);
 
                     diskNumber++;
                 }
-            }
-
-            // Windows 10 releases since the August 2017 Creators Update enable automatic
-            // virtual drive checkpointing (which is annoying).  We're going to disable this
-            // by default.
-
-            if (!checkpointDrives)
-            {
-                try
-                {
-                    powershell.Execute($"{HyperVNamespace}Set-VM -CheckpointType Disabled -Name '{machineName}'");
-                }
-                catch (Exception e)
-                {
-                    throw new HyperVException(e.Message, e);
-                }
-            }
-
-            // We need to do some extra configuration for nested virtual machines:
-            //
-            //      https://docs.microsoft.com/en-us/virtualization/hyper-v-on-windows/user-guide/nested-virtualization
-
-            if (IsNestedVirtualization)
-            {
-                // Enable nested virtualization for the VM.
-
-                powershell.Execute($"{HyperVNamespace}Set-VMProcessor -VMName '{machineName}' -ExposeVirtualizationExtensions $true");
-
-                // Enable MAC address spoofing for the VMs network adapter.
-
-                powershell.Execute($"{HyperVNamespace}Set-VMNetworkAdapter -VMName '{machineName}' -MacAddressSpoofing On");
             }
         }
 
@@ -417,24 +301,22 @@ namespace Neon.HyperV
         /// </summary>
         /// <param name="machineName">The machine name.</param>
         /// <param name="keepDrives">Optionally retains the VM disk files.</param>
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
         public void RemoveVm(string machineName, bool keepDrives = false)
         {
-            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
             CheckDisposed();
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
 
-            var machine = GetVm(machineName);
-            var drives  = GetVmDrives(machineName);
+            if (!VmExists(machineName))
+            {
+                throw new HyperVException($"Virtual machine [{machineName}] does not exist.");
+            }
+
+            var drives  = ListVmDrives(machineName);
 
             // Remove the machine along with any of of its virtual hard drive files.
 
-            try
-            {
-                powershell.Execute($"{HyperVNamespace}Remove-VM -Name '{machineName}' -Force");
-            }
-            catch (Exception e)
-            {
-                throw new HyperVException(e.Message, e);
-            }
+            hypervDriver.RemoveVm(machineName);
 
             if (!keepDrives)
             {
@@ -449,38 +331,24 @@ namespace Neon.HyperV
         /// Lists the virtual machines.
         /// </summary>
         /// <returns><see cref="IEnumerable{VirtualMachine}"/>.</returns>
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
         public IEnumerable<VirtualMachine> ListVms()
         {
             CheckDisposed();
 
-            try
-            {
-                var machines = new List<VirtualMachine>();
-                var table    = powershell.ExecuteJson($"{HyperVNamespace}Get-VM");
-
-                foreach (dynamic rawMachine in table)
-                {
-                    machines.Add(ExtractVm(rawMachine));
-                }
-
-                return machines;
-            }
-            catch (Exception e)
-            {
-                throw new HyperVException(e.Message, e);
-            }
-
+            return hypervDriver.ListVms();
         }
 
         /// <summary>
         /// Gets the current status for a named virtual machine.
         /// </summary>
         /// <param name="machineName">The machine name.</param>
-        /// <returns>The <see cref="VirtualMachine"/> or <c>null</c> when the virtual machine doesn't exist..</returns>
-        public VirtualMachine GetVm(string machineName)
+        /// <returns>The <see cref="VirtualMachine"/> or <c>null</c> when the virtual machine doesn't exist.</returns>
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
+        public VirtualMachine FindVm(string machineName)
         {
-            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
             CheckDisposed();
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
 
             return ListVms().SingleOrDefault(vm => vm.Name.Equals(machineName, StringComparison.InvariantCultureIgnoreCase));
         }
@@ -490,10 +358,11 @@ namespace Neon.HyperV
         /// </summary>
         /// <param name="machineName">The machine name.</param>
         /// <returns><c>true</c> if the machine exists.</returns>
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
         public bool VmExists(string machineName)
         {
-            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
             CheckDisposed();
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
 
             return ListVms().Count(vm => vm.Name.Equals(machineName, StringComparison.InvariantCultureIgnoreCase)) > 0;
         }
@@ -502,19 +371,18 @@ namespace Neon.HyperV
         /// Starts the named virtual machine.
         /// </summary>
         /// <param name="machineName">The machine name.</param>
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
         public void StartVm(string machineName)
         {
-            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
             CheckDisposed();
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
 
-            try
+            if (!VmExists(machineName))
             {
-                powershell.Execute($"{HyperVNamespace}Start-VM -Name '{machineName}'");
+                throw new HyperVException($"Virtual machine [{machineName}] does not exist.");
             }
-            catch (Exception e)
-            {
-                throw new HyperVException(e.Message, e);
-            }
+
+            hypervDriver.StartVm(machineName);
         }
 
         /// <summary>
@@ -529,26 +397,18 @@ namespace Neon.HyperV
         /// <b>WARNING!</b> This could result in corruption or the the loss of unsaved data.
         /// </note>
         /// </param>
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
         public void StopVm(string machineName, bool turnOff = false)
         {
-            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
             CheckDisposed();
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
 
-            try
+            if (!VmExists(machineName))
             {
-                if (turnOff)
-                {
-                    powershell.Execute($"{HyperVNamespace}Stop-VM -Name '{machineName}' -TurnOff");
-                }
-                else
-                {
-                    powershell.Execute($"{HyperVNamespace}Stop-VM -Name '{machineName}'");
-                }
+                throw new HyperVException($"Virtual machine [{machineName}] does not exist.");
             }
-            catch (Exception e)
-            {
-                throw new HyperVException(e.Message, e);
-            }
+
+            hypervDriver.StopVm(machineName, turnOff: turnOff);
         }
 
         /// <summary>
@@ -556,48 +416,37 @@ namespace Neon.HyperV
         /// equivalent to hibernation for a physical machine.
         /// </summary>
         /// <param name="machineName">The machine name.</param>
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
         public void SaveVm(string machineName)
         {
-            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
             CheckDisposed();
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
 
-            try
+            if (!VmExists(machineName))
             {
-                powershell.Execute($"{HyperVNamespace}Save-VM -Name '{machineName}'");
+                throw new HyperVException($"Virtual machine [{machineName}] does not exist.");
             }
-            catch (Exception e)
-            {
-                throw new HyperVException(e.Message, e);
-            }
+
+            hypervDriver.SaveVm(machineName);
         }
 
         /// <summary>
-        /// Returns host file system paths to any virtual drives attached to
-        /// the named virtual machine.
+        /// Returns host file system paths to any virtual drives attached to a virtual machine.
         /// </summary>
         /// <param name="machineName">The machine name.</param>
         /// <returns>The list of fully qualified virtual drive file paths.</returns>
-        public List<string> GetVmDrives(string machineName)
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
+        public IEnumerable<string> ListVmDrives(string machineName)
         {
-            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
             CheckDisposed();
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
 
-            try
+            if (!VmExists(machineName))
             {
-                var drives    = new List<string>();
-                var rawDrives = powershell.ExecuteJson($"{HyperVNamespace}Get-VMHardDiskDrive -VMName '{machineName}'");
-
-                foreach (dynamic rawDrive in rawDrives)
-                {
-                    drives.Add(rawDrive.Path.ToString());
-                }
-
-                return drives;
+                throw new HyperVException($"Virtual machine [{machineName}] does not exist.");
             }
-            catch (Exception e)
-            {
-                throw new HyperVException(e.Message, e);
-            }
+
+            return hypervDriver.ListVmDrives(machineName);
         }
 
         /// <summary>
@@ -605,20 +454,26 @@ namespace Neon.HyperV
         /// </summary>
         /// <param name="machineName">The target virtual machine name.</param>
         /// <param name="drive">The new drive information.</param>
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
         public void AddVmDrive(string machineName, VirtualDrive drive)
         {
+            CheckDisposed();
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
             Covenant.Requires<ArgumentNullException>(drive != null, nameof(drive));
-            CheckDisposed();
+
+            if (!VmExists(machineName))
+            {
+                throw new HyperVException($"Virtual machine [{machineName}] does not exist.");
+            }
 
             // Delete the drive file if it already exists.
 
             NeonHelper.DeleteFile(drive.Path);
 
-            var fixedOrDynamic = drive.IsDynamic ? "-Dynamic" : "-Fixed";
+            // Create and attach the drive.
 
-            powershell.Execute($"{HyperVNamespace}New-VHD -Path '{drive.Path}' {fixedOrDynamic} -SizeBytes {drive.Size} -BlockSizeBytes 1MB");
-            powershell.Execute($"{HyperVNamespace}Add-VMHardDiskDrive -VMName '{machineName}' -Path '{drive.Path}'");
+            hypervDriver.NewVhd(drive.Path, drive.IsDynamic, (long)drive.Size, (int)ByteUnits.MebiBytes);
+            hypervDriver.AddVmDrive(machineName, drive.Path);
         }
 
         /// <summary>
@@ -630,95 +485,53 @@ namespace Neon.HyperV
         /// </note>
         /// </summary>
         /// <param name="drivePath">Path to the virtual drive file.</param>
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
         public void CompactDrive(string drivePath)
         {
+            CheckDisposed();
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(drivePath), nameof(drivePath));
 
-            powershell.Execute($"Mount-VHD '{drivePath}' -ReadOnly");
-            powershell.Execute($"Optimize-VHD '{drivePath}' -Mode Full");
-            powershell.Execute($"Dismount-VHD '{drivePath}'");
+            hypervDriver.OptimizeVhd(drivePath);
         }
 
         /// <summary>
-        /// Inserts an ISO file as the DVD/CD for a virtual machine, ejecting any
-        /// existing disc.
+        /// Inserts an ISO file as the DVD for a virtual machine, ejecting any
+        /// existing disc first.
         /// </summary>
         /// <param name="machineName">The machine name.</param>
-        /// <param name="isoPath">Path to the ISO file.</param>
+        /// <param name="isoPath">Path to the DVD ISO file.</param>
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
         public void InsertVmDvd(string machineName, string isoPath)
         {
-            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
             CheckDisposed();
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(isoPath), nameof(isoPath));
+
+            if (!VmExists(machineName))
+            {
+                throw new HyperVException($"Virtual machine [{machineName}] does not exist.");
+            }
 
             EjectVmDvd(machineName);
-            powershell.Execute($"Add-VMDvdDrive -VMName '{machineName}' -Path '{isoPath}' -ControllerNumber 1 -ControllerLocation 0");
+            hypervDriver.InsertVmDvdDrive(machineName, isoPath);
         }
 
         /// <summary>
-        /// Ejects any DVD/CD that's currently inserted into a virtual machine.
+        /// Ejects any DVD that's currently inserted into a virtual machine.
         /// </summary>
         /// <param name="machineName">The machine name.</param>
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
         public void EjectVmDvd(string machineName)
         {
+            CheckDisposed();
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
-            CheckDisposed();
 
-            powershell.Execute($"Remove-VMDvdDrive -VMName '{machineName}' -ControllerNumber 1 -ControllerLocation 0");
-        }
-
-        /// <summary>
-        /// Returns the virtual network switches.
-        /// </summary>
-        /// <returns>The list of switches.</returns>
-        public List<VirtualSwitch> ListSwitches()
-        {
-            CheckDisposed();
-
-            try
+            if (!VmExists(machineName))
             {
-                var switches    = new List<VirtualSwitch>();
-                var rawSwitches = powershell.ExecuteJson($"{HyperVNamespace}Get-VMSwitch");
-
-                foreach (dynamic rawSwitch in rawSwitches)
-                {
-                    var virtualSwitch
-                        = new VirtualSwitch()
-                        {
-                            Name = rawSwitch.Name
-                        };
-
-                    switch (rawSwitch.SwitchType.Value)
-                    {
-                        case "Internal":
-
-                            virtualSwitch.Type = VirtualSwitchType.Internal;
-                            break;
-
-                        case "External":
-
-                            virtualSwitch.Type = VirtualSwitchType.External;
-                            break;
-
-                        case "Private":
-
-                            virtualSwitch.Type = VirtualSwitchType.Private;
-                            break;
-
-                        default:
-
-                            virtualSwitch.Type = VirtualSwitchType.Unknown;
-                            break;
-                    }
-
-                    switches.Add(virtualSwitch);
-                }
-
-                return switches;
+                throw new HyperVException($"Virtual machine [{machineName}] does not exist.");
             }
-            catch (Exception e)
-            {
-                throw new HyperVException(e.Message, e);
-            }
+
+            hypervDriver.EjectDvdDrive(machineName);
         }
 
         /// <summary>
@@ -726,12 +539,24 @@ namespace Neon.HyperV
         /// </summary>
         /// <param name="switchName">The switch name.</param>
         /// <returns>The <see cref="VirtualSwitch"/> when present or <c>null</c>.</returns>
-        public VirtualSwitch GetSwitch(string switchName)
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
+        public VirtualSwitch FindSwitch(string switchName)
         {
-            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(switchName), nameof(switchName));
             CheckDisposed();
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(switchName), nameof(switchName));
 
             return ListSwitches().FirstOrDefault(@switch => @switch.Name.Equals(switchName, StringComparison.InvariantCultureIgnoreCase));
+        }
+
+        /// <summary>
+        /// Lists the virtual switches.
+        /// </summary>
+        /// <returns>The switches.</returns>
+        public IEnumerable<VirtualSwitch> ListSwitches()
+        {
+            CheckDisposed();
+
+            return hypervDriver.ListSwitches();
         }
 
         /// <summary>
@@ -739,11 +564,12 @@ namespace Neon.HyperV
         /// </summary>
         /// <param name="switchName">The new switch name.</param>
         /// <param name="gateway">Address of the LAN gateway, used to identify the connected network interface.</param>
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
         public void NewExternalSwitch(string switchName, IPAddress gateway)
         {
+            CheckDisposed();
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(switchName), nameof(switchName));
             Covenant.Requires<ArgumentNullException>(gateway != null, nameof(gateway));
-            CheckDisposed();
 
             if (!NetworkInterface.GetIsNetworkAvailable())
             {
@@ -793,14 +619,14 @@ namespace Neon.HyperV
 
             try
             {
-                var adapters      = powershell.ExecuteJson($"Get-NetAdapter");
+                var adapters      = hypervDriver.ListHostAdapters();
                 var targetAdapter = (string)null;
 
-                foreach (dynamic adapter in adapters)
+                foreach (var adapterName in adapters)
                 {
-                    if (((string)adapter.Name).Equals(connectedAdapter.Name, StringComparison.InvariantCultureIgnoreCase))
+                    if (adapterName.Equals(connectedAdapter.Name, StringComparison.InvariantCultureIgnoreCase))
                     {
-                        targetAdapter = adapter.Name;
+                        targetAdapter = adapterName;
                         break;
                     }
                 }
@@ -810,7 +636,8 @@ namespace Neon.HyperV
                     throw new HyperVException($"Internal Error: Cannot identify a connected network adapter.");
                 }
 
-                powershell.Execute($"{HyperVNamespace}New-VMSwitch -Name '{switchName}' -NetAdapterName '{targetAdapter}'");
+                hypervDriver.NewSwitch(switchName, targetAdapter: targetAdapter);
+                WaitForNetworkSwitch();
             }
             catch (Exception e)
             {
@@ -825,41 +652,67 @@ namespace Neon.HyperV
         /// <param name="switchName">The new switch name.</param>
         /// <param name="subnet">Specifies the internal subnet.</param>
         /// <param name="addNat">Optionally configure a NAT to support external routing.</param>
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
         public void NewInternalSwitch(string switchName, NetworkCidr subnet, bool addNat = false)
         {
+            CheckDisposed();
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(switchName), nameof(switchName));
             Covenant.Requires<ArgumentNullException>(subnet != null, nameof(subnet));
-            CheckDisposed();
 
-            var gatewayAddress = subnet.FirstUsableAddress;
-
-            powershell.Execute($"{HyperVNamespace}New-VMSwitch -Name '{switchName}' -SwitchType Internal");
-            powershell.Execute($"{NetTcpIpNamespace}New-NetIPAddress -IPAddress {subnet.FirstUsableAddress} -PrefixLength {subnet.PrefixLength} -InterfaceAlias 'vEthernet ({switchName})'");
+            hypervDriver.NewSwitch(switchName, @internal: true);
+            hypervDriver.NewNetIPAddress(switchName, subnet.FirstUsableAddress, subnet);
 
             if (addNat)
             {
                 if (GetNatByName(switchName) == null)
                 {
-                    powershell.Execute($"{NetNatNamespace}New-NetNAT -Name '{switchName}' -InternalIPInterfaceAddressPrefix {subnet}");
+                    hypervDriver.NewNat(switchName, subnet);
                 }
             }
+
+            WaitForNetworkSwitch();
         }
 
         /// <summary>
-        /// Removes a named virtual switch, it it exists as well as any associated NAT (with the same name).
+        /// Waits for network functionality to be restored after creating a new virtual
+        /// switch because networking can be disrupted for a period of time after switch
+        /// creation.
+        /// </summary>
+        private void WaitForNetworkSwitch()
+        {
+            // $hack(jefflill):
+            //
+            // Creating an internal (and perhaps external) switch may disrupt the network
+            // for a brief period of time.  Hyper-V Manager warns about this when creating
+            // an internal switch manually.  We're going to pause for 5 seconds to hopefully
+            // let this settle out and then perform an innocous Hyper-V operation until it
+            // succeeds.
+            //
+            //      https://github.com/nforgeio/neonSDK/issues/50
+
+            Thread.Sleep(TimeSpan.FromSeconds(5));
+
+            var retry = new LinearRetryPolicy(e => true, retryInterval: TimeSpan.FromSeconds(1), timeout: TimeSpan.FromSeconds(30));
+
+            retry.Invoke(() => ListVms());
+        }
+
+        /// <summary>
+        /// Removes a named virtual switch, if it exists as well as any associated NAT (with the same name).
         /// </summary>
         /// <param name="switchName">The target switch name.</param>
         /// <param name="ignoreMissing">Optionally ignore missing items.</param>
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
         public void RemoveSwitch(string switchName, bool ignoreMissing = false)
         {
-            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(switchName), nameof(switchName));
             CheckDisposed();
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(switchName), nameof(switchName));
 
             if (ListSwitches().Any(@switch => @switch.Name.Equals(switchName, StringComparison.InvariantCultureIgnoreCase)))
             {
                 try
                 {
-                    powershell.Execute($"{HyperVNamespace}Remove-VMSwitch -Name '{switchName}' -Force");
+                    hypervDriver.RemoveSwitch(switchName);
                 }
                 catch
                 {
@@ -874,7 +727,7 @@ namespace Neon.HyperV
             {
                 try
                 {
-                    powershell.Execute($"{HyperVNamespace}Remove-NetNat -Name '{switchName}' -Force");
+                    hypervDriver.RemoveNat(switchName);
                 }
                 catch
                 {
@@ -892,157 +745,30 @@ namespace Neon.HyperV
         /// <param name="machineName">The machine name.</param>
         /// <param name="waitForAddresses">Optionally wait until at least one adapter has been able to acquire at least one IPv4 address.</param>
         /// <returns>The list of network adapters.</returns>
-        public List<VirtualNetworkAdapter> GetVmNetworkAdapters(string machineName, bool waitForAddresses = false)
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
+        public IEnumerable<VirtualNetworkAdapter> ListVmNetworkAdapters(string machineName, bool waitForAddresses = false)
         {
-            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
             CheckDisposed();
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
 
-            try
-            {
-                var stopwatch = new Stopwatch();
-
-                while (true)
-                {
-                    var adapters    = new List<VirtualNetworkAdapter>();
-                    var rawAdapters = powershell.ExecuteJson($"{HyperVNamespace}Get-VMNetworkAdapter -VMName '{machineName}'");
-
-                    adapters.Clear();
-
-                    foreach (dynamic rawAdapter in rawAdapters)
-                    {
-                        var adapter
-                            = new VirtualNetworkAdapter()
-                            {
-                                Name           = rawAdapter.Name,
-                                VMName         = rawAdapter.VMName,
-                                IsManagementOs = ((string)rawAdapter.IsManagementOs).Equals("True", StringComparison.InvariantCultureIgnoreCase),
-                                SwitchName     = rawAdapter.SwitchName,
-                                MacAddress     = rawAdapter.MacAddress,
-                                Status         = (string)((JArray)rawAdapter.Status).FirstOrDefault()
-                            };
-
-                        // Parse the IP addresses.
-
-                        var addresses = (JArray)rawAdapter.IPAddresses;
-
-                        if (addresses.Count > 0)
-                        {
-                            foreach (string address in addresses)
-                            {
-                                if (!string.IsNullOrEmpty(address))
-                                {
-                                    var ipAddress = IPAddress.Parse(address.Trim());
-
-                                    if (ipAddress.AddressFamily == AddressFamily.InterNetwork)
-                                    {
-                                        adapter.Addresses.Add(IPAddress.Parse(address.Trim()));
-                                    }
-                                }
-                            }
-                        }
-
-                        adapters.Add(adapter);
-                    }
-
-                    var retry = false;
-
-                    foreach (var adapter in adapters)
-                    {
-                        if (adapter.Addresses.Count == 0 && waitForAddresses)
-                        {
-                            if (stopwatch.Elapsed >= TimeSpan.FromSeconds(30))
-                            {
-                                throw new TimeoutException($"Network adapter [{adapter.Name}] for virtual machine [{machineName}] was not able to acquire an IP address.");
-                            }
-
-                            retry = true;
-                            break;
-                        }
-                    }
-
-                    if (retry)
-                    {
-                        Thread.Sleep(TimeSpan.FromSeconds(1));
-                        continue;
-                    }
-
-                    return adapters;
-                }
-            }
-            catch (Exception e)
-            {
-                throw new HyperVException(e.Message, e);
-            }
+            return hypervDriver.ListVmNetAdapters(machineName, waitForAddresses: waitForAddresses);
         }
 
         /// <summary>
         /// <para>
-        /// Lists the virtual IPv4 addresses.
+        /// Lists the virtual IPv4 addresses managed by Hyper-V.
         /// </para>
         /// <note>
         /// Only IPv4 addresses are returned.  IPv6 and any other address types will be ignored.
         /// </note>
         /// </summary>
         /// <returns>A list of <see cref="VirtualIPAddress"/>.</returns>
-        public List<VirtualIPAddress> ListIPAddresses()
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
+        public IEnumerable<VirtualIPAddress> ListIPAddresses()
         {
             CheckDisposed();
 
-            try
-            {
-                var addresses    = new List<VirtualIPAddress>();
-                var rawAddresses = powershell.ExecuteJson($"{NetTcpIpNamespace}Get-NetIPAddress");
-                var switchRegex  = new Regex(@"^.*\((?<switch>.+)\)$");
-
-                foreach (dynamic rawAddress in rawAddresses)
-                {
-                    // We're only listing IPv4  addresses.
-
-                    var address = (string)rawAddress.IPv4Address;
-
-                    if (string.IsNullOrEmpty(address))
-                    {
-                        continue;
-                    }
-
-                    // Extract the interface/switch name from the [InterfaceAlias] field,
-                    // which will look something like:
-                    //
-                    //      vEthernet (neonkube)
-                    //
-                    // We'll extract the name within the parens if present, otherwise we'll
-                    // take the entire property value as the name.
-
-                    var interfaceAlias = (string)rawAddress.InterfaceAlias;
-                    var match          = switchRegex.Match(interfaceAlias);
-                    var interfaceName  = string.Empty;
-
-                    if (match.Success)
-                    {
-                        interfaceName = match.Groups["switch"].Value;
-                    }
-                    else
-                    {
-                        interfaceName = interfaceAlias;
-                    }
-
-                    var virtualIPAddress
-                        = new VirtualIPAddress()
-                        {
-                            Address       = address,
-                            Subnet        = NetworkCidr.Parse($"{address}/{rawAddress.PrefixLength}"),
-                            InterfaceName = interfaceName
-                        };
-
-                    addresses.Add(virtualIPAddress);
-                }
-
-                return addresses;
-            }
-            catch (Exception e)
-            {
-                throw new HyperVException(e.Message, e);
-            }
+            return hypervDriver.ListIPAddresses();
         }
 
         /// <summary>
@@ -1050,10 +776,11 @@ namespace Neon.HyperV
         /// </summary>
         /// <param name="address">The desired IP address.</param>
         /// <returns>The <see cref="VirtualIPAddress"/> or <c>null</c> when it doesn't exist.</returns>
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
         public VirtualIPAddress GetIPAddress(string address)
         {
-            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(address), nameof(address));
             CheckDisposed();
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(address), nameof(address));
 
             return ListIPAddresses().SingleOrDefault(addr => addr.Address == address);
         }
@@ -1062,68 +789,26 @@ namespace Neon.HyperV
         /// Lists the virtual NATs.
         /// </summary>
         /// <returns>A list of <see cref="VirtualNat"/>.</returns>
-        public List<VirtualNat> ListNats()
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
+        public IEnumerable<VirtualNat> ListNats()
         {
             CheckDisposed();
 
-            try
-            {
-                var nats    = new List<VirtualNat>();
-                var rawNats = powershell.ExecuteJson($"{NetNatNamespace}Get-NetNAT");
-
-                foreach (dynamic rawNat in rawNats)
-                {
-                    var name   = (string)null;
-                    var subnet = (string)null;
-
-                    foreach (dynamic rawProperty in rawNat.CimInstanceProperties)
-                    {
-                        switch ((string)rawProperty.Name)
-                        {
-                            case "Name":
-
-                                name = rawProperty.Value;
-                                break;
-
-                            case "InternalIPInterfaceAddressPrefix":
-
-                                subnet = rawProperty.Value;
-                                break;
-                        }
-
-                        if (name != null && subnet != null)
-                        {
-                            break;
-                        }
-                    }
-
-                    var nat = new VirtualNat()
-                    {
-                        Name   = name,
-                        Subnet = subnet
-                    };
-
-                    nats.Add(nat);
-                }
-
-                return nats;
-            }
-            catch (Exception e)
-            {
-                throw new HyperVException(e.Message, e);
-            }
+            return hypervDriver.ListNats();
         }
 
         /// <summary>
         /// Looks for a virtual NAT by name.
         /// </summary>
-        /// <param name="name">The desired NAT name.</param>
+        /// <param name="natName">The desired NAT name.</param>
         /// <returns>The <see cref="VirtualNat"/> or <c>null</c> if the NAT doesn't exist.</returns>
-        public VirtualNat GetNatByName(string name)
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
+        public VirtualNat GetNatByName(string natName)
         {
             CheckDisposed();
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(natName), nameof(natName));
 
-            return ListNats().FirstOrDefault(nat => nat.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
+            return ListNats().FirstOrDefault(nat => nat.Name.Equals(natName, StringComparison.InvariantCultureIgnoreCase));
         }
 
         /// <summary>
@@ -1131,6 +816,7 @@ namespace Neon.HyperV
         /// </summary>
         /// <param name="subnet">The desired NAT subnet.</param>
         /// <returns>The <see cref="VirtualNat"/> or <c>null</c> if the NAT doesn't exist.</returns>
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
         public VirtualNat GetNatBySubnet(string subnet)
         {
             CheckDisposed();

@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------------
 // FILE:	    OtlpCollectorChecker.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -132,7 +132,7 @@ namespace Neon.Service
 
             OtlpCollectorChecker.service          = service;
             OtlpCollectorChecker.collectorUri     = collectorUri;
-            OtlpCollectorChecker.unavailableCount = Metrics.CreateCounter($"{service.MetricsPrefix}_otlp_collector_unavailable", "Number of times the OTLP Collector service has transitioned to being unavailable.");
+            OtlpCollectorChecker.unavailableCount = Metrics.CreateCounter($"{NeonHelper.NeonMetricsPrefix}_otlp_collector_unavailable_total", "Number of times the OTLP Collector service has transitioned to being unavailable.");
 
             dns = new LookupClient(new LookupClientOptions()
             {

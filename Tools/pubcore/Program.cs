@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------------
 // FILE:	    Program.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ namespace pubcore
         /// <summary>
         /// Tool version number.
         /// </summary>
-        public const string Version = "3.0";
+        public const string Version = "3.1";
 
         /// <summary>
         /// Program entry point.
@@ -316,12 +316,16 @@ $@"@echo off
 
                 // Finish up
 
+                Console.WriteLine();
                 Console.WriteLine($"Publish time:   {stopwatch.Elapsed}");
+                Console.WriteLine();
+
                 Environment.Exit(0);
             }
             catch (Exception e)
             {
                 Console.Error.WriteLine($"** ERROR: [{e.GetType().Name}]: {e.Message}");
+
                 Environment.Exit(1);
             }
         }

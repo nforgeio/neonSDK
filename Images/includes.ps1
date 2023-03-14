@@ -2,7 +2,7 @@
 #------------------------------------------------------------------------------
 # FILE:         includes.ps1
 # CONTRIBUTOR:  Jeff Lill
-# COPYRIGHT:    Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+# COPYRIGHT:    Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -49,21 +49,21 @@ $ncTools    = "$ncRoot\Tools"
 #------------------------------------------------------------------------------
 # Global constants.
 
-# neonSDK release Version.
+# neonKUBE container image tag.
+#
+# Note that we determine the currently checked-out Git branch for local neonKUBE 
+# repo.  If that's a release branch, then we'll just use the neonKUBE version,
+# otherwise, we'll append the branch name with a leading period to the tag.
+#
+# This helps to isolate container images between different branches so developers 
+# can work on different cluster images in parallel.
 
-$neonSDK_Version = $(& neon-build read-version "$nfRoot\Lib\Neon.Common\Build.cs" NeonSdkVersion)
-ThrowOnExitCode
+$neonKUBE_Tag   = "neonkube-" + $neonKUBE_Version
+$neonKubeBranch = GitBranch $env:NK_ROOT
 
-$neonSDK_Tag = "neonsdk-" + $neonSDK_Version
-
-# Override the common image tag if the [NEON_CONTAINER_TAG_OVERRIDE] is defined.\
-# This is used for development purposes.
-
-$tagOverride = $env:NEON_CONTAINER_TAG_OVERRIDE
-
-if (-not [System.String]::IsNullOrEmpty($tagOverride))
+if (-not $neonKubeBranch.StartsWith("release-"))
 {
-	$neonSDK_Tag = $tagOverride
+	$neonKUBE_Tag = "$neonKUBE_Tag.$neonKubeBranch"
 }
 
 #------------------------------------------------------------------------------
@@ -92,29 +92,33 @@ function UtcDate
 }
 
 #------------------------------------------------------------------------------
-# Returns the current Git branch, date, and commit formatted as a Docker image tag
-# along with an optional dirty branch indicator.
+# Returns the .NET runtime base container reference to be used when building
+# our container images, like:
+#
+#		mcr.microsoft.com/dotnet/aspnet:7.0.2-jammy-amd64
+#
+# This accepts a single parameter specifying the path to the [global.json] file
+# used to control which .NET SDK we're using to build the container binaries.
+# This uses the [neon-build dotnet-version] command to identify the runtime
+# version and inject that into the base container name returned.
 
-function ImageTag
+function Get-DotnetBaseImage
 {
-	$branch = GitBranch $env:NF_ROOT
-	$date   = UtcDate
-	$commit = git log -1 --pretty=%h
-	$tag    = "$branch-$date-$commit"
+    [CmdletBinding()]
+    param (
+        [Parameter(Position=0, Mandatory=$true)]
+        [string]$globalJsonPath
+    )
 
-	return $tag
-}
+	# NOTE: This command writes the SDK version to the first output line and
+	#       the runtime version to the second line.
 
-#------------------------------------------------------------------------------
-# Returns $true if the current Git branch is considered to be a release branch.
-# Branches with names starting with "release-" are always considered to be a
-# RELEASE branch.
+	$command  = "neon-build dotnet-version " + '"' + $globalJsonPath + '"'
+	$response = Invoke-CaptureStreams $command
+	$lines    = $response.stdout -split '\r?\n'
+	$runtime  = $lines[1].Trim()
 
-function IsRelease
-{
-    $branch = GitBranch $env:NF_ROOT
-
-	return ($branch -like "release-*")
+	return "mcr.microsoft.com/dotnet/aspnet:$runtime-jammy-amd64"
 }
 
 #------------------------------------------------------------------------------
@@ -145,11 +149,7 @@ function GetSdkRegistry($image)
 	# For now, we're going to use the neonkube image repo for all images because
 	# the publish scripts in the other repos can't handle multiple image repos yet.
 
-	return GetKubeSetupRegistry $image
-
-	# $org = SdkRegistryOrg
-	#
-	# return "$org/$image"
+	return GetKubeStageRegistry $image
 }
 
 #------------------------------------------------------------------------------
@@ -162,16 +162,7 @@ function SdkRegistryOrg
 	# For now, we're going to use the neonkube image repo for all images because
 	# the publish scripts in the other repos can't handle multiple image repos yet.
 
-	return KubeSetupRegistryOrg
-
-	# if (IsRelease)
-	# {
-	#     return "ghcr.io/neon-sdk"
-	# }
-	# else
-	# {
-	# 	return "ghcr.io/neon-sdk-dev"
-	# }
+	return KubeStageRegistryOrg
 }
 
 #------------------------------------------------------------------------------
@@ -181,26 +172,19 @@ function SdkRegistryOrg
 # otherwise it will be pushed to "ghcr.io/neonrelease-dev/".  The MAIN registry
 # holds the neonKUBE images tagged by cluster version.
 
-function GetKubeSetupRegistry($image)
+function GetKubeStageRegistry($image)
 {
-	$org = KubeSetupRegistryOrg
+	$org = KubeStageRegistryOrg
 	
 	return "$org/$image"
 }
 
 #------------------------------------------------------------------------------
-# Returns the neonKUBE SETUP registry organization corresponding to the current git branch.
+# Returns the neonKUBE staging container image registy.
 
-function KubeSetupRegistryOrg
+function KubeStageRegistryOrg
 {
-	if (IsRelease)
-	{
-		return "ghcr.io/neonkube"
-	}
-	else
-	{
-		return "ghcr.io/neonkube-dev"
-	}
+	return "ghcr.io/neonkube-stage"
 }
 
 #------------------------------------------------------------------------------
@@ -218,18 +202,11 @@ function GetKubeBaseRegistry($image)
 }
 
 #------------------------------------------------------------------------------
-# Returns the neonKUBE BASE registry organization corresponding to the current git branch.
+# Returns the neonKUBE staging base container image registry.
 
 function KubeBaseRegistryOrg
 {
-	if (IsRelease)
-	{
-		return "ghcr.io/neonkube-base"
-	}
-	else
-	{
-		return "ghcr.io/neonkube-base-dev"
-	}
+	return "ghcr.io/neonkube-base-dev"
 }
 
 #------------------------------------------------------------------------------
@@ -246,18 +223,11 @@ function GetNeonCloudRegistry($image)
 }
 
 #------------------------------------------------------------------------------
-# Returns the neonCLOUD registry organization corresponding to the current git branch.
+# Returns the neonCLOUD container image registry .
 
 function NeonCloudRegistryOrg
 {
-	if (IsRelease)
-	{
-		return "ghcr.io/neonrelease"
-	}
-	else
-	{
-		return "ghcr.io/neonrelease-dev"
-	}
+	return "ghcr.io/neonrelease-dev"
 }
 
 #------------------------------------------------------------------------------
@@ -310,7 +280,6 @@ function Log-ImageBuild
 # Makes any text files that will be included in Docker images Linux safe by
 # converting CRLF line endings to LF and replacing TABs with spaces.
 
-unix-text --recursive $image_root\Dockerfile 
 unix-text --recursive $image_root\*.sh 
 unix-text --recursive $image_root\*.cfg 
 unix-text --recursive $image_root\*.js 

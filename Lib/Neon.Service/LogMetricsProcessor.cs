@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------------
 // FILE:	    LogMetricsProcessor.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ namespace Neon.Service
     /// errors, requiring further investigation.
     /// </para>
     /// <para>
-    /// This is very easy to use.  Simply call <see cref="OtelConfigExtensions.AddLogMetricsProcessor(OpenTelemetryLoggerOptions, string)"/>.
+    /// This is very easy to use.  Simply call <see cref="OtelConfigExtensions.AddLogMetricsProcessor(OpenTelemetryLoggerOptions)"/>.
     /// </para>
     /// </remarks>
     public class LogMetricsProcessor : BaseProcessor<LogRecord>
@@ -87,15 +87,9 @@ namespace Neon.Service
         /// <summary>
         /// Constructs a processor that counts logged events by <see cref="LogLevel"/>.
         /// </summary>
-        /// <param name="metricsPrefix">Optionally specifies a prefix to be prepended to to the counter name.</param>
-        public LogMetricsProcessor(string metricsPrefix = null)
+        public LogMetricsProcessor()
         {
-            var counterName = "neon_log_events";
-
-            if (!string.IsNullOrEmpty(metricsPrefix))
-            {
-                counterName = $"{metricsPrefix}_{counterName}";
-            }
+            var counterName = $"{NeonHelper.NeonMetricsPrefix}_log_events_total";
 
             logCounter = Metrics.CreateCounter(counterName, "Logged event count.", "level" );
 

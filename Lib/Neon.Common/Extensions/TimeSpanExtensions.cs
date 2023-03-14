@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------------
 // FILE:	    TimeSpanExtensions.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -58,6 +58,28 @@ namespace Neon.Common
                 var minTimespan = DateTime.MinValue - dateTime;
 
                 return timespan >= minTimespan ? timespan : minTimespan;
+            }
+        }
+
+        /// <summary>
+        /// Rounds positive values up to the nearest second and negative
+        /// values down to the nearest second.
+        /// </summary>
+        /// <param name="value">The input value.</param>
+        /// <returns>The outpot value rounded to seconds.</returns>
+        public static TimeSpan RoundToSeconds(this TimeSpan value)
+        {
+            if (value > TimeSpan.Zero)
+            {
+                return TimeSpan.FromSeconds(Math.Ceiling(value.TotalSeconds));
+            }
+            else if (value < TimeSpan.Zero)
+            {
+                return TimeSpan.FromSeconds(Math.Floor(value.TotalSeconds));
+            }
+            else
+            {
+                return value;
             }
         }
     }

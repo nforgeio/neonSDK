@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------------
 // FILE:	    DataWrapper.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -253,7 +253,7 @@ namespace TestModelGen
         /// Calls the data model's <b>__Load()</b> method.
         /// </summary>
         /// <param name="source">The optional source <see cref="JObject"/>.</param>
-        /// <param name="isDerived">Optionally indicates that were deserializing a derived class..</param>
+        /// <param name="isDerived">Optionally indicates that were deserializing a derived class.</param>
         public void Load(JObject source = null, bool isDerived = false)
         {
             try

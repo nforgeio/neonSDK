@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 // FILE:	    OutboundHttpMetrics.cs
 // CONTRIBUTOR: Marcus Bowyer
-// COPYRIGHT:   Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,12 +29,12 @@ namespace NeonBlazorProxy
         private static readonly double CUBE_ROOT_10 = Math.Pow(10, (1.0 / 3));
 
         private static readonly Counter _outboundRequestsStarted = Metrics.CreateCounter(
-            "neonblazorproxy_outbound_http_requests_started",
+            "neonblazorproxy_outbound_http_requests_started_total",
             "Number of outbound requests inititated by the proxy"
             );
 
         private static readonly Counter _outboundRequestsFailed = Metrics.CreateCounter(
-            "neonblazorproxy_outbound_http_requests_failed",
+            "neonblazorproxy_outbound_http_requests_failed_total",
             "Number of outbound requests failed"
             );
 
@@ -54,7 +54,7 @@ namespace NeonBlazorProxy
             );
 
         private static readonly Histogram _outboundHttp11RequestQueueDuration= Metrics.CreateHistogram(
-            "neonblazorproxy_outbound_http11_request_queue_duration",
+            "neonblazorproxy_outbound_http11_request_queue_duration_seconds",
             "Average time spent on queue for HTTP 1.1 requests that hit the MaxConnectionsPerServer limit in the last metrics interval",
             new HistogramConfiguration
             {
@@ -62,7 +62,7 @@ namespace NeonBlazorProxy
             });
 
         private static readonly Histogram _outboundHttp20RequestQueueDuration = Metrics.CreateHistogram(
-            "neonblazorproxy_outbound_http20_request_queue_duration",
+            "neonblazorproxy_outbound_http20_request_queue_duration_seconds",
             "Average time spent on queue for HTTP 2.0 requests that hit the MAX_CONCURRENT_STREAMS limit on the connection in the last metrics interval",
             new HistogramConfiguration
             {

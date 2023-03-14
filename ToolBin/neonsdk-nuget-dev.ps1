@@ -2,7 +2,7 @@
 #------------------------------------------------------------------------------
 # FILE:         neonsdk-nuget-dev.ps1
 # CONTRIBUTOR:  Jeff Lill
-# COPYRIGHT:    Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+# COPYRIGHT:    Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -40,6 +40,10 @@
 # instead, which is simply the C:\nc-nuget-local folder.  This will be much 
 # faster and will reduce the accumulation of packages in our private feed.
 # Use the [-local] option for this.
+#
+# NOTE: The script writes the package publication version to:
+#
+#           $/build/nuget/version.txt
 #
 # EMERGENCY USE:
 # 
@@ -111,10 +115,6 @@ if (!(Test-Path env:NC_ROOT))
 
     return 1
 }
-
-# This needs to run with elevated privileges.
-
-Request-AdminPermissions
 
 # We're going to build the DEBUG configuration by default for DEV packages so debugging will be easier.
 
@@ -228,24 +228,6 @@ try
     $nfSolution  = "$nfRoot\neonSDK.sln"
     $branch      = GitBranch $nfRoot
 
-    ############################################
-    # $todo(jefflill): Remove this on 12-01-2022
-    #
-    # This ensures that any [$/ToolBin/nuget.config] file is removed.
-    # This file may include a GITHUB_PAT token and shouldn't ever be 
-    # the in the repo due to security concerns.
-    #
-    # We can also remove this file from [.gitignore] at the same time.
-
-    $nugetConfigPath = "$nkRoot/ToolBin/nuget.config"
-
-    if ([System.IO.File]::Exists($nugetConfigPath))
-    {
-        [System.IO.File]::Delete($nugetConfigPath)
-    }
-
-    ###########################################
-
     if ($localVersion)
     {
         $local = $true
@@ -284,11 +266,6 @@ try
         $version++
         [System.IO.File]::WriteAllText($nfVersionPath, $version)
         $neonSdkVersion = "10000.0.$version-dev-$branch"
-
-        $version = [int](Get-Content -TotalCount 1 $nfVersionPath).Trim()
-        $version++
-        [System.IO.File]::WriteAllText($nfVersionPath, $version)
-        $neonkubeVersion = "10000.0.$version-dev-$branch"
     }
     else
     {
@@ -312,21 +289,25 @@ try
         $versionerKey    = Get-SecretValue "NUGET_VERSIONER_KEY" "group-devops"
         $nugetFeedName   = "nc-nuget-devfeed"
         $nugetFeedSource = "https://nuget.pkg.github.com/nforgeio/index.json"
-        $nugetFeedApiKey = Get-SecretPassword "GITHUB_PAT" user-$env:NC_USER
+        $nugetFeedApiKey = Get-SecretPassword "GITHUB[accesstoken]" user-$env:NC_USER
 
         # Get the nuget versioner API key from the environment and convert it into a base-64 string.
 
         $versionerKeyBase64 = [Convert]::ToBase64String(([System.Text.Encoding]::UTF8.GetBytes($versionerKey)))
 
-        # Submit PUTs request to the versioner service, specifying the counter name.  The service will
+        # Submit PUT requests to the versioner service, specifying the counter name.  The service will
         # atomically increment the counter and return the next value.
 
         $reply           = Invoke-WebRequest -Uri "$env:NC_NUGET_VERSIONER/counter/neonSDK-dev" -Method 'PUT' -Headers @{ 'Authorization' = "Bearer $versionerKeyBase64" } 
         $neonSdkVersion  = "10000.0.$reply-dev-$branch"
-
-        $reply           = Invoke-WebRequest -Uri "$env:NC_NUGET_VERSIONER/counter/neonKUBE-dev" -Method 'PUT' -Headers @{ 'Authorization' = "Bearer $versionerKeyBase64" } 
-        $neonkubeVersion = "10000.0.$reply-dev-$branch"
     }
+
+    #------------------------------------------------------------------------------
+    # Save the publish version to [$/build/nuget/version.text] so release tools can
+    # determine the current release.
+
+    [System.IO.Directory]::CreateDirectory("$nfRoot\build\nuget") | Out-Null
+    [System.IO.File]::WriteAllText("$nfRoot\build\nuget\version.txt", $neonSdkVersion)
 
     #------------------------------------------------------------------------------
     # SourceLink configuration: We need to decide whether to set the environment variable 
@@ -341,18 +322,19 @@ try
 
     $env:NEON_PUBLIC_SOURCELINK = "true"
 
+    #------------------------------------------------------------------------------
+    # We need to do a solution build to ensure that any tools or other dependencies 
+    # are built before we build and publish the individual packages.
+
     if (-not $restore)
     {
-        # We need to do a solution build to ensure that any tools or other dependencies 
-        # are built before we build and publish the individual packages.
-
         Write-Info ""
         Write-Info "********************************************************************************"
         Write-Info "***                           RESTORE PACKAGES                               ***"
         Write-Info "********************************************************************************"
         Write-Info ""
 
-        & "$msbuild" "$nfSolution" -t:restore -verbosity:quiet
+        & dotnet restore "$nfSolution"
 
         if (-not $?)
         {
@@ -385,20 +367,20 @@ try
             throw "ERROR: BUILD FAILED"
         }
 
-        # We need to set the version first in all of the project files so that
-        # implicit package dependencies will work for external projects importing
-        # these packages.
+        #----------------------------------------------------------------------
+        # We need to set the version in all of the project files so that implicit 
+        # package dependencies will work for external projects importing these 
+        # packages.
 
         SetVersion Neon.Blazor                      $neonSdkVersion
         SetVersion Neon.BuildInfo                   $neonSdkVersion
-        SetVersion Neon.Cadence                     $neonSdkVersion
         SetVersion Neon.Cassandra                   $neonSdkVersion
         SetVersion Neon.Common                      $neonSdkVersion
-        SetVersion Neon.Couchbase                   $neonSdkVersion
         SetVersion Neon.Cryptography                $neonSdkVersion
         SetVersion Neon.CSharp                      $neonSdkVersion
         SetVersion Neon.Deployment                  $neonSdkVersion
         SetVersion Neon.Docker                      $neonSdkVersion
+        SetVersion Neon.GitHub                      $neonSdkVersion
         SetVersion Neon.JsonConverters              $neonSdkVersion
         SetVersion Neon.HyperV                      $neonSdkVersion
         SetVersion Neon.Service                     $neonSdkVersion
@@ -413,8 +395,6 @@ try
         SetVersion Neon.WSL                         $neonSdkVersion
         SetVersion Neon.XenServer                   $neonSdkVersion
         SetVersion Neon.Xunit                       $neonSdkVersion
-        SetVersion Neon.Xunit.Cadence               $neonSdkVersion
-        SetVersion Neon.Xunit.Couchbase             $neonSdkVersion
         SetVersion Neon.Xunit.YugaByte              $neonSdkVersion
         SetVersion Neon.YugaByte                    $neonSdkVersion
 
@@ -422,14 +402,13 @@ try
 
         Publish Neon.Blazor                         $neonSdkVersion
         Publish Neon.BuildInfo                      $neonSdkVersion
-        Publish Neon.Cadence                        $neonSdkVersion
         Publish Neon.Cassandra                      $neonSdkVersion
         Publish Neon.Common                         $neonSdkVersion
-        Publish Neon.Couchbase                      $neonSdkVersion
         Publish Neon.Cryptography                   $neonSdkVersion
         Publish Neon.CSharp                         $neonSdkVersion
         Publish Neon.Deployment                     $neonSdkVersion
         Publish Neon.Docker                         $neonSdkVersion
+        Publish Neon.GitHub                         $neonSdkVersion
         Publish Neon.JsonConverters                 $neonSdkVersion
         Publish Neon.HyperV                         $neonSdkVersion
         Publish Neon.Service                        $neonSdkVersion
@@ -444,8 +423,6 @@ try
         Publish Neon.WSL                            $neonSdkVersion
         Publish Neon.XenServer                      $neonSdkVersion
         Publish Neon.Xunit                          $neonSdkVersion
-        Publish Neon.Xunit.Cadence                  $neonSdkVersion
-        Publish Neon.Xunit.Couchbase                $neonSdkVersion
         Publish Neon.Xunit.YugaByte                 $neonSdkVersion
         Publish Neon.YugaByte                       $neonSdkVersion
     }
@@ -455,14 +432,13 @@ try
 
     RestoreVersion Neon.Blazor
     RestoreVersion Neon.BuildInfo
-    RestoreVersion Neon.Cadence
     RestoreVersion Neon.Cassandra
     RestoreVersion Neon.Common
-    RestoreVersion Neon.Couchbase
     RestoreVersion Neon.Cryptography
     RestoreVersion Neon.CSharp
     RestoreVersion Neon.Deployment
     RestoreVersion Neon.Docker
+    RestoreVersion Neon.GitHub
     RestoreVersion Neon.JsonConverters
     RestoreVersion Neon.HyperV
     RestoreVersion Neon.Service
@@ -477,14 +453,12 @@ try
     RestoreVersion Neon.WSL
     RestoreVersion Neon.XenServer
     RestoreVersion Neon.Xunit
-    RestoreVersion Neon.Xunit.Cadence
-    RestoreVersion Neon.Xunit.Couchbase
     RestoreVersion Neon.Xunit.YugaByte
     RestoreVersion Neon.YugaByte
 
     # Remove all of the generated nuget files so these don't accumulate.
 
-    Remove-Item "$env:NF_BUILD\nuget\*"
+    Remove-Item "$env:NF_BUILD\nuget\*.nupkg"
 
     ""
     "** Package publication completed"

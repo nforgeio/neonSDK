@@ -33,15 +33,19 @@ pushd "%NF_ROOT%\.."
 set NF_REPOS=%cd%
 popd 
 
-REM Some scripts need to know the developer's GitHub username:
+REM We need to capture the user's GitHub username and email address:
 
 echo.
-set /p GITHUB_USER="Enter your GitHub username: "
+set /p GITHUB_USERNAME="Enter your GitHub username: "
+
+echo.
+set /p GITHUB_EMAIL="Enter the email to be included in GitHub commits: "
 
 REM Ask the developer if they're a maintainer and set NF_MAINTAINER if they say yes.
 
 :maintainerPrompt
 
+echo.
 set /P "IS_MAINTAINER=Are you a NEONFORGE maintainer? (y/n): "
 
 if "%IS_MAINTAINER%"=="y" (
@@ -62,6 +66,7 @@ if "%IS_MAINTAINER%"=="y" (
 REM Ask maintainers for their NEONFORGE Office 365 username.
 
 if "%NF_MAINTAINER%"=="1" (
+    echo.
     set /p NC_USER="Enter your NEONFORGE Office 365 username: "
     setx NC_USER "%NC_USER%" /M > nul
 )
@@ -70,6 +75,7 @@ REM Ask the developer if they're using preview Visual Studio.
 
 :previewVSPrompt
 
+echo.
 set /P "IS_VS_PREVIEW=Are you a using a PREVIEW version of Visual Studio? (y/n): "
 
 if "%IS_VS_PREVIEW%"=="y" (
@@ -114,7 +120,8 @@ set NEON_CLUSTER_TESTING=1
 
 REM Persist the environment variables.
 
-setx GITHUB_USER "%NEON_GITHUB_USER%" /M          > nul
+setx GITHUB_USERNAME "%GITHUB_USERNAME%" /M       > nul
+setx GITHUB_EMAIL "%GITHUB_EMAIL%" /M             > nul
 setx NF_MAINTAINER "%NF_MAINTAINER%" /M           > nul              
 setx NF_REPOS "%NF_REPOS%" /M                     > nul
 setx NF_ROOT "%NF_ROOT%" /M                       > nul

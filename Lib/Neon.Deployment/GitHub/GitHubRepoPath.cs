@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------------
 // FILE:	    GitHubRepoPath.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ namespace Neon.Deployment
         /// <summary>
         /// Parses a GitHub repository path.
         /// </summary>
-        /// <param name="path">The path, like: <b>[SERVER]/OWNER/REPO</b></param>
+        /// <param name="path">The path, like: <b>[SERVER/]OWNER/REPO</b></param>
         /// <returns>The parsed <see cref="GitHubRepoPath"/>.</returns>
         /// <exception cref="FormatException">Thrown when the input is invalid.</exception>
         /// <remarks>
@@ -57,7 +57,7 @@ namespace Neon.Deployment
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(path), nameof(path));
 
-            var parts    = path.Split('/');
+            var parts = path.Split('/');
 
             foreach (var part in parts)
             {

@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------------
 // FILE:	    Program.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -56,12 +56,15 @@ namespace GHTool
 NOTE: Command line arguments and options may include references to 
       profile values, secrets and environment variables, like:
 
-      $<profile:NAME>                   - profile value
-      $<secret:NAME>                    - ""password"" property value of NAME secret
-      $<secret:NAME:SOURCE>             - ""password""  property value of NAME secret at SOURCE
-      $<secret:NAME[PROPERTY]           - PROPERTY value from NAME secret
-      $<secret:NAME[PROPERTY]:SOURCE>   - PROPERTY value from NAME secret at SOURCE
-      $<env:NAME>                       - environment variable
+      ${{profile:NAME}}                   - profile value
+      ${{secret:NAME}}                    - ""password"" property value of NAME secret
+      ${{secret:NAME:SOURCE}}             - ""password""  property value of NAME secret at SOURCE
+      ${{secret:NAME[PROPERTY}}           - PROPERTY value from NAME secret
+      ${{secret:NAME[PROPERTY]:SOURCE}}   - PROPERTY value from NAME secret at SOURCE
+      ${{env:NAME}}                       - environment variable
+
+      For Linux, you'll need to surround these references with single quotes
+      to prevent Bash from interpreting them as Bash variable references.
 
 USAGE:
 
@@ -82,7 +85,7 @@ COMMANDS:
                 //
                 // This is required by: CommandLine.Preprocess()
 
-                NeonHelper.ServiceContainer.AddSingleton<IProfileClient>(new ProfileClient());
+                NeonHelper.ServiceContainer.AddSingleton<IProfileClient>(new MaintainerProfile());
 
                 CommandLine = new CommandLine(args).Preprocess();
 
@@ -177,7 +180,7 @@ COMMANDS:
                                 commandWords += word;
                             }
 
-                            Console.Error.WriteLine($"*** ERROR: [{commandWords}] command does not support [{option.Key}].");
+                            Console.Error.WriteLine($"*** ERROR: [{commandWords}] command does not support the [{option.Key}] option.");
                             Program.Exit(1);
                         }
                     }
@@ -305,9 +308,9 @@ COMMANDS:
                     return cachedGithubToken;
                 }
 
-                var profileClient = new ProfileClient();
+                var profileClient = new MaintainerProfile();
 
-                return cachedGithubToken = profileClient.GetSecretPassword("GITHUB_PAT");
+                return cachedGithubToken = profileClient.GetSecretPassword("GITHUB[accesstoken]");
             }
         }
     }

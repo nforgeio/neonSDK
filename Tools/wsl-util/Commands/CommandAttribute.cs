@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------------
 // FILE:	    CommandAttribute.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ using System;
 namespace WslUtil
 {
     /// <summary>
-    /// Used to tag a <see cref="ICommand"/> for automatic inclusion in a program.
+    /// Used to tag an <see cref="ICommand"/> for automatic inclusion in a program.
     /// </summary>
     public class CommandAttribute : Attribute
     {

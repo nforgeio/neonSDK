@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------------
 // FILE:        AsyncTimer.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -149,7 +149,7 @@ namespace Neon.Tasks
         /// <summary>
         /// Ensures that the instance is not disposed.
         /// </summary>
-        /// <exception cref="ObjectDisposedException">Thrown then the instance is disposed.</exception>
+        /// <exception cref="ObjectDisposedException">Thrown when the instance is disposed.</exception>
         private void CheckDisposed()
         {
             if (isDisposed)
@@ -189,7 +189,7 @@ namespace Neon.Tasks
         /// <c>null</c> and no callback was specified in constructor or a previous call to 
         /// <see cref="Start(TimeSpan, bool, Func{Task})"/>.
         /// </exception>
-        /// <exception cref="ObjectDisposedException">Thrown then the instance is disposed.</exception>
+        /// <exception cref="ObjectDisposedException">Thrown when the instance is disposed.</exception>
         public void Start(TimeSpan interval = default, bool delayFirstTick = false, Func<Task> callback = null)
         {
             Covenant.Requires<ArgumentException>(interval >= TimeSpan.Zero, nameof(interval));
@@ -253,7 +253,7 @@ namespace Neon.Tasks
         /// <summary>
         /// Stops the timer.
         /// </summary>
-        /// <exception cref="ObjectDisposedException">Thrown then the instance is disposed.</exception>
+        /// <exception cref="ObjectDisposedException">Thrown when the instance is disposed.</exception>
         public void Stop()
         {
             lock (syncLock)

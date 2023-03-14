@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------------
 // FILE:	    VirtualMachine.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -37,6 +37,16 @@ namespace Neon.HyperV
         /// The machine name.
         /// </summary>
         public string Name { get; set; }
+
+        /// <summary>
+        /// The number of virtual processors.
+        /// </summary>
+        public int ProcessorCount { get; set; }
+
+        /// <summary>
+        /// The memory size in bytes.
+        /// </summary>
+        public long MemorySizeBytes { get; set; }
 
         /// <summary>
         /// The current machine state.

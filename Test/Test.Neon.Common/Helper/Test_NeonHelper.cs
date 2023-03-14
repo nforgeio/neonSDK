@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------------
 // FILE:	    Test_NeonHelper.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,19 +38,19 @@ namespace TestCommon
         [Fact]
         public void FrameworkVersionTest()
         {
-#if TARGET_NETCORE_3_1
-            var checkVersion = SemanticVersion.Parse("3.0");
-#elif TARGET_NETCORE_5_0
-            var checkVersion = SemanticVersion.Parse("5.0");
-#elif TARGET_NETCORE_6_0
-            var checkVersion = SemanticVersion.Parse("6.0");
-#elif TARGET_NETCORE_7_0
+#if NET7_0_OR_GREATER
             var checkVersion = SemanticVersion.Parse("7.0");
+#elif NET6_0_OR_GREATER
+            var checkVersion = SemanticVersion.Parse("6.0");
+#elif NET5_0_OR_GREATER
+            var checkVersion = SemanticVersion.Parse("5.0");
+#elif TARGET_NETCORE_3_1
+            var checkVersion = SemanticVersion.Parse("3.0");
 #else
             var checkVersion = SemanticVersion.Parse("4.8");
 #endif
-
-            Assert.Equal(checkVersion, NeonHelper.FrameworkVersion);
+            Assert.Equal(checkVersion.Major, NeonHelper.FrameworkVersion.Major);
+            Assert.Equal(checkVersion.Minor, NeonHelper.FrameworkVersion.Minor);
         }
 
         [Fact]

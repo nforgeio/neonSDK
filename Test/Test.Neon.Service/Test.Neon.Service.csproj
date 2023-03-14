@@ -2,8 +2,9 @@
 
 	<PropertyGroup>
 		<TargetFrameworks>net6.0; net7.0</TargetFrameworks>
-		<IsPackable>false</IsPackable>
+		<OutputType>Library</OutputType>
 		<RootNamespace>TestNeonService</RootNamespace>
+		<IsPackable>false</IsPackable>
 		<Configurations>Debug;Release</Configurations>
 		<GenerateDocumentationFile>false</GenerateDocumentationFile>
 		<NoWarn>$(NoWarn);CS0436</NoWarn>
@@ -27,14 +28,14 @@
 	<ItemGroup>
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 		<PackageReference Include="LiquidTestReports.Markdown" Version="1.1.1-beta" />
-		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.2" />
-		<PackageReference Include="prometheus-net.DotNetRuntime" Version="4.2.4" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0" />
+		<PackageReference Include="prometheus-net.DotNetRuntime" Version="4.4.0" />
 		<PackageReference Include="xunit" Version="2.4.2" />
 		<PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="coverlet.collector" Version="3.1.2">
+		<PackageReference Include="coverlet.collector" Version="3.2.0">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>

@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------------
 // FILE:	    Test_XenClient.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -70,11 +70,11 @@ namespace Test.Neon.XenServer
 
             try
             {
-                var profileClient = new ProfileClient();
+                var profileClient = new MaintainerProfile();
 
-                hostAddress  = profileClient.GetProfileValue(name: "xen-test.ip");
-                hostUsername = profileClient.GetSecretValue(name: "xenserver[username]", vault: "group-devops");
-                hostPassword = profileClient.GetSecretValue(name: "xenserver[password]", vault: "group-devops");
+                hostAddress  = profileClient.GetProfileValue(name: "xen-test.host");
+                hostUsername = profileClient.GetSecretValue(name: "xenserver_login[username]", vault: "group-devops");
+                hostPassword = profileClient.GetSecretValue(name: "xenserver_login[password]", vault: "group-devops");
             }
             finally
             {

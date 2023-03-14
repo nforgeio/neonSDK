@@ -16,3 +16,11 @@ export function isMobile() {
 export function blazorDispatchEvent(eventName) {
     dataLayer.push({ 'event': eventName })
 };
+
+export function triggerFileDownload(url, fileName) {
+    const anchorElement = document.createElement('a');
+    anchorElement.href = url;
+    anchorElement.download = fileName ?? '';
+    anchorElement.click();
+    anchorElement.remove();
+}

@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------------
 // FILE:        SyncContext.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -102,7 +102,7 @@ namespace Neon.Tasks
     /// code won't run on the UI thread either.
     /// </para>
     /// <code language="C#">
-    /// using Neon.Task;
+    /// using Neon.Tasks;
     /// 
     /// public async Task&lt;string&gt; HelloAsync()
     /// {
@@ -169,7 +169,7 @@ namespace Neon.Tasks
         /// look something like:
         /// </para>
         /// <code language="C#">
-        /// using Neon.Task;
+        /// using Neon.Tasks;
         /// 
         /// public async Task&lt;string&gt; HelloAsync()
         /// {

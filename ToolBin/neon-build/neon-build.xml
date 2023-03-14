@@ -42,6 +42,20 @@
             </summary>
             <param name="commandLine">The command line.</param>
         </member>
+        <member name="M:NeonBuild.Program.DotnetVersion(Neon.Common.CommandLine)">
+            <summary>
+            <para>
+            Calls <b>dotnet --info</b> with the working directory holding the <b>global.json</b> 
+            file specified on the command line and parses the .NET SDK version (like "7.0.102")
+            as well as the .NET runtime version (like "7.0.2").
+            </para>
+            <para>
+            The command writes the SDK version to the first output line and the corresponding
+            runtime version to the second line.
+            </para>
+            </summary>
+            <param name="commandLine">The command line.</param>
+        </member>
         <member name="M:NeonBuild.Program.Download(Neon.Common.CommandLine)">
             <summary>
             Implements the <b>download</b> command.
@@ -96,7 +110,7 @@
         </member>
         <member name="M:NeonBuild.Program.ReadVersion(Neon.Common.CommandLine)">
             <summary>
-            Reads named version constant from a C# source file and writes it to SDTOUT.
+            Reads named version constant from a C# source file and writes it to STDOUT.
             </summary>
             <param name="commandLine">The command line.</param>
         </member>

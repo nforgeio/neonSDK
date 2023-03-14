@@ -3,8 +3,8 @@
 	<PropertyGroup>
 		<TargetFramework>net7.0</TargetFramework>
 		<OutputType>Exe</OutputType>
-		<IsPackable>false</IsPackable>
 		<RootNamespace>TestApiService</RootNamespace>
+		<IsPackable>false</IsPackable>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -21,7 +21,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="prometheus-net.AspNetCore" Version="6.0.0" />
+	  <PackageReference Include="prometheus-net.AspNetCore" Version="8.0.0" />
 	</ItemGroup>
 
 </Project>

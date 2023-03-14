@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<OutputType>Exe</OutputType>
 		<TargetFramework>net7.0</TargetFramework>
+		<OutputType>Exe</OutputType>
 		<RootNamespace>UnixText</RootNamespace>
 		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
 		<Configurations>Debug;Release</Configurations>
@@ -10,6 +10,13 @@
 		<SelfContained>false</SelfContained>
 		<PublishSingleFile>false</PublishSingleFile>
 		<PublishTrimmed>false</PublishTrimmed>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<PublishSingleFile>false</PublishSingleFile>
+		<SelfContained>true</SelfContained>
+		<PublishTrimmed>false</PublishTrimmed>
+		<PublishReadyToRun>true</PublishReadyToRun>
 	</PropertyGroup>
 
 	<ItemGroup>

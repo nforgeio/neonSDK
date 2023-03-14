@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------------
 // FILE:        SubStream.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -28,20 +28,20 @@ namespace Neon.IO
 {
     /// <summary>
     /// <para>
-    /// Implements a <see cref="Stream"/> that operates on a section of a parent stream.
-    /// The parent stream must be able to <see cref="Stream.CanSeek"/>.
+    /// Implements a <see cref="Stream"/> that operates on a section of a base stream.
+    /// The base stream must be able to <see cref="Stream.CanSeek"/>.
     /// </para>
     /// <note>
-    /// <b>WARNING:</b> Multi-threading operations simultaniously against the parent and substream 
-    /// is not supported and is likely to result in data corruption.
+    /// Thread safety: multiple <see cref="SubStream"/> instances can perform operations on the
+    /// same underlying stream on differents because substreams obtain a lock on the base stream
+    /// before actually performing any I/O operations.
+    /// </note>
+    /// <note>
+    /// <b>WARNING:</b> Avoid performing operations on the underlying stream and any substreams
+    /// within different threads.  This will likey result in unexpected data corruption.
     /// </note>
     /// </summary>
     /// <remarks>
-    /// <para>
-    /// The <see cref="SubStream"/> instances save the position of the parent stream when constructed
-    /// and restore the parent position when disposed.  The current position of the substream will be
-    /// set to the first byte of the substream data.
-    /// </para>
     /// <note>
     /// This class doesn't currently implement all of the <see cref="Stream"/> methods, especially 
     /// asynchronous methods.  This is something we may add in the future.
@@ -49,39 +49,39 @@ namespace Neon.IO
     /// </remarks>
     public class SubStream : Stream
     {
-        private Stream      parent;
-        private long        start;          // Starting position of the substream data within the parent stream
+        private Stream      baseStream;
+        private long        start;          // Starting position of the substream data within the base stream
         private long        length;         // Length of the subsection
         private long        position;       // Current position relative to the substream data
-        private long        orgParentPos;   // Original parent position (restored when this is disposed)
+        private long        orgBasePos;     // Original base position (restored when this is disposed)
 
         /// <summary>
-        /// Constructs a substream that operates on a range of bytes within a parent stream.
+        /// Constructs a substream that operates on a range of bytes within a base stream.
         /// </summary>
-        /// <param name="parent">The parent stream.</param>
-        /// <param name="start">The zero-based index of the first byte within the parent stream to be managed by the substream.</param>
+        /// <param name="baseStream">The base stream.</param>
+        /// <param name="start">The zero-based index of the first byte within the base stream to be managed by the substream.</param>
         /// <param name="length">The number of bytes to be managed.</param>
-        /// <exception cref="IOException">Thrown if the parent stream doesn't support seek or the starting position or length is invalid.</exception>
-        public SubStream(Stream parent, long start, long length)
+        /// <exception cref="IOException">Thrown if the base stream doesn't support seek or the starting position or length is invalid.</exception>
+        public SubStream(Stream baseStream, long start, long length)
         {
-            Covenant.Requires<ArgumentNullException>(parent != null, nameof(parent));
-            Covenant.Requires<IOException>(parent.CanSeek, nameof(parent), "Parent stream must support seek.");
+            Covenant.Requires<ArgumentNullException>(baseStream != null, nameof(baseStream));
+            Covenant.Requires<IOException>(baseStream.CanSeek, nameof(baseStream), "Base stream must support seek.");
             Covenant.Requires<IOException>(start >= 0, nameof(start), $"[start={start}] must be >= 0");
-            Covenant.Requires<IOException>(start <= parent.Length, nameof(start), $"[start={start}] is beyond the parent stream's EOF.");
+            Covenant.Requires<IOException>(start <= baseStream.Length, nameof(start), $"[start={start}] is beyond the base stream's EOF.");
             Covenant.Requires<IOException>(length >= 0, nameof(length), $"[start={length}] must be >= 0");
-            Covenant.Requires<IOException>(start + length <= parent.Length, nameof(length), $"[start+length={start + length}] is beyond the parent stream's EOF.");
+            Covenant.Requires<IOException>(start + length <= baseStream.Length, nameof(length), $"[start+length={start + length}] is beyond the base stream's EOF.");
 
-            this.parent       = parent;
+            this.baseStream       = baseStream;
             this.start        = start;
             this.length       = length;
             this.position     = 0;
-            this.orgParentPos = parent.Position;
+            this.orgBasePos = baseStream.Position;
         }
 
         /// <inheritdoc/>
         protected override void Dispose(bool disposing)
         {
-            parent.Position = orgParentPos;
+            baseStream.Position = orgBasePos;
 
             base.Dispose(disposing);
         }
@@ -107,58 +107,64 @@ namespace Neon.IO
         }
 
         /// <summary>
-        /// Saves the parent stream position, sets the parent position to match the
+        /// Saves the base stream position, sets the base position to match the
         /// virtual substream position, executes the operation and then restores the
-        /// parent stream position.
+        /// base stream position.
         /// </summary>
         /// <param name="operation">The operation to be performed.</param>
         private void Execute(Action operation)
         {
-            var parentPos = parent.Position;
-
-            try
+            lock (baseStream)
             {
-                parent.Position = start + position;
+                var basePos = baseStream.Position;
 
-                operation();
-            }
-            finally
-            {
-                parent.Position = parentPos;
+                try
+                {
+                    baseStream.Position = start + position;
+
+                    operation();
+                }
+                finally
+                {
+                    baseStream.Position = basePos;
+                }
             }
         }
 
         /// <summary>
-        /// Saves the parent stream position, sets the parent position to match the
+        /// Saves the base stream position, sets the base position to match the
         /// virtual substream position, executes the operation and then restores the
-        /// parent stream position.
+        /// base stream position.
         /// </summary>
         /// <param name="operation">The operation to be performed.</param>
         /// <returns>The operation result.</returns>
         private int ExecuteInt(Func<int> operation)
         {
-            var parentPos = parent.Position;
+            lock (baseStream)
+            {
+                var basePos = baseStream.Position;
 
-            try
-            {
-                parent.Position = start + position;
-                
-                return operation();
-            }
-            finally
-            {
-                parent.Position = parentPos;
+                try
+                {
+                    baseStream.Position = start + position;
+
+                    return operation();
+                }
+                finally
+                {
+                    baseStream.Position = basePos;
+                }
             }
         }
 
         /// <inheritdoc/>
-        public override bool CanRead => parent.CanRead;
+        public override bool CanRead => baseStream.CanRead;
 
         /// <inheritdoc/>
-        public override bool CanSeek => parent.CanSeek;
+        public override bool CanSeek => baseStream.CanSeek;
 
         /// <inheritdoc/>
-        public override bool CanWrite => parent.CanWrite;
+        public override bool CanWrite => baseStream.CanWrite;
 
         /// <inheritdoc/>
         public override long Length => this.length;
@@ -171,15 +177,14 @@ namespace Neon.IO
             set
             {
                 EnsurePosition("SEEK", value);
-                this.position   = value;
-                parent.Position = start + value;
+                this.position = value;
             }
         }
 
         /// <inheritdoc/>
         public override void Flush()
         {
-            parent.Flush();
+            baseStream.Flush();
         }
 
         /// <inheritdoc/>
@@ -190,7 +195,7 @@ namespace Neon.IO
                 {
                     var cb = Math.Min(count, (int)(length - Position));
 
-                    parent.Read(buffer, offset, cb);
+                    baseStream.Read(buffer, offset, cb);
                     Position += cb;
 
                     return cb;
@@ -234,7 +239,7 @@ namespace Neon.IO
             Execute(
                 () =>
                 {
-                    parent.Write(buffer, offset, count);
+                    baseStream.Write(buffer, offset, count);
                     Position += count;
                 });
         }
@@ -250,7 +255,7 @@ namespace Neon.IO
             return ExecuteInt(
                 () =>
                 {
-                    var result = parent.ReadByte();
+                    var result = baseStream.ReadByte();
 
                     Position += 1;
 
@@ -267,7 +272,7 @@ namespace Neon.IO
             Execute(
                 () =>
                 {
-                    parent.WriteByte(value);
+                    baseStream.WriteByte(value);
                     Position += 1;
                 });
         }

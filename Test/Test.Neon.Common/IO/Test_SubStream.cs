@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------------
 // FILE:	    Test_SubStream.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -238,7 +238,7 @@ namespace TestCommon
                 }
 
                 parent.Position = 0;
-                
+
                 var buffer = parent.ReadBytes(10);
 
                 Assert.Equal(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }, buffer);
@@ -515,7 +515,7 @@ namespace TestCommon
         [Fact]
         public void Length()
         {
-            // Verify substring length when it spans the entire parent.
+            // Verify substream length when it spans the entire parent.
 
             using (var parent = new MemoryStream())
             {
@@ -527,7 +527,7 @@ namespace TestCommon
                 }
             }
 
-            // Verify substring length when it is fully cointained within the parent.
+            // Verify substream length when it is fully cointained within the parent.
 
             using (var parent = new MemoryStream())
             {
@@ -543,7 +543,7 @@ namespace TestCommon
         [Fact]
         public void Dispose()
         {
-            // Verify that substring dispose restores the parent stream position.
+            // Verify that substream dispose restores the parent stream position.
 
             using (var parent = new MemoryStream())
             {
@@ -556,6 +556,178 @@ namespace TestCommon
                 }
 
                 Assert.Equal(5, parent.Position);
+            }
+        }
+
+        [Fact]
+        public void CopyTo()
+        {
+            // Verify that CopyTo() works for a substream.
+
+            using (var parent = new MemoryStream())
+            {
+                parent.Write(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 });
+                parent.Position = 5;
+
+                using (var substream = new SubStream(parent, 2, 5))
+                {
+                    using (var ms = new MemoryStream())
+                    {
+                        substream.CopyTo(ms);
+
+                        Assert.Equal(5, ms.Length);
+                        Assert.Equal(new byte[] { 2, 3, 4, 5, 6 }, ms.ToArray());
+                    }
+                }
+
+                Assert.Equal(5, parent.Position);
+            }
+        }
+
+        [Fact]
+        public async Task MultiThread()
+        {
+            // Divide a 100 byte stream into 4 non-overlapping substreams of
+            // 25 bytes each and then have 4 threads party on this for a while
+            // and then verify that the underlying data is still intact.
+
+            // $todo(jefflill): These tests are not comprehensive.
+
+            var buffer = new byte[100];
+
+            for (int i = 0; i < buffer.Length; i++)
+            {
+                buffer[i] = (byte)i;
+            }
+
+            using (var ms = new MemoryStream(buffer))
+            {
+                var substream0 = new SubStream(ms, 0, 25);
+                var substream1 = new SubStream(ms, 25, 25);
+                var substream2 = new SubStream(ms, 50, 25);
+                var substream3 = new SubStream(ms, 75, 25);
+
+                try
+                {
+                    var tasks = new List<Task>();
+                    var exit  = false;
+
+                    tasks.Add(Task.Run(
+                        () =>
+                        {
+                            const int firstByte = 0;
+
+                            var substream = substream0;
+
+                            while (!exit)
+                            {
+                                for (int i = 0; i < 25; i++)
+                                {
+                                    substream.Position = i;
+                                    Assert.Equal(firstByte + i, substream.ReadByte());
+                                    Assert.Equal(i + 1, substream.Position);
+                                }
+
+                                for (int i = 0; i < 25; i++)
+                                {
+                                    substream.Position = i;
+                                    substream.WriteByte((byte)(firstByte + i));
+                                    Assert.Equal(i + 1, substream.Position);
+                                }
+                            }
+                        }));
+
+                    tasks.Add(Task.Run(
+                        () =>
+                        {
+                            const int firstByte = 25;
+
+                            var substream = substream1;
+
+                            while (!exit)
+                            {
+                                for (int i = 0; i < 25; i++)
+                                {
+                                    substream.Position = i;
+                                    Assert.Equal(firstByte + i, substream.ReadByte());
+                                    Assert.Equal(i + 1, substream.Position);
+                                }
+
+                                for (int i = 0; i < 25; i++)
+                                {
+                                    substream.Position = i;
+                                    substream.WriteByte((byte)(firstByte + i));
+                                    Assert.Equal(i + 1, substream.Position);
+                                }
+                            }
+                        }));
+
+
+                    tasks.Add(Task.Run(
+                        () =>
+                        {
+                            const int firstByte = 50;
+
+                            var substream = substream2;
+
+                            while (!exit)
+                            {
+                                for (int i = 0; i < 25; i++)
+                                {
+                                    substream.Position = i;
+                                    Assert.Equal(firstByte + i, substream.ReadByte());
+                                    Assert.Equal(i + 1, substream.Position);
+                                }
+
+                                for (int i = 0; i < 25; i++)
+                                {
+                                    substream.Position = i;
+                                    substream.WriteByte((byte)(firstByte + i));
+                                    Assert.Equal(i + 1, substream.Position);
+                                }
+                            }
+                        }));
+
+
+                    tasks.Add(Task.Run(
+                        () =>
+                        {
+                            const int firstByte = 75;
+
+                            var substream = substream3;
+
+                            while (!exit)
+                            {
+                                for (int i = 0; i < 25; i++)
+                                {
+                                    substream.Position = i;
+                                    Assert.Equal(firstByte + i, substream.ReadByte());
+                                    Assert.Equal(i + 1, substream.Position);
+                                }
+
+                                for (int i = 0; i < 25; i++)
+                                {
+                                    substream.Position = i;
+                                    substream.WriteByte((byte)(firstByte + i));
+                                    Assert.Equal(i + 1, substream.Position);
+                                }
+                            }
+                        }));
+
+                    await Task.Delay(TimeSpan.FromSeconds(10));
+
+                    exit = true;
+
+                    await NeonHelper.WaitAllAsync(tasks);
+                    Assert.Equal(buffer, ms.ToArray());
+                }
+                finally
+                {
+                    substream0.Dispose();
+                    substream1.Dispose();
+                    substream2.Dispose();
+                    substream3.Dispose();
+                }
             }
         }
     }

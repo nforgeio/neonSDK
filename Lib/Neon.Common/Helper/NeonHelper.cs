@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------------
 // FILE:	    NeonHelper.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -113,6 +113,12 @@ namespace Neon.Common
         public const string DateFormatTZ = "yyyy-MM-ddTHH:mm:ss.fffZ";
 
         /// <summary>
+        /// Returns the date format string used for serialize dates with second
+        /// precision to strings like: <b>2018-06-05T14:30:13Z</b>
+        /// </summary>
+        public const string DateFormatSecondTZ = "yyyy-MM-ddTHH:mm:ssZ";
+
+        /// <summary>
         /// Returns the date format string used for serialize dates with millisecond
         /// precision to strings like: <b>2018-06-05T14:30:13.000+00:00</b>
         /// </summary>
@@ -150,7 +156,7 @@ namespace Neon.Common
         /// <summary>
         /// Returns the prefix to be used for Neon related Prometheus names.
         /// </summary>
-        public const string NeonMetricsPrefix = "neon.";
+        public const string NeonMetricsPrefix = "neonsdk";
 
         /// <summary>
         /// The URI for the public AWS S3 bucket where we persist cluster VM images 
@@ -254,6 +260,11 @@ namespace Neon.Common
         }
 
         /// <summary>
+        /// Returns the default user home.  This is not affected by calls to <see cref="SetUserHomeFolder(string)"/>.
+        /// </summary>
+        public static string DefaultUserHomeFolder { get; private set; } = UserHomeFolder;
+
+        /// <summary>
         /// Returns the path to the current user's HOME folder.
         /// </summary>
         public static string UserHomeFolder
@@ -266,7 +277,7 @@ namespace Neon.Common
                 }
                 else if (NeonHelper.IsLinux || NeonHelper.IsOSX)
                 {
-                    return System.Environment.GetEnvironmentVariable("HOME");
+                    return Environment.GetEnvironmentVariable("HOME");
                 }
                 else
                 {
@@ -274,5 +285,82 @@ namespace Neon.Common
                 }
             }
         }
+
+        /// <summary>
+        /// Sets the appropriate variables for the operating system to
+        /// change the current user's home folder to the specified path.
+        /// </summary>
+        /// <param name="folder">Specifies the new home folder.</param>
+        public static void SetUserHomeFolder(string folder)
+        {
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(folder), nameof(folder));
+
+            if (!Directory.Exists(folder))
+            {
+                throw new DirectoryNotFoundException(folder);
+            }
+
+            if (NeonHelper.IsWindows)
+            {
+                Environment.SetEnvironmentVariable("HOME", folder);
+                Environment.SetEnvironmentVariable("USERPROFILE", folder);
+                Environment.SetEnvironmentVariable("KUBECONFIG", Path.Combine(folder, ".kube", "config"));
+            }
+            else if (NeonHelper.IsLinux || NeonHelper.IsOSX)
+            {
+                Environment.SetEnvironmentVariable("HOME", folder);
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        /// <summary>
+        /// <para>
+        /// Returns the path to the development folder for NEONFORGE developers.  This folder
+        /// is used to hold build and test related files and is named <b>.neondev</b> under
+        /// the current user's home folder.
+        /// </para>
+        /// <para>Related: <see cref="UserNeonDevBuildFolder"/>, <see cref="UserNeonDevTestFolder"/></para>
+        /// <note>
+        /// This property ensures that the folder exists.
+        /// </note>
+        /// </summary>
+        public static string UserNeonDevFolder
+        {
+            get
+            {
+                var path = Path.Combine(UserHomeFolder, ".neondev");
+
+                Directory.CreateDirectory(path);
+
+                return path;
+            }
+        }
+
+        /// <summary>
+        /// <para>
+        /// Returns the path to the development/build folder for NEONFORGE developers.  This folder
+        /// is used to hold build related files and is named <b>.neondev/build</b> under
+        /// the current user's home folder.
+        /// </para>
+        /// <note>
+        /// This property ensures that the folder exists.
+        /// </note>
+        /// </summary>
+        public static string UserNeonDevBuildFolder => Directory.CreateDirectory(Path.Combine(UserNeonDevFolder, "build")).FullName;
+
+        /// <summary>
+        /// <para>
+        /// Returns the path to the development/build folder for NEONFORGE developers.  This folder
+        /// is used to hold unit test related files and is named <b>.neondev/test</b> under
+        /// the current user's home folder.
+        /// </para>
+        /// <note>
+        /// This property ensures that the folder exists.
+        /// </note>
+        /// </summary>
+        public static string UserNeonDevTestFolder => Directory.CreateDirectory(Path.Combine(UserNeonDevFolder, "test")).FullName;
     }
 }

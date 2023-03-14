@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------------
 // FILE:	    Test_GitHubReleases.cs
 // CONTRIBUTOR: Marcus Bowyer
-// COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ namespace TestDeployment
     [CollectionDefinition(TestCollection.NonParallel, DisableParallelization = true)]
     public partial class Test_GitHubReleases
     {
-        const string repo = "neon-test/github-automation";
+        const string repo = "neontest/neon-deployment";
 
         private readonly TimeSpan releaseDelay = TimeSpan.FromSeconds(5);
 
@@ -761,14 +761,14 @@ namespace TestDeployment
         }
 
         /// <summary>
-        /// Uploads a file as multilpe assets to a release, publishes the release and then 
-        /// return the <see cref="Download"/> details.
+        /// Uploads a file as multi-part assets to a release, publishes the release and then 
+        /// returns the <see cref="Download"/> details.
         /// </summary>
-        /// <param name="release">The target brelease.</param>
-        /// <param name="name">The download name.</param>
-        /// <param name="version">The download version.</param>
-        /// <param name="partCount">The number of parts to be uploaded.</param>
-        /// <param name="partSize">The size of each part.</param>
+        /// <param name="release">Specifies the target release.</param>
+        /// <param name="name">Specifies the download name.</param>
+        /// <param name="version">Specifies the download version.</param>
+        /// <param name="partCount">Specifies the number of parts to be uploaded.</param>
+        /// <param name="partSize">Specifies the size of each part.</param>
         /// <returns>The <see cref="Download"/> describing how to download the parts.</returns>
         /// <remarks>
         /// Each part will be filled with bytes where the byte of each part will start

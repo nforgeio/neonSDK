@@ -2,7 +2,7 @@
 #------------------------------------------------------------------------------
 # FILE:         build.ps1
 # CONTRIBUTOR:  Jeff Lill
-# COPYRIGHT:    Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+# COPYRIGHT:    Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -31,4 +31,4 @@ Pull-DockerImage "yugabytedb/yugabyte:$yugabyteVersion"
 
 # Build the image.
 
-$result = Invoke-CaptureStreams "docker build -t ${registry}:${tag} --build-arg `"VERSION=$yugabyteVersion`" ." -interleave
+Invoke-CaptureStreams "docker build -t ${registry}:${tag} --build-arg `"VERSION=$yugabyteVersion`" ." -interleave | Out-Null

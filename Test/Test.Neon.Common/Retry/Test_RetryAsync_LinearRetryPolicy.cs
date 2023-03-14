@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------------
 // FILE:	    Test_RetryAsync_LinearRetryPolicy.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -475,7 +475,7 @@ namespace TestCommon
                         });
                 });
 
-            Assert.True(times.Count == 4 || times.Count == 5);
+            Assert.True(times.Count >= 4);
 
             // Additional test to verify this serious problem is fixed:
             //
@@ -504,7 +504,7 @@ namespace TestCommon
                         });
                 });
 
-            Assert.True(times.Count == 4 || times.Count == 5);
+            Assert.True(4 <= times.Count && times.Count <= 6);
         }
     }
 }

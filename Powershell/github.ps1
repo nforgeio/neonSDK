@@ -2,7 +2,7 @@
 #------------------------------------------------------------------------------
 # FILE:         github.ps1
 # CONTRIBUTOR:  Jeff Lill
-# COPYRIGHT:    Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+# COPYRIGHT:    Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -143,8 +143,8 @@ function Get-GitHubUser
 #
 # REMARKS:
 #
-# NOTE: This requires that the current user have a GITHUB_PAT available in their
-#       1Password user folder.
+# NOTE: This requires that the current user have a GITHUB[accessto0ken] available 
+#       in their 1Password user vault.
 #
 # You can use the [appendLabel] parameter to append the body to an existing
 # issue as a new comment.  Pass [appendLabel] as the issue label that will
@@ -1037,7 +1037,7 @@ function Invoke-ActionWorkflow
 
         if ([System.String]::IsNullOrEmpty($inputJson))
         {
-            $result = Invoke-CaptureStreams "gh --repo $repo workflow run $workflow"
+            Invoke-CaptureStreams "gh --repo $repo workflow run $workflow" | Out-Null
         }
         else
         {
@@ -1051,7 +1051,7 @@ function Invoke-ActionWorkflow
 
             try
             {
-                $result = Invoke-CaptureStreams "gh --repo $repo workflow run $workflow --ref $branch --json < `"$tempInputPath`""
+                Invoke-CaptureStreams "gh --repo $repo workflow run $workflow --ref $branch --json < `"$tempInputPath`"" | Out-Null
             }
             finally
             {

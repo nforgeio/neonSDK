@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------------
 // FILE:	    Program.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -43,12 +43,15 @@ Internal neonSDK project build related utilities: v{version}
 NOTE: Command line arguments and options may include references to 
       profile values, secrets and environment variables, like:
 
-      $<profile:NAME>                   - profile value
-      $<secret:NAME>                    - ""password"" property value of NAME secret
-      $<secret:NAME:SOURCE>             - ""password""  property value of NAME secret at SOURCE
-      $<secret:NAME[PROPERTY]           - PROPERTY value from NAME secret
-      $<secret:NAME[PROPERTY]:SOURCE>   - PROPERTY value from NAME secret at SOURCE
-      $<env:NAME>                       - environment variable
+      ${{profile:NAME}}                   - profile value
+      ${{secret:NAME}}                    - ""password"" property value of NAME secret
+      ${{secret:NAME:SOURCE}}             - ""password""  property value of NAME secret at SOURCE
+      ${{secret:NAME[PROPERTY}}           - PROPERTY value from NAME secret
+      ${{secret:NAME[PROPERTY]:SOURCE}}   - PROPERTY value from NAME secret at SOURCE
+      ${{env:NAME}}                       - environment variable
+
+      For Linux, you'll need to surround these references with single quotes
+      to prevent Bash from interpreting them as Bash variable references.
 
 ---------------------------------------------------------------------
 neon-build version
@@ -144,6 +147,16 @@ NOTE: The constant must be formatted exactly like:
 
 within the C# source file to be parsed correctly where [NAME] is the constant
 name and [VERSION] will be returned as value.
+
+---------------------------------------
+neon-build dotnet-version GLOBAL-JSON-PATH
+
+Calls <b>dotnet --info</b> with the working directory holding the <b>global.json</b> 
+file specified on the command line and parses the .NET SDK version (like ""7.0.102"")
+as well as the .NET runtime version (like ""7.0.2"").
+
+The command writes the SDK version to the first output line and the corresponding
+runtime version to the second line.
 
 ----------------------------------------------------
 neon-build pack-version CSPATH CONSTANT CSPROJ
@@ -313,7 +326,7 @@ ARGUMENTS:
             //
             // This is required by: CommandLine.Preprocess()
 
-            NeonHelper.ServiceContainer.AddSingleton<IProfileClient>(new ProfileClient());
+            NeonHelper.ServiceContainer.AddSingleton<IProfileClient>(new MaintainerProfile());
 
             commandLine = new CommandLine(args).Preprocess();
 
@@ -542,6 +555,11 @@ ARGUMENTS:
                     case "read-version":
 
                         ReadVersion(commandLine);
+                        break;
+
+                    case "dotnet-version":
+
+                        DotnetVersion(commandLine);
                         break;
 
                     case "pack-version":

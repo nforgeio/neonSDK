@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------------
 // FILE:	    LinuxSshProxy.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -844,14 +844,8 @@ rm {HostFolders.Home(Username)}/askpass
         /// <returns><c>true</c> when a reboot is required.</returns>
         public bool UpgradeLinuxDistribution()
         {
-            // $todo(jefflill):
-            //
-            // We haven't actually tested this yet.  Seems like we'll probably need to
-            // reboot the node and report that to the caller.
-
             SudoCommand("safe-apt-get update -yq", RunOptions.Defaults | RunOptions.FaultOnError);
             SudoCommand("safe-apt-get dist-upgrade -yq", RunOptions.Defaults | RunOptions.FaultOnError);
-            SudoCommand("do-release-upgrade --mode server", RunOptions.Defaults | RunOptions.FaultOnError);
 
             return FileExists("/var/run/reboot-required");
         }
@@ -2916,6 +2910,25 @@ rm -rf /etc/neon-init/*
 ";
                 SudoCommand(CommandBundle.FromScript(resetScript));
             }
+        }
+
+        /// <summary>
+        /// Changes a user password.
+        /// </summary>
+        /// <param name="username">The username.</param>
+        /// <param name="password">The new password.</param>
+        public void SetPassword(string username, string password)
+        {
+            var bundle = new CommandBundle("bash ./setpasswd.sh");
+
+            bundle.AddFile("setpasswd.sh",
+$@"
+cat <<EOF | passwd {username}
+{password}
+{password}
+EOF
+");
+            SudoCommand(bundle).EnsureSuccess();
         }
 
         /// <inheritdoc/>

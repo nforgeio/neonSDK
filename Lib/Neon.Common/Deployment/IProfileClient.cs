@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------------
 // FILE:	    IProfileClient.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -90,10 +90,22 @@ namespace Neon.Deployment
     /// to <c>false</c> and the cached can be cleared via <see cref="ClearCache()"/>
     /// </para>
     /// <para>
-    /// The <b>Neon.Deployment.ProfileClient</b> implementation communicates with the <b>neon-assistant</b>
+    /// The <b>Neon.Deployment.MaintainerProfile</b> implementation communicates with the <b>neon-assistant</b>
     /// to retrieve profile values and secrets.  <b>neon-assistant</b> manages profile values directly but
     /// communicates with 1Password.com to obtain secrets, which can take a second or two.  Caching will
     /// improve performance and also take some load off of 1Password. 
+    /// </para>
+    /// <para>
+    /// Caching may be used to solve the problem where a tool like <b>neon-assistant</b> is signed-in
+    /// when a long running operation starts but signs-out automatically before the operation completes,
+    /// potentially failing when a secret is requested after that point.  This can be mitigated by having
+    /// your operations request all required secrets and profiles up front and then cache them so these
+    /// will be available later.
+    /// </para>
+    /// <para>
+    /// Some <see cref="IProfileClient"/> implementations may also cache secrets elsewhere, like process
+    /// environment variables such that other profile instances constructed by the process or subprocesses
+    /// can also take advantage of the cached values.
     /// </para>
     /// </summary>
     /// <remarks>
@@ -146,19 +158,5 @@ namespace Neon.Deployment
         /// Clears any cached values.
         /// </summary>
         void ClearCache();
-
-        /// <summary>
-        /// <para>
-        /// Submits a low-level request to the profile provider, passing a command and optional arguments.
-        /// This is temporarily used by the <c>Neon.Deployment.GitHub</c> APIs to workaround the lack of
-        /// a complete REST API for GHCR.
-        /// </para>
-        /// <note>
-        /// Implementation of this is optional and you may throw a <see cref="NotImplementedException"/>.
-        /// </note>
-        /// </summary>
-        /// <param name="args">The request arguments.</param>
-        /// <returns>The command result.</returns>
-        string Call(Dictionary<string, string> args);
     }
 }

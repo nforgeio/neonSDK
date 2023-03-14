@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------------
 // FILE:	    NatsHubLifetimeManager.cs
 // CONTRIBUTOR: Marcus Bowyer
-// COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,6 +33,8 @@ using Neon.Common;
 using Neon.Diagnostics;
 using Neon.Tasks;
 
+using AsyncKeyedLock;
+
 using NATS;
 using NATS.Client;
 
@@ -44,17 +46,17 @@ namespace Neon.Web.SignalR
     /// <typeparam name="THub">The type of <see cref="Hub"/> to manage connections for.</typeparam>
     public class NatsHubLifetimeManager<THub> : HubLifetimeManager<THub>, IDisposable where THub : Hub
     {
-        private readonly ConnectionFactory       natsConnectionFactory = new ConnectionFactory();
-        private readonly HubConnectionStore      hubConnections        = new HubConnectionStore();
-        private readonly ClientResultsManager    clientResultsManager  = new();
-        private readonly SemaphoreSlim           connectionLock        = new SemaphoreSlim(1);
-        private readonly NatsSubscriptionManager connections;
-        private readonly NatsSubscriptionManager groups;
-        private readonly NatsSubscriptionManager users;
-        private readonly ILogger                 logger;
-        private readonly IConnection             nats;
-        private readonly NatsSubjects            subjects;
-        private readonly string                  serverName;
+        private readonly ConnectionFactory                     natsConnectionFactory = new ConnectionFactory();
+        private readonly HubConnectionStore                    hubConnections        = new HubConnectionStore();
+        private readonly ClientResultsManager                  clientResultsManager  = new();
+        private readonly AsyncKeyedLocker<string>              lockProvider;
+        private readonly NatsSubscriptionManager               connections;
+        private readonly NatsSubscriptionManager               groups;
+        private readonly NatsSubscriptionManager               users;
+        private readonly ILogger<NatsHubLifetimeManager<THub>> logger;
+        private readonly IConnection                           nats;
+        private readonly NatsSubjects                          subjects;
+        private readonly string                                serverName;
 
         private int internalAckId;
 
@@ -62,26 +64,31 @@ namespace Neon.Web.SignalR
         /// Constructs the <see cref="NatsHubLifetimeManager{THub}"/> with types from Dependency Injection.
         /// </summary>
         /// <param name="connection">The NATS <see cref="IConnection"/>.</param>
-        public NatsHubLifetimeManager(IConnection connection)
-            : this(connection, logger: null)
-        {
-
-        }
+        /// <param name="lockProvider">Async lock provider.</param>
+        public NatsHubLifetimeManager(
+            IConnection connection,
+            AsyncKeyedLocker<string> lockProvider) 
+            => new NatsHubLifetimeManager<THub>(connection, lockProvider, loggerFactory: null);
 
         /// <summary>
         /// Constructs the <see cref="NatsHubLifetimeManager{THub}"/> with types from Dependency Injection.
         /// </summary>
-        /// <param name="logger">The logger to write information about what the class is doing.</param>
+        /// <param name="loggerFactory">The logger factory.</param>
+        /// <param name="lockProvider">Async lock provider.</param>
         /// <param name="connection">The NATS <see cref="IConnection"/>.</param>
-        public NatsHubLifetimeManager(IConnection connection, ILogger logger = null)
+        public NatsHubLifetimeManager(
+            IConnection connection,
+            AsyncKeyedLocker<string> lockProvider,
+            ILoggerFactory loggerFactory = null)
         {
-            this.serverName  = GenerateServerName();
-            this.nats        = connection;
-            this.logger      = (ILogger)logger;
-            this.users       = new NatsSubscriptionManager(this.logger);
-            this.groups      = new NatsSubscriptionManager(this.logger);
-            this.connections = new NatsSubscriptionManager(this.logger);
-            this.subjects    = new NatsSubjects($"Neon.SignalR.{typeof(THub).FullName}");
+            this.serverName   = GenerateServerName();
+            this.nats         = connection;
+            this.logger       = loggerFactory?.CreateLogger<NatsHubLifetimeManager<THub>>();
+            this.users        = new NatsSubscriptionManager(lockProvider, loggerFactory);
+            this.groups       = new NatsSubscriptionManager(lockProvider, loggerFactory);
+            this.connections  = new NatsSubscriptionManager(lockProvider, loggerFactory);
+            this.subjects     = new NatsSubjects($"Neon.SignalR.{typeof(THub).FullName}");
+            this.lockProvider = lockProvider;
 
             _ = SubscribeToAllAsync();
             _ = SubscribeToGroupManagementSubjectAsync();
@@ -97,14 +104,14 @@ namespace Neon.Web.SignalR
         {
             await SyncContext.Clear;
 
+            using var activity = TraceContext.ActivitySource?.StartActivity();
+
             if (nats.IsClosed() && !nats.IsReconnecting())
             {
                 throw new NATSConnectionException("The connection to NATS is closed");
             }
 
-            await connectionLock.WaitAsync();
-
-            try
+            using (await lockProvider.LockAsync(typeof(THub).FullName))
             {
                 await NeonHelper.WaitForAsync(
                     async () =>
@@ -113,16 +120,12 @@ namespace Neon.Web.SignalR
 
                         return !nats.IsReconnecting();
                     },
-                timeout:      TimeSpan.FromSeconds(60),
+                timeout: TimeSpan.FromSeconds(60),
                 pollInterval: TimeSpan.FromMilliseconds(250));
 
                 nats.Flush();
 
                 logger?.LogDebugEx("Connected to NATS.");
-            }
-            finally
-            {
-                connectionLock.Release();
             }
         }
 
@@ -130,6 +133,8 @@ namespace Neon.Web.SignalR
         public override async Task OnConnectedAsync(HubConnectionContext connection)
         {
             await SyncContext.Clear;
+
+            using var activity = TraceContext.ActivitySource?.StartActivity();
 
             await EnsureNatsServerConnection();
 
@@ -155,6 +160,8 @@ namespace Neon.Web.SignalR
         public override async Task OnDisconnectedAsync(HubConnectionContext connection)
         {
             await SyncContext.Clear;
+
+            using var activity = TraceContext.ActivitySource?.StartActivity();
 
             hubConnections.Remove(connection);
 
@@ -202,6 +209,8 @@ namespace Neon.Web.SignalR
         {
             await SyncContext.Clear;
 
+            using var activity = TraceContext.ActivitySource?.StartActivity();
+
             Covenant.Requires<ArgumentNullException>(connectionId != null, nameof(connectionId));
             Covenant.Requires<ArgumentNullException>(groupName != null, nameof(groupName));
 
@@ -222,6 +231,8 @@ namespace Neon.Web.SignalR
         {
             await SyncContext.Clear;
 
+            using var activity = TraceContext.ActivitySource?.StartActivity();
+
             Covenant.Requires<ArgumentNullException>(connectionId != null, nameof(connectionId));
             Covenant.Requires<ArgumentNullException>(groupName != null, nameof(groupName));
 
@@ -233,7 +244,7 @@ namespace Neon.Web.SignalR
 
                 await RemoveGroupAsyncCore(connection, groupName);
             }
-            
+
             await SendGroupActionAndWaitForAckAsync(connectionId, groupName, GroupAction.Remove);
         }
 
@@ -241,6 +252,8 @@ namespace Neon.Web.SignalR
         public override async Task SendAllAsync(string methodName, object[] args, CancellationToken cancellationToken = default)
         {
             await SyncContext.Clear;
+
+            using var activity = TraceContext.ActivitySource?.StartActivity();
 
             Covenant.Requires<ArgumentNullException>(methodName != null, nameof(methodName));
             Covenant.Requires<ArgumentNullException>(args != null, nameof(args));
@@ -252,6 +265,8 @@ namespace Neon.Web.SignalR
         public override async Task SendAllExceptAsync(string methodName, object[] args, IReadOnlyList<string> excludedConnectionIds, CancellationToken cancellationToken = default)
         {
             await SyncContext.Clear;
+
+            using var activity = TraceContext.ActivitySource?.StartActivity();
 
             Covenant.Requires<ArgumentNullException>(methodName != null, nameof(methodName));
             Covenant.Requires<ArgumentNullException>(args != null, nameof(args));
@@ -265,6 +280,8 @@ namespace Neon.Web.SignalR
         {
             await SyncContext.Clear;
 
+            using var activity = TraceContext.ActivitySource?.StartActivity();
+
             Covenant.Requires<ArgumentNullException>(connectionId != null, nameof(connectionId));
             Covenant.Requires<ArgumentNullException>(methodName != null, nameof(methodName));
             Covenant.Requires<ArgumentNullException>(args != null, nameof(args));
@@ -276,6 +293,8 @@ namespace Neon.Web.SignalR
         public override async Task SendConnectionsAsync(IReadOnlyList<string> connectionIds, string methodName, object[] args, CancellationToken cancellationToken = default)
         {
             await SyncContext.Clear;
+
+            using var activity = TraceContext.ActivitySource?.StartActivity();
 
             Covenant.Requires<ArgumentNullException>(connectionIds != null, nameof(connectionIds));
             Covenant.Requires<ArgumentNullException>(methodName != null, nameof(methodName));
@@ -297,6 +316,8 @@ namespace Neon.Web.SignalR
         {
             await SyncContext.Clear;
 
+            using var activity = TraceContext.ActivitySource?.StartActivity();
+
             Covenant.Requires<ArgumentNullException>(groupName != null, nameof(groupName));
             Covenant.Requires<ArgumentNullException>(methodName != null, nameof(methodName));
             Covenant.Requires<ArgumentNullException>(args != null, nameof(args));
@@ -308,6 +329,8 @@ namespace Neon.Web.SignalR
         public override async Task SendGroupExceptAsync(string groupName, string methodName, object[] args, IReadOnlyList<string> excludedConnectionIds, CancellationToken cancellationToken = default)
         {
             await SyncContext.Clear;
+
+            using var activity = TraceContext.ActivitySource?.StartActivity();
 
             Covenant.Requires<ArgumentNullException>(groupName != null, nameof(groupName));
             Covenant.Requires<ArgumentNullException>(methodName != null, nameof(methodName));
@@ -321,6 +344,8 @@ namespace Neon.Web.SignalR
         public override async Task SendGroupsAsync(IReadOnlyList<string> groupNames, string methodName, object[] args, CancellationToken cancellationToken = default)
         {
             await SyncContext.Clear;
+
+            using var activity = TraceContext.ActivitySource?.StartActivity();
 
             Covenant.Requires<ArgumentNullException>(groupNames != null, nameof(groupNames));
             Covenant.Requires<ArgumentNullException>(methodName != null, nameof(methodName));
@@ -342,6 +367,8 @@ namespace Neon.Web.SignalR
         {
             await SyncContext.Clear;
 
+            using var activity = TraceContext.ActivitySource?.StartActivity();
+
             Covenant.Requires<ArgumentNullException>(userId != null, nameof(userId));
             Covenant.Requires<ArgumentNullException>(methodName != null, nameof(methodName));
             Covenant.Requires<ArgumentNullException>(args != null, nameof(args));
@@ -353,6 +380,8 @@ namespace Neon.Web.SignalR
         public override async Task SendUsersAsync(IReadOnlyList<string> userIds, string methodName, object[] args, CancellationToken cancellationToken = default)
         {
             await SyncContext.Clear;
+
+            using var activity = TraceContext.ActivitySource?.StartActivity();
 
             Covenant.Requires<ArgumentNullException>(userIds != null, nameof(userIds));
             Covenant.Requires<ArgumentNullException>(methodName != null, nameof(methodName));
@@ -379,7 +408,9 @@ namespace Neon.Web.SignalR
         private async Task PublishAsync(string subject, byte[] payload)
         {
             await SyncContext.Clear;
-            
+
+            using var activity = TraceContext.ActivitySource?.StartActivity();
+
             await EnsureNatsServerConnection();
 
             logger?.LogDebugEx($"Publishing message to NATS subject: [Subject={subject}].");
@@ -391,6 +422,8 @@ namespace Neon.Web.SignalR
         {
             await SyncContext.Clear;
 
+            using var activity = TraceContext.ActivitySource?.StartActivity();
+
             var userSubject = subjects.User(connection.UserIdentifier!);
 
             await users.RemoveSubscriptionAsync(userSubject, connection, this);
@@ -399,7 +432,9 @@ namespace Neon.Web.SignalR
         private async Task SubscribeToConnectionAsync(HubConnectionContext connection)
         {
             await SyncContext.Clear;
-            
+
+            using var activity = TraceContext.ActivitySource?.StartActivity();
+
             var connectionSubject = subjects.Connection(connection.ConnectionId);
 
             await connections.AddSubscriptionAsync(connectionSubject, connection, async (subjectName, subscriptions) =>
@@ -409,6 +444,8 @@ namespace Neon.Web.SignalR
                 EventHandler<MsgHandlerEventArgs> handler = async (sender, args) =>
                 {
                     await SyncContext.Clear;
+
+                    using var activity = TraceContext.ActivitySource?.StartActivity("message-event-handler");
 
                     logger?.LogDebugEx($"Received message from NATS subject: [Subject={connectionSubject}].");
 
@@ -439,6 +476,8 @@ namespace Neon.Web.SignalR
         {
             await SyncContext.Clear;
 
+            using var activity = TraceContext.ActivitySource?.StartActivity();
+
             var connectionSubject = subjects.Connection(connection.ConnectionId);
 
             await connections.RemoveSubscriptionAsync(connectionSubject, connection, this);
@@ -447,6 +486,8 @@ namespace Neon.Web.SignalR
         private async Task SubscribeToUserAsync(HubConnectionContext connection)
         {
             await SyncContext.Clear;
+
+            using var activity = TraceContext.ActivitySource?.StartActivity();
 
             var userSubject = subjects.User(connection.UserIdentifier!);
 
@@ -457,6 +498,8 @@ namespace Neon.Web.SignalR
                 EventHandler<MsgHandlerEventArgs> handler = async (sender, args) =>
                 {
                     await SyncContext.Clear;
+
+                    using var activity = TraceContext.ActivitySource?.StartActivity("user-event");
 
                     logger?.LogDebugEx($"Received message from NATS subject: [Subject={userSubject}].");
 
@@ -537,7 +580,7 @@ namespace Neon.Web.SignalR
             var feature    = connection.Features.Get<INatsFeature>()!;
             var groupNames = feature.Groups;
 
-            lock (groupNames)
+            using (await lockProvider.LockAsync(subjects.Group(groupName)))
             {
                 // Connection already in group
                 if (!groupNames.Add(groupName))
@@ -568,7 +611,7 @@ namespace Neon.Web.SignalR
 
             if (groupNames != null)
             {
-                lock (groupNames)
+                using (await lockProvider.LockAsync(subjects.Group(groupName)))
                 {
                     groupNames.Remove(groupName);
                 }

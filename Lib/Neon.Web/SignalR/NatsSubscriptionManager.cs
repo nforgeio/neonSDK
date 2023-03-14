@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------------
 // FILE:	    NatsSubscriptionManager.cs
 // CONTRIBUTOR: Marcus Bowyer
-// COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,6 +29,9 @@ using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
 
 using Neon.Diagnostics;
+using Neon.Tasks;
+
+using AsyncKeyedLock;
 
 using NATS;
 using NATS.Client;
@@ -39,16 +42,20 @@ namespace Neon.Web.SignalR
     {
         private readonly ConcurrentDictionary<string, HubConnectionStore>   subscriptions     = new ConcurrentDictionary<string, HubConnectionStore>(StringComparer.Ordinal);
         private readonly ConcurrentDictionary<string, IAsyncSubscription>   natsSubscriptions = new ConcurrentDictionary<string, IAsyncSubscription>(StringComparer.Ordinal);
-        private readonly SemaphoreSlim                                      @lock             = new SemaphoreSlim(1, 1);
-        private readonly ILogger                                            logger;
+        private readonly AsyncKeyedLocker<string>                           lockProvider;
+        private readonly ILogger<NatsSubscriptionManager>                   logger;
 
         /// <summary>
         /// Constructor.
         /// </summary>
-        /// <param name="logger"></param>
-        public NatsSubscriptionManager(ILogger logger)
+        /// <param name="loggerFactory"></param>
+        /// <param name="lockProvider"></param>
+        public NatsSubscriptionManager(
+            AsyncKeyedLocker<string> lockProvider,
+            ILoggerFactory loggerFactory = null)
         {
-            this.logger = logger;
+            this.lockProvider  = lockProvider;
+            this.logger        = loggerFactory?.CreateLogger<NatsSubscriptionManager>();
         }
 
         /// <summary>
@@ -60,41 +67,42 @@ namespace Neon.Web.SignalR
         /// <returns>The tracking <see cref="Task"/>.</returns>
         public async Task AddSubscriptionAsync(string id, HubConnectionContext connection, Func<string, HubConnectionStore, Task<IAsyncSubscription>> subscribeMethod)
         {
-            await @lock.WaitAsync();
+            await SyncContext.Clear;
 
-            logger?.LogDebugEx($"Subscribing to subject: [Subject={id}]");
+            using var activity = TraceContext.ActivitySource?.StartActivity();
 
-            try
+            using (await lockProvider.LockAsync($"{connection.ConnectionId}-{id}"))
             {
-                // Avoid adding subscription if connection is closing/closed
-                // We're in a lock and ConnectionAborted is triggered before OnDisconnectedAsync is called so this is guaranteed to be safe when adding while connection is closing and removing items
-                if (connection.ConnectionAborted.IsCancellationRequested)
+                logger?.LogDebugEx($"Subscribing to subject: [Subject={id}]");
+
+                try
                 {
-                    return;
+                    // Avoid adding subscription if connection is closing/closed
+                    // We're in a lockProvider and ConnectionAborted is triggered before OnDisconnectedAsync is called so this is guaranteed to be safe when adding while connection is closing and removing items
+                    if (connection.ConnectionAborted.IsCancellationRequested)
+                    {
+                        return;
+                    }
+
+                    var subscription = subscriptions.GetOrAdd(id, _ => new HubConnectionStore());
+
+                    subscription.Add(connection);
+
+                    // Subscribe once.
+
+                    if (subscription.Count == 1)
+                    {
+                        var sAsync = await subscribeMethod(id, subscription);
+
+                        sAsync.Start();
+                        natsSubscriptions.GetOrAdd(id, _ => sAsync);
+                    }
                 }
-
-                var subscription = subscriptions.GetOrAdd(id, _ => new HubConnectionStore());
-
-                subscription.Add(connection);
-
-                // Subscribe once.
-
-                if (subscription.Count == 1)
+                catch (Exception e)
                 {
-                    var sAsync = await subscribeMethod(id, subscription);
-
-                    sAsync.Start();
-                    natsSubscriptions.GetOrAdd(id, _ => sAsync);
+                    logger?.LogErrorEx(e);
+                    logger?.LogDebugEx($"Subscribing failed: [Subject={id}] [Connection={connection.ConnectionId}]");
                 }
-            }
-            catch (Exception e)
-            {
-                logger?.LogErrorEx(e);
-                logger?.LogDebugEx($"Subscribing failed: [Subject={id}] [Connection={connection.ConnectionId}]");
-            }
-            finally
-            {
-                @lock.Release();
             }
         }
 
@@ -107,39 +115,40 @@ namespace Neon.Web.SignalR
         /// <returns>The tracking <see cref="Task"/>.</returns>
         public async Task RemoveSubscriptionAsync(string id, HubConnectionContext connection, object state)
         {
-            await @lock.WaitAsync();
+            await SyncContext.Clear;
 
-            logger?.LogDebugEx($"Unsubscribing from NATS subject: [Subject={id}] [Connection={connection.ConnectionId}]");
+            using var activity = TraceContext.ActivitySource?.StartActivity();
 
-            try
+            using (await lockProvider.LockAsync($"{connection.ConnectionId}-{id}"))
             {
-                if (!subscriptions.TryGetValue(id, out var subscription))
+                logger?.LogDebugEx($"Unsubscribing from NATS subject: [Subject={id}] [Connection={connection.ConnectionId}]");
+
+                try
                 {
-                    return;
-                }
-
-                subscription.Remove(connection);
-
-                if (subscription.Count == 0)
-                {
-                    subscriptions.TryRemove(id, out _);
-
-                    if (natsSubscriptions.TryGetValue(id, out var sAsync))
+                    if (!subscriptions.TryGetValue(id, out var subscription))
                     {
-                        sAsync.Dispose();
+                        return;
                     }
 
-                    natsSubscriptions.TryRemove(id, out _);
+                    subscription.Remove(connection);
+
+                    if (subscription.Count == 0)
+                    {
+                        subscriptions.TryRemove(id, out _);
+
+                        if (natsSubscriptions.TryGetValue(id, out var sAsync))
+                        {
+                            sAsync.Dispose();
+                        }
+
+                        natsSubscriptions.TryRemove(id, out _);
+                    }
                 }
-            }
-            catch (Exception e)
-            {
-                logger?.LogErrorEx(e);
-                logger?.LogDebugEx($"Unubscribing failed: [Subject={id}] [Connection={connection.ConnectionId}]");
-            }
-            finally
-            {
-                @lock.Release();
+                catch (Exception e)
+                {
+                    logger?.LogErrorEx(e);
+                    logger?.LogDebugEx($"Unubscribing failed: [Subject={id}] [Connection={connection.ConnectionId}]");
+                }
             }
         }
     }

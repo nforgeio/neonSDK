@@ -2,7 +2,7 @@
 #------------------------------------------------------------------------------
 # FILE:         neon-nuget-public.ps1
 # CONTRIBUTOR:  Jeff Lill
-# COPYRIGHT:    Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+# COPYRIGHT:    Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,6 +24,13 @@
 # OPTIONS:
 #
 #       -dirty  - Use GitHub sources for SourceLink even if local repo is dirty
+#
+# REMARKS:
+#
+# NOTE: The script writes the package publication version to:
+#
+#           $/build/nuget/version.txt
+#
 
 param 
 (
@@ -53,10 +60,6 @@ if (!(Test-Path env:NC_ROOT))
 
     return 1
 }
-
-# This needs to run with elevated privileges.
-
-Request-AdminPermissions
 
 # Retrieve any necessary credentials.
 
@@ -142,7 +145,7 @@ try
     # SourceLink configuration:
 	#
 	# We're going to fail this when the current git branch is dirty 
-	# and [-dirty] wasn't passed.
+	# and [-dirty] wasn't passed. 
 
     $gitDirty = IsGitDirty
 
@@ -153,6 +156,14 @@ try
 
     $env:NEON_PUBLIC_SOURCELINK = "true"
 
+    #------------------------------------------------------------------------------
+    # Save the publish version to [$/build/nuget/version.text] so release tools can
+    # determine the current release.
+
+    [System.IO.Directory]::CreateDirectory("$nfRoot\build\nuget") | Out-Null
+    [System.IO.File]::WriteAllText("$nfRoot\build\nuget\version.txt", $neonSdkVersion)
+
+    #------------------------------------------------------------------------------
     # We need to do a release solution build to ensure that any tools or other
     # dependencies are built before we build and publish the individual packages.
 
@@ -162,7 +173,7 @@ try
     Write-Info "********************************************************************************"
     Write-Info ""
 
-    & "$msbuild" "$nfSolution" -t:restore -verbosity:quiet
+    & dotnet restore "$nfSolution"
 
     if (-not $?)
     {
@@ -195,18 +206,18 @@ try
         throw "ERROR: BUILD FAILED"
     }
 
+    #------------------------------------------------------------------------------
     # Update the project versions.
 
     SetVersion Neon.Blazor              $neonSdkVersion
     SetVersion Neon.BuildInfo           $neonSdkVersion
-    SetVersion Neon.Cadence             $neonSdkVersion
     SetVersion Neon.Cassandra           $neonSdkVersion
     SetVersion Neon.Common              $neonSdkVersion
-    SetVersion Neon.Couchbase           $neonSdkVersion
     SetVersion Neon.Cryptography        $neonSdkVersion
     SetVersion Neon.CSharp              $neonSdkVersion
     SetVersion Neon.Deployment          $neonSdkVersion
     SetVersion Neon.Docker              $neonSdkVersion
+    SetVersion Neon.GitHub              $neonSdkVersion
     SetVersion Neon.JsonConverters      $neonSdkVersion
     SetVersion Neon.HyperV              $neonSdkVersion
     SetVersion Neon.Service             $neonSdkVersion
@@ -221,23 +232,21 @@ try
     SetVersion Neon.WSL                 $neonSdkVersion
     SetVersion Neon.XenServer           $neonSdkVersion
     SetVersion Neon.Xunit               $neonSdkVersion
-    SetVersion Neon.Xunit.Cadence       $neonSdkVersion
-    SetVersion Neon.Xunit.Couchbase     $neonSdkVersion
     SetVersion Neon.Xunit.YugaByte      $neonSdkVersion
     SetVersion Neon.YugaByte            $neonSdkVersion
 
+    #------------------------------------------------------------------------------
     # Build and publish the projects.
 
     Publish Neon.Blazor                 $neonSdkVersion
     Publish Neon.BuildInfo              $neonSdkVersion
-    Publish Neon.Cadence                $neonSdkVersion
     Publish Neon.Cassandra              $neonSdkVersion
     Publish Neon.Common                 $neonSdkVersion
-    Publish Neon.Couchbase              $neonSdkVersion
     Publish Neon.Cryptography           $neonSdkVersion
     Publish Neon.CSharp                 $neonSdkVersion
     Publish Neon.Deployment             $neonSdkVersion
     Publish Neon.Docker                 $neonSdkVersion
+    Publish Neon.GitHub                 $neonSdkVersion
     Publish Neon.JsonConverters         $neonSdkVersion
     Publish Neon.HyperV                 $neonSdkVersion
     Publish Neon.Service                $neonSdkVersion
@@ -252,14 +261,13 @@ try
     Publish Neon.WSL                    $neonSdkVersion
     Publish Neon.XenServer              $neonSdkVersion
     Publish Neon.Xunit                  $neonSdkVersion
-    Publish Neon.Xunit.Cadence          $neonSdkVersion
-    Publish Neon.Xunit.Couchbase        $neonSdkVersion
     Publish Neon.Xunit.YugaByte         $neonSdkVersion
     Publish Neon.YugaByte               $neonSdkVersion
 
+    #------------------------------------------------------------------------------
     # Remove all of the generated nuget files so these don't accumulate.
 
-    Remove-Item "$env:NF_BUILD\nuget\*"
+    Remove-Item "$env:NF_BUILD\nuget\*.nupkg"
 
     ""
     "** Package publication completed"

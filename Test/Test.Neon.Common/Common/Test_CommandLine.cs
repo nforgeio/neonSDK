@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------------
 // FILE:	    Test_CommandLine.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -130,7 +130,7 @@ namespace TestCommon
         }
 
         [Fact]
-        public void OptionsValues()
+        public void OptionValues()
         {
             var commandLine = new CommandLine(new string[] { "one", "-a=1", "-a=2" });
 
@@ -206,6 +206,32 @@ namespace TestCommon
             Assert.True(commandLine.GetFlag("-q"));
             Assert.True(commandLine.GetFlag("--quiet"));
             Assert.False(commandLine.GetFlag("-b"));
+        }
+
+        [Fact]
+        public void QuotedOptions()
+        {
+            // Verify that quoted option values work.
+
+            var commandLine = new CommandLine(new string[] { "--v1=\"hello world!\"", "--v2=\"\"", "--v3='<>| '" });
+
+            Assert.Equal("hello world!", commandLine.GetOption("--v1"));
+            Assert.Equal("", commandLine.GetOption("--v2"));
+            Assert.Equal("<>| ", commandLine.GetOption("--v3"));
+
+            // Verify that quoted options including single and double quotes work.
+
+            commandLine = new CommandLine(new string[] { "--v1=\"'hello world!'\"", "--v2='\"hello world!\"'" });
+
+            Assert.Equal("'hello world!'", commandLine.GetOption("--v1"));
+            Assert.Equal("\"hello world!\"", commandLine.GetOption("--v2"));
+
+            // Verify that quoted options with special characters work.
+
+            commandLine = new CommandLine(new string[] { "--v1=' \t<>:|&^'", "--v2=' \t<>:|&^'" });
+
+            Assert.Equal(" \t<>:|&^", commandLine.GetOption("--v1"));
+            Assert.Equal(" \t<>:|&^", commandLine.GetOption("--v2"));
         }
 
         [Fact]
@@ -326,9 +352,25 @@ namespace TestCommon
         }
 
         [Fact]
+        public void Option_OptionalValue()
+        {
+            // Verify that an option can optionally have a value.
+
+            var commandLine = new CommandLine(new string[] { "--option" });
+
+            Assert.True(commandLine.HasOption("--option"));
+            Assert.Equal(string.Empty, commandLine.GetOption("--option"));
+
+            commandLine = new CommandLine(new string[] { "--option=value" });
+
+            Assert.True(commandLine.HasOption("--option"));
+            Assert.Equal("value", commandLine.GetOption("--option"));
+        }
+
+        [Fact]
         public void Preprocess()
         {
-            // Verify that references like $<env:VARIABLE> are converted correctly when 
+            // Verify that references like ${env:VARIABLE} are converted correctly when 
             // preprocessing a command line (using [PreprocessReader]).
 
             try
@@ -342,7 +384,7 @@ namespace TestCommon
                     { "TEST_MYVAR2", "value2" }
                 };
 
-                var commandLine = new CommandLine(new string[] { "$<env:TEST_MYENVVAR1>", "$<env:TEST_MYENVVAR2>", "--test1", "--test2=$<env:TEST_MYENVVAR2>", "$<TEST_MYVAR1>", "$<TEST_MYVAR2>" });
+                var commandLine = new CommandLine(new string[] { "${env:TEST_MYENVVAR1}", "${env:TEST_MYENVVAR2}", "--test1", "--test2=${env:TEST_MYENVVAR2}", "${TEST_MYVAR1}", "${TEST_MYVAR2}" });
                 var processed   = commandLine.Preprocess(variables);
 
                 Assert.Equal(6, processed.Items.Count());
@@ -362,6 +404,232 @@ namespace TestCommon
                 Environment.SetEnvironmentVariable("TEST_MYENVVAR1", null);
                 Environment.SetEnvironmentVariable("TEST_MYENVVAR2", null);
             }
+        }
+
+        [Fact]
+        public void AsString()
+        {
+            // Verify: Commandline.ToString()
+
+            Assert.Equal("test", new CommandLine("test").ToString());
+            Assert.Equal("test p1", new CommandLine("test", "p1").ToString());
+            Assert.Equal("test p1 p2", new CommandLine("test", "p1", "p2").ToString());
+            Assert.Equal("test p1 p2 p3", new CommandLine("test", "p1", "p2", "p3").ToString());
+            Assert.Equal("test p1=foo", new CommandLine("test", "p1=foo").ToString());
+            Assert.Equal("test \"p1=foo bar\"", new CommandLine("test", "p1=foo bar").ToString());
+            
+            //-----------------------------------------------------------------
+            // Argument quoting
+
+            // Test quoting of special characters.
+
+            Assert.Equal("'\"hello world!\"'", new CommandLine(new string[] { "\"hello world!\"" }).ToString());
+            Assert.Equal("\"'hello world!'\"", new CommandLine(new string[] { "'hello world!'" }).ToString());
+            Assert.Equal("\" \t<>:|&^\"", new CommandLine(new string[] { " \t<>:|&^" }).ToString());
+
+            // Verify that this fails when an argument includes both single and double quotes.
+
+            Assert.Throws<InvalidOperationException>(() => new CommandLine(new string[] { "\"'" }).ToString());
+
+            //-----------------------------------------------------------------
+            // Option quoting
+
+            Assert.Equal("--option=\"hello world!\"", new CommandLine(new string[] { "--option=hello world!" }).ToString());
+            Assert.Equal("--option='\"hello world!\"'", new CommandLine(new string[] { "--option=\"hello world!\"" }).ToString());
+            Assert.Equal("--option=\"'hello world!'\"", new CommandLine(new string[] { "--option='hello world!'" }).ToString());
+            Assert.Equal("--option=\" \t<>:|&^\"", new CommandLine(new string[] { "--option= \t<>:|&^" }).ToString());
+
+            // Verify that this fails when an argument includes both single and double quotes.
+
+            Assert.Throws<InvalidOperationException>(() => new CommandLine(new string[] { "--option=\"'" }).ToString());
+        }
+
+        [Fact]
+        public void AsFormatted_WithoutBars_WithoutContinuation()
+        {
+            var lineContinuation = string.Empty;
+
+            // Verify: Commandline.ToFormatted() with bars
+
+            Assert.Equal($"test{NeonHelper.LineEnding}", new CommandLine().ToFormatted("test"));
+
+            Assert.Equal(
+$@"test{lineContinuation}
+    p1
+",
+                new CommandLine("p1").ToFormatted("test"));
+
+            Assert.Equal(
+$@"test{lineContinuation}
+    p1{lineContinuation}
+    p2
+",
+                new CommandLine("p1", "p2").ToFormatted("test"));
+        }
+
+        [Fact]
+        public void AsFormatted_WithoutBars_WithContinuation()
+        {
+            var lineContinuation = NeonHelper.IsWindows ? " ^" : " \\";
+
+            // Verify: Commandline.ToFormatted() with bars
+
+            Assert.Equal($"test{NeonHelper.LineEnding}", new CommandLine().ToFormatted("test", withLineContinuation: true));
+
+            Assert.Equal(
+$@"test{lineContinuation}
+    p1
+",
+                new CommandLine("p1").ToFormatted("test", withLineContinuation: true));
+
+            Assert.Equal(
+$@"test{lineContinuation}
+    p1{lineContinuation}
+    p2
+",
+                new CommandLine("p1", "p2").ToFormatted("test", withLineContinuation: true));
+        }
+
+        [Fact]
+        public void AsFormatted_WithBars_WithContinuation()
+        {
+            var lineContinuation = NeonHelper.IsWindows ? " ^" : " \\";
+            var expected         = string.Empty;
+            var bar              = new string('-', 80);
+
+            // Verify: Commandline.ToFormatted() with bars
+
+            expected =
+$@"{bar}
+test
+{bar}
+";
+            Assert.Equal(expected, new CommandLine().ToFormatted("test", withBars: true, withLineContinuation: true));
+
+            expected =
+$@"{bar}
+test{lineContinuation}
+    p1
+{bar}
+";
+            Assert.Equal(expected, new CommandLine("p1").ToFormatted("test", withBars: true, withLineContinuation: true));
+
+            expected =
+$@"{bar}
+test{lineContinuation}
+    p1{lineContinuation}
+    p2
+{bar}
+";
+            Assert.Equal(expected, new CommandLine("p1", "p2").ToFormatted("test", withBars: true, withLineContinuation: true));
+
+            // Verify that shifting the command line still formats the original.
+
+            expected =
+$@"{bar}
+test{lineContinuation}
+    p1
+{bar}
+";
+            Assert.Equal(expected, new CommandLine("p1").Shift(1).ToFormatted("test", withBars: true, withLineContinuation: true));
+        }
+
+        [Fact]
+        public void AsFormatted_WithBars_WithoutContinuation()
+        {
+            var lineContinuation = string.Empty;
+            var expected         = string.Empty;
+            var bar              = new string('-', 80);
+
+            // Verify: Commandline.ToFormatted() with bars
+
+            expected =
+$@"{bar}
+test
+{bar}
+";
+            Assert.Equal(expected, new CommandLine().ToFormatted("test", withBars: true));
+
+            expected =
+$@"{bar}
+test{lineContinuation}
+    p1
+{bar}
+";
+            Assert.Equal(expected, new CommandLine("p1").ToFormatted("test", withBars: true));
+
+            expected =
+$@"{bar}
+test{lineContinuation}
+    p1{lineContinuation}
+    p2
+{bar}
+";
+            Assert.Equal(expected, new CommandLine("p1", "p2").ToFormatted("test", withBars: true));
+
+            // Verify that shifting the command line still formats the original.
+
+            expected =
+$@"{bar}
+test{lineContinuation}
+    p1
+{bar}
+";
+            Assert.Equal(expected, new CommandLine("p1").Shift(1).ToFormatted("test", withBars: true));
+        }
+
+        [Fact]
+        public void AsFormatted_WithSpecialChars()
+        {
+            var lineContinuation = string.Empty;
+            var expected         = string.Empty;
+            var bar              = new string('-', 80);
+
+            //-----------------------------------------------------------------
+            // Verify arguments with special characters.
+
+            expected =
+$@"{bar}
+test{lineContinuation}
+    ""hello world!""
+{bar}
+";
+            Assert.Equal(expected, new CommandLine("hello world!").ToFormatted("test", withBars: true));
+
+            expected =
+$@"{bar}
+test{lineContinuation}
+    "" <>:|&^""
+{bar}
+";
+            Assert.Equal(expected, new CommandLine(" <>:|&^").ToFormatted("test", withBars: true));
+
+            // Ensure that we see an InvalidOperationException when the arg contains single and double quotes.
+
+            Assert.Throws<InvalidOperationException>(() => new CommandLine("'\"").ToFormatted("test", withBars: true));
+
+            //-----------------------------------------------------------------
+            // Verify options with special characters
+
+            expected =
+$@"{bar}
+test{lineContinuation}
+    --option=""hello world!""
+{bar}
+";
+            Assert.Equal(expected, new CommandLine("--option=hello world!").ToFormatted("test", withBars: true));
+
+            expected =
+$@"{bar}
+test{lineContinuation}
+    --option="" <>:|&^""
+{bar}
+";
+            Assert.Equal(expected, new CommandLine("--option= <>:|&^").ToFormatted("test", withBars: true));
+
+            // Ensure that we see an InvalidOperationException when the arg contains single and double quotes.
+
+            Assert.Throws<InvalidOperationException>(() => new CommandLine("--option='\"").ToFormatted("test", withBars: true));
         }
     }
 }

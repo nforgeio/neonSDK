@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------------
 // FILE:	    NeonServiceOptions.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -70,14 +70,6 @@ namespace Neon.Service
         /// </para>
         /// </summary>
         public TracerProvider TracerProvider { get; set; }
-
-        /// <summary>
-        /// Optionally specifies prefix to be used by metrics counters, overridding a prefix based on the
-        /// service name.  This prefix may include only alphanumeric characters and underscores.  By default,
-        /// this will be set to the service name with any non-alphanumeric characters converted to underscores.
-        /// In either case, the class will add a trailing underscore when not already present.
-        /// </summary>
-        public string MetricsPrefix { get; set; } = null;
 
         /// <summary>
         /// <para>

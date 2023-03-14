@@ -1,7 +1,7 @@
 ﻿//-----------------------------------------------------------------------------
 // FILE:	    GitHub.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2022 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,23 +38,23 @@ namespace Neon.Deployment
     /// a good practice to call <see cref="ClearCredentials()"/>.
     /// </para>
     /// <note>
-    /// This class currently requires that the <b>GITHUB_PAT</b> (personal access token) 
-    /// and <b>GITHUB_LOGIN</b> variables be available via 1Password for the current user.
-    /// We need <b>GITHUB_LOGIN</b> right now so we can login and screen-scrap the GitHub
-    /// website for package operations that don't have REST endpoints yet.
+    /// This class currently requires that the <b>GITHUB_PAT</b> environment variable or
+    /// <b>GITHUB[accesstoken]</b> secret be available via 1Password for the current user.
     /// </note>
     /// </remarks>
     public static partial class GitHub
     {
         /// <summary>
+        /// Specifies the <b>User-Agent</b> string used when submitting REST API
+        /// requests to GitHub.  This defaults to <b>neon-sdk</b> but may be 
+        /// customized.
+        /// </summary>
+        public static string UserAgent = "neon-sdk";
+
+        /// <summary>
         /// Returns the GitHub PAT (personal access token) or <c>null</c>.
         /// </summary>
         internal static string AccessToken { get; private set; }
-
-        /// <summary>
-        /// Returns the GitHub user credentials or <c>null</c>.
-        /// </summary>
-        internal static Neon.Common.Credentials Credentials { get; private set; }
 
         /// <summary>
         /// Retrieves the necessary credentials from 1Password when necessary and 
@@ -64,27 +64,19 @@ namespace Neon.Deployment
         {
             if (AccessToken == null)
             {
-                var gitHubPat      = Environment.GetEnvironmentVariable("GITHUB_PAT");
-                var gitHubUsername = Environment.GetEnvironmentVariable("GITHUB_USERNAME");
-                var gitHubPassword = Environment.GetEnvironmentVariable("GITHUB_PASSWORD");
+                var gitHubPat = Environment.GetEnvironmentVariable("GITHUB_PAT");
 
-                if (!string.IsNullOrEmpty(gitHubPat) &&
-                    !string.IsNullOrEmpty(gitHubUsername) &&
-                    !string.IsNullOrEmpty(gitHubPassword))
+                if (!string.IsNullOrEmpty(gitHubPat))
                 {
                     AccessToken = gitHubPat;
-                    Credentials = Neon.Common.Credentials.FromUserPassword(gitHubUsername, gitHubPassword);
                 }
                 else
                 {
-                    var profile = new ProfileClient();
+                    var profile = new MaintainerProfile();
 
-                    AccessToken = profile.GetSecretPassword("GITHUB_PAT");
-                    Credentials = Neon.Common.Credentials.FromUserPassword(profile.GetSecretPassword("GITHUB_LOGIN[username]"), profile.GetSecretPassword("GITHUB_LOGIN[password]"));
+                    AccessToken = profile.GetSecretPassword("GITHUB[accesstoken]");
 
                     Environment.SetEnvironmentVariable("GITHUB_PAT", AccessToken);
-                    Environment.SetEnvironmentVariable("GITHUB_USERNAME", Credentials.Username);
-                    Environment.SetEnvironmentVariable("GITHUB_PASSWORD", Credentials.Password);
                 }
             }
         }
@@ -95,7 +87,6 @@ namespace Neon.Deployment
         public static void ClearCredentials()
         {
             AccessToken = null;
-            Credentials = null;
         }
 
         /// <summary>
@@ -121,26 +112,36 @@ namespace Neon.Deployment
         /// <summary>
         /// Creates a REST client that can be used to manage GitHub.
         /// </summary>
-        /// <param name="repo">Identifies the target repo.</param>
+        /// <param name="userAgent">Optionally identifies the user agent.  This defaults to <b>"neon-sdk"</b>.</param>
         /// <returns>The <see cref="GitHubClient"/> instance.</returns>
-        internal static GitHubClient CreateGitHubClient(string repo)
+        public static GitHubClient CreateClient(string userAgent = null)
         {
+            if (string.IsNullOrEmpty(userAgent))
+            {
+                userAgent = GitHub.UserAgent;
+            }
+
             GitHub.GetCredentials();
 
-            var repoPath = GitHubRepoPath.Parse(repo);
-            var client = new GitHubClient(new Octokit.ProductHeaderValue("neonforge.com"));    // $todo(jefflill): https://github.com/nforgeio/neonKUBE/issues/1214
-
-            client.Credentials = new Octokit.Credentials(AccessToken);
-
-            return client;
+            return new GitHubClient(new Octokit.ProductHeaderValue(userAgent))
+            {
+                Credentials = new Octokit.Credentials(AccessToken)
+            };
         }
 
         /// <summary>
-        /// Creates a <see cref="JsonClient"/> that can be used to manage GitHub.
+        /// Creates a <see cref="JsonClient"/> that can be used to manage GitHub via
+        /// its REST API.
         /// </summary>
+        /// <param name="userAgent">Optionally identifies the user agent.  This defaults to <b>"neon-sdk"</b>.</param>
         /// <returns>The <see cref="JsonClient"/> instance.</returns>
-        internal static JsonClient CreateJsonClient()
+        internal static JsonClient CreateJsonClient(string userAgent = null)
         {
+            if (string.IsNullOrEmpty(userAgent))
+            {
+                userAgent = GitHub.UserAgent;
+            }
+
             GitHub.GetCredentials();
 
             var client = new JsonClient()
@@ -149,7 +150,7 @@ namespace Neon.Deployment
             };
 
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("token", AccessToken);
-            client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("neonforge.com", "0"));       // $todo(jefflill): https://github.com/nforgeio/neonKUBE/issues/1214
+            client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(userAgent, "0"));
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github.v3+json"));
 
             return client;
