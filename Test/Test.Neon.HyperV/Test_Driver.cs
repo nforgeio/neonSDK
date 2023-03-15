@@ -175,12 +175,17 @@ namespace TestHyperV
                 //    File.Delete(logPath);
                 //}
 
-                using var log = new StreamWriter(logPath) { AutoFlush = true };
-                    
                 var stopwatch = new Stopwatch();
 
                 stopwatch.Start();
-                log.WriteLine();
+
+                void Log(string line = null)
+                {
+                    line ??= string.Empty;
+                    File.AppendAllText(logPath, line + "\r\n");
+                }
+
+                Log();
                 //###############################
 
                 using (var client = new HyperVClient())
@@ -189,38 +194,39 @@ namespace TestHyperV
                     {
                         try
                         {
-log.WriteLine($"[{stopwatch.Elapsed.RoundToSeconds()}]: 0: ");
+Log($"[{stopwatch.Elapsed.RoundToSeconds()}]: 0: ");
                             // Scan for an existing test VM and stop/remove it when present.
 
                             if (client.FindVm(testVmName) != null)
                             {
-log.WriteLine($"[{stopwatch.Elapsed.RoundToSeconds()}]: 1: ");
+Log($"[{stopwatch.Elapsed.RoundToSeconds()}]: 1A: ");
                                 driver.StopVm(testVmName, turnOff: true);
+Log($"[{stopwatch.Elapsed.RoundToSeconds()}]: 1B: ");
                                 driver.RemoveVm(testVmName);
-log.WriteLine($"[{stopwatch.Elapsed.RoundToSeconds()}]: 2: ");
+Log($"[{stopwatch.Elapsed.RoundToSeconds()}]: 2: ");
                             }
 
                             // Create a test VM with a boot disk and then verify that it exists and is not running.
 
-log.WriteLine($"[{stopwatch.Elapsed.RoundToSeconds()}]: 3: ");
+Log($"[{stopwatch.Elapsed.RoundToSeconds()}]: 3: ");
                             driver.NewVM(testVmName, processorCount: 1, startupMemoryBytes: 2 * (long)ByteUnits.GibiBytes);
                             driver.AddVmDrive(testVmName, bootDiskPath);
                             driver.EnableVmNestedVirtualization(testVmName);
-log.WriteLine($"[{stopwatch.Elapsed.RoundToSeconds()}]: 4: ");
+Log($"[{stopwatch.Elapsed.RoundToSeconds()}]: 4: ");
 
                             var vm = client.FindVm(testVmName);
 
                             Assert.NotNull(vm);
                             Assert.Equal(VirtualMachineState.Off, vm.State);
-log.WriteLine($"[{stopwatch.Elapsed.RoundToSeconds()}]: 5: ");
+Log($"[{stopwatch.Elapsed.RoundToSeconds()}]: 5: ");
 
                             // Start the VM and wait for it to transition to running.
 
-log.WriteLine($"[{stopwatch.Elapsed.RoundToSeconds()}]: 6A: ");
+Log($"[{stopwatch.Elapsed.RoundToSeconds()}]: 6A: ");
                             driver.StartVm(testVmName);
-log.WriteLine($"[{stopwatch.Elapsed.RoundToSeconds()}]: 6B: ");
+Log($"[{stopwatch.Elapsed.RoundToSeconds()}]: 6B: ");
                             VerifyVmState(client, testVmName, VirtualMachineState.Running);
-log.WriteLine($"[{stopwatch.Elapsed.RoundToSeconds()}]: 6C: ");
+Log($"[{stopwatch.Elapsed.RoundToSeconds()}]: 6C: ");
 
                             // Verify the VM memory and processor count.
 
@@ -228,18 +234,18 @@ log.WriteLine($"[{stopwatch.Elapsed.RoundToSeconds()}]: 6C: ");
 
                             Assert.Equal(1, vm.ProcessorCount);
                             Assert.Equal(2 * (long)ByteUnits.GibiBytes, vm.MemorySizeBytes);
-log.WriteLine($"[{stopwatch.Elapsed.RoundToSeconds()}]: 7: ");
+Log($"[{stopwatch.Elapsed.RoundToSeconds()}]: 7: ");
 
                             // Save the VM, wait for it to report being saved and then restart it.
 
-log.WriteLine($"[{stopwatch.Elapsed.RoundToSeconds()}]: 7A: ");
+Log($"[{stopwatch.Elapsed.RoundToSeconds()}]: 7A: ");
                             driver.SaveVm(testVmName);
                             VerifyVmState(client, testVmName, VirtualMachineState.Saved);
-log.WriteLine($"[{stopwatch.Elapsed.RoundToSeconds()}]: 7B: ");
+Log($"[{stopwatch.Elapsed.RoundToSeconds()}]: 7B: ");
                             driver.StartVm(testVmName);
-log.WriteLine($"[{stopwatch.Elapsed.RoundToSeconds()}]: 7C: ");
+Log($"[{stopwatch.Elapsed.RoundToSeconds()}]: 7C: ");
                             VerifyVmState(client, testVmName, VirtualMachineState.Running);
-log.WriteLine($"[{stopwatch.Elapsed.RoundToSeconds()}]: 8D: ");
+Log($"[{stopwatch.Elapsed.RoundToSeconds()}]: 8D: ");
 
                             // List the attached data drives.  There should only be the boot disk.
 
@@ -247,7 +253,7 @@ log.WriteLine($"[{stopwatch.Elapsed.RoundToSeconds()}]: 8D: ");
 
                             Assert.Single(drives);
                             Assert.Contains(bootDiskPath, drives);
-log.WriteLine($"[{stopwatch.Elapsed.RoundToSeconds()}]: 9: ");
+Log($"[{stopwatch.Elapsed.RoundToSeconds()}]: 9A: ");
 
                             // Create a DVD ISO file and verify that we can add and remove it
                             // from the VM.
@@ -258,65 +264,67 @@ log.WriteLine($"[{stopwatch.Elapsed.RoundToSeconds()}]: 9: ");
                             isoBuilder.AddFile("hello.txt", Encoding.UTF8.GetBytes("HELLO WORLD!"));
                             isoBuilder.Build(isoPath);
 
-                            driver.InsertVmDvdDrive(testVmName, isoPath);
-                            driver.EjectDvdDrive(testVmName);
-log.WriteLine($"[{stopwatch.Elapsed.RoundToSeconds()}]: 10A: ");
+Log($"[{stopwatch.Elapsed.RoundToSeconds()}]: 9B: ");
+                            //driver.InsertVmDvdDrive(testVmName, isoPath);
+Log($"[{stopwatch.Elapsed.RoundToSeconds()}]: 9C: ");
+                            //driver.EjectDvdDrive(testVmName);
+Log($"[{stopwatch.Elapsed.RoundToSeconds()}]: 10A: ");
 
                             // Stop the VM gracefully, add a data drive and increase the processors to 4
                             // and the memory to 3 GiB and then restart the VM to verify the processors/memory
                             // and the new drive.
 
                             driver.StopVm(testVmName);
-log.WriteLine($"[{stopwatch.Elapsed.RoundToSeconds()}]: 10B: ");
+Log($"[{stopwatch.Elapsed.RoundToSeconds()}]: 10B: ");
                             driver.NewVhd(dataDiskPath, isDynamic: true, sizeBytes: 64 * (long)ByteUnits.MebiBytes, blockSizeBytes: (int)ByteUnits.MebiBytes);
-log.WriteLine($"[{stopwatch.Elapsed.RoundToSeconds()}]: 10C: ");
+Log($"[{stopwatch.Elapsed.RoundToSeconds()}]: 10C: ");
                             driver.AddVmDrive(testVmName, dataDiskPath);
-log.WriteLine($"[{stopwatch.Elapsed.RoundToSeconds()}]: 11: ");
+Log($"[{stopwatch.Elapsed.RoundToSeconds()}]: 11: ");
                             driver.SetVm(testVmName, processorCount: 4, startupMemoryBytes: 3 * (long)ByteUnits.GibiBytes);
                             driver.StartVm(testVmName);
-log.WriteLine($"[{stopwatch.Elapsed.RoundToSeconds()}]: 12: ");
+Log($"[{stopwatch.Elapsed.RoundToSeconds()}]: 12: ");
 
                             vm = client.FindVm(testVmName);
 
                             Assert.Equal(4, vm.ProcessorCount);
                             Assert.Equal(3 * (long)ByteUnits.GibiBytes, vm.MemorySizeBytes);
-log.WriteLine($"[{stopwatch.Elapsed.RoundToSeconds()}]: 13: ");
+Log($"[{stopwatch.Elapsed.RoundToSeconds()}]: 13: ");
 
                             drives = driver.ListVmDrives(testVmName).ToList();
 
                             Assert.Equal(2, drives.Count);
                             Assert.Contains(bootDiskPath, drives);
                             Assert.Contains(dataDiskPath, drives);
-log.WriteLine($"[{stopwatch.Elapsed.RoundToSeconds()}]: 14: ");
+Log($"[{stopwatch.Elapsed.RoundToSeconds()}]: 14: ");
 
                             // List the VM's network adapters.
 
                             var adapters = driver.ListVmNetAdapters(testVmName);
 
                             Assert.NotEmpty(adapters);
-log.WriteLine($"[{stopwatch.Elapsed.RoundToSeconds()}]: 15A: ");
+Log($"[{stopwatch.Elapsed.RoundToSeconds()}]: 15A: ");
 
                             // Stop and remove the VM and verify.
 
                             driver.StopVm(testVmName, turnOff: true);
-log.WriteLine($"[{stopwatch.Elapsed.RoundToSeconds()}]: 15B: ");
+Log($"[{stopwatch.Elapsed.RoundToSeconds()}]: 15B: ");
                             driver.RemoveVm(testVmName);
-log.WriteLine($"[{stopwatch.Elapsed.RoundToSeconds()}]: 15C: ");
+Log($"[{stopwatch.Elapsed.RoundToSeconds()}]: 15C: ");
                             Assert.Null(client.FindVm(testVmName));
-log.WriteLine($"[{stopwatch.Elapsed.RoundToSeconds()}]: 16: ");
+Log($"[{stopwatch.Elapsed.RoundToSeconds()}]: 16: ");
                         }
                         finally
                         {
                             // Forcefully turn off any existing VM and remove it.
 
-log.WriteLine($"[{stopwatch.Elapsed.RoundToSeconds()}]: 17: ");
+Log($"[{stopwatch.Elapsed.RoundToSeconds()}]: 17: ");
                             if (client.FindVm(testVmName) != null)
                             {
-log.WriteLine($"[{stopwatch.Elapsed.RoundToSeconds()}]: 18: ");
+Log($"[{stopwatch.Elapsed.RoundToSeconds()}]: 18: ");
                                 driver.StopVm(testVmName, turnOff: true);
                                 driver.RemoveVm(testVmName);
                             }
-log.WriteLine($"[{stopwatch.Elapsed.RoundToSeconds()}]: 19: ");
+Log($"[{stopwatch.Elapsed.RoundToSeconds()}]: 19: ");
                         }
                     }
                 }

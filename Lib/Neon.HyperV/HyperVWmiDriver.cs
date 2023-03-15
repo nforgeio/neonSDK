@@ -39,6 +39,7 @@ using Neon.Net;
 using Microsoft.HyperV.PowerShell;
 using System.Runtime.CompilerServices;
 using Microsoft.Virtualization.Client.Management;
+using OpenTelemetry;
 
 namespace Neon.HyperV
 {
@@ -154,7 +155,10 @@ namespace Neon.HyperV
         //---------------------------------------------------------------------
         // Implementation
 
-        private HyperVClient client;
+        private HyperVClient        client;
+        private readonly TimeSpan   timeout      = TimeSpan.FromMinutes(10);
+        private readonly TimeSpan   pollInterval = TimeSpan.FromSeconds(1);
+        private readonly TimeSpan   waitTime     = TimeSpan.FromSeconds(0);
 
         /// <summary>
         /// Constructor.
@@ -208,15 +212,48 @@ namespace Neon.HyperV
                 throw new ObjectDisposedException(nameof(HyperVClient));
             }
         }
+        //###############################
+        // $debug(jefflill): DELETE THIS!
+
+        void Log(string line = null)
+        {
+            line ??= string.Empty;
+            File.AppendAllText(@"C:\Temp\Debug.log", line + "\r\n");
+        }
+
+        //###############################
 
         /// <summary>
         /// Invokes the <typeparamref name="TCmdlet"/> cmdlet with the parameters passed.
         /// </summary>
         /// <typeparam name="TCmdlet">Specifies the target cmdlet implementation.</typeparam>
         /// <param name="args">Specifies any arguments to be passed.</param>
+        /// <param name="waitFor">
+        /// Optionally specifies a predicate that needs to retunr <c>true</c> before the
+        /// operation is to be considered complete.
+        /// </param>
         /// <returns>The comand results.</returns>
         /// <exception cref="HyperVException">Thrown for errors.</exception>
-        private IList<PSObject> Invoke<TCmdlet>(CmdletArgs args)
+        /// <exception cref="TimeoutException">
+        /// Thrown when <paramref name="waitFor"/> is passed and doesn't return <c>true</c>
+        /// within 10 minutes.
+        /// </exception>
+        /// <remarks>
+        /// <para>
+        /// Some Hyper-V related cmdlets just initiate the operaton and don't
+        /// wait until the operation completes.  This can cause Hyper-V virtual
+        /// machines to transition to a state where additional operations can't
+        /// be performed (even using the Hyper-V Manager user interface).
+        /// </para>
+        /// <para>
+        /// We'll pass a <paramref name="waitFor"/> predicate in these cases that
+        /// returns <c>true</c> when the operation is considered to be complete.
+        /// This method calls the predicate periodically until it returnes <c>true</c>
+        /// and waits up to 10 minutes for this to happe, before throwning a
+        /// <see cref="TimeoutException"/>.
+        /// </para>
+        /// </remarks>
+        private IList<PSObject> Invoke<TCmdlet>(CmdletArgs args, Func<bool> waitFor = null)
             where TCmdlet : PSCmdlet, new()
         {
             try
@@ -238,7 +275,10 @@ namespace Neon.HyperV
                         powershell.AddCommand(cmdletName);
                         args.CopyArgsTo(powershell);
 
-                        return powershell.Invoke();
+                        var result = powershell.Invoke();
+                        var errors = powershell.Streams.Error;
+
+                        return result;
                     }
                 }
             }
@@ -246,40 +286,36 @@ namespace Neon.HyperV
             {
                 throw new HyperVException(e);
             }
+            finally
+            {
+                if (waitFor != null)
+                {
+                    NeonHelper.WaitFor(waitFor, timeout: timeout, pollInterval: pollInterval);
+                }
+            }
         }
 
         /// <summary>
-        /// Waits for a VM to exist and then optionally waits for it to transition to
-        /// a specific state.
+        /// Determines whether a VM exists and optionally verifies that it has a specific state.
         /// </summary>
         /// <param name="machineName">Specifies the machine name.</param>
         /// <param name="state">Optionally specifies the required state.</param>
-        private void WaitForVm(string machineName, VirtualMachineState? state = null)
+        /// <returns><c>true</c> when the VM exists and satisfies any state constraint.</returns>
+        private bool CheckVm(string machineName, VirtualMachineState? state = null)
         {
-            // $hack(jefflill):
-            //
-            // It appears that the VM operations are returning before they actually
-            // complete so we're going to hack around that using this method.
+            var vm = ListVms().SingleOrDefault(vm => vm.Name.Equals(machineName, StringComparison.InvariantCultureIgnoreCase));
 
-            NeonHelper.WaitFor(
-                () =>
-                {
-                    var vm = ListVms().SingleOrDefault(vm => vm.Name.Equals(machineName));
+            if (vm == null)
+            {
+                return false;
+            }
 
-                    if (vm == null)
-                    {
-                        return false;
-                    }
+            if (state.HasValue)
+            {
+                return vm.State == state;
+            }
 
-                    if (state.HasValue)
-                    {
-                        return vm.State == state;
-                    }
-
-                    return true;
-                },
-                timeout:      TimeSpan.FromMinutes(30),
-                pollInterval: TimeSpan.FromSeconds(1));
+            return true;
         }
 
         /// <inheritdoc/>
@@ -314,10 +350,9 @@ namespace Neon.HyperV
                 args.Add("SwitchName", switchName);
             }
 
-            Invoke<NewVM>(args);
-            WaitForVm(machineName);
+            Invoke<NewVM>(args, waitFor: () => CheckVm(machineName));
 
-            // Disable drive checkpointing.
+            // Set the processor count and disable drive checkpointing.
 
             SetVm(machineName, processorCount: processorCount, checkpointDrives: false);
         }
@@ -334,7 +369,7 @@ namespace Neon.HyperV
             args.Add("VMName", machineName);
             args.Add("Path", drivePath);
 
-            Invoke<AddVMHardDiskDrive>(args);
+            Invoke<AddVMHardDiskDrive>(args, waitFor: () => ListVmDrives(machineName).Any(drivePath => drivePath.Equals(drivePath, StringComparison.InvariantCultureIgnoreCase)));
         }
 
         /// <inheritdoc/>
@@ -383,9 +418,33 @@ namespace Neon.HyperV
             var args = new CmdletArgs();
 
             args.Add("VMName", machineName);
+
+            var drives = Invoke<GetVMDvdDrive>(args)
+                .Select(drive => drive.Members["Path"].Value)
+                .Where(path => path != null);
+
+            if (drives.Any())
+            {
+                throw new HyperVException($"Virtual machine [{machineName}] already has an attached DVD drive.");
+            }
+
+            args.Clear();
+            args.Add("VMName", machineName);
             args.Add("Path", isoPath);
 
-            Invoke<SetVMDvdDrive>(args);
+            Invoke<SetVMDvdDrive>(args,
+                waitFor: () =>
+                {
+                    args.Clear();
+                    args.Add("VMName", machineName);
+
+                    var drives = Invoke<GetVMDvdDrive>(args)
+                        .Select(drive => (string)drive.Members["Path"].Value);
+
+                    return drives.Any(drive => drive.Equals(isoPath, StringComparison.InvariantCultureIgnoreCase));
+                });
+
+            Thread.Sleep(waitTime);
         }
 
         /// <inheritdoc/>
@@ -396,10 +455,44 @@ namespace Neon.HyperV
 
             var args = new CmdletArgs();
 
-            args.Add("VMname", machineName);
-            args.Add("Path", null);
+            args.Add("VMName", machineName);
 
-            Invoke<SetVMDvdDrive>(args);
+            var drives = Invoke<GetVMDvdDrive>(args)
+                .Where(drive => drive.Members["Path"].Value != null);
+
+            if (!drives.Any())
+            {
+                // No attached DVD drives.
+
+                return;
+            }
+
+            foreach (var drive in drives)
+            {
+                args.Clear();
+                args.Add("VMDvdDrive", drive);
+
+                Invoke<RemoveVMDvdDrive>(args);
+            }
+
+            // Wait until there are no remaining DVD drives attached to the VM.
+
+            NeonHelper.WaitFor(
+                () =>
+                {
+                    args.Clear();
+                    args.Add("VMname", machineName);
+
+                    var drives = Invoke<GetVMDvdDrive>(args)
+                        .Select(drive => drive.Members["Path"].Value)
+                        .Where(path => path != null);
+
+                    return !drives.Any();
+                },
+                timeout:      timeout,
+                pollInterval: pollInterval);
+
+            Thread.Sleep(waitTime);
         }
 
         /// <inheritdoc/>
@@ -683,16 +776,7 @@ namespace Neon.HyperV
             args.Add("Name", machineName);
             args.AddSwitch("Force");
 
-            Invoke<RemoveVM>(args);
-
-            // $hack(jefflill):
-            //
-            // It appears that RemoveVM doesn't actually wait for the VM to be removed
-            // so we're going to wait explicitly.
-
-            NeonHelper.WaitFor(() => !ListVms().Any(vm => vm.Name == machineName), 
-                timeout:      TimeSpan.FromMinutes(30),
-                pollInterval: TimeSpan.FromSeconds(1));
+            Invoke<RemoveVM>(args, waitFor: () => !ListVms().Any(vm => vm.Name == machineName));
         }
 
         /// <inheritdoc/>
@@ -704,7 +788,7 @@ namespace Neon.HyperV
 
             args.Add("Name", switchName);
 
-            Invoke<RemoveVMSwitch>(args);
+            Invoke<RemoveVMSwitch>(args, waitFor: () => !ListSwitches().Any(@switch => @switch.Name.Equals(switchName, StringComparison.InvariantCultureIgnoreCase)));
         }
 
         /// <inheritdoc/>
@@ -730,8 +814,7 @@ namespace Neon.HyperV
 
             args.Add("Name", machineName);
 
-            Invoke<SaveVM>(args);
-            WaitForVm(machineName, VirtualMachineState.Saved);
+            Invoke<SaveVM>(args, waitFor: () => CheckVm(machineName, VirtualMachineState.Saved));
         }
 
         /// <inheritdoc/>
@@ -766,7 +849,25 @@ namespace Neon.HyperV
                 }
             }
 
-            Invoke<SetVM>(args);
+            Invoke<SetVM>(args,
+                waitFor: () =>
+                {
+                    var vm = ListVms().First();
+
+                    if (processorCount.HasValue && vm.ProcessorCount != processorCount.Value)
+                    {
+                        return false;
+                    }
+
+                    if (startupMemoryBytes.HasValue && vm.MemorySizeBytes != startupMemoryBytes.Value)
+                    {
+                        return false;
+                    }
+
+                    // $hack(jefflill): Do we need to verify [checkpointDrives] too?
+
+                    return true;
+                });
         }
 
         /// <inheritdoc/>
@@ -778,8 +879,7 @@ namespace Neon.HyperV
 
             args.Add("Name", machineName);
 
-            Invoke<StartVM>(args);
-            WaitForVm(machineName, VirtualMachineState.Running);
+            Invoke<StartVM>(args, waitFor: () => CheckVm(machineName, VirtualMachineState.Running));
         }
 
         /// <inheritdoc/>
@@ -796,8 +896,7 @@ namespace Neon.HyperV
                 args.AddSwitch("TurnOff");
             }
 
-            Invoke<StopVM>(args);
-            WaitForVm(machineName, VirtualMachineState.Off);
+            Invoke<StopVM>(args, waitFor: () => CheckVm(machineName, VirtualMachineState.Off));
         }
 
         /// <inheritdoc/>

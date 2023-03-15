@@ -148,7 +148,12 @@ namespace Neon.HyperV
         void EnableVmNestedVirtualization(string machineName);
 
         /// <summary>
+        /// <para>
         /// Inserts an ISO file as a DVD drive to a virtual machine.
+        /// </para>
+        /// <note>
+        /// This API supports only one inserted DVD at a time per virtual machine.
+        /// </note>
         /// </summary>
         /// <param name="machineName">Specifies the virtual machine name.</param>
         /// <param name="isoPath">Specifies the path to the existing virtual DVD drive (ISO file).</param>
@@ -156,7 +161,12 @@ namespace Neon.HyperV
         void InsertVmDvdDrive(string machineName, string isoPath);
 
         /// <summary>
-        /// Ejects a DVD drive from a virtual machine.
+        /// <para>
+        /// Ejects any DVD drive from a virtual machine.
+        /// </para>
+        /// <note>
+        /// This API supports only one inserted DVD at a time per virtual machine.
+        /// </note>
         /// </summary>
         /// <param name="machineName">Specifies the virtual machine name.</param>
         /// <exception cref="HyperVException">Thrown for errors.</exception>
