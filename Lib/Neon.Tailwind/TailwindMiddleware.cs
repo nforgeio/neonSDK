@@ -60,9 +60,9 @@ namespace Neon.Tailwind
             {
                 Arguments              = string.Join(' ', args),
                 UseShellExecute        = false,
-                RedirectStandardInput  = true,
-                RedirectStandardOutput = true,
-                RedirectStandardError  = true
+                RedirectStandardInput  = false,
+                RedirectStandardOutput = false,
+                RedirectStandardError  = false,
             };
 
             process = Process.Start(processStartInfo);

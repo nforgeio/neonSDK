@@ -12,7 +12,7 @@
         "postcss-import": "^14.1.0"
     },
     "scripts": {
-        "dev": "postcss ./Styles/tailwind.css -o ./wwwroot/css/tailwind.css --watch",
+        "dev": "postcss --verbose ./Styles/tailwind.css -o ./wwwroot/css/tailwind.css --watch",
         "build": "tailwind -i ./Styles/tailwind.css -o ./wwwroot/css/tailwind.css"
     },
     "author": "",
