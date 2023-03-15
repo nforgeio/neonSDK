@@ -39,6 +39,7 @@ using DnsClient;
 
 using Enyim;
 using Enyim.Caching;
+using Enyim.Caching.Configuration;
 
 using Prometheus;
 
@@ -89,10 +90,17 @@ namespace NeonBlazorProxy
 
                     NeonBlazorProxyService.Logger.LogInformationEx(() => $"Connecting to Memcached: [{NeonBlazorProxyService.Config.Cache.Memcached.Address}]");
                     services.AddEnyimMemcached(options => 
-                    { 
-                        options = NeonBlazorProxyService.Config.Cache.Memcached.GetOptions();
+                    {
+                        options.AddServer(
+                            address: NeonBlazorProxyService.Config.Cache.Memcached.Address,
+                            port: NeonBlazorProxyService.Config.Cache.Memcached.Port);
+                        
+                        options.SuppressException = false;
+                        options.Protocol          = Enyim.Caching.Memcached.MemcachedProtocol.Text;
+
                         NeonBlazorProxyService.Logger.LogDebugEx(() => NeonHelper.JsonSerialize(options));
                     });
+
                     break;
 
                 case CacheType.Redis:
@@ -105,8 +113,10 @@ namespace NeonBlazorProxy
                             EndPoints = { NeonBlazorProxyService.Config.Cache.Redis.Host },
                             Proxy     = NeonBlazorProxyService.Config.Cache.Redis.Proxy
                         };
+
                         NeonBlazorProxyService.Logger.LogDebugEx(() => NeonHelper.JsonSerialize(options));
                     });
+
                     break;
 
                 case CacheType.InMemory:
@@ -114,12 +124,14 @@ namespace NeonBlazorProxy
 
                     NeonBlazorProxyService.Logger.LogInformationEx("Using Local cache.");
                     services.AddDistributedMemoryCache();
+
                     break;
             }
 
             services.AddSingleton(NeonBlazorProxyService);
             services.AddSingleton(NeonBlazorProxyService.Config);
             services.AddSingleton<ILogger>(NeonBlazorProxyService.Logger);
+            services.AddSingleton(TelemetryHub.LoggerFactory);
             services.AddSingleton(NeonBlazorProxyService.DnsClient);
             services.AddSingleton<CacheHelper>();
             services.AddSingleton(new ForwarderRequestConfig()

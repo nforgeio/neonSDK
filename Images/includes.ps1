@@ -49,21 +49,21 @@ $ncTools    = "$ncRoot\Tools"
 #------------------------------------------------------------------------------
 # Global constants.
 
-# neonKUBE container image tag.
-#
-# Note that we determine the currently checked-out Git branch for local neonKUBE 
-# repo.  If that's a release branch, then we'll just use the neonKUBE version,
-# otherwise, we'll append the branch name with a leading period to the tag.
-#
-# This helps to isolate container images between different branches so developers 
-# can work on different cluster images in parallel.
+# neonSDK release Version.
 
-$neonKUBE_Tag   = "neonkube-" + $neonKUBE_Version
-$neonKubeBranch = GitBranch $env:NK_ROOT
+$neonSDK_Version = $(& neon-build read-version "$nfRoot\Lib\Neon.Common\Build.cs" NeonSdkVersion)
+ThrowOnExitCode
 
-if (-not $neonKubeBranch.StartsWith("release-"))
+$neonSDK_Tag = "neonsdk-" + $neonSDK_Version
+
+# Override the common image tag if the [NEON_CONTAINER_TAG_OVERRIDE] is defined.\
+# This is used for development purposes.
+
+$tagOverride = $env:NEON_CONTAINER_TAG_OVERRIDE
+
+if (-not [System.String]::IsNullOrEmpty($tagOverride))
 {
-	$neonKUBE_Tag = "$neonKUBE_Tag.$neonKubeBranch"
+	$neonSDK_Tag = $tagOverride
 }
 
 #------------------------------------------------------------------------------
@@ -110,13 +110,7 @@ function Get-DotnetBaseImage
         [string]$globalJsonPath
     )
 
-	# NOTE: This command writes the SDK version to the first output line and
-	#       the runtime version to the second line.
-
-	$command  = "neon-build dotnet-version " + '"' + $globalJsonPath + '"'
-	$response = Invoke-CaptureStreams $command
-	$lines    = $response.stdout -split '\r?\n'
-	$runtime  = $lines[1].Trim()
+	$runtime  = (Get-Content $globalJsonPath | ConvertFrom-Json).sdk.version.Trim('0')
 
 	return "mcr.microsoft.com/dotnet/aspnet:$runtime-jammy-amd64"
 }

@@ -53,22 +53,5 @@ namespace NeonBlazorProxy
         [YamlMember(Alias = "port", ApplyNamingConventions = false)]
         [DefaultValue(11211)]
         public int Port { get; set; } = 11211;
-
-        /// <summary>
-        /// Returns the options as <see cref="MemcachedClientOptions"/>.
-        /// </summary>
-        /// <returns></returns>
-        public MemcachedClientOptions GetOptions()
-        {
-            var options = new MemcachedClientOptions();
-
-            options.Servers.Add(new Server()
-            {
-                Address = Address,
-                Port = Port
-            });
-
-            return options;
-        }
     }
 }
