@@ -17,29 +17,13 @@
 
 using System;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.Collections.Concurrent;
 
-using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.AspNetCore.SignalR.Client;
-using Microsoft.AspNetCore.SignalR.Protocol;
 using Microsoft.AspNetCore.ResponseCompression;
-using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Primitives;
-
-using Neon.Common;
 
 using AsyncKeyedLock;
-
-using MessagePack;
 
 using NATS.Client;
 
@@ -54,53 +38,28 @@ namespace Neon.Web.SignalR
         /// Adds scale-out to a <see cref="ISignalRServerBuilder"/>, using a shared Nats server.
         /// </summary>
         /// <param name="signalrBuilder">The <see cref="ISignalRServerBuilder"/>.</param>
+        /// <param name="options">An optional <see cref="Action{T}" /> to configure the provided <see cref="Options" />.</param>
         /// <returns>The same instance of the <see cref="IServiceCollection"/> for chaining.</returns>
-        public static IServiceCollection AddNeonNats(this ISignalRServerBuilder signalrBuilder)
+        public static IServiceCollection AddNats(this ISignalRServerBuilder signalrBuilder, Action<Options> options = null)
         {
+            var opts = ConnectionFactory.GetDefaultOptions();
+            options?.Invoke(opts);
+
+            signalrBuilder.Services.AddSingleton<IConnection>(_ => new ConnectionFactory().CreateConnection(opts));
+
             signalrBuilder.AddMessagePackProtocol()
-                .Services.AddSingleton(new AsyncKeyedLocker<string>(o =>
-                {
-                    o.PoolSize = 20;
-                    o.PoolInitialFill = 1;
-                }))
-                .AddResponseCompression(opts =>
-                {
-                    opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[] { "application/octet-stream" });
-                })
-                .AddSingleton(typeof(HubLifetimeManager<>), typeof(NatsHubLifetimeManager<>));
+               .Services.AddSingleton(new AsyncKeyedLocker<string>(o =>
+               {
+                   o.PoolSize = 20;
+                   o.PoolInitialFill = 1;
+               }))
+               .AddResponseCompression(opts =>
+               {
+                   opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[] { "application/octet-stream" });
+               })
+               .AddSingleton(typeof(HubLifetimeManager<>), typeof(NatsHubLifetimeManager<>));
 
             return signalrBuilder.Services;
-        }
-
-        /// <summary>
-        /// Adds scale-out to a <see cref="ISignalRServerBuilder"/>, using a shared Nats server.
-        /// </summary>
-        /// <param name="signalrBuilder">The <see cref="ISignalRServerBuilder"/>.</param>
-        /// <param name="natConnectionString">The nats connection string.</param>
-        /// <returns>The same instance of the <see cref="IServiceCollection"/> for chaining.</returns>
-        public static IServiceCollection AddNeonNats(this ISignalRServerBuilder signalrBuilder, string natConnectionString)
-        {
-            var connectionFactory = new ConnectionFactory();
-            var options = ConnectionFactory.GetDefaultOptions();
-
-            options.Servers = new string[] { natConnectionString };
-
-            var connection = connectionFactory.CreateConnection(options);
-
-            return AddNeonNats(signalrBuilder, connection);
-        }
-
-        /// <summary>
-        /// Adds scale-out to a <see cref="ISignalRServerBuilder"/>, using a shared Nats server.
-        /// </summary>
-        /// <param name="signalrBuilder">The <see cref="ISignalRServerBuilder"/>.</param>
-        /// <param name="connection">The nats <see cref="IConnection"/>.</param>
-        /// <returns>The same instance of the <see cref="IServiceCollection"/> for chaining.</returns>
-        public static IServiceCollection AddNeonNats(this ISignalRServerBuilder signalrBuilder, IConnection connection)
-        {
-            signalrBuilder.Services.AddSingleton(connection);
-
-            return AddNeonNats(signalrBuilder);
         }
     }
 }
