@@ -50,7 +50,7 @@ namespace NeonSignalRProxy
 
         private static readonly Gauge _outboundCurrentHttp20Connections= Metrics.CreateGauge(
             "neonsignalrproxy_outbound_http20_connections",
-            "Number of active proxy requests that have started but not yet completed or failed"
+            "Number of currently open HTTP 2.0 connections"
             );
 
         private static readonly Histogram _outboundHttp11RequestQueueDuration= Metrics.CreateHistogram(

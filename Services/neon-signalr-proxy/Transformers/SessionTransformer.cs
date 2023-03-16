@@ -35,6 +35,7 @@ using DnsClient;
 
 using Yarp.ReverseProxy.Forwarder;
 using Yarp.ReverseProxy.Transforms;
+using System.Threading;
 
 namespace NeonSignalRProxy
 {
@@ -77,14 +78,19 @@ namespace NeonSignalRProxy
         /// <param name="httpContext"></param>
         /// <param name="proxyRequest"></param>
         /// <param name="destinationPrefix"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns>The tracking <see cref="ValueTask"/>.</returns>
-        public override async ValueTask TransformRequestAsync(HttpContext httpContext, HttpRequestMessage proxyRequest, string destinationPrefix)
+        public override async ValueTask TransformRequestAsync(
+            HttpContext httpContext, 
+            HttpRequestMessage proxyRequest, 
+            string destinationPrefix,
+            CancellationToken cancellationToken = default)
         {
             await SyncContext.Clear;
 
             using (var activity = TelemetryHub.ActivitySource.StartActivity())
             {
-                await base.TransformRequestAsync(httpContext, proxyRequest, destinationPrefix);
+                await base.TransformRequestAsync(httpContext, proxyRequest, destinationPrefix, cancellationToken);
             }
         }
 
@@ -95,14 +101,18 @@ namespace NeonSignalRProxy
         /// </summary>
         /// <param name="httpContext">The HTTP Context.</param>
         /// <param name="proxyResponse">The Proxied Response.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>The tracking <see cref="ValueTask"/>.</returns>
-        public override async ValueTask<bool> TransformResponseAsync(HttpContext httpContext, HttpResponseMessage proxyResponse)
+        public override async ValueTask<bool> TransformResponseAsync(
+            HttpContext httpContext, 
+            HttpResponseMessage proxyResponse,
+            CancellationToken cancellationToken = default)
         {
             await SyncContext.Clear;
 
             using (var activity = TelemetryHub.ActivitySource.StartActivity())
             {
-                await base.TransformResponseAsync(httpContext, proxyResponse);
+                await base.TransformResponseAsync(httpContext, proxyResponse, cancellationToken);
 
                 var session = new Session()
                 {

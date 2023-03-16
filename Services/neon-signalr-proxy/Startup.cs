@@ -26,7 +26,7 @@ using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-
+using Microsoft.Extensions.Options;
 using Neon.Common;
 using Neon.Diagnostics;
 using Neon.Web;
@@ -115,55 +115,50 @@ namespace NeonSignalRProxy
                     break;
             }
 
-            services.AddSingleton(NeonSignalRProxyService);
-            services.AddSingleton(NeonSignalRProxyService.Config);
-            services.AddSingleton<ILogger>(NeonSignalRProxyService.Logger);
-            services.AddSingleton(NeonSignalRProxyService.DnsClient);
-            services.AddSingleton<CacheHelper>();
-            services.AddSingleton<ForwarderRequestConfig>(
-                serviceProvider =>
-                {
-                    return new ForwarderRequestConfig()
+            services.AddHttpClient(Options.DefaultName).UseHttpClientMetrics();
+            
+            services.AddSingleton(NeonSignalRProxyService)
+                .AddSingleton(NeonSignalRProxyService.Config)
+                .AddSingleton<ILogger>(NeonSignalRProxyService.Logger)
+                .AddSingleton(NeonSignalRProxyService.DnsClient)
+                .AddSingleton<CacheHelper>()
+                .AddSingleton<ForwarderRequestConfig>(
+                    serviceProvider =>
                     {
-                        ActivityTimeout = TimeSpan.FromSeconds(100)
-                    };
-                });
-            services.AddHealthChecks();
-            services.AddHttpForwarder();
-            services.AddHttpClient();
-            services.AddAllPrometheusMetrics();
-
-            // Http client for Yarp.
-
-            services.AddSingleton<HttpMessageInvoker>(
-                serviceProvider =>
-                {
-                    return new HttpMessageInvoker(new SocketsHttpHandler()
+                        return new ForwarderRequestConfig()
+                        {
+                            ActivityTimeout = TimeSpan.FromSeconds(100)
+                        };
+                    })
+                .AddHttpForwarder()
+                .AddAllPrometheusMetrics()
+                .AddSingleton<HttpMessageInvoker>(
+                    serviceProvider =>
                     {
-                        UseProxy                  = false,
-                        AllowAutoRedirect         = false,
-                        AutomaticDecompression    = DecompressionMethods.None,
-                        UseCookies                = false,
-                        ActivityHeadersPropagator = new ReverseProxyPropagator(DistributedContextPropagator.Current)
-                    });
-                });
-
-            // Cookie encryption cipher.
-
-            services.AddSingleton(NeonSignalRProxyService.AesCipher);
-
-            services.AddSingleton<DistributedCacheEntryOptions>(
-                serviceProvider =>
-                {
-                    return new DistributedCacheEntryOptions()
+                        return new HttpMessageInvoker(
+                            new SocketsHttpHandler()
+                            {
+                                UseProxy                  = false,
+                                AllowAutoRedirect         = false,
+                                AutomaticDecompression    = DecompressionMethods.None,
+                                UseCookies                = false,
+                                ActivityHeadersPropagator = new ReverseProxyPropagator(DistributedContextPropagator.Current)
+                            });
+                    })
+                .AddSingleton(NeonSignalRProxyService.AesCipher)
+                .AddSingleton<DistributedCacheEntryOptions>(
+                    serviceProvider =>
                     {
-                        AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(NeonSignalRProxyService.Config.Cache.DurationSeconds)
-                    };
-                });
+                        return new DistributedCacheEntryOptions()
+                        {
+                            AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(NeonSignalRProxyService.Config.Cache.DurationSeconds)
+                        };
+                    })
+                .AddSingleton<SessionTransformer>()
+                .AddHealthChecks();
 
-            services.AddSingleton<SessionTransformer>();
-
-            services.AddControllers()
+            services
+                .AddControllers()
                 .AddNeon();
         }
 
