@@ -99,7 +99,6 @@ namespace NeonSignalRProxy.Controllers
             this.transformer            = sessionTransformer;
             this.dnsClient              = dnsClient;
             this.forwarderRequestConfig = forwarderRequestConfig;
-
         }
 
         /// <summary>
@@ -122,10 +121,27 @@ namespace NeonSignalRProxy.Controllers
                 var cookies      = HttpContext.Request.Cookies.Where(c => c.Key == Service.SessionCookieName);
 
                 ForwarderError error;
-                if (!cookies.Any())
+                Session        session = new Session();
+                bool           upstreamIsvalid = false;
+
+                if (cookies.Any())
+                {
+                    var cookie       = cookies.Single();
+                    var cookieString = cipher.DecryptStringFrom(cookie.Value);
+                    session          = NeonHelper.JsonDeserialize<Session>(cookieString);
+
+                    if (config.SessionStore == SessionStoreType.Cache)
+                    {
+                        session = await cache.GetAsync<Session>(session.Id);
+                    }
+
+                    upstreamIsvalid = await IsValidTargetAsync(session.UpstreamHost);
+                }
+
+                if (!upstreamIsvalid)
                 {
                     var host = await GetHostAsync();
-                    error = await forwarder.SendAsync(HttpContext, $"{backend.Scheme}://{host}:{backend.Port}", httpClient, forwarderRequestConfig, transformer);
+                    error    = await forwarder.SendAsync(HttpContext, $"{backend.Scheme}://{host}:{backend.Port}", httpClient, forwarderRequestConfig, transformer);
 
                     if (error != ForwarderError.None)
                     {
@@ -134,15 +150,6 @@ namespace NeonSignalRProxy.Controllers
 
                         Logger.LogErrorEx(exception, "CatchAll");
                     }
-                }
-
-                var cookie       = cookies.Single();
-                var cookieString = cipher.DecryptStringFrom(cookie.Value);
-                var session      = NeonHelper.JsonDeserialize<Session>(cookieString);
-
-                if (config.SessionStore == SessionStoreType.Cache)
-                {
-                    session = await cache.GetAsync<Session>(session.Id);
                 }
 
                 Logger.LogDebugEx(() => NeonHelper.JsonSerialize(session));
@@ -159,7 +166,6 @@ namespace NeonSignalRProxy.Controllers
                 signalrProxyService.CurrentConnections.Add(session.ConnectionId);
 
                 Logger.LogDebugEx(() => $"Forwarding connection: [{NeonHelper.JsonSerializeToBytes(session)}]");
-
                 
                 error = await forwarder.SendAsync(HttpContext, $"{backend.Scheme}://{session.UpstreamHost}", httpClient, forwarderRequestConfig, transformer);
 
@@ -212,6 +218,23 @@ namespace NeonSignalRProxy.Controllers
 
                 return host;
             }
+        }
+
+        private async Task<bool> IsValidTargetAsync(string target)
+        {
+            var dns = await dnsClient.QueryAsync(backend.Destination, QueryType.SRV);
+
+            if (dns.HasError || dns.Answers.IsEmpty())
+            {
+                Logger.LogDebugEx(() => $"DNS error: [{NeonHelper.JsonSerialize(dns)}]");
+                return false;
+            }
+
+            var isValid = dns.Answers.SrvRecords()
+                .Where(r => r.Port == backend.Port 
+                            && r.Target.Value == target).Any();
+
+            return isValid;
         }
     }
 }
