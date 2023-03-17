@@ -29,6 +29,8 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Microsoft.HyperV.PowerShell;
+
 using Neon.Common;
 using Neon.Net;
 using Neon.Windows;
@@ -136,7 +138,7 @@ namespace Neon.HyperV
         /// <param name="rawMachine">The dynamic machine properties.</param>
         /// <returns>The parsed <see cref="VirtualMachine"/>.</returns>
         /// <exception cref="HyperVException">Thrown for errors.</exception>
-        private VirtualMachine ExtractVm(dynamic rawMachine)
+        private VirtualMachine ExtractVm(JObject rawMachine)
         {
             Covenant.Requires<ArgumentNullException>(rawMachine != null, nameof(rawMachine));
 
@@ -144,16 +146,16 @@ namespace Neon.HyperV
 
             // Extract the VM name.
 
-            vm.Name = (string)rawMachine.Name;
+            vm.Name = (string)rawMachine.Property("VMName");
 
             // Extract the processor count and memory size.
 
-            vm.ProcessorCount  = (int)rawMachine.ProcessorCount;
-            vm.MemorySizeBytes = (long)rawMachine.MemoryStartup;
+            vm.ProcessorCount  = (int)rawMachine.Property("ProcessorCount");
+            vm.MemorySizeBytes = (long)rawMachine.Property("MemoryStartup");
 
             // Extract the VM state.
 
-            switch ((string)rawMachine.State)
+            switch ((string)rawMachine.Property("State"))
             {
                 case "Off":
 
@@ -186,18 +188,28 @@ namespace Neon.HyperV
                     break;
             }
 
+            var operationalStatus = (JArray)rawMachine.Property("OperationalStatus").Value;
+
+            vm.Ready  = (string)operationalStatus[0] == "Ok";
+
+            var uptimeObject = (JObject)rawMachine.Property("Uptime").Value;
+
+            vm.Uptime = TimeSpan.FromTicks((long)uptimeObject.Property("Ticks"));
+
             // Extract the connected switch name from the first network adapter (if any).
 
             // $note(jefflill):
             // 
-            // We don't currently support VMs with multiple network adapters and will
-            // only capture the name of the switch connected to the first adapter.
+            // We don't currently support VMs with multiple network adapters and will only
+            // capture the name of the switch connected to the first adapter if any).
 
-            var adapters = (JArray)rawMachine.NetworkAdapters;
+            var adapters = (JArray)rawMachine.Property("NetworkAdapters").Value;
 
             if (adapters.Count > 0)
             {
-                vm.SwitchName = ((dynamic)adapters[0]).SwitchName;
+                var firstAdapter = (JObject)adapters[0];
+
+                vm.SwitchName = (string)firstAdapter.Property("SwitchName").Value;
             }
 
             return vm;
@@ -448,21 +460,21 @@ namespace Neon.HyperV
                 var adapters  = new List<VirtualNetworkAdapter>();
                 var rawAdapters = powershell.ExecuteJson($"{HyperVNamespace}Get-VMNetworkAdapter -VMName '{machineName}'");
 
-                foreach (dynamic rawAdapter in rawAdapters)
+                foreach (JObject rawAdapter in rawAdapters)
                 {
                     var adapter = new VirtualNetworkAdapter()
                     {
-                        Name           = rawAdapter.Name,
-                        VMName         = rawAdapter.VMName,
-                        IsManagementOs = ((string)rawAdapter.IsManagementOs).Equals("True", StringComparison.InvariantCultureIgnoreCase),
-                        SwitchName     = rawAdapter.SwitchName,
-                        MacAddress     = rawAdapter.MacAddress,
-                        Status         = (string)((JArray)rawAdapter.Status).FirstOrDefault()
+                        Name           = (string)rawAdapter.Property("Name"),
+                        VMName         = (string)rawAdapter.Property("VMName"),
+                        IsManagementOs = ((string)rawAdapter.Property("IsManagementOs")).Equals("True", StringComparison.InvariantCultureIgnoreCase),
+                        SwitchName     = (string)rawAdapter.Property("SwitchName"),
+                        MacAddress     = (string)rawAdapter.Property("MacAddress"),
+                        Status         = (string)((JArray)rawAdapter.Property("Status").Value).FirstOrDefault()
                     };
 
                     // Parse the IP addresses.
 
-                    var addresses = (JArray)rawAdapter.IPAddresses;
+                    var addresses = (JArray)rawAdapter.Property("IPAddresses").Value;
 
                     if (addresses.Count > 0)
                     {

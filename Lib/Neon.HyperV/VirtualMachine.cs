@@ -62,5 +62,15 @@ namespace Neon.HyperV
         /// Identifies the network interface or switch to which the address is assigned (or null).
         /// </summary>
         public string InterfaceName { get; set; }
+
+        /// <summary>
+        /// Indicates that the virtual machine is ready to perform an operation.
+        /// </summary>
+        public bool Ready { get; set; }
+
+        /// <summary>
+        /// Indicates how long the virtual machine has been running.
+        /// </summary>
+        public TimeSpan Uptime { get; set; }
     }
 }

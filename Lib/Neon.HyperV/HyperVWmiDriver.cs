@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Dynamic;
@@ -212,16 +213,6 @@ namespace Neon.HyperV
                 throw new ObjectDisposedException(nameof(HyperVClient));
             }
         }
-        //###############################
-        // $debug(jefflill): DELETE THIS!
-
-        void Log(string line = null)
-        {
-            line ??= string.Empty;
-            File.AppendAllText(@"C:\Temp\Debug.log", line + "\r\n");
-        }
-
-        //###############################
 
         /// <summary>
         /// Invokes the <typeparamref name="TCmdlet"/> cmdlet with the parameters passed.
@@ -276,7 +267,12 @@ namespace Neon.HyperV
                         args.CopyArgsTo(powershell);
 
                         var result = powershell.Invoke();
-                        var errors = powershell.Streams.Error;
+                        var error  = powershell.Streams.Error.FirstOrDefault();
+
+                        if (error != null)
+                        {
+                            throw error.Exception;
+                        }
 
                         return result;
                     }
@@ -291,6 +287,64 @@ namespace Neon.HyperV
                 if (waitFor != null)
                 {
                     NeonHelper.WaitFor(waitFor, timeout: timeout, pollInterval: pollInterval);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Waits for a VM to indicate that it's ready to perform an operation.
+        /// </summary>
+        /// <param name="machineName">Specifies the machine name.</param>
+        /// <param name="shutdownRequired">Optionally requires that the <b>Shutdown</b> integration guest service is enabled.</param>
+        /// <exception cref="HyperVException">
+        /// Thrown if <paramref name="shutdownRequired"/> is <c>true</c> but <b>Shutdown</b>
+        /// services aren't enabled for this machine.
+        /// </exception>
+        private void WaitForVmReady(string machineName, bool shutdownRequired = false)
+        {
+            while (true)
+            {
+                var vm = ListVms().SingleOrDefault(vm => vm.Name.Equals(machineName, StringComparison.InvariantCultureIgnoreCase));
+
+                if (vm == null)
+                {
+                    throw new HyperVException($"Virtual machine [{machineName}] does not exist.");
+                }
+
+                if (vm.Ready)
+                {
+                    break;
+                }
+
+                Thread.Sleep(pollInterval);
+            }
+
+            if (shutdownRequired)
+            {
+                var args          = new CmdletArgs();
+                var shutdownReady = false;
+                var vm            = ListVms().SingleOrDefault(vm => vm.Name.Equals(machineName, StringComparison.InvariantCultureIgnoreCase));
+
+                args.Clear();
+                args.Add("VMName", machineName);
+
+                var integrationServices = (Collection<PSObject>)Invoke<GetVMIntegrationService>(args);
+
+                foreach (var service in integrationServices)
+                {
+                    if ((string)service.Members["Name"].Value == "Shutdown")
+                    {
+                        if ((bool)service.Members["Enabled"].Value)
+                        {
+                            shutdownReady = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!shutdownReady)
+                {
+                    throw new HyperVException($"Cannot gracefully shutdown [{machineName}] because shudown guest services are not enabled.");
                 }
             }
         }
@@ -364,6 +418,8 @@ namespace Neon.HyperV
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(drivePath), nameof(drivePath));
 
+            WaitForVmReady(machineName);
+
             var args = new CmdletArgs();
 
             args.Add("VMName", machineName);
@@ -390,6 +446,8 @@ namespace Neon.HyperV
             CheckDisposed();
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
 
+            WaitForVmReady(machineName);
+
             // Enable nested virtualization for the VM.
 
             var args = new CmdletArgs();
@@ -414,6 +472,8 @@ namespace Neon.HyperV
             CheckDisposed();
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(isoPath), nameof(isoPath));
+
+            WaitForVmReady(machineName);
 
             var args = new CmdletArgs();
 
@@ -452,6 +512,8 @@ namespace Neon.HyperV
         {
             CheckDisposed();
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
+
+            WaitForVmReady(machineName);
 
             var args = new CmdletArgs();
 
@@ -608,11 +670,14 @@ namespace Neon.HyperV
 
             foreach (var rawMachine in Invoke<GetVM>(new CmdletArgs()))
             {
-                var vm = new VirtualMachine();
+                var vm                = new VirtualMachine();
+                var operationalStatus = (VMOperationalStatus[])rawMachine.Members["OperationalStatus"].Value;
 
                 vm.Name            = (string)rawMachine.Members["Name"].Value;
                 vm.ProcessorCount  = (int)(long)rawMachine.Members["ProcessorCount"].Value;
                 vm.MemorySizeBytes = (long)rawMachine.Members["MemoryStartup"].Value;
+                vm.Ready           = operationalStatus[0] == VMOperationalStatus.Ok;
+                vm.Uptime          = (TimeSpan)rawMachine.Members["Uptime"].Value;
 
                 switch (rawMachine.Members["State"].Value.ToString())
                 {
@@ -675,6 +740,11 @@ namespace Neon.HyperV
             var args = new CmdletArgs();
 
             args.Add("Path", drivePath);
+
+            if (readOnly)
+            {
+                args.AddSwitch("ReadOnly");
+            }
 
             Invoke<MountVhd>(args);
         }
@@ -771,6 +841,8 @@ namespace Neon.HyperV
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
 
+            WaitForVmReady(machineName);
+
             var args = new CmdletArgs();
 
             args.Add("Name", machineName);
@@ -810,6 +882,8 @@ namespace Neon.HyperV
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
 
+            WaitForVmReady(machineName);
+
             var args = new CmdletArgs();
 
             args.Add("Name", machineName);
@@ -821,6 +895,8 @@ namespace Neon.HyperV
         public void SetVm(string machineName, int? processorCount = null, long? startupMemoryBytes = null, bool? checkpointDrives = null)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
+
+            WaitForVmReady(machineName);
 
             var args = new CmdletArgs();
 
@@ -875,6 +951,8 @@ namespace Neon.HyperV
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
 
+            WaitForVmReady(machineName);
+
             var args = new CmdletArgs();
 
             args.Add("Name", machineName);
@@ -887,6 +965,28 @@ namespace Neon.HyperV
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
 
+            // $note(jefflill):
+            //
+            // It appears that shutdown commands sent to the VM may be ignored
+            // when guest integration services haven't started yet.  This can
+            // happen when these aren't enabled or when the machine has just
+            // booted and these services aren't running yet.
+            //
+            // We're going to handle this by:
+            //
+            //  * passing [shutdownRequired=true] to [WaitForVmReady()]
+            //    which throws an exception if shutdown isn't enabled on
+            //    the host side.
+            //
+            //  * Retry sending shutdowns for up to 2 minutes when the VM
+            //    doesn't respond, giving the guest services a chance to
+            //    start.  We assume here that potentially invoking a shutdown
+            //    multiple times will be OK.
+            //
+            // Note that we don't need to retry when we're turning a VM off.
+
+            WaitForVmReady(machineName, shutdownRequired: !turnOff);
+
             var args = new CmdletArgs();
 
             args.Add("Name", machineName);
@@ -894,9 +994,27 @@ namespace Neon.HyperV
             if (turnOff)
             {
                 args.AddSwitch("TurnOff");
+                Invoke<StopVM>(args, waitFor: () => CheckVm(machineName, VirtualMachineState.Off));
+                return;
             }
 
-            Invoke<StopVM>(args, waitFor: () => CheckVm(machineName, VirtualMachineState.Off));
+            var stopwatch = new Stopwatch();
+            var bootLimit = TimeSpan.FromMinutes(2);
+
+            stopwatch.Start();
+
+            while (true)
+            {
+                args.AddSwitch("Force");
+
+                Invoke<StopVM>(args);
+                Thread.Sleep(pollInterval);
+
+                if (CheckVm(machineName, VirtualMachineState.Off) || stopwatch.Elapsed >= bootLimit)
+                {
+                    break;
+                }
+            }
         }
 
         /// <inheritdoc/>

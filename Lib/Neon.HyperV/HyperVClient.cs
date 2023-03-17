@@ -15,15 +15,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// $todo(jefflill):
-//
-// Define this variable to enable the old (and slow) PowerShell implementation as opposed
-// to the new WMI approach.  We're going to keep the old code around for a while just in
-// case we need to revert, but we should eventually remove this variable along with the
-// PowerShell implementation.
-
-#define USE_POWERSHELL
-
 using Microsoft.Win32;
 using Neon.Common;
 using Neon.Net;
@@ -68,18 +59,34 @@ namespace Neon.HyperV
         /// Default constructor to be used to manage Hyper-V objects
         /// on the local Windows machine.
         /// </summary>
-        public HyperVClient()
+        /// <param name="driverType">
+        /// Optionally overrides the default Hyper-V driver implementation. This
+        /// defaults to <see cref="HyperVDriverType.Wmi"/> and is generally overridden
+        /// only by unit tests.
+        /// </param>
+        public HyperVClient(HyperVDriverType driverType = HyperVDriverType.Wmi)
         {
             if (!NeonHelper.IsWindows)
             {
                 throw new NotSupportedException($"{nameof(HyperVClient)} is only supported on Windows.");
             }
 
-#if USE_POWERSHELL
-            hypervDriver = new HyperVPowershellDriver(this);
-#else
-            hyperv = new HyperVWmi(this);
-#endif
+            switch (driverType)
+            {
+                case HyperVDriverType.PowerShell:
+
+                    hypervDriver = new HyperVPowershellDriver(this);
+                    break;
+
+                case HyperVDriverType.Wmi:
+
+                    hypervDriver = new HyperVWmiDriver(this);
+                    break;
+
+                default:
+
+                    throw new NotImplementedException();
+            }
         }
 
         /// <summary>
