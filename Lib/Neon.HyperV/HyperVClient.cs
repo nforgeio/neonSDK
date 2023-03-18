@@ -579,7 +579,7 @@ namespace Neon.HyperV
             //
             // This may be a problem for machines with multiple active network interfaces
             // because I may choose the wrong one (e.g. the slower card).  It might be
-            // useful to have an optional cluster node definition property the explicitly
+            // useful to have an optional cluster node definition property that explicitly
             // specifies the adapter to use for a given node.
             //
             // Another problem we'll see is for laptops with wi-fi adapters.  Lets say we
@@ -591,7 +591,7 @@ namespace Neon.HyperV
             // This last issue is really just another indication that clusters aren't 
             // really portable in the sense that you can't expect to relocate a cluster 
             // from one network environment to another (that's why we bought the portable 
-            // routers for motel use). So we'll consider this as by design.
+            // routers for motel use). So we'll consider this as by design (for now).
 
             var connectedAdapter = (NetworkInterface)null;
 

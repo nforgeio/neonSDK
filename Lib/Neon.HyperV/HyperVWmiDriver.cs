@@ -578,7 +578,7 @@ namespace Neon.HyperV
                     new VirtualSwitch()
                     {
                          Name = (string)@switch.Members["Name"].Value,
-                         Type = NeonHelper.ParseEnum<VirtualSwitchType>((string)@switch.Members["SwitchType"].Value)
+                         Type = (VirtualSwitchType)@switch.Members["SwitchType"].Value
                     });
             }
 
@@ -858,7 +858,7 @@ namespace Neon.HyperV
 
             var args = new CmdletArgs();
 
-            args.Add("Name", switchName);
+            args.Add("NetAdapterName", switchName);
 
             Invoke<RemoveVMSwitch>(args, waitFor: () => !ListSwitches().Any(@switch => @switch.Name.Equals(switchName, StringComparison.InvariantCultureIgnoreCase)));
         }

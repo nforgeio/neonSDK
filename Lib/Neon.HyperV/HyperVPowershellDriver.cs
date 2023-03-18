@@ -66,8 +66,9 @@ namespace Neon.HyperV
         //---------------------------------------------------------------------
         // Instance members
 
-        private HyperVClient    client;
-        private PowerShell      powershell;
+        private HyperVClient        client;
+        private PowerShell          powershell;
+        private readonly TimeSpan   timeout = TimeSpan.FromSeconds(60);
 
         /// <summary>
         /// Constructor.
@@ -656,7 +657,7 @@ namespace Neon.HyperV
 
             try
             {
-                powershell.Execute($"{HyperVNamespace}Remove-NetNat -Name '{natName}' -Force");
+                powershell.Execute($"Remove-NetNat -Name '{natName}' -Confirm:$false");
             }
             catch (Exception e)
             {

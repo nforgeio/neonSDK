@@ -61,7 +61,7 @@ namespace Neon.HyperV
         /// <summary>
         /// Identifies the network interface or switch to which the address is assigned (or null).
         /// </summary>
-        public string InterfaceName { get; set; }
+        public string NetAdapterName { get; set; }
 
         /// <summary>
         /// Indicates that the virtual machine is ready to perform an operation.

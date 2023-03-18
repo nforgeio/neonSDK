@@ -28,6 +28,7 @@ using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
@@ -40,6 +41,7 @@ using Neon.Common;
 using Neon.Deployment;
 using Neon.HyperV;
 using Neon.IO;
+using Neon.Net;
 using Neon.Xunit;
 
 using Xunit;
@@ -329,15 +331,35 @@ namespace TestHyperV
 #if TEST_WMI_DRIVER
         [InlineData(HyperVDriverType.Wmi)]
 #endif
-        public void Switches(HyperVDriverType driverType)
+        public void SwitchAndNat(HyperVDriverType driverType)
         {
-            // Verify that switch related operations don't crash.
+            // Verify switch related operations.
 
             using (var client = new HyperVClient(driverType))
             {
                 using (var driver = CreateDriver(client, driverType))
                 {
-                    driver.ListSwitches();
+                    const string testSwitchName = "d4f28a28-be82-46ec-8411-34c1b92174c2";
+                    const string subnet         = "10.202.0.0/24";
+
+                    // Create an internal switch with a NAT.
+
+                    client.NewInternalSwitch(testSwitchName, NetworkCidr.Parse(subnet), addNat: true);
+                    Assert.Contains(testSwitchName, driver.ListSwitches().Select(@switch => @switch.Name));
+
+                    // This should have created a NAT with the same name as the switch.
+
+                    var nats   = client.ListNats();
+                    var newNat = nats.Where(nat => nat.Name.Equals(testSwitchName)).FirstOrDefault();
+
+                    Assert.NotNull(newNat);
+                    Assert.Equal(subnet, newNat.Subnet);
+
+                    // Remove the switch and NAT.
+
+                    client.RemoveSwitch(testSwitchName);
+                    Assert.DoesNotContain(testSwitchName,driver.ListSwitches().Select(@switch => @switch.Name));
+                    Assert.DoesNotContain(testSwitchName, driver.ListNats().Select(nat => nat.Name));
                 }
             }
         }
