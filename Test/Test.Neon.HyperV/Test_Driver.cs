@@ -255,7 +255,7 @@ namespace TestHyperV
 
                             // List the VM's network adapters.
 
-                            var adapters = driver.ListVmNetAdapters(testVmName);
+                            var adapters = driver.ListVirtualMachineNetAdapters(testVmName);
 
                             Assert.NotEmpty(adapters);
 
@@ -287,7 +287,7 @@ namespace TestHyperV
 #if TEST_WMI_DRIVER
         [InlineData(HyperVDriverType.Wmi)]
 #endif
-        public void ListHostAdapters(HyperVDriverType driverType)
+        public void ListNetAdapters(HyperVDriverType driverType)
         {
             // Verify that we can list host network adapters.
 
@@ -295,7 +295,7 @@ namespace TestHyperV
             {
                 using (var driver = CreateDriver(client, driverType))
                 {
-                    var hostAdapters = driver.ListHostAdapters();
+                    var hostAdapters = driver.ListNetAdapters();
 
                     Assert.NotEmpty(hostAdapters);
                 }
@@ -333,7 +333,7 @@ namespace TestHyperV
 #endif
         public void SwitchAndNat(HyperVDriverType driverType)
         {
-            // Verify switch related operations.
+            // Verify switch and NAT related operations.
 
             using (var client = new HyperVClient(driverType))
             {
@@ -341,6 +341,13 @@ namespace TestHyperV
                 {
                     const string testSwitchName = "d4f28a28-be82-46ec-8411-34c1b92174c2";
                     const string subnet         = "10.202.0.0/24";
+
+                    // Cleanup any resources left over from a previous test run.
+
+                    if (client.ListSwitches().Any(@switch => @switch.Name.Equals(testSwitchName, StringComparison.InvariantCultureIgnoreCase)))
+                    {
+                        client.RemoveSwitch(testSwitchName);
+                    }
 
                     // Create an internal switch with a NAT.
 

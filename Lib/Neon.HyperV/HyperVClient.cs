@@ -615,24 +615,24 @@ namespace Neon.HyperV
 
             try
             {
-                var adapters      = hypervDriver.ListHostAdapters();
-                var targetAdapter = (string)null;
+                var adapters    = hypervDriver.ListNetAdapters();
+                var hostAdapter = (NetAdapter)null;
 
-                foreach (var adapterName in adapters)
+                foreach (var adapter in adapters)
                 {
-                    if (adapterName.Equals(connectedAdapter.Name, StringComparison.InvariantCultureIgnoreCase))
+                    if (adapter.Name.Equals(connectedAdapter.Name, StringComparison.InvariantCultureIgnoreCase))
                     {
-                        targetAdapter = adapterName;
+                        hostAdapter = adapter;
                         break;
                     }
                 }
 
-                if (targetAdapter == null)
+                if (hostAdapter == null)
                 {
                     throw new HyperVException($"Internal Error: Cannot identify a connected network adapter.");
                 }
 
-                hypervDriver.NewSwitch(switchName, targetAdapter: targetAdapter);
+                hypervDriver.NewSwitch(switchName, hostAdapter: hostAdapter);
                 WaitForNetworkSwitch();
             }
             catch (Exception e)
@@ -662,7 +662,7 @@ namespace Neon.HyperV
             {
                 if (FindNatByName(switchName) == null)
                 {
-                    hypervDriver.NewNat(switchName, subnet);
+                    hypervDriver.NewNat(switchName, @internal: true, subnet: subnet);
                 }
             }
 
@@ -741,12 +741,12 @@ namespace Neon.HyperV
         /// <param name="machineName">The machine name.</param>
         /// <returns>The list of network adapters.</returns>
         /// <exception cref="HyperVException">Thrown for errors.</exception>
-        public IEnumerable<VirtualNetworkAdapter> ListVmNetworkAdapters(string machineName)
+        public IEnumerable<VirtualMachineNetworkAdapter> ListVmNetworkAdapters(string machineName)
         {
             CheckDisposed();
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
 
-            return hypervDriver.ListVmNetAdapters(machineName);
+            return hypervDriver.ListVirtualMachineNetAdapters(machineName);
         }
 
         /// <summary>

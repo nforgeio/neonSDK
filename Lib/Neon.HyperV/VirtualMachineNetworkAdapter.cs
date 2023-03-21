@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:	    VirtualNetworkAdapter.cs
+// FILE:	    VirtualMachineNetworkAdapter.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
@@ -32,7 +32,7 @@ namespace Neon.HyperV
     /// <summary>
     /// Describes a Hyper-V virtual network adapter attached to a virtual machine.
     /// </summary>
-    public class VirtualNetworkAdapter
+    public class VirtualMachineNetworkAdapter
     {
         /// <summary>
         /// The adapter name.

@@ -23,24 +23,24 @@ using System.Diagnostics.Contracts;
 using System.Dynamic;
 using System.IO;
 using System.Linq;
+using System.Management;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Microsoft.Vhd.PowerShell.Cmdlets;
+using Microsoft.HyperV.PowerShell;
 using Microsoft.HyperV.PowerShell.Commands;
+using Microsoft.PowerShell;
+using Microsoft.Vhd.PowerShell.Cmdlets;
 
 using Neon.Common;
 using Neon.Net;
-using Microsoft.HyperV.PowerShell;
-using System.Runtime.CompilerServices;
-using Microsoft.Virtualization.Client.Management;
-using OpenTelemetry;
 
 namespace Neon.HyperV
 {
@@ -154,12 +154,36 @@ namespace Neon.HyperV
         }
 
         //---------------------------------------------------------------------
+        // Static members
+
+        /// <summary>
+        /// Identifies the Hyper-V cmdlet namespace module.
+        /// </summary>
+        private const string HyperVModule = @"Hyper-V";
+
+        /// <summary>
+        /// Identifies the Hyper-V module for the TCP/IP related cmdlets.
+        /// </summary>
+        private const string NetTcpIpModule = @"NetTCPIP";
+
+        /// <summary>
+        /// Identifies the Hyper-V module for the NAT related cmdlets.
+        /// </summary>
+        private const string NetNatModule = @"NetNat";
+
+        /// <summary>
+        /// Identifies the Hyper-V module for NetAdapter related cmdlets.
+        /// </summary>
+        private const string NetAdapterModule = @"NetAdapter";
+
+        //---------------------------------------------------------------------
         // Implementation
 
-        private HyperVClient        client;
-        private readonly TimeSpan   timeout      = TimeSpan.FromMinutes(10);
-        private readonly TimeSpan   pollInterval = TimeSpan.FromSeconds(1);
-        private readonly TimeSpan   waitTime     = TimeSpan.FromSeconds(0);
+        private HyperVClient            client;
+		private ManagementScope         cim2Scope;
+        private readonly TimeSpan       timeout      = TimeSpan.FromMinutes(10);
+        private readonly TimeSpan       pollInterval = TimeSpan.FromSeconds(1);
+        private readonly TimeSpan       waitTime     = TimeSpan.FromSeconds(0);
 
         /// <summary>
         /// Constructor.
@@ -168,12 +192,13 @@ namespace Neon.HyperV
         {
             Covenant.Requires<ArgumentNullException>(client != null, nameof(client));
 
-            this.client = client;
-
             if (!NeonHelper.IsWindows)
             {
                 throw new NotSupportedException($"{nameof(HyperVWmiDriver)} is only supported on Windows.");
             }
+
+            this.client    = client;
+			this.cim2Scope = new ManagementScope(@"\\.\root\StandardCimv2");
         }
 
         /// <summary>
@@ -181,13 +206,13 @@ namespace Neon.HyperV
         /// </summary>
         ~HyperVWmiDriver()
         {
-            Dispose();
+            Dispose(false);
         }
 
         /// <inheritdoc/>
         public void Dispose()
         {
-            client = null;
+            Dispose(true);
         }
 
         /// <summary>
@@ -196,6 +221,14 @@ namespace Neon.HyperV
         /// <param name="disposing">Pass <c>true</c> if we're disposing, <c>false</c> if we're finalizing.</param>
         private void Dispose(bool disposing)
         {
+            if (client == null)
+            {
+                return;
+            }
+
+            client    = null;
+			cim2Scope = null;
+
             if (disposing)
             {
                 GC.SuppressFinalize(this);
@@ -249,13 +282,14 @@ namespace Neon.HyperV
         {
             try
             {
-                var cmdletAttr          = typeof(TCmdlet).GetCustomAttribute<CmdletAttribute>();
-                var cmdletName          = $"{cmdletAttr.VerbName}-{cmdletAttr.NounName}";
-                var initialSessionState = InitialSessionState.Create();
+                var cmdletAttr = typeof(TCmdlet).GetCustomAttribute<CmdletAttribute>();
+                var cmdletName = $"{cmdletAttr.VerbName}-{cmdletAttr.NounName}";
+                var iss        = InitialSessionState.Create();
 
-                initialSessionState.Commands.Add(new SessionStateCmdletEntry(cmdletName, typeof(TCmdlet), null));
+                iss.ExecutionPolicy = ExecutionPolicy.Unrestricted;
+                iss.Commands.Add(new SessionStateCmdletEntry(cmdletName, typeof(TCmdlet), null));
 
-                using (var runspace = RunspaceFactory.CreateRunspace(initialSessionState))
+                using (var runspace = RunspaceFactory.CreateRunspace(iss))
                 {
                     runspace.Open();
 
@@ -267,11 +301,11 @@ namespace Neon.HyperV
                         args.CopyArgsTo(powershell);
 
                         var result = powershell.Invoke();
-                        var error  = powershell.Streams.Error.FirstOrDefault();
+                        var errors = powershell.Streams.Error.FirstOrDefault();
 
-                        if (error != null)
+                        if (errors != null)
                         {
-                            throw error.Exception;
+                            throw errors.Exception;
                         }
 
                         return result;
@@ -288,6 +322,54 @@ namespace Neon.HyperV
                 {
                     NeonHelper.WaitFor(waitFor, timeout: timeout, pollInterval: pollInterval);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Executes a built-in CORE cmdlet.
+        /// </summary>
+        /// <param name="cmdletName">Specifies the cmdlet name.</param>
+        /// <param name="args">Specifies any cmdlet arguments.</param>
+        /// <returns>The cmdlet execution result.</returns>
+        /// <exception cref="HyperVException">Thrown for errors.</exception>
+        private IList<PSObject> Invoke(string cmdletName, CmdletArgs args)
+        {
+            try
+            {
+                var iss = InitialSessionState.Create();
+
+                iss.ExecutionPolicy = ExecutionPolicy.Unrestricted;
+
+                iss.ImportPSModule(NetAdapterModule);
+                iss.ImportPSModule(NetTcpIpModule);
+                iss.ImportPSModule(NetNatModule);
+
+                using (var runspace = RunspaceFactory.CreateRunspace(iss))
+                {
+                    runspace.Open();
+
+                    using (var powershell = PowerShell.Create(runspace))
+                    {
+                        powershell.Runspace = runspace;
+
+                        powershell.AddCommand(cmdletName);
+                        args.CopyArgsTo(powershell);
+
+                        var result = powershell.Invoke();
+                        var errors = powershell.Streams.Error.FirstOrDefault();
+
+                        if (errors != null)
+                        {
+                            throw errors.Exception;
+                        }
+
+                        return result;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                throw new HyperVException(e);
             }
         }
 
@@ -431,6 +513,7 @@ namespace Neon.HyperV
         /// <inheritdoc/>
         public void DismountVhd(string drivePath)
         {
+            CheckDisposed();
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(drivePath), nameof(drivePath));
 
             var args = new CmdletArgs();
@@ -562,7 +645,19 @@ namespace Neon.HyperV
         {
             CheckDisposed();
 
-            throw new NotImplementedException();
+            var nats = new List<VirtualNat>();
+
+            foreach (var rawNat in Invoke($@"{NetNatModule}\Get-NetNat", new CmdletArgs()))
+            {
+                nats.Add(
+                    new VirtualNat()
+                    {
+                        Name   = (string)rawNat.Properties["Name"].Value,
+                        Subnet = (string)rawNat.Properties["InternalIPInterfaceAddressPrefix"].Value
+                    });
+            }
+
+            return nats;
         }
 
         /// <inheritdoc/>
@@ -606,7 +701,7 @@ namespace Neon.HyperV
         }
 
         /// <inheritdoc/>
-        public IEnumerable<VirtualNetworkAdapter> ListVmNetAdapters(string machineName)
+        public IEnumerable<VirtualMachineNetworkAdapter> ListVirtualMachineNetAdapters(string machineName)
         {
             CheckDisposed();
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
@@ -615,11 +710,11 @@ namespace Neon.HyperV
 
             args.Add("VMName", machineName);
 
-            var adapters = new List<VirtualNetworkAdapter>();
+            var adapters = new List<VirtualMachineNetworkAdapter>();
 
             foreach (var rawAdapter in Invoke<GetVMNetworkAdapter>(args))
             {
-                var adapter = new VirtualNetworkAdapter()
+                var adapter = new VirtualMachineNetworkAdapter()
                 {
                     Name           = (string)rawAdapter.Members["Name"].Value,
                     VMName         = (string)rawAdapter.Members["VMName"].Value,
@@ -735,6 +830,7 @@ namespace Neon.HyperV
         /// <inheritdoc/>
         public void MountVhd(string drivePath, bool readOnly = false)
         {
+            CheckDisposed();
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(drivePath), nameof(drivePath));
 
             var args = new CmdletArgs();
@@ -752,28 +848,72 @@ namespace Neon.HyperV
         /// <inheritdoc/>
         public void NewNetIPAddress(string switchName, IPAddress address, NetworkCidr subnet)
         {
+            CheckDisposed();
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(switchName), nameof(switchName));
             Covenant.Requires<ArgumentNullException>(address != null, nameof(address));
             Covenant.Requires<ArgumentNullException>(subnet != null, nameof(subnet));
 
-            var args = new CmdletArgs();
+            if (ListIPAddresses().Any(address => address.InterfaceName.Equals(switchName, StringComparison.InvariantCultureIgnoreCase)))
+            {
+                throw new HyperVException($"NetIPAddress [{switchName}] already exists.");
+            }
 
-            args.Add("IPAddress", address);
-            args.Add("PrefixLength", subnet.PrefixLength);
-            args.Add("InterfaceAlias", $"vEthernet ({switchName})");
+            var @switch = ListSwitches().SingleOrDefault(@switch => @switch.Name.Equals(switchName, StringComparison.InvariantCultureIgnoreCase));
 
-            throw new NotImplementedException();
+            if (@switch == null)
+            {
+                throw new HyperVException($"Switch [{switchName}] does not exist.");
+            }
+
+            var adapterName = $"vEthernet ({switchName})";
+            var adapter     = ListNetAdapters().SingleOrDefault(adapter => adapter.Name.Equals(adapterName, StringComparison.InvariantCultureIgnoreCase));
+
+            if (adapter == null)
+            {
+                throw new HyperVException($"Host network adapter for switch [{switchName}] cannot be located.");
+            }
+
+            var cmdArgs = new CmdletArgs();
+
+            cmdArgs.Add("IPAddress", subnet.FirstUsableAddress);
+            cmdArgs.Add("PrefixLength", subnet.PrefixLength);
+            cmdArgs.Add("InterfaceIndex", adapter.InterfaceIndex);
+
+            Invoke($@"{NetTcpIpModule}\New-NetIPAddress", cmdArgs);
         }
 
         /// <inheritdoc/>
-        public void NewNat(string switchName, NetworkCidr subnet)
+        public void NewNat(string natName, bool @internal, NetworkCidr subnet)
         {
-            throw new NotImplementedException();
+            CheckDisposed();
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(natName), nameof(natName));
+            Covenant.Requires<ArgumentNullException>(subnet != null, nameof(subnet));
+
+            if (ListNats().Any(nat => nat.Name.Equals(natName, StringComparison.InvariantCultureIgnoreCase)))
+            {
+                throw new HyperVException($"NetNat [{natName}] already exists.");
+            }
+
+            var cmdArgs = new CmdletArgs();
+
+            cmdArgs.Add("Name", natName);
+
+            if (@internal)
+            {
+                cmdArgs.Add("InternalIPInterfaceAddressPrefix", subnet.ToString());
+            }
+            else
+            {
+                cmdArgs.Add("ExternalIPInterfaceAddressPrefix", subnet.ToString());
+            }
+
+            Invoke($@"{NetNatModule}\New-NetNat", cmdArgs);
         }
 
         /// <inheritdoc/>
         public void NewVhd(string drivePath, bool isDynamic, long sizeBytes, int blockSizeBytes)
         {
+            CheckDisposed();
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(drivePath), nameof(drivePath));
             Covenant.Requires<ArgumentException>(sizeBytes > 0, nameof(sizeBytes));
             Covenant.Requires<ArgumentException>(blockSizeBytes > 0, nameof(blockSizeBytes));
@@ -797,17 +937,18 @@ namespace Neon.HyperV
         }
 
         /// <inheritdoc/>
-        public void NewSwitch(string switchName, string targetAdapter = null, bool @internal = false)
+        public void NewSwitch(string switchName, NetAdapter hostAdapter = null, bool @internal = false)
         {
+            CheckDisposed();
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(switchName), nameof(switchName));
 
             var args = new CmdletArgs();
 
             args.Add("Name", switchName);
 
-            if (targetAdapter != null)
+            if (hostAdapter != null)
             {
-                args.Add("NetAdapterName", targetAdapter);
+                args.Add("NetAdapterName", hostAdapter.Name);
             }
 
             if (@internal)
@@ -821,6 +962,7 @@ namespace Neon.HyperV
         /// <inheritdoc/>
         public void OptimizeVhd(string drivePath)
         {
+            CheckDisposed();
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(drivePath), nameof(drivePath));
 
             var args = new CmdletArgs();
@@ -833,12 +975,16 @@ namespace Neon.HyperV
         /// <inheritdoc/>
         public void RemoveNat(string natName)
         {
+            CheckDisposed();
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(natName), nameof(natName));
+
             throw new NotImplementedException();
         }
 
         /// <inheritdoc/>
         public void RemoveVm(string machineName)
         {
+            CheckDisposed();
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
 
             WaitForVmReady(machineName);
@@ -854,11 +1000,14 @@ namespace Neon.HyperV
         /// <inheritdoc/>
         public void RemoveSwitch(string switchName)
         {
+            CheckDisposed();
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(switchName), nameof(switchName));
 
             var args = new CmdletArgs();
 
-            args.Add("NetAdapterName", switchName);
+            args.Add("Name", switchName);
+            // args.Add("NetAdapterName", switchName);
+            args.AddSwitch("-Force");
 
             Invoke<RemoveVMSwitch>(args, waitFor: () => !ListSwitches().Any(@switch => @switch.Name.Equals(switchName, StringComparison.InvariantCultureIgnoreCase)));
         }
@@ -866,6 +1015,7 @@ namespace Neon.HyperV
         /// <inheritdoc/>
         public void ResizeVhd(string drivePath, long sizeBytes)
         {
+            CheckDisposed();
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(drivePath), nameof(drivePath));
             Covenant.Requires<ArgumentException>(sizeBytes > 0, nameof(sizeBytes));
 
@@ -880,6 +1030,7 @@ namespace Neon.HyperV
         /// <inheritdoc/>
         public void SaveVm(string machineName)
         {
+            CheckDisposed();
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
 
             WaitForVmReady(machineName);
@@ -894,6 +1045,7 @@ namespace Neon.HyperV
         /// <inheritdoc/>
         public void SetVm(string machineName, int? processorCount = null, long? startupMemoryBytes = null, bool? checkpointDrives = null)
         {
+            CheckDisposed();
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
 
             WaitForVmReady(machineName);
@@ -949,6 +1101,7 @@ namespace Neon.HyperV
         /// <inheritdoc/>
         public void StartVm(string machineName)
         {
+            CheckDisposed();
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
 
             WaitForVmReady(machineName);
@@ -963,6 +1116,7 @@ namespace Neon.HyperV
         /// <inheritdoc/>
         public void StopVm(string machineName, bool turnOff = false)
         {
+            CheckDisposed();
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
 
             // $note(jefflill):
@@ -1022,15 +1176,92 @@ namespace Neon.HyperV
         {
             CheckDisposed();
 
-            throw new NotImplementedException();
+            // $note(jefflill):
+            //
+            // Invoking [NetTCPIP\Get-NetIPAddress] returns an empty list so
+            // will make a low-level WMI call instead.
+
+            var addresses   = new List<VirtualIPAddress>();
+            var switchRegex = new Regex(@"^.*\((?<switch>.+)\)$");
+
+            foreach (var rawAddress in Wmi.Query("select * from MSFT_NetIPAddress", cim2Scope))
+            {
+                // We're only listing IPv4  addresses.
+
+                var addressFamily = (ushort)rawAddress.Properties["AddressFamily"].Value;
+
+                if (addressFamily != 2) // IPv4
+                {
+                    continue;
+                }
+
+                var address = (string)rawAddress.Properties["IPv4Address"].Value;
+
+                if (string.IsNullOrEmpty(address))
+                {
+                    continue;
+                }
+
+                // Extract the interface/switch name from the [InterfaceAlias] field,
+                // which will look something like:
+                //
+                //      vEthernet (neonkube)
+                //
+                // We'll extract the name within the parens if present, otherwise we'll
+                // take the entire property value as the name.
+
+                var interfaceAlias = (string)rawAddress.Properties["InterfaceAlias"].Value;
+                var match          = switchRegex.Match(interfaceAlias);
+                var interfaceName  = string.Empty;
+
+                if (match.Success)
+                {
+                    interfaceName = match.Groups["switch"].Value;
+                }
+                else
+                {
+                    interfaceName = interfaceAlias;
+                }
+
+                var prefixLength = rawAddress.Properties["PrefixLength"].Value;
+
+                var virtualIPAddress
+                    = new VirtualIPAddress()
+                    {
+                        Address        = address,
+                        Subnet         = NetworkCidr.Parse($"{address}/{prefixLength}"),
+                        InterfaceName  = interfaceName
+                    };
+
+                    addresses.Add(virtualIPAddress);
+            }
+
+            return addresses;
         }
 
         /// <inheritdoc/>
-        public IEnumerable<string> ListHostAdapters()
+        public IEnumerable<NetAdapter> ListNetAdapters()
         {
             CheckDisposed();
 
-            throw new NotImplementedException();
+            // $note(jefflill):
+            //
+            // Invoking [NetAdapter\Get-NetAdapter] returns an empty list so
+            // will make a low-level WMI call instead.
+
+            var adapters = new List<NetAdapter>();
+
+            foreach (var rawAdapter in Wmi.Query("select * from MSFT_NetAdapter", cim2Scope))
+            {
+                adapters.Add(
+                    new NetAdapter()
+                    {
+                        Name           = (string)rawAdapter["Name"],
+                        InterfaceIndex = (int)(uint)rawAdapter["InterfaceIndex"]
+                    });
+            }
+
+            return adapters;
         }
     }
 }
