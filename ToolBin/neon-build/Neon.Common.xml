@@ -940,7 +940,13 @@
             </para>
             <code language="none">
             
-                -&lt;option name&gt;[=&lt;value&gt;]
+                --&lt;option name&gt;[=&lt;value&gt;]
+                
+                You can also use single or double quotes around option values that
+                include spaces or other special characters:
+            
+                --&lt;option name&gt;[='&lt;value&gt;']
+                --&lt;option name&gt;[="&lt;value&gt;"]
             
             </code>
             <para>
@@ -1137,6 +1143,11 @@
             </code>
             </remarks>
         </member>
+        <member name="P:Neon.Common.CommandLine.Original">
+            <summary>
+            Returns the original unshifted command line.
+            </summary>
+        </member>
         <member name="P:Neon.Common.CommandLine.Items">
             <summary>
             Returns the array of command line arguments (including both
@@ -1282,9 +1293,50 @@
             <summary>
             <para>
             Preprocesses the command line by using <see cref="T:Neon.IO.PreprocessReader"/> to replace any 
-            environment variable, profile, or secret references like <b>&lt;password:MY-PASSWORD$gt;</b>
-            in the command line arguments.
+            environment variable, profile, or secret references in the command line arguments, like:
             </para>
+            <list type="table">
+            <item>
+                <term><c>$(env:VARIABLE)</c></term>
+                <description>
+                Replaced with the environment <b>VARIABLE</b> 
+                </description>
+            </item>
+            <item>
+                <term><c>$(profile:VALUE)</c></term>
+                <description>
+                Replaced with the profile <b>VALUE</b>
+                </description>
+            </item>
+            <item>
+                <term><c>${password:SECRET}</c></term>
+                <description>
+                Replaced with the password field of the <b>SECRET</b>
+                </description>
+            </item>
+            <item>
+                <term><c>${password:SECRET:SOURCE}</c></term>
+                <description>
+                Replaced with the password field of the <b>SECRET</b> obtained from <b>SOURCE</b>
+                </description>
+            </item>
+            <item>
+                <term><c>${password:SECRET[PROPERTY]}</c></term>
+                <description>
+                Replaced with the PROPERTY field of the <b>SECRET</b>
+                </description>
+            </item>
+            <item>
+                <term><c>${password:SECRET[PROPERTY]:SOURCE}</c></term>
+                <description>
+                Replaced with the PROPERTY field of the <b>SECRET</b> obtained from <b>SOURCE</b>
+                </description>
+            </item>
+            </list>
+            <note>
+            <b>IMORTANT:</b> You'll probably need to surround variable references with single
+            quotes on Linux to prevent Bash from interpreting these as Bash variables.
+            </note>
             <note>
             <b>IMPORTANT:</b> You must register an <see cref="T:Neon.Deployment.IProfileClient"/> implementation with
             <see cref="P:Neon.Common.NeonHelper.ServiceContainer"/> for this to work.
@@ -1293,7 +1345,7 @@
             <param name="variables">Optionally specifies variables to be incuded in the preprocessing.</param>
             <param name="variableRegex">
             Optionally specifies the regular expression that will be used to locate and process
-            any variable references.  This defaults to <see cref="P:Neon.IO.PreprocessReader.AngleVariableExpansionRegex"/>
+            any variable references.  This defaults to <see cref="P:Neon.IO.PreprocessReader.CurlyVariableExpansionRegex"/>
             but may be set to any expressions supported by <see cref="T:Neon.IO.PreprocessReader"/>.
             </param>
             <returns>A new <see cref="T:Neon.Common.CommandLine"/> including any changes.</returns>
@@ -1305,6 +1357,29 @@
             double quotes.
             </summary>
             <returns>The command line string.</returns>
+            <exception cref="T:System.InvalidOperationException">Thrown if a command line argument includes both single and double quotes.</exception>
+        </member>
+        <member name="T:Neon.Common.CommandLine.Redactor">
+            <summary>
+            Handles redaction of command line arguments and/or options for the <see cref="M:Neon.Common.CommandLine.ToFormatted(System.String,System.Boolean,System.Boolean,Neon.Common.CommandLine.Redactor)"/>
+            method.  Return <c>null</c> if no redaction is required for the item or the string to be used instead.
+            </summary>
+            <param name="commandLine">The command line.</param>
+            <param name="index">Zero based index of the item.</param>
+            <param name="item">The item string.</param>
+            <param name="isOption"><c>true</c> when the item is a command line options.</param>
+            <returns><c>null</c> when no redaction is required or else the string to be substituted.</returns>
+        </member>
+        <member name="M:Neon.Common.CommandLine.ToFormatted(System.String,System.Boolean,System.Boolean,Neon.Common.CommandLine.Redactor)">
+            <summary>
+            Converts the command line into a nicely formatted (potentially multi-line) string
+            suitable for including in logs.
+            </summary>
+            <param name="programName">Specifies the program name.</param>
+            <param name="withBars">Optionally include bars above and below the formatted command.</param>
+            <param name="withLineContinuation">Optionally include line continuation characters appropriate for the current operating system.</param>
+            <param name="redactor">Optionally passed as a redactor.  See <see cref="T:Neon.Common.CommandLine.Redactor"/>.</param>
+            <returns>The formatted string.</returns>
         </member>
         <member name="T:Neon.Common.Credentials">
             <summary>
@@ -2693,9 +2768,9 @@
             var roundedUp = date.RoundUp(TimeSpan.FromMinutes(15));      // 2010/02/05 10:45:00
             </code>
             </summary>
-            <param name="dt">The datetime to be rounded.</param>
+            <param name="value">The datetime to be rounded.</param>
             <param name="interval">The time interval to be rounded to.</param>
-            <returns></returns>
+            <returns>The rounded date.</returns>
         </member>
         <member name="M:Neon.Common.DateTimeExtensions.RoundDown(System.DateTime,System.TimeSpan)">
             <summary>
@@ -2707,7 +2782,7 @@
             var roundedDown = date.RoundDown(TimeSpan.FromMinutes(15));    // 2010/02/05 10:30:00
             </code>
             </summary>
-            <param name="dt">The datetime to be rounded.</param>
+            <param name="value">The datetime to be rounded.</param>
             <param name="interval">The time interval to be rounded to.</param>
             <returns></returns>
         </member>
@@ -2721,7 +2796,7 @@
             var roundedToNearest = date.RoundToNearest(TimeSpan.FromMinutes(15)); // 2010/02/05 10:30:00
             </code>
             </summary>
-            <param name="dt">The datetime to be rounded.</param>
+            <param name="value">The datetime to be rounded.</param>
             <param name="interval">The time interval to be rounded to.</param>
             <returns></returns>
         </member>
@@ -2730,7 +2805,7 @@
             Converts the <see cref="T:System.DateTime"/> into the number of milliseconds since the
             Unix Epoc (midnight 1-1-1070 UTC).
             </summary>
-            <param name="time">The time being converted.</param>
+            <param name="value">The time being converted.</param>
             <returns>The Unix time in milliseconds.</returns>
         </member>
         <member name="M:Neon.Common.DateTimeExtensions.ToUnixEpochNanoseconds(System.DateTime)">
@@ -2738,7 +2813,7 @@
             Converts the <see cref="T:System.DateTime"/> into the number of neonseconds since the
             Unix Epoc (midnight 1-1-1070 UTC).
             </summary>
-            <param name="time">The time being converted.</param>
+            <param name="value">The time being converted.</param>
             <returns>The Unix time in naonseconds.</returns>
         </member>
         <member name="T:Neon.Common.EnumExtensions">
@@ -3945,6 +4020,19 @@
             <param name="source">The source settings.</param>
             <param name="target">The target instance.</param>
         </member>
+        <member name="T:Neon.Common.ProcessExtensions">
+            <summary>
+            <see cref="T:System.String"/> extension methods.
+            </summary>
+        </member>
+        <member name="M:Neon.Common.ProcessExtensions.KillNow(System.Diagnostics.Process)">
+            <summary>
+            Signals the process to be killed and then waits for it to exit.
+            Note that <see cref="M:System.Diagnostics.Process.Kill"/> only initiates process
+            termination but that the process actually dies asynchronously.
+            </summary>
+            <param name="process">The target process.</param>
+        </member>
         <member name="T:Neon.Common.RandomExtensions">
             <summary>
             <see cref="T:System.Random"/> class extension methods.
@@ -4140,6 +4228,14 @@
             <param name="timespan">The <see cref="T:System.TimeSpan"/>.</param>
             <param name="dateTime">The <see cref="T:System.DateTime"/>.</param>
             <returns>The adjusted <see cref="T:System.TimeSpan"/>.</returns>
+        </member>
+        <member name="M:Neon.Common.TimeSpanExtensions.RoundToSeconds(System.TimeSpan)">
+            <summary>
+            Rounds positive values up to the nearest second and negative
+            values down to the nearest second.
+            </summary>
+            <param name="value">The input value.</param>
+            <returns>The outpot value rounded to seconds.</returns>
         </member>
         <member name="T:Neon.Common.WeakEventController">
             <summary>
@@ -4503,6 +4599,12 @@
             precision to strings like: <b>2018-06-05T14:30:13.000Z</b>
             </summary>
         </member>
+        <member name="F:Neon.Common.NeonHelper.DateFormatSecondTZ">
+            <summary>
+            Returns the date format string used for serialize dates with second
+            precision to strings like: <b>2018-06-05T14:30:13Z</b>
+            </summary>
+        </member>
         <member name="F:Neon.Common.NeonHelper.DateFormatTZOffset">
             <summary>
             Returns the date format string used for serialize dates with millisecond
@@ -4610,10 +4712,22 @@
             </summary>
             <returns>The converted <see cref="T:System.DateTime"/>.</returns>
         </member>
+        <member name="P:Neon.Common.NeonHelper.DefaultUserHomeFolder">
+            <summary>
+            Returns the default user home.  This is not affected by calls to <see cref="M:Neon.Common.NeonHelper.SetUserHomeFolder(System.String)"/>.
+            </summary>
+        </member>
         <member name="P:Neon.Common.NeonHelper.UserHomeFolder">
             <summary>
             Returns the path to the current user's HOME folder.
             </summary>
+        </member>
+        <member name="M:Neon.Common.NeonHelper.SetUserHomeFolder(System.String)">
+            <summary>
+            Sets the appropriate variables for the operating system to
+            change the current user's home folder to the specified path.
+            </summary>
+            <param name="folder">Specifies the new home folder.</param>
         </member>
         <member name="P:Neon.Common.NeonHelper.UserNeonDevFolder">
             <summary>
@@ -5554,10 +5668,10 @@
             </param>
             <returns>The converted string.</returns>
         </member>
-        <member name="M:Neon.Common.NeonHelper.GetBaseDirectory">
+        <member name="M:Neon.Common.NeonHelper.GetApplicationFolder">
             <summary>
-            Returns the fully qualified path to the folder where the executable resides.
-            This will include the terminating "\".
+            Returns the fully qualified path to the folder where the current executable 
+            resides.  This includes a terminating "\".
             </summary>
             <returns>Path to the folder holding the executable</returns>
         </member>
@@ -5802,7 +5916,7 @@
         <member name="P:Neon.Common.NeonHelper.DockerCli">
             <summary>
             Returns the name of the Docker CLI execuable for the current platform.  This will
-            be the fully qualified pathj to <b>docker.exe</b> on Windows and just <b>docker</b>
+            be the fully qualified path to <b>docker.exe</b> on Windows and just <b>docker</b>
             on Linux and OS/X.
             </summary>
             <returns>The path to the Docker CLI or <c>null</c> when it couldn't be located.</returns>
@@ -6411,7 +6525,7 @@
             </note>
             <para>
             You can optionally specify the <paramref name="outputAction"/> and/or <paramref name="errorAction"/>
-            callbacks to receive the process output as it is received.  <paramref name="outputAction"/> will 
+            callbacks to receive the process output text as it is received.  <paramref name="outputAction"/> will 
             be called with both the STDOUT and STDERR streams if <paramref name="errorAction"/> is <c>null</c>
             otherwise it will called only with STDOUT text.
             </para>
@@ -6475,7 +6589,7 @@
             </note>
             <para>
             You can optionally specify the <paramref name="outputAction"/> and/or <paramref name="errorAction"/>
-            callbacks to receive the process output as it is received.  <paramref name="outputAction"/> will 
+            callbacks to receive the process output text as it is received.  <paramref name="outputAction"/> will 
             be called with both the STDOUT and STDERR streams if <paramref name="errorAction"/> is <c>null</c>
             otherwise it will called only with STDOUT text.
             </para>
@@ -8439,7 +8553,7 @@
             to <c>false</c> and the cached can be cleared via <see cref="M:Neon.Deployment.IProfileClient.ClearCache"/>
             </para>
             <para>
-            The <b>Neon.Deployment.MaintainerProfileClient</b> implementation communicates with the <b>neon-assistant</b>
+            The <b>Neon.Deployment.MaintainerProfile</b> implementation communicates with the <b>neon-assistant</b>
             to retrieve profile values and secrets.  <b>neon-assistant</b> manages profile values directly but
             communicates with 1Password.com to obtain secrets, which can take a second or two.  Caching will
             improve performance and also take some load off of 1Password. 
@@ -8506,20 +8620,6 @@
             <summary>
             Clears any cached values.
             </summary>
-        </member>
-        <member name="M:Neon.Deployment.IProfileClient.Call(System.Collections.Generic.Dictionary{System.String,System.String})">
-            <summary>
-            <para>
-            Submits a low-level request to the profile provider, passing a command and optional arguments.
-            This is temporarily used by the <c>Neon.Deployment.GitHub</c> APIs to workaround the lack of
-            a complete REST API for GHCR.
-            </para>
-            <note>
-            Implementation of this is optional and you may throw a <see cref="T:System.NotImplementedException"/>.
-            </note>
-            </summary>
-            <param name="args">The request arguments.</param>
-            <returns>The command result.</returns>
         </member>
         <member name="T:Neon.Deployment.IProfileRequest">
             <summary>
@@ -8761,6 +8861,15 @@
             <param name="configure">Exporter configuration options.</param>
             <returns>The <paramref name="loggerOptions"/> to enable fluent style programming.</returns>
         </member>
+        <member name="M:Neon.Diagnostics.ConfigExtensions.AddConsoleTextExporter(OpenTelemetry.Logs.OpenTelemetryLoggerOptions,System.Action{Neon.Diagnostics.ConsoleTextLogExporterOptions})">
+            <summary>
+            Adds a <see cref="T:Neon.Diagnostics.ConsoleTextLogExporter"/> to a <see cref="T:OpenTelemetry.Logs.OpenTelemetryLoggerOptions"/> instance
+            when configuring a OpenTelemetry pipeline.
+            </summary>
+            <param name="loggerOptions">The <see cref="T:OpenTelemetry.Logs.OpenTelemetryLoggerOptions"/> options to where the exporter will be added.</param>
+            <param name="configure">Exporter configuration options.</param>
+            <returns>The <paramref name="loggerOptions"/> to enable fluent style programming.</returns>
+        </member>
         <member name="M:Neon.Diagnostics.ConfigExtensions.AddFileExporter(OpenTelemetry.Logs.OpenTelemetryLoggerOptions,System.Action{Neon.Diagnostics.FileLogExporterOptions})">
             <summary>
             Adds a <see cref="T:Neon.Diagnostics.FileLogExporter"/> to a <see cref="T:OpenTelemetry.Logs.OpenTelemetryLoggerOptions"/> instance
@@ -8904,6 +9013,98 @@
         <member name="P:Neon.Diagnostics.ConsoleJsonLogExporterOptions.StdErrInterceptor">
             <summary>
             Used internally by unit tests to intercept JSON records emitted to <b>standard error</b>.
+            </summary>
+        </member>
+        <member name="T:Neon.Diagnostics.ConsoleTextLogExporter">
+            <summary>
+            <para>
+            Exports log records to the console where each record will be written
+            as a line of text to standard output and/or standard error when
+            configured.
+            </para>
+            </summary>
+        </member>
+        <member name="M:Neon.Diagnostics.ConsoleTextLogExporter.#ctor(Neon.Diagnostics.ConsoleTextLogExporterOptions)">
+            <summary>
+            Constructs a log exporter that writes log records to standard output and/or
+            standard error as single lines.
+            </summary>
+        </member>
+        <member name="M:Neon.Diagnostics.ConsoleTextLogExporter.Export(OpenTelemetry.Batch{OpenTelemetry.Logs.LogRecord}@)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Neon.Diagnostics.ConsoleTextLogExporterOptions">
+            <summary>
+            Specifies the options used to configure a <see cref="T:Neon.Diagnostics.ConsoleJsonLogExporter"/>.
+            </summary>
+        </member>
+        <member name="M:Neon.Diagnostics.ConsoleTextLogExporterOptions.#ctor">
+            <summary>
+            Constructs an instance with reasonable settings.
+            </summary>
+        </member>
+        <member name="P:Neon.Diagnostics.ConsoleTextLogExporterOptions.Emit">
+            <summary>
+            <para>
+            Used to disable writing events to the output stream.  This can be useful for
+            unit testing.
+            </para>
+            <note>
+            Any configured <see cref="P:Neon.Diagnostics.ConsoleTextLogExporterOptions.LogEventInterceptor"/> actions will still be called
+            event when <see cref="P:Neon.Diagnostics.ConsoleTextLogExporterOptions.Emit"/> is configured as <c>false</c>.
+            </note>
+            </summary>
+        </member>
+        <member name="P:Neon.Diagnostics.ConsoleTextLogExporterOptions.StandardErrorLevel">
+            <summary>
+            Used to direct log output for events to <b>standard error</b> based on the
+            event log level.
+            </summary>
+            <remarks>
+            <para>
+            By default, <see cref="T:Neon.Diagnostics.ConsoleJsonLogExporter"/> writes logs to <b>standard output</b>
+            because this property defaults to <see cref="F:Microsoft.Extensions.Logging.LogLevel.None"/>.  You may override this
+            by setting this to another level; then events with log levels &gt;= this property will 
+            be written to <b>standard error</b> instead.
+            </para>
+            <para>
+            Set this to <see cref="F:Microsoft.Extensions.Logging.LogLevel.Critical"/> to send all logs to <b>standard output</b>.
+            </para>
+            </remarks>
+        </member>
+        <member name="P:Neon.Diagnostics.ConsoleTextLogExporterOptions.ExceptionStackTraces">
+            <summary>
+            Specifies whether exception stack traces should be included in logged events.
+            This defaults to <c>true</c>.
+            </summary>
+        </member>
+        <member name="P:Neon.Diagnostics.ConsoleTextLogExporterOptions.LogEventInterceptor">
+            <summary>
+            <para>
+            Used to intercept log events just before they are emitted by the exporter.  You can
+            use this for implementing logging related unit tests or modifying other event properties 
+            like the timestamp, labels, tags, etc.
+            </para>
+            <note>
+            <b>IMPORTANT:</b> <see cref="T:Neon.Diagnostics.LogEvent"/> record instances are reused by the Neon telemetry
+            code, so you'll need to call <see cref="M:Neon.Diagnostics.LogEvent.Clone"/> when you're using the interceptor
+            to collected logged events for later analysis (i.e. when unit testing).
+            </note>
+            </summary>
+        </member>
+        <member name="P:Neon.Diagnostics.ConsoleTextLogExporterOptions.StdOutInterceptor">
+            <summary>
+            Used internally by unit tests to intercept JSON records emitted to <b>standard output</b>.
+            </summary>
+        </member>
+        <member name="P:Neon.Diagnostics.ConsoleTextLogExporterOptions.StdErrInterceptor">
+            <summary>
+            Used internally by unit tests to intercept JSON records emitted to <b>standard error</b>.
+            </summary>
+        </member>
+        <member name="P:Neon.Diagnostics.ConsoleTextLogExporterOptions.Format">
+            <summary>
+            Used to set the log format.
             </summary>
         </member>
         <member name="T:Neon.Diagnostics.DiagnosticsHelper">
@@ -11876,20 +12077,20 @@
         <member name="T:Neon.IO.SubStream">
             <summary>
             <para>
-            Implements a <see cref="T:System.IO.Stream"/> that operates on a section of a parent stream.
-            The parent stream must be able to <see cref="P:System.IO.Stream.CanSeek"/>.
+            Implements a <see cref="T:System.IO.Stream"/> that operates on a section of a base stream.
+            The base stream must be able to <see cref="P:System.IO.Stream.CanSeek"/>.
             </para>
             <note>
-            <b>WARNING:</b> Multi-threading operations simultaniously against the parent and substream 
-            is not supported and is likely to result in data corruption.
+            Thread safety: multiple <see cref="T:Neon.IO.SubStream"/> instances can perform operations on the
+            same underlying stream on differents because substreams obtain a lock on the base stream
+            before actually performing any I/O operations.
+            </note>
+            <note>
+            <b>WARNING:</b> Avoid performing operations on the underlying stream and any substreams
+            within different threads.  This will likey result in unexpected data corruption.
             </note>
             </summary>
             <remarks>
-            <para>
-            The <see cref="T:Neon.IO.SubStream"/> instances save the position of the parent stream when constructed
-            and restore the parent position when disposed.  The current position of the substream will be
-            set to the first byte of the substream data.
-            </para>
             <note>
             This class doesn't currently implement all of the <see cref="T:System.IO.Stream"/> methods, especially 
             asynchronous methods.  This is something we may add in the future.
@@ -11898,12 +12099,12 @@
         </member>
         <member name="M:Neon.IO.SubStream.#ctor(System.IO.Stream,System.Int64,System.Int64)">
             <summary>
-            Constructs a substream that operates on a range of bytes within a parent stream.
+            Constructs a substream that operates on a range of bytes within a base stream.
             </summary>
-            <param name="parent">The parent stream.</param>
-            <param name="start">The zero-based index of the first byte within the parent stream to be managed by the substream.</param>
+            <param name="baseStream">The base stream.</param>
+            <param name="start">The zero-based index of the first byte within the base stream to be managed by the substream.</param>
             <param name="length">The number of bytes to be managed.</param>
-            <exception cref="T:System.IO.IOException">Thrown if the parent stream doesn't support seek or the starting position or length is invalid.</exception>
+            <exception cref="T:System.IO.IOException">Thrown if the base stream doesn't support seek or the starting position or length is invalid.</exception>
         </member>
         <member name="M:Neon.IO.SubStream.Dispose(System.Boolean)">
             <inheritdoc/>
@@ -11920,17 +12121,17 @@
         </member>
         <member name="M:Neon.IO.SubStream.Execute(System.Action)">
             <summary>
-            Saves the parent stream position, sets the parent position to match the
+            Saves the base stream position, sets the base position to match the
             virtual substream position, executes the operation and then restores the
-            parent stream position.
+            base stream position.
             </summary>
             <param name="operation">The operation to be performed.</param>
         </member>
         <member name="M:Neon.IO.SubStream.ExecuteInt(System.Func{System.Int32})">
             <summary>
-            Saves the parent stream position, sets the parent position to match the
+            Saves the base stream position, sets the base position to match the
             virtual substream position, executes the operation and then restores the
-            parent stream position.
+            base stream position.
             </summary>
             <param name="operation">The operation to be performed.</param>
             <returns>The operation result.</returns>
@@ -14138,7 +14339,11 @@
             <summary>
             Returns a free TCP port for a local network interface.
             </summary>
-            <param name="address">The target interface's IP address.</param>
+            <param name="address">
+            Optionally specifies the target interface's IP address.  This defaults to
+            <see cref="F:System.Net.IPAddress.Any"/> where an unused port will be returned that is
+            available on all network interfaces.
+            </param>
             <returns>The free port number.</returns>
             <exception cref="T:Neon.Net.NetworkException">Thrown when there are no available ports.</exception>
             <remarks>
@@ -16628,7 +16833,7 @@
             <summary>
             Ensures that the instance is not disposed.
             </summary>
-            <exception cref="T:System.ObjectDisposedException">Thrown then the instance is disposed.</exception>
+            <exception cref="T:System.ObjectDisposedException">Thrown when the instance is disposed.</exception>
         </member>
         <member name="M:Neon.Tasks.AsyncTimer.Start(System.TimeSpan,System.Boolean,System.Func{System.Threading.Tasks.Task})">
             <summary>
@@ -16662,13 +16867,13 @@
             <c>null</c> and no callback was specified in constructor or a previous call to 
             <see cref="M:Neon.Tasks.AsyncTimer.Start(System.TimeSpan,System.Boolean,System.Func{System.Threading.Tasks.Task})"/>.
             </exception>
-            <exception cref="T:System.ObjectDisposedException">Thrown then the instance is disposed.</exception>
+            <exception cref="T:System.ObjectDisposedException">Thrown when the instance is disposed.</exception>
         </member>
         <member name="M:Neon.Tasks.AsyncTimer.Stop">
             <summary>
             Stops the timer.
             </summary>
-            <exception cref="T:System.ObjectDisposedException">Thrown then the instance is disposed.</exception>
+            <exception cref="T:System.ObjectDisposedException">Thrown when the instance is disposed.</exception>
         </member>
         <member name="M:Neon.Tasks.AsyncTimer.TimerLoopAsync">
             <summary>
@@ -16825,7 +17030,7 @@
              code won't run on the UI thread either.
              </para>
              <code language="C#">
-             using Neon.Task;
+             using Neon.Tasks;
              
              public async Task&lt;string&gt; HelloAsync()
              {
@@ -16889,7 +17094,7 @@
             look something like:
             </para>
             <code language="C#">
-            using Neon.Task;
+            using Neon.Tasks;
             
             public async Task&lt;string&gt; HelloAsync()
             {

@@ -268,7 +268,6 @@
             <param name="maxPartSize">Optionally overrides the maximum part size (defaults to 75 MiB).</param>
             <param name="publicReadAccess">Optionally grant the upload public read access.</param>
             <param name="progressAction">Optional action called as the file is uploaded, passing the <c>long</c> percent complete.</param>
-            <returns>The <see cref="T:Neon.Deployment.DownloadManifest"/> information.</returns>
             <returns>The <see cref="T:Neon.Deployment.DownloadManifest"/> information as well as the URI to the uploaded manifest.</returns>
             <remarks>
             <para>
@@ -310,6 +309,11 @@
             <para>
             The URI returned in this case will be <b>https://s3.uswest.amazonaws.com/mybucket/myfile.json.manifest</b>.
             </para>
+            <note>
+            This method uses two threads for uploading the parts because it seems to take
+            the <b>AWS CLI</b> tool several seconds to actually start the upload, resulting
+            in a lot of wasted uploading time.
+            </note>
             </remarks>
         </member>
         <member name="M:Neon.Deployment.AwsCli.S3Remove(System.String,System.Boolean,System.String,System.String)">
@@ -328,6 +332,67 @@
             </param>
             <param name="include">Optionally specifies a pattern specifying the objects to be removed.</param>
             <param name="exclude">Optionally specifies a pattern specifying objects to be excluded from removal.</param>
+        </member>
+        <member name="T:Neon.Deployment.CodeSigner">
+            <summary>
+            Implements code signing.
+            </summary>
+        </member>
+        <member name="M:Neon.Deployment.CodeSigner.SignBinary(System.String,System.String,System.String,System.String,System.String,System.String)">
+            <summary>
+            Signs an EXE or MSI file using a code signing certificate and the Windows
+            <b>signtool.exe</b> program.
+            </summary>
+            <param name="targetPath">Specifies the path to the file being signed.</param>
+            <param name="provider">Specifies the certificate provider, like: "eToken Base Cryptographic Provider"</param>
+            <param name="certBase64">Specifies the base64 encoded public certificate (multi-line values are allowed).</param>
+            <param name="container">Specifies the certificate container, like: "Sectigo_20220830143311"</param>
+            <param name="timestampUri">Specifies the URI for the certificate timestamp service, like: http://timestamp.sectigo.com</param>
+            <param name="password">Specifies the certificate password.</param>
+            <exception cref="T:System.PlatformNotSupportedException">Thrown when executed on a non 64-bit Windows machine.</exception>
+            <remarks>
+            <note>
+            <b>WARNING!</b> Be very careful when using this method with Extended Validation (EV) code signing 
+            USB tokens.  Using an incorrect password can brick EV tokens since thay typically allow only a 
+            very limited number of signing attempts with invalid passwords.
+            </note>
+            <note>
+            This method uses the Windows version of <b>signtool.exe</b> embedded into the
+            the <b>Neon.Deployment</b> library and to perform the code signing and this 
+            tool runs only on Windows.
+            </note>
+            </remarks>
+        </member>
+        <member name="M:Neon.Deployment.CodeSigner.IsReady(System.String,System.String,System.String,System.String,System.String)">
+            <summary>
+            
+            </summary>
+            <param name="provider">Specifies the certificate provider, like: "eToken Base Cryptographic Provider"</param>
+            <param name="certBase64">Specifies the base64 encoded public certificate (multi-line values are allowed).</param>
+            <param name="container">Specifies the certificate container, like: "Sectigo_20220830143311"</param>
+            <param name="timestampUri">Specifies the URI for the certificate timestamp service, like: http://timestamp.sectigo.com</param>
+            <param name="password">Specifies the certificate password.</param>
+            <returns><c>true</c> when signing is available.</returns>
+            <exception cref="T:System.PlatformNotSupportedException">Thrown when executed on a non 64-bit Windows machine.</exception>
+            <remarks>
+            <note>
+            <b>WARNING!</b> Be very careful when using this method with Extended Validation (EV) code signing 
+            USB tokens.  Using an incorrect password can brick EV tokens since thay typically allow only a 
+            very limited number of signing attempts with invalid passwords.
+            </note>
+            <note>
+            This method uses the Windows version of <b>signtool.exe</b> embedded into the
+            the <b>Neon.Deployment</b> library and to perform the code signing and this 
+            tool runs only on Windows.
+            </note>
+            </remarks>
+        </member>
+        <member name="M:Neon.Deployment.CodeSigner.ExtractSignTool(System.String)">
+            <summary>
+            Extracts the <b>signtool.exe</b> binary from the embedded resource
+            to the specified path.
+            </summary>
+            <param name="targetPath">The target path for the binary.</param>
         </member>
         <member name="T:Neon.Deployment.DeploymentException">
             <summary>
@@ -427,10 +492,8 @@
             a good practice to call <see cref="M:Neon.Deployment.GitHub.ClearCredentials"/>.
             </para>
             <note>
-            This class currently requires that the <b>GITHUB_PAT</b> (personal access token) 
-            and <b>GITHUB_LOGIN</b> variables be available via 1Password for the current user.
-            We need <b>GITHUB_LOGIN</b> right now so we can login and screen-scrap the GitHub
-            website for package operations that don't have REST endpoints yet.
+            This class currently requires that the <b>GITHUB_PAT</b> environment variable or
+            <b>GITHUB[accesstoken]</b> secret be available via 1Password for the current user.
             </note>
             </remarks>
         </member>
@@ -912,6 +975,9 @@
             Take care that any assets already published have names that won't conflict with the asset
             part names, which will be formatted like: <b>part-##</b>
             </note>
+            <note>
+            Unlike the S3 implementation, this method uploads the parts to GitHub on a single thread.
+            </note>
             </remarks>
         </member>
         <member name="T:Neon.Deployment.GitHubTagApi">
@@ -1303,7 +1369,7 @@
             <param name="name">The password name with optional property.</param>
             <param name="vault">Optionally specifies a specific vault.</param>
             <returns>The requested password (from the password's [password] field).</returns>
-            <exception cref="T:Neon.Deployment.OnePasswordException">Thrown for 1Password related problems.</exception>
+            <exception cref="T:Neon.Deployment.OnePasswordException">Thrown when the requested secret or proerty doesn't exist or for other 1Password related problems.</exception>
             <remarks>
             <para>
             The <paramref name="name"/> parameter may optionally specify the desired
@@ -1323,7 +1389,7 @@
             <param name="name">The password name with optional property.</param>
             <param name="vault">Optionally specifies a specific vault.</param>
             <returns>The requested value (from the password's <b>value</b> field).</returns>
-            <exception cref="T:Neon.Deployment.OnePasswordException">Thrown for 1Password related problems.</exception>
+            <exception cref="T:Neon.Deployment.OnePasswordException">Thrown when the requested secret or proerty doesn't exist or for other 1Password related problems.</exception>
             <remarks>
             <para>
             The <paramref name="name"/> parameter may optionally specify the desired
@@ -1366,7 +1432,7 @@
             <param name="message">Optionally specifies the exception message.</param>
             <param name="innerException">Optionally specifies an inner exception.</param>
         </member>
-        <member name="T:Neon.Deployment.MaintainerProfileClient">
+        <member name="T:Neon.Deployment.MaintainerProfile">
             <summary>
             Provides the <see cref="T:Neon.Deployment.IProfileClient"/> implementation used by NEONFORGE maintainers
             to obtain 1Password secrets via our internal <b>neon-assistant</b> tool.
@@ -1375,12 +1441,12 @@
             <note>
             This class uses process environment variables like <b>NEONASSISTANT_CACHE_PROFILE_[name=value</b>
             and <b>NEONASSISTANT_CACHE_SECRET_name=value</b> to cache profile and secret values such that
-            other <see cref="T:Neon.Deployment.MaintainerProfileClient"/> instances within the current process and
+            other <see cref="T:Neon.Deployment.MaintainerProfile"/> instances within the current process and
             subprocesses can take advantage of cached values as well.
             </note>
             </remarks>
         </member>
-        <member name="M:Neon.Deployment.MaintainerProfileClient.GetAwsCredentials(System.String)">
+        <member name="M:Neon.Deployment.MaintainerProfile.GetAwsCredentials(System.String)">
             <summary>
             <para>
             Retrieves the AWS access key ID and secret access key from 1Password 
@@ -1414,7 +1480,7 @@
             </list>
             </remarks>
         </member>
-        <member name="M:Neon.Deployment.MaintainerProfileClient.ClearAwsCredentials">
+        <member name="M:Neon.Deployment.MaintainerProfile.ClearAwsCredentials">
             <summary>
             <para>
             Removes the AWS-CLI credential environment variables if present:
@@ -1425,35 +1491,51 @@
             </list>
             </summary>
         </member>
-        <member name="M:Neon.Deployment.MaintainerProfileClient.#ctor">
+        <member name="M:Neon.Deployment.MaintainerProfile.#ctor">
             <summary>
             <para>
             Constructs a profile client with default parameters.  This is suitable for 
             constructing from Powershell scripts.
             </para>
             <note>
-            <see cref="T:Neon.Deployment.MaintainerProfileClient"/> currently only supports Windows.
+            <see cref="T:Neon.Deployment.MaintainerProfile"/> currently only supports Windows.
             </note>
             </summary>
             <exception cref="T:System.NotSupportedException">Thrown when not running on Windows.</exception>
         </member>
-        <member name="M:Neon.Deployment.MaintainerProfileClient.#ctor(System.String,System.TimeSpan)">
+        <member name="M:Neon.Deployment.MaintainerProfile.#ctor(System.String,System.TimeSpan)">
             <summary>
             <para>
             Constructor with optional client timeout.
             </para>
             <note>
-            <see cref="T:Neon.Deployment.MaintainerProfileClient"/> currently supports only Windows.
+            <see cref="T:Neon.Deployment.MaintainerProfile"/> currently supports only Windows.
             </note>
             </summary>
             <param name="pipeName">Specifies the server pipe name.</param>
             <param name="connectTimeout">Optionally specifies the connection timeout.  This defaults to <b>10 seconds</b>.</param>
             <exception cref="T:System.NotSupportedException">Thrown when not running on Windows.</exception>
         </member>
-        <member name="P:Neon.Deployment.MaintainerProfileClient.CacheEnabled">
+        <member name="P:Neon.Deployment.MaintainerProfile.CacheEnabled">
             <inheritdoc/>
         </member>
-        <member name="M:Neon.Deployment.MaintainerProfileClient.Call(Neon.Deployment.IProfileRequest)">
+        <member name="P:Neon.Deployment.MaintainerProfile.UseMemoryCacheOnly">
+            <summary>
+            <b>UNIT TESTING ONLY:</b> This property is really intended only for unit
+            tests verifying that caching is actually working.  This defaults to <c>false</c>
+            for new profile client instances and may be set to <c>true</c> in unit tests
+            to only retrieve cached values.
+            </summary>
+        </member>
+        <member name="P:Neon.Deployment.MaintainerProfile.UseEnvironmentCacheOnly">
+            <summary>
+            <b>UNIT TESTING ONLY:</b> This property is really intended only for unit
+            tests verifying that caching is actually working.  This defaults to <c>false</c>
+            for new profile client instances and may be set to <c>true</c> in unit tests
+            to only retrieve values cached as environment variables.
+            </summary>
+        </member>
+        <member name="M:Neon.Deployment.MaintainerProfile.Call(Neon.Deployment.IProfileRequest)">
             <summary>
             Submits a request to the profile server and returns the response.
             </summary>
@@ -1461,26 +1543,26 @@
             <returns>The response.</returns>
             <exception cref="T:Neon.Deployment.ProfileException">Thrown if the profile server returns an error.</exception>
         </member>
-        <member name="M:Neon.Deployment.MaintainerProfileClient.GetProfileValue(System.String,System.Boolean)">
+        <member name="M:Neon.Deployment.MaintainerProfile.GetProfileValue(System.String,System.Boolean)">
             <inheritdoc/>
         </member>
-        <member name="M:Neon.Deployment.MaintainerProfileClient.GetSecretPassword(System.String,System.String,System.String,System.Boolean)">
+        <member name="M:Neon.Deployment.MaintainerProfile.GetSecretPassword(System.String,System.String,System.String,System.Boolean)">
             <inheritdoc/>
         </member>
-        <member name="M:Neon.Deployment.MaintainerProfileClient.GetSecretValue(System.String,System.String,System.String,System.Boolean)">
+        <member name="M:Neon.Deployment.MaintainerProfile.GetSecretValue(System.String,System.String,System.String,System.Boolean)">
             <inheritdoc/>
         </member>
-        <member name="M:Neon.Deployment.MaintainerProfileClient.GetCommonSecrets">
+        <member name="M:Neon.Deployment.MaintainerProfile.GetCommonSecrets">
             <summary>
             Proactively used to retrieve secrets commonly used for CI/CD operations so they'll
             be available even after <b>neon-assistant</b> has signed out some time later.  
             Currently, AWS and GitHub credentials are retrieved.
             </summary>
         </member>
-        <member name="M:Neon.Deployment.MaintainerProfileClient.ClearCache">
+        <member name="M:Neon.Deployment.MaintainerProfile.ClearCache">
             <inheritdoc/>
         </member>
-        <member name="M:Neon.Deployment.MaintainerProfileClient.Call(System.Collections.Generic.Dictionary{System.String,System.String})">
+        <member name="M:Neon.Deployment.MaintainerProfile.Call(System.Collections.Generic.Dictionary{System.String,System.String})">
             <inheritdoc/>
         </member>
         <member name="T:Neon.Deployment.ProfileHandlerResult">
@@ -1656,7 +1738,7 @@
         <member name="T:Neon.Deployment.ProfileServer">
             <summary>
             Implements a named-pipe based server that will be used to receive
-            requests from <see cref="T:Neon.Deployment.MaintainerProfileClient"/>.  This server listens
+            requests from <see cref="T:Neon.Deployment.MaintainerProfile"/>.  This server listens
             on a named pipe and only allows connections from other processes 
             running on behalf of the current user.
             </summary>
