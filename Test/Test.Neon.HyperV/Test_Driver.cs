@@ -340,7 +340,7 @@ namespace TestHyperV
                 using (var driver = CreateDriver(client, driverType))
                 {
                     const string testSwitchName = "d4f28a28-be82-46ec-8411-34c1b92174c2";
-                    const string subnet         = "10.202.0.0/24";
+                    const string subnet         = "10.254.0.0/24";
 
                     // Cleanup any resources left over from a previous test run.
 

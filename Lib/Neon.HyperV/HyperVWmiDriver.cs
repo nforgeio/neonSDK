@@ -181,6 +181,7 @@ namespace Neon.HyperV
 
         private HyperVClient            client;
 		private ManagementScope         cim2Scope;
+        private InitialSessionState     iss;
         private readonly TimeSpan       timeout      = TimeSpan.FromMinutes(10);
         private readonly TimeSpan       pollInterval = TimeSpan.FromSeconds(1);
         private readonly TimeSpan       waitTime     = TimeSpan.FromSeconds(0);
@@ -199,6 +200,16 @@ namespace Neon.HyperV
 
             this.client    = client;
 			this.cim2Scope = new ManagementScope(@"\\.\root\StandardCimv2");
+
+            // Configure the initial session state for the PowerShell runspaces.
+
+            iss = InitialSessionState.Create();
+
+            iss.ExecutionPolicy = ExecutionPolicy.Unrestricted;
+
+            iss.ImportPSModule(NetAdapterModule);
+            iss.ImportPSModule(NetTcpIpModule);
+            iss.ImportPSModule(NetNatModule);
         }
 
         /// <summary>
@@ -228,6 +239,7 @@ namespace Neon.HyperV
 
             client    = null;
 			cim2Scope = null;
+            iss       = null;
 
             if (disposing)
             {
@@ -336,14 +348,6 @@ namespace Neon.HyperV
         {
             try
             {
-                var iss = InitialSessionState.Create();
-
-                iss.ExecutionPolicy = ExecutionPolicy.Unrestricted;
-
-                iss.ImportPSModule(NetAdapterModule);
-                iss.ImportPSModule(NetTcpIpModule);
-                iss.ImportPSModule(NetNatModule);
-
                 using (var runspace = RunspaceFactory.CreateRunspace(iss))
                 {
                     runspace.Open();
@@ -645,15 +649,26 @@ namespace Neon.HyperV
         {
             CheckDisposed();
 
+            // $note(jefflill):
+            //
+            // The [NetNat] cmdlets aren't working so we'll do WMI instead.
+
             var nats = new List<VirtualNat>();
 
-            foreach (var rawNat in Invoke($@"{NetNatModule}\Get-NetNat", new CmdletArgs()))
+            foreach (var rawNat in Wmi.Query("select * from MSFT_NetNat", cim2Scope))
             {
+                var subnet = (string)rawNat.Properties["InternalIPInterfaceAddressPrefix"].Value;
+
+                if (subnet == null)
+                {
+                    subnet = (string)rawNat.Properties["ExternalIPInterfaceAddressPrefix"].Value;
+                }
+
                 nats.Add(
                     new VirtualNat()
                     {
                         Name   = (string)rawNat.Properties["Name"].Value,
-                        Subnet = (string)rawNat.Properties["InternalIPInterfaceAddressPrefix"].Value
+                        Subnet = subnet
                     });
             }
 
@@ -873,13 +888,13 @@ namespace Neon.HyperV
                 throw new HyperVException($"Host network adapter for switch [{switchName}] cannot be located.");
             }
 
-            var cmdArgs = new CmdletArgs();
+            var args = new CmdletArgs();
 
-            cmdArgs.Add("IPAddress", subnet.FirstUsableAddress);
-            cmdArgs.Add("PrefixLength", subnet.PrefixLength);
-            cmdArgs.Add("InterfaceIndex", adapter.InterfaceIndex);
+            args.Add("IPAddress", subnet.FirstUsableAddress);
+            args.Add("PrefixLength", subnet.PrefixLength);
+            args.Add("InterfaceIndex", adapter.InterfaceIndex);
 
-            Invoke($@"{NetTcpIpModule}\New-NetIPAddress", cmdArgs);
+            Invoke($@"{NetTcpIpModule}\New-NetIPAddress", args);
         }
 
         /// <inheritdoc/>
@@ -894,20 +909,40 @@ namespace Neon.HyperV
                 throw new HyperVException($"NetNat [{natName}] already exists.");
             }
 
-            var cmdArgs = new CmdletArgs();
+            // $note(jefflill):
+            //
+            // The [NetNat] cmdlets aren't working so we'll do WMI instead.
 
-            cmdArgs.Add("Name", natName);
+            var netNatClass = new ManagementClass($"{cim2Scope.Path}:MSFT_NetNat");
+            var netNat      = netNatClass.CreateInstance();
+
+            netNat.Properties["Name"].Value                            = natName;
+            netNat.Properties["IcmpQueryTimeout"].Value                = (uint)30;
+            netNat.Properties["TcpEstablishedConnectionTimeout"].Value = (uint)1800;
+            netNat.Properties["TcpTransientConnectionTimeout"].Value   = (uint)120;
+            netNat.Properties["TcpFilteringBehavior"].Value            = (byte)1;       // AddressDependentFiltering
+            netNat.Properties["UdpFilteringBehavior"].Value            = (byte)1;       // AddressDependentFiltering
+            netNat.Properties["UdpIdleSessionTimeout"].Value           = (uint)120;
+            netNat.Properties["UdpInboundRefresh"].Value               = false;
+            netNat.Properties["Active"].Value                          = true;
 
             if (@internal)
             {
-                cmdArgs.Add("InternalIPInterfaceAddressPrefix", subnet.ToString());
+                netNat.Properties["InternalIPInterfaceAddressPrefix"].Value = subnet.ToString();
             }
             else
             {
-                cmdArgs.Add("ExternalIPInterfaceAddressPrefix", subnet.ToString());
+                netNat.Properties["ExternalIPInterfaceAddressPrefix"].Value = subnet.ToString();
             }
 
-            Invoke($@"{NetNatModule}\New-NetNat", cmdArgs);
+            try
+            {
+                netNat.Put();
+            }
+            catch (Exception e)
+            {
+                throw new HyperVException(e);
+            }
         }
 
         /// <inheritdoc/>
@@ -978,7 +1013,13 @@ namespace Neon.HyperV
             CheckDisposed();
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(natName), nameof(natName));
 
-            throw new NotImplementedException();
+            // $note(jefflill):
+            //
+            // The [NetNat] cmdlets aren't working so we'll do WMI instead.
+
+            var rawNat = Wmi.Query($"select * from MSFT_NetNat where Name = '{natName}'", cim2Scope).SingleOrDefault();
+
+            rawNat?.Delete();
         }
 
         /// <inheritdoc/>
