@@ -179,12 +179,13 @@ namespace Neon.HyperV
         //---------------------------------------------------------------------
         // Implementation
 
-        private HyperVClient            client;
-		private ManagementScope         cim2Scope;
-        private InitialSessionState     iss;
-        private readonly TimeSpan       timeout      = TimeSpan.FromMinutes(10);
-        private readonly TimeSpan       pollInterval = TimeSpan.FromSeconds(1);
-        private readonly TimeSpan       waitTime     = TimeSpan.FromSeconds(0);
+        private HyperVClient                client;
+		private ManagementScope             cim2Scope;
+        private InitialSessionState         iss;
+        private Dictionary<Type, string>    typeToCommand = new Dictionary<Type, string>();
+        private readonly TimeSpan           timeout      = TimeSpan.FromMinutes(10);
+        private readonly TimeSpan           pollInterval = TimeSpan.FromSeconds(1);
+        private readonly TimeSpan           waitTime     = TimeSpan.FromSeconds(0);
 
         /// <summary>
         /// Constructor.
@@ -208,8 +209,34 @@ namespace Neon.HyperV
             iss.ExecutionPolicy = ExecutionPolicy.Unrestricted;
 
             iss.ImportPSModule(NetAdapterModule);
-            iss.ImportPSModule(NetTcpIpModule);
             iss.ImportPSModule(NetNatModule);
+            iss.ImportPSModule(NetTcpIpModule);
+
+            AddCommand<AddVMHardDiskDrive>(iss);
+            AddCommand<DisableVMConsoleSupport>(iss);
+            AddCommand<DismountVHD>(iss);
+            AddCommand<GetVM>(iss);
+            AddCommand<GetVMDvdDrive>(iss);
+            AddCommand<GetVMHardDiskDrive>(iss);
+            AddCommand<GetVMIntegrationService>(iss);
+            AddCommand<GetVMNetworkAdapter>(iss);
+            AddCommand<GetVMSwitch>(iss);
+            AddCommand<MountVhd>(iss);
+            AddCommand<NewVhd>(iss);
+            AddCommand<NewVM>(iss);
+            AddCommand<NewVMSwitch>(iss);
+            AddCommand<OptimizeVhd>(iss);
+            AddCommand<RemoveVM>(iss);
+            AddCommand<RemoveVMDvdDrive>(iss);
+            AddCommand<RemoveVMSwitch>(iss);
+            AddCommand<ResizeVhd>(iss);
+            AddCommand<SaveVM>(iss);
+            AddCommand<SetVM>(iss);
+            AddCommand<SetVMDvdDrive>(iss);
+            AddCommand<SetVMNetworkAdapter>(iss);
+            AddCommand<SetVMProcessor>(iss);
+            AddCommand<StartVM>(iss);
+            AddCommand<StopVM>(iss);
         }
 
         /// <summary>
@@ -260,6 +287,22 @@ namespace Neon.HyperV
         }
 
         /// <summary>
+        /// Adds a cmdlet type to the initial session state and also adds a type/command
+        /// name mapping to <see cref="typeToCommand"/>.
+        /// </summary>
+        /// <typeparam name="TCmdlet">Specifies the cmdlet type.</typeparam>
+        /// <param name="iss">The target session state.</param>
+        private void AddCommand<TCmdlet>(InitialSessionState iss)
+            where TCmdlet : Cmdlet
+        {
+            var cmdletAttr = typeof(TCmdlet).GetCustomAttribute<CmdletAttribute>();
+            var cmdletName = $"{cmdletAttr.VerbName}-{cmdletAttr.NounName}";
+
+            iss.Commands.Add(new SessionStateCmdletEntry(cmdletName, typeof(TCmdlet), null));
+            typeToCommand.Add(typeof(TCmdlet), cmdletName);
+        }
+
+        /// <summary>
         /// Invokes the <typeparamref name="TCmdlet"/> cmdlet with the parameters passed.
         /// </summary>
         /// <typeparam name="TCmdlet">Specifies the target cmdlet implementation.</typeparam>
@@ -294,13 +337,6 @@ namespace Neon.HyperV
         {
             try
             {
-                var cmdletAttr = typeof(TCmdlet).GetCustomAttribute<CmdletAttribute>();
-                var cmdletName = $"{cmdletAttr.VerbName}-{cmdletAttr.NounName}";
-                var iss        = InitialSessionState.Create();
-
-                iss.ExecutionPolicy = ExecutionPolicy.Unrestricted;
-                iss.Commands.Add(new SessionStateCmdletEntry(cmdletName, typeof(TCmdlet), null));
-
                 using (var runspace = RunspaceFactory.CreateRunspace(iss))
                 {
                     runspace.Open();
@@ -309,7 +345,7 @@ namespace Neon.HyperV
                     {
                         powershell.Runspace = runspace;
 
-                        powershell.AddCommand(cmdletName);
+                        powershell.AddCommand(typeToCommand[typeof(TCmdlet)]);
                         args.CopyArgsTo(powershell);
 
                         var result = powershell.Invoke();
