@@ -66,6 +66,7 @@ namespace NeonSignalRProxy.Controllers
         private LookupClient           dnsClient;
         private ForwarderRequestConfig forwarderRequestConfig;
         private Backend                backend;
+        private SessionHelper          sessionHelper;
 
         /// <summary>
         /// Constructor.
@@ -79,6 +80,7 @@ namespace NeonSignalRProxy.Controllers
         /// <param name="dnsClient">The <see cref="LookupClient"/> for service discovery.</param>
         /// <param name="sessionTransformer">The <see cref="SessionTransformer"/>.</param>
         /// <param name="forwarderRequestConfig">The <see cref="ForwarderRequestConfig"/>.</param>
+        /// <param name="sessionHelper">The <see cref="SessionHelper"/>.</param>
         public SignalRController(
             Service                      signalrProxyService,
             ProxyConfig                  config,
@@ -88,9 +90,10 @@ namespace NeonSignalRProxy.Controllers
             AesCipher                    aesCipher,
             LookupClient                 dnsClient,
             SessionTransformer           sessionTransformer,
-            ForwarderRequestConfig       forwarderRequestConfig)
+            ForwarderRequestConfig       forwarderRequestConfig,
+            SessionHelper                sessionHelper)
         {
-            this.signalrProxyService     = signalrProxyService;
+            this.signalrProxyService    = signalrProxyService;
             this.config                 = config;
             this.httpClient             = httpClient;
             this.forwarder              = forwarder;
@@ -99,6 +102,7 @@ namespace NeonSignalRProxy.Controllers
             this.transformer            = sessionTransformer;
             this.dnsClient              = dnsClient;
             this.forwarderRequestConfig = forwarderRequestConfig;
+            this.sessionHelper          = sessionHelper;
         }
 
         /// <summary>
@@ -118,24 +122,23 @@ namespace NeonSignalRProxy.Controllers
             {
                 backend = config.Backends.Where(b => b.Hosts.Contains(HttpContext.Request.Host.Host)).Single();
 
-                var cookies      = HttpContext.Request.Cookies.Where(c => c.Key == Service.SessionCookieName);
-
                 ForwarderError error;
-                Session        session = new Session();
                 bool           upstreamIsvalid = false;
 
-                if (cookies.Any())
-                {
-                    var cookie       = cookies.Single();
-                    var cookieString = cipher.DecryptStringFrom(cookie.Value);
-                    session          = NeonHelper.JsonDeserialize<Session>(cookieString);
+                var session = sessionHelper.GetSession(HttpContext);
 
+                if (session != null)
+                {
                     if (config.SessionStore == SessionStoreType.Cache)
                     {
                         session = await cache.GetAsync<Session>(session.Id);
                     }
 
                     upstreamIsvalid = await IsValidTargetAsync(session.UpstreamHost);
+                }
+                else
+                {
+                    session = new Session();
                 }
 
                 if (!upstreamIsvalid)

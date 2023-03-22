@@ -49,6 +49,7 @@ namespace NeonSignalRProxy
         private DistributedCacheEntryOptions    cacheOptions;
         private AesCipher                       cipher;
         private ProxyConfig                     proxyConfig;
+        private SessionHelper                   sessionHelper;
 
         /// <summary>
         /// Constructor.
@@ -57,19 +58,22 @@ namespace NeonSignalRProxy
         /// <param name="cacheOptions"></param>
         /// <param name="cipher"></param>
         /// <param name="proxyConfig"></param>
-        /// <param name="LoggerFactory"></param>
+        /// <param name="sessionHelper"></param>
+        /// <param name="loggerFactory"></param>
         public SessionTransformer(
             CacheHelper                  cache,
             DistributedCacheEntryOptions cacheOptions,
             AesCipher                    cipher,
             ProxyConfig                  proxyConfig,
-            ILoggerFactory               LoggerFactory = null)
+            SessionHelper                sessionHelper,
+            ILoggerFactory               loggerFactory = null)
         {
-            this.cache        = cache;
-            this.cacheOptions = cacheOptions;
-            this.cipher       = cipher;
-            this.proxyConfig  = proxyConfig;
-            this.logger       = LoggerFactory?.CreateLogger<SessionTransformer>();;
+            this.cache         = cache;
+            this.cacheOptions  = cacheOptions;
+            this.cipher        = cipher;
+            this.proxyConfig   = proxyConfig;
+            this.sessionHelper = sessionHelper;
+            this.logger        = loggerFactory?.CreateLogger<SessionTransformer>();;
         }
 
         /// <summary>
@@ -128,7 +132,7 @@ namespace NeonSignalRProxy
                     await cache.SetAsync(session.Id, session);
                 }
 
-                if (!httpContext.Request.Cookies.ContainsKey(Service.SessionCookieName) || (mediaType == "text/html" && httpContext.Response.StatusCode == 200))
+                if (!httpContext.Request.Cookies.ContainsKey(sessionHelper.GetCookieName(httpContext)) || (mediaType == "text/html" && httpContext.Response.StatusCode == 200))
                 {
                     if (proxyConfig.SessionStore != SessionStoreType.Cookie)
                     {
@@ -136,7 +140,7 @@ namespace NeonSignalRProxy
                         session.UpstreamHost = null;
                     }
 
-                    httpContext.Response.Cookies.Append(Service.SessionCookieName, cipher.EncryptToBase64(NeonHelper.JsonSerialize(session)));
+                    httpContext.Response.Cookies.Append(sessionHelper.GetCookieName(httpContext), cipher.EncryptToBase64(NeonHelper.JsonSerialize(session)));
                 }
 
                 return true;

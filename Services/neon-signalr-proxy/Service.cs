@@ -68,7 +68,7 @@ namespace NeonSignalRProxy
         /// <summary>
         /// Session cookie name.
         /// </summary>
-        public const string SessionCookieName = ".Neon.SignalR.Proxy.Cookie";
+        public const string SessionCookiPrefix = ".Neon.SignalR.Proxy";
 
         /// <summary>
         /// Lock used for updating the load balancer status.

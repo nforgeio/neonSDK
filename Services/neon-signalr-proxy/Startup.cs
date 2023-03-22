@@ -146,6 +146,7 @@ namespace NeonSignalRProxy
                             });
                     })
                 .AddSingleton(NeonSignalRProxyService.AesCipher)
+                .AddSingleton<SessionHelper>()
                 .AddSingleton<DistributedCacheEntryOptions>(
                     serviceProvider =>
                     {

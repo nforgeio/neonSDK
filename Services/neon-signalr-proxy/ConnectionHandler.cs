@@ -65,6 +65,7 @@ namespace NeonSignalRProxy
         /// <param name="cipher">The AES Cipher used to encrypt/decrypt cookies.</param>
         /// <param name="cacheOptions">The Cache options.</param>
         /// <param name="proxyConfig">The proxy config options.</param>
+        /// <param name="sessionHelper">The proxy config options.</param>
         /// <returns></returns>
         public async Task InvokeAsync(
             HttpContext                     context,
@@ -72,7 +73,8 @@ namespace NeonSignalRProxy
             CacheHelper                     cache, 
             AesCipher                       cipher,
             DistributedCacheEntryOptions    cacheOptions,
-            ProxyConfig                     proxyConfig)
+            ProxyConfig                     proxyConfig,
+            SessionHelper                   sessionHelper)
         {
             await SyncContext.Clear;
 
@@ -82,9 +84,7 @@ namespace NeonSignalRProxy
 
                 if (service.CurrentConnections.Contains(context.Connection.Id))
                 {
-                    var cookie       = context.Request.Cookies.Where(c => c.Key == Service.SessionCookieName).First();
-                    var cookieString = cipher.DecryptStringFrom(cookie.Value);
-                    var session      = NeonHelper.JsonDeserialize<Session>(cookieString);
+                    var session = sessionHelper.GetSession(context);
 
                     if (proxyConfig.SessionStore == SessionStoreType.Cache)
                     {
