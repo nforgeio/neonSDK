@@ -29,6 +29,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Neon.Common;
+using Neon.IO;
 using Neon.Tailwind;
 
 namespace Neon.Tailwind
@@ -40,18 +41,38 @@ namespace Neon.Tailwind
         [UnsupportedOSPlatform("browser")]
         public NodeRunner(string executable, string[] args, CancellationToken cancellationToken = default)
         {
+            var pidFile = $"{AppContext.BaseDirectory}tailwind.pid";
+
+            if (File.Exists(pidFile))
+            {
+                try 
+                { 
+                    var pid = int.Parse(File.ReadAllText(pidFile));
+                    Process.GetProcesses().Where(p => p.Id == pid).FirstOrDefault()?.Kill(true);
+                }
+                catch
+                {
+                    // not running
+                }
+            }
             
             var processStartInfo = new ProcessStartInfo(executable)
             {
                 Arguments              = string.Join(' ', args),
                 UseShellExecute        = false,
-                RedirectStandardInput  = true,
-                RedirectStandardOutput = true,
-                RedirectStandardError  = true
+                RedirectStandardInput  = false,
+                RedirectStandardOutput = false,
+                RedirectStandardError  = false,
             };
 
-            process                      = Process.Start(processStartInfo);
+            process = Process.Start(processStartInfo);
             process.EnableRaisingEvents = true;
+
+            var currentProcess = Process.GetCurrentProcess();
+            var parentPropertyInfo = typeof(Process).GetProperty("ParentProcessId", BindingFlags.Instance | BindingFlags.NonPublic);
+            var parentProcess = Process.GetProcessById((int)parentPropertyInfo.GetValue(currentProcess));
+
+            File.WriteAllText(pidFile, parentProcess.Id.ToString());
 
             cancellationToken.Register(((IDisposable)this).Dispose);
         }

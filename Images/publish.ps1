@@ -221,7 +221,7 @@ try
 
     if ($services)
     {
-        Publish "$image_root\neon-blazor-proxy"
+        Publish "$image_root\neon-signalr-proxy"
         Publish "$image_root\test-api"
     }
 

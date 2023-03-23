@@ -23,6 +23,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Versioning;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Builder;
@@ -47,21 +48,25 @@ namespace Neon.Tailwind
 
             EnsureConfiguration(inputCssPath);
 
-            var executable = "npx";
-            var args = new List<string>();
+            var enviromentPath = System.Environment.GetEnvironmentVariable("PATH");
+            var paths          = enviromentPath.Split(';');
+            var executablePath = paths.Where(x => File.Exists(Path.Combine(x, "npx.exe"))
+                                                    || File.Exists(Path.Combine(x, "npx.cmd"))
+                                                    || File.Exists(Path.Combine(x, "npx")))
+                                            .FirstOrDefault();
+            Regex reg          = new Regex(@"([\/\\](\w+\.\w+)?)*(npx.?(exe|cmd|))$");
+            var executable     = Directory.GetFiles(executablePath, "npx.cmd").Where(path => reg.IsMatch(path)).FirstOrDefault();
 
-            if (OperatingSystem.IsWindows())
+            var args = new List<string>
             {
-                executable = "cmd";
-                args.Add("/c");
-                args.Add("npx");
-            }
-
-            args.Add("tailwindcss");
-            args.Add("-i");
-            args.Add(inputCssPath);
-            args.Add("-o");
-            args.Add(outputCssPath);
+                "--prefix",
+                Environment.CurrentDirectory,
+                "tailwindcss",
+                "-i",
+                inputCssPath,
+                "-o",
+                outputCssPath
+            };
 
             if (watch)
             {
@@ -79,18 +84,22 @@ namespace Neon.Tailwind
                 throw new ArgumentNullException(nameof(applicationBuilder));
             }
 
-            var executable = "npm";
-            var args       = new List<string>();
+            var enviromentPath = System.Environment.GetEnvironmentVariable("PATH");
+            var paths          = enviromentPath.Split(';');
+            var executablePath = paths.Where(x => File.Exists(Path.Combine(x, "npm.exe"))
+                                                    || File.Exists(Path.Combine(x, "npm.cmd"))
+                                                    || File.Exists(Path.Combine(x, "npm")))
+                                            .FirstOrDefault();
+            Regex reg          = new Regex(@"([\/\\](\w+\.\w+)?)*(npm.?(exe|cmd|))$");
+            var executable     = Directory.GetFiles(executablePath, "npm.cmd").Where(path => reg.IsMatch(path)).FirstOrDefault();
 
-            if (OperatingSystem.IsWindows())
+            var args = new List<string>
             {
-                executable = "cmd";
-                args.Add("/c");
-                args.Add("npm");
-            }
-
-            args.Add("run");
-            args.Add(script);
+                "--prefix",
+                Environment.CurrentDirectory,
+                "run",
+                script
+            };
 
             var nodeRunner = new NodeRunner(executable, args.ToArray());
         }
