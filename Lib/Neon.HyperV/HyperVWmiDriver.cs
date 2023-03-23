@@ -182,6 +182,7 @@ namespace Neon.HyperV
         private HyperVClient                client;
 		private ManagementScope             cim2Scope;
         private InitialSessionState         iss;
+        private RunspacePool                rsp;
         private Dictionary<Type, string>    typeToCommand = new Dictionary<Type, string>();
         private readonly TimeSpan           timeout      = TimeSpan.FromMinutes(10);
         private readonly TimeSpan           pollInterval = TimeSpan.FromSeconds(1);
@@ -237,6 +238,19 @@ namespace Neon.HyperV
             AddCommand<SetVMProcessor>(iss);
             AddCommand<StartVM>(iss);
             AddCommand<StopVM>(iss);
+
+            // Create and configure an runspace pool.  We'll use this to pool
+            // and reuse runspaces rather than creating fresh ones for every
+            // command invocation, which is slow (~18 seconds).
+
+            rsp = RunspaceFactory.CreateRunspacePool(iss);
+
+            // $hack(jefflill): Hardcoding pool parameters.
+
+            rsp.CleanupInterval = TimeSpan.FromMinutes(5);
+            rsp.SetMinRunspaces(1);
+            rsp.SetMaxRunspaces(4);
+            rsp.Open();
         }
 
         /// <summary>
@@ -263,6 +277,9 @@ namespace Neon.HyperV
             {
                 return;
             }
+
+            rsp?.Dispose();
+            rsp = null;
 
             client    = null;
 			cim2Scope = null;
@@ -337,27 +354,22 @@ namespace Neon.HyperV
         {
             try
             {
-                using (var runspace = RunspaceFactory.CreateRunspace(iss))
+                using (var powershell = PowerShell.Create())
                 {
-                    runspace.Open();
+                    powershell.RunspacePool = rsp;
 
-                    using (var powershell = PowerShell.Create(runspace))
+                    powershell.AddCommand(typeToCommand[typeof(TCmdlet)]);
+                    args.CopyArgsTo(powershell);
+
+                    var result = powershell.Invoke();
+                    var errors = powershell.Streams.Error.FirstOrDefault();
+
+                    if (errors != null)
                     {
-                        powershell.Runspace = runspace;
-
-                        powershell.AddCommand(typeToCommand[typeof(TCmdlet)]);
-                        args.CopyArgsTo(powershell);
-
-                        var result = powershell.Invoke();
-                        var errors = powershell.Streams.Error.FirstOrDefault();
-
-                        if (errors != null)
-                        {
-                            throw errors.Exception;
-                        }
-
-                        return result;
+                        throw errors.Exception;
                     }
+
+                    return result;
                 }
             }
             catch (Exception e)
@@ -384,27 +396,22 @@ namespace Neon.HyperV
         {
             try
             {
-                using (var runspace = RunspaceFactory.CreateRunspace(iss))
+                using (var powershell = PowerShell.Create())
                 {
-                    runspace.Open();
+                    powershell.RunspacePool = rsp;
 
-                    using (var powershell = PowerShell.Create(runspace))
+                    powershell.AddCommand(cmdletName);
+                    args.CopyArgsTo(powershell);
+
+                    var result = powershell.Invoke();
+                    var errors = powershell.Streams.Error.FirstOrDefault();
+
+                    if (errors != null)
                     {
-                        powershell.Runspace = runspace;
-
-                        powershell.AddCommand(cmdletName);
-                        args.CopyArgsTo(powershell);
-
-                        var result = powershell.Invoke();
-                        var errors = powershell.Streams.Error.FirstOrDefault();
-
-                        if (errors != null)
-                        {
-                            throw errors.Exception;
-                        }
-
-                        return result;
+                        throw errors.Exception;
                     }
+
+                    return result;
                 }
             }
             catch (Exception e)
@@ -655,9 +662,12 @@ namespace Neon.HyperV
             foreach (var drive in drives)
             {
                 args.Clear();
-                args.Add("VMDvdDrive", drive);
+                args.Add("VMName", machineName);
+                args.Add("ControllerNumber", (int)drive.Properties["ControllerNumber"].Value);
+                args.Add("ControllerLocation", (int)drive.Properties["ControllerLocation"].Value);
+                args.Add("Path", null);
 
-                Invoke<RemoveVMDvdDrive>(args);
+                Invoke<SetVMDvdDrive>(args);
             }
 
             // Wait until there are no remaining DVD drives attached to the VM.

@@ -439,8 +439,7 @@ namespace Neon.HyperV
 
                         default:
 
-                            virtualSwitch.Type = VirtualSwitchType.Unknown;
-                            break;
+                            throw new NotImplementedException();
                     }
 
                     switches.Add(virtualSwitch);

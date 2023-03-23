@@ -202,6 +202,11 @@ namespace Neon.HyperV
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(memorySize), nameof(memorySize));
             Covenant.Requires<ArgumentException>(processorCount > 0, nameof(processorCount));
 
+            if (templateDrivePath != null && !File.Exists(templateDrivePath))
+            {
+                throw new HyperVException($"Virtual machine drive template [{templateDrivePath}] does not exist.");
+            }
+
             if (VmExists(machineName))
             {
                 throw new HyperVException($"Virtual machine [{machineName}] already exists.");
@@ -318,7 +323,7 @@ namespace Neon.HyperV
             {
                 foreach (var drivePath in drives)
                 {
-                    File.Delete(drivePath);
+                    NeonHelper.DeleteFile(drivePath);
                 }
             }
         }

@@ -228,8 +228,8 @@ namespace TestHyperV
                             isoBuilder.AddFile("hello.txt", Encoding.UTF8.GetBytes("HELLO WORLD!"));
                             isoBuilder.Build(isoPath);
 
-                            //driver.InsertVmDvdDrive(testVmName, isoPath);
-                            //driver.EjectDvdDrive(testVmName);
+                            driver.InsertVmDvdDrive(testVmName, isoPath);
+                            driver.EjectDvdDrive(testVmName);
 
                             // Stop the VM gracefully, add a data drive and increase the processors to 4
                             // and the memory to 3 GiB and then restart the VM to verify the processors/memory

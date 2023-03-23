@@ -23,27 +23,23 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using Microsoft.HyperV.PowerShell;
 using Neon.Common;
 
 namespace Neon.HyperV
 {
     /// <summary>
-    /// Enumerates the known Hyper-V virtual machine states.
+    /// Enumerates the known Hyper-V virtual switch types.
     /// </summary>
     public enum VirtualSwitchType
     {
-        /// <summary>
-        /// The current switch type cannot be determined or is not one of
-        /// the known states below.
-        /// </summary>
-        Unknown = 0,
+        // WARNING: The ordinal values here must match the related WMI values.
 
         /// <summary>
-        /// The switch can communicate with the host operating system as well as
-        /// any networks the host can reach.
+        /// The switch can communicate only with virtual machines using the
+        /// same switch.
         /// </summary>
-        External,
+        Private = VMSwitchType.Private,
 
         /// <summary>
         /// The switch can communicate with the host operating system as well as
@@ -52,12 +48,12 @@ namespace Neon.HyperV
         /// with anything outside of the host until it's assigned an IP address
         /// and NAT is enabled.
         /// </summary>
-        Internal,
+        Internal = VMSwitchType.Internal,
 
         /// <summary>
-        /// The switch can communicate only with virtual machines using the
-        /// same switch.
+        /// The switch can communicate with the host operating system as well as
+        /// any networks the host can reach.
         /// </summary>
-        Private
+        External = VMSwitchType.External
     }
 }
