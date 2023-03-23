@@ -16,6 +16,7 @@
 // limitations under the License.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -41,6 +42,7 @@ using Microsoft.Vhd.PowerShell.Cmdlets;
 
 using Neon.Common;
 using Neon.Net;
+using Neon.Time;
 
 namespace Neon.HyperV
 {
@@ -184,9 +186,29 @@ namespace Neon.HyperV
         private InitialSessionState         iss;
         private RunspacePool                rsp;
         private Dictionary<Type, string>    typeToCommand = new Dictionary<Type, string>();
-        private readonly TimeSpan           timeout      = TimeSpan.FromMinutes(10);
-        private readonly TimeSpan           pollInterval = TimeSpan.FromSeconds(1);
-        private readonly TimeSpan           dvdWaitTime  = TimeSpan.FromSeconds(5);
+        private readonly TimeSpan           timeout       = TimeSpan.FromMinutes(10);
+        private readonly TimeSpan           pollInterval  = TimeSpan.FromSeconds(1);
+
+        // $hack(jefflill):
+        //
+        // We're seeing problems with inserting and then immediately ejecting a
+        // DVD into a virtual machine: the VM gets into a bad state where it's
+        // unresponsive to subsequent commands from PowerShell/WMI or even the
+        // Hyper-V Manager UI.
+        //
+        // This isn't something we really see in real life because we typically
+        // let the VM do some other things after inserting the DVD before we
+        // eject it.
+        //
+        // The workaround is to ensure that we wait at least 5 seconds after a
+        // DVD is inserted before ejecting a drive.  This dictionary will be used
+        // to keep track of the DVD insertion time (SysTime) so a subsequent 
+        // eject operation can delay as necessary.
+        //
+        // Note that access to this can be multi-threaded so we'll acquire a
+        // lock on the dictionary before manipulating it.
+
+        private readonly ConcurrentDictionary<string, DateTime> machineToDvdInsertTime = new ConcurrentDictionary<string, DateTime>(StringComparer.InvariantCultureIgnoreCase);
 
         /// <summary>
         /// Constructor.
@@ -634,12 +656,7 @@ namespace Neon.HyperV
                     return drives.Any(drive => drive.Equals(isoPath, StringComparison.InvariantCultureIgnoreCase));
                 });
 
-            // $hack(jefflill):
-            //
-            // This (5 second) delay is required such that inserting and then immediately
-            // ejecting a DVD drive won't put the VM into a bad state.
-
-            Thread.Sleep(dvdWaitTime);
+            machineToDvdInsertTime[machineName] = SysTime.Now;
         }
 
         /// <inheritdoc/>
@@ -647,6 +664,23 @@ namespace Neon.HyperV
         {
             CheckDisposed();
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
+
+            // $hack(jefflill):
+            //
+            // We need to wait at least 5 seconds since a DVD was last inserted
+            // to keep the VM from transitioning into a bad state.
+
+            if (machineToDvdInsertTime.TryGetValue(machineName, out var sysInsertTime))
+            {
+                var waitTime = TimeSpan.FromSeconds(5) - (SysTime.Now - sysInsertTime);
+
+                if (waitTime > TimeSpan.Zero)
+                {
+                    Thread.Sleep(waitTime);
+                }
+
+                machineToDvdInsertTime.Remove(machineName, out _);
+            }
 
             WaitForVmReady(machineName);
 
@@ -691,13 +725,6 @@ namespace Neon.HyperV
                 },
                 timeout:      timeout,
                 pollInterval: pollInterval);
-
-            // $hack(jefflill):
-            //
-            // This (5 second) delay is required such that inserting and then immediately
-            // ejecting a DVD drive won't put the VM into a bad state.
-
-            Thread.Sleep(dvdWaitTime);
         }
 
         /// <inheritdoc/>
@@ -1090,6 +1117,8 @@ namespace Neon.HyperV
 
             args.Add("Name", machineName);
             args.AddSwitch("Force");
+
+            machineToDvdInsertTime.Remove(machineName, out _);
 
             Invoke<RemoveVM>(args, waitFor: () => !ListVms().Any(vm => vm.Name == machineName));
         }
