@@ -186,7 +186,7 @@ namespace Neon.HyperV
         private Dictionary<Type, string>    typeToCommand = new Dictionary<Type, string>();
         private readonly TimeSpan           timeout      = TimeSpan.FromMinutes(10);
         private readonly TimeSpan           pollInterval = TimeSpan.FromSeconds(1);
-        private readonly TimeSpan           waitTime     = TimeSpan.FromSeconds(0);
+        private readonly TimeSpan           dvdWaitTime  = TimeSpan.FromSeconds(5);
 
         /// <summary>
         /// Constructor.
@@ -241,7 +241,7 @@ namespace Neon.HyperV
 
             // Create and configure an runspace pool.  We'll use this to pool
             // and reuse runspaces rather than creating fresh ones for every
-            // command invocation, which is slow (~18 seconds).
+            // command invocation, which is slow (~18 seconds each).
 
             rsp = RunspaceFactory.CreateRunspacePool(iss);
 
@@ -634,7 +634,12 @@ namespace Neon.HyperV
                     return drives.Any(drive => drive.Equals(isoPath, StringComparison.InvariantCultureIgnoreCase));
                 });
 
-            Thread.Sleep(waitTime);
+            // $hack(jefflill):
+            //
+            // This (5 second) delay is required such that inserting and then immediately
+            // ejecting a DVD drive won't put the VM into a bad state.
+
+            Thread.Sleep(dvdWaitTime);
         }
 
         /// <inheritdoc/>
@@ -687,7 +692,12 @@ namespace Neon.HyperV
                 timeout:      timeout,
                 pollInterval: pollInterval);
 
-            Thread.Sleep(waitTime);
+            // $hack(jefflill):
+            //
+            // This (5 second) delay is required such that inserting and then immediately
+            // ejecting a DVD drive won't put the VM into a bad state.
+
+            Thread.Sleep(dvdWaitTime);
         }
 
         /// <inheritdoc/>
