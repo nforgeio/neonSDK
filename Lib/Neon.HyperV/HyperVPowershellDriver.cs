@@ -554,11 +554,11 @@ namespace Neon.HyperV
         }
 
         /// <inheritdoc/>
-        public void NewNetIPAddress(string switchName, IPAddress address, NetworkCidr subnet)
+        public void NewNetIPAddress(string switchName, IPAddress gatewayAddress, NetworkCidr subnet)
         {
             CheckDisposed();
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(switchName), nameof(switchName));
-            Covenant.Requires<ArgumentNullException>(address != null, nameof(address));
+            Covenant.Requires<ArgumentNullException>(gatewayAddress != null, nameof(gatewayAddress));
             Covenant.Requires<ArgumentNullException>(subnet != null, nameof(subnet));
 
             try

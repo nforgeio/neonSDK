@@ -156,29 +156,6 @@ namespace Neon.HyperV
         }
 
         //---------------------------------------------------------------------
-        // Static members
-
-        /// <summary>
-        /// Identifies the Hyper-V cmdlet namespace module.
-        /// </summary>
-        private const string HyperVModule = @"Hyper-V";
-
-        /// <summary>
-        /// Identifies the Hyper-V module for the TCP/IP related cmdlets.
-        /// </summary>
-        private const string NetTcpIpModule = @"NetTCPIP";
-
-        /// <summary>
-        /// Identifies the Hyper-V module for the NAT related cmdlets.
-        /// </summary>
-        private const string NetNatModule = @"NetNat";
-
-        /// <summary>
-        /// Identifies the Hyper-V module for NetAdapter related cmdlets.
-        /// </summary>
-        private const string NetAdapterModule = @"NetAdapter";
-
-        //---------------------------------------------------------------------
         // Implementation
 
         private HyperVClient                client;
@@ -230,10 +207,6 @@ namespace Neon.HyperV
             iss = InitialSessionState.Create();
 
             iss.ExecutionPolicy = ExecutionPolicy.Unrestricted;
-
-            iss.ImportPSModule(NetAdapterModule);
-            iss.ImportPSModule(NetNatModule);
-            iss.ImportPSModule(NetTcpIpModule);
 
             AddCommand<AddVMHardDiskDrive>(iss);
             AddCommand<DisableVMConsoleSupport>(iss);
@@ -734,7 +707,7 @@ namespace Neon.HyperV
 
             // $note(jefflill):
             //
-            // The [NetNat] cmdlets aren't working so we'll do WMI instead.
+            // The [NetNat] cmdlets aren't working so we'll use WMI instead.
 
             var nats = new List<VirtualNat>();
 
@@ -944,17 +917,12 @@ namespace Neon.HyperV
         }
 
         /// <inheritdoc/>
-        public void NewNetIPAddress(string switchName, IPAddress address, NetworkCidr subnet)
+        public void NewNetIPAddress(string switchName, IPAddress gatewayAddress, NetworkCidr subnet)
         {
             CheckDisposed();
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(switchName), nameof(switchName));
-            Covenant.Requires<ArgumentNullException>(address != null, nameof(address));
+            Covenant.Requires<ArgumentNullException>(gatewayAddress != null, nameof(gatewayAddress));
             Covenant.Requires<ArgumentNullException>(subnet != null, nameof(subnet));
-
-            if (ListIPAddresses().Any(address => address.InterfaceName.Equals(switchName, StringComparison.InvariantCultureIgnoreCase)))
-            {
-                throw new HyperVException($"NetIPAddress [{switchName}] already exists.");
-            }
 
             var @switch = ListSwitches().SingleOrDefault(@switch => @switch.Name.Equals(switchName, StringComparison.InvariantCultureIgnoreCase));
 
@@ -971,13 +939,32 @@ namespace Neon.HyperV
                 throw new HyperVException($"Host network adapter for switch [{switchName}] cannot be located.");
             }
 
-            var args = new CmdletArgs();
+            // $note(jefflill):
+            //
+            // The [NetTcpIp] cmdlets aren't working so we'll use WMI instead.
 
-            args.Add("IPAddress", subnet.FirstUsableAddress);
-            args.Add("PrefixLength", subnet.PrefixLength);
-            args.Add("InterfaceIndex", adapter.InterfaceIndex);
+            var newIPAddressClass = new ManagementClass($"{cim2Scope.Path}:MSFT_NetIPAddress");
+            var netIPAddress      = newIPAddressClass.CreateInstance();
 
-            Invoke($@"{NetTcpIpModule}\New-NetIPAddress", args);
+            netIPAddress.Properties["AddressFamily"].Value  = (ushort)2;                     // IPv4
+            netIPAddress.Properties["AddressOrigin"].Value  = (ushort)0;                     // Unknown
+            netIPAddress.Properties["InterfaceIndex"].Value = (uint)adapter.InterfaceIndex;
+            netIPAddress.Properties["IPv4Address"].Value    = gatewayAddress;
+            netIPAddress.Properties["PrefixLength"].Value   = (byte)subnet.PrefixLength;
+            netIPAddress.Properties["PrefixOrigin"].Value   = 1;                            // Manual
+            netIPAddress.Properties["SuffixOrigin"].Value   = 1;                            // Manual
+            netIPAddress.Properties["ProtocolIFType"].Value = (ushort)4096;                 // IPv4
+            netIPAddress.Properties["SkipAsSource"].Value   = false;
+            netIPAddress.Properties["Type"].Value           = 1;                            // Unicast
+
+            try
+            {
+                netIPAddress.Put();
+            }
+            catch (Exception e)
+            {
+                throw new HyperVException(e);
+            }
         }
 
         /// <inheritdoc/>
@@ -994,7 +981,7 @@ namespace Neon.HyperV
 
             // $note(jefflill):
             //
-            // The [NetNat] cmdlets aren't working so we'll do WMI instead.
+            // The [NetNat] cmdlets aren't working so we'll use WMI instead.
 
             var netNatClass = new ManagementClass($"{cim2Scope.Path}:MSFT_NetNat");
             var netNat      = netNatClass.CreateInstance();
@@ -1098,7 +1085,7 @@ namespace Neon.HyperV
 
             // $note(jefflill):
             //
-            // The [NetNat] cmdlets aren't working so we'll do WMI instead.
+            // The [NetNat] cmdlets aren't working so we'll use WMI instead.
 
             var rawNat = Wmi.Query($"select * from MSFT_NetNat where Name = '{natName}'", cim2Scope).SingleOrDefault();
 

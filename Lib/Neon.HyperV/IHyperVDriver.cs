@@ -282,10 +282,10 @@ namespace Neon.HyperV
         /// Adds an IP address to an existing virtual switch.
         /// </summary>
         /// <param name="switchName">Specifies the name of the existing switch.</param>
-        /// <param name="address">Specifies the new IP address.</param>
+        /// <param name="gatewayAddress">Specifies the IP address for the subnet gateway.</param>
         /// <param name="subnet">Specifies the associated subnet.</param>
         /// <exception cref="HyperVException">Thrown for errors.</exception>
-        void NewNetIPAddress(string switchName, IPAddress address, NetworkCidr subnet);
+        void NewNetIPAddress(string switchName, IPAddress gatewayAddress, NetworkCidr subnet);
 
         /// <summary>
         /// Lists the network adapters attached to a virtual machine.
