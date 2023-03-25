@@ -1,0 +1,202 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+<resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>1.3</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><data name="StageVM"><value>Staging a virtual machine migration</value></data>
+  <data name="StartVM"><value>Start a virtual machine</value></data>
+  <data name="RemoveVMSwitch"><value>Delete a virtual switch</value></data>
+  <data name="SetVMShutdownComponent"><value>Set virtual machine shutdown integration component properties</value></data>
+  <data name="SetVMMigrationService"><value>Set host migration service properties</value></data>
+  <data name="OptimizeVHDSet"><value>Optimize a VHD Set file</value></data>
+  <data name="SetVHDSnapshot"><value>Add or modify a snapshot in a VHD Set file</value></data>
+  <data name="TestSharedVHD"><value>Validate a shared virtual hard disk</value></data>
+  <data name="AddVMAssignableDevice"><value>Add an assignable device to a virtual machine</value></data>
+  <data name="AddVMPmemController"><value>Add a PMEM controller to a virtual machine</value></data>
+  <data name="SetVMFibreChannelHba_AttachConnection"><value>Configure a virtual machine Fibre Channel adapter</value></data>
+  <data name="SetVMHostCluster"><value>Set cluster properties</value></data>
+  <data name="SetVMAssignedDevice"><value>Set assigned device properties</value></data>
+  <data name="GetVMKeyProtector"><value>Get virtual machine key protector</value></data>
+  <data name="RemoveVMGroupMember"><value>Remove a member from a VMGroup</value></data>
+  <data name="SetVMRemoteFx3DVideoAdapter"><value>Set virtual machine RemoteFX 3D Video Adapter properties</value></data>
+  <data name="RestartVM"><value>Reset a virtual machine</value></data>
+  <data name="Task_AddReplicationAuthorizationEntry"><value>Adds a replication authorization entry.</value></data>
+  <data name="Task_ImportReplication"><value>Import a replication</value></data>
+  <data name="RemoveVMFibreChannelHba"><value>Remove a Fibre Channel adapter from a virtual machine</value></data>
+  <data name="AddPciExpressDevice_ToResourcePool"><value>Add PCI Express devices to a resource pool</value></data>
+  <data name="AddVMSwitch"><value>Add virtual switches to a pool</value></data>
+  <data name="SetVMS3DisplayController"><value>Set virtual machine S3 Display adapter</value></data>
+  <data name="SetVMResourcePool_SetParentNames"><value>Set resource pool parent(s)</value></data>
+  <data name="MoveVM"><value>Move a virtual machine</value></data>
+  <data name="RemoveVMSnapshotSavedState"><value>Delete the snapshot saved state</value></data>
+  <data name="RemoveVMRemoteFx3DVideoAdapter"><value>Remove a RemoteFX 3D Video Adapter from a virtual machine</value></data>
+  <data name="AddVMGpuPartitionAdapter"><value>Add a gpu partition adapter to a virtual machine</value></data>
+  <data name="SetVMFibreChannelHba"><value>Set virtual machine Fibre Channel HBA properties</value></data>
+  <data name="NewVHD"><value>Create a virtual hard disk</value></data>
+  <data name="NewVFD"><value>Create a virtual floppy drive</value></data>
+  <data name="SetVMFloppyDiskDrive_EjectDisk"><value>Eject a virtual floppy disk from a virtual machine's floppy drive</value></data>
+  <data name="Task_RemoveReplication"><value>Remove a replication</value></data>
+  <data name="AddVMScsiController"><value>Add a SCSI controller to a virtual machine</value></data>
+  <data name="SetVMHardDiskDrive_DetachVirtualDisk"><value>Configure a hard drive</value></data>
+  <data name="RestoreVMSnapshot"><value>Apply a snapshot</value></data>
+  <data name="RemoveVMSnapshot_IncludeAllChildSnapshots"><value>Delete a snapshot subtree</value></data>
+  <data name="SetVMNetworkAdapterFeature"><value>Set advanced feature properties of a network adapter</value></data>
+  <data name="RemoveVMHIDDevices"><value>Remove the HID devices from a virtual machine</value></data>
+  <data name="SetVMPmemController"><value>Set virtual machine PMEM controller</value></data>
+  <data name="AddVMStoragePath"><value>Add storage paths to a pool</value></data>
+  <data name="SetVMIntegrationComponent"><value>Set virtual machine integration component properties</value></data>
+  <data name="SetVMRemoteFXPhysicalVideoAdapter"><value>Set RemoteFX physical adapter settings</value></data>
+  <data name="AddVMSyntheticKeyboardController"><value>Add a synthetic keyboard controller to a virtual machine.</value></data>
+  <data name="AddVMNetworkAdapter_ManagementOS"><value>Add a management OS network adapter to a virtual switch</value></data>
+  <data name="TestVHD"><value>Validate a virtual hard disk</value></data>
+  <data name="Task_ExportingVM"><value>Exporting virtual machine</value></data>
+  <data name="RemoveVMSavedState"><value>Delete the virtual machine saved state</value></data>
+  <data name="NewVMResourcePool"><value>Create a resource pool</value></data>
+  <data name="SetVMScsiController"><value>Set virtual machine SCSI controller properties</value></data>
+  <data name="StopVM"><value>Stop a virtual machine</value></data>
+  <data name="SetVMSecuritySettings"><value>Set virtual machine security properties</value></data>
+  <data name="SetVHD"><value>Set virtual hard disk properties</value></data>
+  <data name="SaveVM"><value>Save a virtual machine</value></data>
+  <data name="RemoveVMHardDiskDrive"><value>Remove a hard drive from a virtual machine</value></data>
+  <data name="AddVMSyntheticMouseController"><value>Add a synthetic mouse controller to a virtual machine.</value></data>
+  <data name="DisconnectVMSan"><value>Disconnect a virtual storage area network from a Fibre Channel host bus adapter</value></data>
+  <data name="MoveVMStorage"><value>Move a virtual machine's storage</value></data>
+  <data name="AddVMHIDDevices"><value>Add the HID devices to a virtual machine</value></data>
+  <data name="SetVMSwitch"><value>Set virtual switch properties</value></data>
+  <data name="SetVMNetworkAdapter_InternalOrExternal"><value>Set network adapter properties</value></data>
+  <data name="Task_RealizeVM"><value>Realizing virtual machine</value></data>
+  <data name="SetVMComPort"><value>Set virtual machine COM port properties</value></data>
+  <data name="AddVMDvdDrive"><value>Add a DVD drive to a virtual machine</value></data>
+  <data name="AddVMBattery"><value>Enable virtual machine battery</value></data>
+  <data name="AddVMGroupMember"><value>Add a member to a VMGroup</value></data>
+  <data name="SetVMMemory"><value>Set virtual machine memory properties</value></data>
+  <data name="RevokeVMConnectAccess"><value>Revoke virtual machine connection access.</value></data>
+  <data name="RemoveVMAssignableDevice"><value>Remove an assignable device from a virtual machine</value></data>
+  <data name="CheckpointVM"><value>Create a snapshot</value></data>
+  <data name="SetVMReplicationSettings"><value>Sets replication settings.</value></data>
+  <data name="RemoveVMSwitch_FromResourcePool"><value>Remove virtual switches from a pool</value></data>
+  <data name="Task_ImportVM"><value>Importing virtual machine</value></data>
+  <data name="RemoveVMBattery"><value>Disable virtual machine battery</value></data>
+  <data name="SetVMMetrics"><value>Set host metrics service properties</value></data>
+  <data name="SetVMFirmware"><value>Set virtual machine firmware properties</value></data>
+  <data name="RemoveVMPmemController"><value>Remove a PMEM controller from a virtual machine</value></data>
+  <data name="SuspendVM"><value>Pause a virtual machine</value></data>
+  <data name="SetVMFloppyDiskDrive"><value>Set virtual machine floppy disk drive properties</value></data>
+  <data name="Task_Resynchronize"><value>Resynchronize a virtual machine</value></data>
+  <data name="Task_InjectNonMaskableInterruptVM"><value>Inject a non-maskable interrupt</value></data>
+  <data name="SetVMHardDiskDrive_AttachVirtualDisk"><value>Configure a hard drive to use a virtual hard disk</value></data>
+  <data name="RemoveVMGroup"><value>Delete a virtual machine group</value></data>
+  <data name="SetVMDvdDrive_InsertDisk"><value>Insert virtual DVD into a DVD drive</value></data>
+  <data name="RemoveVMSwitchFeature"><value>Remove advanced networking feature properties</value></data>
+  <data name="Task_ChangeReplicationModeToPrimary"><value>Change replication mode to primary</value></data>
+  <data name="SetVMSnapshot"><value>Set snapshot properties</value></data>
+  <data name="Task_CreateReplicationRelationship"><value>Create replication relationship</value></data>
+  <data name="AddVMFibreChannelHba_RollbackPartialAdd"><value>Roll back partially added Fibre Channel adapter on failure</value></data>
+  <data name="AddVMRemoteFx3dVideoAdapter"><value>Add a RemoteFX 3D display adapter to a virtual machine.</value></data>
+  <data name="ShutdownVM"><value>Shut down a virtual machine</value></data>
+  <data name="Task_TestReplicationConnection"><value>Test the replication connection</value></data>
+  <data name="Task_SetAuthorizationEntry"><value>Adds a replication authorization entry to a virtual machine.</value></data>
+  <data name="SetReplicationService"><value>Set replication service settings</value></data>
+  <data name="RemoveVMNetworkAdapter_FromVM"><value>Remove a network adapter from a virtual machine</value></data>
+  <data name="SetVMProcessor"><value>Set virtual machine processor properties</value></data>
+  <data name="Task_ValidateVM"><value>Validating virtual machine</value></data>
+  <data name="ResumeVM"><value>Resume a virtual machine</value></data>
+  <data name="AddVMSyntheticDisplayController"><value>Add a synthetic display controller to a virtual machine.</value></data>
+  <data name="Task_TestReplicaSystem"><value>Create a test replica virtual machine for failover.</value></data>
+  <data name="DriveConfigurationRollback"><value>Roll back drive configuration changes after an error</value></data>
+  <data name="NewVM"><value>Create a virtual machine</value></data>
+  <data name="SetVMVideo"><value>Set virtual machine display controller properties</value></data>
+  <data name="SetVM"><value>Set virtual machine properties</value></data>
+  <data name="SetVMMouse"><value>Set virtual machine mouse controller properties</value></data>
+  <data name="AddVMNetworkAdapter_VirtualMachine"><value>Add a network adapter to a virtual machine</value></data>
+  <data name="SetVMGuestServiceIntegrationComponent"><value>Set virtual machine guest services integration component properties</value></data>
+  <data name="AddVMNetworkAdapterFeature"><value>Add advanced feature properties to a network adapter</value></data>
+  <data name="SetVMSanHbas"><value>Sets the Fibre Channel host bus adapter(s) of a virtual storage area network</value></data>
+  <data name="RemoveVMGpuPartitionAdapter"><value>Remove a gpu partition adapter from a virtual machine</value></data>
+  <data name="SetVMDvdDrive_EjectDisk"><value>Eject virtual DVD from a DVD drive</value></data>
+  <data name="Task_DeleteVMAuthorizationEntry"><value>Delete a replication authorization entry</value></data>
+  <data name="AddVMFibreChannelHba"><value>Add a Fibre Channel host bus adapter to a virtual machine</value></data>
+  <data name="Task_UpdateVMConfigurationVersion"><value>Upgrade a virtual machine</value></data>
+  <data name="Task_InitiateFailover"><value>Initiate a virtual machine failover.</value></data>
+  <data name="RemoveVMNetworkAdapter_FromSwitch"><value>Remove a switch port from a virtual Ethernet switch</value></data>
+  <data name="ConvertVHD"><value>Convert a virtual hard disk or physical disk into another format</value></data>
+  <data name="SetVMDvdDrive"><value>Set virtual machine DVD drive properties</value></data>
+  <data name="Task_ResetReplicationStatistics"><value>Reset replication statistics for a virtual machine</value></data>
+  <data name="RemoveVMScsiController"><value>Remove a SCSI controller from a virtual machine</value></data>
+  <data name="Task_CommitFailover"><value>Commit failover</value></data>
+  <data name="RemoveVMDvdDrive"><value>Remove a DVD drive from a virtual machine</value></data>
+  <data name="SetVMMigrationNetwork"><value>Set virtual system migration network.</value></data>
+  <data name="Task_StartFailover"><value>Start failover</value></data>
+  <data name="RenameVMResourcePool"><value>Set the resource pool name</value></data>
+  <data name="Task_StartReplication"><value>Start replication</value></data>
+  <data name="NewVMGroup"><value>Create a virtual machine group</value></data>
+  <data name="Task_RevertVMFailover"><value>Reverts a virtual machine failover.</value></data>
+  <data name="SetVMPartitionableGpuPartitionCount"><value>Set partition count of partitionable gpu</value></data>
+  <data name="AddVMSwitchFeature"><value>Add advanced feature properties to an Ethernet switch</value></data>
+  <data name="ConnectVMSan"><value>Connect a virtual storage area network to a Fibre Channel host bus adapter</value></data>
+  <data name="SetVMBattery"><value>Configure virtual machine battery properties</value></data>
+  <data name="RemoveVMResourcePool"><value>Remove a resource pool</value></data>
+  <data name="RemoveVM"><value>Delete a virtual machine</value></data>
+  <data name="OptimizeVHD"><value>Compact dynamic or differencing virtual hard disk</value></data>
+  <data name="SetVMStorageSettings"><value>Set virtual machine storage settings</value></data>
+  <data name="SetVMGroupName"><value>Set virtual machine group name</value></data>
+  <data name="SetVMDataExchangeComponent"><value>Set virtual machine data exchange component properties</value></data>
+  <data name="SetVMSwitchFeature"><value>Set advanced feature properties of an Ethernet switch</value></data>
+  <data name="SetVMHost"><value>Set host properties</value></data>
+  <data name="SetVMBios"><value>Set virtual machine BIOS properties</value></data>
+  <data name="AddVMHardDiskDrive"><value>Add a DVD drive to a virtual machine</value></data>
+  <data name="DebugVM_InjectNMI"><value>Inject a non-maskable interrupt</value></data>
+  <data name="RemoveVMSnapshot"><value>Delete a snapshot</value></data>
+  <data name="SetVMNetworkAdapter"><value>Set virtual machine network adapter settings</value></data>
+  <data name="AddVMNetworkAdapter_RollbackPartialAdd"><value>Roll back partially added network adapter on failure</value></data>
+  <data name="Task_UpdateNetworkAdapterFailoverConfiguration"><value>Will modify network adapter failover configuration settings.</value></data>
+  <data name="SetVMGpuPartitionAdapter"><value>Set a virtual machine gpu partition adapter properties</value></data>
+  <data name="CopyFileToGuestJob"><value>Copying a file to virtual machine.</value></data>
+  <data name="GrantVMConnectAccess"><value>Grant virtual machine connection access.</value></data>
+  <data name="Task_ImportSnapshots"><value>Importing snapshots</value></data>
+  <data name="SetVMHardDiskDrive"><value>Set virtual machine hard disk drive properties</value></data>
+  <data name="MountVHD"><value>Mount a virtual hard disk</value></data>
+  <data name="Task_SetVMAuthorizationEntry"><value>Set a replication authorization entry</value></data>
+  <data name="SetVMKeyProtector"><value>Set virtual machine key protector</value></data>
+  <data name="DeleteVHDSnapshot"><value>Delete a snapshot in a VHD Set file</value></data>
+  <data name="Task_ReverseReplicationRelationship"><value>Will reverse the replication relationship.</value></data>
+  <data name="RemoveVMStoragePath"><value>Remove storage paths from a pool</value></data>
+  <data name="SetVMIdeController"><value>Set virtual machine IDE controller properties</value></data>
+  <data name="MergeVHD"><value>Merge a differencing virtual hard disk into another virtual hard disk</value></data>
+  <data name="SetVMKeyboard"><value>Set virtual machine keyboard controller properties</value></data>
+  <data name="DismountVHD"><value>Dismount a virtual hard disk</value></data>
+  <data name="RemoveVMNetworkAdapterFeature"><value>Remove advanced feature properties of a network adapter</value></data>
+  <data name="SetVMSwitchExtension"><value>Set switch extension properties</value></data>
+  <data name="CompareVM"><value>Compare a virtual machine for compatibility with another computer</value></data>
+  <data name="RemovePciExpressDevice_FromResourcePool"><value>Remove PCI Express devices from a resource pool</value></data>
+  <data name="PercentCompleteTemplate"><value>{0}%</value></data>
+  <data name="Task_StopFailover"><value>Stop failover</value></data>
+  <data name="Task_SetVMReplicationState"><value>Will modify the replication state.</value></data>
+  <data name="ResizeVHD"><value>Resize a virtual hard disk</value></data>
+  <data name="ExportVMSnapshot"><value>Export a virtual machine snapshot</value></data>
+  <data name="NewVMSwitch"><value>Create a virtual switch</value></data>
+  </root>

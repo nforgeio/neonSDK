@@ -1,0 +1,249 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+<resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>1.3</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><data name="ShouldProcess_ConnectVMNetworkAdapter_ToSwitch"><value>Connect-VMNetworkAdapter will connect network adapter "{0}" to switch "{1}".</value></data>
+  <data name="ShouldContinue_DisableVMEventing"><value>Are you sure you want to disable VM eventing in this session?</value></data>
+  <data name="ShouldProcess_EnableVMIntegrationService"><value>Enable-VMIntegrationService will enable the integration component "{0}" for the virtual machine "{1}".</value></data>
+  <data name="ShouldProcess_RemoveVMRemoteFx3dVideoAdapter"><value>Remove-VMRemoteFx3dVideoAdapter will remove the RemoteFX 3D video adapter "{0}" from "{1}".</value></data>
+  <data name="ShouldProcess_DisableVMMigration"><value>Disable-VMMigration will disable live migration of virtual machines to host "{0}".</value></data>
+  <data name="ShouldProcess_RemoveVMGpuPartitionAdapter"><value>Remove-VMGpuPartitionAdapter will remove a Gpu Partition Adapter "{0}" from "{1}".</value></data>
+  <data name="ShouldProcess_SetVMSwitchTeam"><value>Set-VMSwitchTeam will configure the teaming properties of the virtual switch "{0}".</value></data>
+  <data name="ShouldProcess_UpdateVMWithSavedState"><value>Note that saved states associated with this virtual machine must be removed for the update to be successful; this includes saved states associated with checkpoints.
+
+The following saved states are associated with this virtual machine:
+{0}
+{1}
+These saved states will be removed during the update of the virtual machine's configuration version.</value></data>
+  <data name="ShouldProcess_RenameVMSnapshot"><value>Rename-VMSnapshot will rename snapshot "{0}" to "{1}".</value></data>
+  <data name="ShouldProcess_StopVMInitialReplication"><value>Stop-VMInitialReplication will stop ongoing initial replication of "{0}".</value></data>
+  <data name="ShouldProcess_EnableVMSwitchExtension"><value>Enable-VMSwitchExtension will enable the switch extension "{0}".</value></data>
+  <data name="ShouldProcess_SetVMReplication_Reverse"><value>'Set-VMReplication -Reverse' will reverse the replication relationship for '{0}'.</value></data>
+  <data name="ShouldProcess_SetVMNetworkAdapterRoutingDomainMapping"><value>Set-VMNetworkAdapterRoutingDomainMapping will configure the routing domain settings of network adapter "{0}".</value></data>
+  <data name="ShouldProcess_AddVMSwitchExtensionSwitchFeature"><value>Add-VMSwitchExtensionSwitchFeature will apply advanced features to the virtual switch "{0}".</value></data>
+  <data name="ShouldProcess_TestVHD"><value>Test-VHD will test the virtual hard disk "{0}" for any problems that make it unusable.</value></data>
+  <data name="ShouldProcess_MergeVHD"><value>Merge-VHD will merge the virtual hard disk "{0}" into its parent "{1}".</value></data>
+  <data name="ShouldProcess_EnableVMReplication"><value>Enable-VMReplication will enable replication for "{0}".</value></data>
+  <data name="ShouldProcess_RemoveVMAssignableDevice"><value>Remove-VMAssignableDevice will remove assignable device "{0}" from virtual machine "{1}".</value></data>
+  <data name="ShouldProcess_SetVMMemory"><value>Set-VMMemory will configure the memory settings of the virtual machine "{0}".</value></data>
+  <data name="ShouldProcess_RenameVMSwitch"><value>Rename-VMSwitch will rename the virtual switch "{0}" to "{1}".</value></data>
+  <data name="ShouldProcess_ResumeVM"><value>Resume-VM will resume the virtual machine "{0}".</value></data>
+  <data name="ShouldProcess_SetVMResourcePool"><value>Set-VMResourcePool will set the parents of "{0}".</value></data>
+  <data name="ShouldProcess_ImportVMInitialReplication"><value>Import-VMInitialReplication will import initial replication of "{0}".</value></data>
+  <data name="ShouldProcess_AddVMHardDiskDrive"><value>Add-VMHardDiskDrive will add a hard disk drive to virtual machine "{0}".</value></data>
+  <data name="ShouldProcess_RemoveVHDSnapshot"><value>Remove-VHDSnapshot will remove the VHDSnapshot with ID "{0}" from the VHD Set file "{1}".</value></data>
+  <data name="ShouldContinue_MergeToImmediateParent"><value>Are you sure you want to merge virtual hard disk "{0}" to its parent?</value></data>
+  <data name="ShouldProcess_TestVMNetworkAdapter"><value>Test-VMNetworkAdapter will test the connectivity of the network adapter "{0}" from its parent partition.</value></data>
+  <data name="ShouldProcess_RepairVM"><value>Repair-VM will update the virtual machine from the compatibility report.</value></data>
+  <data name="ShouldProcess_OptimizeVHDSet"><value>Optimize-VHDSet will optimize the VHD Set file "{0}".</value></data>
+  <data name="ShouldProcess_DisconnectVMSan"><value>Disconnect-VMSan will disconnect the "{0}" virtual storage network from one or more Fibre Channel host bus adapters.</value></data>
+  <data name="ShouldProcess_RemoveVMSwitch"><value>Remove-VMSwitch will remove the virtual Ethernet switch "{0}".</value></data>
+  <data name="ShouldProcess_SetVMSwitch"><value>Set-VMSwitch will configure the properties of the virtual switch "{0}".</value></data>
+  <data name="ShouldProcess_StartVM"><value>Start-VM will start the virtual machine "{0}".</value></data>
+  <data name="ShouldProcess_RemoveVMResourcePool"><value>Remove-VMResourcePool will remove resource pool "{0}" of type "{1}".</value></data>
+  <data name="ShouldContinue_DebugVM_InjectNMI"><value>Are you sure you want to inject a non-maskable interrupt into the virtual machine "{0}"?</value></data>
+  <data name="ShouldContinue_SetVMReplication_RemoveAllAuthEntries"><value>Set-VMReplicationServer: All authenticated incoming servers would be allowed to replicate. All existing authorization entries will be removed. Do you want to continue?</value></data>
+  <data name="ShouldProcess_AddVMGpuPartitionAdapter"><value>Add-VMGpuPartitionAdapter will add a Gpu Partition Adapter to the virtual machine "{0}".</value></data>
+  <data name="ShouldProcess_ContinueVMReplication"><value>Resume-VMReplication will continue replication of "{0}".</value></data>
+  <data name="ShouldProcess_SetVMNetworkAdapterRdma"><value>Set-VMNetworkAdapterRdma will configure RDMA on the network adapter "{0}".</value></data>
+  <data name="ShouldProcess_SetVMNetworkAdapterVlan"><value>Set-VMNetworkAdapterVlan will configure the VLAN settings of network adapter "{0}".</value></data>
+  <data name="ShouldProcess_AddVMPmemController"><value>Add-VMPmemController will add a PMEM controller to the virtual machine "{0}".</value></data>
+  <data name="ShouldProcess_SetVMNetworkAdapterTeamMapping"><value>Set-VMNetworkAdapterTeamMapping will configure preferred physical adapter for the virtual adapter "{0}".</value></data>
+  <data name="ShouldProcess_NewVMReplicationAuthorizationEntry"><value>New-VMReplicationAuthorizationEntry will create an authorization entry on '{0}' for primary server '{1}'.</value></data>
+  <data name="ShouldProcess_RemoveVMSavedState_Snapshot"><value>Remove-VMSavedState will delete the saved state of snapshot "{0}".</value></data>
+  <data name="ShouldProcess_EnableVMReplication_AsReplica"><value>'Enable-VMReplication -AsReplica' will modify "{0}" to make it a replica virtual machine.</value></data>
+  <data name="ShouldProcess_DisableVMRemoteFXPhysicalVideoAdapter"><value>Disable-VMRemoteFXPhysicalVideoAdapter will disable RemoteFX physical video adapter "{0}" from "{1}".</value></data>
+  <data name="ShouldProcess_RevokeVMConnectAccess"><value>Revoke-VMConnectAccess will revoke access to virtual machine "{0}".</value></data>
+  <data name="ShouldProcess_EnableVMTPM"><value>Enable-VMTPM will enable the TPM for the virtual machine "{0}".</value></data>
+  <data name="ShouldProcess_ImportVM"><value>Import-VM will import the virtual machine from the provided configuration file or compatibility report.</value></data>
+  <data name="ShouldProcess_RemoveVMSwitchExtensionSwitchFeature"><value>Remove-VMSwitchExtensionSwitchFeature will remove advanced features from the virtual switch "{0}".</value></data>
+  <data name="ShouldProcess_RemoveVMFibreChannelHba"><value>Remove-VMFibreChannelHba will remove the Fibre Channel adapter "{0}" from the virtual machine "{1}".</value></data>
+  <data name="ShouldProcess_AddVMKeyStorageDrive"><value>Add-VMKeyStorageDrive will add a KSD drive to virtual machine "{0}".</value></data>
+  <data name="ShouldProcess_RemoveVMSwitch_FromPool"><value>Remove-VMSwitch will remove virtual switches from Ethernet resource pool "{0}".</value></data>
+  <data name="ShouldProcess_RemoveVMMigrationNetwork"><value>Remove-VMMigrationNetwork will remove a network {0} for migration of virtual machines to the host computer "{1}".</value></data>
+  <data name="ShouldContinue_StopVM_TurnOffOnShutDown"><value>Hyper-V can't shut down virtual machine "{0}" because the Shutdown integration service is unavailable. You can turn off the virtual machine by selecting [Y]es, but this is similar to pulling the power on a physical machine. To avoid potential data loss, select [N]o, then pause or save the virtual machine. Do you want to turn off the virtual machine?</value></data>
+  <data name="ShouldProcess_GetVMKeyProtector"><value>Get-VMKeyProtector will get the key protector for the virtual machine "{0}".</value></data>
+  <data name="ShouldProcess_DisableVMSwitchExtension"><value>Disable-VMSwitchExtension will disable the switch extension "{0}".</value></data>
+  <data name="ShouldProcess_RemoveVMSnapshot_SnapshotOnly"><value>Remove-VMSnapshot will remove snapshot "{0}".</value></data>
+  <data name="ShouldProcess_RemoveVMStoragePath"><value>Remove-VMStoragePath will remove storage paths from pool "{0}" of type "{1}".</value></data>
+  <data name="ShouldProcess_SetVMFibreChannelHba"><value>Set-VMFibreChannelHba will configure the settings of the host bus adapter "{0}".</value></data>
+  <data name="ShouldProcess_DisableVMIntegrationService"><value>Disable-VMIntegrationService will disable the integration component "{0}" for the virtual machine "{1}".</value></data>
+  <data name="ShouldProcess_SetVMDvdDrive"><value>Set-VMDvdDrive will configure the DVD drive "{0}" of the virtual machine "{1}".</value></data>
+  <data name="ShouldProcess_SetVMSecurityPolicy"><value>Set-VMSecurityPolicy will set the security policy for the virtual machine "{0}".</value></data>
+  <data name="ShouldProcess_MountVHD"><value>Mount-VHD will mount the virtual hard disk "{0}".</value></data>
+  <data name="ShouldContinue_EnableVMEventing"><value>Are you sure you want to enable VM eventing in this session?</value></data>
+  <data name="ShouldProcess_RemoveVMSavedState_VM"><value>Remove-VMSavedState will delete the saved state of virtual machine "{0}".</value></data>
+  <data name="ShouldProcess_DismountHostAssignableDevice"><value>Dismount-VmHostAssignableDevice will dismount an assignable device so it can be assigned to a virtual machine.</value></data>
+  <data name="ShouldProcess_RemoveVMPmemController"><value>Remove-VMScsiController will remove PMEM controller "{0}" from virtual machine "{1}".</value></data>
+  <data name="ShouldProcess_AddVMRemoteFx3dVideoAdapter"><value>Add-VMRemoteFx3dVideoAdapter will add a RemoteFX 3D video adapter to virtual machine "{0}".</value></data>
+  <data name="ShouldProcess_SetVMHardDiskDrive"><value>Set-VMHardDiskDrive will configure the hard disk drive "{0}" of the virtual machine "{1}".</value></data>
+  <data name="ShouldProcess_DisconnectVMNetworkAdapter"><value>Disconnect-VMNetworkAdapter will disconnect network adapter "{0}".</value></data>
+  <data name="ShouldProcess_RenameVMSan"><value>Rename-VMSan will rename the "{0}" virtual storage area network to "{1}".</value></data>
+  <data name="ShouldProcess_SetVMReplicationAuthorizationEntry"><value>Set-VMReplicationAuthorizationEntry will configure authorization entry for primary server '{0}'.</value></data>
+  <data name="ShouldProcess_RemoveVMGroup"><value>Remove-VMGroup will remove group "{0}".</value></data>
+  <data name="ShouldProcess_RemoveVMHostAssignableDevice"><value>Remove-VMHostAssignableDevice will remove a host assignable device from resource pool "{0}".</value></data>
+  <data name="ShouldProcess_SetVMFirmware"><value>Set-VMFirmware will configure the firmware settings of virtual machine "{0}".</value></data>
+  <data name="ShouldContinue_AddVMHostAssignableDevice_ClientSKU"><value>Device assignment is not supported on Windows 10, and may not operate correctly across some power transitions, such as sleep and hibernate. Are you sure you want to assign this device?</value></data>
+  <data name="ShouldProcess_SetVMSwitchExtensionSwitchFeature"><value>Set-VMSwitchExtensionSwitchFeature will configure advanced features of the virtual switch "{0}".</value></data>
+  <data name="ShouldProcess_SetVMStorageSetting"><value>Set-VMStorageSettings will set the storage settings for the virtual machine "{0}".</value></data>
+  <data name="ShouldProcess_SetVMPartitionableGpu"><value>Set-VMPartitionableGpu will configure partitionable GPU "{0}".</value></data>
+  <data name="ShouldProcess_NewVMResourcePool"><value>New-VMResourcePool will create resource pool "{0}" of type "{1}".</value></data>
+  <data name="DefaultVMName"><value>New Virtual Machine</value></data>
+  <data name="ShouldProcess_StopVM_ShutDown"><value>Stop-VM will shut down the virtual machine "{0}".</value></data>
+  <data name="StartPausedVMWarning"><value>The virtual machine "{0}" was paused. Use the Resume-VM cmdlet to return a paused virtual machine to a running state.</value></data>
+  <data name="ShouldProcess_DebugVM_InjectNMI"><value>Debug-VM will inject a non-maskable interrupt into the virtual machine "{0}".</value></data>
+  <data name="ShouldContinue_NewPrereleaseVM"><value>Are you sure you want to create virtual machine "{0}" with a prerelease version? Prerelease virtual machines are not supported and may fail across updates.</value></data>
+  <data name="ShouldProcess_UpdateVMSavedVM"><value>-  Virtual machine is currently saved</value></data>
+  <data name="ShouldProcess_StopVMFailover_Test"><value>Stop-VMFailover will stop test failover of "{0}".</value></data>
+  <data name="ShouldProcess_AddVMNetworkAdapter_VMSwitch"><value>Add-VMNetworkAdapter will add a network adapter to virtual switch "{0}".</value></data>
+  <data name="ShouldProcess_AddVMAssignableDevice"><value>Add-VMAssignableDevice will add an assignable device to virtual machine "{0}".</value></data>
+  <data name="ShouldProcess_EnableVMMigration"><value>Enable-VMMigration will enable live migration of virtual machines to host  "{0}".</value></data>
+  <data name="ShouldProcess_RemoveVMSwitchExtensionPortFeature"><value>Remove-VMSwitchExtensionPortFeature will remove advanced features from the network adapter "{0}".</value></data>
+  <data name="VMJob_DefaultCaption"><value>Virtual Machine Operation</value></data>
+  <data name="ShouldProcess_RemoveVMReplicationAuthorizationEntry"><value>Remove-VMReplicationAuthorizationEntry will remove an authorization entry on '{0}' for primary server '{1}'.</value></data>
+  <data name="RebootReason"><value>Reboot initiated by host using Hyper-V management tools.</value></data>
+  <data name="ShouldProcess_SetVMKeyProtector"><value>Set-VMKeyProtector will set the key protector for the virtual machine "{0}".</value></data>
+  <data name="ShouldProcess_RemoveVMNetworkAdapterRoutingDomainMapping"><value>Remove-VMNetworkAdapterRoutingDomainMapping will remove the specified routing domain settings from network adapter "{0}".</value></data>
+  <data name="ShouldProcess_EnableVMRemoteFXPhysicalVideoAdapter"><value>Enable-VMRemoteFXPhysicalVideoAdapter will enable RemoteFX physical video adapter "{0}" from "{1}".</value></data>
+  <data name="ShouldProcess_RemoveVMReplication"><value>Remove-VMReplication will remove replication relationship for "{0}".</value></data>
+  <data name="ShouldProcess_CopyVMFile"><value>Copy-VMFile will copy the file into the virtual machine "{0}"</value></data>
+  <data name="ResourcePoolFullName"><value>Resource pool "{0}" of type "{1}"</value></data>
+  <data name="ShouldProcess_RemoveVMHIDDevices"><value>Remove-VMHIDDevices will remove the HID devices from virtual machine "{0}".</value></data>
+  <data name="ShouldProcess_SetVMVideo"><value>Set-VMVideo will configure the display controller on virtual machine "{0}".</value></data>
+  <data name="ShouldContinue_RemoveVM"><value>Are you sure you want to remove virtual machine "{0}"?</value></data>
+  <data name="ShouldProcess_MountHostAssignableDevice"><value>Mount-VmHostAssignableDevice will mount an assignable device for use by the host.</value></data>
+  <data name="ShouldContinue_RestartVM"><value>Are you sure you want to restart virtual machine "{0}"?</value></data>
+  <data name="ShouldProcess_ExportVM"><value>Export-VM will export the virtual machine "{0}" to the given location.</value></data>
+  <data name="ShouldProcess_RemoveVMNetworkAdapter"><value>Remove-VMNetworkAdapter will remove the network adapter "{0}".</value></data>
+  <data name="ShouldProcess_TestSharedVHD"><value>Test-VHD will test the path "{0}" to see if it can be for Shared Virtual Hard Disks.</value></data>
+  <data name="ShouldProcess_StartVMFailover_Test"><value>'Start-VMFailover -AsTest' will perform test failover of "{0}".</value></data>
+  <data name="ShouldProcess_SetVMReplication_AsReplica"><value>'Set-VMReplication -AsReplica' will modify '{0}' to make it a replica virtual machine.</value></data>
+  <data name="ShouldProcess_ConnectVMNetworkAdapter_UseAutomaticConnection"><value>Connect-VMNetworkAdapter will restore the association of network adapter "{0}" with the resource pool.</value></data>
+  <data name="ShouldProcess_SuspendVM"><value>Suspend-VM will suspend the virtual machine "{0}".</value></data>
+  <data name="ShouldProcess_AddVMHostAssignableDevice"><value>Add-VMHostAssignableDevice will add a host assignable device to resource pool "{0}".</value></data>
+  <data name="ShouldProcess_NewVMSan"><value>New-VMSan will create a new virtual storage area network.</value></data>
+  <data name="ShouldProcess_RemoveVMSnapshot_IncludeAllChildSnapshots"><value>Remove-VMSnapshot will remove snapshot "{0}" and all of its child snapshots.</value></data>
+  <data name="ShouldProcess_SetVMRemoteFx3dVideoAdapter"><value>Set-VMRemoteFx3dVideoAdapter will configure a virtual RemoteFX 3D Video Adapter "{0}".</value></data>
+  <data name="ShouldProcess_StopVMFailover"><value>Stop-VMFailover will stop failover of "{0}".</value></data>
+  <data name="ShouldProcess_AddVMNetworkAdapterExtendedAcl"><value>Add-VMNetworkAdapterExtendedAcl will add an extended ACL to network adapter "{0}".</value></data>
+  <data name="ShouldProcess_OptimizeVHD"><value>Optimize-VHD will compact the virtual hard disk "{0}" to reduce disk space usage.</value></data>
+  <data name="ShouldContinue_RemoveVMSwitch"><value>Are you sure you want to remove the virtual switch "{0}"?</value></data>
+  <data name="ShouldProcess_CheckpointVM"><value>Checkpoint-VM will create a snapshot for virtual machine "{0}".</value></data>
+  <data name="ConfirmCaption"><value>Confirm</value></data>
+  <data name="ShouldProcess_SetVMFloppyDiskDrive"><value>Set-VMFloppyDiskDrive will configure the floppy disk drive of the virtual machine "{0}".</value></data>
+  <data name="ShouldProcess_ResetVMReplicationStatistics"><value>Reset-VMReplicationStatistics will clear replication statistics for "{0}". Statistics collection will start afresh. Replication of the virtual machine will not be impacted.</value></data>
+  <data name="ShouldProcess_StopVMReplication"><value>Stop-VMReplication will stop ongoing replication of "{0}".</value></data>
+  <data name="ShouldProcess_RemoveVMKeyStorageDrive"><value>Remove-VMKeyStorageDrive will remove the key storage drive "{0}" from the virtual machine "{1}".</value></data>
+  <data name="ShouldProcess_AddVMFibreChannelHba"><value>Add-VMFibreChannelHba will add a Fibre Channel host bus adapter to the virtual machine "{0}".</value></data>
+  <data name="ShouldProcess_RemoveVMNetworkAdapterAcl"><value>Remove-VMNetworkAdapterAcl will remove an ACL from network adapter "{0}".</value></data>
+  <data name="ShouldProcess_RemoveVMScsiController"><value>Remove-VMScsiController will remove SCSI controller "{0}" from virtual machine "{1}".</value></data>
+  <data name="ShouldProcess_SetVMMigrationNetwork"><value>Set-VMMigrationNetwork will set a network {0} for migration of virtual machines to the host computer "{1}".</value></data>
+  <data name="ShouldProcess_SaveVM"><value>Save-VM will save virtual machine "{0}".</value></data>
+  <data name="ShouldProcess_SetVHD"><value>Set-VHD will set properties on the virtual hard disk "{0}".</value></data>
+  <data name="ShouldProcess_AddVMHIDDevices"><value>Add-VMHIDDevices will add the HID devices to virtual machine "{0}".</value></data>
+  <data name="ShouldProcess_SetVMGpuPartitionAdapter"><value>Set-VMGpuPartitionAdapter will configure a Gpu Partition Adapter "{0}".</value></data>
+  <data name="ShouldProcess_AddVMDvdDrive"><value>Add-VMDvdDrive will add a DVD drive to virtual machine "{0}".</value></data>
+  <data name="ShouldProcess_DismountVHD"><value>Dismount-VHD will dismount the virtual hard disk "{0}".</value></data>
+  <data name="ShouldProcess_UpdateVMConfigurationVersion"><value>Performing a configuration version update of "{0}" will prevent it from being migrated to or imported on previous versions of Windows. This operation is not reversible.
+
+{1}</value></data>
+  <data name="ShouldProcess_DisableVMEventing"><value>Disable-VMEventing will disable VM eventing.</value></data>
+  <data name="ShouldContinue_SetVhdDiskId"><value>Are you sure you want to reset the disk identifier of "{0}"?</value></data>
+  <data name="ShouldProcessWarning"><value>Are you sure you want to perform this action?
+{0}</value></data>
+  <data name="ShouldProcess_StartVMInitialReplication"><value>Start-VMInitialReplication will start initial replication of "{0}".</value></data>
+  <data name="ShouldProcess_RenameVMResourcePool"><value>Rename-VMResourcePool will rename resource pool "{0}" of type "{1}" to "{2}".</value></data>
+  <data name="ShouldContinue_RemoveVMResourcePool"><value>Are you sure you want to remove resource pool "{0}" of type "{1}"?</value></data>
+  <data name="ShouldProcess_RemoveVMHardDiskDrive"><value>Remove-VMHardDiskDrive will remove the hard disk drive "{0}" from the virtual machine "{1}".</value></data>
+  <data name="ShouldProcess_SetVMNetworkAdapterIsolation"><value>Set-VMNetworkAdapterIsolation will configure the isolation settings of network adapter "{0}".</value></data>
+  <data name="ShouldProcess_AddVMNetworkAdapterRoutingDomainMapping"><value>Add-VMNetworkAdapterRoutingDomainMapping will add routing domain settings to network adapter "{0}".</value></data>
+  <data name="ShouldProcess_SetVMComPort"><value>Set-VMComPort will configure COM port "{0}".</value></data>
+  <data name="ShouldProcess_NewVMGroup"><value>New-VMGroup will create a new group "{0}".</value></data>
+  <data name="ShouldProcess_SetVMReplication"><value>Set-VMReplication will modify replication relationship for '{0}'.</value></data>
+  <data name="ShouldProcess_AddVMMigrationNetwork"><value>Add-VMMigrationNetwork will add network {0} to move virtual machines to and from the host computer "{1}".</value></data>
+  <data name="ShouldProcess_AddVMStoragePath"><value>Add-VMStoragePath will add storage paths to pool "{0}" of type "{1}".</value></data>
+  <data name="ShouldProcess_AddVMGroupMember"><value>Add-VMGroupMember will add new members to group "{0}".</value></data>
+  <data name="ShouldProcess_RemoveVMNetworkAdapterTeamMapping"><value>Remove-VMNetworkAdapterTeamMapping will remove preferred physical adapter for the virtual adapter "{0}".</value></data>
+  <data name="ShouldProcess_ConnectVMSan"><value>Connect-VMSan will connect the "{0}" virtual storage network to one or more Fibre Channel host bus adapters.</value></data>
+  <data name="ShouldProcess_RenameVMNetworkAdapter"><value>Rename-VMNetworkAdapter will rename the network adapter "{0}" to "{1}".</value></data>
+  <data name="TestVMReplicationConnectionSuccessful"><value>The connection to the specified Replica server with the specified parameters was successful.</value></data>
+  <data name="ShouldProcess_NewVFD"><value>New-VFD will create a new virtual floppy disk with the path "{0}".</value></data>
+  <data name="ShouldProcess_NewVHD"><value>New-VHD will create a new virtual hard disk with the path "{0}".</value></data>
+  <data name="ShouldProcess_DisableVMTPM"><value>Disable-VMTPM will disable the TPM for the virtual machine "{0}".</value></data>
+  <data name="ShouldProcess_MoveVM"><value>Move-VM will move the virtual machine "{0}" to computer "{1}".</value></data>
+  <data name="ShouldProcess_SetVMProcessor"><value>Set-VMProcessor will configure the processor settings of the virtual machine "{0}".</value></data>
+  <data name="ShouldProcess_UpdateVMOnlineCheckpoints"><value>-  Checkpoint(s) named: "{0}"
+</value></data>
+  <data name="ShouldProcess_SetVMSwitchExtensionPortFeature"><value>Set-VMSwitchExtensionPortFeature will configure advanced features of the network adapter "{0}".</value></data>
+  <data name="ShouldProcess_StartVMFailover_Prepare"><value>'Start-VMFailover -Prepare' parameter will prepare "{0}" for planned failover.</value></data>
+  <data name="ShouldProcess_SetVM"><value>Set-VM will configure the virtual machine "{0}".</value></data>
+  <data name="KeyStorageDriveDeprecatedWarning"><value>This feature might be removed in a future release of Hyper-V. See the generation 1 VM security guidance for more information about your options: https://go.microsoft.com/fwlink/?linkid=875156</value></data>
+  <data name="ShouldProcess_NewVM"><value>New-VM will create a new virtual machine "{0}".</value></data>
+  <data name="ShouldProcess_AddVMNetworkAdapterAcl"><value>Add-VMNetworkAdapterAcl will add an ACL to network adapter "{0}".</value></data>
+  <data name="ShouldProcess_AddVMNetworkAdapter_VM"><value>Add-VMNetworkAdapter will add a network adapter to virtual machine "{0}".</value></data>
+  <data name="ShouldProcess_ConvertVHD"><value>Convert-VHD will create a new virtual hard disk using the source "{0}".</value></data>
+  <data name="ShouldProcess_CompleteVMFailover"><value>Complete-VMFailover will commit failover of "{0}".</value></data>
+  <data name="TaskNotFound"><value>No suitable task is running for the command.</value></data>
+  <data name="ShouldContinue_RemoveVMSwitch_FromPool"><value>Are you sure you want to remove switches from Ethernet resource pool "{0}"?</value></data>
+  <data name="ShouldProcess_CompareVM"><value>Compare-VM will test the compatibility of the virtual machine with the target host system.</value></data>
+  <data name="ShouldProcess_ExportVMSnapshot"><value>Export-VMSnapshot will export the snapshot "{0}" to the given location.</value></data>
+  <data name="ShouldProcess_EnableVMEventing"><value>Enable-VMEventing will enable virtual machine eventing, which keeps Hyper-V objects up to date without polling Hyper-V.</value></data>
+  <data name="ParameterNotImplemented"><value>The "{0}" parameter is not implemented.</value></data>
+  <data name="ShouldProcess_SetVMNetworkAdapter"><value>Set-VMNetworkAdapter will configure the network adapter "{0}".</value></data>
+  <data name="ShouldProcess_RestartVM"><value>Restart-VM will restart virtual machine "{0}".</value></data>
+  <data name="ShouldProcess_SetVMSecurity"><value>Set-VMSecurity will set the security settings for the virtual machine "{0}".</value></data>
+  <data name="ShouldProcess_RestoreVMSnapshot"><value>Restore-VMSnapshot will restore snapshot "{0}".</value></data>
+  <data name="ShouldProcess_MoveVMStorage"><value>Move-VMStorage will move the storage of virtual machine "{0}".</value></data>
+  <data name="ShouldContinue_RemoveVMGroup"><value>Are you sure you want to remove group "{0}"?</value></data>
+  <data name="ShouldProcess_GrantVMConnectAccess"><value>Grant-VMConnectAccess will grant access to the virtual machine "{0}".</value></data>
+  <data name="ShouldProcess_RemoveVMNetworkAdapterExtendedAcl"><value>Remove-VMNetworkAdapterExtendedAcl will remove an extended ACL from network adapter "{0}".</value></data>
+  <data name="ShouldProcess_RemoveVM"><value>Remove-VM will remove virtual machine "{0}".</value></data>
+  <data name="ShouldProcess_RenameVM"><value>Rename-VM will rename the virtual machine "{0}" to "{1}".</value></data>
+  <data name="ShouldContinue_RemoveVMHostAssignableDevice"><value>Are you sure you want to remove host assignable devices from PCI Express resource pool "{0}"?</value></data>
+  <data name="ShouldProcess_SetVMReplicationServer"><value>Set-VMReplicationServer will modify replica server settings for '{0}'.</value></data>
+  <data name="ShouldProcess_StartVMFailover"><value>Start-VMFailover will failover the "{0}".</value></data>
+  <data name="ShouldProcess_SetVMBios"><value>Set-VMBios will configure the BIOS settings of the virtual machine "{0}".</value></data>
+  <data name="ShouldProcess_SetVMHost"><value>Set-VMHost will configure host "{0}".</value></data>
+  <data name="ShouldProcess_ResizeVHD"><value>Resize-VHD will resize the virtual hard disk "{0}".</value></data>
+  <data name="ShouldProcess_ResumeVMReplication"><value>Resume-VMReplication will resume replication of "{0}".</value></data>
+  <data name="ShouldProcess_AddVMSwitchExtensionPortFeature"><value>Add-VMSwitchExtensionPortFeature will apply advanced features to the network adapter "{0}".</value></data>
+  <data name="ShouldProcess_RemoveVMDvdDrive"><value>Remove-VMDvdDrive will remove the DVD drive "{0}" from the virtual machine "{1}".</value></data>
+  <data name="ShouldProcess_RemoveVMGroupMember"><value>Remove-VMGroupMember will remove existing members from group "{0}".</value></data>
+  <data name="RemoteFX_Cmdlet_Warning"><value>We no longer support the RemoteFX 3D video adapter. If you are still using this adapter, you may become vulnerable to security risks. Learn more (https://go.microsoft.com/fwlink/?linkid=2131976)</value></data>
+  <data name="ShouldProcess_SetVMKeyStorageDrive"><value>Set-VMKeyStorageDrive will configure the KSD drive "{0}" of the virtual machine "{1}".</value></data>
+  <data name="StopVMTrace_TraceFileWrittenTo"><value>The trace file was written to file "{0}".</value></data>
+  <data name="ShouldProcess_StopVM_TurnOff"><value>Stop-VM will turn off virtual machine "{0}".</value></data>
+  <data name="ShouldProcess_AddVMScsiController"><value>Add-VMScsiController will add a SCSI controller to the virtual machine "{0}".</value></data>
+  <data name="ShouldProcess_NewVMSwitch"><value>New-VMSwitch will create a new virtual switch "{0}".</value></data>
+  <data name="ShouldProcess_StopVM_Save"><value>Stop-VM will save virtual machine "{0}".</value></data>
+  <data name="ShouldProcess_SuspendVMReplication"><value>Suspend-VMReplication will suspend ongoing replication of "{0}".</value></data>
+  <data name="ShouldProcess_RemoveVMSan"><value>Remove-VMSan will remove the "{0}" virtual storage area network.</value></data>
+  <data name="Task_SendingInitialReplication"><value>Sending initial replication.</value></data>
+  <data name="ShouldProcess_SetVMTPM"><value>Set-VMTPM will configure the TPM settings of the virtual machine "{0}".</value></data>
+  <data name="ShouldProcess_SetVMSan"><value>Set-VMSan will set the properties of the "{0}" virtual storage area network.</value></data>
+  </root>

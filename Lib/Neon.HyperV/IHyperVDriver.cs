@@ -148,7 +148,12 @@ namespace Neon.HyperV
         void EnableVmNestedVirtualization(string machineName);
 
         /// <summary>
+        /// <para>
         /// Inserts an ISO file as a DVD drive to a virtual machine.
+        /// </para>
+        /// <note>
+        /// This API supports only one inserted DVD at a time per virtual machine.
+        /// </note>
         /// </summary>
         /// <param name="machineName">Specifies the virtual machine name.</param>
         /// <param name="isoPath">Specifies the path to the existing virtual DVD drive (ISO file).</param>
@@ -156,7 +161,12 @@ namespace Neon.HyperV
         void InsertVmDvdDrive(string machineName, string isoPath);
 
         /// <summary>
-        /// Ejects a DVD drive from a virtual machine.
+        /// <para>
+        /// Ejects any DVD drive from a virtual machine.
+        /// </para>
+        /// <note>
+        /// This API supports only one inserted DVD at a time per virtual machine.
+        /// </note>
         /// </summary>
         /// <param name="machineName">Specifies the virtual machine name.</param>
         /// <exception cref="HyperVException">Thrown for errors.</exception>
@@ -230,13 +240,13 @@ namespace Neon.HyperV
         /// Adds a new virtual switch.
         /// </summary>
         /// <param name="switchName">Specifies the switch name.</param>
-        /// <param name="targetAdapter">Optionally identifies the network adapter where the switch will be attached.</param>
+        /// <param name="hostAdapter">Optionally identifies the host network adapter where the switch will be attached.</param>
         /// <param name="internal">Optionally indicates that the switch type is to be <b>internal</b>.</param>
         /// <exception cref="HyperVException">Thrown for errors.</exception>
         void NewSwitch(
-            string          switchName,
-            string          targetAdapter = null,
-            bool            @internal     = false);
+            string      switchName,
+            NetAdapter  hostAdapter = null,
+            bool        @internal   = false);
 
         /// <summary>
         /// Removes a virtual switch.
@@ -248,10 +258,11 @@ namespace Neon.HyperV
         /// <summary>
         /// Creates a new network NAT.
         /// </summary>
-        /// <param name="switchName">Specifies the switch where the NAT will be attached.</param>
+        /// <param name="natName">Specifies the switch where the NAT will be attached.</param>
+        /// <param name="internal">Specifies whether an internal or external NAT will be created.</param>
         /// <param name="subnet">Specifies the NAT subnet.</param>
         /// <exception cref="HyperVException">Thrown for errors.</exception>
-        void NewNat(string switchName, NetworkCidr subnet);
+        void NewNat(string natName, bool @internal, NetworkCidr subnet);
 
         /// <summary>
         /// Removes a network NAT.
@@ -271,19 +282,18 @@ namespace Neon.HyperV
         /// Adds an IP address to an existing virtual switch.
         /// </summary>
         /// <param name="switchName">Specifies the name of the existing switch.</param>
-        /// <param name="address">Specifies the new IP address.</param>
+        /// <param name="gatewayAddress">Specifies the IP address for the subnet gateway.</param>
         /// <param name="subnet">Specifies the associated subnet.</param>
         /// <exception cref="HyperVException">Thrown for errors.</exception>
-        void NewNetIPAddress(string switchName, IPAddress address, NetworkCidr subnet);
+        void NewNetIPAddress(string switchName, IPAddress gatewayAddress, NetworkCidr subnet);
 
         /// <summary>
         /// Lists the network adapters attached to a virtual machine.
         /// </summary>
         /// <param name="machineName">Specifies the virtual machine.</param>
-        /// <param name="waitForAddresses">Optionally wait for the adapters to obtain their IP addresses.</param>
-        /// <returns>The <see cref="VirtualNetworkAdapter"/> instances.</returns>
+        /// <returns>The <see cref="VirtualMachineNetworkAdapter"/> instances.</returns>
         /// <exception cref="HyperVException">Thrown for errors.</exception>
-        IEnumerable<VirtualNetworkAdapter> ListVmNetAdapters(string machineName, bool waitForAddresses = false);
+        IEnumerable<VirtualMachineNetworkAdapter> ListVirtualMachineNetAdapters(string machineName);
 
         /// <summary>
         /// <para>
@@ -298,9 +308,9 @@ namespace Neon.HyperV
         IEnumerable<VirtualIPAddress> ListIPAddresses();
 
         /// <summary>
-        /// Lists the names of the host machine's network adapters.
+        /// Lists the network adapters.
         /// </summary>
-        /// <returns>The adapter names.</returns>
-        IEnumerable<string> ListHostAdapters();
+        /// <returns>The adapter information.</returns>
+        IEnumerable<NetAdapter> ListNetAdapters();
     }
 }

@@ -15,38 +15,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// $todo(jefflill):
-//
-// Define this variable to enable the old (and slow) PowerShell implementation as opposed
-// to the new WMI approach.  We're going to keep the old code around for a while just in
-// case we need to revert, but we should eventually remove this variable along with the
-// PowerShell implementation.
-
-#define USE_POWERSHELL
-
+using Microsoft.Win32;
+using Neon.Common;
+using Neon.Net;
+using Neon.Retry;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.Contracts;
-using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
-using System.Net.Sockets;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
-
-using Microsoft.Win32;
-
-using Neon.Common;
-using Neon.Net;
-using Neon.Retry;
-
-using Newtonsoft.Json.Linq;
-using YamlDotNet.Serialization.Utilities;
 
 namespace Neon.HyperV
 {
@@ -79,18 +59,34 @@ namespace Neon.HyperV
         /// Default constructor to be used to manage Hyper-V objects
         /// on the local Windows machine.
         /// </summary>
-        public HyperVClient()
+        /// <param name="driverType">
+        /// Optionally overrides the default Hyper-V driver implementation. This
+        /// defaults to <see cref="HyperVDriverType.Wmi"/> and is generally overridden
+        /// only by unit tests.
+        /// </param>
+        public HyperVClient(HyperVDriverType driverType = HyperVDriverType.Wmi)
         {
             if (!NeonHelper.IsWindows)
             {
                 throw new NotSupportedException($"{nameof(HyperVClient)} is only supported on Windows.");
             }
 
-#if USE_POWERSHELL
-            hypervDriver = new HyperVPowershellDriver(this);
-#else
-            hyperv = new HyperVWmi(this);
-#endif
+            switch (driverType)
+            {
+                case HyperVDriverType.PowerShell:
+
+                    hypervDriver = new HyperVPowershellDriver(this);
+                    break;
+
+                case HyperVDriverType.Wmi:
+
+                    hypervDriver = new HyperVWmiDriver(this);
+                    break;
+
+                default:
+
+                    throw new NotImplementedException();
+            }
         }
 
         /// <summary>
@@ -205,6 +201,11 @@ namespace Neon.HyperV
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(memorySize), nameof(memorySize));
             Covenant.Requires<ArgumentException>(processorCount > 0, nameof(processorCount));
+
+            if (templateDrivePath != null && !File.Exists(templateDrivePath))
+            {
+                throw new HyperVException($"Virtual machine drive template [{templateDrivePath}] does not exist.");
+            }
 
             if (VmExists(machineName))
             {
@@ -322,7 +323,7 @@ namespace Neon.HyperV
             {
                 foreach (var drivePath in drives)
                 {
-                    File.Delete(drivePath);
+                    NeonHelper.DeleteFile(drivePath);
                 }
             }
         }
@@ -583,7 +584,7 @@ namespace Neon.HyperV
             //
             // This may be a problem for machines with multiple active network interfaces
             // because I may choose the wrong one (e.g. the slower card).  It might be
-            // useful to have an optional cluster node definition property the explicitly
+            // useful to have an optional cluster node definition property that explicitly
             // specifies the adapter to use for a given node.
             //
             // Another problem we'll see is for laptops with wi-fi adapters.  Lets say we
@@ -595,7 +596,7 @@ namespace Neon.HyperV
             // This last issue is really just another indication that clusters aren't 
             // really portable in the sense that you can't expect to relocate a cluster 
             // from one network environment to another (that's why we bought the portable 
-            // routers for motel use). So we'll consider this as by design.
+            // routers for motel use). So we'll consider this as by design (for now).
 
             var connectedAdapter = (NetworkInterface)null;
 
@@ -619,24 +620,24 @@ namespace Neon.HyperV
 
             try
             {
-                var adapters      = hypervDriver.ListHostAdapters();
-                var targetAdapter = (string)null;
+                var adapters    = hypervDriver.ListNetAdapters();
+                var hostAdapter = (NetAdapter)null;
 
-                foreach (var adapterName in adapters)
+                foreach (var adapter in adapters)
                 {
-                    if (adapterName.Equals(connectedAdapter.Name, StringComparison.InvariantCultureIgnoreCase))
+                    if (adapter.Name.Equals(connectedAdapter.Name, StringComparison.InvariantCultureIgnoreCase))
                     {
-                        targetAdapter = adapterName;
+                        hostAdapter = adapter;
                         break;
                     }
                 }
 
-                if (targetAdapter == null)
+                if (hostAdapter == null)
                 {
                     throw new HyperVException($"Internal Error: Cannot identify a connected network adapter.");
                 }
 
-                hypervDriver.NewSwitch(switchName, targetAdapter: targetAdapter);
+                hypervDriver.NewSwitch(switchName, hostAdapter: hostAdapter);
                 WaitForNetworkSwitch();
             }
             catch (Exception e)
@@ -664,9 +665,9 @@ namespace Neon.HyperV
 
             if (addNat)
             {
-                if (GetNatByName(switchName) == null)
+                if (FindNatByName(switchName) == null)
                 {
-                    hypervDriver.NewNat(switchName, subnet);
+                    hypervDriver.NewNat(switchName, @internal: true, subnet: subnet);
                 }
             }
 
@@ -743,15 +744,14 @@ namespace Neon.HyperV
         /// Returns the virtual network adapters attached to the named virtual machine.
         /// </summary>
         /// <param name="machineName">The machine name.</param>
-        /// <param name="waitForAddresses">Optionally wait until at least one adapter has been able to acquire at least one IPv4 address.</param>
         /// <returns>The list of network adapters.</returns>
         /// <exception cref="HyperVException">Thrown for errors.</exception>
-        public IEnumerable<VirtualNetworkAdapter> ListVmNetworkAdapters(string machineName, bool waitForAddresses = false)
+        public IEnumerable<VirtualMachineNetworkAdapter> ListVmNetworkAdapters(string machineName)
         {
             CheckDisposed();
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
 
-            return hypervDriver.ListVmNetAdapters(machineName, waitForAddresses: waitForAddresses);
+            return hypervDriver.ListVirtualMachineNetAdapters(machineName);
         }
 
         /// <summary>
@@ -777,7 +777,7 @@ namespace Neon.HyperV
         /// <param name="address">The desired IP address.</param>
         /// <returns>The <see cref="VirtualIPAddress"/> or <c>null</c> when it doesn't exist.</returns>
         /// <exception cref="HyperVException">Thrown for errors.</exception>
-        public VirtualIPAddress GetIPAddress(string address)
+        public VirtualIPAddress FindIPAddress(string address)
         {
             CheckDisposed();
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(address), nameof(address));
@@ -803,7 +803,7 @@ namespace Neon.HyperV
         /// <param name="natName">The desired NAT name.</param>
         /// <returns>The <see cref="VirtualNat"/> or <c>null</c> if the NAT doesn't exist.</returns>
         /// <exception cref="HyperVException">Thrown for errors.</exception>
-        public VirtualNat GetNatByName(string natName)
+        public VirtualNat FindNatByName(string natName)
         {
             CheckDisposed();
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(natName), nameof(natName));
@@ -817,7 +817,7 @@ namespace Neon.HyperV
         /// <param name="subnet">The desired NAT subnet.</param>
         /// <returns>The <see cref="VirtualNat"/> or <c>null</c> if the NAT doesn't exist.</returns>
         /// <exception cref="HyperVException">Thrown for errors.</exception>
-        public VirtualNat GetNatBySubnet(string subnet)
+        public VirtualNat FindNatBySubnet(string subnet)
         {
             CheckDisposed();
 
