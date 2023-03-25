@@ -47,7 +47,7 @@ namespace NeonSignalRProxy
                 }
                 catch (Exception e)
                 {
-                    logger?.LogErrorEx(() => "Error getting existing session");
+                    logger?.LogErrorEx(e, () => "Error getting existing session");
                 }
             }
 
