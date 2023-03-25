@@ -238,7 +238,7 @@ namespace Neon.GitHub
                     throw new Octokit.NotFoundException($"Remote file not found: {relativePath}", HttpStatusCode.NotFound);
                 }
 
-                response.EnsureSuccessStatusCode();
+                response.EnsureSuccessStatusCodeEx();
             }
 
             await response.Content.CopyToAsync(output);
@@ -279,7 +279,7 @@ namespace Neon.GitHub
                     throw new Octokit.NotFoundException($"Remote file not found: {relativePath}", HttpStatusCode.NotFound);
                 }
 
-                response.EnsureSuccessStatusCode();
+                response.EnsureSuccessStatusCodeEx();
             }
 
             using (var ms = new MemoryStream())

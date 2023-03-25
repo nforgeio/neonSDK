@@ -355,7 +355,7 @@ namespace Neon.Deployment
 
                                     var response = await httpClient.GetAsync(part.Uri, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
 
-                                    response.EnsureSuccessStatusCode();
+                                    response.EnsureSuccessStatusCodeEx();
 
                                     using (var contentStream = await response.Content.ReadAsStreamAsync())
                                     {
