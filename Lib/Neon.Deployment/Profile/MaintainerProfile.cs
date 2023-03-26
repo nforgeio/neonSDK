@@ -104,7 +104,7 @@ namespace Neon.Deployment
             {
                 if (!value)
                 {
-                    useMemoryCacheOnly           = false;
+                    useMemoryCacheOnly      = false;
                     useEnvironmentCacheOnly = false;
 
                     ClearCache();
@@ -153,6 +153,18 @@ namespace Neon.Deployment
                 }
 
                 useEnvironmentCacheOnly = value;
+            }
+        }
+
+        /// <summary>
+        /// Ensures that <see cref="UseEnvironmentCacheOnly"/> and <see cref="UseMemoryCacheOnly"/>
+        /// aren't both <c>true</c>.
+        /// </summary>
+        private void CheckCacheOptions()
+        {
+            if (UseEnvironmentCacheOnly && UseMemoryCacheOnly)
+            {
+                throw new InvalidOperationException($"{nameof(UseEnvironmentCacheOnly)} and [{nameof(UseMemoryCacheOnly)} can't both be TRUE.");
             }
         }
 
@@ -207,6 +219,7 @@ namespace Neon.Deployment
         public string GetProfileValue(string name, bool nullOnNotFound = false)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(name), nameof(name));
+            CheckCacheOptions();
 
             if (CacheEnabled)
             {
@@ -273,6 +286,7 @@ namespace Neon.Deployment
         public string GetSecretPassword(string name, string vault = null, string masterPassword = null, bool nullOnNotFound = false)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(name), nameof(name));
+            CheckCacheOptions();
 
             var cacheKey = $"{vault}::{name}[password]";
 
@@ -351,6 +365,7 @@ namespace Neon.Deployment
         public string GetSecretValue(string name, string vault = null, string masterPassword = null, bool nullOnNotFound = false)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(name), nameof(name));
+            CheckCacheOptions();
 
             var cacheKey = $"{vault}::{name}[password]";
 
