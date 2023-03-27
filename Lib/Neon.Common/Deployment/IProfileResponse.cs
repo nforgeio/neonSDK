@@ -38,7 +38,7 @@ namespace Neon.Deployment
         bool Success { get; }
 
         /// <summary>
-        /// Returns the simply response string (for non-JSON responses).
+        /// Returns the response string (for non-JSON responses).
         /// </summary>
         string Value { get; }
 

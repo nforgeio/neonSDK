@@ -79,6 +79,22 @@ namespace Neon.Deployment
     /// </para>
     /// <list type="table">
     /// <item>
+    ///     <term><b>ENSURE-AUTHENTICATED</b></term>
+    ///     <description>
+    ///     <para><c>(seconds)</c></para>
+    ///     <para>
+    ///     Ensures that the profile server is currently signed-in and also extends the
+    ///     sign-in period.
+    ///     </para>
+    ///     </description>
+    /// </item>
+    /// <item>
+    ///     <term><b>SIGN-OUT</b></term>
+    ///     <description>
+    ///     Signs the profile server out of the credentials source.
+    ///     </description>
+    /// </item>
+    /// <item>
     ///     <term><b>GET-SECRET-PASSWORD</b></term>
     ///     <description>
     ///     <para><c>(name, [vault], [masterpassword])</c></para>
@@ -243,6 +259,16 @@ namespace Neon.Deployment
         {
             // Ensure that all of the handlers are initialized.
 
+            if (EnsureAuthenticatedHandler == null)
+            {
+                throw new InvalidOperationException($"The [{nameof(EnsureAuthenticatedHandler)}] is not initalized.");
+            }
+
+            if (SignoutHandler == null)
+            {
+                throw new InvalidOperationException($"The [{nameof(SignoutHandler)}] is not initalized.");
+            }
+
             if (GetProfileValueHandler == null)
             {
                 throw new InvalidOperationException($"The [{nameof(GetProfileValueHandler)}] is not initalized.");
@@ -346,6 +372,26 @@ namespace Neon.Deployment
         /// </note>
         /// </summary>
         public Func<ProfileRequest, string, ProfileHandlerResult> GetProfileValueHandler { get; set; }
+
+        /// <summary>
+        /// <para>
+        /// Callback that ensures that the server is signed-in and also extends the sign-in period.
+        /// </para>
+        /// <note>
+        /// This must be initalized before calling <see cref="Start()"/>.
+        /// </note>
+        /// </summary>
+        public Func<ProfileRequest, ProfileHandlerResult> EnsureAuthenticatedHandler { get; set; }
+
+        /// <summary>
+        /// <para>
+        /// Callback that signs the server out from the credentials source.
+        /// </para>
+        /// <note>
+        /// This must be initalized before calling <see cref="Start()"/>.
+        /// </note>
+        /// </summary>
+        public Func<ProfileRequest, ProfileHandlerResult> SignoutHandler { get; set; }
 
         /// <summary>
         /// <para>
@@ -467,6 +513,16 @@ namespace Neon.Deployment
                     {
                         switch (request.Command)
                         {
+                            case "ENSURE-AUTHENTICATED":
+
+                                handlerResult = EnsureAuthenticatedHandler(request);
+                                break;
+
+                            case "SIGN-OUT":
+
+                                handlerResult = SignoutHandler(request);
+                                break;
+
                             case "GET-PROFILE-VALUE":
 
                                 if (name == null)

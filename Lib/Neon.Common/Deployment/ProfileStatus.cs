@@ -65,6 +65,11 @@ namespace Neon.Deployment
         public const string BadCommand = "BAD-COMMAND";
 
         /// <summary>
+        /// A request argument is invalid..
+        /// </summary>
+        public const string BadArgument = "BAD-ARGUMENT";
+
+        /// <summary>
         /// A secret or profile value could not be found.
         /// </summary>
         public const string NotFound = "NOT-FOUND";
