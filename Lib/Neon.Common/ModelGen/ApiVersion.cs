@@ -33,12 +33,17 @@ namespace Neon.ModelGen
     /// API versions are formatted like:
     /// </para>
     /// <code>
-    // [<Version Group>.]<Major>.<Minor>[-Status]
-    //
-    // or:
-    //
-    // <Version Group>[<Major>[.Minor]][-Status]
+    /// [VERSIONGROUP.]MAJOR.MINOR[-STATUS]
+    ///
+    /// or:
+    ///
+    /// VERSIONGROUPMAJOR[.MINOR]][-STATUS]
     /// </code>
+    /// <para>
+    /// where <b>VERSIONGROUP</b> is a date formatted like <b>YYYY-MM-DD</b>,
+    /// <b>MAJOR</b> and <b>MINOR</b> are non-negative integers, and <b>STATUS</b>
+    /// is an alphanumberic string starting with a letter.
+    /// </para>
     /// </remarks>
     public class ApiVersion : IComparable<ApiVersion>
     {
@@ -53,13 +58,21 @@ namespace Neon.ModelGen
         /// <para>
         /// Parses a <see cref="ApiVersion"/>, formatted like:
         /// </para>
+        /// <para>
+        /// API versions are formatted like:
+        /// </para>
         /// <code>
-        // [<Version Group>.]<Major>.<Minor>[-Status]
-        //
-        // or:
-        //
-        // <Version Group>[<Major>[.Minor]][-Status]
+        /// [VERSIONGROUP.]MAJOR.MINOR[-STATUS]
+        ///
+        /// or:
+        ///
+        /// VERSIONGROUPMAJOR[.MINOR]][-STATUS]
         /// </code>
+        /// <para>
+        /// where <b>VERSIONGROUP</b> is a date formatted like <b>YYYY-MM-DD</b>,
+        /// <b>MAJOR</b> and <b>MINOR</b> are non-negative integers, and <b>STATUS</b>
+        /// is an alphanumberic string starting with a letter.
+        /// </para>
         /// </summary>
         /// <param name="version">The version string,</param>
         /// <returns>The parsed <see cref="ApiVersion"/>.</returns>
