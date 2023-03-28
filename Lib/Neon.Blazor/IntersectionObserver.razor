@@ -1,12 +1,7 @@
 ﻿@namespace Neon.Blazor
 
-@inherits HtmlElement
-
-<CascadingValue Value=this>
-    <HtmlElement @attributes="Attributes"
-                 Id="@Id"
-                 @ref="@rootElement"
-                 @onintersectionchanged="@((args) => OnIntersectionChangedInternal(args))">
-        @ChildContent
-    </HtmlElement>
-</CascadingValue>
+<HtmlElement id="@Id"
+             @ref="rootElement"
+             @onintersectionchanged=@OnIntersectionChangedInternal>
+    @ChildContent?.Invoke(this.IntersectionObserverContext)
+</HtmlElement>

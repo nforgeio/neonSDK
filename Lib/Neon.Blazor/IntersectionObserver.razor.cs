@@ -10,17 +10,23 @@ using System.Threading.Tasks;
 
 namespace Neon.Blazor
 {
-    public partial class IntersectionObserver : HtmlElement, IAsyncDisposable, IDisposable
+    public partial class IntersectionObserver : ComponentBase, IAsyncDisposable, IDisposable
     {
         [Parameter]
         public EventCallback<IntersectionChangedEventArgs> OnIntersectionChanged { get; set; }
 
         [Parameter]
+        public RenderFragment<IntersectionObserverContext> ChildContent { get; set; }
+
+        [Parameter]
+        public string Id { get; set; } = HtmlElement.GenerateId();
+
+        [Parameter]
         public string RootMargin { get; set; } = "0px";
-        
+
         [Parameter]
         public double[] Threshold { get; set; } = null;
-        
+
         [Inject]
         public IJSRuntime JS { get; set; }
 
@@ -31,10 +37,9 @@ namespace Neon.Blazor
 
         private IJSObjectReference intersectionObserver;
 
-        protected HtmlElement rootElement;
-        public IntersectionObserver()
-        {
-        }
+        protected HtmlElement rootElement { get; set; }
+        private IntersectionObserverContext IntersectionObserverContext { get; set; } = new IntersectionObserverContext();
+        private ElementReference elementReference;
 
         protected override void OnInitialized()
         {
@@ -67,7 +72,7 @@ namespace Neon.Blazor
                     await intersectionObserver!.InvokeVoidAsync("observe", rootElement.AsElementReference());
                 }
             }
-            
+
 
             await base.OnAfterRenderAsync(firstRender);
         }
@@ -91,8 +96,25 @@ namespace Neon.Blazor
             }
         }
 
+        /// <summary>
+        /// Set the element reference.
+        /// </summary>
+        /// <param name="reference"></param>
+        public void OnSetElementReference(ElementReference reference)
+        {
+            elementReference = reference;
+        }
+
         private Task OnIntersectionChangedInternal(IntersectionChangedEventArgs args)
         {
+            if (this.IntersectionObserverContext == null)
+            {
+                this.IntersectionObserverContext = new IntersectionObserverContext();
+            }
+
+            this.IntersectionObserverContext.IsIntersecting = args.IsIntersecting;
+            this.IntersectionObserverContext.IsVisible = args.IsVisible;
+
             return OnIntersectionChanged.InvokeAsync(new IntersectionChangedEventArgs()
             {
                 Ratio = args.Ratio,
@@ -105,6 +127,12 @@ namespace Neon.Blazor
     public class IntersectionChangedEventArgs : EventArgs
     {
         public double Ratio { get; set; }
+        public bool IsVisible { get; set; }
+        public bool IsIntersecting { get; set; }
+    }
+
+    public class IntersectionObserverContext
+    {
         public bool IsVisible { get; set; }
         public bool IsIntersecting { get; set; }
     }

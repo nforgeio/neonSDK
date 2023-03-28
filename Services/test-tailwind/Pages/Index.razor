@@ -63,30 +63,13 @@
 
 
 
-<IntersectionObserver OnIntersectionChanged="@OnChanged">
+<IntersectionObserver RootMargin="-150px" Context="foo">
     <div class="h-96 inline-block">
-
-        <p>
-            @p
-        </p>
+            @if (foo.IsIntersecting)
+            {
+                 <p>
+                    foo testaroo
+                </p>
+            }
     </div>
-
 </IntersectionObserver>
-
-@code {
-    private string p { get; set; }
-
-    private void OnChanged(IntersectionChangedEventArgs args)
-    {
-        if (args.IsIntersecting)
-        {
-            p = "foo testaroo";
-        }
-        else
-        {
-            p = "";
-        }
-
-        StateHasChanged();
-    }
-}
