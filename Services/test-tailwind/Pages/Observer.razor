@@ -1,1 +1,37 @@
 ﻿@using Neon.Blazor;
+
+<div class="h-96 inline-block">
+    @if (visible)
+    {
+        <p>
+            foo testaroo
+        </p>
+    }
+</div>
+
+@code {
+    [CascadingParameter]
+    public IntersectionObserver IntersectionObserver { get; set; }
+
+    private bool visible { get; set; } = false;
+
+    protected override void OnInitialized()
+    {
+        IntersectionObserver.IntersectionChanged += IntersectionChanged;
+        base.OnInitialized();
+    }
+
+    void IntersectionChanged()
+    {
+        if (!visible && IntersectionObserver.IsIntersecting)
+        {
+            visible = true;
+            StateHasChanged();
+        }
+    }
+
+    public void Dispose()
+    {
+        IntersectionObserver.IntersectionChanged -= IntersectionChanged;
+    }
+}
