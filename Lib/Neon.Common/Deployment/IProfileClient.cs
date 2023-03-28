@@ -29,11 +29,14 @@ using Neon.Common;
 namespace Neon.Deployment
 {
     /// <summary>
-    /// <para>
     /// Defines the interface for the client used to communicate with the Neon Assistant
     /// or a custom service.  These services provides access to user and workstation specific 
     /// settings including secrets and general properties.  This is used for activities such as 
-    /// CI/CD automation and integration testing.  This solves the following problems:
+    /// CI/CD automation and integration testing.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Implementations of this interface address the following scenarios:
     /// </para>
     /// <list type="bullet">
     /// <item>
@@ -83,45 +86,48 @@ namespace Neon.Deployment
     /// as often.  This server also handles profile and secret lookup.
     /// </item>
     /// </list>
-    /// <b>Caching:</b>
+    /// <b>Managing Sign-in:</b>
     /// <para>
-    /// <see cref="IProfileClient"/> implementations should implement caching of secret and profile
-    /// values and should enable this by default.  Callers can disable caching by setting <see cref="CacheEnabled"/>
-    /// to <c>false</c> and the cached can be cleared via <see cref="ClearCache()"/>
+    /// Some profile service implementations prompt the developer for master credentials and then
+    /// cache these for a period of time, so the developer isn't innundated with password requests.
     /// </para>
     /// <para>
-    /// The <b>Neon.Deployment.MaintainerProfile</b> implementation communicates with the <b>neon-assistant</b>
-    /// to retrieve profile values and secrets.  <b>neon-assistant</b> manages profile values directly but
-    /// communicates with 1Password.com to obtain secrets, which can take a second or two.  Caching will
-    /// improve performance and also take some load off of 1Password. 
+    /// <see cref="EnsureAuthenticated(TimeSpan)"/> can be used to have the developer sign-in the profile server, 
+    /// optionally specifiying the number of seconds the server will remain signed-in afterwards.  This is useful
+    /// for situations where an operation requests secrets as the operation progresses and it'll be possible 
+    /// for the sign-in period to expire before the operation completes.
     /// </para>
-    /// <para>
-    /// Caching may be used to solve the problem where a tool like <b>neon-assistant</b> is signed-in
-    /// when a long running operation starts but signs-out automatically before the operation completes,
-    /// potentially failing when a secret is requested after that point.  This can be mitigated by having
-    /// your operations request all required secrets and profiles up front and then cache them so these
-    /// will be available later.
-    /// </para>
-    /// <para>
-    /// Some <see cref="IProfileClient"/> implementations may also cache secrets elsewhere, like process
-    /// environment variables such that other profile instances constructed by the process or subprocesses
-    /// can also take advantage of the cached values.
-    /// </para>
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    /// The <see cref="IProfileClient"/> is used to submit requests to the Neon Assistant
-    /// application running on the local workstation including retrieving the user's 
-    /// master 1Password, secrets, as well as user profile values.
-    /// </para>
+    /// <note>
+    /// We originally tried to manage this by loading any secrets at the beginning of an operation,
+    /// so (hopefully) we'd obtain all of them while the user was still present to enter any credentials.
+    /// This worked for operations executing as a single process, but doesn't really work well for
+    /// operations that span multiple processess.  We tried to address this with client-side caching
+    /// via environment variables, but that introduced other issues, so we removed caching support.
+    /// </note>
     /// </remarks>
     public interface IProfileClient
     {
         /// <summary>
-        /// Controls whether the client caches secrets and profile values.  This should
-        /// enabled by default by all implementations.
+        /// Requests that the profile server be signed-in when it's not already signed or extend the
+        /// sign-in period.  By default, the sign-in period will be extended by the default time configured
+        /// for the server but this can be overridden via <paramref name="signinPeriod"/> (which comes in handy
+        /// for operations that may take longer than the profile server default).
         /// </summary>
-        bool CacheEnabled { get; set; }
+        /// <param name="signinPeriod">
+        /// Optionally how long to extend the sign-in.  Passing zero (the default) or values less than zero,
+        /// will extend the sign-in by the default sign-in period implemented by the profile server.
+        /// </param>
+        /// <exception cref="ProfileException">Thrown if the profile server returns an error, i.e. when the server is not currently signed-in..</exception>
+        /// <remarks>
+        /// Profile implementations that don't required that developers sign-in when 
+        /// secrets are requested should treat this as a NOP and just return OK.
+        /// </remarks>
+        void EnsureAuthenticated(TimeSpan signinPeriod = default);
+
+        /// <summary>
+        /// Requests that the profile server sign-out from it's credential source.
+        /// </summary>
+        void Signout();
 
         /// <summary>
         /// Requests the value of a secret password from 1Password via the assistant.
@@ -153,10 +159,5 @@ namespace Neon.Deployment
         /// <returns>The password value.</returns>
         /// <exception cref="ProfileException">Thrown if the profile server returns an error.</exception>
         string GetProfileValue(string name, bool nullOnNotFound = false);
-
-        /// <summary>
-        /// Clears any cached values.
-        /// </summary>
-        void ClearCache();
     }
 }

@@ -28,6 +28,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 using Neon.Common;
+using System.Xml.Linq;
 
 namespace Neon.Deployment
 {
@@ -35,40 +36,8 @@ namespace Neon.Deployment
     /// Provides the <see cref="IProfileClient"/> implementation used by NEONFORGE maintainers
     /// to obtain 1Password secrets via our internal <b>neon-assistant</b> tool.
     /// </summary>
-    /// <remarks>
-    /// <note>
-    /// This class uses process environment variables like <b>NEONASSISTANT_CACHE_PROFILE_[name=value</b>
-    /// and <b>NEONASSISTANT_CACHE_SECRET_name=value</b> to cache profile and secret values such that
-    /// other <see cref="MaintainerProfile"/> instances within the current process and
-    /// subprocesses can take advantage of cached values as well.
-    /// </note>
-    /// </remarks>
     public partial class MaintainerProfile : IProfileClient
     {
-        //---------------------------------------------------------------------
-        // Local types
-
-        internal enum CachingMode
-        {
-            /// <summary>
-            /// Attempt to retrieve values from both the memory and environment
-            /// variable caches in addition to the actual source.
-            /// </summary>
-            Normal = 0,
-
-            /// <summary>
-            /// Used for unit testing: Only attempt to retrieve values from the
-            /// environment variable cache and not the source.
-            /// </summary>
-            EnvironmentOnly,
-
-            /// <summary>
-            /// Used for unit testing: Only attempt to retrieve values from the
-            /// memory cache and not the source.
-            /// </summary>
-            MemoryOnly
-        }
-
         //---------------------------------------------------------------------
         // Static members
 
@@ -106,13 +75,8 @@ namespace Neon.Deployment
         //---------------------------------------------------------------------
         // Instance members
 
-        private readonly string             pipeName;
-        private readonly TimeSpan           connectTimeout;
-        private bool                        cacheEnabled            = true;
-        private CachingMode                 cacheMode               = CachingMode.Normal;
-        private object                      syncLock                = new object();
-        private Dictionary<string, string>  profileCache            = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
-        private Dictionary<string, string>  secretCache             = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+        private readonly string     pipeName;
+        private readonly TimeSpan   connectTimeout;
 
         /// <summary>
         /// <para>
@@ -153,39 +117,6 @@ namespace Neon.Deployment
             }
 
             this.connectTimeout = connectTimeout;
-        }
-
-        /// <inheritdoc/>
-        public bool CacheEnabled
-        {
-            get => cacheEnabled;
-
-            set
-            {
-                if (!value)
-                {
-                    CacheMode = CachingMode.Normal;
-
-                    ClearCache();
-                }
-
-                cacheEnabled = value;
-            }
-        }
-
-        internal CachingMode CacheMode
-        {
-            get => cacheMode;
-
-            set
-            {
-                cacheMode = value;
-
-                if (cacheMode != CachingMode.Normal)
-                {
-                    cacheEnabled = true;
-                }
-            }
         }
 
         /// <summary>
@@ -236,69 +167,25 @@ namespace Neon.Deployment
         }
 
         /// <inheritdoc/>
+        public void EnsureAuthenticated(TimeSpan signinPeriod = default)
+        {
+            var args = new Dictionary<string, string>();
+
+            args.Add("seconds", Math.Ceiling(signinPeriod.TotalSeconds).ToString());
+
+            Call(ProfileRequest.Create("ENSURE-AUTHENTICATED", args));
+        }
+
+        /// <inheritdoc/>
+        public void Signout()
+        {
+            Call(ProfileRequest.Create("SIGN-OUT"));
+        }
+
+        /// <inheritdoc/>
         public string GetProfileValue(string name, bool nullOnNotFound = false)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(name), nameof(name));
-
-            string value;
-
-            if (CacheEnabled)
-            {
-                lock (syncLock)
-                {
-                    switch (cacheMode)
-                    {
-                        case CachingMode.Normal:
-
-                            if (profileCache.TryGetValue(name, out value))
-                            {
-                                return value;
-                            }
-
-                            value = Environment.GetEnvironmentVariable($"{ProfileEnvironmentCachePrefix}{name}");
-
-                            if (!string.IsNullOrEmpty(value))
-                            {
-                                return value;
-                            }
-                            break;
-
-                        case CachingMode.EnvironmentOnly:
-
-                            value = Environment.GetEnvironmentVariable($"{ProfileEnvironmentCachePrefix}{name}");
-
-                            if (!string.IsNullOrEmpty(value))
-                            {
-                                return value;
-                            }
-                            break;
-
-                        case CachingMode.MemoryOnly:
-
-                            if (profileCache.TryGetValue(name, out value))
-                            {
-                                return value;
-                            }
-                            break;
-
-                        default:
-
-                            throw new NotImplementedException();
-                    }
-                }
-            }
-
-            if (cacheMode != CachingMode.Normal)
-            {
-                if (nullOnNotFound)
-                {
-                    return null;
-                }
-                else
-                {
-                    throw new ProfileException($"[{name}] profile value not found in the cache.", ProfileStatus.NotFound);
-                }
-            }
 
             var args = new Dictionary<string, string>();
 
@@ -306,19 +193,7 @@ namespace Neon.Deployment
 
             try
             {
-                value = Call(ProfileRequest.Create("GET-PROFILE-VALUE", args)).Value;
-
-                if (cacheEnabled)
-                {
-                    lock (syncLock)
-                    {
-                        profileCache[name] = value;
-
-                        Environment.SetEnvironmentVariable($"{ProfileEnvironmentCachePrefix}{name}", value);
-                    }
-                }
-
-                return value;
+                return Call(ProfileRequest.Create("GET-PROFILE-VALUE", args)).Value;
             }
             catch (ProfileException e)
             {
@@ -336,67 +211,6 @@ namespace Neon.Deployment
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(name), nameof(name));
 
-            var     cacheKey = $"{vault}::{name}[password]";
-            string  value;
-
-            if (CacheEnabled)
-            {
-                lock (syncLock)
-                {
-                    switch (cacheMode)
-                    {
-                        case CachingMode.Normal:
-
-                            if (secretCache.TryGetValue(name, out value))
-                            {
-                                return value;
-                            }
-
-                            value = Environment.GetEnvironmentVariable($"{SecretEnvironmentCachePrefix}{cacheKey}");
-
-                            if (!string.IsNullOrEmpty(value))
-                            {
-                                return value;
-                            }
-                            break;
-
-                        case CachingMode.EnvironmentOnly:
-
-                            value = Environment.GetEnvironmentVariable($"{SecretEnvironmentCachePrefix}{cacheKey}");
-
-                            if (!string.IsNullOrEmpty(value))
-                            {
-                                return value;
-                            }
-                            break;
-
-                        case CachingMode.MemoryOnly:
-
-                            if (secretCache.TryGetValue(name, out value))
-                            {
-                                return value;
-                            }
-                            break;
-
-                        default:
-
-                            throw new NotImplementedException();
-                    }
-                }
-            }
-
-            if (cacheMode != CachingMode.Normal)
-            {
-                if (nullOnNotFound)
-                {
-                    return null;
-                }
-                else
-                {
-                    throw new ProfileException($"[{name}] secret value not found in the cache.", ProfileStatus.NotFound);
-                }
-            }
-
             var args = new Dictionary<string, string>();
 
             args.Add("name", name);
@@ -413,19 +227,7 @@ namespace Neon.Deployment
 
             try
             {
-                value = Call(ProfileRequest.Create("GET-SECRET-PASSWORD", args)).Value;
-
-                if (CacheEnabled)
-                {
-                    lock (syncLock)
-                    {
-                        secretCache[cacheKey] = value;
-
-                        Environment.SetEnvironmentVariable($"{SecretEnvironmentCachePrefix}{cacheKey}", value);
-                    }
-                }
-
-                return value;
+                return Call(ProfileRequest.Create("GET-SECRET-PASSWORD", args)).Value;
             }
             catch (ProfileException e)
             {
@@ -443,67 +245,6 @@ namespace Neon.Deployment
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(name), nameof(name));
 
-            var     cacheKey = $"{vault}::{name}[password]";
-            string  value;
-
-            if (CacheEnabled)
-            {
-                lock (syncLock)
-                {
-                    switch (cacheMode)
-                    {
-                        case CachingMode.Normal:
-
-                            if (secretCache.TryGetValue(name, out value))
-                            {
-                                return value;
-                            }
-
-                            value = Environment.GetEnvironmentVariable($"{SecretEnvironmentCachePrefix}{cacheKey}");
-
-                            if (!string.IsNullOrEmpty(value))
-                            {
-                                return value;
-                            }
-                            break;
-
-                        case CachingMode.EnvironmentOnly:
-
-                            value = Environment.GetEnvironmentVariable($"{SecretEnvironmentCachePrefix}{cacheKey}");
-
-                            if (!string.IsNullOrEmpty(value))
-                            {
-                                return value;
-                            }
-                            break;
-
-                        case CachingMode.MemoryOnly:
-
-                            if (secretCache.TryGetValue(cacheKey, out value))
-                            {
-                                return value;
-                            }
-                            break;
-
-                        default:
-
-                            throw new NotImplementedException();
-                    }
-                }
-            }
-
-            if (cacheMode != CachingMode.Normal)
-            {
-                if (nullOnNotFound)
-                {
-                    return null;
-                }
-                else
-                {
-                    throw new ProfileException($"[{name}] secret value not found in the cache.", ProfileStatus.NotFound);
-                }
-            }
-
             var args = new Dictionary<string, string>();
 
             args.Add("name", name);
@@ -520,19 +261,7 @@ namespace Neon.Deployment
 
             try
             {
-                value = Call(ProfileRequest.Create("GET-SECRET-VALUE", args)).Value;
-
-                if (CacheEnabled)
-                {
-                    lock (syncLock)
-                    {
-                        secretCache[cacheKey] = value;
-
-                        Environment.SetEnvironmentVariable($"{SecretEnvironmentCachePrefix}{cacheKey}", value);
-                    }
-                }
-
-                return value;
+                return Call(ProfileRequest.Create("GET-SECRET-VALUE", args)).Value;
             }
             catch (ProfileException e)
             {
@@ -554,17 +283,6 @@ namespace Neon.Deployment
         {
             GetAwsCredentials();
             GitHub.GetCredentials();
-        }
-
-        /// <inheritdoc/>
-        public void ClearCache()
-        {
-            lock (syncLock)
-            {
-                profileCache.Clear();
-                secretCache.Clear();
-                ClearEnvironmentCache();
-            }
         }
 
         /// <inheritdoc/>
