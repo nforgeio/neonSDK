@@ -33,6 +33,12 @@ namespace Neon.Blazor
         [Inject]
         public IHttpContextAccessor HttpContextAccessor { get; set; }
 
+        public event Action IntersectionChanged;
+
+        public bool IsIntersecting => IntersectionObserverContext.IsIntersecting;
+        public bool IsVisible => IntersectionObserverContext.IsVisible;
+        public double Ratio => IntersectionObserverContext.Ratio;
+
         private IJSObjectReference jsModule;
 
         private IJSObjectReference intersectionObserver;
@@ -63,7 +69,7 @@ namespace Neon.Blazor
                 intersectionObserver = await jsModule.InvokeAsync<IJSObjectReference>("construct", new
                 {
                     RootMargin = RootMargin,
-                    Threshold = Threshold
+                    Threshold  = Threshold
                 });
 
                 if (rootElement != null)
@@ -105,7 +111,7 @@ namespace Neon.Blazor
             elementReference = reference;
         }
 
-        private Task OnIntersectionChangedInternal(IntersectionChangedEventArgs args)
+        private async Task OnIntersectionChangedInternal(IntersectionChangedEventArgs args)
         {
             if (this.IntersectionObserverContext == null)
             {
@@ -115,11 +121,13 @@ namespace Neon.Blazor
             this.IntersectionObserverContext.IsIntersecting = args.IsIntersecting;
             this.IntersectionObserverContext.IsVisible = args.IsVisible;
 
-            return OnIntersectionChanged.InvokeAsync(new IntersectionChangedEventArgs()
+            await InvokeAsync(IntersectionChanged);
+            
+            await OnIntersectionChanged.InvokeAsync(new IntersectionChangedEventArgs()
             {
-                Ratio = args.Ratio,
+                Ratio          = args.Ratio,
                 IsIntersecting = args.IsIntersecting,
-                IsVisible = args.IsVisible
+                IsVisible      = args.IsVisible
             });
         }
     }
@@ -133,6 +141,7 @@ namespace Neon.Blazor
 
     public class IntersectionObserverContext
     {
+        public double Ratio { get; set; }
         public bool IsVisible { get; set; }
         public bool IsIntersecting { get; set; }
     }
