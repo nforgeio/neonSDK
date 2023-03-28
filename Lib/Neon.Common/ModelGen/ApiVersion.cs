@@ -26,21 +26,44 @@ using System.Text.RegularExpressions;
 namespace Neon.ModelGen
 {
     /// <summary>
-    /// Used to manage an API version.
+    /// Used to specify ASP.NET API versions.
     /// </summary>
+    /// <remarks>
+    /// <para>
+    /// API versions are formatted like:
+    /// </para>
+    /// <code>
+    // [<Version Group>.]<Major>.<Minor>[-Status]
+    //
+    // or:
+    //
+    // <Version Group>[<Major>[.Minor]][-Status]
+    /// </code>
+    /// </remarks>
     public class ApiVersion : IComparable<ApiVersion>
     {
         //---------------------------------------------------------------------
         // Static members
 
-        private static DateTime minVersionGroup = new DateTime(1, 1, 1).ToUniversalTime();
+        private static DateTime     minVersionGroup         = new DateTime(1, 1, 1).ToUniversalTime();
+        private static Regex        majorMinorRegex         = new Regex(@"(?<major>\d+)\.(?<minor>\d+)");
+        private static Regex        majorOptionalMinorRegex = new Regex(@"((?<major>\d+)(\.(?<minor>\d+))?)?");
 
         /// <summary>
-        /// Parses a <see cref="ApiVersion"/>.
+        /// <para>
+        /// Parses a <see cref="ApiVersion"/>, formatted like:
+        /// </para>
+        /// <code>
+        // [<Version Group>.]<Major>.<Minor>[-Status]
+        //
+        // or:
+        //
+        // <Version Group>[<Major>[.Minor]][-Status]
+        /// </code>
         /// </summary>
         /// <param name="version">The version string,</param>
         /// <returns>The parsed <see cref="ApiVersion"/>.</returns>
-        /// <exception cref="FormatException">Thrown for invalid version strings.</exception>
+        /// <exception cref="FormatException">Thrown for an invalid version string.</exception>
         public static ApiVersion Parse(string version)
         {
             var apiVersion = new ApiVersion();
@@ -85,8 +108,7 @@ namespace Neon.ModelGen
             {
                 pos++;
 
-                var majorMinorRegex = new Regex(@"(?<major>\d+)\.(?<minor>\d+)");
-                var match           = majorMinorRegex.Match(version, pos);
+                var match = majorMinorRegex.Match(version, pos);
 
                 if (!match.Success)
                 {
@@ -100,8 +122,7 @@ namespace Neon.ModelGen
             }
             else
             {
-                var majorOptionalMinorRegex = new Regex(@"((?<major>\d+)(\.(?<minor>\d+))?)?");
-                var match                   = majorOptionalMinorRegex.Match(version, pos);
+                var match = majorOptionalMinorRegex.Match(version, pos);
 
                 if (!match.Success)
                 {
@@ -147,6 +168,11 @@ namespace Neon.ModelGen
             if (apiVersion.Status.Length == 0)
             {
                 throw new FormatException($"Invalid status part: [version={version}]");
+            }
+
+            if (!char.IsLetter(apiVersion.Status[0]))
+            {
+                throw new FormatException($"Invalid status part: [version={version}].  Status part must start with a letter.");
             }
 
             foreach (var ch in apiVersion.Status)

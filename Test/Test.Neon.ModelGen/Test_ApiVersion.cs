@@ -158,15 +158,15 @@ namespace TestModelGen
         [Fact]
         public void Compare()
         {
-            Assert.True(ApiVersion.Parse("2022-9-11").CompareTo(ApiVersion.Parse("2022-9-11")) == 0);
-            Assert.True(ApiVersion.Parse("2022-9-11.2.3").CompareTo(ApiVersion.Parse("2022-9-11.2.3")) == 0);
-            Assert.True(ApiVersion.Parse("2022-9-11.2.3-alpha").CompareTo(ApiVersion.Parse("2022-9-11.2.3-alpha")) == 0);
-            Assert.True(ApiVersion.Parse("2022-9-11.2.3-ALPHA").CompareTo(ApiVersion.Parse("2022-9-11.2.3-alpha")) == 0);
+            Assert.True(ApiVersion.Parse("2022-09-11").CompareTo(ApiVersion.Parse("2022-09-11")) == 0);
+            Assert.True(ApiVersion.Parse("2022-09-11.2.3").CompareTo(ApiVersion.Parse("2022-09-11.2.3")) == 0);
+            Assert.True(ApiVersion.Parse("2022-09-11.2.3-alpha").CompareTo(ApiVersion.Parse("2022-09-11.2.3-alpha")) == 0);
+            Assert.True(ApiVersion.Parse("2022-09-11.2.3-ALPHA").CompareTo(ApiVersion.Parse("2022-09-11.2.3-alpha")) == 0);
             Assert.True(ApiVersion.Parse("2.3").CompareTo(ApiVersion.Parse("2.3")) == 0);
             Assert.True(ApiVersion.Parse("2.3-ALPHA").CompareTo(ApiVersion.Parse("2.3-alpha")) == 0);
 
-            Assert.True(ApiVersion.Parse("2022-9-11").CompareTo(ApiVersion.Parse("2022-9-12")) < 0);
-            Assert.True(ApiVersion.Parse("2.3").CompareTo(ApiVersion.Parse("2022-9-12.2.3")) < 0);
+            Assert.True(ApiVersion.Parse("2022-09-11").CompareTo(ApiVersion.Parse("2022-09-12")) < 0);
+            Assert.True(ApiVersion.Parse("2.3").CompareTo(ApiVersion.Parse("2022-09-12.2.3")) < 0);
             Assert.True(ApiVersion.Parse("2.3").CompareTo(ApiVersion.Parse("3.4")) < 0);
             Assert.True(ApiVersion.Parse("2.3-alpha").CompareTo(ApiVersion.Parse("2.3-beta")) < 0);
             Assert.True(ApiVersion.Parse("2.3-alpha").CompareTo(ApiVersion.Parse("2.3")) < 0);
@@ -200,6 +200,13 @@ namespace TestModelGen
             Assert.Throws<FormatException>(() => ApiVersion.Parse("2022-09-11.2.3-$"));
             Assert.Throws<FormatException>(() => ApiVersion.Parse("2022-09-11.a.2"));
             Assert.Throws<FormatException>(() => ApiVersion.Parse("2022-09-11.1.a"));
+
+            // status part must start with letter.
+
+            Assert.Throws<FormatException>(() => ApiVersion.Parse("1.0-0beta"));
+            Assert.Throws<FormatException>(() => ApiVersion.Parse("2022-09-11-0beta"));
+            Assert.Throws<FormatException>(() => ApiVersion.Parse("2022-09-11.1-0beta"));
+            Assert.Throws<FormatException>(() => ApiVersion.Parse("2022-09-11.1-0beta"));
 
             Assert.Throws<FormatException>(() => ApiVersion.Parse("a"));
             Assert.Throws<FormatException>(() => ApiVersion.Parse("1.a"));
