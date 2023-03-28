@@ -99,12 +99,15 @@ namespace Neon.Blazor
             builder.AddContent(6, ChildContent);
             builder.CloseElement();
         }
-        
+
         /// <summary>
         /// Set the element reference.
         /// </summary>
         /// <param name="reference"></param>
-        public void OnSetElementReference(ElementReference reference) => elementReference = reference;
+        public void OnSetElementReference(ElementReference reference)
+        {
+            elementReference = reference;
+        }
 
         /// <summary>
         /// Focuses the current element.
