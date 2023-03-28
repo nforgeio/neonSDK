@@ -116,13 +116,15 @@ Follow the steps below to configure a development or test workstation:
    * Install **.NET 6.0 SDK 6.0.402 x64** from [here](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-6.0.402-windows-x64-installer) (.NET SDK x64 installer)
    * Install **.NET 7.0.200 SDK 7.0.2 x64** from [here](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-7.0.200-windows-x64-installer) (.NET SDK x64 installer)
    
-15. **Visual Studio:** Enable preview .NET SDKs:
+15. **Visual Studio:** Additional configuration:
     * Open Visual Studio
-    * Goto: **Tools/Options/Environment/Preview Features** (if present)
-    * Check: **Use previews of the .NET SDK (requires restart)
+    * Goto: **Tools/Options/Text Editor/C#/Preview Features** (if present)
+    * Check: **Use previews of the .NET SDK (requires restart)**
+    * Goto: **Tools/Options/Environment/Formatting/Spacing**
+    * Check: **Ignore spaces in declaration statements**
     * Restart all Visual Studio instances
 
-18. **Clone** the related neonSDK repos to the same parent directory as **neonSDK** using the repo names for the folders:
+17. **Clone** the related neonSDK repos to the same parent directory as **neonSDK** using the repo names for the folders:
 
     * https://github.com/nforgeio/neonSDK.git
     * https://github.com/nforgeio/documentation.git
@@ -139,11 +141,11 @@ Follow the steps below to configure a development or test workstation:
     git clone https://github.com/nforgeio/documentation.git
     ```
 
-16. **Clone** the https://github.com/nforgeio/neonSDK.git repository to your workstation:
+17. **Clone** the https://github.com/nforgeio/neonSDK.git repository to your workstation:
 
     * **IMPORTANT:** All NEONFORGE related repositories must be cloned within the same parent directory and their folder names must be the same as the repo names.
 
-17. Configure the build **environment variables**:
+18. Configure the build **environment variables**:
 
     * Open **File Explorer**
     * Navigate to the directory holding the cloned repository
