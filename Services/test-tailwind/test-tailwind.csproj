@@ -21,15 +21,16 @@
 		<ProjectReference Include="..\..\Lib\Neon.Common\Neon.Common.csproj" />
 		<ProjectReference Include="..\..\Lib\Neon.Tailwind\Neon.Tailwind.csproj" />
 	</ItemGroup>
-
-	<ItemGroup>
-		<Watch Include="**\*.razor" />
-		<Watch Include="**\*.cshtml" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Watch Remove="Components\Disclosure.razor" />
-	</ItemGroup>
+    
+    <ItemGroup>
+        <!-- extends watching group to include *.js files -->
+        <Watch Include="**\*.razor" />
+        <Watch Include="**\*.cs" />
+        <Watch Include="**\*.razor.cs" />
+        <Watch Include="**\*.css" />
+        <Watch Include="**\*.cshtml" />
+        <Watch Include="**\*.js" Exclude="node_modules\**\*;**\*.js.map;obj\**\*;bin\**\*" />
+    </ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="HeroIcons.Blazor" Version="1.0.6" />

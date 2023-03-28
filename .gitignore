@@ -154,3 +154,4 @@ KubernetesWithRetry.cs
 /**/*.gitignore/**
 /UpgradeLog.htm
 /ToolBin/nuget.config
+/Lib/Neon.Blazor/IntersectionObserver

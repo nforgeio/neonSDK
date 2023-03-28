@@ -22,18 +22,18 @@
 
 <div class="grid grid-cols-2 gap-8">
     <div class="flex-initial w-72">
-        <Dialog  />
+        <Dialog />
     </div>
     <div class="flex-none w-40">
-        <Switch/>
+        <Switch />
     </div>
     <div class="flex-initial w-72">
-        <Menu/>
+        <Menu />
     </div>
     <div class="flex-initial w-72">
         <Listbox />
     </div>
-      <div class="flex-initial w-72">
+    <div class="flex-initial w-72">
         <Disclosure />
     </div>
 </div>
@@ -41,7 +41,7 @@
 <br />
 <br />
 <div class="w-72 inline-block">
-    <TransitionDemo/>
+    <TransitionDemo />
 </div>
 
 <br />
@@ -60,3 +60,33 @@
         <div class="@("w-[200px] h-[200px] bg-black " + transitionCss)" />
     </Transition>
 </TransitionGroup>
+
+
+
+<IntersectionObserver OnIntersectionChanged="@OnChanged">
+    <div class="h-96 inline-block">
+
+        <p>
+            @p
+        </p>
+    </div>
+
+</IntersectionObserver>
+
+@code {
+    private string p { get; set; }
+
+    private void OnChanged(IntersectionChangedEventArgs args)
+    {
+        if (args.IsIntersecting)
+        {
+            p = "foo testaroo";
+        }
+        else
+        {
+            p = "";
+        }
+
+        StateHasChanged();
+    }
+}
