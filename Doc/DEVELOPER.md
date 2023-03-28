@@ -122,7 +122,7 @@ Follow the steps below to configure a development or test workstation:
     * Check: **Use previews of the .NET SDK (requires restart)
     * Restart all Visual Studio instances
 
-18. **Clone** the related neonSDK repos to the same parent directory as **neonSDK** using the repo names for the folders:
+16. **Clone** the related neonSDK repos to the same parent directory as **neonSDK** using the repo names for the folders:
 
     * https://github.com/nforgeio/neonSDK.git
     * https://github.com/nforgeio/documentation.git
@@ -139,11 +139,11 @@ Follow the steps below to configure a development or test workstation:
     git clone https://github.com/nforgeio/documentation.git
     ```
 
-16. **Clone** the https://github.com/nforgeio/neonSDK.git repository to your workstation:
+17. **Clone** the https://github.com/nforgeio/neonSDK.git repository to your workstation:
 
     * **IMPORTANT:** All NEONFORGE related repositories must be cloned within the same parent directory and their folder names must be the same as the repo names.
 
-17. Configure the build **environment variables**:
+18. Configure the build **environment variables**:
 
     * Open **File Explorer**
     * Navigate to the directory holding the cloned repository
