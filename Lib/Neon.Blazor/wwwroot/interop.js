@@ -1,4 +1,4 @@
-export function setBodyClass (cssClass) {
+export function setBodyClass(cssClass) {
     document.getElementsByTagName("body")[0].className = cssClass;
 }
 
@@ -24,3 +24,31 @@ export function triggerFileDownload(url, fileName) {
     anchorElement.click();
     anchorElement.remove();
 }
+
+export function construct(options) {
+    return new IntersectionObserver(elements => {
+        elements.forEach(element => {
+            element.target.dispatchEvent(
+                new CustomEvent("intersectionchanged",
+                    {
+                        bubbles: true,
+                        detail: {
+                            ratio: element.intersectionRatio,
+                            isVisible: element.isVisible,
+                            isIntersecting: element.isIntersecting
+                        }
+                    }));
+            console.log("element", element)
+        });
+    }, options);
+}
+
+Blazor.registerCustomEventType('intersectionchanged', {
+    createEventArgs: event => (
+        {
+            ratio: event.detail.ratio,
+            isVisible: event.detail.isVisible,
+            isIntersecting: event.detail.isIntersecting,
+        }
+    )
+});

@@ -60,19 +60,17 @@ namespace Test.Neon.SignalR
         public void ConfigureServices(IServiceCollection services)
         {
             var natsServerUri     = service.GetEnvironmentVariable("NATS_URI", string.Empty);
-            var connectionFactory = new ConnectionFactory();
-            var options           = ConnectionFactory.GetDefaultOptions();
-            
-            options.Servers = new string[] { natsServerUri };
 
-            var connection = connectionFactory.CreateConnection(options);
             var logger     = TelemetryHub.CreateLogger("neon-signalr");
 
             services
                 .AddSingleton<IUserIdProvider, UserNameIdProvider>()
                 .AddSingleton<ILogger>(logger)
                 .AddSignalR()
-                .AddNeonNats(connection);
+                .AddNats(options =>
+                {
+                    options.Servers = new string[] { natsServerUri };
+                });
         }
 
         public void Configure(IApplicationBuilder app)

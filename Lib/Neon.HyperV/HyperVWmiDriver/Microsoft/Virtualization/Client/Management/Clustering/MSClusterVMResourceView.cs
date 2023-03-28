@@ -1,0 +1,5 @@
+namespace Microsoft.Virtualization.Client.Management.Clustering;
+
+internal sealed class MSClusterVMResourceView : MSClusterVMOrConfigurationResourceView, IMSClusterVMResource, IMSClusterVMOrConfigurationResource, IMSClusterResource, IMSClusterResourceBase, IVirtualizationManagementObject
+{
+}

@@ -4,7 +4,7 @@
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<OutputType>Library</OutputType>
 		<RootNamespace>Neon.YugaByte</RootNamespace>
-		<Version>3.0.0</Version>
+		<Version>3.0.0-preview1</Version>
 		<Description>YugaByteDB related utilities and extensions</Description>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.YugaByte/README.md</PackageProjectUrl>

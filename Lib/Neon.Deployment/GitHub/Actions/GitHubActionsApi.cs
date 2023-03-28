@@ -169,7 +169,7 @@ namespace Neon.Deployment
                             return response;
                         });
 
-                    response.EnsureSuccessStatusCode();
+                    response.EnsureSuccessStatusCodeEx();
 
                     var json   = response.Content.ReadAsStringAsync().Result;
                     var result = JsonConvert.DeserializeObject<dynamic>(json);
@@ -233,7 +233,7 @@ namespace Neon.Deployment
 
                     if (response.StatusCode != HttpStatusCode.Forbidden)
                     {
-                        response.EnsureSuccessStatusCode();
+                        response.EnsureSuccessStatusCodeEx();
                     }
 
                     deleteCount++;

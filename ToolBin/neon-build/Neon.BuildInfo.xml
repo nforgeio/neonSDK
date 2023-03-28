@@ -147,34 +147,34 @@
             <summary>IsDirtyString: true</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.RepositoryUrl">
-            <summary>Repository URL: https://github.com/nforgeio/neonsdk.git</summary>
+            <summary>Repository URL: https://github.com/nforgeio/neonSDK.git</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.Branch">
-            <summary>Branch: jeff</summary>
+            <summary>Branch: master</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.Commit">
-            <summary>Commit: 3428ac3</summary>
+            <summary>Commit: 0ef34216</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.Sha">
-            <summary>Sha: 3428ac3082074596b9e0f604508c12d021527bcf</summary>
+            <summary>Sha: 0ef34216dd0140a57558e0690ccb03ee1c5f150e</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.CommitDate">
-            <summary>Commit date: 2023-01-13T22:49:48-08:00</summary>
+            <summary>Commit date: 2023-03-17T13:56:12-07:00</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.Commits">
-            <summary>Commits on top of base version: 429</summary>
+            <summary>Commits on top of base version: 23</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.Tag">
-            <summary>Tag: </summary>
+            <summary>Tag: release-v3.0.0-23-g0ef34216</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.BaseTag">
-            <summary>Base tag: </summary>
+            <summary>Base tag: release-v3.0.0</summary>
         </member>
         <member name="T:Internal.ThisAssembly.Git.BaseVersion">
             <summary>Provides access to the base version information used to determine the <see cref="T:Internal.ThisAssembly.Git.SemVer" />.</summary>      
         </member>
         <member name="F:Internal.ThisAssembly.Git.BaseVersion.Major">
-            <summary>Major: 0</summary>
+            <summary>Major: 3</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.BaseVersion.Minor">
             <summary>Minor: 0</summary>
@@ -186,22 +186,22 @@
             <summary>Provides access to SemVer information for the current assembly.</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.SemVer.Major">
-            <summary>Major: 0</summary>
+            <summary>Major: 3</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.SemVer.Minor">
             <summary>Minor: 0</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.SemVer.Patch">
-            <summary>Patch: 429</summary>
+            <summary>Patch: 23</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.SemVer.Label">
-            <summary>Label: </summary>
+            <summary>Label: release</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.SemVer.DashLabel">
-            <summary>Label with dash prefix: </summary>
+            <summary>Label with dash prefix: -release</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.SemVer.Source">
-            <summary>Source: Default</summary>
+            <summary>Source: Tag</summary>
         </member>
     </members>
 </doc>

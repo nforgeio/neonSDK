@@ -40,6 +40,11 @@ namespace TestDeployment
     [CollectionDefinition(TestCollection.NonParallel, DisableParallelization = true)]
     public partial class Test_ProfileServer
     {
+        public Test_ProfileServer()
+        {
+            MaintainerProfile.ClearEnvironmentCache();
+        }
+
         /// <summary>
         /// The profile server has the potential for race condition type bugs
         /// so we can use this constant to repeat the tests several times to
@@ -376,7 +381,7 @@ namespace TestDeployment
 
                 // Allow in-memory caching only and verify.
 
-                client.UseMemoryCacheOnly = true;
+                client.CacheMode = MaintainerProfile.CachingMode.MemoryOnly;
                 Assert.Equal(expectedValue, client.GetSecretValue("test"));
             }
         }
@@ -404,7 +409,7 @@ namespace TestDeployment
 
                 // Allow environment caching only and verify.
 
-                client.UseEnvironmentCacheOnly = true;
+                client.CacheMode = MaintainerProfile.CachingMode.EnvironmentOnly;
                 Assert.Equal(expectedValue, client.GetSecretValue("test"));
             }
         }
@@ -434,7 +439,7 @@ namespace TestDeployment
 
                 // Allow in-memory caching only and verify.
 
-                client.UseMemoryCacheOnly = true;
+                client.CacheMode = MaintainerProfile.CachingMode.MemoryOnly;
                 Assert.Equal(expectedValue, client.GetProfileValue("test"));
             }
         }
@@ -464,7 +469,7 @@ namespace TestDeployment
 
                 // Allow environment caching only and verify.
 
-                client.UseEnvironmentCacheOnly = true;
+                client.CacheMode = MaintainerProfile.CachingMode.EnvironmentOnly;
                 Assert.Equal(expectedValue, client.GetProfileValue("test"));
             }
         }

@@ -48,7 +48,7 @@ namespace Neon.Tailwind
                 try 
                 { 
                     var pid = int.Parse(File.ReadAllText(pidFile));
-                    Process.GetProcesses().Where(p => p.Id == pid).FirstOrDefault()?.Kill();
+                    Process.GetProcesses().Where(p => p.Id == pid).FirstOrDefault()?.Kill(true);
                 }
                 catch
                 {
@@ -60,15 +60,19 @@ namespace Neon.Tailwind
             {
                 Arguments              = string.Join(' ', args),
                 UseShellExecute        = false,
-                RedirectStandardInput  = true,
-                RedirectStandardOutput = true,
-                RedirectStandardError  = true
+                RedirectStandardInput  = false,
+                RedirectStandardOutput = false,
+                RedirectStandardError  = false,
             };
 
             process = Process.Start(processStartInfo);
             process.EnableRaisingEvents = true;
 
-            File.WriteAllText(pidFile, process.Id.ToString());
+            var currentProcess = Process.GetCurrentProcess();
+            var parentPropertyInfo = typeof(Process).GetProperty("ParentProcessId", BindingFlags.Instance | BindingFlags.NonPublic);
+            var parentProcess = Process.GetProcessById((int)parentPropertyInfo.GetValue(currentProcess));
+
+            File.WriteAllText(pidFile, parentProcess.Id.ToString());
 
             cancellationToken.Register(((IDisposable)this).Dispose);
         }

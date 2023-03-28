@@ -1058,7 +1058,13 @@ namespace Neon.Net
         }
 
         /// <summary>
+        /// <para>
         /// Returns a routable (non-loopback) IPv4 address for the current machine.
+        /// </para>
+        /// <note>
+        /// This returns a routable IP address from the network interface returned by
+        /// <see cref="GetConnectedInterface()"/> when there is a connected interface.
+        /// </note>
         /// </summary>
         /// <returns>The IP address or <c>null</c> if there doesn't appear to be a connected network interface.</returns>
         /// <remarks>
@@ -1108,11 +1114,6 @@ namespace Neon.Net
                             return false;
                         }
 
-                        if (ipProperties == null)
-                        {
-                            return false;
-                        }
-
                         return ipProperties.UnicastAddresses.Any(address => address.Address.AddressFamily == AddressFamily.InterNetwork);
                     });
 
@@ -1124,6 +1125,96 @@ namespace Neon.Net
             return activeInterface.GetIPProperties().UnicastAddresses
                 .First(address => address.Address.AddressFamily == AddressFamily.InterNetwork)
                 .Address;
+        }
+
+        /// <summary>
+        /// Returns an upstream getway address for the network interface returned by <see cref="GetConnectedInterface"/>.
+        /// </summary>
+        /// <returns>The IP address or <c>null</c> if there doesn't appear to be a connected network interface.</returns>
+        /// <remarks>
+        /// <para>
+        /// This works via a somewhat fragile heuristic.  We list all network interfaces,
+        /// filter out those that are loopback, TAP interfaces, Hyper-V switches as well as 
+        /// any that aren't up and then return the highest speed interface from any remaining
+        /// interfaces.
+        /// </para>
+        /// <para>
+        /// This may not work as expected for machines with multiple active connections
+        /// to different networks.
+        /// </para>
+        /// </remarks>
+        public static IPAddress GetConnectedGatewayAddress()
+        {
+            if (!NetworkInterface.GetIsNetworkAvailable())
+            {
+                return null;
+            }
+
+            var connectedInterface = GetConnectedInterface();
+
+            if (connectedInterface == null)
+            {
+                return null;
+            }
+
+            return connectedInterface.GetIPProperties().GatewayAddresses.FirstOrDefault(gatewayAddress => gatewayAddress.Address.AddressFamily == AddressFamily.InterNetwork)?.Address;
+        }
+
+        /// <summary>
+        /// Returns a connected network interface with an IPv4 address.
+        /// </summary>
+        /// <returns>The connected interface or <c>null</c> if there doesn't appear to be a connected network interface.</returns>
+        /// <remarks>
+        /// <para>
+        /// This works via a somewhat fragile heuristic.  We list all network interfaces,
+        /// filter out those that are loopback, TAP interfaces, Hyper-V switches as well as 
+        /// any that aren't up and then return the highest speed interface from any remaining
+        /// interfaces.
+        /// </para>
+        /// <para>
+        /// This may not work as expected for machines with multiple active connections
+        /// to different networks.
+        /// </para>
+        /// </remarks>
+        public static NetworkInterface GetConnectedInterface()
+        {
+            if (!NetworkInterface.GetIsNetworkAvailable())
+            {
+                return null;
+            }
+
+            // Look for an active non-loopback interface with the best speed
+            // that also has IPv4 addresses assigned.
+
+            var activeInterface = NetworkInterface.GetAllNetworkInterfaces()
+                .OrderByDescending(i => i.Speed)
+                .FirstOrDefault(
+                    @interface =>
+                    {
+                        // Make sure that the interface has IPv4 addresses assigned and also that
+                        // the interface is assigned a default gateway.
+
+                        var ipProperties = @interface.GetIPProperties();
+
+                        if (ipProperties == null || ipProperties.GatewayAddresses.IsEmpty())
+                        {
+                            return false;
+                        }
+
+                        // Filter out loopback interfaces, TAP interfaces and interfaces that aren't up.
+
+                        if (@interface.NetworkInterfaceType == NetworkInterfaceType.Loopback || 
+                            @interface.Description.StartsWith("TAP-") ||
+                            @interface.Description == "Hyper-V Virtual Ethernet Adapter" ||
+                            @interface.OperationalStatus != OperationalStatus.Up)
+                        {
+                            return false;
+                        }
+
+                        return ipProperties.UnicastAddresses.Any(address => address.Address.AddressFamily == AddressFamily.InterNetwork);
+                    });
+
+            return activeInterface;
         }
 
         /// <summary>

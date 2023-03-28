@@ -741,10 +741,12 @@ namespace TestCommon
         [Fact]
         public void GetNetworkConfiguration()
         {
-            var routableAddress = NetHelper.GetRoutableIpAddress();
-            var netConfig       = NetHelper.GetNetworkConfiguration();
+            var connectedInterface = NetHelper.GetConnectedInterface();
+            var routableAddress    = NetHelper.GetRoutableIpAddress();
+            var gatewayAddress     = NetHelper.GetConnectedGatewayAddress();
+            var netConfig          = NetHelper.GetNetworkConfiguration();
 
-            if (routableAddress == null)
+            if (connectedInterface == null || routableAddress == null)
             {
                 // The workstation looks like it's not connected to a network.
 
@@ -759,6 +761,8 @@ namespace TestCommon
             Assert.NotNull(netConfig);
             Assert.NotNull(netConfig.InterfaceName);
             Assert.Equal(routableAddress.ToString(), netConfig.Address);
+            Assert.Contains(routableAddress, connectedInterface.GetIPProperties().UnicastAddresses.Select(addressInfo => addressInfo.Address));
+            Assert.NotNull(gatewayAddress);
             Assert.NotEmpty(netConfig.NameServers);
             Assert.NotNull(netConfig.Subnet);
             Assert.NotNull(netConfig.Gateway);

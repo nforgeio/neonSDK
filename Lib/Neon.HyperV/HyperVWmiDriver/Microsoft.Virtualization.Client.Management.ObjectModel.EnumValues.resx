@@ -1,0 +1,162 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+<resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>1.3</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><data name="FailoverReplicationState_PreparedForGroupReverseReplication"><value>Prepared for group reverse replication</value></data>
+  <data name="ServiceStopOperation_PowerOff"><value>Power Off</value></data>
+  <data name="VMComputerSystemState_PowerOff"><value>Off</value></data>
+  <data name="VMIntegrationComponentOperationalStatus_Ok"><value>OK</value></data>
+  <data name="FailoverReplicationState_Committed"><value>Failover complete</value></data>
+  <data name="VMHeartbeatStatus_Disabled"><value>Unavailable</value></data>
+  <data name="VirtualSystemSubType_Type2"><value>Generation 2</value></data>
+  <data name="VirtualSystemSubType_Type1"><value>Generation 1</value></data>
+  <data name="VirtualHardDiskFormat_Unknown"><value>Unknown</value></data>
+  <data name="BandwidthReservationMode_Weight"><value>Weight</value></data>
+  <data name="FailoverReplicationHealth_Warning"><value>Warning</value></data>
+  <data name="FailoverReplicationState_PreparedForSyncReplication"><value>Prepared for sync replication</value></data>
+  <data name="VMHeartbeatStatus_Error"><value>Error</value></data>
+  <data name="ServiceStartOperation_None"><value>None</value></data>
+  <data name="ServiceStartOperation_RestartIfPreviouslyRunning"><value>Restart if previously running</value></data>
+  <data name="FailoverReplicationHealth_Normal"><value>Normal</value></data>
+  <data name="VMComputerSystemState_ComponentServicing"><value>Component Servicing</value></data>
+  <data name="VMComputerSystemState_Hibernated_VMSettings"><value>Hibernated</value></data>
+  <data name="VMProcessorOperationalStatus_OK"><value>OK</value></data>
+  <data name="VMComputerSystemState_Hibernated"><value>Hibernated</value></data>
+  <data name="VMHeartbeatStatus_OkApplicationsUnknown"><value>OK (No Application Data)</value></data>
+  <data name="VMProcessorOperationalStatus_Disabled"><value>Host resource protection is disabled.</value></data>
+  <data name="EnhancedSessionTransportType_VMBus"><value>VMBus Pipe</value></data>
+  <data name="EthernetSwitchExtensionType_Native"><value>Native</value></data>
+  <data name="VMComputerSystemState_Resuming_VMSettings"><value>resuming</value></data>
+  <data name="EnhancedModeStateType_Available"><value>Enabled and Available</value></data>
+  <data name="FailoverReplicationState_Disabled"><value>Not enabled</value></data>
+  <data name="ServiceStopOperation_SaveState"><value>Save</value></data>
+  <data name="BandwidthReservationMode_Default"><value>Default</value></data>
+  <data name="EthernetSwitchExtensionType_Filter"><value>Filter</value></data>
+  <data name="BandwidthReservationMode_Absolute"><value>Absolute</value></data>
+  <data name="VHDSetSnapshotType_VirtualMachine"><value>Virtual Machine</value></data>
+  <data name="FailoverReplicationState_WaitingToCompleteInitialReplication"><value>Initial replication in progress</value></data>
+  <data name="VMProcessorOperationalStatus_DegradedDvdMedia"><value>Host resource protection is degraded because media is present in a DVD drive.</value></data>
+  <data name="VMComputerSystemState_Saving_VMSettings"><value>saving</value></data>
+  <data name="ServiceStartOperation_AlwaysStartup"><value>Always start</value></data>
+  <data name="VMComputerSystemState_Pausing"><value>Pausing</value></data>
+  <data name="VMMigrationType_VirtualSystemAndStorage"><value>Virtual Machine And Storage</value></data>
+  <data name="VMProcessorOperationalStatus_DegradedDebugPort"><value>Host resource protection is degraded because a debug port is enabled.</value></data>
+  <data name="VMComputerSystemState_Paused_VMSettings"><value>paused</value></data>
+  <data name="FailoverReplicationState_ResynchronizeSuspended"><value>Resynchronize Suspended</value></data>
+  <data name="VMHeartbeatStatus_OkApplicationsCritical"><value>OK (Applications Critical)</value></data>
+  <data name="VMProcessorOperationalStatus_Enabled"><value>Host resource protection is enabled.</value></data>
+  <data name="FailoverReplicationState_Suspended"><value>Replication paused</value></data>
+  <data name="VirtualHardDiskFormat_Vhdx"><value>VHDX</value></data>
+  <data name="VirtualHardDiskType_DynamicallyExpanding"><value>dynamically expanding</value></data>
+  <data name="EthernetSwitchExtensionType_Forward"><value>Forward</value></data>
+  <data name="EnhancedSessionTransportType_HvSocket"><value>Hyper-V Socket</value></data>
+  <data name="FailoverReplicationState_Recovered"><value>Failover complete</value></data>
+  <data name="VirtualHardDiskType_Differencing"><value>differencing</value></data>
+  <data name="FailoverReplicationState_Critical"><value>Replication Error</value></data>
+  <data name="VMComputerSystemState_Reset_VMSettings"><value>reset</value></data>
+  <data name="VHDSnapshotAdditionalInformationType_Unknown"><value>Unknown</value></data>
+  <data name="VMMigrationType_VirtualSystem"><value>Virtual Machine</value></data>
+  <data name="VMComputerSystemState_Saved_VMSettings"><value>saved</value></data>
+  <data name="VirtualHardDiskFormat_VHDSet"><value>VHDSet</value></data>
+  <data name="VMComputerSystemState_Resuming"><value>Resuming</value></data>
+  <data name="FailoverReplicationState_WaitingForUpdateCompletion"><value>Disk update in progress</value></data>
+  <data name="VMComputerSystemState_Saving"><value>Saving</value></data>
+  <data name="VMHeartbeatStatus_OkApplicationsHealthy"><value>OK (Applications Healthy)</value></data>
+  <data name="FailoverReplicationHealth_NotApplicable"><value>Not Applicable</value></data>
+  <data name="EthernetSwitchExtensionType_Unknown"><value>Unknown</value></data>
+  <data name="VMIntegrationComponentOperationalStatus_Disabled"><value>Unavailable</value></data>
+  <data name="VMComputerSystemState_Paused"><value>Paused</value></data>
+  <data name="EthernetSwitchExtensionType_Monitoring"><value>Monitoring</value></data>
+  <data name="FailoverReplicationState_FailbackInProgress"><value>Failback in progress</value></data>
+  <data name="VMProcessorOperationalStatus_Unknown"><value>Host resource protection state is unknown.</value></data>
+  <data name="VMComputerSystemState_ComponentServicing_VMSettings"><value>Component Servicing</value></data>
+  <data name="FailoverReplicationMode_TestReplica"><value>Test Replica</value></data>
+  <data name="FailoverReplicationState_SyncedReplicationComplete"><value>Prepared for planned failover</value></data>
+  <data name="VHDSetSnapshotType_ResilientChangeTracking"><value>Resilient Change Tracking</value></data>
+  <data name="VMIntegrationComponentOperationalStatus_Dormant"><value>Paused</value></data>
+  <data name="VHDSetSnapshotType_Unknown"><value>Unknown</value></data>
+  <data name="VMComputerSystemState_FastSaved_VMSettings"><value>fastsaved</value></data>
+  <data name="VirtualHardDiskFormat_Vhd"><value>VHD</value></data>
+  <data name="FailoverReplicationState_FiredrillInProgress"><value>Test failover in progress</value></data>
+  <data name="EnhancedModeStateType_Enabled"><value>Enabled</value></data>
+  <data name="FailoverReplicationState_RecoveryInProgress"><value>Failover in progress</value></data>
+  <data name="FailoverReplicationMode_None"><value>Not enabled</value></data>
+  <data name="FailoverReplicationMode_ExtendedReplica"><value>Replica</value></data>
+  <data name="VMProcessorOperationalStatus_DegradedSuspended"><value>Host resource protection is suspended.</value></data>
+  <data name="FailoverReplicationState_Resynchronizing"><value>Resynchronizing</value></data>
+  <data name="VMProcessorOperationalStatus_DegradedLegacyNic"><value>Host resource protection is degraded because a legacy NIC is present.</value></data>
+  <data name="CriticalErrorAction_Pause"><value>Pause</value></data>
+  <data name="VMComputerSystemState_Pausing_VMSettings"><value>pausing</value></data>
+  <data name="VMProcessorOperationalStatus_DegradedFloppyMedia"><value>Host resource protection is degraded because media is present in the virtual floppy device.</value></data>
+  <data name="FailoverReplicationState_Ready"><value>Pending Initial Replication</value></data>
+  <data name="FailoverReplicationState_UpdateCritical"><value>Disk update critical</value></data>
+  <data name="FailoverReplicationState_Replicating"><value>Replication enabled</value></data>
+  <data name="VirtualHardDiskType_FixedSize"><value>fixed size</value></data>
+  <data name="VMIntegrationComponentOperationalStatus_LostCommunication"><value>Lost Communication</value></data>
+  <data name="VMComputerSystemState_Starting_VMSettings"><value>starting</value></data>
+  <data name="VMHeartbeatStatus_NoContact"><value>No Contact</value></data>
+  <data name="VMMigrationType_PlannedVirtualSystem"><value>Temporary Virtual Machine</value></data>
+  <data name="VHDSnapshotAdditionalInformationType_ParentPaths"><value>Parent Paths</value></data>
+  <data name="VMComputerSystemState_Unknown_VMSettings"><value>Unknown</value></data>
+  <data name="VMComputerSystemState_FastSaved"><value>FastSaved</value></data>
+  <data name="VMComputerSystemState_Starting"><value>Starting</value></data>
+  <data name="VMComputerSystemState_Running"><value>Running</value></data>
+  <data name="VMIntegrationComponentOperationalStatus_Unknown"><value>Unknown</value></data>
+  <data name="VMComputerSystemState_Saved"><value>Saved</value></data>
+  <data name="VirtualHardDiskType_Unknown"><value>Unknown</value></data>
+  <data name="VMIntegrationComponentOperationalStatus_NoContact"><value>No Contact</value></data>
+  <data name="BandwidthReservationMode_None"><value>None</value></data>
+  <data name="VHDSetAdditionalInformationType_Other"><value>Other</value></data>
+  <data name="VHDSetSnapshotType_Other"><value>Other</value></data>
+  <data name="CriticalErrorAction_None"><value>None</value></data>
+  <data name="VHDSetAdditionalInformationType_Paths"><value>Paths</value></data>
+  <data name="VMMigrationType_Storage"><value>Virtual Machine Storage</value></data>
+  <data name="EnhancedModeStateType_Disabled"><value>Not enabled</value></data>
+  <data name="VMMigrationType_Unknown"><value>Unknown</value></data>
+  <data name="VMComputerSystemState_Unknown"><value>Unknown</value></data>
+  <data name="VMComputerSystemState_PowerOff_VMSettings"><value>off</value></data>
+  <data name="VMHeartbeatStatus_Paused"><value>Paused</value></data>
+  <data name="FailoverReplicationHealth_Critical"><value>Critical</value></data>
+  <data name="FailoverReplicationMode_Recovery"><value>Replica</value></data>
+  <data name="VHDSetAdditionalInformationType_Unknown"><value>Unknown</value></data>
+  <data name="FailoverReplicationState_Unknown"><value>Unknown</value></data>
+  <data name="FailoverReplicationState_WaitingForRepurposeCompletion"><value>Repurpose replication in progress</value></data>
+  <data name="VMHeartbeatStatus_LostCommunication"><value>Lost Communication</value></data>
+  <data name="VMHeartbeatStatus_Unknown"><value>Unknown</value></data>
+  <data name="VMComputerSystemState_Stopping"><value>Stopping</value></data>
+  <data name="FailoverReplicationState_FailbackComplete"><value>Failback complete</value></data>
+  <data name="VHDSnapshotAdditionalInformationType_Other"><value>Other</value></data>
+  <data name="VMProcessorOperationalStatus_DegradedSerialPort"><value>Host resource protection is degraded because a pipe is configured on a serial port.</value></data>
+  <data name="ServiceStopOperation_Shutdown"><value>Shut Down</value></data>
+  <data name="FailoverReplicationMode_Primary"><value>Primary</value></data>
+  <data name="VMComputerSystemState_Stopping_VMSettings"><value>stopping</value></data>
+  <data name="EthernetSwitchExtensionType_Capture"><value>Capture</value></data>
+  <data name="VMIntegrationComponentOperationalStatus_Error"><value>Error</value></data>
+  <data name="VMComputerSystemState_Running_VMSettings"><value>running</value></data>
+  <data name="FailoverReplicationState_WaitingForStartResynchronize"><value>Resynchronization required</value></data>
+  </root>

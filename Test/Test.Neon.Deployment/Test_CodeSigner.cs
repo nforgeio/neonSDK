@@ -94,8 +94,8 @@ namespace TestDeployment
             Assert.True(CodeSigner.IsReady(provider, certBase64, container, timestampUri, password));
         }
 
-        [Fact(Skip = "Needs to be run manually by a maintainer")]
-        // [Fact]
+        [MaintainerFact(Skip = "Needs to be run manually by a maintainer")]
+        //[MaintainerFact]
         public void Sign()
         {
             // Verify that signing an executable actually changes the file.

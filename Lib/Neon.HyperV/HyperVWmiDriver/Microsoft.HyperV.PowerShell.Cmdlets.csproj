@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Microsoft.HyperV.PowerShell.Cmdlets</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <TargetFramework>net46</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>11.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace />
+  </PropertyGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Reference Include="System.Management.Automation" />
+    <Reference Include="Microsoft.HyperV.PowerShell.Objects" />
+    <Reference Include="Microsoft.Virtualization.Client.Management" />
+    <Reference Include="Microsoft.Management.Infrastructure" />
+    <Reference Include="System.Core" />
+    <Reference Include="Microsoft.Virtualization.Client.Common.Types" />
+  </ItemGroup>
+</Project>

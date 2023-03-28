@@ -1,0 +1,211 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+<resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>1.3</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><data name="VHD_SupportPRSwitchMustBeTrue"><value>The SupportPersistentReservations switch parameter cannot be set to FALSE when using the Test-VHD cmdlet.</value></data>
+  <data name="ConvertVHD_DifferencingDiskMustHaveParentPath"><value>The destination parent path must be specified when creating a differencing disk.</value></data>
+  <data name="InvalidParameter_StaticAndDynamicMacAddressBothPresent"><value>The network adapter cannot use both a static and dynamic MAC address.</value></data>
+  <data name="InvalidParameter_MandatoryFeatureIdAndManagementOS"><value>Mandatory features cannot be set on a ManagementOS network adapter.</value></data>
+  <data name="VMFailover_OnlyValidParameterOnPrimary"><value>'{0}' is the only valid parameter for a primary virtual machine.</value></data>
+  <data name="VramSynth3dVideoAdapter_InvalidOperationOnVramSize"><value>VRAMSizeBytes is not a supported parameter for virtual machines with configuration version {0}.</value></data>
+  <data name="InvalidArgument_ParameterNotRequired"><value>'{0}' is not required for '{1}'.</value></data>
+  <data name="OperationFailed_NotSupported"><value>The operation is not supported.</value></data>
+  <data name="VMSwitch_MoreThanOneFound"><value>More than one Ethernet switch exists with the name "{0}".</value></data>
+  <data name="VMNetworkAdapterAcl_MultipleAddressTypesSpecified"><value>Only one type of address may be specified at a time.</value></data>
+  <data name="SetVMSwitch_TeamingSwitchCannotChangeTypeAndExtNics"><value>The switch type and member NICs of the VMSwitch with NIC Teaming enabled cannot be changed with Set-VMSwitch. </value></data>
+  <data name="NewVM_FailedToRollBack"><value>Could not delete the virtual machine "{0}" after a failure to configure it. Please remove it manually.</value></data>
+  <data name="VMFibreChannelHba_NoVirtualHbaFound"><value>No virtual Host Bus Adapter could be found with the given criteria.</value></data>
+  <data name="VMReplication_CannotModifyIncludedVhdsOnReplica"><value>Included Vhds cannot be modified on the replica virtual machine '{0}'. You can modify them on the primary virtual machine.</value></data>
+  <data name="InvalidParameter_StoragePoolMustBeCreatedWithPath"><value>Storage resource pools must be created with at least one initial storage path.</value></data>
+  <data name="InvalidParameter_OnlyValidParameterForThisParameter"><value>'{0}' is the only valid parameter that can be passed with the '{1}' parameter.</value></data>
+  <data name="Generation2_NoIDESupport"><value>Generation 2 virtual machines do not support IDE.</value></data>
+  <data name="VMSynth3dVideoAdapter_InvalidResolutionBasedOnMaping"><value>MaximumResolution {0} is not available for a MonitorCount of {1}. Try reducing the MaximumResolution by specifying a value from the set : {{{2}}}.</value></data>
+  <data name="NewVM_FailedToGetController"><value>Failed to retrieve the controller in order to attach the disk for the new virtual machine.</value></data>
+  <data name="InvalidParameter_VrssVmbusChannelAffinityPolicyValue"><value>The VRSS vmbus channel affinity policy is not valid. Affinity policy can be either Weak, Strong, or Strict.</value></data>
+  <data name="StartVMTrace_DumpObjectsRequiresVerboseLevel"><value>The DumpObjects switch can only be specified if the Level parameter is Verbose.</value></data>
+  <data name="NewVM_FailedToRemoveNewVhd"><value>Could not delete the VHD at location "{0}" after a failure to configure the virtual machine. Please remove it manually.</value></data>
+  <data name="InvalidParameter_StoragePoolMustBeCreatedAlone"><value>Storage resource pools must be created alone.</value></data>
+  <data name="VMReplication_HardDiskNotAttachedToVM"><value>Virtual hard disk '{0}' is not attached to virtual machine '{1}'.</value></data>
+  <data name="AsJobAndPassthruBothPresent"><value>The Asjob and Passthru switches cannot be set at the same time.</value></data>
+  <data name="VMHardDiskDrive_VirutalPMEM_PassthroughDisksNotSupported"><value>Physical hard disks cannot be attached to a virtual persistent memory controller.</value></data>
+  <data name="StartVMTrace_CannotSetTraceFile"><value>The trace file cannot be changed when tracing has already started.</value></data>
+  <data name="InvalidParameter_SnapshotIDOnlyValidForVHDS"><value>The SnapshotID parameter is invalid when specified for a virtual hard disk that is not a VHD Set file: "{0}".</value></data>
+  <data name="Warning_MustSpecifyPathOrDebuggerMode"><value>Neither Path or DebuggerMode arguments were specified. No changes will be made.</value></data>
+  <data name="InvalidParameter_RemoveAllTeamMember"><value>Removing all network adapters from a team is not allowed.</value></data>
+  <data name="VMSynth3dVideoAdapter_InvalidMonitorCount"><value>MonitorCount cannot be {0}. Specify a value between {1} and {2}.</value></data>
+  <data name="UpdateVMConfigurationVersion_VMVersionMaximum_Warning"><value>No update was performed for the virtual machine "{0}" because its configuration version is already at the maximum level supported by this server.  For clustered servers, the maximum supported configuration version can be limited by the cluster functional level.</value></data>
+  <data name="InvalidParameter_PhysicalAndVirtualDiskSettingsBothProvided"><value>The passthrough disk number cannot be provided at the same time as settings that apply to virtual hard disks.</value></data>
+  <data name="InvalidParameter_VrssQueueSchedulingModeValue"><value>The VRSS queue scheduling mode value is not valid. Queue scheduling mode can be either Dynamic, StaticVmq, or StaticVrss.</value></data>
+  <data name="VMFailover_InvalidSnapshot"><value>'{0}' is not a valid  recovery snapshot of '{1}'.</value></data>
+  <data name="OperationFailed_InvalidState"><value>The operation cannot be performed while the virtual machine is in its current state.</value></data>
+  <data name="NewVMSwitch_FailedToRollBack"><value>Could not delete the virtual switch "{0}" after a failure to configure it. Please remove it manually.</value></data>
+  <data name="VMReplication_StartTimeOccursTooMuchInFuture"><value>Scheduled start time for virtual machine should not exceed "{0}" days from now.</value></data>
+  <data name="VMReplication_CannotModifySettingsOnReplica"><value>Replication settings cannot be modified on the replica virtual machine '{0}'. You can modify them on the primary virtual machine.</value></data>
+  <data name="ConvertVHD_NonDifferencingDiskCannotHaveParentPath"><value>The destination parent path cannot be specified when creating a disk that is not a differencing disk.</value></data>
+  <data name="InvalidOperation_ShieldingIsEnabled"><value>The parameter '{0}' may not be disabled if the virtual machine is shielded.</value></data>
+  <data name="VMHardDiskDrive_IncompatibleWithPersistentReservations"><value>This operation is incompatible with a virtual disk that supports SCSI-3 Persistent Reservations.</value></data>
+  <data name="VMNetworkAdapter_MoreThanOneFound"><value>Only one network adapter can be specified at a time.</value></data>
+  <data name="ImportVM_FailedValidate"><value>Unable to import virtual machine due to configuration errors.  Please use Compare-VM to repair the virtual machine.</value></data>
+  <data name="VMDrive_NoPathSpecifiedWithPool"><value>The path to the virtual disk must be supplied when setting the resource pool name.</value></data>
+  <data name="VMNetworkAdapterRoutingDomainMapping_IsolationModeDoesNotSupportRoutingDomain"><value>Routing domains cannot be configured on network adapters with IsolationMode of None.</value></data>
+  <data name="InvalidParameter_VrssMinQueuePairsCountValue"><value>The VRSS Min Queue-Pair Count cannot be set to less than 1.</value></data>
+  <data name="Warning_VMPmemIsPrerelease"><value>Virtual PMEM is a preview feature and is not recommended for production use.</value></data>
+  <data name="InvalidOperation_NumaSpanningIsEnabled"><value>The command is not valid because NUMA spanning is enabled on the host "{0}".</value></data>
+  <data name="SetVMSwitch_NoNetworkAdapterSpecified"><value>Either the NetAdapterInterfaceDescription or the NetAdapterName parameter must be specified when setting the switch type to External.</value></data>
+  <data name="NewVMSwitch_InvalidSwitchType"><value>The specified switch type is not valid. Either it was used to specify an external switch or to try to enable SR-IOV on an internal or private switch. To create an external switch, use the NetAdapterInterfaceDescription parameter. SR-IOV is valid only on external switches.</value></data>
+  <data name="NoDeviceFound"><value>No device found to run this cmdlet on.</value></data>
+  <data name="VMSwitch_NoSwitchFound"><value>No Ethernet switch could be found matching the specified criteria.</value></data>
+  <data name="InvalidParameter_MissingMacAddressParameter"><value>The Receiver media access control (MAC) address parameter is missing.</value></data>
+  <data name="GetVMSan_NoneFound"><value>No virtual storage area network can be found by given criteria.</value></data>
+  <data name="VMMemoryParameterMixMatching"><value>Dynamic and static memory settings cannot be specified together. To set maximum memory, minimum memory and buffer settings, turn on Dynamic Memory as well.</value></data>
+  <data name="InvalidParameter_PathCannotBeNull"><value>The Path parameter cannot be null. Specify a valid path and try again.</value></data>
+  <data name="VMHardDiskDrive_SupportsPersistentReservations_VirtualPMEMNotSupported"><value>SCSI-3 Persistent Reservations are not supported with a virtual persistent memory disk.</value></data>
+  <data name="VMSwitchExtensionFeature_CannotModifyOrRemoveTemplateFeature"><value>The advanced feature "{0}" is not attached to a virtual switch or network adapter.</value></data>
+  <data name="SetVMNetworkAdapter_ParameterInvalidForManagementOS"><value>The specified parameters cannot be set for a management OS adapter.</value></data>
+  <data name="InvalidArgument_SetVMMigrationNetwork"><value>You must pass at least one of the NewSubnet or NewPriority parameters.</value></data>
+  <data name="MigrationNetworkUnacceptableLoopback"><value>Hyper-V cannot accept loopback addresses for migration networks.</value></data>
+  <data name="VMReplication_StartTimeOccursInPast"><value>The specified start time is not valid because it occurs in the past.</value></data>
+  <data name="InvalidParameter_OneOfMutuallyExclusiveParametersRequired"><value>Either the '{0}' or the '{1}' parameter must be specified.</value></data>
+  <data name="VMGroupMember_NoneFound"><value>Hyper-V was unable to find a group with the name "{0}".</value></data>
+  <data name="InvalidParameter_SourceAndDestinationVhdNameMismatch"><value>The source and destination file names in the Vhds parameter must match.</value></data>
+  <data name="InvalidParameter_MismatchedCredentials"><value>The 'Credential' parameter must contain one PSCredential that is used for all computers, or one PSCredential for each entry in the 'ComputerName' parameter. </value></data>
+  <data name="MetricsDisabledForVM"><value>Resource metering is not enabled for this virtual machine. Use the Enable-VMResourceMetering cmdlet to enable data collection for this virtual machine.</value></data>
+  <data name="VMNetworkAdapterFailoverConfiguration_IPSettingsSpecifiedWithoutAddress"><value>The parameter '{0}' requires an IP address. Specify an IP address and run the command again.</value></data>
+  <data name="Generation2_NoFloppySupport"><value>Generation 2 virtual machines do not support floppy drives.</value></data>
+  <data name="Warning_CannotDeleteRootDiskForVHDSet"><value>The system cannot delete the source virtual hard disk file as it is the root VHD for the new VHD Set file.</value></data>
+  <data name="VMHardDiskDrive_NoPathSpecified"><value>The path to the virtual disk must be supplied when setting the resource pool name, IOPS limits, or persistent reservations support.</value></data>
+  <data name="GetVMResourcePool_NoneFound"><value>No resource pool can be found by given criteria.</value></data>
+  <data name="InvalidArgument_ReplicationFrequencyNotValid"><value>The frequency at which changes will be sent for extended replication should be greater than the frequency for primary replication on the replica virtual machine.</value></data>
+  <data name="Warning_CredSSP"><value>You must log off and log on again to use the selected virtual machine migration authentication type.</value></data>
+  <data name="VMReplication_AuthorizationEntryNotFound"><value>Unable to find an authorization entry for the given primary server.</value></data>
+  <data name="NewVMSan_NamesMismatched"><value>The number of elements in the WorldWideNodeName parameter must match the number of WorldWidePortName parameter.</value></data>
+  <data name="VMReplication_ActionNotApplicableOnReplica"><value>Enable-VMReplication is not applicable on replica virtual machine '{0}'.</value></data>
+  <data name="VMReplication_InvalidValueForRequiredDependentParameter"><value>The parameter '{0}' must be set to '{1}' to allow any changes to '{2}'.</value></data>
+  <data name="VMReplication_UseBackup_ScheduledTime"><value>Back-up can be used only while rescheduling the initial replication.</value></data>
+  <data name="VMNetworkAdapterFailoverConfiguration_NotSupportedAdapter"><value>The selected TCP/IP settings for failover are not valid for legacy type of virtual network adapters.</value></data>
+  <data name="InvalidParameter_AddNicToMultipleVMSwitches"><value>Member adapter(s) cannot be added to mulitple VMSwitches. </value></data>
+  <data name="InvalidParameter_RemoveNonExistingTeamMember"><value>The network adapter '{0}' does not exist in the team.</value></data>
+  <data name="MigrationNetworkUnacceptableLinkLocal"><value>Hyper-V cannot accept link local addresses for migration networks.</value></data>
+  <data name="StopVM_SaveAndTurnOffBothSpecified"><value>The Save and TurnOff parameters are mutually exclusive.</value></data>
+  <data name="InvalidParameter_InvalidDiskNumberForDiskObject"><value>No mounted disk object has the given disk number.</value></data>
+  <data name="NewVMSan_WorldWideNameFormatError"><value>The format of the World Wide Name parameter contains an error. Specify the World Wide Name as a value with 16 hexadecimal digits, such as C003FF0000FFFF00.</value></data>
+  <data name="NumaSpanningChangeNeedsVmmsReboot"><value>You must restart the Hyper-V Virtual Machine Management Service to apply the changes.</value></data>
+  <data name="InvalidParameter_UnableToResolveToSingleFile"><value>An existing virtual hard disk file could not be found that matches {0}.</value></data>
+  <data name="VHD_InvalidVhdFilePath"><value>'{0}' is not an existing virtual hard disk file.</value></data>
+  <data name="VMSynth3dVideoAdapter_NotEnoughVramSize"><value>VRAMSizeBytes {0} is insufficient for MonitorCount {1} and MaximumResolution {2}. Try increasing VRAMSizeBytes by specifying a value from the set : {{{3}}}.</value></data>
+  <data name="InvalidParameter_IncompatibleWithPmem"><value>Parameters incompatible with PMEM devices have been supplied to the cmdlet.</value></data>
+  <data name="VMFibreChannelHba_MultipleHbasFoundMatchingCriteria"><value>Multiple virtual Host Bus Adapters were found with the same set of world wide names.</value></data>
+  <data name="VMReplication_Reverse_CertificateThumbprintNotProvided"><value>The virtual machine '{0}' is using certificate based authentication. A new certificate needs to be specified for reversing replication. Specify a valid certificate thumbprint and try again.</value></data>
+  <data name="NewVM_NoMatchingBootEntryFoundWarning"><value>No boot source could be found that matches the specified boot device type.</value></data>
+  <data name="VMReplication_InvalidExtendedReplicationFrequency"><value>Replication frequency for extended replication cannot be {0} seconds.</value></data>
+  <data name="InvalidParameter_EnableSoftwareRsc"><value>The option to enable Software RSC applies only to external switches.</value></data>
+  <data name="GetVMIntegrationService_IntegrationComponentNotFound"><value>No integration component with the given name could be found.</value></data>
+  <data name="VMSynth3dVideoAdapter_InvalidVramSize"><value>VRAMSizeBytes cannot be {0}. Specify a value from the set : {{{1}}}.</value></data>
+  <data name="InvalidParameter_ParameterOutOfRange"><value>The value specified in the '{0}' parameter was out of the range of valid values.</value></data>
+  <data name="OperationFailed_CannotEditMultipleSubnets"><value>Only one subnet can be edited at a time.</value></data>
+  <data name="VMHardDiskDrive_StorageQos_PassthroughDisksNotSupported"><value>Storage Quality of Service is not supported on a physical hard disk.</value></data>
+  <data name="GetVMMigrationNetwork_NoMigrationNetworksFound"><value>Windows cannot find the specified subnet in the list of subnets allowed for migration. Use the Get-VMMigrationNetwork cmdlet to list all subnets allowed for migration.</value></data>
+  <data name="InvalidParameter_CompatibilityReportMustBeForImport"><value>The compatibility report provided was not generated for an import.</value></data>
+  <data name="InvalidParameter_VrssMaxQueuePairsCountValue"><value>The VRSS Max Queue-Pair Count cannot be set to less than 1.</value></data>
+  <data name="RouteDomainMapping_NoneFound"><value>No route domain mapping could be found matching the specified criteria. You can add a route domain mapping using Add-VMNetworkAdapterRoutingDomainMapping.</value></data>
+  <data name="VMReplication_AppConsistentWithoutRecoveryHistory"><value>Application-consistent replication frequency can be specified only if recovery history has a non-zero value.</value></data>
+  <data name="InvalidParameter_DeviceNotBootable"><value>The specified device is not a valid boot device.</value></data>
+  <data name="SubnetAlreadyExists"><value>The subnet '{0}' already exists in the allowed list for migration.</value></data>
+  <data name="Generation2_NoLegacyNetworkAdapterSupport"><value>Generation 2 virtual machines do not support legacy network adapters.</value></data>
+  <data name="InvalidParameter_MissingSenderOrReceiver"><value>Either the Sender or the Receiver parameter must be specified.</value></data>
+  <data name="InvalidParameter_VMSwitchIsNotTeamingEnabled"><value>Teaming is not enabled on the specified switch : '{0}'.</value></data>
+  <data name="VMHardDiskDrive_StorageQos_VirtualPMEMNotSupported"><value>Storage Quality of Service is not supported on a virtual persistent memory disk.</value></data>
+  <data name="OperationFailed_NotSupportedForExternalReplicationProvider"><value>Operation not allowed because the virtual machine '{0}' is replicating to a provider other than Hyper-V. Review the provider documentation for details.</value></data>
+  <data name="InvalidParameter_RequiresVhdxExtension"><value>The path for a new virtual hard disk must use the .VHDX file extension.</value></data>
+  <data name="InvalidParameter_ParametersUnequalLength"><value>The parameters '{0}' and '{1}' must be of equal length.</value></data>
+  <data name="InvalidParameter_InvalidFormat"><value>The parameter "{0}" is not in the correct format.</value></data>
+  <data name="InvalidParameter_VMReplicationServer_ListenerPortMappingShouldBeUsed"><value>The nodes for this replica cluster are configured to receive replication on different ports. Use '{0}' to change the ports. You can clear the values in '{0}' to use same port for all nodes of the cluster.</value></data>
+  <data name="InvalidParameter_AuthEntryAllServerNotAllowedWithExistingEntries"><value>Parameter '{0}' cannot be set to 'all' if existing authorizations are present.</value></data>
+  <data name="StopVM_ShutdownComponentNotAvailable"><value>The requested operation cannot be performed because it requires the shutdown integration service, which is not available.</value></data>
+  <data name="InvalidParameter_InvalidBandwidthReservationMode"><value>The parameters are inconsistent with the bandwidth reservation mode.</value></data>
+  <data name="VMHardDiskDrive_VirutalPMEM_CacheOverrideNotSupported"><value>Overriding cache attributes is not supported on a virtual persistent memory disk.</value></data>
+  <data name="VMFibreChannelHba_WorldWideNameDuplicateSetsError"><value>Address set A and address set B cannot be the same.</value></data>
+  <data name="InvalidParameter_InvalidDirectoryPath"><value>'{0}' is not a valid directory.</value></data>
+  <data name="VMReplicationAuthorizationEntry_NotFoundByTrustGroup"><value>Unable to find a authorization entry for the given trust group '{0}' with given criteria.</value></data>
+  <data name="OperationFailed_ShutdownICNotAvailableForReboot"><value>Hyper-V can't reboot the operating system in virtual machine '{0}' because the Shutdown integration service is unavailable.</value></data>
+  <data name="OperationFailed_HostDoesNotSupportLM"><value>This host is not configured to allow migrations. This means that virtual machines cannot be moved to or from this host.</value></data>
+  <data name="VMReplication_NoRecord_If_State_Disabled"><value>{0} cannot retrieve replication settings of virtual machines for which replication is not enabled. Use Get-VM cmdlet to list all the virtual machines.</value></data>
+  <data name="SetVMMemory_ParameterMismatch"><value>Setting maximum, minimum, and buffer settings requires Dynamic Memory to be enabled.</value></data>
+  <data name="InvalidParameter_ConflictingParameters"><value>Conflicting parameters have been supplied to the cmdlet.</value></data>
+  <data name="InvalidParameter_ParameterRequiresParameter"><value>The '{0}' parameter requires that the '{1}' parameter be specified.</value></data>
+  <data name="InvalidParameter_ParametersAreMutuallyExclusive"><value>The parameters '{0}' and '{1}' are mutually exclusive. Specify only one or the other.</value></data>
+  <data name="NewVMKeyStorageDrive_CannotAddMultiple"><value>Virtual machine '{0}' already has a key storage drive. Only one key storage drive may be attached to each virtual machine.</value></data>
+  <data name="InvalidParameter_MetricsDisabledForResourcePool"><value>Resource metering is not enabled for resource pool '{0}' with type '{1}'. Use the Enable-VMResourceMetering cmdlet to enable data collection for this resource pool.</value></data>
+  <data name="VMHardDiskDrive_StorageQoS_InvalidPolicyInstance"><value>The specified Quality of Service policy object is not valid instance of the MSFT_StorageQoSPolicy class.</value></data>
+  <data name="InvalidParameter_OnlyStoragePoolCanBeCreatedWithPaths"><value>Only storage resource pools can be created when using the Paths parameter.</value></data>
+  <data name="InvalidParameter_InvalidUri"><value>The '{0}' parameter requires a fully qualified domain name (FQDN).</value></data>
+  <data name="VMDvdDrive_InvalidDvdDrivePath"><value>The specified path for the drive is not valid. Specify a path to an .iso file or a volume name of the physical drive.</value></data>
+  <data name="InvalidParameter_InvalidRdmaWeightRange"><value>The range of the input RDMA weight is not valid.</value></data>
+  <data name="InvalidOperation_NoSettingsChanged"><value>Insufficient input to perform a valid operation. Please specify parameters for '{0}' accordingly.</value></data>
+  <data name="OperationFailed_RestartTimeout"><value>The system failed to restart within {0} seconds.</value></data>
+  <data name="VMReplication_NotEnabled"><value>Replication is not enabled for virtual machine with name '{0}'.</value></data>
+  <data name="VMGroupMember_MoreThanOneFound"><value>More than one group exists with the name "{0}". Specify a VMGroup object or group ID.</value></data>
+  <data name="Warning_CannotDeleteSourceDisk"><value>The system failed to delete the source virtual hard disk file.</value></data>
+  <data name="NewVMSwitch_NonTeamingWithMultipleAdapters"><value>The switch teaming is disabled but NetAdapterName or NetInterfaceDescription contains multiple entries.</value></data>
+  <data name="InvalidParameter_ServerDoesntSupportV3"><value>The server "{0}" does not support the V3 namespace.</value></data>
+  <data name="OperationFailed_InvalidReplicationState"><value>The operation cannot be performed while the virtual machine '{0}' is in the current replication state.</value></data>
+  <data name="SetVMFirmware_BootOrderAndFirstBootEntryBothProvided"><value>The BootOrder and FirstBootEntry parameters are mutually exclusive.</value></data>
+  <data name="SetVMNetworkAdapterVlan_InvalidVlanIdListFormat"><value>The provided list of VLAN IDs was incorrectly formatted.</value></data>
+  <data name="NoParametersSpecified"><value>You must specify at least one parameter to run this command.</value></data>
+  <data name="SetVMFloppyDiskDrive_InvalidPath"><value>The specified file name is not valid. Specify the path to a .vfd file, or specify null to eject the virtual floppy disk.</value></data>
+  <data name="InvalidParameter_SetRoutingDomainCriteriaMissing"><value>RoutingDomainID, RoutingDomainName, or a VMNetworkAdapterRoutingDomainSetting object must be specified.</value></data>
+  <data name="Generation2_NoVhdFormatSupport"><value>Generation 2 virtual machines do not support .vhd or .avhd format.</value></data>
+  <data name="VMNetworkAdapterAcl_NoAddressSpecified"><value>At least one address is required.</value></data>
+  <data name="VMNetworkAdapter_NoneFound"><value>No network adapter was found with the given criteria.</value></data>
+  <data name="VHD_CannotMergeFixedOrDynamicDisk"><value>The requested operation cannot be performed on virtual hard disk file "{0}" because it is not a differencing disk.</value></data>
+  <data name="InvalidParameter_InvalidBandwidthReservationRange"><value>The range specified for the input bandwidth reservation is not valid.</value></data>
+  <data name="SetVMMemory_SizeNotAligned"><value>The MaximumAmountPerNUMANodeBytes should be a multiple of 2 MB (2*1024*1024 bytes). Specify a valid value, such as 512 MB or 2 GB.</value></data>
+  <data name="VMHardDiskDrive_StorageQoS_MultiplePolicyParameters"><value>The QoSPolicyID and QoSPolicy parameters cannot be specified at the same time.</value></data>
+  <data name="InvalidParameter_InvalidFullPath"><value>'{0}' is not a valid full path.</value></data>
+  <data name="InvalidParameter_InvalidIovWeightRange"><value>The range of the input SR-IOV weight is not valid.</value></data>
+  <data name="VMReplicationAuthorizationEntry_NotFoundByServerName"><value>Unable to find an authorization entry for primary server '{0}' with given criteria.</value></data>
+  <data name="OperationFailed_ConditionNotSatisfied"><value>This command stopped operation because the specified condition is not satisfied in the specified time-out.</value></data>
+  <data name="VMHardDiskDrive_StorageQos_InvalidPolicyID"><value>The QoSPolicyID parameter must be specified as a valid GUID string (XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX).</value></data>
+  <data name="VMReplication_ActionOnlyApplicableOnReplica"><value>'{0}' is applicable only on a replica virtual machine.</value></data>
+  <data name="VMReplication_AlreadyEnabled"><value>Replication has already been enabled on virtual machine '{0}'. Please use the Set-VMReplication cmdlet to modify replication settings.</value></data>
+  <data name="InvalidParameter_HostvNic"><value>RDMA enablement through Set-VMNetworkAdapterRdma is not supported for host vNIC. Please use Set-NetAdapterRdma or Enable-NetAdapterRdma or Disable-NetAdapterRdma for host vNIC RDMA operation.</value></data>
+  <data name="SetVMFirmware_SecureBootTemplateAndSecureBootTemplateIdBothProvided"><value>The SecureBootTemplate and SecureBootTemplateId parameters are mutually exclusive.</value></data>
+  <data name="SetVMSwitch_AllowManagementOSForExternalSwitchOnly"><value>The option to share a network connection with the management operating system applies only to external switches.</value></data>
+  <data name="InvalidParameter_AuthEntryCustomNotAllowedWithAllServer"><value>Parameter '{0}' cannot be a custom entry if the authorization for 'all' is already set.</value></data>
+  <data name="VMSynth3dVideoAdapter_InvalidResolution"><value>MaximumResolution cannot be {0}. Specify a value from the set : {{{1}}}.</value></data>
+  <data name="InvalidParameter_NoPciExpressDeviceSpecified"><value>Either a host assignable device or PCI Express resource pool must be specified.</value></data>
+  <data name="OperationFailed_InitialReplicationStartAndAsJobTogether"><value>'AsJob' and 'InitialReplicationStartTime' parameters cannot be specified together. Scheduled initial replication can be monitored only after initial replication starts at the specified time.</value></data>
+  <data name="InvalidParameter_AddExistingTeamMember"><value>The network adapter '{0}' already exists in the team. </value></data>
+  <data name="InvalidParameter_IovQueuePairCountValue"><value>The IOV Queue-Pair Count cannot be set to less than 1.</value></data>
+  <data name="InvalidParameter_InvalidVirtualAdapterName"><value>Virtual adapter name is invalid - Check that it exists and is connected to a virtual switch.</value></data>
+  <data name="Warning_LockOnDisconnectNotAffectRemotefx"><value>The LockOnDisconnect property does not affect RemoteFX sessions.</value></data>
+  <data name="VMFailover_TestVMNotFound"><value>Unable to find any test virtual machine for '{0}'.</value></data>
+  <data name="InvalidParameter_InvalidUncPath"><value>'{0}' is not a valid UNC path.</value></data>
+  <data name="InvalidArgument_ParameterNotProvided"><value>'{0}' is not provided.</value></data>
+  <data name="OperationFailed_UnexpectedConnectionError"><value>An unexpected error occurred attempting to connect to the computer '{0}'. Please retry the command.</value></data>
+  </root>

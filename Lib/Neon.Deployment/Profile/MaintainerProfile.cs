@@ -45,11 +45,71 @@ namespace Neon.Deployment
     /// </remarks>
     public partial class MaintainerProfile : IProfileClient
     {
+        //---------------------------------------------------------------------
+        // Local types
+
+        internal enum CachingMode
+        {
+            /// <summary>
+            /// Attempt to retrieve values from both the memory and environment
+            /// variable caches in addition to the actual source.
+            /// </summary>
+            Normal = 0,
+
+            /// <summary>
+            /// Used for unit testing: Only attempt to retrieve values from the
+            /// environment variable cache and not the source.
+            /// </summary>
+            EnvironmentOnly,
+
+            /// <summary>
+            /// Used for unit testing: Only attempt to retrieve values from the
+            /// memory cache and not the source.
+            /// </summary>
+            MemoryOnly
+        }
+
+        //---------------------------------------------------------------------
+        // Static members
+
+        /// <summary>
+        /// Variable name prefix used for caching secrets and profile values as environment variables.
+        /// </summary>
+        internal const string EnvironmentCachePrefix = "NEONASSISTANT_CACHE_";
+
+        /// <summary>
+        /// Variable name prefix used for caching profile values as environment variables.
+        /// </summary>
+        internal const string ProfileEnvironmentCachePrefix = $"{EnvironmentCachePrefix}PROFILE_";
+
+        /// <summary>
+        /// Variable name prefix used for caching secret values as environment variables.
+        /// </summary>
+        internal const string SecretEnvironmentCachePrefix = $"{EnvironmentCachePrefix}SECRET_";
+
+        /// <summary>
+        /// Clears any secrets or profile values cached as environment variables.
+        /// </summary>
+        internal static void ClearEnvironmentCache()
+        {
+            foreach (DictionaryEntry variable in Environment.GetEnvironmentVariables())
+            {
+                var name = (string)variable.Key;
+
+                if (name.StartsWith(EnvironmentCachePrefix, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    Environment.SetEnvironmentVariable(name, null);
+                }
+            }
+        }
+
+        //---------------------------------------------------------------------
+        // Instance members
+
         private readonly string             pipeName;
         private readonly TimeSpan           connectTimeout;
         private bool                        cacheEnabled            = true;
-        private bool                        useMemoryCacheOnly      = false;
-        private bool                        useEnvironmentCacheOnly = false;
+        private CachingMode                 cacheMode               = CachingMode.Normal;
         private object                      syncLock                = new object();
         private Dictionary<string, string>  profileCache            = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
         private Dictionary<string, string>  secretCache             = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
@@ -104,8 +164,7 @@ namespace Neon.Deployment
             {
                 if (!value)
                 {
-                    useMemoryCacheOnly           = false;
-                    useEnvironmentCacheOnly = false;
+                    CacheMode = CachingMode.Normal;
 
                     ClearCache();
                 }
@@ -114,45 +173,18 @@ namespace Neon.Deployment
             }
         }
 
-        /// <summary>
-        /// <b>UNIT TESTING ONLY:</b> This property is really intended only for unit
-        /// tests verifying that caching is actually working.  This defaults to <c>false</c>
-        /// for new profile client instances and may be set to <c>true</c> in unit tests
-        /// to only retrieve cached values.
-        /// </summary>
-        internal bool UseMemoryCacheOnly
+        internal CachingMode CacheMode
         {
-            get => useMemoryCacheOnly;
+            get => cacheMode;
 
             set
             {
-                if (value)
+                cacheMode = value;
+
+                if (cacheMode != CachingMode.Normal)
                 {
                     cacheEnabled = true;
                 }
-
-                useMemoryCacheOnly = value;
-            }
-        }
-
-        /// <summary>
-        /// <b>UNIT TESTING ONLY:</b> This property is really intended only for unit
-        /// tests verifying that caching is actually working.  This defaults to <c>false</c>
-        /// for new profile client instances and may be set to <c>true</c> in unit tests
-        /// to only retrieve values cached as environment variables.
-        /// </summary>
-        internal bool UseEnvironmentCacheOnly
-        {
-            get => useEnvironmentCacheOnly;
-
-            set
-            {
-                if (value)
-                {
-                    cacheEnabled = true;
-                }
-
-                useEnvironmentCacheOnly = value;
             }
         }
 
@@ -208,25 +240,55 @@ namespace Neon.Deployment
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(name), nameof(name));
 
+            string value;
+
             if (CacheEnabled)
             {
                 lock (syncLock)
                 {
-                    if (!UseEnvironmentCacheOnly && profileCache.TryGetValue(name, out var value))
+                    switch (cacheMode)
                     {
-                        return value;
-                    }
+                        case CachingMode.Normal:
 
-                    var cachedEnvironmentValue = Environment.GetEnvironmentVariable($"NEONASSISTANT_CACHE_PROFILE_{name}");
+                            if (profileCache.TryGetValue(name, out value))
+                            {
+                                return value;
+                            }
 
-                    if (!string.IsNullOrEmpty(cachedEnvironmentValue))
-                    {
-                        return cachedEnvironmentValue;
+                            value = Environment.GetEnvironmentVariable($"{ProfileEnvironmentCachePrefix}{name}");
+
+                            if (!string.IsNullOrEmpty(value))
+                            {
+                                return value;
+                            }
+                            break;
+
+                        case CachingMode.EnvironmentOnly:
+
+                            value = Environment.GetEnvironmentVariable($"{ProfileEnvironmentCachePrefix}{name}");
+
+                            if (!string.IsNullOrEmpty(value))
+                            {
+                                return value;
+                            }
+                            break;
+
+                        case CachingMode.MemoryOnly:
+
+                            if (profileCache.TryGetValue(name, out value))
+                            {
+                                return value;
+                            }
+                            break;
+
+                        default:
+
+                            throw new NotImplementedException();
                     }
                 }
             }
 
-            if (UseMemoryCacheOnly || UseEnvironmentCacheOnly)
+            if (cacheMode != CachingMode.Normal)
             {
                 if (nullOnNotFound)
                 {
@@ -244,7 +306,7 @@ namespace Neon.Deployment
 
             try
             {
-                var value = Call(ProfileRequest.Create("GET-PROFILE-VALUE", args)).Value;
+                value = Call(ProfileRequest.Create("GET-PROFILE-VALUE", args)).Value;
 
                 if (cacheEnabled)
                 {
@@ -252,7 +314,7 @@ namespace Neon.Deployment
                     {
                         profileCache[name] = value;
 
-                        Environment.SetEnvironmentVariable($"NEONASSISTANT_CACHE_PROFILE_{name}", value);
+                        Environment.SetEnvironmentVariable($"{ProfileEnvironmentCachePrefix}{name}", value);
                     }
                 }
 
@@ -274,27 +336,56 @@ namespace Neon.Deployment
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(name), nameof(name));
 
-            var cacheKey = $"{vault}::{name}[password]";
+            var     cacheKey = $"{vault}::{name}[password]";
+            string  value;
 
             if (CacheEnabled)
             {
                 lock (syncLock)
                 {
-                    if (!UseEnvironmentCacheOnly && secretCache.TryGetValue(cacheKey, out var value))
+                    switch (cacheMode)
                     {
-                        return value;
-                    }
+                        case CachingMode.Normal:
 
-                    var cachedEnvironmentValue = Environment.GetEnvironmentVariable($"NEONASSISTANT_CACHE_SECRET_{cacheKey}");
+                            if (secretCache.TryGetValue(name, out value))
+                            {
+                                return value;
+                            }
 
-                    if (!string.IsNullOrEmpty(cachedEnvironmentValue))
-                    {
-                        return cachedEnvironmentValue;
+                            value = Environment.GetEnvironmentVariable($"{SecretEnvironmentCachePrefix}{cacheKey}");
+
+                            if (!string.IsNullOrEmpty(value))
+                            {
+                                return value;
+                            }
+                            break;
+
+                        case CachingMode.EnvironmentOnly:
+
+                            value = Environment.GetEnvironmentVariable($"{SecretEnvironmentCachePrefix}{cacheKey}");
+
+                            if (!string.IsNullOrEmpty(value))
+                            {
+                                return value;
+                            }
+                            break;
+
+                        case CachingMode.MemoryOnly:
+
+                            if (secretCache.TryGetValue(name, out value))
+                            {
+                                return value;
+                            }
+                            break;
+
+                        default:
+
+                            throw new NotImplementedException();
                     }
                 }
             }
 
-            if (UseMemoryCacheOnly || UseEnvironmentCacheOnly)
+            if (cacheMode != CachingMode.Normal)
             {
                 if (nullOnNotFound)
                 {
@@ -302,7 +393,7 @@ namespace Neon.Deployment
                 }
                 else
                 {
-                    throw new ProfileException($"[{name}] profile value not found in the cache.", ProfileStatus.NotFound);
+                    throw new ProfileException($"[{name}] secret value not found in the cache.", ProfileStatus.NotFound);
                 }
             }
 
@@ -322,7 +413,7 @@ namespace Neon.Deployment
 
             try
             {
-                var value = Call(ProfileRequest.Create("GET-SECRET-PASSWORD", args)).Value;
+                value = Call(ProfileRequest.Create("GET-SECRET-PASSWORD", args)).Value;
 
                 if (CacheEnabled)
                 {
@@ -330,7 +421,7 @@ namespace Neon.Deployment
                     {
                         secretCache[cacheKey] = value;
 
-                        Environment.SetEnvironmentVariable($"NEONASSISTANT_CACHE_SECRET_{cacheKey}", value);
+                        Environment.SetEnvironmentVariable($"{SecretEnvironmentCachePrefix}{cacheKey}", value);
                     }
                 }
 
@@ -352,27 +443,56 @@ namespace Neon.Deployment
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(name), nameof(name));
 
-            var cacheKey = $"{vault}::{name}[password]";
+            var     cacheKey = $"{vault}::{name}[password]";
+            string  value;
 
             if (CacheEnabled)
             {
                 lock (syncLock)
                 {
-                    if (!UseEnvironmentCacheOnly && secretCache.TryGetValue(cacheKey, out var value))
+                    switch (cacheMode)
                     {
-                        return value;
-                    }
+                        case CachingMode.Normal:
 
-                    var cachedEnvironmentValue = Environment.GetEnvironmentVariable($"NEONASSISTANT_CACHE_SECRET_{cacheKey}");
+                            if (secretCache.TryGetValue(name, out value))
+                            {
+                                return value;
+                            }
 
-                    if (!string.IsNullOrEmpty(cachedEnvironmentValue))
-                    {
-                        return cachedEnvironmentValue;
+                            value = Environment.GetEnvironmentVariable($"{SecretEnvironmentCachePrefix}{cacheKey}");
+
+                            if (!string.IsNullOrEmpty(value))
+                            {
+                                return value;
+                            }
+                            break;
+
+                        case CachingMode.EnvironmentOnly:
+
+                            value = Environment.GetEnvironmentVariable($"{SecretEnvironmentCachePrefix}{cacheKey}");
+
+                            if (!string.IsNullOrEmpty(value))
+                            {
+                                return value;
+                            }
+                            break;
+
+                        case CachingMode.MemoryOnly:
+
+                            if (secretCache.TryGetValue(cacheKey, out value))
+                            {
+                                return value;
+                            }
+                            break;
+
+                        default:
+
+                            throw new NotImplementedException();
                     }
                 }
             }
 
-            if (UseMemoryCacheOnly || UseEnvironmentCacheOnly)
+            if (cacheMode != CachingMode.Normal)
             {
                 if (nullOnNotFound)
                 {
@@ -380,7 +500,7 @@ namespace Neon.Deployment
                 }
                 else
                 {
-                    throw new ProfileException($"[{name}] profile value not found in the cache.", ProfileStatus.NotFound);
+                    throw new ProfileException($"[{name}] secret value not found in the cache.", ProfileStatus.NotFound);
                 }
             }
 
@@ -400,7 +520,7 @@ namespace Neon.Deployment
 
             try
             {
-                var value = Call(ProfileRequest.Create("GET-SECRET-VALUE", args)).Value;
+                value = Call(ProfileRequest.Create("GET-SECRET-VALUE", args)).Value;
 
                 if (CacheEnabled)
                 {
@@ -408,7 +528,7 @@ namespace Neon.Deployment
                     {
                         secretCache[cacheKey] = value;
 
-                        Environment.SetEnvironmentVariable($"NEONASSISTANT_CACHE_SECRET_{cacheKey}", value);
+                        Environment.SetEnvironmentVariable($"{SecretEnvironmentCachePrefix}{cacheKey}", value);
                     }
                 }
 
@@ -443,18 +563,7 @@ namespace Neon.Deployment
             {
                 profileCache.Clear();
                 secretCache.Clear();
-
-                // Clear any values cached as environment variables.
-
-                foreach (DictionaryEntry variable in Environment.GetEnvironmentVariables())
-                {
-                    var name = (string)variable.Key;
-
-                    if (name.StartsWith("NEONASSISTANT_CACHE_", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        Environment.SetEnvironmentVariable(name, null);
-                    }
-                }
+                ClearEnvironmentCache();
             }
         }
 

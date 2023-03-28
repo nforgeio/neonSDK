@@ -1,0 +1,131 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+<resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>1.3</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><data name="ClusterPath_NonCluster"><value>The cmdlet could not verify that the path '{0}' can be accessed by the cluster. If the cluster uses a non-Microsoft file system, or you are sure that the path can be accessed by the cluster, run the cmdlet again and use the -AllowUnverifiedPaths parameter to continue.</value></data>
+  <data name="VMReplication_ActionNotApplicable_None"><value>"{0}" is not applicable on virtual machine "{1}".</value></data>
+  <data name="VMSan_InitiatorPortNotFound"><value>An initiator port with node name "{0}" and port name "{1}" could not be found.</value></data>
+  <data name="VMRemoteFx3DVideoAdapter_AdapterAlreadyExists"><value>Hyper-V was unable to perform this operation because the RemoteFX 3D video adapter already exists on this virtual machine. A virtual machine can have only one RemoteFX 3D video adapter.</value></data>
+  <data name="InvalidParameter_InvalidClusterObjectType"><value>The cluster object '{0}' is not a valid cluster group or virtual machine cluster resource. Run the command again and specify an object that represents a cluster group or virtual machine cluster resource.</value></data>
+  <data name="VMReplication_NoReplicatedDisk"><value>There is no supported virtual hard disk to replicate for virtual machine '{0}'.</value></data>
+  <data name="InvalidParameter_HashContainsInvalidKeys"><value>Hash table contains keys that are not valid.</value></data>
+  <data name="VMFirmware_Generation1NotSupported"><value>The Generation 1 virtual machine or snapshot "{0}" does not support the VMFirmware cmdlets. Use Get-VMBios and Set-VMBios instead.</value></data>
+  <data name="VMReplication_PrimaryBrokerNotEnabled"><value>A Hyper-V Replica Broker needs to be created on this failover cluster. Create the Hyper-V Replica Broker using Failover Cluster Manager and try again. If you are using the IsBrokerOptional registry key, retry the operation directly from WMI or through a management suite of your choice.</value></data>
+  <data name="VMSan_MissingResource"><value>The HBA "{0}" is not available through any of the parent resource pools.</value></data>
+  <data name="CannotFindDismountedDevice"><value>Cannot find dismounted assignable device.</value></data>
+  <data name="VMGroup_VMType_IncorrectType"><value>The group specified only permits virtual machines as members of the group not other virtual machine groups.</value></data>
+  <data name="InvalidArgument_ReplicaBrokerInvalidPort"><value>Specified port value "{0}" for "{1}" is not valid. Port value should be within the range 1 to 65535.</value></data>
+  <data name="VMGpuPartitionAdapter_NotFound"><value>Unable to find a Gpu partition adapter matching the given criteria.</value></data>
+  <data name="ClusterPath_FailedToVerify"><value>Windows could not verify that path '{0}' can be accessed by the cluster.</value></data>
+  <data name="ClusterPath_NoClusterGroup"><value>Failed to get the virtual machine's cluster group name.</value></data>
+  <data name="VMReplication_ReplicaBrokerNotEnabled"><value>The specified Replica server is part of a failover cluster. For clusters, a valid Hyper-V Replica Broker is required for the Replica server name. Create the Hyper-V Replica Broker using the Failover Cluster Manager and try again. If you are using the IsBrokerOptional registry key, retry the operation using the recovery cluster node name directly from WMI or through a management suite of your choice.</value></data>
+  <data name="VMNotFoundById"><value>Hyper-V was unable to find a virtual machine with id "{0}".</value></data>
+  <data name="VMTPM_NotFound"><value>TPM device is not found on the virtual machine "{0}".</value></data>
+  <data name="VMReplication_KerberosAndCertificatePortsShouldBeDifferent"><value>Kerberos and Certificate port specified for '{0}' should be different.</value></data>
+  <data name="VMReplication_CapNameNotSpecified"><value>The specified Replica server is part of a failover cluster. For clusters, use the name of the Hyper-V Replica Broker as the Replica server name. The Hyper-V Replica Broker for the cluster is "{0}".</value></data>
+  <data name="InvalidParameter_FileNameNotGuid"><value>The file name provided must be in GUID format.</value></data>
+  <data name="VHD_InvalidDiskNumberForVirtualHardDisk"><value>Windows cannot find a mounted virtual hard disk with the specified disk number.</value></data>
+  <data name="InvalidParameter_HashDoesNotContainSource"><value>Hash tables in the Vhds parameter must contain 'SourceFilePath' key which points to the source virtual hard drive file path.</value></data>
+  <data name="OperationFailed_RollbackFailed"><value>Rolling back the results of an unsuccessful operation has failed.</value></data>
+  <data name="VMAssignableDevice_NotFound"><value>The specified device was not found.</value></data>
+  <data name="InvalidArgument_ReplicaNodeExpectingFqdn"><value>The node "{0}" specified in "{1}" should be a valid fully qualified domain name (FQDN).</value></data>
+  <data name="VMResourcePool_ParentPoolNotFound"><value>One or more parent pools could not be found.</value></data>
+  <data name="SnapshotNotFound"><value>Unable to find a snapshot matching the given criteria.</value></data>
+  <data name="VMFloppyDiskDrive_Generation2NotSupported"><value>Generation 2 virtual machines do not support floppy drives.</value></data>
+  <data name="OperationFailed_InvalidState"><value>The operation cannot be performed while the virtual machine is in its current state.</value></data>
+  <data name="PhysicalDvdDrive_NotFound"><value>Unable to find a physical DVD drive matching the given criteria.</value></data>
+  <data name="VMStorageResourcePool_MissingResource"><value>The path "{0}" is not available through any of the parent resource pools.</value></data>
+  <data name="VMReplication_ActionNotApplicableOnPrimary"><value>"{0}" is not applicable on primary virtual machine "{1}".</value></data>
+  <data name="VMRemoteFx3DVideoAdapter_DeviceNotFound"><value>No device was found by given criteria.</value></data>
+  <data name="Warning_VMAlreadyInDesiredState"><value>The virtual machine is already in the specified state.</value></data>
+  <data name="PacketDirect_DoesNotApply"><value>The packet direct is supported on synthetic network adapters on virtual machines with configuration version 6.2 or above.</value></data>
+  <data name="ClusterPath_NotInGroup"><value>The path '{0}' specifies a disk that is in another cluster group. To move the disk into the virtual machine's cluster group, use the Failover Cluster Manager or the Move-ClusterResource cmdlet.</value></data>
+  <data name="DeviceNaming_NotApply"><value>The device naming setting only applies to synthetic network adapters on Generation 2 virtual machines with configuration version 6.2 or above.</value></data>
+  <data name="VMReplication_InvalidPortValue"><value>Specified port value '{0}' for '{1}' is not valid. Port value should be within the range 1 to 65535.</value></data>
+  <data name="VMNotFoundByName"><value>Hyper-V was unable to find a virtual machine with name "{0}".</value></data>
+  <data name="InvalidParameter_VHDIsSharable"><value>The virtual hard disk '{0}' cannot be moved because it is sharable by multiple virtual machines.</value></data>
+  <data name="VMReplication_BrokerResourceNotFound"><value>The operation cannot be performed because Hyper-V Replica Broker is not configured. Configure the Hyper-V Replica Broker using the Failover Cluster Manager and try again. If you are using the IsBrokerOptional registry key, retry the operation directly from WMI or through a management suite of your choice.</value></data>
+  <data name="CannotFindVacantControllerLocation"><value>The operation could not be completed because no available locations were found on the disk controller.</value></data>
+  <data name="VMReplication_SameClusterError"><value>Cannot replicate virtual machine to the same cluster. Enter another Hyper-V Replica Broker name and try again.</value></data>
+  <data name="VMReplication_NodePortMappingNotSpecified"><value>The ports for the following nodes are not specified in '{1}'. Include these nodes in '{1}' and try again. '{0}'</value></data>
+  <data name="VMPciExpressResourcePool_MissingResource"><value>The PCI Express device "{0}" is not available through any of the parent resource pools.</value></data>
+  <data name="VMReplication_PortValueNotSpecified"><value>Port value is not specified for node '{0}' in '{1}'.</value></data>
+  <data name="ClusterPath_FailedToRefreshConfiguration"><value>The Update-ClusterVirtualMachineConfiguration command could not be completed.</value></data>
+  <data name="InvalidParameter_HashDoesNotContainDestination"><value>Hash tables in the Vhds parameter must contain 'DestinationFilePath' key which points to the destination virtual hard drive file path.</value></data>
+  <data name="VMRemoteFx3DVideoAdapter_Synth3dVideoPoolNotFound"><value>Hyper-V was unable to find WMI object, Synthetic 3D Video Pool, to retrieve necessary information for this operation.</value></data>
+  <data name="VMReplication_DomainShouldBeSpecified"><value>The node '{0}' specified in '{1}' does not contain the domain name '{2}' of the cluster. Correct the name of this node and try again.</value></data>
+  <data name="VMReplication_AuthorizationEntryNotFound"><value>The authorization entry was not found.</value></data>
+  <data name="VMScsiController_NotFound"><value>Unable to find a SCSI controller matching the given criteria.</value></data>
+  <data name="VMReplication_ActionNotApplicableOnReplica"><value>"{0}" is not applicable on Replica virtual machine "{1}".</value></data>
+  <data name="PhysicalHardDrive_NotFound"><value>Unable to find a physical hard drive matching the given criteria.</value></data>
+  <data name="VMSwitchExtension_NotFound"><value>Hyper-V was unable to find a virtual switch extension with name "{0}".</value></data>
+  <data name="InvalidParameter_NoPropertyFound"><value>The type '{0}' does not implement a property with name '{1}'.</value></data>
+  <data name="VMSwitch_ExternalPortNotFound"><value>The external port of virtual switch "{0}" could not be found.</value></data>
+  <data name="VMReplication_UniquePortsNotSpecified"><value>Following ports are specified for multiple nodes. Do you want to continue? '{0}'</value></data>
+  <data name="VMReplication_ExpectingFqdn"><value>The node '{0}' specified in '{1}' should be a valid fully qualified domain name (FQDN).</value></data>
+  <data name="VMIntegrationService_IntegrationComponentNotFound"><value>No integration component with the given name could be found.</value></data>
+  <data name="InvalidOperation_DestinationMigrationsAreDisabled"><value>The destination host is not configured for live migration. Use the Enable-VMMigration cmdlet to modify the Hyper-V settings on the destination host to enable migration.</value></data>
+  <data name="InvalidOperation_DownlevelManagementNotSupported"><value>The Hyper-V module used in this Windows PowerShell session cannot be used for remote management of the server '{0}'. Load a compatible version of the Hyper-V module, or use Powershell remoting to connect directly to the remote server. For more information, see https://go.microsoft.com/fwlink/p/?LinkID=532650.</value></data>
+  <data name="VMReplication_SameHostError"><value>Cannot replicate virtual machine to the same server. Enter another Replica server name and try again.</value></data>
+  <data name="VMReplication_ActionNotApplicableOnTestReplica"><value>"{0}" is not applicable on virtual machine "{1}" because it is being used for test failover.</value></data>
+  <data name="InvalidParameter_MatchesMultipleTemplates"><value>'{0}' matches more than one secure boot template.</value></data>
+  <data name="ClusterPath_AvailableStorage"><value>The path '{0}' specifies a disk that is still in available storage and has not been moved into the virtual machine's cluster group. To move the disk, use the Failover Cluster Manager or the Move-ClusterResource cmdlet.</value></data>
+  <data name="ClusterPath_ConfigurationUpdateCmdletNotInstalledOrLoaded"><value>The configuration of virtual machine '{0}' was not refreshed within cluster '{1}' because the 'Failover Cluster Module for Windows PowerShell' feature is not enabled.  The virtual machine's configuration can be refreshed manually using the Update-ClusterVirtualMachineConfiguration cmdlet or Failover Cluster Manager.</value></data>
+  <data name="InvalidOperation_SourceMigrationsAreDisabled"><value>The source host is not configured for live migration. Use the Enable-VMMigration cmdlet to modify the Hyper-V settings on the source host to enable migration.</value></data>
+  <data name="VMFibreChannelHba_WorldWideNameFormatError"><value>The format of the World Wide Name "{0}" contains an error. Specify the World Wide Name as a value with 16 hexadecimal digits, such as C003FF0000FFFF00.</value></data>
+  <data name="VMRemoteFx3DVideoAdapter_DevNotInstalledError"><value>To enable this device, use Server Manager to install the Remote Desktop Virtualization Host role service.</value></data>
+  <data name="InvalidParameter_UnknownFormat"><value>The format specifier is unknown.</value></data>
+  <data name="InvalidOperation_MetricsOnPlannedVMNotSupported"><value>Resource metering is not supported on virtual machine '{0}' because it is part of a VMCompatibilityReport. Complete the operation used to create the report, and then enable resource metering on the resulting virtual machine.</value></data>
+  <data name="VMReplication_ClusterStorageError"><value>Shared storage must be specified in a clustered environment. Specify a Cluster Shared Volume or shared folder and retry the operation.</value></data>
+  <data name="InvalidParameter_HashtableKeyIsNotString"><value>Hash table key is not a string.</value></data>
+  <data name="MoreThanOneSnapshotFound"><value>More than one snapshot was found matching the given criteria.</value></data>
+  <data name="VMResourcePool_MissingResource"><value>The resource "{0}" is not available through any of the parent resource pools.</value></data>
+  <data name="NumaAwarePlacement_DoesNotApply"><value>The Numa-Aware placement is supported on synthetic network adapters on virtual machines with configuration version 8.4 or above.</value></data>
+  <data name="VMRemoteFx3DVideoAdapter_NotGpuCapable"><value>Hyper-V cannot add a RemoteFX 3D video adapter to this virtual machine. To add this adapter, the host must have at least one graphics processing unit (GPU) that supports RemoteFX and that meets the minimum requirements for DirectX.</value></data>
+  <data name="ArgumentOutOfRange_InvalidEnumValue"><value>'{0}' is not a valid member of the '{1}' enumeration.</value></data>
+  <data name="InvalidParameter_VHDIsRDSUserProfileDisk"><value>The virtual hard disk '{0}' cannot be moved because Remote Desktop Services has flagged it as a user profile disk.</value></data>
+  <data name="InvalidOperation_SetVMHostNoParameterProvided"><value>No changes were made to the host because no parameters were specified. To make changes to the host, run Set-VMHost with one or more parameters.</value></data>
+  <data name="VMSwitch_IovSwitchCannotChangeSwitchType"><value>External virtual switches created with SR-IOV enabled cannot be converted to Internal or Private.</value></data>
+  <data name="VMReplication_BrokerResourcePortMappingNotSpecified"><value>The port for Hyper-V Replica Broker '{0}' is not specified in '{1}'. Include the Hyper-V Replica Broker in the '{1}' and try again.</value></data>
+  <data name="VMGroup_VMGroupType_IncorrectType"><value>The group specified only permits other virtual machines groups as members not virtual machines.</value></data>
+  <data name="InvalidOperation_DestinationNetworksAreNotConfigured"><value>Live migrations of virtual machines cannot be sent to the destination host because no migration networks are specified for incoming live migrations. To specify networks, run the Add-VMMigrationNetwork cmdlet on the destination host. To use any available network for live migration, run the command Set-VMHost -UseAnyNetworkForMigration $true on the destination host.</value></data>
+  <data name="Import_InvalidFileName"><value>The file name at "{0}" is not in GUID format.</value></data>
+  <data name="VMIdeController_Generation2NotSupported"><value>Generation 2 virtual machines do not support IDE.</value></data>
+  <data name="VMReplication_ClusterNameSpecified"><value>The specified Replica server is the name of a failover cluster. For clusters, use the name of the Hyper-V Replica Broker as the Replica server name. Hyper-V Replica Broker for the cluster is "{0}".</value></data>
+  <data name="VMNetworkAdapter_ConnectionNotFound"><value>The network adapter is in an invalid state.</value></data>
+  <data name="VMPmemController_NotFound"><value>Unable to find a PMEM controller matching the given criteria.</value></data>
+  <data name="VMBios_Generation2NotSupported"><value>The Generation 2 virtual machine or snapshot "{0}" does not support the VMBios cmdlets. Use Get-VMFirmware and Set-VMFirmware instead.</value></data>
+  <data name="VMSwitch_NotFoundByName"><value>Hyper-V was unable to find a virtual switch with name "{0}".</value></data>
+  <data name="VMEthernetPool_MissingResource"><value>The virtual Ethernet switch "{0}" is not available through any of the parent resource pools.</value></data>
+  <data name="InvalidParameter_MatchesNoTemplates"><value>'{0}' matches none of the secure boot templates.</value></data>
+  <data name="VHD_MountedDiskImageNotFound"><value>The path "{0}" is not the path to a mounted virtual hard disk file.</value></data>
+  <data name="OperationFailed_NotSupportedInClusteredVM"><value>This operation is not supported on a clustered virtual machine. To perform this operation, remove the virtual machine from the cluster and then try again.</value></data>
+  <data name="VMGpuPartitionAdapter_GpuPartitionPoolNotFound"><value>Hyper-V was unable to find WMI object, Gpu Partition Pool, to retrieve necessary information for this operation.</value></data>
+  <data name="VMSwitch_NotFoundInPool"><value>The resource pool does not contain a virtual switch with name "{0}".</value></data>
+  <data name="ClusterPath_NotValid"><value>The path '{0}' is not a valid path that is accessible to the cluster.</value></data>
+  </root>

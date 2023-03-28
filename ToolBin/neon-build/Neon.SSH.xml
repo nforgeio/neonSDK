@@ -308,7 +308,7 @@
             <summary>
             Converts the original command into a Bash command.
             </summary>
-            <param name="comment">Optionall specifies a comment string to be included.</param>
+            <param name="comment">Optionally specifies a comment string to be included.</param>
             <returns>The Bash command string.</returns>
         </member>
         <member name="M:Neon.SSH.CommandResponse.EnsureSuccess">
@@ -1879,6 +1879,13 @@
         </member>
         <member name="M:Neon.SSH.LinuxSshProxy.SetNeonInitStatus(System.Boolean,System.Boolean)">
             <inheritdoc/>
+        </member>
+        <member name="M:Neon.SSH.LinuxSshProxy.SetPassword(System.String,System.String)">
+            <summary>
+            Changes a user password.
+            </summary>
+            <param name="username">The username.</param>
+            <param name="password">The new password.</param>
         </member>
         <member name="M:Neon.SSH.LinuxSshProxy.ToString">
             <inheritdoc/>

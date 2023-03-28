@@ -15,25 +15,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Define these to enable unit tests for each driver.
+
 #define TEST_POWERSHELL_DRIVER
-#undef TEST_WMI_DRIVER
+#define TEST_WMI_DRIVER
 
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.Design.Serialization;
+using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+
 using DiscUtils.Iso9660;
+
 using Neon.Common;
 using Neon.Deployment;
 using Neon.HyperV;
 using Neon.IO;
+using Neon.Net;
 using Neon.Xunit;
 
 using Xunit;
@@ -45,18 +53,6 @@ namespace TestHyperV
     [CollectionDefinition(TestCollection.NonParallel, DisableParallelization = true)]
     public class Test_Driver
     {
-        //---------------------------------------------------------------------
-        // Private types
-
-        public enum DriverType
-        {
-            PowerShell,
-            Wmi
-        }
-
-        //---------------------------------------------------------------------
-        // Implementation
-
         private const string testVmName = "neon-hyperv-unit-test";
 
         private readonly TimeSpan   timeout      = TimeSpan.FromSeconds(15);
@@ -68,17 +64,17 @@ namespace TestHyperV
         /// <param name="client">Specifies the parent client.</param>
         /// <param name="driverType">Specifies the desired driver type.</param>
         /// <returns>The <see cref="IHyperVDriver"/> implementations.</returns>
-        private IHyperVDriver CreateDriver(HyperVClient client, DriverType driverType)
+        private IHyperVDriver CreateDriver(HyperVClient client, HyperVDriverType driverType)
         {
             Covenant.Requires<ArgumentNullException>(client != null, nameof(client));
 
             switch (driverType)
             {
-                case DriverType.PowerShell:
+                case HyperVDriverType.PowerShell:
 
                     return new HyperVPowershellDriver(client);
 
-                case DriverType.Wmi:
+                case HyperVDriverType.Wmi:
 
                     return new HyperVWmiDriver(client);
 
@@ -89,38 +85,32 @@ namespace TestHyperV
         }
 
         /// <summary>
-        /// Waits for a virtual machine to transition to a specific state.
+        /// Ensures that a virtual machine is in a known state.
         /// </summary>
-        /// <param name="client">Specififies the <see cref="HyperVClient"/>.</param>
+        /// <param name="client">Specifies the <see cref="HyperVClient"/>.</param>
         /// <param name="vmName">Specifies the virtual machine name.</param>
         /// <param name="state">Specifies the desired state.</param>
         /// <exception cref="TimeoutException">Thrown if the desired state was not achieved in the required time.</exception>
-        private void WaitForVmState(HyperVClient client, string vmName, VirtualMachineState state)
+        private void EnsureVmState(HyperVClient client, string vmName, VirtualMachineState state)
         {
             Covenant.Requires<ArgumentNullException>(client != null, nameof(client));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(vmName), nameof(vmName));
 
-            NeonHelper.WaitFor(
-                () =>
-                {
-                    var vm = client.FindVm(vmName);
+            var vm = client.FindVm(vmName);
 
-                    return vm.State == state;
-                },
-                timeout:      timeout,
-                pollInterval: pollInterval);
+            Assert.Equal(state, vm.State);
         }
 
         [MaintainerTheory]
 #if TEST_POWERSHELL_DRIVER
-        [InlineData(DriverType.PowerShell, true)]
-        [InlineData(DriverType.PowerShell, false)]
+        [InlineData(HyperVDriverType.PowerShell, true)]
+        [InlineData(HyperVDriverType.PowerShell, false)]
 #endif
 #if TEST_WMI_DRIVER
-        [InlineData(DriverType.Wmi, true)]
-        [InlineData(DriverType.Wmi, false)]
+        [InlineData(HyperVDriverType.Wmi, true)]
+        [InlineData(HyperVDriverType.Wmi, false)]
 #endif
-        public void Disk(DriverType driverType, bool isDynamic)
+        public void Disk(HyperVDriverType driverType, bool isDynamic)
         {
             // Verify standalone virtual disk operations.
 
@@ -130,13 +120,14 @@ namespace TestHyperV
                 var driveSize = (long)ByteUnits.MebiBytes * 64;
                 var blockSize = (int)ByteUnits.MebiBytes;
 
-                using (var client = new HyperVClient())
+                using (var client = new HyperVClient(driverType))
                 {
                     using (var driver = CreateDriver(client, driverType))
                     {
                         driver.NewVhd(drivePath, isDynamic, sizeBytes: driveSize, blockSizeBytes: blockSize);
                         Assert.True(File.Exists(drivePath));
 
+                        driver.ResizeVhd(drivePath, sizeBytes: driveSize * 2);
                         driver.MountVhd(drivePath, readOnly: true);
                         driver.OptimizeVhd(drivePath);
                         driver.DismountVhd(drivePath);
@@ -149,12 +140,12 @@ namespace TestHyperV
 
         [MaintainerTheory]
 #if TEST_POWERSHELL_DRIVER
-        [InlineData(DriverType.PowerShell)]
+        [InlineData(HyperVDriverType.PowerShell)]
 #endif
 #if TEST_WMI_DRIVER
-        [InlineData(DriverType.Wmi)]
+        [InlineData(HyperVDriverType.Wmi)]
 #endif
-        public void VirtualMachine(DriverType driverType)
+        public void VirtualMachine(HyperVDriverType driverType)
         {
             // Verify virtual machine operations.
 
@@ -165,7 +156,7 @@ namespace TestHyperV
 
                 File.Copy(TestHelper.GetUbuntuTestVhdxPath(), bootDiskPath);
 
-                using (var client = new HyperVClient())
+                using (var client = new HyperVClient(driverType))
                 {
                     using (var driver = CreateDriver(client, driverType))
                     {
@@ -179,7 +170,7 @@ namespace TestHyperV
                                 driver.RemoveVm(testVmName);
                             }
 
-                            // Create a test VM with a boot dist and then verify that it exists and is not running.
+                            // Create a test VM with a boot disk and then verify that it exists and is not running.
 
                             driver.NewVM(testVmName, processorCount: 1, startupMemoryBytes: 2 * (long)ByteUnits.GibiBytes);
                             driver.AddVmDrive(testVmName, bootDiskPath);
@@ -193,7 +184,19 @@ namespace TestHyperV
                             // Start the VM and wait for it to transition to running.
 
                             driver.StartVm(testVmName);
-                            WaitForVmState(client, testVmName, VirtualMachineState.Running);
+                            EnsureVmState(client, testVmName, VirtualMachineState.Running);
+
+                            // Verify that the VM is ready and also that [Uptime] is being
+                            // retrieved.
+
+                            var minUptime = TimeSpan.FromSeconds(1);
+
+                            Thread.Sleep(minUptime);
+
+                            vm = client.FindVm(testVmName);
+
+                            Assert.True(vm.Uptime >= minUptime);
+                            Assert.True(vm.Ready);
 
                             // Verify the VM memory and processor count.
 
@@ -205,9 +208,9 @@ namespace TestHyperV
                             // Save the VM, wait for it to report being saved and then restart it.
 
                             driver.SaveVm(testVmName);
-                            WaitForVmState(client, testVmName, VirtualMachineState.Saved);
+                            EnsureVmState(client, testVmName, VirtualMachineState.Saved);
                             driver.StartVm(testVmName);
-                            WaitForVmState(client, testVmName, VirtualMachineState.Running);
+                            EnsureVmState(client, testVmName, VirtualMachineState.Running);
 
                             // List the attached data drives.  There should only be the boot disk.
 
@@ -233,6 +236,7 @@ namespace TestHyperV
                             // and the new drive.
 
                             driver.StopVm(testVmName);
+                            EnsureVmState(client, testVmName, VirtualMachineState.Off);
                             driver.NewVhd(dataDiskPath, isDynamic: true, sizeBytes: 64 * (long)ByteUnits.MebiBytes, blockSizeBytes: (int)ByteUnits.MebiBytes);
                             driver.AddVmDrive(testVmName, dataDiskPath);
                             driver.SetVm(testVmName, processorCount: 4, startupMemoryBytes: 3 * (long)ByteUnits.GibiBytes);
@@ -251,11 +255,11 @@ namespace TestHyperV
 
                             // List the VM's network adapters.
 
-                            var adapters = driver.ListVmNetAdapters(testVmName);
+                            var adapters = driver.ListVirtualMachineNetAdapters(testVmName);
 
                             Assert.NotEmpty(adapters);
 
-                            // Remove the VM and verify.
+                            // Stop and remove the VM and verify.
 
                             driver.StopVm(testVmName, turnOff: true);
                             driver.RemoveVm(testVmName);
@@ -278,20 +282,20 @@ namespace TestHyperV
 
         [MaintainerTheory]
 #if TEST_POWERSHELL_DRIVER
-        [InlineData(DriverType.PowerShell)]
+        [InlineData(HyperVDriverType.PowerShell)]
 #endif
 #if TEST_WMI_DRIVER
-        [InlineData(DriverType.Wmi)]
+        [InlineData(HyperVDriverType.Wmi)]
 #endif
-        public void ListHostAdapters(DriverType driverType)
+        public void ListNetAdapters(HyperVDriverType driverType)
         {
             // Verify that we can list host network adapters.
 
-            using (var client = new HyperVClient())
+            using (var client = new HyperVClient(driverType))
             {
                 using (var driver = CreateDriver(client, driverType))
                 {
-                    var hostAdapters = driver.ListHostAdapters();
+                    var hostAdapters = driver.ListNetAdapters();
 
                     Assert.NotEmpty(hostAdapters);
                 }
@@ -300,16 +304,16 @@ namespace TestHyperV
 
         [MaintainerTheory]
 #if TEST_POWERSHELL_DRIVER
-        [InlineData(DriverType.PowerShell)]
+        [InlineData(HyperVDriverType.PowerShell)]
 #endif
 #if TEST_WMI_DRIVER
-        [InlineData(DriverType.Wmi)]
+        [InlineData(HyperVDriverType.Wmi)]
 #endif
-        public void ListIPAddresses(DriverType driverType)
+        public void ListIPAddresses(HyperVDriverType driverType)
         {
             // Verify that we can list IP addresses.
 
-            using (var client = new HyperVClient())
+            using (var client = new HyperVClient(driverType))
             {
                 using (var driver = CreateDriver(client, driverType))
                 {
@@ -320,8 +324,51 @@ namespace TestHyperV
             }
         }
 
-        // $todo(jefflill):
-        //
-        // We need to add unit tests for switches and NATs at some point.
+        [MaintainerTheory]
+#if TEST_POWERSHELL_DRIVER
+        [InlineData(HyperVDriverType.PowerShell)]
+#endif
+#if TEST_WMI_DRIVER
+        [InlineData(HyperVDriverType.Wmi)]
+#endif
+        public void SwitchAndNat(HyperVDriverType driverType)
+        {
+            // Verify switch and NAT related operations.
+
+            using (var client = new HyperVClient(driverType))
+            {
+                using (var driver = CreateDriver(client, driverType))
+                {
+                    const string testSwitchName = "d4f28a28-be82-46ec-8411-34c1b92174c2";
+                    const string subnet         = "10.254.0.0/24";
+
+                    // Cleanup any resources left over from a previous test run.
+
+                    if (client.ListSwitches().Any(@switch => @switch.Name.Equals(testSwitchName, StringComparison.InvariantCultureIgnoreCase)))
+                    {
+                        client.RemoveSwitch(testSwitchName);
+                    }
+
+                    // Create an internal switch with a NAT.
+
+                    client.NewInternalSwitch(testSwitchName, NetworkCidr.Parse(subnet), addNat: true);
+                    Assert.Contains(testSwitchName, driver.ListSwitches().Select(@switch => @switch.Name));
+
+                    // This should have created a NAT with the same name as the switch.
+
+                    var nats   = client.ListNats();
+                    var newNat = nats.Where(nat => nat.Name.Equals(testSwitchName)).FirstOrDefault();
+
+                    Assert.NotNull(newNat);
+                    Assert.Equal(subnet, newNat.Subnet);
+
+                    // Remove the switch and NAT.
+
+                    client.RemoveSwitch(testSwitchName);
+                    Assert.DoesNotContain(testSwitchName,driver.ListSwitches().Select(@switch => @switch.Name));
+                    Assert.DoesNotContain(testSwitchName, driver.ListNats().Select(nat => nat.Name));
+                }
+            }
+        }
     }
 }
