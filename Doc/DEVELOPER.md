@@ -72,6 +72,8 @@ Follow the steps below to configure a development or test workstation:
 
     b. Install the WSL2 Kernel update as described [here](https://aka.ms/wsl2kernel)
 
+       NOTE: You may **skip step 6** because we're going to install our own WSL distro below.
+
     c. Execute these Powershell commands in **pwsh** to install Ubuntu-20.04 on WSL2:
     ```
     Invoke-WebRequest https://neon-public.s3.us-west-2.amazonaws.com/downloads/ubuntu-20.04.tar -OutFile ubuntu.tar
