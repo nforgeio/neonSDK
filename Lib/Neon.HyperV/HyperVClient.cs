@@ -685,7 +685,7 @@ namespace Neon.HyperV
             //
             // Creating an internal (and perhaps external) switch may disrupt the network
             // for a brief period of time.  Hyper-V Manager warns about this when creating
-            // an internal switch manually.  We're going to pause for 105 seconds to hopefully
+            // an internal switch manually.  We're going to pause for 10 seconds to hopefully
             // let this settle out and then perform an innocous Hyper-V operation until it
             // succeeds.
             //
