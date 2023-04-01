@@ -685,13 +685,13 @@ namespace Neon.HyperV
             //
             // Creating an internal (and perhaps external) switch may disrupt the network
             // for a brief period of time.  Hyper-V Manager warns about this when creating
-            // an internal switch manually.  We're going to pause for 5 seconds to hopefully
+            // an internal switch manually.  We're going to pause for 105 seconds to hopefully
             // let this settle out and then perform an innocous Hyper-V operation until it
             // succeeds.
             //
             //      https://github.com/nforgeio/neonSDK/issues/50
 
-            Thread.Sleep(TimeSpan.FromSeconds(5));
+            Thread.Sleep(TimeSpan.FromSeconds(10));
 
             var retry = new LinearRetryPolicy(e => true, retryInterval: TimeSpan.FromSeconds(1), timeout: TimeSpan.FromSeconds(30));
 
