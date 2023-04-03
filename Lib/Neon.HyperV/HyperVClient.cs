@@ -685,9 +685,8 @@ namespace Neon.HyperV
             //
             // Creating an internal (and perhaps external) switch may disrupt the network
             // for a brief period of time.  Hyper-V Manager warns about this when creating
-            // an internal switch manually.  We're going to pause for 10 seconds to hopefully
-            // let this settle out and then perform an innocous Hyper-V operation until it
-            // succeeds.
+            // an internal switch manually.  We're going to pause for 5 seconds to hopefully
+            // let this settle out and then perform network pings until one succeeds.
             //
             //      https://github.com/nforgeio/neonSDK/issues/50
 
@@ -695,7 +694,10 @@ namespace Neon.HyperV
 
             var retry = new LinearRetryPolicy(e => true, retryInterval: TimeSpan.FromSeconds(1), timeout: TimeSpan.FromSeconds(30));
 
-            retry.Invoke(() => ListVms());
+            using (var pinger = new Pinger())
+            {
+                retry.Invoke(() => pinger.SendPingAsync(IPAddress.Loopback, timeoutMilliseconds: 500).Wait());
+            }
         }
 
         /// <summary>
