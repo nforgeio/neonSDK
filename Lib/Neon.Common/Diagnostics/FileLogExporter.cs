@@ -96,12 +96,12 @@ namespace Neon.Diagnostics
     public class FileLogExporter : BaseExporter<LogRecord>
     {
         private readonly FileLogExporterOptions         options;
-        private readonly FileStream                     logStream;
-        private StreamWriter                            logWriter;
         private readonly string                         logSeparator = new string('=', 80);
         private readonly LogEvent                       logEvent     = new LogEvent();
         private readonly Dictionary<string, object>     tags         = new Dictionary<string, object>();
         private readonly Dictionary<string, object>     resources    = new Dictionary<string, object>();
+        private FileStream                              logStream;
+        private StreamWriter                            logWriter;
 
         /// <summary>
         /// Constructs a log exporter that writes log records to standard output and/or
