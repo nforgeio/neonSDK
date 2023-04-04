@@ -46,32 +46,60 @@ namespace Neon.Net
         private static readonly TimeSpan    maxRetryTime  = TimeSpan.FromSeconds(10);
         private static readonly TimeSpan    retryInterval = TimeSpan.FromMilliseconds(100);
         private static readonly int         maxAttempts   = (int)Math.Max(1, maxRetryTime.TotalMilliseconds / retryInterval.TotalMilliseconds);
-
         private static LinearRetryPolicy    retryFile     = new LinearRetryPolicy(typeof(IOException), maxAttempts: maxAttempts, retryInterval: retryInterval);
         private static LinearRetryPolicy    retryReady    = new LinearRetryPolicy(typeof(NotReadyException), maxAttempts: maxAttempts, retryInterval: retryInterval);
-
         private static readonly char[]      colonArray    = new char[] { ':' };
-
         private static readonly Regex       ipv4Regex     = new Regex(@"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}", RegexOptions.Compiled);
 
         /// <summary>
-        /// Regex for verifying DNS hostnames.
+        /// Verifies that a string is a valid DNS label.
         /// </summary>
-        public static Regex DnsHostRegex { get; private set; } = new Regex(@"^(([a-z0-9]|[a-z0-9][a-z0-9\-_]){1,61})(\.([a-z0-9]|[a-z0-9][a-z0-9\-_]){1,61})*$", RegexOptions.IgnoreCase);
+        /// <param name="label">The label being tested.</param>
+        /// <returns></returns>
+        public static bool IsValidDnsLabel(string label)
+        {
+            if (string.IsNullOrEmpty(label) || label.Length > 63)
+            {
+                return false;
+            }
+
+            if (label.StartsWith("-") || label.EndsWith("-"))
+            {
+                return false;
+            }
+
+            foreach (var ch in label)
+            {
+                if (!char.IsLetterOrDigit(ch) && ch != '-')
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
 
         /// <summary>
         /// Verifies that a string is a valid DNS hostname.
         /// </summary>
-        /// <param name="host">The string being tested.</param>
+        /// <param name="host">The hostname being tested.</param>
         /// <returns><c>true</c> if the hostname is valid.</returns>
-        public static bool IsValidHost(string host)
+        public static bool IsValidDnsHost(string host)
         {
             if (string.IsNullOrEmpty(host) || host.Length > 255)
             {
                 return false;
             }
 
-            return DnsHostRegex.IsMatch(host);
+            foreach (var label in host.Split('.'))
+            {
+                if (!IsValidDnsLabel(label))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         /// <summary>

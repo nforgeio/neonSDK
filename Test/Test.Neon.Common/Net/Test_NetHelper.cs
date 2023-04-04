@@ -704,18 +704,18 @@ namespace TestCommon
             var longestLabel = new string('a', 61);
             var tooLongLabel = new string('b', 62);
 
-            Assert.True(NetHelper.IsValidHost("test"));
-            Assert.True(NetHelper.IsValidHost("test.com"));
-            Assert.True(NetHelper.IsValidHost("server1.test.com"));
-            Assert.True(NetHelper.IsValidHost("0.com"));
-            Assert.True(NetHelper.IsValidHost("test0.com"));
-            Assert.True(NetHelper.IsValidHost("test-0.com"));
-            Assert.True(NetHelper.IsValidHost("test_0.com"));
-            Assert.True(NetHelper.IsValidHost($"{longestLabel}.com"));
+            Assert.True(NetHelper.IsValidDnsHost("test"));
+            Assert.True(NetHelper.IsValidDnsHost("test.com"));
+            Assert.True(NetHelper.IsValidDnsHost("server1.test.com"));
+            Assert.True(NetHelper.IsValidDnsHost("0.com"));
+            Assert.True(NetHelper.IsValidDnsHost("test0.com"));
+            Assert.True(NetHelper.IsValidDnsHost("test-0.com"));
+            Assert.True(NetHelper.IsValidDnsHost("test_0.com"));
+            Assert.True(NetHelper.IsValidDnsHost($"{longestLabel}.com"));
 
-            Assert.False(NetHelper.IsValidHost("test..com"));
-            Assert.False(NetHelper.IsValidHost("/test.com"));
-            Assert.False(NetHelper.IsValidHost("{test}.com"));
+            Assert.False(NetHelper.IsValidDnsHost("test..com"));
+            Assert.False(NetHelper.IsValidDnsHost("/test.com"));
+            Assert.False(NetHelper.IsValidDnsHost("{test}.com"));
 
             // $todo(jefflill):
             //
@@ -734,8 +734,8 @@ namespace TestCommon
                 new string('e', 51);
 
             Assert.Equal(255, longestHost.Length);
-            Assert.True(NetHelper.IsValidHost(longestHost));
-            Assert.False(NetHelper.IsValidHost(longestHost + "f"));
+            Assert.True(NetHelper.IsValidDnsHost(longestHost));
+            Assert.False(NetHelper.IsValidDnsHost(longestHost + "f"));
         }
 
         [Fact]
@@ -787,6 +787,44 @@ namespace TestCommon
             Assert.Throws<ArgumentException>(() => NetHelper.ToAwsS3Uri("https://bucket/path/to/object"));                                      // Not enough labels
             Assert.Throws<ArgumentException>(() => NetHelper.ToAwsS3Uri("https://bucket.s3.us-west-2/path/to/object"));                         // Not enough labels
             Assert.Throws<ArgumentException>(() => NetHelper.ToAwsS3Uri("https://bucket.s3.us-west-2.amazonaws/path/to/object"));               // Not enough labels
+        }
+
+        [Fact]
+        public void DnsLabelCheck()
+        {
+            // Verify the DNS label checking.
+
+            Assert.True(NetHelper.IsValidDnsLabel("a"));
+            Assert.True(NetHelper.IsValidDnsLabel("abc-123"));
+            Assert.True(NetHelper.IsValidDnsLabel(new string('a', 63)));
+            Assert.True(NetHelper.IsValidDnsLabel(new string('0', 63)));
+
+            Assert.False(NetHelper.IsValidDnsLabel(string.Empty));
+            Assert.False(NetHelper.IsValidDnsLabel("$"));
+            Assert.False(NetHelper.IsValidDnsLabel(new string('a', 64)));
+        }
+
+        [Fact]
+        public void DnsHostCheck()
+        {
+            // Verify the DNS hostname checking.
+
+            var label61 = new string('a', 61);
+            var label63 = new string('a', 63);
+            var host255 = $"abcdefg.{label61}.{label61}.{label61}.{label61}";
+            var host256 = $"abcdefgh.{label61}.{label61}.{label61}.{label61}";
+
+            Assert.Equal(255, host255.Length);
+            Assert.Equal(256, host256.Length);
+
+            Assert.True(NetHelper.IsValidDnsHost("a"));
+            Assert.True(NetHelper.IsValidDnsHost("a.b.c.d"));
+            Assert.True(NetHelper.IsValidDnsHost("a-123.com"));
+            Assert.True(NetHelper.IsValidDnsHost(new string('a', 63)));
+            Assert.True(NetHelper.IsValidDnsHost(host255));
+
+            Assert.False(NetHelper.IsValidDnsHost(new string('a', 64)));
+            Assert.False(NetHelper.IsValidDnsHost(host256));
         }
     }
 }
