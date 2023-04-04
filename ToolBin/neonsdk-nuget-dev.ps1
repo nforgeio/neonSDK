@@ -299,7 +299,7 @@ try
         # atomically increment the counter and return the next value.
 
         $reply           = Invoke-WebRequest -Uri "$env:NC_NUGET_VERSIONER/counter/neonSDK-dev" -Method 'PUT' -Headers @{ 'Authorization' = "Bearer $versionerKeyBase64" } 
-        $neonSdkVersion  = "10000.0.$reply-dev-$branch"
+        $neonSdkVersion  = "10000.1.$reply-dev-$branch"
     }
 
     #------------------------------------------------------------------------------
