@@ -143,7 +143,10 @@ namespace Neon.Diagnostics
         protected override void Dispose(bool disposing)
         {
             logWriter?.Flush();
+            logWriter = null;
+            
             logStream?.Dispose();
+            logStream = null;
         }
 
         /// <inheritdoc/>
@@ -151,7 +154,7 @@ namespace Neon.Diagnostics
         {
             try
             {
-                logWriter.Flush();
+                logWriter?.Flush();
                 return true;
             }
             catch
@@ -165,7 +168,7 @@ namespace Neon.Diagnostics
         {
             try
             {
-                logWriter.Flush();
+                logWriter?.Flush();
                 return true;
             }
             catch
@@ -213,49 +216,49 @@ namespace Neon.Diagnostics
                     {
                         case FileLogExporterFormat.Human:
 
-                            logWriter.WriteLine(logSeparator);
-                            logWriter.Write("[");
-                            logWriter.Write(NeonHelper.UnixEpochNanosecondsToDateTimeUtc(logEvent.TsNs).ToString(NeonHelper.DateFormatTZ));
-                            logWriter.Write("]: ");
-                            logWriter.WriteLine(logEvent.Body);
+                            logWriter?.WriteLine(logSeparator);
+                            logWriter?.Write("[");
+                            logWriter?.Write(NeonHelper.UnixEpochNanosecondsToDateTimeUtc(logEvent.TsNs).ToString(NeonHelper.DateFormatTZ));
+                            logWriter?.Write("]: ");
+                            logWriter?.WriteLine(logEvent.Body);
 
-                            logWriter.Write($"SEVERITY: ");
-                            logWriter.WriteLine(logEvent.Severity);
+                            logWriter?.Write($"SEVERITY: ");
+                            logWriter?.WriteLine(logEvent.Severity);
 
                             if (!string.IsNullOrEmpty(logEvent.CategoryName))
                             {
-                                logWriter.Write($"CATEGORY: ");
-                                logWriter.WriteLine(logEvent.CategoryName);
+                                logWriter?.Write($"CATEGORY: ");
+                                logWriter?.WriteLine(logEvent.CategoryName);
                             }
 
                             if (!string.IsNullOrEmpty(logEvent.TraceId))
                             {
-                                logWriter.Write($"TRACE-ID: ");
-                                logWriter.WriteLine(logEvent.TraceId);
+                                logWriter?.Write($"TRACE-ID: ");
+                                logWriter?.WriteLine(logEvent.TraceId);
                             }
 
                             if (!string.IsNullOrEmpty(logEvent.SpanId))
                             {
-                                logWriter.Write($"SPAN-ID: ");
-                                logWriter.WriteLine(logEvent.SpanId);
+                                logWriter?.Write($"SPAN-ID: ");
+                                logWriter?.WriteLine(logEvent.SpanId);
                             }
 
                             if (logEvent.Resources?.Count > 0)
                             {
-                                logWriter.WriteLine($"RESOURCES:");
+                                logWriter?.WriteLine($"RESOURCES:");
 
                                 foreach (var item in logEvent.Resources)
                                 {
-                                    logWriter.Write(indent);
-                                    logWriter.Write(item.Key);
-                                    logWriter.Write(": ");
-                                    logWriter.WriteLine(item.Value?.ToString());
+                                    logWriter?.Write(indent);
+                                    logWriter?.Write(item.Key);
+                                    logWriter?.Write(": ");
+                                    logWriter?.WriteLine(item.Value?.ToString());
                                 }
                             }
 
                             if (logEvent.Attributes?.Count > 0)
                             {
-                                logWriter.WriteLine($"ATTRIBUTES:");
+                                logWriter?.WriteLine($"ATTRIBUTES:");
 
                                 foreach (var item in logEvent.Attributes)
                                 {
@@ -267,10 +270,10 @@ namespace Neon.Diagnostics
                                         continue;
                                     }
 
-                                    logWriter.Write(indent);
-                                    logWriter.Write(item.Key);
-                                    logWriter.Write(": ");
-                                    logWriter.WriteLine(item.Value?.ToString());
+                                    logWriter?.Write(indent);
+                                    logWriter?.Write(item.Key);
+                                    logWriter?.Write(": ");
+                                    logWriter?.WriteLine(item.Value?.ToString());
                                 }
                             }
 
@@ -281,30 +284,30 @@ namespace Neon.Diagnostics
                             {
                                 var exception = record.Exception;
 
-                                logWriter.Write($"EXCEPTION.TYPE: ");
-                                logWriter.WriteLine(exception.GetType().FullName);
-                                logWriter.Write($"EXCEPTION.MESSAGE: ");
-                                logWriter.WriteLine(DiagnosticsHelper.CleanExceptionMessage(exception));
-                                logWriter.WriteLine($"EXCEPTION.STACKTRACE:");
+                                logWriter?.Write($"EXCEPTION.TYPE: ");
+                                logWriter?.WriteLine(exception.GetType().FullName);
+                                logWriter?.Write($"EXCEPTION.MESSAGE: ");
+                                logWriter?.WriteLine(DiagnosticsHelper.CleanExceptionMessage(exception));
+                                logWriter?.WriteLine($"EXCEPTION.STACKTRACE:");
 
                                 using (var reader = new StringReader(exception.StackTrace))
                                 {
                                     foreach (var line in reader.Lines())
                                     {
-                                        logWriter.Write(indent);
-                                        logWriter.WriteLine(line.TrimStart());
+                                        logWriter?.Write(indent);
+                                        logWriter?.WriteLine(line.TrimStart());
                                     }
                                 }
                             }
 
-                            logWriter.WriteLine();
+                            logWriter?.WriteLine();
                             break;
 
                         case FileLogExporterFormat.Json:
 
                             // Write the JSON formatted record as a single line.
 
-                            logWriter.WriteLine(JsonConvert.SerializeObject(logEvent, Formatting.None));
+                            logWriter?.WriteLine(JsonConvert.SerializeObject(logEvent, Formatting.None));
                             break;
 
                         default:
@@ -322,7 +325,7 @@ namespace Neon.Diagnostics
 
             if (options.FlushAgressively)
             {
-                logWriter.Flush();
+                logWriter?.Flush();
             }
 
             //-----------------------------------------------------------------
@@ -352,7 +355,7 @@ namespace Neon.Diagnostics
                 // Flush current writer, leaving the output stream alone.  We're not going
                 // to dispose the writer though, because that closes the underlying stream.
 
-                logWriter.Flush();
+                logWriter?.Flush();
 
                 // Create a new rotated log file using a timestamp and then copy the contents
                 // of the current log file to the rotated file.
