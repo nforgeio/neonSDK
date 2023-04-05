@@ -1193,7 +1193,7 @@ namespace Neon.HyperV
             Invoke<SetVM>(args,
                 waitFor: () =>
                 {
-                    var vm = ListVms().First();
+                    var vm = ListVms().First(vm => vm.Name.Equals(machineName, StringComparison.InvariantCultureIgnoreCase));
 
                     if (processorCount.HasValue && vm.ProcessorCount != processorCount.Value)
                     {
