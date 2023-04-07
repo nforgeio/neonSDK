@@ -51,6 +51,12 @@ ARGUMENTS:
     SOURCE-FOLDER       - Path to the Windows folder holding the source files
     OUTPUT-PATH         - Path to the Windows file where the binary output will be written
     GCC-OPTIONS         - Optional arguments and/or options to be passed to [gcc]
+
+REMARKS:
+
+This command requires that the [neon-ubuntu-20.04] WSL distribution is already installed
+as described in the developer setup instructions.
+
 ";
         /// <inheritdoc/>
         public override string[] Words => new string[] { "gcc" };
@@ -72,7 +78,6 @@ ARGUMENTS:
 
             var sourceFolder = commandLine.Arguments.ElementAtOrDefault(0);
             var outputPath   = commandLine.Arguments.ElementAtOrDefault(1);
-            var sbGccArgs    = new StringBuilder();
 
             if (string.IsNullOrEmpty(sourceFolder) || string.IsNullOrEmpty(outputPath))
             {
@@ -80,9 +85,26 @@ ARGUMENTS:
                 Program.Exit(1);
             }
 
-            foreach (var arg in commandLine.Arguments.Skip(2))
+            Console.WriteLine();
+
+            // Ensure that the [neon-ubuntu-20.04] WSL distro exists.
+
+            var distroName = Wsl2Proxy.List().SingleOrDefault(name => name.Equals("neon-ubuntu-20.04", StringComparison.CurrentCultureIgnoreCase));
+
+            if (distroName == null)
             {
-                sbGccArgs.AppendWithSeparator(arg);
+                Console.Error.WriteLine("*** ERROR: WSL distro [neon-ubuntu-20.04] does not exist.");
+                Console.Error.WriteLine("           Install this as described in the developer setup instructions.");
+                Program.Exit(1);
+            }
+
+            var distro = new Wsl2Proxy(distroName);
+
+            if (!distro.IsDebian)
+            {
+                Console.Error.WriteLine($"*** ERROR: The [{distro.Name}] distro is running: {distro.OSRelease["ID"]}/{distro.OSRelease["ID_LIKE"]}");
+                Console.Error.WriteLine($"           [wsl-util gcc ...] requires a Debian/Ubuntu based distribution.");
+                Program.Exit(1);
             }
 
             // We're going to build this within the distro at [/tmp/wsl-util/GUID] by
@@ -94,21 +116,11 @@ ARGUMENTS:
             // accumulate any old build files over time and we'll also ensure that
             // [gcc] is installed.
 
-            var defaultDistro = Wsl2Proxy.GetDefault();
+            var sbGccArgs = new StringBuilder();
 
-            if (string.IsNullOrEmpty(defaultDistro))
+            foreach (var arg in commandLine.Arguments.Skip(2))
             {
-                Console.Error.WriteLine("*** ERROR: There is no default WSL2 distro.");
-                Program.Exit(1);
-            }
-
-            var distro = new Wsl2Proxy(defaultDistro);
-
-            if (!distro.IsDebian)
-            {
-                Console.Error.WriteLine($"*** ERROR: Your default WSL2 distro [{distro.Name}] is running: {distro.OSRelease["ID"]}/{distro.OSRelease["ID_LIKE"]}");
-                Console.Error.WriteLine($"           The CRI-O build requires an Debian/Ubuntu based distribution.");
-                Program.Exit(1);
+                sbGccArgs.AppendWithSeparator(arg);
             }
 
             var linuxUtilFolder    = LinuxPath.Combine("/", "tmp", "wsl-util");
@@ -126,8 +138,10 @@ ARGUMENTS:
                 NeonHelper.CopyFolder(sourceFolder, windowsBuildFolder);
 
                 // Install [safe-apt-get] if it's not already present.  We're using this
-                // because it's possible that projects build in parallel and it's possible
+                // because it's possible that projects build in parallel so it's possible
                 // that multiple GCC commands could also be running in parallel.
+                //
+                // This will ensure that parallel package installations won't conflict.
 
                 var linuxSafeAptGetPath   = "/usr/bin/safe-apt-get";
                 var windowsSafeAptGetPath = distro.ToWindowsPath(linuxSafeAptGetPath);
