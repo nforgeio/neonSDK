@@ -9,6 +9,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Doc", "Doc", "{2CFE7466-98C
 		Doc\DEVELOPER.md = Doc\DEVELOPER.md
 		Doc\docfx.json = Doc\docfx.json
 		Doc\TEST-VERSION.md = Doc\TEST-VERSION.md
+		Doc\WSL-Ubuntu-Image.md = Doc\WSL-Ubuntu-Image.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Lib", "Lib", "{DBDA1B94-CCD1-48E4-AA0A-FDB5B18AF069}"

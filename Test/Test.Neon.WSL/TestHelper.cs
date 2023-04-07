@@ -38,12 +38,12 @@ namespace TestWSL
         /// Reasonable base WSL2 image for testing.  This will need to be updated if/when the
         /// location for this changes.
         /// </summary>
-        public const string BaseImageUri = $"{NeonHelper.NeonPublicBucketUri}/downloads/ubuntu-20.04.tar";
+        public const string BaseImageUri = $"{NeonHelper.NeonPublicBucketUri}/download/neon-ubuntu-20.04.tar";
 
         /// <summary>
         /// Used to identify the WSL2 distribution we'll be using for testing.
         /// </summary>
-        public const string TestDistroName = "neonkube-test-distro";
+        public const string TestDistroName = "neontest-ubuntu-20.04";
 
         /// <summary>
         /// Returns the path to the test cache folder.
@@ -56,7 +56,7 @@ namespace TestWSL
         /// <returns>Returns the path to the decompressed Wsl2 base TAR file.</returns>
         public static async Task<string> GetTestImageAsync()
         {
-            var imagePath = Path.Combine(TestCacheFolder, "image.tar");
+            var imagePath = Path.Combine(TestCacheFolder, "neontest-ubuntu-20.04.tar");
 
             Directory.CreateDirectory(TestCacheFolder);
 
