@@ -4,7 +4,7 @@
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<OutputType>Library</OutputType>
 		<RootNamespace>Neon.JsonConverters</RootNamespace>
-		<Version>3.0.0-preview1</Version>
+		<Version>3.0.0</Version>
 		<Description>Common type converters for [System.Text.Json] based serialization.</Description>
 		<PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
 		<IsPackable>true</IsPackable>

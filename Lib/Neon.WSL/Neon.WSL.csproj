@@ -4,7 +4,7 @@
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<OutputType>Library</OutputType>
 		<RootNamespace>Neon.WSL</RootNamespace>
-		<Version>3.0.0-preview1</Version>
+		<Version>3.0.0</Version>
 		<Description>INTERNAL USE ONLY: WSL2 related utilities</Description>
 		<PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
 		<IsPackable>true</IsPackable>
@@ -14,7 +14,7 @@
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<Configurations>Debug;Release</Configurations>
 		<PackageIcon>nuget-icon.png</PackageIcon>
-		<PackageTags>WSL</PackageTags>
+		<PackageTags>WSL WSL2</PackageTags>
 	</PropertyGroup>
 
 	<ItemGroup>

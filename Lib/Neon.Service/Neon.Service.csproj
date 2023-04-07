@@ -4,7 +4,7 @@
         <TargetFrameworks>netstandard2.0; net6.0; net7.0</TargetFrameworks>
         <OutputType>Library</OutputType>
         <RootNamespace>Neon.Service</RootNamespace>
-        <Version>3.0.0-preview1</Version>
+        <Version>3.0.0</Version>
         <Description>Service library supporting application deployment as containers as well as in-process for testing</Description>
         <PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
         <IsPackable>true</IsPackable>
@@ -67,8 +67,8 @@
 	building the project for target frameworks in parallel.
 	
 	The workaround is to build these manually and commit the binaries to GitHub.  These
-	executables are very simple and will need to be updated if ever.  If you do need to
-	rebuild these manually, execute these commands:
+	executables are very simple and will rarely need to be updated if ever.  If you do 
+	need to	rebuild these manually, execute these commands:
 	
 		wsl-util gcc "%NF_ROOT%\Lib\Neon.Service\health-probes\health-check" "%NF_ROOT%\Lib\Neon.Service\Resources\health-check"
 		wsl-util gcc "%NF_ROOT%\Lib\Neon.Service\health-probes\ready-check" "%NF_ROOT%\Lib\Neon.Service\Resources\ready-check"
