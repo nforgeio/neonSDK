@@ -76,9 +76,9 @@ Follow the steps below to configure a development or test workstation:
 
     c. Execute these Powershell commands in **pwsh** to install Ubuntu-20.04 on WSL2:
     ```
-    Invoke-WebRequest https://neon-public.s3.us-west-2.amazonaws.com/downloads/ubuntu-20.04.tar -OutFile ubuntu.tar
-    wsl --import Ubuntu-20.04 $env:USERPROFILE ubuntu.tar
-    Remove-Item ubuntu.tar
+    Invoke-WebRequest https://neon-public.s3.us-west-2.amazonaws.com/downloads/ubuntu-20.04.tar -OutFile $env:TEMP\ubuntu.tar
+    wsl --import Ubuntu-20.04 $env:USERPROFILE $env:TEMP\ubuntu.tar
+    Remove-Item $env:TEMP\ubuntu.tar
     wsl --set-default-version 2
     wsl --set-default Ubuntu-20.04
     ```
