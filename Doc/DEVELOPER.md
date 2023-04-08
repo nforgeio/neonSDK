@@ -87,7 +87,6 @@ Follow the steps below to configure a development or test workstation:
     * You'll need to create a DockerHub account if you don't already have one
     * Start Docker and click the Settings **Gear** on the right side of the title bar
     * Click **General** and check **Start Docker Desktop when you log in**
-    * Click **Docker Engine** and disable BuildKit (which causes random problems) so be sure to disable it by setting **buildkit=false** in the edit box
 	* Start a command window and use `docker login` to login using your GitHub credentials
 
 10. Install **Visual Studio 2022 Community 17.4+** from [here](https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030&passive=false)
