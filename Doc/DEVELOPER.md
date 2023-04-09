@@ -74,13 +74,16 @@ Follow the steps below to configure a development or test workstation:
 
        NOTE: You may **skip step 6** because we're going to install our own WSL distro below.
 
-    c. Execute these Powershell commands in **pwsh** to install neon-ubuntu-20.04 WSL2 distro:
-    ```
-    Invoke-WebRequest https://neon-public.s3.us-west-2.amazonaws.com/download/neon-ubuntu-20.04.tar -OutFile $env:TEMP\neon-ubuntu-20.04.tar
-    wsl --import neon-ubuntu-20.04 $env:USERPROFILE\wsl-neon-ubuntu-20.04 $env:TEMP\neon-ubuntu-20.04.tar
-    Remove-Item $env:TEMP\neon-ubuntu-20.04.tar
-    wsl --set-default-version 2
-    ```
+    c. Execute these Powershell commands in **pwsh** to install **neon-ubuntu-20.04** WSL2 distro:
+       ```
+       Invoke-WebRequest https://neon-public.s3.us-west-2.amazonaws.com/download/neon-ubuntu-20.04.tar -OutFile $env:TEMP\neon-ubuntu-20.04.tar
+       wsl --import neon-ubuntu-20.04 $env:USERPROFILE\wsl-neon-ubuntu-20.04 $env:TEMP\neon-ubuntu-20.04.tar
+       Remove-Item $env:TEMP\neon-ubuntu-20.04.tar
+       wsl --set-default-version 2
+       ```
+
+    d. Open **Docker Desktop** and goto **Settings/Resources/WSL Integration**, turn on integration for
+       the new **neon-ubuntu-20.04** distro and click **Apply & Restart**.
 
 9. Install **Docker for Windows (Stable)** from [here](https://www.docker.com/products/docker-desktop)
 
