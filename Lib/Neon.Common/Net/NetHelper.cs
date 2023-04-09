@@ -1086,6 +1086,89 @@ namespace Neon.Net
         }
 
         /// <summary>
+        /// Returns a free TCP port for a local network interface within a given range of ports.
+        /// </summary>
+        /// <param name="startPort">
+        /// The first port to check
+        /// </param>
+        /// <param name="endPort">
+        /// The last port to check.
+        /// </param>
+        /// <param name="address">
+        /// Optionally specifies the target interface's IP address.  This defaults to
+        /// <see cref="IPAddress.Any"/> where an unused port will be returned that is
+        /// available on all network interfaces.
+        /// </param>
+        /// <returns>The free port number.</returns>
+        /// <exception cref="NetworkException">Thrown when there are no available ports.</exception>
+        /// <remarks>
+        /// <note>
+        /// <para>
+        /// The behavior when <see cref="GetUnusedTcpPort(IPAddress)"/> is called multiple times
+        /// without actually listening on the ports is somewhat undefined.
+        /// </para>
+        /// <para>
+        /// We believe most operating systems won't return the same port again for
+        /// a while (perhaps a few minutes) so you're probably safe retrieving a few
+        /// unused ports before using them for testing and other non-production purposes.
+        /// </para>
+        /// <para>
+        /// Production code should begin listening on and unused ports immediately after
+        /// retrieving one.  This will ensure that the unused ports returned will be unique
+        /// and also help avoid having another application grab the port before you have
+        /// a chance to listen on it.
+        /// </para>
+        /// </note>
+        /// </remarks>
+        public static int GetUnusedTcpPort(
+            int startPort,
+            int endPort,
+            IPAddress address = null
+            )
+        {
+            address ??= IPAddress.Any;
+
+            for (int port = startPort; port <= endPort; port++)
+            {
+                if (TcpPortIsFree(port))
+                {
+                    return port;
+                }
+            }
+
+            throw new NetworkException($"Cannot obtain a free port for [{address}] in range [{startPort}-{endPort}].");
+        }
+
+        /// <summary>
+        /// Checks to see whether a TCP port is free on a given IP address.
+        /// </summary>
+        /// <param name="port">
+        /// The port number.
+        /// </param>
+        /// <param name="address">
+        /// The optional IP address. If not specified, defaults to <see cref="IPAddress.Any"/>.
+        /// </param>
+        /// <returns></returns>
+        public static bool TcpPortIsFree(int port, IPAddress address = null)
+        {
+            address ??= IPAddress.Any;
+
+            try
+            {
+                var listener = new TcpListener(address, port);
+
+                listener.Start();
+                listener.Stop();
+
+                return true;
+            }
+            catch 
+            { 
+                return false; 
+            }
+        }
+
+        /// <summary>
         /// <para>
         /// Returns a routable (non-loopback) IPv4 address for the current machine.
         /// </para>
