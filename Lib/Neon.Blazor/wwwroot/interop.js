@@ -38,7 +38,6 @@ export function construct(options) {
                             isIntersecting: element.isIntersecting
                         }
                     }));
-            console.log("element", element)
         });
     }, options);
 }
