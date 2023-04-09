@@ -1,12 +1,15 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Neon.Diagnostics;
 
 namespace Neon.Blazor
 {
@@ -27,11 +30,17 @@ namespace Neon.Blazor
         [Parameter]
         public double[] Threshold { get; set; } = null;
 
+        [Parameter]
+        public string DocumentQuery { get; set; } = null;
+
         [Inject]
         public IJSRuntime JS { get; set; }
 
         [Inject]
         public IHttpContextAccessor HttpContextAccessor { get; set; }
+
+        [Inject]
+        public IServiceProvider ServiceProvider { get; set; }
 
         public event Action IntersectionChanged;
 
@@ -43,12 +52,16 @@ namespace Neon.Blazor
 
         private IJSObjectReference intersectionObserver;
 
+        private ILogger<IntersectionObserver> logger;
+
         protected HtmlElement rootElement { get; set; }
         private IntersectionObserverContext IntersectionObserverContext { get; set; } = new IntersectionObserverContext();
         private ElementReference elementReference;
 
         protected override void OnInitialized()
         {
+            this.logger = this.ServiceProvider.GetService<ILoggerFactory>()?.CreateLogger<IntersectionObserver>();
+
             base.OnInitialized();
         }
 
@@ -66,16 +79,25 @@ namespace Neon.Blazor
 
             if (firstRender)
             {
-                intersectionObserver = await jsModule.InvokeAsync<IJSObjectReference>("construct", new
+                try
                 {
-                    RootMargin = RootMargin,
-                    Threshold  = Threshold
-                });
+                    intersectionObserver = await jsModule.InvokeAsync<IJSObjectReference>("construct", new
+                    {
+                        RootMargin = RootMargin,
+                        Threshold = Threshold
+                    });
 
-                if (rootElement != null)
+                    if (rootElement != null)
+                    {
+                        var elementRef = rootElement.AsElementReference();
+                        await intersectionObserver!.InvokeVoidAsync("observe", elementRef);
+
+                        logger?.LogDebugEx(() => $"observing element [{elementRef.Id}]");
+                    }
+                }
+                catch (Exception e)
                 {
-                    var elementRef = rootElement.AsElementReference();
-                    await intersectionObserver!.InvokeVoidAsync("observe", rootElement.AsElementReference());
+                    logger?.LogErrorEx(e);
                 }
             }
 
