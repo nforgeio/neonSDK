@@ -66,24 +66,35 @@ namespace NeonSignalRProxy
         /// <param name="cacheOptions">The Cache options.</param>
         /// <param name="proxyConfig">The proxy config options.</param>
         /// <param name="sessionHelper">The proxy config options.</param>
+        /// <param name="loggerFactory">The optional logger factory.</param>
         /// <returns></returns>
         public async Task InvokeAsync(
-            HttpContext                     context,
-            Service                         service,
-            CacheHelper                     cache, 
-            AesCipher                       cipher,
-            DistributedCacheEntryOptions    cacheOptions,
-            ProxyConfig                     proxyConfig,
-            SessionHelper                   sessionHelper)
+            HttpContext                       context,
+            Service                           service,
+            CacheHelper                       cache, 
+            AesCipher                         cipher,
+            DistributedCacheEntryOptions      cacheOptions,
+            ProxyConfig                       proxyConfig,
+            SessionHelper                     sessionHelper,
+            ILoggerFactory                    loggerFactory = null)
         {
             await SyncContext.Clear;
 
             using (var activity = TelemetryHub.ActivitySource.StartActivity())
             {
+                var logger = loggerFactory?.CreateLogger<ConnectionHandler>();
+
+                logger.LogDebugEx(() => "Invoking _next");
+
                 await _next(context);
+
+                logger.LogDebugEx(() => "_next complete");
+
 
                 if (service.CurrentConnections.Contains(context.Connection.Id))
                 {
+                    logger.LogDebugEx(() => $"{context.Connection.Id} in CurrentConnections");
+
                     var session = sessionHelper.GetSession(context);
 
                     if (proxyConfig.SessionStore == SessionStoreType.Cache)
@@ -93,15 +104,19 @@ namespace NeonSignalRProxy
 
                     if (session.ConnectionId == context.Connection.Id)
                     {
+                        logger.LogDebugEx(() => $"{context.Connection.Id} is session connection ID");
+
                         if (proxyConfig.SessionStore == SessionStoreType.Cache)
                         {
                             await cache.SetAsync(session.Id, session, cacheOptions);
                         }
-
-                        WebsocketMetrics.CurrentConnections.Dec();
-                        service.CurrentConnections.Remove(context.Connection.Id);
                     }
                 }
+
+                WebsocketMetrics.CurrentConnections.Dec();
+                service.CurrentConnections.Remove(context.Connection.Id);
+
+                logger.LogDebugEx(() => "Connection handler complete");
             }
         }
     }
