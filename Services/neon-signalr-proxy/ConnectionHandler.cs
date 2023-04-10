@@ -111,10 +111,10 @@ namespace NeonSignalRProxy
                             await cache.SetAsync(session.Id, session, cacheOptions);
                         }
                     }
-                }
 
-                WebsocketMetrics.CurrentConnections.Dec();
-                service.CurrentConnections.Remove(context.Connection.Id);
+                    WebsocketMetrics.CurrentConnections.Dec();
+                    service.CurrentConnections.Remove(context.Connection.Id);
+                }
 
                 logger.LogDebugEx(() => "Connection handler complete");
             }
