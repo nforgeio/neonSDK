@@ -66,6 +66,8 @@ USAGE:
 COMMANDS:
 
     wsl-util gcc SOURCE-FOLDER OUTPUT-PATH [GCC-OPTIONS...]
+    wsl-util run SCRIPT-PATH [DISTRO-NAME]
+    wsl-util version
 ";
             // Process the command line.
 

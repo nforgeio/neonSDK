@@ -83,7 +83,7 @@ namespace TestWSL
                     Wsl2Proxy.Import(TestHelper.TestDistroName, exportPath, tempFolder.Path);
                     Assert.True(Wsl2Proxy.Exists(TestHelper.TestDistroName));
 
-                    distro = new Wsl2Proxy(TestHelper.TestDistroName, user: SysAdminUser);
+                    distro = new Wsl2Proxy(TestHelper.TestDistroName);
 
                     Assert.Contains("Hello World!", distro.Execute("echo", "Hello World!").OutputText);
                 }
@@ -108,7 +108,7 @@ namespace TestWSL
                     Wsl2Proxy.Import(TestHelper.TestDistroName, imagePath, tempFolder.Path);
                     Assert.True(Wsl2Proxy.Exists(TestHelper.TestDistroName));
 
-                    var distro = new Wsl2Proxy(TestHelper.TestDistroName, user: SysAdminUser);
+                    var distro = new Wsl2Proxy(TestHelper.TestDistroName);
 
                     Assert.Contains("Hello World!", distro.SudoExecute("echo", "Hello World!").OutputText);
                 }
@@ -132,7 +132,7 @@ namespace TestWSL
                 {
                     Wsl2Proxy.Import(TestHelper.TestDistroName, imagePath, tempFolder.Path);
 
-                    var distro = new Wsl2Proxy(TestHelper.TestDistroName, user: SysAdminUser);
+                    var distro = new Wsl2Proxy(TestHelper.TestDistroName);
 
                     Assert.Contains("Hello World!", distro.Execute("echo", "Hello World!").OutputText);
                     Assert.Contains("Hello World!", distro.SudoExecute("echo", "Hello World!").OutputText);
@@ -161,7 +161,7 @@ namespace TestWSL
                     {
                         Wsl2Proxy.Import(TestHelper.TestDistroName, imagePath, tempFolder.Path);
 
-                        var distro = new Wsl2Proxy(TestHelper.TestDistroName, user: SysAdminUser);
+                        var distro = new Wsl2Proxy(TestHelper.TestDistroName);
 
                         distro.TempFolder = folderWithSpaces.Path;
 
@@ -189,7 +189,7 @@ namespace TestWSL
                 {
                     Wsl2Proxy.Import(TestHelper.TestDistroName, imagePath, tempFolder.Path);
 
-                    var distro = new Wsl2Proxy(TestHelper.TestDistroName, user: SysAdminUser);
+                    var distro = new Wsl2Proxy(TestHelper.TestDistroName);
 
                     // Linux --> Windows
 
@@ -222,7 +222,7 @@ namespace TestWSL
                 {
                     Wsl2Proxy.Import(TestHelper.TestDistroName, imagePath, tempFolder.Path);
 
-                    var distro = new Wsl2Proxy(TestHelper.TestDistroName, user: SysAdminUser);
+                    var distro = new Wsl2Proxy(TestHelper.TestDistroName);
                     var text   =
 @"Line 1
 Line 2
@@ -232,10 +232,10 @@ Line 4
                     // Write a file using the defaults to convert CRLF-->LF with 
                     // no special permissions.
 
-                    distro.UploadFile($"/home/{SysAdminUser}/test1.txt", text, toLinuxText: true);
-                    Assert.Equal("Line 1\nLine 2\nLine 3\nLine 4\n", File.ReadAllText(distro.ToWindowsPath($"/home/{SysAdminUser}/test1.txt")));
+                    distro.UploadFile($"/root/test1.txt", text, toLinuxText: true);
+                    Assert.Equal("Line 1\nLine 2\nLine 3\nLine 4\n", File.ReadAllText(distro.ToWindowsPath($"/root/test1.txt")));
 
-                    var response = distro.SudoExecute("ls", "-l", $"/home/{SysAdminUser}/test1.txt");
+                    var response = distro.SudoExecute("ls", "-l", $"/root/test1.txt");
 
                     response.EnsureSuccess();
                     Assert.StartsWith("-rw-r--r-- ", response.OutputText);
@@ -244,14 +244,14 @@ Line 4
                     // and some permissions.  Also verify that the file is owned by
                     // the default distro user.
 
-                    distro.UploadFile($"/home/{SysAdminUser}/test2.txt", text, permissions: "666", toLinuxText: false);
-                    Assert.Equal("Line 1\r\nLine 2\r\nLine 3\r\nLine 4\r\n", File.ReadAllText(distro.ToWindowsPath($"/home/{SysAdminUser}/test2.txt")));
+                    distro.UploadFile($"/root/test2.txt", text, permissions: "666", toLinuxText: false);
+                    Assert.Equal("Line 1\r\nLine 2\r\nLine 3\r\nLine 4\r\n", File.ReadAllText(distro.ToWindowsPath($"/root/test2.txt")));
 
-                    response = distro.SudoExecute("ls", "-l", $"/home/{SysAdminUser}/test2.txt");
+                    response = distro.SudoExecute("ls", "-l", $"/root/test2.txt");
 
                     response.EnsureSuccess();
                     Assert.StartsWith("-rw-rw-rw- ", response.OutputText);
-                    Assert.Contains($"{SysAdminUser} {SysAdminUser}", response.OutputText);
+                    Assert.Contains($"root root", response.OutputText);
                 }
                 finally
                 {
@@ -293,47 +293,6 @@ Line 4
 
                     Assert.Equal(0, response.ExitCode);
                     Assert.Equal("root", response.OutputText.Trim());
-                }
-                finally
-                {
-                    TestHelper.RemoveTestDistro();
-                }
-            }
-        }
-
-        [Fact]
-        public async Task StartAs_Sysadmin()
-        {
-            // Verify that we can start a distro as [sysadmin] without configuring
-            // or starting systemd.
-
-            var imagePath = await TestHelper.GetTestImageAsync();
-
-            using (var tempFolder = new TempFolder())
-            {
-                try
-                {
-                    Wsl2Proxy.Import(TestHelper.TestDistroName, imagePath, tempFolder.Path);
-
-                    // Start as the [sysadmin] user.
-
-                    var distro = new Wsl2Proxy(TestHelper.TestDistroName, user: SysAdminUser);
-
-                    Assert.Equal(SysAdminUser, distro.User);
-
-                    // Expecting to be running under MSFT's [init] process 1.
-
-                    var response = distro.Execute("ps", "-e");
-
-                    Assert.Equal(0, response.ExitCode);
-                    Assert.Contains("init", response.OutputText);
-
-                    // Expecting to be logged in as [root]
-
-                    response = distro.Execute("echo", "$LOGNAME");
-
-                    Assert.Equal(0, response.ExitCode);
-                    Assert.Equal(SysAdminUser, response.OutputText.Trim());
                 }
                 finally
                 {
