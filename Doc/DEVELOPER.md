@@ -106,7 +106,7 @@ Follow the steps below to configure a development or test workstation:
 
     * Install **Visual Studio Code 64-bit** from [here](https://code.visualstudio.com/download)
     * Create a desktop shortcut for Visual Studio Code and configure it to run as **administrator**.
-    * Install **go1.17.2.windows-amd64.msi** from: [here](https://golang.org/dl/go1.17.2.windows-amd64.msi)
+    * Install the Microsoft [Remote Development Extension Pack](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack).
 
 13. Download the **SysInternals utiliies** from [here](https://download.sysinternals.com/files/SysinternalsSuite.zip) and extract them to a folder on your PATH, like: **C:\Tools**.
 
