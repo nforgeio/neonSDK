@@ -19,13 +19,18 @@
     <div class="h-32 w-32">
         <TransitionGroup Show="@isShowing">
             <Transition 
+
+              @*  enter="transform transition "
+          enterFrom="opacity-0 rotate-[-120deg] scale-50"
+          enterTo="opacity-100 rotate-0 scale-100"
+          leave="transform  transition ease-in-out"
+          leaveFrom="opacity-100 rotate-0 scale-100 "
+          leaveTo="opacity-0 scale-95 "*@
                         Show="@isShowing"
-                        Enter="transform transition"
-                        EnterDuration="3000"
-                        EnterFrom="opacity-0 rotate-[-120deg] scale-50"
-                        EnterTo="opacity-100 rotate-0 scale-100"
-                        Leave="transform transition ease-in-out"
-                        LeaveDuration="1500"
+                        Enter="transform transition duration-[400ms] "
+                        EnterFrom="opacity-0 rotate-[-120deg] scale-50 "
+                        EnterTo="opacity-100 rotate-0 scale-100 "
+                        Leave="transform duration-200 transition ease-in-out "
                         LeaveFrom="opacity-100 rotate-0 scale-100 "
                         LeaveTo="opacity-0 scale-95 "
                         Context="transitionCss"

@@ -24,12 +24,10 @@
     </div>
     <Transition
       Show="@IsOpen"
-      Enter="transition ease-out"
-      EnterDuration="1000"
+      Enter="transition ease-out duration-[1000ms]"
       EnterFrom="transform opacity-0 scale-95"
       EnterTo="transform opacity-100 scale-100"
-      Leave="transition ease-in"
-      LeaveDuration="1000"
+      Leave="transition ease-in duration-[1000ms]"
       LeaveFrom="transform opacity-100 scale-100"
       LeaveTo="transform opacity-0 scale-95"
     >

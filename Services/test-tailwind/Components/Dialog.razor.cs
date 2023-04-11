@@ -37,13 +37,13 @@ namespace TestTailwind.Components
         private async Task OpenDialogAsync()
         {
             showDialog = true;
-            await InvokeAsync(StateHasChanged);
+            StateHasChanged();
         }
 
         private async Task CloseDialogAsync()
         {
             showDialog = false;
-            await InvokeAsync(StateHasChanged);
+            StateHasChanged();
         }
     }
 }

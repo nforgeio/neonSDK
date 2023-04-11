@@ -99,7 +99,7 @@ namespace Neon.Tailwind
                     await Menu.Close(true);
                     break;
                 default:
-                    Menu.Search(key);
+                    await Menu.SearchAsync(key);
                     break;
             }
         }

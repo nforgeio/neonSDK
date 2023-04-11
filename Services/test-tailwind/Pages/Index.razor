@@ -48,12 +48,10 @@
 <br />
 
 <TransitionGroup Show="@true">
-    <Transition Enter="transform transition ease-linear"
-                EnterDuration="4000"
+    <Transition Enter="transform transition ease-linear duration-[4000ms]"
                 EnterFrom="opacity-0"
                 EnterTo="opacity-100"
-                Leave="transform transition ease-linear"
-                LeaveDuration="4000"
+                Leave="transform transition ease-linear duration-[4000ms]"
                 LeaveFrom="opacity-100"
                 LeaveTo="opacity-0"
                 Context="transitionCss">

@@ -255,9 +255,9 @@ namespace Neon.Tailwind
                 GoToOption(item);
             }
         }
-        public void Search(string key)
+        public async Task SearchAsync(string key)
         {
-            searchAssistant.Search(key);
+            await searchAssistant.SearchAsync(key);
         }
 
 

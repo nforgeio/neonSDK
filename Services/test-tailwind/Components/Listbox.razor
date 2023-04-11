@@ -32,12 +32,10 @@
         </HeadlessListboxButton>
         <TransitionGroup Show="@(listbox.State == ListboxState.Open)">
             <Transition Show="@(listbox.State == ListboxState.Open)"
-                        Leave="transition ease-in"
-                        LeaveDuration="600"
+                        Leave="transition ease-in duration-[600ms]"
                         LeaveFrom="opacity-100"
                         LeaveTo="opacity-0"
-                        Enter="transition ease-out"
-                        EnterDuration="600"
+                        Enter="transition ease-out duration-[600ms]"
                         EnterFrom="opacity-0"
                         EnterTo="opacity-100"
                         Context="transitionCss">
