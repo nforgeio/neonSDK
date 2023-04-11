@@ -72,21 +72,24 @@ Follow the steps below to configure a development or test workstation:
 
     b. Install the WSL2 Kernel update as described [here](https://aka.ms/wsl2kernel)
 
-    c. Execute these Powershell commands in **pwsh** to install Ubuntu-20.04 on WSL2:
-    ```
-    Invoke-WebRequest https://neon-public.s3.us-west-2.amazonaws.com/downloads/ubuntu-20.04.tar -OutFile ubuntu.tar
-    wsl --import Ubuntu-20.04 $env:USERPROFILE ubuntu.tar
-    Remove-Item ubuntu.tar
-    wsl --set-default-version 2
-    wsl --set-default Ubuntu-20.04
-    ```
+       NOTE: You may **skip step 6** because we're going to install our own WSL distro below.
+
+    c. Execute these Powershell commands in **pwsh** to install **neon-ubuntu-20.04** WSL2 distro:
+       ```
+       Invoke-WebRequest https://neon-public.s3.us-west-2.amazonaws.com/download/neon-ubuntu-20.04.tar -OutFile $env:TEMP\neon-ubuntu-20.04.tar
+       wsl --import neon-ubuntu-20.04 $env:USERPROFILE\wsl-neon-ubuntu-20.04 $env:TEMP\neon-ubuntu-20.04.tar
+       Remove-Item $env:TEMP\neon-ubuntu-20.04.tar
+       wsl --set-default-version 2
+       ```
+
+    d. Open **Docker Desktop** and goto **Settings/Resources/WSL Integration**, turn on integration for
+       the new **neon-ubuntu-20.04** distro and click **Apply & Restart**.
 
 9. Install **Docker for Windows (Stable)** from [here](https://www.docker.com/products/docker-desktop)
 
     * You'll need to create a DockerHub account if you don't already have one
     * Start Docker and click the Settings **Gear** on the right side of the title bar
     * Click **General** and check **Start Docker Desktop when you log in**
-    * Click **Docker Engine** and disable BuildKit (which causes random problems) so be sure to disable it by setting **buildkit=false** in the edit box
 	* Start a command window and use `docker login` to login using your GitHub credentials
 
 10. Install **Visual Studio 2022 Community 17.4+** from [here](https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030&passive=false)
@@ -104,7 +107,7 @@ Follow the steps below to configure a development or test workstation:
 
     * Install **Visual Studio Code 64-bit** from [here](https://code.visualstudio.com/download)
     * Create a desktop shortcut for Visual Studio Code and configure it to run as **administrator**.
-    * Install **go1.17.2.windows-amd64.msi** from: [here](https://golang.org/dl/go1.17.2.windows-amd64.msi)
+    * Install [Microsoft Remote Development Extension Pack](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack).
 
 13. Download the **SysInternals utiliies** from [here](https://download.sysinternals.com/files/SysinternalsSuite.zip) and extract them to a folder on your PATH, like: **C:\Tools**.
 
@@ -122,7 +125,7 @@ Follow the steps below to configure a development or test workstation:
     * Check: **Use previews of the .NET SDK (requires restart)
     * Restart all Visual Studio instances
 
-18. **Clone** the related neonSDK repos to the same parent directory as **neonSDK** using the repo names for the folders:
+16. **Clone** the related neonSDK repos to the same parent directory as **neonSDK** using the repo names for the folders:
 
     * https://github.com/nforgeio/neonSDK.git
     * https://github.com/nforgeio/documentation.git
@@ -139,11 +142,11 @@ Follow the steps below to configure a development or test workstation:
     git clone https://github.com/nforgeio/documentation.git
     ```
 
-16. **Clone** the https://github.com/nforgeio/neonSDK.git repository to your workstation:
+17. **Clone** the https://github.com/nforgeio/neonSDK.git repository to your workstation:
 
     * **IMPORTANT:** All NEONFORGE related repositories must be cloned within the same parent directory and their folder names must be the same as the repo names.
 
-17. Configure the build **environment variables**:
+18. Configure the build **environment variables**:
 
     * Open **File Explorer**
     * Navigate to the directory holding the cloned repository

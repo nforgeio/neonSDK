@@ -30,14 +30,10 @@ using System.Text;
 using System.Text.RegularExpressions;
 
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Text;
 
 using Newtonsoft.Json;
 
 using Neon.Common;
-using System.Reflection.Metadata;
-using System.Data.Common;
 
 // $todo(jefflill):
 //
@@ -328,6 +324,27 @@ namespace Neon.ModelGen
         }
 
         /// <summary>
+        /// Extracts the names of any parameters from an API route and adds them to
+        /// the list passed.
+        /// </summary>
+        /// <param name="nameList">The target list.</param>
+        /// <param name="route">The API route string.,</param>
+        private static void ExtractRouteParameterNames(List<string> nameList, string route)
+        {
+            Covenant.Requires<ArgumentNullException>(nameList != null, nameof(nameList));
+            Covenant.Requires<ArgumentNullException>(route != null, nameof(route));
+
+            var parameterNameRegex = new Regex(@"\{[a-zA-Z0-9_@]+\}");
+
+            foreach (Match match in parameterNameRegex.Matches(route))
+            {
+                // Strip the braces from the name.
+
+                nameList.Add(match.Value.Substring(1, match.Value.Length - 2));
+            }
+        }
+
+        /// <summary>
         /// Loads the required information for a service model type.
         /// </summary>
         /// <param name="serviceModelType">The source type.</param>
@@ -345,18 +362,25 @@ namespace Neon.ModelGen
                 }
             }
 
-            // Handle any [Route] tags.
+            // Handle any [Route] templated parameters by extracting the parameter names
+            // and then ensuring that all service methods include these parameters further
+            // below.
 
-            var serviceRouteAttribute = serviceModelType.GetCustomAttribute<RouteAttribute>();
+            var serviceRouteAttribute      = serviceModelType.GetCustomAttribute<RouteAttribute>();
+            var serviceRouteParameterNames = new List<string>();
 
             if (serviceRouteAttribute != null)
             {
-                if (serviceRouteAttribute.Template.Contains("{"))
-                {
-                    Output.Error($"[{serviceModelType.FullName}]: The [Route] attribute defines a template with argument references.  This is not currently supported by [Neon.ModelGen].");
-                }
-
                 serviceModel.RouteTemplate = serviceRouteAttribute.Template;
+
+                if (!string.IsNullOrEmpty(serviceModel.RouteTemplate) && routeConstraintRegex.IsMatch(serviceModel.RouteTemplate))
+                {
+                    Output.Error($"[{serviceModelType.FullName}] service has route template with a constraint.  Constraints are not currently supported.");
+                }
+                else
+                {
+                    ExtractRouteParameterNames(serviceRouteParameterNames, serviceRouteAttribute.Template);
+                }
             }
 
             // Handle any [ApiVersion] attributes.
@@ -376,20 +400,50 @@ namespace Neon.ModelGen
                     IsVoid     = ResolveTypeReference(methodInfo.ReturnType, isResultType: true) == "void"
                 };
 
-                var routeAttribute = methodInfo.GetCustomAttribute<RouteAttribute>();
+                var methodRouteAttribute = methodInfo.GetCustomAttribute<RouteAttribute>();
 
-                if (routeAttribute != null)
+                if (methodRouteAttribute != null)
                 {
                     // Verify that the template doesn't specify any route constraints.
 
-                    if (!string.IsNullOrEmpty(routeAttribute.Template) && routeConstraintRegex.IsMatch(routeAttribute.Template))
+                    if (!string.IsNullOrEmpty(methodRouteAttribute.Template) && routeConstraintRegex.IsMatch(methodRouteAttribute.Template))
                     {
-                        Output.Error($"[{serviceModelType.FullName}]: This data model defines method [{serviceMethod.Name}] that defines a route template with a constraint.  Constraints are not currently supported.");
+                        Output.Error($"[{serviceModelType.FullName}.{serviceMethod.Name}()] method defines a route template with a constraint.  Constraints are not currently supported.");
+                    }
+                    else
+                    {
+                        // Ensure that a method parameter exists for each service and method templated route parameter.
+
+                        var methodRouteParameterNames = new List<string>();
+                        var methodParameterNames      = new HashSet<string>();
+
+                        ExtractRouteParameterNames(methodRouteParameterNames, serviceRouteAttribute.Template);
+
+                        foreach (var parameter in methodInfo.GetParameters())
+                        {
+                            methodParameterNames.Add(parameter.Name);
+                        }
+
+                        foreach (var routeParameterName in serviceRouteParameterNames)
+                        {
+                            if (!methodParameterNames.Contains(routeParameterName))
+                            {
+                                Output.Error($"[{serviceModelType.FullName}.{serviceMethod.Name}()] method is missing the [{routeParameterName}] parameter required by the service route.");
+                            }
+                        }
+
+                        foreach (var methodParameterName in methodParameterNames)
+                        {
+                            if (!methodParameterNames.Contains(methodParameterName))
+                            {
+                                Output.Error($"[{serviceModelType.FullName}.{serviceMethod.Name}()] method is missing the [{methodParameterName}] parameter required by the method route.");
+                            }
+                        }
                     }
 
-                    if (!string.IsNullOrWhiteSpace(routeAttribute.Template))
+                    if (!string.IsNullOrWhiteSpace(methodRouteAttribute.Template))
                     {
-                        serviceMethod.RouteTemplate = routeAttribute.Template;
+                        serviceMethod.RouteTemplate = methodRouteAttribute.Template;
                     }
                     else
                     {
@@ -470,7 +524,7 @@ namespace Neon.ModelGen
 
                         // These HTTP methods are not supported.
 
-                        Output.Error($"[{serviceModelType.FullName}]: This data model defines method [{serviceMethod.Name}] that uses the unsupported HTTP [{serviceMethod.HttpMethod}].");
+                        Output.Error($"[{serviceModelType.FullName}]: service defines method [{serviceMethod.Name}] that uses unsupported HTTP [{serviceMethod.HttpMethod}].");
                         break;
                 }
 

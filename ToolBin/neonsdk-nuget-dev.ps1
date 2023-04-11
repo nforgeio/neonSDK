@@ -27,8 +27,8 @@
 # OPTIONS:
 #
 #       -local          - Publishes to C:\nc-nuget-local
-#       -localversion   - Use the local version number (emergeny only)
-#       -drty           - Use GitHub sources for SourceLink even if local repo is dirty
+#       -localversion   - Use the local version number (emergency only)
+#       -dirty          - Use GitHub sources for SourceLink even if local repo is dirty
 #       -release        - Do a RELEASE build instead of DEBUG (the default)
 #       -restore        - Just restore the CSPROJ files after cancelling publish
 #
@@ -299,7 +299,7 @@ try
         # atomically increment the counter and return the next value.
 
         $reply           = Invoke-WebRequest -Uri "$env:NC_NUGET_VERSIONER/counter/neonSDK-dev" -Method 'PUT' -Headers @{ 'Authorization' = "Bearer $versionerKeyBase64" } 
-        $neonSdkVersion  = "10000.0.$reply-dev-$branch"
+        $neonSdkVersion  = "10000.1.$reply-dev-$branch"
     }
 
     #------------------------------------------------------------------------------

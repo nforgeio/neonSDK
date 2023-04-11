@@ -26,21 +26,144 @@ using System.Text.RegularExpressions;
 namespace Neon.ModelGen
 {
     /// <summary>
-    /// Used to manage an API version.
+    /// Used to specify ASP.NET API versions.
     /// </summary>
+    /// <remarks>
+    /// <para>
+    /// API versions are formatted like:
+    /// </para>
+    /// <code>
+    /// [VERSIONGROUP.]MAJOR.MINOR[-STATUS]
+    ///
+    /// or:
+    ///
+    /// VERSIONGROUP[MAJOR[.MINOR]][-STATUS]
+    /// </code>
+    /// <para>
+    /// where <b>VERSIONGROUP</b> is a date formatted like <b>YYYY-MM-DD</b>,
+    /// <b>MAJOR</b> and <b>MINOR</b> are non-negative integers, and <b>STATUS</b>
+    /// is an alphanumberic string starting with a letter.  Here are some valid
+    /// version strings:
+    /// </para>
+    /// <list type="table">
+    /// <item>
+    ///     <term><b>1.0</b></term>
+    ///     <description>
+    ///     major and minor version numbers
+    ///     </description>
+    /// </item>
+    /// <item>
+    ///     <term><b>1.0-alpha</b></term>
+    ///     <description>
+    ///     major and minor version numbers with status
+    ///     </description>
+    /// </item>
+    /// <item>
+    ///     <term><b>2023-04-09</b></term>
+    ///     <description>
+    ///     Version group date
+    ///     </description>
+    /// </item>
+    /// <item>
+    ///     <term><b>2023-04-09-alpha</b></term>
+    ///     <description>
+    ///     Version group date with status
+    ///     </description>
+    /// </item>
+    /// <item>
+    ///     <term><b>2023-04-09.1.0</b></term>
+    ///     <description>
+    ///     Version group with major and minor versions
+    ///     </description>
+    /// </item>
+    /// <item>
+    ///     <term><b>2023-04-09.1.0-alpha</b></term>
+    ///     <description>
+    ///     Version group with major and minor versions plus status
+    ///     </description>
+    /// </item>
+    /// <item>
+    ///     <term><b>2023-04.091</b></term>
+    ///     <description>
+    ///     <para>
+    ///     Version group with only major version <b>(1)</b>
+    ///     </para>
+    ///     <note>
+    ///     This format is a bit odd and may be confusing.  We recommend that 
+    ///     you avoid using this.
+    ///     </note>
+    ///     </description>
+    /// </item>
+    /// <item>
+    ///     <term><b>2023-04.091-alpha</b></term>
+    ///     <description>
+    ///     <para>
+    ///     Version group with only major version <b>(1)</b> and status
+    ///     </para>
+    ///     <note>
+    ///     This format is a bit odd and may be confusing.  We recommend that 
+    ///     you avoid using this.
+    ///     </note>
+    ///     </description>
+    /// </item>
+    /// <item>
+    ///     <term><b>2023-04.091.0</b></term>
+    ///     <description>
+    ///     <para>
+    ///     Version group with major and minor versions
+    ///     </para>
+    ///     <note>
+    ///     This format is a bit odd and may be confusing.  We recommend that 
+    ///     you avoid using this.
+    ///     </note>
+    ///     </description>
+    /// </item>
+    /// <item>
+    ///     <term><b>2023-04.091.0-alpha</b></term>
+    ///     <description>
+    ///     <para>
+    ///     Version group with major and minor versions with status
+    ///     </para>
+    ///     <note>
+    ///     This format is a bit odd and may be confusing.  We recommend that 
+    ///     you avoid using this.
+    ///     </note>
+    ///     </description>
+    /// </item>
+    /// </list>
+    /// </remarks>
     public class ApiVersion : IComparable<ApiVersion>
     {
         //---------------------------------------------------------------------
         // Static members
 
-        private static DateTime minVersionGroup = new DateTime(1, 1, 1).ToUniversalTime();
+        private static DateTime     minVersionGroup         = new DateTime(1, 1, 1).ToUniversalTime();
+        private static Regex        majorMinorRegex         = new Regex(@"(?<major>\d+)\.(?<minor>\d+)");
+        private static Regex        majorOptionalMinorRegex = new Regex(@"((?<major>\d+)(\.(?<minor>\d+))?)?");
 
         /// <summary>
-        /// Parses a <see cref="ApiVersion"/>.
+        /// <para>
+        /// Parses a <see cref="ApiVersion"/>, formatted like:
+        /// </para>
+        /// <para>
+        /// API versions are formatted like:
+        /// </para>
+        /// <code>
+        /// [VERSIONGROUP.]MAJOR.MINOR[-STATUS]
+        ///
+        /// or:
+        ///
+        /// VERSIONGROUP[MAJOR[.MINOR]][-STATUS]
+        /// </code>
+        /// <para>
+        /// where <b>VERSIONGROUP</b> is a date formatted like <b>YYYY-MM-DD</b>,
+        /// <b>MAJOR</b> and <b>MINOR</b> are non-negative integers, and <b>STATUS</b>
+        /// is an alphanumberic string starting with a letter.
+        /// </para>
         /// </summary>
         /// <param name="version">The version string,</param>
         /// <returns>The parsed <see cref="ApiVersion"/>.</returns>
-        /// <exception cref="FormatException">Thrown for invalid version strings.</exception>
+        /// <exception cref="FormatException">Thrown for an invalid version string.</exception>
         public static ApiVersion Parse(string version)
         {
             var apiVersion = new ApiVersion();
@@ -85,8 +208,7 @@ namespace Neon.ModelGen
             {
                 pos++;
 
-                var majorMinorRegex = new Regex(@"(?<major>\d+)\.(?<minor>\d+)");
-                var match           = majorMinorRegex.Match(version, pos);
+                var match = majorMinorRegex.Match(version, pos);
 
                 if (!match.Success)
                 {
@@ -100,8 +222,7 @@ namespace Neon.ModelGen
             }
             else
             {
-                var majorOptionalMinorRegex = new Regex(@"((?<major>\d+)(\.(?<minor>\d+))?)?");
-                var match                   = majorOptionalMinorRegex.Match(version, pos);
+                var match = majorOptionalMinorRegex.Match(version, pos);
 
                 if (!match.Success)
                 {
@@ -147,6 +268,11 @@ namespace Neon.ModelGen
             if (apiVersion.Status.Length == 0)
             {
                 throw new FormatException($"Invalid status part: [version={version}]");
+            }
+
+            if (!char.IsLetter(apiVersion.Status[0]))
+            {
+                throw new FormatException($"Invalid status part: [version={version}].  Status part must start with a letter.");
             }
 
             foreach (var ch in apiVersion.Status)

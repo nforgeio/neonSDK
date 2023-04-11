@@ -1,12 +1,15 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Neon.Diagnostics;
 
 namespace Neon.Blazor
 {
@@ -27,15 +30,29 @@ namespace Neon.Blazor
         [Parameter]
         public double[] Threshold { get; set; } = null;
 
+        [Parameter]
+        public string DocumentQuery { get; set; } = null;
+
         [Inject]
         public IJSRuntime JS { get; set; }
 
         [Inject]
         public IHttpContextAccessor HttpContextAccessor { get; set; }
 
+        [Inject]
+        public IServiceProvider ServiceProvider { get; set; }
+
+        public event Action IntersectionChanged;
+
+        public bool IsIntersecting => IntersectionObserverContext.IsIntersecting;
+        public bool IsVisible => IntersectionObserverContext.IsVisible;
+        public double Ratio => IntersectionObserverContext.Ratio;
+
         private IJSObjectReference jsModule;
 
         private IJSObjectReference intersectionObserver;
+
+        private ILogger<IntersectionObserver> logger;
 
         protected HtmlElement rootElement { get; set; }
         private IntersectionObserverContext IntersectionObserverContext { get; set; } = new IntersectionObserverContext();
@@ -43,6 +60,8 @@ namespace Neon.Blazor
 
         protected override void OnInitialized()
         {
+            this.logger = this.ServiceProvider.GetService<ILoggerFactory>()?.CreateLogger<IntersectionObserver>();
+
             base.OnInitialized();
         }
 
@@ -60,16 +79,25 @@ namespace Neon.Blazor
 
             if (firstRender)
             {
-                intersectionObserver = await jsModule.InvokeAsync<IJSObjectReference>("construct", new
+                try
                 {
-                    RootMargin = RootMargin,
-                    Threshold = Threshold
-                });
+                    intersectionObserver = await jsModule.InvokeAsync<IJSObjectReference>("construct", new
+                    {
+                        RootMargin = RootMargin,
+                        Threshold = Threshold
+                    });
 
-                if (rootElement != null)
+                    if (rootElement != null)
+                    {
+                        var elementRef = rootElement.AsElementReference();
+                        await intersectionObserver!.InvokeVoidAsync("observe", elementRef);
+
+                        logger?.LogDebugEx(() => $"observing element [{elementRef.Id}]");
+                    }
+                }
+                catch (Exception e)
                 {
-                    var elementRef = rootElement.AsElementReference();
-                    await intersectionObserver!.InvokeVoidAsync("observe", rootElement.AsElementReference());
+                    logger?.LogErrorEx(e);
                 }
             }
 
@@ -105,7 +133,7 @@ namespace Neon.Blazor
             elementReference = reference;
         }
 
-        private Task OnIntersectionChangedInternal(IntersectionChangedEventArgs args)
+        private async Task OnIntersectionChangedInternal(IntersectionChangedEventArgs args)
         {
             if (this.IntersectionObserverContext == null)
             {
@@ -115,11 +143,13 @@ namespace Neon.Blazor
             this.IntersectionObserverContext.IsIntersecting = args.IsIntersecting;
             this.IntersectionObserverContext.IsVisible = args.IsVisible;
 
-            return OnIntersectionChanged.InvokeAsync(new IntersectionChangedEventArgs()
+            await InvokeAsync(IntersectionChanged);
+            
+            await OnIntersectionChanged.InvokeAsync(new IntersectionChangedEventArgs()
             {
-                Ratio = args.Ratio,
+                Ratio          = args.Ratio,
                 IsIntersecting = args.IsIntersecting,
-                IsVisible = args.IsVisible
+                IsVisible      = args.IsVisible
             });
         }
     }
@@ -133,6 +163,7 @@ namespace Neon.Blazor
 
     public class IntersectionObserverContext
     {
+        public double Ratio { get; set; }
         public bool IsVisible { get; set; }
         public bool IsIntersecting { get; set; }
     }

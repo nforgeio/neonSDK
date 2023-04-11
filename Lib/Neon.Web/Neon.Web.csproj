@@ -4,7 +4,7 @@
         <TargetFrameworks>net7.0</TargetFrameworks>
         <OutputType>Library</OutputType>
 		<RootNamespace>Neon.Web</RootNamespace>
-		<Version>3.0.0-preview1</Version>
+		<Version>3.0.0</Version>
 		<PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
 		<AssemblyVersion>0.0.0.0</AssemblyVersion>
 		<IsPackable>true</IsPackable>
@@ -24,7 +24,7 @@
 
 	<ItemGroup>
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
-		<PackageReference Include="AsyncKeyedLock" Version="6.2.0" />
+		<PackageReference Include="AsyncKeyedLock" Version="6.2.1" />
 		<PackageReference Include="Microsoft.Net.Http.Headers" Version="2.2.8" />
         <PackageReference Include="MessagePack" Version="2.4.59" />
         <PackageReference Include="NATS.Client" Version="1.0.3" />

@@ -974,9 +974,22 @@ namespace Neon.HyperV
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(natName), nameof(natName));
             Covenant.Requires<ArgumentNullException>(subnet != null, nameof(subnet));
 
-            if (ListNats().Any(nat => nat.Name.Equals(natName, StringComparison.InvariantCultureIgnoreCase)))
+            // Verify that the NAT doesn't already exist or that no other NAT 
+            // is associated with the subnet.
+
+            var existingNats = ListNats();
+
+            if (existingNats.Any(nat => nat.Name.Equals(natName, StringComparison.InvariantCultureIgnoreCase)))
             {
                 throw new HyperVException($"NetNat [{natName}] already exists.");
+            }
+
+            foreach (var nat in existingNats)
+            {
+                if (nat.Subnet == subnet)
+                {
+                    throw new HyperVException($"Subnet [{subnet}] is already assocated with existing NetNat [{nat.Name}]. ");
+                }
             }
 
             // $note(jefflill):
@@ -1193,7 +1206,7 @@ namespace Neon.HyperV
             Invoke<SetVM>(args,
                 waitFor: () =>
                 {
-                    var vm = ListVms().First();
+                    var vm = ListVms().First(vm => vm.Name.Equals(machineName, StringComparison.InvariantCultureIgnoreCase));
 
                     if (processorCount.HasValue && vm.ProcessorCount != processorCount.Value)
                     {

@@ -46,32 +46,60 @@ namespace Neon.Net
         private static readonly TimeSpan    maxRetryTime  = TimeSpan.FromSeconds(10);
         private static readonly TimeSpan    retryInterval = TimeSpan.FromMilliseconds(100);
         private static readonly int         maxAttempts   = (int)Math.Max(1, maxRetryTime.TotalMilliseconds / retryInterval.TotalMilliseconds);
-
         private static LinearRetryPolicy    retryFile     = new LinearRetryPolicy(typeof(IOException), maxAttempts: maxAttempts, retryInterval: retryInterval);
         private static LinearRetryPolicy    retryReady    = new LinearRetryPolicy(typeof(NotReadyException), maxAttempts: maxAttempts, retryInterval: retryInterval);
-
         private static readonly char[]      colonArray    = new char[] { ':' };
-
         private static readonly Regex       ipv4Regex     = new Regex(@"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}", RegexOptions.Compiled);
 
         /// <summary>
-        /// Regex for verifying DNS hostnames.
+        /// Verifies that a string is a valid DNS label.
         /// </summary>
-        public static Regex DnsHostRegex { get; private set; } = new Regex(@"^(([a-z0-9]|[a-z0-9][a-z0-9\-_]){1,61})(\.([a-z0-9]|[a-z0-9][a-z0-9\-_]){1,61})*$", RegexOptions.IgnoreCase);
+        /// <param name="label">The label being tested.</param>
+        /// <returns></returns>
+        public static bool IsValidDnsLabel(string label)
+        {
+            if (string.IsNullOrEmpty(label) || label.Length > 63)
+            {
+                return false;
+            }
+
+            if (label.StartsWith("-") || label.EndsWith("-"))
+            {
+                return false;
+            }
+
+            foreach (var ch in label)
+            {
+                if (!char.IsLetterOrDigit(ch) && ch != '-')
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
 
         /// <summary>
         /// Verifies that a string is a valid DNS hostname.
         /// </summary>
-        /// <param name="host">The string being tested.</param>
+        /// <param name="host">The hostname being tested.</param>
         /// <returns><c>true</c> if the hostname is valid.</returns>
-        public static bool IsValidHost(string host)
+        public static bool IsValidDnsHost(string host)
         {
             if (string.IsNullOrEmpty(host) || host.Length > 255)
             {
                 return false;
             }
 
-            return DnsHostRegex.IsMatch(host);
+            foreach (var label in host.Split('.'))
+            {
+                if (!IsValidDnsLabel(label))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -1054,6 +1082,89 @@ namespace Neon.Net
             catch (Exception e)
             {
                 throw new NetworkException($"Cannot obtain a free port for [{address}].", e);
+            }
+        }
+
+        /// <summary>
+        /// Returns a free TCP port for a local network interface within a given range of ports.
+        /// </summary>
+        /// <param name="startPort">
+        /// The first port to check
+        /// </param>
+        /// <param name="endPort">
+        /// The last port to check.
+        /// </param>
+        /// <param name="address">
+        /// Optionally specifies the target interface's IP address.  This defaults to
+        /// <see cref="IPAddress.Any"/> where an unused port will be returned that is
+        /// available on all network interfaces.
+        /// </param>
+        /// <returns>The free port number.</returns>
+        /// <exception cref="NetworkException">Thrown when there are no available ports.</exception>
+        /// <remarks>
+        /// <note>
+        /// <para>
+        /// The behavior when <see cref="GetUnusedTcpPort(IPAddress)"/> is called multiple times
+        /// without actually listening on the ports is somewhat undefined.
+        /// </para>
+        /// <para>
+        /// We believe most operating systems won't return the same port again for
+        /// a while (perhaps a few minutes) so you're probably safe retrieving a few
+        /// unused ports before using them for testing and other non-production purposes.
+        /// </para>
+        /// <para>
+        /// Production code should begin listening on and unused ports immediately after
+        /// retrieving one.  This will ensure that the unused ports returned will be unique
+        /// and also help avoid having another application grab the port before you have
+        /// a chance to listen on it.
+        /// </para>
+        /// </note>
+        /// </remarks>
+        public static int GetUnusedTcpPort(
+            int startPort,
+            int endPort,
+            IPAddress address = null
+            )
+        {
+            address ??= IPAddress.Any;
+
+            for (int port = startPort; port <= endPort; port++)
+            {
+                if (TcpPortIsFree(port))
+                {
+                    return port;
+                }
+            }
+
+            throw new NetworkException($"Cannot obtain a free port for [{address}] in range [{startPort}-{endPort}].");
+        }
+
+        /// <summary>
+        /// Checks to see whether a TCP port is free on a given IP address.
+        /// </summary>
+        /// <param name="port">
+        /// The port number.
+        /// </param>
+        /// <param name="address">
+        /// The optional IP address. If not specified, defaults to <see cref="IPAddress.Any"/>.
+        /// </param>
+        /// <returns></returns>
+        public static bool TcpPortIsFree(int port, IPAddress address = null)
+        {
+            address ??= IPAddress.Any;
+
+            try
+            {
+                var listener = new TcpListener(address, port);
+
+                listener.Start();
+                listener.Stop();
+
+                return true;
+            }
+            catch 
+            { 
+                return false; 
             }
         }
 
