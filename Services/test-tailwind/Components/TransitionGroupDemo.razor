@@ -1,0 +1,50 @@
+﻿@*//-----------------------------------------------------------------------------
+// FILE:	    TransitionDemo.razor
+// CONTRIBUTOR: Marcus Bowyer
+// COPYRIGHT:  	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.*@
+
+<div class="py-4">
+    <p>
+        Transition Group. (<code>SuppressInitial=true</code>)
+    </p>
+    <div class="flex h-32 space-x-4">
+        <TransitionGroup Show="@isShowing" SuppressInitial="@true" @ref="transitionGroup">
+            <Transition Enter="transform transition duration-[400ms] "
+                        EnterFrom="opacity-0 rotate-[-120deg] scale-50 "
+                        EnterTo="opacity-100 rotate-0 scale-100 "
+                        Leave="transform duration-200 transition ease-in-out "
+                        LeaveFrom="opacity-100 rotate-0 scale-100 "
+                        LeaveTo="opacity-0 scale-95 "
+                        Context="transitionCss">
+                <div class="h-full w-32 rounded-md bg-gray-600 shadow-lg @transitionCss" />
+            </Transition>
+
+            <Transition Enter="transform transition duration-[400ms] "
+                        EnterFrom="opacity-0 rotate-[-120deg] scale-50 "
+                        EnterTo="opacity-100 rotate-0 scale-100 "
+                        Leave="transform duration-200 transition ease-in-out "
+                        LeaveFrom="opacity-100 rotate-0 scale-100 "
+                        LeaveTo="opacity-0 scale-95 "
+                        Context="transitionCss">
+                <div class="h-full w-32 rounded-md bg-gray-600 shadow-lg @transitionCss" />
+            </Transition>
+        </TransitionGroup>
+    </div>
+</div>
+
+<HeadlessButton OnClick="@ShowTransitionAsync"
+                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+    Show Group
+</HeadlessButton>

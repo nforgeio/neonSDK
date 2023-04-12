@@ -20,7 +20,7 @@
 <PageTitle>Index</PageTitle>
 
 
-<div class="grid grid-cols-2 gap-8">
+<div class="grid grid-cols-2 gap-8 py-16">
     <div class="flex-initial w-72">
         <Dialog />
     </div>
@@ -38,14 +38,17 @@
     </div>
 </div>
 
-<br />
-<br />
-<div class="w-72 inline-block">
+<div class="w-72 inline-block py-8">
     <TransitionDemo />
 </div>
 
-<br />
-<br />
+<div class="w-72 inline-block py-8">
+    <TransitionGroupDemo />
+</div>
+
+<div class="w-72 block py-8">
+    <AnimatePresenseDemo />
+</div>
 
 <TransitionGroup Show="@true">
     <Transition Enter="transform transition ease-linear duration-[4000ms]"

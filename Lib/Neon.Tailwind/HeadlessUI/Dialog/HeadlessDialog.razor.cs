@@ -140,7 +140,7 @@ namespace Neon.Tailwind
         {
             Show = true;
             await OnOpen.InvokeAsync();
-            
+
             await InvokeAsync(StateHasChanged);
         }
 

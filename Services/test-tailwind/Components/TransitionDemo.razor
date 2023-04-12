@@ -15,34 +15,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.*@
 
-<div class="flex flex-col items-center py-16">
+<div class="py-4">
     <div class="h-32 w-32">
-        <TransitionGroup Show="@isShowing">
-            <Transition 
-
-              @*  enter="transform transition "
-          enterFrom="opacity-0 rotate-[-120deg] scale-50"
-          enterTo="opacity-100 rotate-0 scale-100"
-          leave="transform  transition ease-in-out"
-          leaveFrom="opacity-100 rotate-0 scale-100 "
-          leaveTo="opacity-0 scale-95 "*@
-                        Show="@isShowing"
-                        Enter="transform transition duration-[400ms] "
-                        EnterFrom="opacity-0 rotate-[-120deg] scale-50 "
-                        EnterTo="opacity-100 rotate-0 scale-100 "
-                        Leave="transform duration-200 transition ease-in-out "
-                        LeaveFrom="opacity-100 rotate-0 scale-100 "
-                        LeaveTo="opacity-0 scale-95 "
-                        Context="transitionCss"
-                        @ref="transition">
+        <Transition Show="@isShowing"
+                    Enter="transform transition duration-[400ms] "
+                    EnterFrom="opacity-0 rotate-[-120deg] scale-50 "
+                    EnterTo="opacity-100 rotate-0 scale-100 "
+                    Leave="transform duration-200 transition ease-in-out "
+                    LeaveFrom="opacity-100 rotate-0 scale-100 "
+                    LeaveTo="opacity-0 scale-95 "
+                    Context="transitionCss"
+                    @ref="transition">
             <div class="h-full w-full rounded-md bg-gray-600 shadow-lg @transitionCss" />
-            </Transition>
-        </TransitionGroup>
+        </Transition>
     </div>
 </div>
 
-<HeadlessButton 
-    OnClick="@ShowTransitionAsync" 
-    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+<HeadlessButton OnClick="@ShowTransitionAsync"
+                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
     Show
 </HeadlessButton>

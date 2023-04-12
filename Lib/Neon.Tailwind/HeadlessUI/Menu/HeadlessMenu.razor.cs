@@ -18,6 +18,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
+using Neon.Tasks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -61,6 +62,8 @@ namespace Neon.Tailwind
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
+            await SyncContext.Clear;
+
             if (shouldFocus)
             {
                 shouldFocus = false;
@@ -70,10 +73,6 @@ namespace Neon.Tailwind
                 }
                 else
                 {
-                    //I wouldn't think the Task.Yield would be necessary but Blazor occationally throws a javascript error that I am unable to isolate if it isn't in there
-                    //If we can identify the precise cause of the error then this could be removed.
-
-                    await Task.Yield();
                     await ButtonFocusAsync();
                 }
             }

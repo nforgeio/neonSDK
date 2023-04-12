@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:	    TransitionDemo.razor.cs
+// FILE:	    TransitionGroupDemo.razor.cs
 // CONTRIBUTOR: Marcus Bowyer
 // COPYRIGHT:  	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
@@ -26,10 +26,10 @@ using Neon.Tailwind;
 
 namespace TestTailwind.Components
 {
-    public partial class TransitionDemo : ComponentBase
+    public partial class TransitionGroupDemo : ComponentBase
     {
         private bool            isShowing = true;
-        private Transition      transition;
+        private TransitionGroup transitionGroup;
         private bool            isTransitioning = false;
 
         protected override void OnInitialized()
@@ -42,9 +42,9 @@ namespace TestTailwind.Components
             if (isTransitioning) { return; }
             isTransitioning = true;
 
-            await transition.LeaveAsync();
+            await transitionGroup.LeaveAsync();
 
-            await transition.EnterAsync();
+            await transitionGroup.EnterAsync();
 
             isTransitioning = false;
         }

@@ -37,6 +37,10 @@
     </ItemGroup>
     
     <ItemGroup>
+      <Watch Remove="Components\AnimatePresenseDemo.razor" />
+      <Watch Remove="Components\TransitionDemo - Copy.razor.cs" />
+      <Watch Remove="Components\TransitionGroupDemo - Copy.razor.cs" />
+      <Watch Remove="Components\TransitionGroupDemo.razor" />
       <Watch Remove="Pages\Motion.razor" />
     </ItemGroup>
 
