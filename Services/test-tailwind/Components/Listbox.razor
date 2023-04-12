@@ -43,7 +43,7 @@
                     <ListboxOption TValue="Person">Unassigned</ListboxOption>
                     @foreach (var person in people)
                     {
-                        <ListboxOption Value="person" TValue="Person" IsEnabled="@person.Enabled" SearchValue="@person.Name">@person.Name</ListboxOption>
+                        <ListboxOption @key=person Value="person" TValue="Person" IsEnabled="@person.Enabled" SearchValue="@person.Name">@person.Name</ListboxOption>
                     }
                 </HeadlessListboxOptions>
             </Transition>
