@@ -80,8 +80,8 @@ namespace Neon.Tailwind
         /// <inheritdoc/>
         protected override void OnInitialized()
         {
-            base.OnInitialized();
             searchAssistant.OnChange += HandleSearchChange!;
+            base.OnInitialized();
         }
 
         /// <inheritdoc/>

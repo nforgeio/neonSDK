@@ -23,6 +23,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 
 using Neon.Tailwind;
+using Neon.Tasks;
 
 namespace TestTailwind.Components
 {
@@ -36,12 +37,14 @@ namespace TestTailwind.Components
 
         private async Task OpenDialogAsync()
         {
+            await SyncContext.Clear;
             showDialog = true;
             StateHasChanged();
         }
 
         private async Task CloseDialogAsync()
         {
+            await SyncContext.Clear;
             showDialog = false;
             StateHasChanged();
         }

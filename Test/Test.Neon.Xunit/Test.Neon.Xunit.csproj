@@ -61,8 +61,8 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="LiquidTestReports.Markdown" Version="1.1.1-beta" />
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="7.0.3" />
-		<PackageReference Include="Microsoft.AspNetCore.TestHost" Version="7.0.3" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="7.0.5" />
+		<PackageReference Include="Microsoft.AspNetCore.TestHost" Version="7.0.5" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0" />
 		<PackageReference Include="xunit" Version="2.4.2" />

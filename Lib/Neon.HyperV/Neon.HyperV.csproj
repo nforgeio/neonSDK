@@ -27,7 +27,7 @@
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
 		<PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
 		<PackageReference Include="PowerShellStandard.Library" Version="5.1.1" />
-		<PackageReference Include="System.Management" Version="7.0.0" />
+		<PackageReference Include="System.Management" Version="7.0.1" />
 		<PackageReference Include="System.Management.Automation" Version="7.3.3" />
 	</ItemGroup>
 

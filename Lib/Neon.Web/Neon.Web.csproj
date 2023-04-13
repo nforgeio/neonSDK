@@ -26,7 +26,7 @@
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 		<PackageReference Include="AsyncKeyedLock" Version="6.2.1" />
 		<PackageReference Include="Microsoft.Net.Http.Headers" Version="2.2.8" />
-        <PackageReference Include="MessagePack" Version="2.4.59" />
+        <PackageReference Include="MessagePack" Version="2.5.108" />
         <PackageReference Include="NATS.Client" Version="1.0.3" />
 	</ItemGroup>
 
@@ -39,11 +39,11 @@
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="7.0.3" />
-		<PackageReference Include="Microsoft.AspNetCore.TestHost" Version="7.0.3" />
-		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="7.0.3" />
-		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="7.0.3" />
-		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.NewtonsoftJson" Version="7.0.3" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="7.0.5" />
+		<PackageReference Include="Microsoft.AspNetCore.TestHost" Version="7.0.5" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="7.0.5" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="7.0.5" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.NewtonsoftJson" Version="7.0.5" />
 	</ItemGroup>
 
 	<ItemGroup>
