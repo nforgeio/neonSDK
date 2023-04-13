@@ -52,7 +52,7 @@ namespace TestXunit
         {
             // Verify that we can start a simple container with defaults.
 
-            var result = NeonHelper.ExecuteCapture(NeonHelper.DockerCli, "ps");
+            var result = NeonHelper.ExecuteCapture(NeonHelper.VerifiedDockerCli, "ps");
 
             Assert.Equal(0, result.ExitCode);
             Assert.Contains("neon-unit-test-container", result.AllText);
