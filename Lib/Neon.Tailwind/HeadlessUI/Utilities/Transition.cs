@@ -296,10 +296,15 @@ namespace Neon.Tailwind
         /// <inheritdoc/>
         protected override void BuildRenderTree(RenderTreeBuilder builder)
         {
+            builder.OpenComponent<CascadingValue<TransitionState>>(0);
+            builder.AddAttribute(2, "Value", State);
+
             if (State != TransitionState.Hidden)
             {
-                builder.AddContent(0, ChildContent, CurrentCssClass);
+                builder.AddAttribute(3, "ChildContent", ChildContent?.Invoke(CurrentCssClass));
             }
+
+            builder.CloseComponent();
         }
 
         /// <inheritdoc/>

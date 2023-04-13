@@ -22,26 +22,27 @@
     Say Hello
 </HeadlessButton>
 
-<TransitionGroup Show="@isShowing" SuppressInitial="@false" @ref="transitionGroup">
-    <div class="flex flex-col h-96 justify-start gap-4 pt-8">
+<div class="h-96 ">
+    <TransitionGroup Show="@isShowing" SuppressInitial="@false" @ref="transitionGroup">
+        <div class="flex flex-col justify-start gap-4 pt-8">
 
-        @foreach (var message in messages)
-        {
-            <Transition 
-                    @key=message
-                    Id="@message.Key.ToString()"
-                    SuppressInitial="@false"
-                    Enter="transition duration-[500ms]"
-                    EnterFrom="-translate-y-4 opacity-0"
-                    EnterTo="translate-y-0 opacity-100"
-                    Leave="transition duration-[500ms]"
-                    LeaveFrom="opacity-100"
-                    LeaveTo="opacity-0"
-                    Context="transitionCss">
-                <div class="border-2 rounded-lg p-2 top-0 @transitionCss">
-                    @message.Value
-                </div>
-            </Transition>
-        }
-    </div>
-</TransitionGroup>
+            @foreach (var message in messages)
+            {
+                <Transition @key=message
+                            Id="@message.Key.ToString()"
+                            SuppressInitial="@false"
+                            Enter="transition duration-[200ms]"
+                            EnterFrom="-translate-y-4 opacity-0"
+                            EnterTo="translate-y-0 opacity-100"
+                            Leave="transition duration-[200ms]"
+                            LeaveFrom="opacity-100"
+                            LeaveTo="translate-x-full opacity-0"
+                            Context="transitionCss">
+                    <div class="border-2 rounded-lg p-2 shrink top-0 @transitionCss">
+                        @message.Value
+                    </div>
+                </Transition>
+            }
+        </div>
+    </TransitionGroup>
+</div>

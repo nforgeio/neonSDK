@@ -1,12 +1,7 @@
 ﻿@using Neon.Blazor;
 
 <div class="h-96 inline-block">
-    @if (visible)
-    {
-        <p>
-            foo testaroo
-        </p>
-    }
+<p>@(IntersectionObserver.IsIntersecting ? "visible" : "invisible")</p>
 </div>
 
 @code {
@@ -17,21 +12,12 @@
 
     protected override void OnInitialized()
     {
-        IntersectionObserver.IntersectionChanged += IntersectionChanged;
+        IntersectionObserver.IntersectionChanged += StateHasChanged;
         base.OnInitialized();
-    }
-
-    void IntersectionChanged()
-    {
-        if (!visible && IntersectionObserver.IsIntersecting)
-        {
-            visible = true;
-            StateHasChanged();
-        }
     }
 
     public void Dispose()
     {
-        IntersectionObserver.IntersectionChanged -= IntersectionChanged;
+        IntersectionObserver.IntersectionChanged -= StateHasChanged;
     }
 }

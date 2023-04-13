@@ -4,10 +4,10 @@
 
     <HtmlElement 
     Id="@Id"
-    aria-expanded="@((IsVisible == DisclosureState.Open).ToString())"  
+    aria-expanded="@((IsVisible ?? isVisible).ToString())"  
     @attributes="Attributes"
     @ref="rootElement" >
-    @if (IsVisible == DisclosureState.Open) {
+    @if (IsVisible ?? isVisible) {
     @ChildContent
     }
 

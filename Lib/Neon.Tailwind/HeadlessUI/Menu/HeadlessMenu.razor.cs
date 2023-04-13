@@ -51,6 +51,8 @@ namespace Neon.Tailwind
         public string ButtonElementId => buttonElement?.Id;
         public string ItemsElementId => itemsElement?.Id;
 
+        public bool HasRendered { get; set; } = false;
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -63,6 +65,11 @@ namespace Neon.Tailwind
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             await SyncContext.Clear;
+
+            if (firstRender)
+            {
+                HasRendered = true;
+            }
 
             if (shouldFocus)
             {

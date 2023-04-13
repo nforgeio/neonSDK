@@ -31,10 +31,10 @@
         <Menu />
     </div>
     <div class="flex-initial w-72">
-        <Listbox />
+        <Disclosure />
     </div>
     <div class="flex-initial w-72">
-        <Disclosure />
+        <Listbox />
     </div>
 </div>
 
@@ -50,20 +50,7 @@
     <AnimatePresenseDemo />
 </div>
 
-<TransitionGroup Show="@true">
-    <Transition Enter="transform transition ease-linear duration-[4000ms]"
-                EnterFrom="opacity-0"
-                EnterTo="opacity-100"
-                Leave="transform transition ease-linear duration-[4000ms]"
-                LeaveFrom="opacity-100"
-                LeaveTo="opacity-0"
-                Context="transitionCss">
-        <div class="@("w-[200px] h-[200px] bg-black " + transitionCss)" />
-    </Transition>
-</TransitionGroup>
-
-
-
-<IntersectionObserver RootMargin="-150px" Context="foo">
+<div class="h-96 inline-block" />
+<IntersectionObserver RootMargin="-0px" Context="foo">
     <Observer />
 </IntersectionObserver>

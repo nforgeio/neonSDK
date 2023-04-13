@@ -21,6 +21,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
+using Neon.Tasks;
 
 namespace Neon.Tailwind
 {
@@ -40,7 +41,7 @@ namespace Neon.Tailwind
         public bool Show { get; set; } = false;
 
         [Parameter] public bool IsEnabled { get; set; } = true;
-
+        public bool HasRendered { get; set; } = false;
         private HeadlessDisclosurePanel disclosurePanel { get; set; }
         private HeadlessDisclosureButton disclosureButton { get; set; }
         
@@ -62,8 +63,17 @@ namespace Neon.Tailwind
             base.OnInitialized();
             State = Show ? DisclosureState.Open : DisclosureState.Closed;
         }
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            await SyncContext.Clear;
 
-        public async Task RegisterButton(HeadlessDisclosureButton button)
+            if (firstRender)
+            {
+                HasRendered = true;
+            }
+        }
+
+            public async Task RegisterButton(HeadlessDisclosureButton button)
         {
             await Task.CompletedTask;
             disclosureButton = button;
@@ -106,7 +116,11 @@ namespace Neon.Tailwind
         public async Task Open()
         {
             Show = true;
-            await disclosurePanel.Open();
+
+            if (disclosurePanel != null) 
+            {
+                await disclosurePanel.Open();
+            }
             State = DisclosureState.Open;
             await InvokeAsync(StateHasChanged);
         }
@@ -118,7 +132,11 @@ namespace Neon.Tailwind
         public async Task Close()
         {
             Show = false;
-            await disclosurePanel.Close();
+
+            if (disclosurePanel != null)
+            {
+                await disclosurePanel.Close();
+            }
             State = DisclosureState.Closed;
 
             await InvokeAsync(StateHasChanged);

@@ -12,36 +12,59 @@ namespace Neon.Tailwind
 {
     public partial class HeadlessDisclosurePanel : HtmlElement, IDisposable
     {
-        [CascadingParameter] public HeadlessDisclosure CascadedDisclosure { get; set; } = default!;
+        [CascadingParameter] 
+        public HeadlessDisclosure CascadedDisclosure { get; set; } = default!;
+
+        [CascadingParameter]
+        public TransitionState? State { get; set; } = null;
 
         /// <summary>
         /// Whether the disclosure panel is enabled.
         /// </summary>
-        [Parameter] public bool IsEnabled { get; set; } = true;
+        [Parameter] 
+        public bool IsEnabled { get; set; } = true;
 
         /// <summary>
         /// Whether the disclosure panel is visible.
         /// </summary>
-        [Parameter] public DisclosureState IsVisible { get; set; } = DisclosureState.Closed;
+        [Parameter] 
+        public bool? IsVisible { get; set; } = null;
 
         protected HeadlessDisclosure Disclosure { get; set; } = default!;
 
         private HtmlElement rootElement;
+        private bool isVisible 
+        {
+            get
+            {
+                if (Disclosure != null
+                    && !Disclosure.HasRendered)
+                {
+                    return State == Tailwind.TransitionState.Visible;
+                }
 
+                if (State != null)
+                {
+                    return State != Tailwind.TransitionState.Hidden;
+                }
+
+                return isOpen;
+            }
+        }
+        private bool isOpen { get; set; }
         protected async override Task OnInitializedAsync()
         {
             await Disclosure.RegisterPanel(this);
-
         }
         public async Task Open()
         {
-            IsVisible = DisclosureState.Open;
+            isOpen = true;
 
             await Task.CompletedTask;
         }
         public async Task Close()
         {
-            IsVisible = DisclosureState.Closed;
+            isOpen = false;
 
             await Task.CompletedTask;
         }
