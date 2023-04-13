@@ -32,7 +32,6 @@ namespace TestTailwind.Components
     {
         private TransitionGroup               transitionGroup;
         private bool                          isShowing       = true;
-        private bool                          isTransitioning = false;
         private SortedDictionary<int, string> messages        = new SortedDictionary<int, string>();
         private int                           messageId       = 0;
         protected override void OnInitialized()
