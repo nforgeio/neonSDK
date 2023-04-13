@@ -30,6 +30,7 @@ namespace TestTailwind.Components
     {
         private bool            isShowing = true;
         private Transition      transition;
+        private bool            isTransitioning = false;
 
         protected override void OnInitialized()
         {
@@ -38,13 +39,14 @@ namespace TestTailwind.Components
 
         private async Task ShowTransitionAsync()
         {
-            isShowing = false;
-            StateHasChanged();
+            if (isTransitioning) { return; }
+            isTransitioning = true;
 
-            await Task.Delay(500);
+            await transition.LeaveAsync();
 
-            isShowing = true;
-            StateHasChanged();
+            await transition.EnterAsync();
+
+            isTransitioning = false;
         }
     }
 }

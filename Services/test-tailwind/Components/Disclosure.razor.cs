@@ -8,5 +8,6 @@ namespace TestTailwind.Components
 {
     public partial class Disclosure : ComponentBase
     {
+        public Transition testTransition { get; set; }
     }
 }

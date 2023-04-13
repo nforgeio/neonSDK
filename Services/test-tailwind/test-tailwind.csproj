@@ -31,14 +31,6 @@
         <Watch Include="**\*.cshtml" />
         <Watch Include="**\*.js" Exclude="node_modules\**\*;**\*.js.map;obj\**\*;bin\**\*" />
     </ItemGroup>
-    
-    <ItemGroup>
-      <Content Remove="Pages\Motion.razor" />
-    </ItemGroup>
-    
-    <ItemGroup>
-      <Watch Remove="Pages\Motion.razor" />
-    </ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="HeroIcons.Blazor" Version="1.0.6" />
@@ -58,10 +50,6 @@
 
 	<ItemGroup>
 	  <Folder Include="wwwroot\css\" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <None Include="Pages\Motion.razor" />
 	</ItemGroup>
 
 </Project>

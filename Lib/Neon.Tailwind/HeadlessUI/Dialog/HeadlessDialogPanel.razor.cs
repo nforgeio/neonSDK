@@ -108,11 +108,12 @@ namespace Neon.Tailwind
         /// <inheritdoc/>
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
+            await SyncContext.Clear;
+            
             if (shouldFocus)
             {
                 shouldFocus = false;
-                await Task.Yield();
-                //await FocusAsync();
+                await FocusAsync();
             }
         }
 

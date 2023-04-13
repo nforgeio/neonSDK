@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// FILE:	    Dialog.razor.cs
+// FILE:	    TransitionGroupDemo.razor.cs
 // CONTRIBUTOR: Marcus Bowyer
 // COPYRIGHT:  	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
@@ -23,30 +23,30 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 
 using Neon.Tailwind;
-using Neon.Tasks;
 
 namespace TestTailwind.Components
 {
-    public partial class Dialog : ComponentBase
+    public partial class TransitionGroupDemo : ComponentBase
     {
-        TransitionGroup     transitionGroup;
-        Transition          dialogTransition;
-        HeadlessDialog      headlessDialog;
-        HeadlessDialogPanel headlessDialogPanel;
-        bool showDialog = false;
+        private bool            isShowing = true;
+        private TransitionGroup transitionGroup;
+        private bool            isTransitioning = false;
 
-        private async Task OpenDialogAsync()
+        protected override void OnInitialized()
         {
-            await SyncContext.Clear;
-            showDialog = true;
-            StateHasChanged();
+            base.OnInitialized();
         }
 
-        private async Task CloseDialogAsync()
+        private async Task ShowTransitionAsync()
         {
-            await SyncContext.Clear;
-            showDialog = false;
-            StateHasChanged();
+            if (isTransitioning) { return; }
+            isTransitioning = true;
+
+            await transitionGroup.LeaveAsync();
+
+            await transitionGroup.EnterAsync();
+
+            isTransitioning = false;
         }
     }
 }

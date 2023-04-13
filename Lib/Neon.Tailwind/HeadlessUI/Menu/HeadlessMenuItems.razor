@@ -17,7 +17,7 @@
 
 @namespace Neon.Tailwind
 
-@if (Static || this.Menu.State == MenuState.Open)
+@if (Static || isVisible)
 {
     <KeyDownEventHandler @ref="keyDownEventHandler" OnKeyDown="HandleKeyDown" PreventDefaultForKeys="new() {
             KeyboardKey.Space,

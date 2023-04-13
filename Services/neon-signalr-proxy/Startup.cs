@@ -120,6 +120,7 @@ namespace NeonSignalRProxy
             services.AddSingleton(NeonSignalRProxyService)
                 .AddSingleton(NeonSignalRProxyService.Config)
                 .AddSingleton<ILogger>(NeonSignalRProxyService.Logger)
+                .AddSingleton(TelemetryHub.LoggerFactory)
                 .AddSingleton(NeonSignalRProxyService.DnsClient)
                 .AddSingleton<CacheHelper>()
                 .AddSingleton<ForwarderRequestConfig>(

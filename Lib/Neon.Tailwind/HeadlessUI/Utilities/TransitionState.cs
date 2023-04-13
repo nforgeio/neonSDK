@@ -19,9 +19,9 @@ namespace Neon.Tailwind
 {
     public enum TransitionState
     {
+        Visible,
         Hidden,
         Entering,
         Leaving,
-        Visible
     }
 }

@@ -103,7 +103,7 @@ namespace Neon.Tailwind
                     await Listbox.Close(true);
                     break;
                 default:
-                    Listbox.Search(key);
+                    await Listbox.SearchAsync(key);
                     break;
             }
         }

@@ -20,7 +20,7 @@
 <PageTitle>Index</PageTitle>
 
 
-<div class="grid grid-cols-2 gap-8">
+<div class="grid grid-cols-2 gap-8 py-16">
     <div class="flex-initial w-72">
         <Dialog />
     </div>
@@ -31,38 +31,26 @@
         <Menu />
     </div>
     <div class="flex-initial w-72">
-        <Listbox />
+        <Disclosure />
     </div>
     <div class="flex-initial w-72">
-        <Disclosure />
+        <Listbox />
     </div>
 </div>
 
-<br />
-<br />
-<div class="w-72 inline-block">
+<div class="w-72 inline-block py-8">
     <TransitionDemo />
 </div>
 
-<br />
-<br />
+<div class="w-72 inline-block py-8">
+    <TransitionGroupDemo />
+</div>
 
-<TransitionGroup Show="@true">
-    <Transition Enter="transform transition ease-linear"
-                EnterDuration="4000"
-                EnterFrom="opacity-0"
-                EnterTo="opacity-100"
-                Leave="transform transition ease-linear"
-                LeaveDuration="4000"
-                LeaveFrom="opacity-100"
-                LeaveTo="opacity-0"
-                Context="transitionCss">
-        <div class="@("w-[200px] h-[200px] bg-black " + transitionCss)" />
-    </Transition>
-</TransitionGroup>
+<div class="w-72 block py-8">
+    <AnimatePresenseDemo />
+</div>
 
-
-
-<IntersectionObserver RootMargin="-150px" Context="foo">
+<div class="h-96 inline-block" />
+<IntersectionObserver RootMargin="-0px" Context="foo">
     <Observer />
 </IntersectionObserver>

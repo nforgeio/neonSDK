@@ -30,7 +30,11 @@ namespace Neon.Tailwind
 {
     public partial class HeadlessMenuItems : ComponentBase, IAsyncDisposable
     {
-        [CascadingParameter] public HeadlessMenu CascadedMenu { get; set; } = default!;
+        [CascadingParameter] 
+        public HeadlessMenu CascadedMenu { get; set; } = default!;
+
+        [CascadingParameter]
+        public TransitionState? State { get; set; } = null;
 
         [Parameter] public RenderFragment ChildContent { get; set; }
 
@@ -43,6 +47,25 @@ namespace Neon.Tailwind
         private HtmlElement rootElement;
         private KeyDownEventHandler keyDownEventHandler;
         private HeadlessMenu Menu { get; set; } = default!;
+
+        private bool isVisible
+        {
+            get
+            {
+                if (Menu != null 
+                    && !Menu.HasRendered)
+                {
+                    return State == Tailwind.TransitionState.Visible;
+                }
+
+                if (State != null)
+                {
+                    return State != Tailwind.TransitionState.Hidden;
+                }
+
+                return this.Menu.State == MenuState.Open;
+            }
+        }
 
         [MemberNotNull(nameof(Menu), nameof(CascadedMenu))]
         public override Task SetParametersAsync(ParameterView parameters)
@@ -102,7 +125,7 @@ namespace Neon.Tailwind
                     await Menu.Close(true);
                     break;
                 default:
-                    Menu.Search(key);
+                    await Menu.SearchAsync(key);
                     break;
             }
         }

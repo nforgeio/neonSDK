@@ -16,51 +16,47 @@
 // limitations under the License.
 
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Timers;
 
 namespace Neon.Tailwind
 {
     public class SearchAssistant : IDisposable
     {
-        public int DebouceTimeout { get; set; } = 350;
+        public int DebouceTimeout { get; set; } = 750;
         public string SearchQuery { get; private set; } = "";
 
         public event EventHandler OnChange;
 
-        private System.Timers.Timer debounceTimer;
-        public void Search(string key)
+        private CancellationTokenSource cts = new CancellationTokenSource();
+        private Task debounceTask;
+
+        public async Task SearchAsync(string key)
         {
             SearchQuery += key;
             OnChange?.Invoke(this, EventArgs.Empty);
-            StartDebounceTimer();
-        }
-        private void DebounceElapsed(object source, System.Timers.ElapsedEventArgs e)
-        {
-            ClearSearch();
-            debounceTimer?.Dispose();
-        }
-        private void StartDebounceTimer()
-        {
-            ClearDebounceTimer();
 
-            debounceTimer = new System.Timers.Timer(DebouceTimeout);
-            debounceTimer.Elapsed += DebounceElapsed;
-            debounceTimer.Enabled = true;
+            await DebounceAsync();
         }
-        private void ClearDebounceTimer()
-        {
-            if (debounceTimer != null)
-            {
-                debounceTimer.Enabled = false;
-                debounceTimer.Dispose();
-                debounceTimer = null;
-            }
-        }
+
         public void ClearSearch()
         {
-            ClearDebounceTimer();
             SearchQuery = "";
             OnChange?.Invoke(this, EventArgs.Empty);
+        }
+
+        private async Task DebounceAsync()
+        {
+            cts.Cancel();
+
+            cts = new CancellationTokenSource();
+
+            debounceTask = Task.Delay(DebouceTimeout, cts.Token);
+            
+            await debounceTask;
+
+            ClearSearch();
         }
 
         public void Dispose() => ClearSearch();

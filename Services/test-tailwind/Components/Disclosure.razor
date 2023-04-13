@@ -1,27 +1,44 @@
 ﻿
 
-  <div className="mx-auto w-full max-w-md rounded-2xl bg-white p-2  text-sm ">
-      @{
-          var disclosureButtonStyle = "flex w-full justify-between rounded-lg bg-purple-100 px-4 py-2 font-medium text-purple-900 hover:bg-purple-200 focus:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75 ";
-      }
+<div className="mx-auto w-full max-w-md rounded-2xl bg-white p-2  text-sm ">
+    @{
+        var disclosureButtonStyle = "flex w-full justify-between rounded-lg bg-purple-100 px-4 py-2 font-medium text-purple-900 hover:bg-purple-200 focus:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75 ";
+    }
     <HeadlessDisclosure Context="headlessDisclosure">
-        <HeadlessDisclosureButton class="@disclosureButtonStyle" >
-            test
-            <ChevronDownIcon class=@($"h-5 w-5 text-purple-500 transform transition duration-200 ease-in-out {(headlessDisclosure.State == DisclosureState.Open ? "rotate-180 ": "" )}") aria-hidden="true" />
-        </HeadlessDisclosureButton>
-        <HeadlessDisclosurePanel class="px-4 pt-4 pb-2 text-gray-500">
-                  If you're unhappy with your purchase for any reason, email us
-                    within 90 days and we'll refund you in full, no questions asked.
-        </HeadlessDisclosurePanel>
-    </HeadlessDisclosure>
-     <HeadlessDisclosure Context="headlessDisclosure">
         <HeadlessDisclosureButton class="@disclosureButtonStyle">
             test
             <ChevronDownIcon class=@($"h-5 w-5 text-purple-500 transform transition duration-200 ease-in-out {(headlessDisclosure.State == DisclosureState.Open ? "rotate-180 ": "" )}") aria-hidden="true" />
         </HeadlessDisclosureButton>
         <HeadlessDisclosurePanel class="px-4 pt-4 pb-2 text-gray-500">
-                  If you're unhappy with your purchase for any reason, email us
-                    within 90 days and we'll refund you in full, no questions asked.
+            If you're unhappy with your purchase for any reason, email us
+            within 90 days and we'll refund you in full, no questions asked.
         </HeadlessDisclosurePanel>
+    </HeadlessDisclosure>
+    <HeadlessDisclosure Context="headlessDisclosure">
+        <HeadlessDisclosureButton class="@disclosureButtonStyle">
+            test
+            <ChevronDownIcon class=@($"h-5 w-5 text-purple-500 transform transition duration-200 ease-in-out {(headlessDisclosure.State == DisclosureState.Open ? "rotate-180 ": "" )}") aria-hidden="true" />
+        </HeadlessDisclosureButton>'
+         <Transition Show="headlessDisclosure.Show"
+                    Enter="transition duration-[400ms]"
+                    EnterFrom="scale-y-0 opacity-0"
+                    EnterTo="scale-y-100 opacity-100"
+                    Leave="transition duration-[400ms]"
+                    LeaveFrom="opacity-100"
+                    LeaveTo="scale-y-0 opacity-0"
+                    Context="transitionCss"
+                    @ref=testTransition>
+            <HeadlessDisclosurePanel class="@($"px-4 pt-4 pb-2 text-gray-500 "+ transitionCss)">
+                    <p >
+                    This one has a transition. <br />
+                    It's pretty cool.
+                    </p>
+                    <p>
+                    If you're unhappy with your purchase for any reason, email us 
+                    within 90 days and we'll refund you in full, no questions asked.
+                    </p>
+            </HeadlessDisclosurePanel>
+        </Transition>
+
     </HeadlessDisclosure>
 </div>
