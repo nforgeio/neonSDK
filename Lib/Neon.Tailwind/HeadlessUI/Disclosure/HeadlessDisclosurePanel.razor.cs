@@ -16,7 +16,7 @@ namespace Neon.Tailwind
         public HeadlessDisclosure CascadedDisclosure { get; set; } = default!;
 
         [CascadingParameter]
-        public TransitionState? State { get; set; } = null;
+        public Transition Transition { get; set; } = null;
 
         /// <summary>
         /// Whether the disclosure panel is enabled.
@@ -40,12 +40,12 @@ namespace Neon.Tailwind
                 if (Disclosure != null
                     && !Disclosure.HasRendered)
                 {
-                    return State == Tailwind.TransitionState.Visible;
+                    return Transition?.State == Tailwind.TransitionState.Visible;
                 }
 
-                if (State != null)
+                if (Transition != null)
                 {
-                    return State != Tailwind.TransitionState.Hidden;
+                    return Transition.ChildIsVisible;
                 }
 
                 return isOpen;

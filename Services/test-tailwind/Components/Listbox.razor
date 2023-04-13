@@ -20,7 +20,7 @@
         Assigned to
     </HeadlessListboxLabel>
     <div class="mt-1 relative">
-        <HeadlessListboxButton TValue="Person" class="bg-white relative w-full border border-gray-300 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+        <HeadlessListboxButton TValue="Person" class="bg-white relative w-full border border-gray-300 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-0 sm:text-sm">
             <span class="block truncate">
                 @(selectedPerson?.Name ?? "Unassigned")
             </span>
@@ -32,10 +32,10 @@
         </HeadlessListboxButton>
         <TransitionGroup Show="@(listbox.State == ListboxState.Open)">
             <Transition Show="@(listbox.State == ListboxState.Open)"
-                        Leave="transition ease-in duration-[600ms]"
+                        Leave="transition ease-in duration-[300ms]"
                         LeaveFrom="opacity-100"
                         LeaveTo="opacity-0"
-                        Enter="transition ease-out duration-[600ms]"
+                        Enter="transition ease-out duration-[300ms]"
                         EnterFrom="opacity-0"
                         EnterTo="opacity-100"
                         Context="transitionCss">

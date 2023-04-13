@@ -19,38 +19,72 @@
 
 <PageTitle>Index</PageTitle>
 
-
+<div class="text-l pt-6">
+    Inspired by <a href="https://headlessui.com/" target="_blank">HeadlessUI</a>. Implemented using pure .NET.<br />
+    Work in progress.
+</div>
 <div class="grid grid-cols-2 gap-8 py-16">
     <div class="flex-initial w-72">
+        <div class="text-xl">
+            Dialog (Modal)
+        </div>
         <Dialog />
     </div>
     <div class="flex-none w-40">
+        <div class="text-xl">
+            Switch (Toggle)
+        </div>
         <Switch />
     </div>
     <div class="flex-initial w-72">
+        <div class="text-xl">
+            Menu (Dropdown)
+        </div>
         <Menu />
     </div>
     <div class="flex-initial w-72">
+        <div class="text-xl">
+            Disclosure
+        </div>
         <Disclosure />
     </div>
     <div class="flex-initial w-72">
+        <div class="text-xl">
+            Listbox (Select)
+        </div>
         <Listbox />
     </div>
 </div>
 
-<div class="w-72 inline-block py-8">
-    <TransitionDemo />
-</div>
+<div class="inline-block py-8">
+    <div class="text-xl">
+        Transition
+    </div>
 
-<div class="w-72 inline-block py-8">
-    <TransitionGroupDemo />
-</div>
+    <div class="w-72">
+        <TransitionDemo />
+    </div>
 
+    <div class="text-xl pt-4">
+        Transition Group
+    </div>
+
+    <div class="w-72">
+        <TransitionGroupDemo />
+    </div>
+</div>
 <div class="w-72 block py-8">
+    <div class="text-xl">
+        Animate Presense
+    </div>
     <AnimatePresenseDemo />
 </div>
 
-<div class="h-96 inline-block" />
-<IntersectionObserver RootMargin="-0px" Context="foo">
-    <Observer />
-</IntersectionObserver>
+<div class="w-72 block py-8">
+    <div class="text-xl">
+        Intersection Observer
+    </div>
+    <IntersectionObserver RootMargin="-0px" Context="foo">
+        <Observer />
+    </IntersectionObserver>
+</div>
