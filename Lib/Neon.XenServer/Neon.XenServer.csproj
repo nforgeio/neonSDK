@@ -4,7 +4,7 @@
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<OutputType>Library</OutputType>
 		<RootNamespace>Neon.XenServer</RootNamespace>
-		<Version>3.0.1-internal</Version>
+		<Version>3.0.2-internal</Version>
 		<Description>XenServer/XCP-ng client library for .NET</Description>
 		<PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
 		<PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.XenServer/README.md</PackageProjectUrl>
