@@ -4,7 +4,7 @@
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<OutputType>Library</OutputType>
 		<RootNamespace>Neon.SSH</RootNamespace>
-		<Version>3.0.0</Version>
+		<Version>3.0.1</Version>
 		<Description>
 			This namespace includes the LinuxSshProxy and related classes that wrap and extend the base SSH.NET library clients with additional support for managing remote Linux machines via SSH including executing commands, scripts, uploading/downloading files, and performing idempotent operations.  Remote command executions and their results can also be logged locally via a TextWriter (using a completely non-standard but still useful logging format).
 
