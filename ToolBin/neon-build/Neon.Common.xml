@@ -3578,6 +3578,19 @@
             <exception cref="T:System.Net.Sockets.SocketException">Thrown for network connectivity issues.</exception>
             <exception cref="T:Neon.Net.HttpException">Thrown when the server responds with an HTTP error status code.</exception>
         </member>
+        <member name="T:Neon.Common.HttpResponseMessageExtensions">
+            <summary>
+            Implements <see cref="T:System.Net.Http.HttpResponseMessage"/> extension methods.
+            </summary>
+        </member>
+        <member name="M:Neon.Common.HttpResponseMessageExtensions.EnsureSuccessStatusCodeEx(System.Net.Http.HttpResponseMessage)">
+            <summary>
+            Throws a <see cref="T:System.Net.Http.HttpRequestException"/> when the response status code does not
+            indicate success.  This improves on <see cref="M:System.Net.Http.HttpResponseMessage.EnsureSuccessStatusCode"/>
+            by including the URI in the exception message.
+            </summary>
+            <param name="response">The HTTP response received</param>
+        </member>
         <member name="T:Neon.Common.IEnumerableExtensions">
             <summary>
             <see cref="T:System.Collections.Generic.IEnumerable`1"/> extension methods.
@@ -8492,11 +8505,14 @@
         </member>
         <member name="T:Neon.Deployment.IProfileClient">
             <summary>
-            <para>
             Defines the interface for the client used to communicate with the Neon Assistant
             or a custom service.  These services provides access to user and workstation specific 
             settings including secrets and general properties.  This is used for activities such as 
-            CI/CD automation and integration testing.  This solves the following problems:
+            CI/CD automation and integration testing.
+            </summary>
+            <remarks>
+            <para>
+            Implementations of this interface address the following scenarios:
             </para>
             <list type="bullet">
             <item>
@@ -8546,43 +8562,46 @@
             as often.  This server also handles profile and secret lookup.
             </item>
             </list>
-            <b>Caching:</b>
+            <b>Managing Sign-in:</b>
             <para>
-            <see cref="T:Neon.Deployment.IProfileClient"/> implementations should implement caching of secret and profile
-            values and should enable this by default.  Callers can disable caching by setting <see cref="P:Neon.Deployment.IProfileClient.CacheEnabled"/>
-            to <c>false</c> and the cached can be cleared via <see cref="M:Neon.Deployment.IProfileClient.ClearCache"/>
+            Some profile service implementations prompt the developer for master credentials and then
+            cache these for a period of time, so the developer isn't innundated with password requests.
             </para>
             <para>
-            The <b>Neon.Deployment.MaintainerProfile</b> implementation communicates with the <b>neon-assistant</b>
-            to retrieve profile values and secrets.  <b>neon-assistant</b> manages profile values directly but
-            communicates with 1Password.com to obtain secrets, which can take a second or two.  Caching will
-            improve performance and also take some load off of 1Password. 
+            <see cref="M:Neon.Deployment.IProfileClient.EnsureAuthenticated(System.TimeSpan)"/> can be used to have the developer sign-in the profile server, 
+            optionally specifiying the number of seconds the server will remain signed-in afterwards.  This is useful
+            for situations where an operation requests secrets as the operation progresses and it'll be possible 
+            for the sign-in period to expire before the operation completes.
             </para>
-            <para>
-            Caching may be used to solve the problem where a tool like <b>neon-assistant</b> is signed-in
-            when a long running operation starts but signs-out automatically before the operation completes,
-            potentially failing when a secret is requested after that point.  This can be mitigated by having
-            your operations request all required secrets and profiles up front and then cache them so these
-            will be available later.
-            </para>
-            <para>
-            Some <see cref="T:Neon.Deployment.IProfileClient"/> implementations may also cache secrets elsewhere, like process
-            environment variables such that other profile instances constructed by the process or subprocesses
-            can also take advantage of the cached values.
-            </para>
-            </summary>
-            <remarks>
-            <para>
-            The <see cref="T:Neon.Deployment.IProfileClient"/> is used to submit requests to the Neon Assistant
-            application running on the local workstation including retrieving the user's 
-            master 1Password, secrets, as well as user profile values.
-            </para>
+            <note>
+            We originally tried to manage this by loading any secrets at the beginning of an operation,
+            so (hopefully) we'd obtain all of them while the user was still present to enter any credentials.
+            This worked for operations executing as a single process, but doesn't really work well for
+            operations that span multiple processess.  We tried to address this with client-side caching
+            via environment variables, but that introduced other issues, so we removed caching support.
+            </note>
             </remarks>
         </member>
-        <member name="P:Neon.Deployment.IProfileClient.CacheEnabled">
+        <member name="M:Neon.Deployment.IProfileClient.EnsureAuthenticated(System.TimeSpan)">
             <summary>
-            Controls whether the client caches secrets and profile values.  This should
-            enabled by default by all implementations.
+            Requests that the profile server be signed-in when it's not already signed or extend the
+            sign-in period.  By default, the sign-in period will be extended by the default time configured
+            for the server but this can be overridden via <paramref name="signinPeriod"/> (which comes in handy
+            for operations that may take longer than the profile server default).
+            </summary>
+            <param name="signinPeriod">
+            Optionally how long to extend the sign-in.  Passing zero (the default) or values less than zero,
+            will extend the sign-in by the default sign-in period implemented by the profile server.
+            </param>
+            <exception cref="T:Neon.Deployment.ProfileException">Thrown if the profile server returns an error, i.e. when the server is not currently signed-in..</exception>
+            <remarks>
+            Profile implementations that don't required that developers sign-in when 
+            secrets are requested should treat this as a NOP and just return OK.
+            </remarks>
+        </member>
+        <member name="M:Neon.Deployment.IProfileClient.Signout">
+            <summary>
+            Requests that the profile server sign-out from it's credential source.
             </summary>
         </member>
         <member name="M:Neon.Deployment.IProfileClient.GetSecretPassword(System.String,System.String,System.String,System.Boolean)">
@@ -8616,11 +8635,6 @@
             <returns>The password value.</returns>
             <exception cref="T:Neon.Deployment.ProfileException">Thrown if the profile server returns an error.</exception>
         </member>
-        <member name="M:Neon.Deployment.IProfileClient.ClearCache">
-            <summary>
-            Clears any cached values.
-            </summary>
-        </member>
         <member name="T:Neon.Deployment.IProfileRequest">
             <summary>
             Abstracts Neon Profile Service named pipe command requests.
@@ -8648,7 +8662,7 @@
         </member>
         <member name="P:Neon.Deployment.IProfileResponse.Value">
             <summary>
-            Returns the simply response string (for non-JSON responses).
+            Returns the response string (for non-JSON responses).
             </summary>
         </member>
         <member name="P:Neon.Deployment.IProfileResponse.JObject">
@@ -8717,6 +8731,11 @@
         <member name="F:Neon.Deployment.ProfileStatus.BadCommand">
             <summary>
             The request command is unknown.
+            </summary>
+        </member>
+        <member name="F:Neon.Deployment.ProfileStatus.BadArgument">
+            <summary>
+            A request argument is invalid..
             </summary>
         </member>
         <member name="F:Neon.Deployment.ProfileStatus.NotFound">
@@ -12301,17 +12320,138 @@
             <typeparam name="T">The type being returned.</typeparam>
         </member>
         <member name="T:Neon.ModelGen.ApiVersion">
-            <summary>
-            Used to manage an API version.
-            </summary>
+             <summary>
+             Used to specify ASP.NET API versions.
+             </summary>
+             <remarks>
+             <para>
+             API versions are formatted like:
+             </para>
+             <code>
+             [VERSIONGROUP.]MAJOR.MINOR[-STATUS]
+            
+             or:
+            
+             VERSIONGROUP[MAJOR[.MINOR]][-STATUS]
+             </code>
+             <para>
+             where <b>VERSIONGROUP</b> is a date formatted like <b>YYYY-MM-DD</b>,
+             <b>MAJOR</b> and <b>MINOR</b> are non-negative integers, and <b>STATUS</b>
+             is an alphanumberic string starting with a letter.  Here are some valid
+             version strings:
+             </para>
+             <list type="table">
+             <item>
+                 <term><b>1.0</b></term>
+                 <description>
+                 major and minor version numbers
+                 </description>
+             </item>
+             <item>
+                 <term><b>1.0-alpha</b></term>
+                 <description>
+                 major and minor version numbers with status
+                 </description>
+             </item>
+             <item>
+                 <term><b>2023-04-09</b></term>
+                 <description>
+                 Version group date
+                 </description>
+             </item>
+             <item>
+                 <term><b>2023-04-09-alpha</b></term>
+                 <description>
+                 Version group date with status
+                 </description>
+             </item>
+             <item>
+                 <term><b>2023-04-09.1.0</b></term>
+                 <description>
+                 Version group with major and minor versions
+                 </description>
+             </item>
+             <item>
+                 <term><b>2023-04-09.1.0-alpha</b></term>
+                 <description>
+                 Version group with major and minor versions plus status
+                 </description>
+             </item>
+             <item>
+                 <term><b>2023-04.091</b></term>
+                 <description>
+                 <para>
+                 Version group with only major version <b>(1)</b>
+                 </para>
+                 <note>
+                 This format is a bit odd and may be confusing.  We recommend that 
+                 you avoid using this.
+                 </note>
+                 </description>
+             </item>
+             <item>
+                 <term><b>2023-04.091-alpha</b></term>
+                 <description>
+                 <para>
+                 Version group with only major version <b>(1)</b> and status
+                 </para>
+                 <note>
+                 This format is a bit odd and may be confusing.  We recommend that 
+                 you avoid using this.
+                 </note>
+                 </description>
+             </item>
+             <item>
+                 <term><b>2023-04.091.0</b></term>
+                 <description>
+                 <para>
+                 Version group with major and minor versions
+                 </para>
+                 <note>
+                 This format is a bit odd and may be confusing.  We recommend that 
+                 you avoid using this.
+                 </note>
+                 </description>
+             </item>
+             <item>
+                 <term><b>2023-04.091.0-alpha</b></term>
+                 <description>
+                 <para>
+                 Version group with major and minor versions with status
+                 </para>
+                 <note>
+                 This format is a bit odd and may be confusing.  We recommend that 
+                 you avoid using this.
+                 </note>
+                 </description>
+             </item>
+             </list>
+             </remarks>
         </member>
         <member name="M:Neon.ModelGen.ApiVersion.Parse(System.String)">
-            <summary>
-            Parses a <see cref="T:Neon.ModelGen.ApiVersion"/>.
-            </summary>
-            <param name="version">The version string,</param>
-            <returns>The parsed <see cref="T:Neon.ModelGen.ApiVersion"/>.</returns>
-            <exception cref="T:System.FormatException">Thrown for invalid version strings.</exception>
+             <summary>
+             <para>
+             Parses a <see cref="T:Neon.ModelGen.ApiVersion"/>, formatted like:
+             </para>
+             <para>
+             API versions are formatted like:
+             </para>
+             <code>
+             [VERSIONGROUP.]MAJOR.MINOR[-STATUS]
+            
+             or:
+            
+             VERSIONGROUP[MAJOR[.MINOR]][-STATUS]
+             </code>
+             <para>
+             where <b>VERSIONGROUP</b> is a date formatted like <b>YYYY-MM-DD</b>,
+             <b>MAJOR</b> and <b>MINOR</b> are non-negative integers, and <b>STATUS</b>
+             is an alphanumberic string starting with a letter.
+             </para>
+             </summary>
+             <param name="version">The version string,</param>
+             <returns>The parsed <see cref="T:Neon.ModelGen.ApiVersion"/>.</returns>
+             <exception cref="T:System.FormatException">Thrown for an invalid version string.</exception>
         </member>
         <member name="M:Neon.ModelGen.ApiVersion.#ctor">
             <summary>
@@ -14106,16 +14246,18 @@
             Useful network related utilities.
             </summary>
         </member>
-        <member name="P:Neon.Net.NetHelper.DnsHostRegex">
+        <member name="M:Neon.Net.NetHelper.IsValidDnsLabel(System.String)">
             <summary>
-            Regex for verifying DNS hostnames.
+            Verifies that a string is a valid DNS label.
             </summary>
+            <param name="label">The label being tested.</param>
+            <returns></returns>
         </member>
-        <member name="M:Neon.Net.NetHelper.IsValidHost(System.String)">
+        <member name="M:Neon.Net.NetHelper.IsValidDnsHost(System.String)">
             <summary>
             Verifies that a string is a valid DNS hostname.
             </summary>
-            <param name="host">The string being tested.</param>
+            <param name="host">The hostname being tested.</param>
             <returns><c>true</c> if the hostname is valid.</returns>
         </member>
         <member name="M:Neon.Net.NetHelper.ParseIPv4Address(System.String)">
@@ -14366,11 +14508,102 @@
             </note>
             </remarks>
         </member>
+        <member name="M:Neon.Net.NetHelper.GetUnusedTcpPort(System.Int32,System.Int32,System.Net.IPAddress)">
+            <summary>
+            Returns a free TCP port for a local network interface within a given range of ports.
+            </summary>
+            <param name="startPort">
+            The first port to check
+            </param>
+            <param name="endPort">
+            The last port to check.
+            </param>
+            <param name="address">
+            Optionally specifies the target interface's IP address.  This defaults to
+            <see cref="F:System.Net.IPAddress.Any"/> where an unused port will be returned that is
+            available on all network interfaces.
+            </param>
+            <returns>The free port number.</returns>
+            <exception cref="T:Neon.Net.NetworkException">Thrown when there are no available ports.</exception>
+            <remarks>
+            <note>
+            <para>
+            The behavior when <see cref="M:Neon.Net.NetHelper.GetUnusedTcpPort(System.Net.IPAddress)"/> is called multiple times
+            without actually listening on the ports is somewhat undefined.
+            </para>
+            <para>
+            We believe most operating systems won't return the same port again for
+            a while (perhaps a few minutes) so you're probably safe retrieving a few
+            unused ports before using them for testing and other non-production purposes.
+            </para>
+            <para>
+            Production code should begin listening on and unused ports immediately after
+            retrieving one.  This will ensure that the unused ports returned will be unique
+            and also help avoid having another application grab the port before you have
+            a chance to listen on it.
+            </para>
+            </note>
+            </remarks>
+        </member>
+        <member name="M:Neon.Net.NetHelper.TcpPortIsFree(System.Int32,System.Net.IPAddress)">
+            <summary>
+            Checks to see whether a TCP port is free on a given IP address.
+            </summary>
+            <param name="port">
+            The port number.
+            </param>
+            <param name="address">
+            The optional IP address. If not specified, defaults to <see cref="F:System.Net.IPAddress.Any"/>.
+            </param>
+            <returns></returns>
+        </member>
         <member name="M:Neon.Net.NetHelper.GetRoutableIpAddress">
             <summary>
+            <para>
             Returns a routable (non-loopback) IPv4 address for the current machine.
+            </para>
+            <note>
+            This returns a routable IP address from the network interface returned by
+            <see cref="M:Neon.Net.NetHelper.GetConnectedInterface"/> when there is a connected interface.
+            </note>
             </summary>
             <returns>The IP address or <c>null</c> if there doesn't appear to be a connected network interface.</returns>
+            <remarks>
+            <para>
+            This works via a somewhat fragile heuristic.  We list all network interfaces,
+            filter out those that are loopback, TAP interfaces, Hyper-V switches as well as 
+            any that aren't up and then return the highest speed interface from any remaining
+            interfaces.
+            </para>
+            <para>
+            This may not work as expected for machines with multiple active connections
+            to different networks.
+            </para>
+            </remarks>
+        </member>
+        <member name="M:Neon.Net.NetHelper.GetConnectedGatewayAddress">
+            <summary>
+            Returns an upstream getway address for the network interface returned by <see cref="M:Neon.Net.NetHelper.GetConnectedInterface"/>.
+            </summary>
+            <returns>The IP address or <c>null</c> if there doesn't appear to be a connected network interface.</returns>
+            <remarks>
+            <para>
+            This works via a somewhat fragile heuristic.  We list all network interfaces,
+            filter out those that are loopback, TAP interfaces, Hyper-V switches as well as 
+            any that aren't up and then return the highest speed interface from any remaining
+            interfaces.
+            </para>
+            <para>
+            This may not work as expected for machines with multiple active connections
+            to different networks.
+            </para>
+            </remarks>
+        </member>
+        <member name="M:Neon.Net.NetHelper.GetConnectedInterface">
+            <summary>
+            Returns a connected network interface with an IPv4 address.
+            </summary>
+            <returns>The connected interface or <c>null</c> if there doesn't appear to be a connected network interface.</returns>
             <remarks>
             <para>
             This works via a somewhat fragile heuristic.  We list all network interfaces,

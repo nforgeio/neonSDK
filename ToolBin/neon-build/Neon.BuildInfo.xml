@@ -153,19 +153,19 @@
             <summary>Branch: master</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.Commit">
-            <summary>Commit: 0ef34216</summary>
+            <summary>Commit: 7a55c691</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.Sha">
-            <summary>Sha: 0ef34216dd0140a57558e0690ccb03ee1c5f150e</summary>
+            <summary>Sha: 7a55c6919b774f2e1c396ab288816e0a0e588400</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.CommitDate">
-            <summary>Commit date: 2023-03-17T13:56:12-07:00</summary>
+            <summary>Commit date: 2023-04-13T02:13:07-07:00</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.Commits">
-            <summary>Commits on top of base version: 23</summary>
+            <summary>Commits on top of base version: 110</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.Tag">
-            <summary>Tag: release-v3.0.0-23-g0ef34216</summary>
+            <summary>Tag: release-v3.0.0-110-g7a55c691</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.BaseTag">
             <summary>Base tag: release-v3.0.0</summary>
@@ -192,7 +192,7 @@
             <summary>Minor: 0</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.SemVer.Patch">
-            <summary>Patch: 23</summary>
+            <summary>Patch: 110</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.SemVer.Label">
             <summary>Label: release</summary>

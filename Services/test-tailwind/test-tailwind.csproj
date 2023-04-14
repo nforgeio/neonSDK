@@ -1,27 +1,27 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
-	<PropertyGroup>
-		<TargetFramework>net7.0</TargetFramework>
-		<ImplicitUsings>disable</ImplicitUsings>
-		<RootNamespace>TestTailwind</RootNamespace>
-		<OutputType>Exe</OutputType>
-		<IsPackable>false</IsPackable>
-		<Configurations>Debug;Release</Configurations>
-		<GenerateDocumentationFile>false</GenerateDocumentationFile>
-	</PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+        <ImplicitUsings>disable</ImplicitUsings>
+        <RootNamespace>TestTailwind</RootNamespace>
+        <OutputType>Exe</OutputType>
+        <IsPackable>false</IsPackable>
+        <Configurations>Debug;Release</Configurations>
+        <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    </PropertyGroup>
 
-	<ItemGroup>
-		<Compile Include="$(SolutionDir)\Lib\Neon.BuildInfo\AssemblyAttributes.cs" Link="Properties\AssemblyAttributes.cs" />
-		<Compile Include="$(SolutionDir)\Lib\Neon.BuildInfo\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
-	</ItemGroup>
+    <ItemGroup>
+        <Compile Include="$(SolutionDir)\Lib\Neon.BuildInfo\AssemblyAttributes.cs" Link="Properties\AssemblyAttributes.cs" />
+        <Compile Include="$(SolutionDir)\Lib\Neon.BuildInfo\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
+    </ItemGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\..\Lib\Neon.BuildInfo\Neon.BuildInfo.csproj" />
-		<ProjectReference Include="..\..\Lib\Neon.Blazor\Neon.Blazor.csproj" />
-		<ProjectReference Include="..\..\Lib\Neon.Common\Neon.Common.csproj" />
-		<ProjectReference Include="..\..\Lib\Neon.Tailwind\Neon.Tailwind.csproj" />
-	</ItemGroup>
-    
+    <ItemGroup>
+        <ProjectReference Include="..\..\Lib\Neon.BuildInfo\Neon.BuildInfo.csproj" />
+        <ProjectReference Include="..\..\Lib\Neon.Blazor\Neon.Blazor.csproj" />
+        <ProjectReference Include="..\..\Lib\Neon.Common\Neon.Common.csproj" />
+        <ProjectReference Include="..\..\Lib\Neon.Tailwind\Neon.Tailwind.csproj" />
+    </ItemGroup>
+
     <ItemGroup>
         <!-- extends watching group to include *.js files -->
         <Watch Include="**\*.razor" />
@@ -32,24 +32,38 @@
         <Watch Include="**\*.js" Exclude="node_modules\**\*;**\*.js.map;obj\**\*;bin\**\*" />
     </ItemGroup>
 
-	<ItemGroup>
-		<PackageReference Include="HeroIcons.Blazor" Version="1.0.6" />
-	</ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="HeroIcons.Blazor" Version="1.0.6" />
+    </ItemGroup>
 
-	<ItemGroup>
-		<Content Update="wwwroot\css\bootstrap\bootstrap.min.css">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Content>
-		<Content Update="wwwroot\css\open-iconic\font\css\open-iconic-bootstrap.min.css">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Content>
-		<Content Update="wwwroot\css\site.css">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Content>
-	</ItemGroup>
+    <ItemGroup>
+        <Content Update="wwwroot\css\bootstrap\bootstrap.min.css">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <Content Update="wwwroot\css\open-iconic\font\css\open-iconic-bootstrap.min.css">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <Content Update="wwwroot\css\site.css">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
 
-	<ItemGroup>
-	  <Folder Include="wwwroot\css\" />
-	</ItemGroup>
+    <ItemGroup>
+        <Folder Include="wwwroot\css\" />
+    </ItemGroup>
+
+    <Target Name="NodeCheck" BeforeTargets="PreBuildEvent">
+        <Exec Command="npm --version" ContinueOnError="false">
+            <Output TaskParameter="ExitCode" PropertyName="ErrorCodeNode" />
+        </Exec>
+        <Error Condition="'$(ErrorCodeNode)' != '0'" Text="NPM is required for this project. please install Node.js" />
+    </Target>
+
+    <Target Name="NpmInstall" BeforeTargets="PreBuildEvent" DependsOnTargets="NodeCheck" Inputs="package.json" Outputs="node_modules/.install-stamp">
+        <Exec Command="npm install" ContinueOnError="false" />
+
+        <!-- Write the stamp file, so incremental builds work -->
+        <Touch Files="node_modules/.install-stamp" AlwaysCreate="true" />
+    </Target>
 
 </Project>
