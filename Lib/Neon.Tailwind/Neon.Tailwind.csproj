@@ -6,7 +6,7 @@
 		<RootNamespace>Neon.Tailwind</RootNamespace>
 		<Version>3.0.1</Version>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
-		<PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.Tailwind/README.md</PackageProjectUrl>
+		<PackageProjectUrl>http://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.Tailwind/README.md</PackageProjectUrl>
 		<PackageIcon>nuget-icon.png</PackageIcon>
 		<RepositoryUrl>https://github.com/nforgeio/neonSDK</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
