@@ -34,7 +34,7 @@ namespace Neon.Tailwind
         public HeadlessMenu CascadedMenu { get; set; } = default!;
 
         [CascadingParameter]
-        public TransitionState? State { get; set; } = null;
+        public Transition Transition { get; set; } = null;
 
         [Parameter] public RenderFragment ChildContent { get; set; }
 
@@ -52,15 +52,15 @@ namespace Neon.Tailwind
         {
             get
             {
-                if (Menu != null 
+                if (Menu != null
                     && !Menu.HasRendered)
                 {
-                    return State == Tailwind.TransitionState.Visible;
+                    return Transition?.State == Tailwind.TransitionState.Visible;
                 }
 
-                if (State != null)
+                if (Transition != null)
                 {
-                    return State != Tailwind.TransitionState.Hidden;
+                    return Transition.ChildIsVisible;
                 }
 
                 return this.Menu.State == MenuState.Open;

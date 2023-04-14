@@ -1,23 +1,39 @@
 ﻿@using Neon.Blazor;
 
-<div class="h-96 inline-block">
-<p>@(IntersectionObserver.IsIntersecting ? "visible" : "invisible")</p>
+<div class="@("w-96 inline-block p-8 rounded-lg text-center text-slate-200 text-2xl uppercase " + css)">
+    <p>@text</p>
 </div>
 
 @code {
     [CascadingParameter]
     public IntersectionObserver IntersectionObserver { get; set; }
 
-    private bool visible { get; set; } = false;
+    private string text = "";
+    private string css = "";
 
     protected override void OnInitialized()
     {
-        IntersectionObserver.IntersectionChanged += StateHasChanged;
+        IntersectionObserver.IntersectionChanged += OnIntersectionChanged;
         base.OnInitialized();
+    }
+
+    public void OnIntersectionChanged()
+    {
+        if (IntersectionObserver.IsIntersecting)
+        {
+            text = "visible";
+            css = "bg-green-600";
+        }
+        else
+        {
+            text = "invisible";
+            css = "bg-red-600";
+        }
+        StateHasChanged();
     }
 
     public void Dispose()
     {
-        IntersectionObserver.IntersectionChanged -= StateHasChanged;
+        IntersectionObserver.IntersectionChanged -= OnIntersectionChanged;
     }
 }
