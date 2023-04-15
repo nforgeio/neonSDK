@@ -1437,14 +1437,6 @@
             Provides the <see cref="T:Neon.Deployment.IProfileClient"/> implementation used by NEONFORGE maintainers
             to obtain 1Password secrets via our internal <b>neon-assistant</b> tool.
             </summary>
-            <remarks>
-            <note>
-            This class uses process environment variables like <b>NEONASSISTANT_CACHE_PROFILE_[name=value</b>
-            and <b>NEONASSISTANT_CACHE_SECRET_name=value</b> to cache profile and secret values such that
-            other <see cref="T:Neon.Deployment.MaintainerProfile"/> instances within the current process and
-            subprocesses can take advantage of cached values as well.
-            </note>
-            </remarks>
         </member>
         <member name="M:Neon.Deployment.MaintainerProfile.GetAwsCredentials(System.String)">
             <summary>
@@ -1491,6 +1483,26 @@
             </list>
             </summary>
         </member>
+        <member name="F:Neon.Deployment.MaintainerProfile.EnvironmentCachePrefix">
+            <summary>
+            Variable name prefix used for caching secrets and profile values as environment variables.
+            </summary>
+        </member>
+        <member name="F:Neon.Deployment.MaintainerProfile.ProfileEnvironmentCachePrefix">
+            <summary>
+            Variable name prefix used for caching profile values as environment variables.
+            </summary>
+        </member>
+        <member name="F:Neon.Deployment.MaintainerProfile.SecretEnvironmentCachePrefix">
+            <summary>
+            Variable name prefix used for caching secret values as environment variables.
+            </summary>
+        </member>
+        <member name="M:Neon.Deployment.MaintainerProfile.ClearEnvironmentCache">
+            <summary>
+            Clears any secrets or profile values cached as environment variables.
+            </summary>
+        </member>
         <member name="M:Neon.Deployment.MaintainerProfile.#ctor">
             <summary>
             <para>
@@ -1516,25 +1528,6 @@
             <param name="connectTimeout">Optionally specifies the connection timeout.  This defaults to <b>10 seconds</b>.</param>
             <exception cref="T:System.NotSupportedException">Thrown when not running on Windows.</exception>
         </member>
-        <member name="P:Neon.Deployment.MaintainerProfile.CacheEnabled">
-            <inheritdoc/>
-        </member>
-        <member name="P:Neon.Deployment.MaintainerProfile.UseMemoryCacheOnly">
-            <summary>
-            <b>UNIT TESTING ONLY:</b> This property is really intended only for unit
-            tests verifying that caching is actually working.  This defaults to <c>false</c>
-            for new profile client instances and may be set to <c>true</c> in unit tests
-            to only retrieve cached values.
-            </summary>
-        </member>
-        <member name="P:Neon.Deployment.MaintainerProfile.UseEnvironmentCacheOnly">
-            <summary>
-            <b>UNIT TESTING ONLY:</b> This property is really intended only for unit
-            tests verifying that caching is actually working.  This defaults to <c>false</c>
-            for new profile client instances and may be set to <c>true</c> in unit tests
-            to only retrieve values cached as environment variables.
-            </summary>
-        </member>
         <member name="M:Neon.Deployment.MaintainerProfile.Call(Neon.Deployment.IProfileRequest)">
             <summary>
             Submits a request to the profile server and returns the response.
@@ -1542,6 +1535,12 @@
             <param name="request">The request.</param>
             <returns>The response.</returns>
             <exception cref="T:Neon.Deployment.ProfileException">Thrown if the profile server returns an error.</exception>
+        </member>
+        <member name="M:Neon.Deployment.MaintainerProfile.EnsureAuthenticated(System.TimeSpan)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Neon.Deployment.MaintainerProfile.Signout">
+            <inheritdoc/>
         </member>
         <member name="M:Neon.Deployment.MaintainerProfile.GetProfileValue(System.String,System.Boolean)">
             <inheritdoc/>
@@ -1558,9 +1557,6 @@
             be available even after <b>neon-assistant</b> has signed out some time later.  
             Currently, AWS and GitHub credentials are retrieved.
             </summary>
-        </member>
-        <member name="M:Neon.Deployment.MaintainerProfile.ClearCache">
-            <inheritdoc/>
         </member>
         <member name="M:Neon.Deployment.MaintainerProfile.Call(System.Collections.Generic.Dictionary{System.String,System.String})">
             <inheritdoc/>
@@ -1781,6 +1777,22 @@
             </para>
             <list type="table">
             <item>
+                <term><b>ENSURE-AUTHENTICATED</b></term>
+                <description>
+                <para><c>(seconds)</c></para>
+                <para>
+                Ensures that the profile server is currently signed-in and also extends the
+                sign-in period.
+                </para>
+                </description>
+            </item>
+            <item>
+                <term><b>SIGN-OUT</b></term>
+                <description>
+                Signs the profile server out of the credentials source.
+                </description>
+            </item>
+            <item>
                 <term><b>GET-SECRET-PASSWORD</b></term>
                 <description>
                 <para><c>(name, [vault], [masterpassword])</c></para>
@@ -1902,6 +1914,26 @@
             <summary>
             <para>
             Callback that retrieves a profile value.  The parameters is the profile value name.
+            </para>
+            <note>
+            This must be initalized before calling <see cref="M:Neon.Deployment.ProfileServer.Start"/>.
+            </note>
+            </summary>
+        </member>
+        <member name="P:Neon.Deployment.ProfileServer.EnsureAuthenticatedHandler">
+            <summary>
+            <para>
+            Callback that ensures that the server is signed-in and also extends the sign-in period.
+            </para>
+            <note>
+            This must be initalized before calling <see cref="M:Neon.Deployment.ProfileServer.Start"/>.
+            </note>
+            </summary>
+        </member>
+        <member name="P:Neon.Deployment.ProfileServer.SignoutHandler">
+            <summary>
+            <para>
+            Callback that signs the server out from the credentials source.
             </para>
             <note>
             This must be initalized before calling <see cref="M:Neon.Deployment.ProfileServer.Start"/>.

@@ -115,6 +115,7 @@ namespace Neon.Tailwind
         public IReadOnlyDictionary<string, object> Attributes { get; set; }
 
         public event Action OnTransitionChange;
+        public bool ChildIsVisible => (State != Tailwind.TransitionState.Hidden);
 
         /// <summary>
         /// Generates an ID.
@@ -296,8 +297,8 @@ namespace Neon.Tailwind
         /// <inheritdoc/>
         protected override void BuildRenderTree(RenderTreeBuilder builder)
         {
-            builder.OpenComponent<CascadingValue<TransitionState>>(0);
-            builder.AddAttribute(2, "Value", State);
+            builder.OpenComponent<CascadingValue<Transition>>(0);
+            builder.AddAttribute(2, "Value", this);
 
             if (State != TransitionState.Hidden)
             {

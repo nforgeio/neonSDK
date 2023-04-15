@@ -4,7 +4,7 @@
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<OutputType>Library</OutputType>
 		<RootNamespace>Neon.BuildInfo</RootNamespace>
-		<Version>3.0.0</Version>
+		<Version>3.0.2</Version>
 		<Description>INTERNAL USE ONLY: neonSDK build information</Description>
 		<IsPackable>true</IsPackable>
 		<PackageProjectUrl></PackageProjectUrl>

@@ -15,33 +15,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.*@
 
-<div class="py-4">
-    <p>
-        Transition Group. (<code>SuppressInitial=true</code>)
-    </p>
-    <div class="flex h-32 space-x-4">
-        <TransitionGroup Show="@isShowing" SuppressInitial="@true" @ref="transitionGroup">
-            <Transition Enter="transform transition duration-[400ms] "
-                        EnterFrom="opacity-0 rotate-[-120deg] scale-50 "
-                        EnterTo="opacity-100 rotate-0 scale-100 "
-                        Leave="transform duration-200 transition ease-in-out "
-                        LeaveFrom="opacity-100 rotate-0 scale-100 "
-                        LeaveTo="opacity-0 scale-95 "
-                        Context="transitionCss">
-                <div class="h-full w-32 rounded-md bg-gray-600 shadow-lg @transitionCss" />
-            </Transition>
+<p>
+    (<code>SuppressInitial=true</code>)
+</p>
+<div class="flex h-32 space-x-4">
+    <TransitionGroup Show="@isShowing" SuppressInitial="@true" @ref="transitionGroup">
+        <Transition Enter="transform transition duration-[400ms] "
+                    EnterFrom="opacity-0 rotate-[-120deg] scale-50 "
+                    EnterTo="opacity-100 rotate-0 scale-100 "
+                    Leave="transform duration-200 transition ease-in-out "
+                    LeaveFrom="opacity-100 rotate-0 scale-100 "
+                    LeaveTo="opacity-0 scale-95 "
+                    Context="transitionCss">
+            <div class="h-full w-32 rounded-md bg-gray-600 shadow-lg @transitionCss" />
+        </Transition>
 
-            <Transition Enter="transform transition duration-[400ms] "
-                        EnterFrom="opacity-0 rotate-[-120deg] scale-50 "
-                        EnterTo="opacity-100 rotate-0 scale-100 "
-                        Leave="transform duration-200 transition ease-in-out "
-                        LeaveFrom="opacity-100 rotate-0 scale-100 "
-                        LeaveTo="opacity-0 scale-95 "
-                        Context="transitionCss">
-                <div class="h-full w-32 rounded-md bg-gray-600 shadow-lg @transitionCss" />
-            </Transition>
-        </TransitionGroup>
-    </div>
+        <Transition Enter="transform transition duration-[400ms] "
+                    EnterFrom="opacity-0 rotate-[-120deg] scale-50 "
+                    EnterTo="opacity-100 rotate-0 scale-100 "
+                    Leave="transform duration-200 transition ease-in-out "
+                    LeaveFrom="opacity-100 rotate-0 scale-100 "
+                    LeaveTo="opacity-0 scale-95 "
+                    Context="transitionCss">
+            <div class="h-full w-32 rounded-md bg-gray-600 shadow-lg @transitionCss" />
+        </Transition>
+    </TransitionGroup>
 </div>
 
 <HeadlessButton OnClick="@ShowTransitionAsync"

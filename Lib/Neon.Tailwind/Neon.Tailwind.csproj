@@ -4,16 +4,16 @@
 		<TargetFramework>net7.0</TargetFramework>
 		<OutputType>Library</OutputType>
 		<RootNamespace>Neon.Tailwind</RootNamespace>
-		<Version>3.0.0</Version>
+		<Version>3.0.2</Version>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
-		<PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.Tailwind/README.md</PackageProjectUrl>
+		<PackageProjectUrl>http://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.Tailwind/README.md</PackageProjectUrl>
 		<PackageIcon>nuget-icon.png</PackageIcon>
 		<RepositoryUrl>https://github.com/nforgeio/neonSDK</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
 		<Configurations>Debug;Release</Configurations>
 		<Description>A Tailwind CSS library for Blazor. Includes Headless UI components.</Description>
-		<PackageTags>tailwind;tailwindcss;headless;headlessui;headless-ui;css</PackageTags>
+		<PackageTags>tailwind;tailwindcss;headless;headlessui;headless-ui;css;transitions</PackageTags>
 		<NoWarn>$(NoWarn);1591</NoWarn>
 	</PropertyGroup>
 

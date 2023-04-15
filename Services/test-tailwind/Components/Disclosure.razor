@@ -16,7 +16,7 @@
     </HeadlessDisclosure>
     <HeadlessDisclosure Context="headlessDisclosure">
         <HeadlessDisclosureButton class="@disclosureButtonStyle">
-            test
+            test - with transition
             <ChevronDownIcon class=@($"h-5 w-5 text-purple-500 transform transition duration-200 ease-in-out {(headlessDisclosure.State == DisclosureState.Open ? "rotate-180 ": "" )}") aria-hidden="true" />
         </HeadlessDisclosureButton>'
          <Transition Show="headlessDisclosure.Show"
