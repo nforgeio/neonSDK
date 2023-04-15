@@ -10,9 +10,9 @@
       "neon-build/1.0.0": {
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection": "7.0.0",
-          "Neon.BuildInfo": "3.0.1-preview0",
-          "Neon.Common": "3.0.1-preview0",
-          "Neon.Deployment": "3.0.1-preview0-alpha",
+          "Neon.BuildInfo": "3.0.2",
+          "Neon.Common": "3.0.2",
+          "Neon.Deployment": "3.0.2",
           "runtimepack.Microsoft.NETCore.App.Runtime.win-x64": "7.0.5"
         },
         "runtime": {
@@ -1520,18 +1520,18 @@
           }
         }
       },
-      "Neon.BuildInfo/3.0.1-preview0": {
+      "Neon.BuildInfo/3.0.2": {
         "runtime": {
           "Neon.BuildInfo.dll": {}
         }
       },
-      "Neon.Common/3.0.1-preview0": {
+      "Neon.Common/3.0.2": {
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection": "7.0.0",
           "Microsoft.Extensions.Logging.Abstractions": "7.0.0",
           "Microsoft.Extensions.ObjectPool": "7.0.5",
           "Microsoft.Win32.Registry": "5.0.0",
-          "Neon.BuildInfo": "3.0.1-preview0",
+          "Neon.BuildInfo": "3.0.2",
           "Newtonsoft.Json": "13.0.3",
           "OpenTelemetry": "1.4.0",
           "SharpZipLib.NETStandard": "1.0.7",
@@ -1548,10 +1548,10 @@
           "Neon.Common.dll": {}
         }
       },
-      "Neon.Cryptography/3.0.1-preview0": {
+      "Neon.Cryptography/3.0.2": {
         "dependencies": {
-          "Neon.BuildInfo": "3.0.1-preview0",
-          "Neon.Common": "3.0.1-preview0",
+          "Neon.BuildInfo": "3.0.2",
+          "Neon.Common": "3.0.2",
           "Newtonsoft.Json": "13.0.3",
           "System.Security.Cryptography.Cng": "5.0.0"
         },
@@ -1559,13 +1559,13 @@
           "Neon.Cryptography.dll": {}
         }
       },
-      "Neon.Deployment/3.0.1-preview0-alpha": {
+      "Neon.Deployment/3.0.2": {
         "dependencies": {
           "Microsoft.CSharp": "4.7.0",
-          "Neon.BuildInfo": "3.0.1-preview0",
-          "Neon.Common": "3.0.1-preview0",
-          "Neon.Cryptography": "3.0.1-preview0",
-          "Neon.XenServer": "3.0.1-preview0-internal",
+          "Neon.BuildInfo": "3.0.2",
+          "Neon.Common": "3.0.2",
+          "Neon.Cryptography": "3.0.2",
+          "Neon.XenServer": "3.0.2-internal",
           "Newtonsoft.Json": "13.0.3",
           "Octokit": "4.0.3",
           "System.IO.Pipes.AccessControl": "5.0.0"
@@ -1574,22 +1574,22 @@
           "Neon.Deployment.dll": {}
         }
       },
-      "Neon.SSH/3.0.1-preview0": {
+      "Neon.SSH/3.0.2": {
         "dependencies": {
-          "Neon.BuildInfo": "3.0.1-preview0",
-          "Neon.Common": "3.0.1-preview0",
-          "Neon.Cryptography": "3.0.1-preview0",
+          "Neon.BuildInfo": "3.0.2",
+          "Neon.Common": "3.0.2",
+          "Neon.Cryptography": "3.0.2",
           "SSH.NET": "2020.0.2"
         },
         "runtime": {
           "Neon.SSH.dll": {}
         }
       },
-      "Neon.XenServer/3.0.1-preview0-internal": {
+      "Neon.XenServer/3.0.2-internal": {
         "dependencies": {
-          "Neon.BuildInfo": "3.0.1-preview0",
-          "Neon.Common": "3.0.1-preview0",
-          "Neon.SSH": "3.0.1-preview0",
+          "Neon.BuildInfo": "3.0.2",
+          "Neon.Common": "3.0.2",
+          "Neon.SSH": "3.0.2",
           "SSH.NET": "2020.0.2"
         },
         "runtime": {
@@ -2351,32 +2351,32 @@
       "path": "yamldotnet/13.0.2",
       "hashPath": "yamldotnet.13.0.2.nupkg.sha512"
     },
-    "Neon.BuildInfo/3.0.1-preview0": {
+    "Neon.BuildInfo/3.0.2": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
     },
-    "Neon.Common/3.0.1-preview0": {
+    "Neon.Common/3.0.2": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
     },
-    "Neon.Cryptography/3.0.1-preview0": {
+    "Neon.Cryptography/3.0.2": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
     },
-    "Neon.Deployment/3.0.1-preview0-alpha": {
+    "Neon.Deployment/3.0.2": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
     },
-    "Neon.SSH/3.0.1-preview0": {
+    "Neon.SSH/3.0.2": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
     },
-    "Neon.XenServer/3.0.1-preview0-internal": {
+    "Neon.XenServer/3.0.2-internal": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
