@@ -42,7 +42,29 @@ namespace NeonBuild
         /// <param name="commandLine">The command line.</param>
         private static void DotnetVersion(CommandLine commandLine)
         {
-            Console.WriteLine(Environment.Version);
+            var globalJsonPath = commandLine.Arguments.ElementAtOrDefault(1);
+
+            if (string.IsNullOrEmpty(globalJsonPath))
+            {
+                Console.Error.WriteLine("*** ERROR: GLOBAL-JSON-PATH argument is required.");
+                Program.Exit(1);
+            }
+
+            if (!File.Exists(globalJsonPath))
+            {
+                Console.Error.WriteLine($"*** ERROR: [global.json] file not found: {globalJsonPath}");
+                Program.Exit(1);
+            }
+
+            var globalJson = NeonHelper.JsonDeserialize<dynamic>(File.ReadAllText(globalJsonPath));
+
+            var sdkVersion = globalJson["sdk"]["version"];
+
+            var runtimeConfigPath = $"C:\\Program Files\\dotnet\\sdk\\{sdkVersion}\\dotnet.runtimeconfig.json";
+            var runtimeConfig = NeonHelper.JsonDeserialize<dynamic>(File.ReadAllText(runtimeConfigPath));
+            var runtimeVersion = runtimeConfig["runtimeOptions"]["framework"]["version"];
+
+            Console.WriteLine(runtimeVersion);
             Program.Exit(0);
         }
     }
