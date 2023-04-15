@@ -56,13 +56,11 @@ namespace NeonBuild
                 Program.Exit(1);
             }
 
-            var globalJson = NeonHelper.JsonDeserialize<dynamic>(File.ReadAllText(globalJsonPath));
-
-            var sdkVersion = globalJson["sdk"]["version"];
-
+            var globalJson        = NeonHelper.JsonDeserialize<dynamic>(File.ReadAllText(globalJsonPath));
+            var sdkVersion        = globalJson["sdk"]["version"];
             var runtimeConfigPath = $"C:\\Program Files\\dotnet\\sdk\\{sdkVersion}\\dotnet.runtimeconfig.json";
-            var runtimeConfig = NeonHelper.JsonDeserialize<dynamic>(File.ReadAllText(runtimeConfigPath));
-            var runtimeVersion = runtimeConfig["runtimeOptions"]["framework"]["version"];
+            var runtimeConfig     = NeonHelper.JsonDeserialize<dynamic>(File.ReadAllText(runtimeConfigPath));
+            var runtimeVersion    = runtimeConfig["runtimeOptions"]["framework"]["version"];
 
             Console.WriteLine(runtimeVersion);
             Program.Exit(0);
