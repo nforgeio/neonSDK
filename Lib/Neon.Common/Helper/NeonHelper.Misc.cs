@@ -511,9 +511,10 @@ namespace Neon.Common
         /// </remarks>
         public static async Task WaitForAsync(
             Func<Task<bool>>    predicate, 
-            TimeSpan timeout,   TimeSpan? pollInterval = null, 
-            string              timeoutMessage         = null, 
-            CancellationToken   cancellationToken      = default)
+            TimeSpan            timeout,   
+            TimeSpan?           pollInterval      = null, 
+            string              timeoutMessage    = null, 
+            CancellationToken   cancellationToken = default)
         {
             await SyncContext.Clear;
 
