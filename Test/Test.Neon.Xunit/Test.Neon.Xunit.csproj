@@ -80,7 +80,7 @@
 		<ProjectReference Include="..\..\Lib\Neon.Xunit.YugaByte\Neon.Xunit.YugaByte.csproj" />
 		<ProjectReference Include="..\..\Lib\Neon.Xunit\Neon.Xunit.csproj" />
 		<ProjectReference Include="..\..\Lib\Neon.YugaByte\Neon.YugaByte.csproj" />
-		<ProjectReference Include="..\Test.Neon.Models\Test.Neon.Models.csproj" />
+      <ProjectReference Include="..\Test.Neon.Models\Test.Neon.Models.csproj" />
 	</ItemGroup>
 
 </Project>
