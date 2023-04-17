@@ -511,9 +511,10 @@ namespace Neon.Common
         /// </remarks>
         public static async Task WaitForAsync(
             Func<Task<bool>>    predicate, 
-            TimeSpan timeout,   TimeSpan? pollInterval = null, 
-            string              timeoutMessage         = null, 
-            CancellationToken   cancellationToken      = default)
+            TimeSpan            timeout,   
+            TimeSpan?           pollInterval      = null, 
+            string              timeoutMessage    = null, 
+            CancellationToken   cancellationToken = default)
         {
             await SyncContext.Clear;
 
@@ -2168,10 +2169,12 @@ namespace Neon.Common
         {
             get
             {
-                if (dockerCliPath != null)
+                if (dockerCliPath != null && File.Exists(dockerCliPath))
                 {
                     return dockerCliPath;
                 }
+
+                dockerCliPath = null;
 
                 if (IsWindows)
                 {
@@ -2185,11 +2188,25 @@ namespace Neon.Common
                             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), @"DockerDesktop\version-bin\docker.exe")
                         };
 
-                    foreach (var path in potentialPaths)
+                    foreach (var dockerPath in potentialPaths)
                     {
-                        if (File.Exists(path))
+                        if (File.Exists(dockerPath))
                         {
-                            return dockerCliPath = path;
+                            return dockerCliPath = dockerPath;
+                        }
+                    }
+
+                    // Search the actual PATH as a fallback.
+
+                    var path = Environment.GetEnvironmentVariable("PATH");
+
+                    foreach (var folder in path.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        var dockerPath = Path.Combine(folder.Trim(), "docker.exe");
+
+                        if (File.Exists(dockerPath))
+                        {
+                            return dockerCliPath = dockerPath;
                         }
                     }
 
@@ -2197,13 +2214,43 @@ namespace Neon.Common
                 }
                 else
                 {
-                    // $todo(jefflill):
-                    //
                     // We need to verify that Docker is actually installed and is on the
-                    // PATH here, and return NULL when it's not present.
+                    // PATH, and return NULL when it's not found.
 
-                    return dockerCliPath = "docker";
+                    var path = Environment.GetEnvironmentVariable("PATH");
+
+                    foreach (var folder in path.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        var dockerPath = Path.Combine(folder.Trim(), "docker");
+
+                        if (File.Exists(dockerPath))
+                        {
+                            return dockerCliPath = "docker";
+                        }
+                    }
+
+                    return null;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Returns the path to the Docker CLI on the current machine or throws
+        /// an exception when the CLI cannot be located.
+        /// </summary>
+        /// <exception cref="FileNotFoundException">Thrown when the Docker CLI could not be located.</exception>
+        public static string VerifiedDockerCli
+        {
+            get
+            {
+                var dockerPath = DockerCli;
+
+                if (dockerPath == null)
+                {
+                    throw new FileNotFoundException("Cannot locate the Docker CLI.");
+                }
+
+                return dockerPath;
             }
         }
 

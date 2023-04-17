@@ -96,7 +96,7 @@ namespace Neon.Xunit
             // or containers that match any of the custom container names passed and
             // forcably remove them.
 
-            var result = NeonHelper.ExecuteCapture(NeonHelper.DockerCli, new object[] { "ps", "--all", "--format", "{{.Names}}" });
+            var result = NeonHelper.ExecuteCapture(NeonHelper.VerifiedDockerCli, new object[] { "ps", "--all", "--format", "{{.Names}}" });
 
             Covenant.Assert(result.ExitCode == 0, result.ErrorText);
 
@@ -143,7 +143,7 @@ namespace Neon.Xunit
 
                 // Remove the application containers:
 
-                result = NeonHelper.ExecuteCapture(NeonHelper.DockerCli, new object[] { "rm", "--force", containerNames });
+                result = NeonHelper.ExecuteCapture(NeonHelper.VerifiedDockerCli, new object[] { "rm", "--force", containerNames });
 
                 Covenant.Assert(result.ExitCode == 0, result.ErrorText);
             }
@@ -152,7 +152,7 @@ namespace Neon.Xunit
 
             var networkNames = new List<string>();
 
-            result = NeonHelper.ExecuteCapture(NeonHelper.DockerCli, new object[] { "network", "ls", "--format", "{{.Name}}" });
+            result = NeonHelper.ExecuteCapture(NeonHelper.VerifiedDockerCli, new object[] { "network", "ls", "--format", "{{.Name}}" });
 
             Covenant.Assert(result.ExitCode == 0, result.ErrorText);
 
@@ -167,7 +167,7 @@ namespace Neon.Xunit
                 }
             }
 
-            NeonHelper.ExecuteCapture(NeonHelper.DockerCli, new object[] { "network", "rm", networkNames });
+            NeonHelper.ExecuteCapture(NeonHelper.VerifiedDockerCli, new object[] { "network", "rm", networkNames });
         }
 
         //---------------------------------------------------------------------
@@ -291,7 +291,7 @@ namespace Neon.Xunit
             // execute a command to leave the swarm.  We're not going to check the 
             // exit code to ignore the error when Docker isn't in swarm mode.
 
-            NeonHelper.Execute(NeonHelper.DockerCli, new string[] { "swarm", "leave", "--force" });
+            NeonHelper.Execute(NeonHelper.VerifiedDockerCli, new string[] { "swarm", "leave", "--force" });
 
             // $todo(jefflill):
             //
@@ -304,7 +304,7 @@ namespace Neon.Xunit
             // VM and this host machine.  The solution is to run a special container that
             // attempts to synchronize the clocks.  This will fail silently.
 
-            NeonHelper.ExecuteCapture(NeonHelper.DockerCli,
+            NeonHelper.ExecuteCapture(NeonHelper.VerifiedDockerCli,
                 new object[]
                 {
                     "run", "--privileged", "ghcr.io/neonrelease-dev/neon-clocksync"

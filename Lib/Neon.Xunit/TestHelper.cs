@@ -667,11 +667,11 @@ namespace Neon.Xunit
             // Make sure we're not in Swarm mode.  Note we're not checking the error code here
             // because it returns an error when Docker isn't in swarm mode.
 
-            NeonHelper.ExecuteCapture(NeonHelper.DockerCli, new object[] { "swarm", "leave", "--force" });
+            NeonHelper.ExecuteCapture(NeonHelper.VerifiedDockerCli, new object[] { "swarm", "leave", "--force" });
 
             // Remove all containers
 
-            var result = NeonHelper.ExecuteCapture(NeonHelper.DockerCli, new object[] { "ps", "--all", "--quiet" });
+            var result = NeonHelper.ExecuteCapture(NeonHelper.VerifiedDockerCli, new object[] { "ps", "--all", "--quiet" });
 
             result.EnsureSuccess();
 
@@ -684,13 +684,13 @@ namespace Neon.Xunit
                         continue;
                     }
 
-                    NeonHelper.ExecuteCapture(NeonHelper.DockerCli, new object[] { "rm", name, "--force" }).EnsureSuccess();
+                    NeonHelper.ExecuteCapture(NeonHelper.VerifiedDockerCli, new object[] { "rm", name, "--force" }).EnsureSuccess();
                 }
             }
 
             // Remove all volumes
 
-            result = NeonHelper.ExecuteCapture(NeonHelper.DockerCli, new object[] { "volume", "ls", "--format", "{{ .Name }}" });
+            result = NeonHelper.ExecuteCapture(NeonHelper.VerifiedDockerCli, new object[] { "volume", "ls", "--format", "{{ .Name }}" });
 
             result.EnsureSuccess();
 
@@ -703,14 +703,14 @@ namespace Neon.Xunit
                         continue;
                     }
 
-                    NeonHelper.ExecuteCapture(NeonHelper.DockerCli, new object[] { "volume", "rm", name.Trim(), "--force" }).EnsureSuccess();
+                    NeonHelper.ExecuteCapture(NeonHelper.VerifiedDockerCli, new object[] { "volume", "rm", name.Trim(), "--force" }).EnsureSuccess();
                 }
             }
 
             // Remove all the networks.  Note that some of these like [bridge], [host], and [null] are
             // built-in and cannot be deleted.
 
-            result = NeonHelper.ExecuteCapture(NeonHelper.DockerCli, new object[] { "volume", "ls", "--format", "{{ .Name }}" });
+            result = NeonHelper.ExecuteCapture(NeonHelper.VerifiedDockerCli, new object[] { "volume", "ls", "--format", "{{ .Name }}" });
 
             result.EnsureSuccess();
 
@@ -731,7 +731,7 @@ namespace Neon.Xunit
 
                         default:
 
-                            NeonHelper.ExecuteCapture(NeonHelper.DockerCli, new object[] { "network", "rm", name.Trim(), "--force" }).EnsureSuccess();
+                            NeonHelper.ExecuteCapture(NeonHelper.VerifiedDockerCli, new object[] { "network", "rm", name.Trim(), "--force" }).EnsureSuccess();
                             break;
                     }
                 }
