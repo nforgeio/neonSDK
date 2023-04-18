@@ -24,7 +24,7 @@
 
 				<!-- Debugging -->
 
-				<DebugType>embedded</DebugType>
+				<DebugType>full</DebugType>
 				<DebugSymbols>true</DebugSymbols>
 				<PublishRepositoryUrl>true</PublishRepositoryUrl>
 				<EmbedUntrackedSources>true</EmbedUntrackedSources>
