@@ -26,7 +26,6 @@ using Microsoft.Extensions.DependencyInjection;
 
 using Neon;
 using Neon.Common;
-using Neon.Deployment;
 using Neon.ModelGen;
 
 namespace NeonModelGen
@@ -89,7 +88,7 @@ OPTIONS:
 
     --log=PATH                  - Optionally outputs any errors to the specified 
                                   log file and supresses potentially spurious
-                                  from the standard output and exit code.
+                                  errors from the standard output and exit code.
 
 REMARKS:
 
@@ -118,15 +117,6 @@ style design conventions.  See this GitHub issue for more information:
         /// <returns>The program exit code.</returns>
         public static async Task<int> Main(string[] args)
         {
-            // $hack(jefflill):
-            //
-            // We hardcoding our own profile client for the time being.  Eventually,
-            // we'll need to support custom or retail profile clients somehow.
-            //
-            // This is required by: CommandLine.Preprocess()
-
-            NeonHelper.ServiceContainer.AddSingleton<IProfileClient>(new MaintainerProfile());
-
             var commandLine = new CommandLine(args).Preprocess();
 
             if (commandLine.HasHelpOption)
