@@ -66,24 +66,6 @@ if (!(Test-Path env:NC_ROOT))
 $nugetApiKey = Get-SecretPassword "NUGET_PUBLIC_KEY"
 
 #------------------------------------------------------------------------------
-# Sets the package version in the specified project file.
-
-function SetVersion
-{
-    [CmdletBinding()]
-    param (
-        [Parameter(Position=0, Mandatory=$true)]
-        [string]$project,
-        [Parameter(Position=1, Mandatory=$true)]
-        [string]$version
-    )
-
-    "$project"
-	neon-build pack-version "$env:NF_ROOT\Lib\Neon.Common\Build.cs" NeonSdkVersion "$env:NF_ROOT\Lib\$project\$project.csproj"
-    ThrowOnExitCode
-}
-
-#------------------------------------------------------------------------------
 # Builds and publishes the project packages.
 
 function Publish
@@ -205,35 +187,6 @@ try
     {
         throw "ERROR: BUILD FAILED"
     }
-
-    #------------------------------------------------------------------------------
-    # Update the project versions.
-
-    SetVersion Neon.Blazor              $neonSdkVersion
-    SetVersion Neon.BuildInfo           $neonSdkVersion
-    SetVersion Neon.Cassandra           $neonSdkVersion
-    SetVersion Neon.Common              $neonSdkVersion
-    SetVersion Neon.Cryptography        $neonSdkVersion
-    SetVersion Neon.CSharp              $neonSdkVersion
-    SetVersion Neon.Deployment          $neonSdkVersion
-    SetVersion Neon.Docker              $neonSdkVersion
-    SetVersion Neon.GitHub              $neonSdkVersion
-    SetVersion Neon.JsonConverters      $neonSdkVersion
-    SetVersion Neon.HyperV              $neonSdkVersion
-    SetVersion Neon.Service             $neonSdkVersion
-    SetVersion Neon.ModelGen            $neonSdkVersion
-    SetVersion Neon.ModelGenerator      $neonSdkVersion
-    SetVersion Neon.Nats                $neonSdkVersion
-    SetVersion Neon.Postgres            $neonSdkVersion
-    SetVersion Neon.SSH                 $neonSdkVersion
-    SetVersion Neon.Tailwind            $neonSdkVersion
-    SetVersion Neon.Web                 $neonSdkVersion
-    SetVersion Neon.WinTTY              $neonSdkVersion
-    SetVersion Neon.WSL                 $neonSdkVersion
-    SetVersion Neon.XenServer           $neonSdkVersion
-    SetVersion Neon.Xunit               $neonSdkVersion
-    SetVersion Neon.Xunit.YugaByte      $neonSdkVersion
-    SetVersion Neon.YugaByte            $neonSdkVersion
 
     #------------------------------------------------------------------------------
     # Build and publish the projects.

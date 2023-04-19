@@ -84,8 +84,7 @@ param
     [switch]$local        = $false,     # publish to local file system
     [switch]$localVersion = $false,     # use a local version counter (emergency only)
     [switch]$dirty        = $false,     # use GitHub sources for SourceLink even if local repo is dirty
-    [switch]$release      = $false,     # RELEASE build instead of DEBUG (the default)
-    [switch]$restore      = $false      # Just restore the CSPROJ files after cancelling publish
+    [switch]$release      = $false     # RELEASE build instead of DEBUG (the default)
 )
 
 # Import the global solution include file.
@@ -106,7 +105,7 @@ if ($release)
 # be available only for maintainers and are intialized by the neonCLOUD
 # [buildenv.cmd] script.
 
-if (!(Test-Path env:NC_ROOT))
+if (-not (Test-Path env:NC_ROOT))
 {
     "*** ERROR: This script is intended for use by maintainers only:"
     "           [NC_ROOT] environment variable is not defined."
@@ -127,55 +126,7 @@ else
     $config = "Debug"
 }
 
-#------------------------------------------------------------------------------
-# Sets the package version in the specified project file and makes a backup
-# of the original project file named [$project.bak].
 
-function SetVersion
-{
-    [CmdletBinding()]
-    param (
-        [Parameter(Position=0, Mandatory=$true)]
-        [string]$project,
-        [Parameter(Position=1, Mandatory=$true)]
-        [string]$version
-    )
-
-    "* SetVersion: ${project}:${version}"
-
-    $projectPath    = [io.path]::combine($env:NF_ROOT, "Lib", "$project", "$project" + ".csproj")
-    $orgProjectFile = Get-Content "$projectPath" -Encoding utf8
-    $regex          = [regex]'<Version>(.*)</Version>'
-    $match          = $regex.Match($orgProjectFile)
-    $orgVersion     = $match.Groups[1].Value
-    $tmpProjectFile = $orgProjectFile.Replace("<Version>$orgVersion</Version>", "<Version>$version</Version>")
-
-    if (!(Test-Path "$projectPath.bak"))
-    {
-        Copy-Item "$projectPath" "$projectPath.bak"
-    }
-    
-    $tmpProjectFile | Out-File -FilePath "$projectPath" -Encoding utf8
-}
-
-#------------------------------------------------------------------------------
-# Restores the original project version for a project.
-
-function RestoreVersion
-{
-    [CmdletBinding()]
-    param (
-        [Parameter(Position=0, Mandatory=$true)]
-        [string]$project
-    )
-
-    "* Restore: ${project}"
-
-    $projectPath = [io.path]::combine($env:NF_ROOT, "Lib", "$project", "$project" + ".csproj")
-
-    Copy-Item "$projectPath.bak" "$projectPath"
-    Remove-Item "$projectPath.bak"
-}
 
 #------------------------------------------------------------------------------
 # Builds and publishes the project packages.
@@ -204,7 +155,7 @@ function Publish
 
     $projectPath = [io.path]::combine($env:NF_ROOT, "Lib", "$project", "$project" + ".csproj")
 
-    dotnet pack $projectPath -c $config -o "$env:NF_BUILD\nuget"
+    dotnet pack $projectPath -c $config -o "$env:NF_BUILD\nuget" -p:PackageVersion=$version
     ThrowOnExitCode
 
     $nugetPath = "$env:NF_BUILD\nuget\$project.$version.nupkg"
@@ -367,37 +318,6 @@ try
             throw "ERROR: BUILD FAILED"
         }
 
-        #----------------------------------------------------------------------
-        # We need to set the version in all of the project files so that implicit 
-        # package dependencies will work for external projects importing these 
-        # packages.
-
-        SetVersion Neon.Blazor                      $neonSdkVersion
-        SetVersion Neon.BuildInfo                   $neonSdkVersion
-        SetVersion Neon.Cassandra                   $neonSdkVersion
-        SetVersion Neon.Common                      $neonSdkVersion
-        SetVersion Neon.Cryptography                $neonSdkVersion
-        SetVersion Neon.CSharp                      $neonSdkVersion
-        SetVersion Neon.Deployment                  $neonSdkVersion
-        SetVersion Neon.Docker                      $neonSdkVersion
-        SetVersion Neon.GitHub                      $neonSdkVersion
-        SetVersion Neon.JsonConverters              $neonSdkVersion
-        SetVersion Neon.HyperV                      $neonSdkVersion
-        SetVersion Neon.Service                     $neonSdkVersion
-        SetVersion Neon.ModelGen                    $neonSdkVersion
-        SetVersion Neon.ModelGenerator              $neonSdkVersion
-        SetVersion Neon.Nats                        $neonSdkVersion
-        SetVersion Neon.Postgres                    $neonSdkVersion
-        SetVersion Neon.SSH                         $neonSdkVersion
-        SetVersion Neon.Tailwind                    $neonSdkVersion
-        SetVersion Neon.Web                         $neonSdkVersion
-        SetVersion Neon.WinTTY                      $neonSdkVersion
-        SetVersion Neon.WSL                         $neonSdkVersion
-        SetVersion Neon.XenServer                   $neonSdkVersion
-        SetVersion Neon.Xunit                       $neonSdkVersion
-        SetVersion Neon.Xunit.YugaByte              $neonSdkVersion
-        SetVersion Neon.YugaByte                    $neonSdkVersion
-
         # Build and publish the projects.
 
         Publish Neon.Blazor                         $neonSdkVersion
@@ -426,35 +346,6 @@ try
         Publish Neon.Xunit.YugaByte                 $neonSdkVersion
         Publish Neon.YugaByte                       $neonSdkVersion
     }
-
-    #--------------------------------------------------------------------------
-    # Restore the project versions
-
-    RestoreVersion Neon.Blazor
-    RestoreVersion Neon.BuildInfo
-    RestoreVersion Neon.Cassandra
-    RestoreVersion Neon.Common
-    RestoreVersion Neon.Cryptography
-    RestoreVersion Neon.CSharp
-    RestoreVersion Neon.Deployment
-    RestoreVersion Neon.Docker
-    RestoreVersion Neon.GitHub
-    RestoreVersion Neon.JsonConverters
-    RestoreVersion Neon.HyperV
-    RestoreVersion Neon.Service
-    RestoreVersion Neon.ModelGen
-    RestoreVersion Neon.ModelGenerator
-    RestoreVersion Neon.Nats
-    RestoreVersion Neon.Postgres
-    RestoreVersion Neon.SSH
-    RestoreVersion Neon.Tailwind
-    RestoreVersion Neon.Web
-    RestoreVersion Neon.WinTTY
-    RestoreVersion Neon.WSL
-    RestoreVersion Neon.XenServer
-    RestoreVersion Neon.Xunit
-    RestoreVersion Neon.Xunit.YugaByte
-    RestoreVersion Neon.YugaByte
 
     # Remove all of the generated nuget files so these don't accumulate.
 

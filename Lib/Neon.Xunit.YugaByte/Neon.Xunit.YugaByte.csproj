@@ -4,7 +4,7 @@
 		<TargetFrameworks>net48; net6.0; net7.0</TargetFrameworks>
 		<OutputType>Library</OutputType>
 		<RootNamespace>Neon.Xunit.YugaByte</RootNamespace>
-		<Version>3.0.2</Version>
+		<Version>$(NeonSdkVersion)</Version>
 		<Description>Xunit test fixture for YugaByteDB</Description>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.Xunit.YugaByte/README.md</PackageProjectUrl>

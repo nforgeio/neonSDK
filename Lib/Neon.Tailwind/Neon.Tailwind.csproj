@@ -4,7 +4,7 @@
 		<TargetFramework>net7.0</TargetFramework>
 		<OutputType>Library</OutputType>
 		<RootNamespace>Neon.Tailwind</RootNamespace>
-		<Version>3.0.2</Version>
+		<Version>$(NeonSdkVersion)</Version>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageProjectUrl>http://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.Tailwind/README.md</PackageProjectUrl>
 		<PackageIcon>nuget-icon.png</PackageIcon>

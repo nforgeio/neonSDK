@@ -8,9 +8,10 @@
 				<Product>neonSDK</Product>
 				<Authors>NEONFORGE Team</Authors>
 				<Company>NEONFORGE LLC</Company>
+        <NeonSdkVersion>3.0.2</NeonSdkVersion>
 				<Copyright>Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.</Copyright>
-        <PackageReadmeFile Condition="Exists('README.md')">README.md</PackageReadmeFile>
-        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+				<PackageReadmeFile Condition="Exists('README.md')">README.md</PackageReadmeFile>
+				<GenerateDocumentationFile>true</GenerateDocumentationFile>
 				<LangVersion>latest</LangVersion>
 				<Deterministic>true</Deterministic>
 				<DeterministicSourcePaths>false</DeterministicSourcePaths>
@@ -52,9 +53,13 @@
 				<Optimize>true</Optimize>
 		</PropertyGroup>
 
-    <ItemGroup Condition="Exists('README.md')">
-        <None Include="README.md" Pack="true" PackagePath="" />
-    </ItemGroup>
+		<PropertyGroup Condition="'$(JUSTMOCK_ENABLED)' != ''">
+				<DefineConstants>$(DefineConstants);JUSTMOCK</DefineConstants>
+		</PropertyGroup>
+
+		<ItemGroup Condition="Exists('README.md')">
+				<None Include="README.md" Pack="true" PackagePath="" />
+		</ItemGroup>
 
 		<!-- 
 	$hack(jefflill):
