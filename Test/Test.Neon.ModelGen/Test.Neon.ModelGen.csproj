@@ -58,11 +58,11 @@
 		<ProjectReference Include="..\..\Lib\Neon.Common\Neon.Common.csproj" />
 		<ProjectReference Include="..\..\Lib\Neon.Web\Neon.Web.csproj" />
 		<ProjectReference Include="..\..\Lib\Neon.Xunit\Neon.Xunit.csproj" />
-      <ProjectReference Include="..\Test.Neon.Models\Test.Neon.Models.csproj" />
+		<ProjectReference Include="..\Test.Neon.Models\Test.Neon.Models.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
-	    <Folder Include="Properties\" />
+		<Folder Include="Properties\" />
 	</ItemGroup>
 
 </Project>
