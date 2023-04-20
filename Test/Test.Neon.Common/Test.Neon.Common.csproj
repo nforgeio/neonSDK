@@ -1,7 +1,7 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net48; net6.0; net7.0</TargetFrameworks>
+		<TargetFrameworks>net6.0; net7.0</TargetFrameworks>
 		<OutputType>Library</OutputType>
 		<RootNamespace>TestCommon</RootNamespace>
 		<IsPackable>false</IsPackable>
@@ -57,6 +57,7 @@
 		<ProjectReference Include="..\..\Lib\Neon.BuildInfo\Neon.BuildInfo.csproj" />
 		<ProjectReference Include="..\..\Lib\Neon.Common\Neon.Common.csproj" />
 		<ProjectReference Include="..\..\Lib\Neon.Xunit\Neon.Xunit.csproj" />
+		<ProjectReference Include="..\Test.Neon.Cassandra\Test.Neon.Cassandra.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
