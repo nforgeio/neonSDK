@@ -99,6 +99,33 @@ if "%IS_VS_PREVIEW%"=="1" (
     set VS_EDITION=Community
 )
 
+REM Ask the developer if they have Telerik JustMock installed and
+REM set the JUSTMOCK_ENABLED environment variable if they do.
+
+:justMockPrompt
+
+echo.
+set /P "HAS_JUSTMOCK=Do you have Telerik JustMock installed? (y/n): "
+
+if "%HAS_JUSTMOCK%"=="y" (
+    set HAS_JUSTMOCK=1
+) else if "%HAS_JUSTMOCK%"=="Y" (
+    set HAS_JUSTMOCK=1
+) else if "%HAS_JUSTMOCK%"=="n" (
+    set HAS_JUSTMOCK=0
+) else if "%HAS_JUSTMOCK%"=="N" (
+    set HAS_JUSTMOCK=0
+) else (
+    echo.
+    echo "*** ERROR: You must answer with: Y or N."
+    echo.
+    goto justMockPrompt
+)
+
+if "%HAS_JUSTMOCK%"=="1" (
+    setx JUSTMOCK_ENABLED "%HAS_JUSTMOCK%" /M > nul
+)
+
 REM Get on with configuration.
 
 echo.
