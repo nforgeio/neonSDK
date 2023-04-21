@@ -1,67 +1,67 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<TargetFrameworks>net6.0; net7.0</TargetFrameworks>
-		<OutputType>Library</OutputType>
-		<RootNamespace>TestCommon</RootNamespace>
-		<IsPackable>false</IsPackable>
-		<AssemblyName>Test.Neon.Common</AssemblyName>
-		<Configurations>Debug;Release</Configurations>
-		<GenerateDocumentationFile>false</GenerateDocumentationFile>
-	</PropertyGroup>
+    <PropertyGroup>
+        <TargetFrameworks>net6.0; net7.0</TargetFrameworks>
+        <OutputType>Library</OutputType>
+        <RootNamespace>TestCommon</RootNamespace>
+        <IsPackable>false</IsPackable>
+        <AssemblyName>Test.Neon.Common</AssemblyName>
+        <Configurations>Debug;Release</Configurations>
+        <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    </PropertyGroup>
 
-	<ItemGroup>
-		<Compile Include="$(NF_ROOT)\Lib\Neon.BuildInfo\AssemblyAttributes.cs" Link="Properties\AssemblyAttributes.cs" />
-		<Compile Include="$(NF_ROOT)\Lib\Neon.BuildInfo\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
-	</ItemGroup>
+    <ItemGroup>
+        <Compile Include="$(NF_ROOT)\Lib\Neon.BuildInfo\AssemblyAttributes.cs" Link="Properties\AssemblyAttributes.cs" />
+        <Compile Include="$(NF_ROOT)\Lib\Neon.BuildInfo\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
+    </ItemGroup>
 
-	<ItemGroup>
-		<None Remove="IORes\Resources\Folder1\Folder3\TextFile5.txt" />
-		<None Remove="IORes\Resources\Folder1\TextFile3.txt" />
-		<None Remove="IORes\Resources\Folder1\TextFile4.txt" />
-		<None Remove="IORes\Resources\Folder2\Folder4\TextFile8.txt" />
-		<None Remove="IORes\Resources\Folder2\TextFile6.txt" />
-		<None Remove="IORes\Resources\Folder2\TextFile7.txt" />
-		<None Remove="IORes\Resources\Folder8\Test._" />
-		<None Remove="IORes\Resources\TextFile1.txt" />
-		<None Remove="IORes\Resources\TextFile2.txt" />
-	</ItemGroup>
+    <ItemGroup>
+        <None Remove="IORes\Resources\Folder1\Folder3\TextFile5.txt" />
+        <None Remove="IORes\Resources\Folder1\TextFile3.txt" />
+        <None Remove="IORes\Resources\Folder1\TextFile4.txt" />
+        <None Remove="IORes\Resources\Folder2\Folder4\TextFile8.txt" />
+        <None Remove="IORes\Resources\Folder2\TextFile6.txt" />
+        <None Remove="IORes\Resources\Folder2\TextFile7.txt" />
+        <None Remove="IORes\Resources\Folder8\Test._" />
+        <None Remove="IORes\Resources\TextFile1.txt" />
+        <None Remove="IORes\Resources\TextFile2.txt" />
+    </ItemGroup>
 
-	<ItemGroup>
-		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0" />
-		<PackageReference Include="xunit" Version="2.4.2" />
-		<PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-			<PrivateAssets>all</PrivateAssets>
-		</PackageReference>
-		<PackageReference Include="coverlet.collector" Version="3.2.0">
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-			<PrivateAssets>all</PrivateAssets>
-		</PackageReference>
-		<PackageReference Include="LiquidTestReports.Markdown" Version="1.1.1-beta" />
-	</ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0" />
+        <PackageReference Include="xunit" Version="2.4.2" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="coverlet.collector" Version="3.2.0">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="LiquidTestReports.Markdown" Version="1.1.1-beta" />
+    </ItemGroup>
 
-	<ItemGroup>
-		<EmbeddedResource Include="IORes\Resources\Folder1\Folder3\TextFile5.txt" />
-		<EmbeddedResource Include="IORes\Resources\Folder1\TextFile3.txt" />
-		<EmbeddedResource Include="IORes\Resources\Folder1\TextFile4.txt" />
-		<EmbeddedResource Include="IORes\Resources\Folder2\Folder4\TextFile8.txt" />
-		<EmbeddedResource Include="IORes\Resources\Folder2\TextFile6.txt" />
-		<EmbeddedResource Include="IORes\Resources\Folder2\TextFile7.txt" />
-		<EmbeddedResource Include="IORes\Resources\Folder8\Test._" />
-		<EmbeddedResource Include="IORes\Resources\TextFile1.txt" />
-		<EmbeddedResource Include="IORes\Resources\TextFile2.txt" />
-	</ItemGroup>
+    <ItemGroup>
+        <EmbeddedResource Include="IORes\Resources\Folder1\Folder3\TextFile5.txt" />
+        <EmbeddedResource Include="IORes\Resources\Folder1\TextFile3.txt" />
+        <EmbeddedResource Include="IORes\Resources\Folder1\TextFile4.txt" />
+        <EmbeddedResource Include="IORes\Resources\Folder2\Folder4\TextFile8.txt" />
+        <EmbeddedResource Include="IORes\Resources\Folder2\TextFile6.txt" />
+        <EmbeddedResource Include="IORes\Resources\Folder2\TextFile7.txt" />
+        <EmbeddedResource Include="IORes\Resources\Folder8\Test._" />
+        <EmbeddedResource Include="IORes\Resources\TextFile1.txt" />
+        <EmbeddedResource Include="IORes\Resources\TextFile2.txt" />
+    </ItemGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\..\Lib\Neon.BuildInfo\Neon.BuildInfo.csproj" />
-		<ProjectReference Include="..\..\Lib\Neon.Common\Neon.Common.csproj" />
-		<ProjectReference Include="..\..\Lib\Neon.Xunit\Neon.Xunit.csproj" />
-		<ProjectReference Include="..\Test.Neon.Cassandra\Test.Neon.Cassandra.csproj" />
-	</ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\Lib\Neon.BuildInfo\Neon.BuildInfo.csproj" />
+        <ProjectReference Include="..\..\Lib\Neon.Common\Neon.Common.csproj" />
+        <ProjectReference Include="..\..\Lib\Neon.Xunit\Neon.Xunit.csproj" />
+        <ProjectReference Include="..\Test.Neon.Cassandra\Test.Neon.Cassandra.csproj" />
+    </ItemGroup>
 
-	<ItemGroup>
-	    <Folder Include="Properties\" />
-	</ItemGroup>
+    <ItemGroup>
+        <Folder Include="Properties\" />
+    </ItemGroup>
 
 </Project>

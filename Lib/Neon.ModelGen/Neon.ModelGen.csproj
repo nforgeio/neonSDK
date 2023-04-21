@@ -1,47 +1,47 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<TargetFramework>netstandard2.0</TargetFramework>
-		<OutputType>Library</OutputType>
-		<RootNamespace>Neon.ModelGen</RootNamespace>
-		<Version>$(NeonSdkVersion)</Version>
-		<Description>
-			JSON data model generator library for C# intended for people inetgrating this functionality into stand-alone solutiuons.
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <OutputType>Library</OutputType>
+        <RootNamespace>Neon.ModelGen</RootNamespace>
+        <Version>$(NeonSdkVersion)</Version>
+        <Description>
+            JSON data model generator library for C# intended for people inetgrating this functionality into stand-alone solutiuons.
 
-			Most people should reference the [Neon.ModelGenerator] library since it includes the [model-gen] client which can be referenced from your project build targets as required.
-		</Description>
-		<PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.ModelGen/README.md</PackageProjectUrl>
-		<RepositoryUrl>https://github.com/nforgeio/neonSDK</RepositoryUrl>
-		<RepositoryType>git</RepositoryType>
-		<PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
-		<PackageLicenseFile>LICENSE</PackageLicenseFile>
-		<PreserveCompilationContext>true</PreserveCompilationContext>
-		<Configurations>Debug;Release</Configurations>
-		<PackageIcon>nuget-icon.png</PackageIcon>
-		<PackageTags>REST API generator</PackageTags>
-	</PropertyGroup>
+            Most people should reference the [Neon.ModelGenerator] library since it includes the [model-gen] client which can be referenced from your project build targets as required.
+        </Description>
+        <PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.ModelGen/README.md</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/nforgeio/neonSDK</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <PreserveCompilationContext>true</PreserveCompilationContext>
+        <Configurations>Debug;Release</Configurations>
+        <PackageIcon>nuget-icon.png</PackageIcon>
+        <PackageTags>REST API generator</PackageTags>
+    </PropertyGroup>
 
-	<ItemGroup>
-		<Compile Include="..\Neon.BuildInfo\AssemblyAttributes.cs" Link="Properties\AssemblyAttributes.cs" />
-		<Compile Include="..\Neon.BuildInfo\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
-	</ItemGroup>
+    <ItemGroup>
+        <Compile Include="..\Neon.BuildInfo\AssemblyAttributes.cs" Link="Properties\AssemblyAttributes.cs" />
+        <Compile Include="..\Neon.BuildInfo\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
+    </ItemGroup>
 
-	<ItemGroup>
-		<PackageReference Include="Microsoft.CodeAnalysis" Version="4.5.0" />
-		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.5.0" />
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-		<PackageReference Include="System.CodeDom" Version="7.0.0" />
-		<PackageReference Include="System.Runtime" Version="4.3.1" />
-	</ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis" Version="4.5.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.5.0" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+        <PackageReference Include="System.CodeDom" Version="7.0.0" />
+        <PackageReference Include="System.Runtime" Version="4.3.1" />
+    </ItemGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\Neon.BuildInfo\Neon.BuildInfo.csproj" />
-		<ProjectReference Include="..\Neon.Common\Neon.Common.csproj" />
-	</ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\Neon.BuildInfo\Neon.BuildInfo.csproj" />
+        <ProjectReference Include="..\Neon.Common\Neon.Common.csproj" />
+    </ItemGroup>
 
-	<ItemGroup>
-		<None Include="..\nuget-icon.png" Pack="true" PackagePath="" />
-		<None Include="..\..\LICENSE" Pack="true" PackagePath="" />
-	</ItemGroup>
+    <ItemGroup>
+        <None Include="..\nuget-icon.png" Pack="true" PackagePath="" />
+        <None Include="..\..\LICENSE" Pack="true" PackagePath="" />
+    </ItemGroup>
 
 </Project>
