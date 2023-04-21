@@ -1,9 +1,5 @@
 <Project>
 
-	<!--
-	Default properties:
-	-->
-
 	<PropertyGroup>
 		<Product>neonSDK</Product>
 		<Authors>NEONFORGE Team</Authors>
@@ -25,7 +21,6 @@
 
 		<!-- Debugging -->
 
-		<Optimize>false</Optimize>
 		<DebugSymbols>true</DebugSymbols>
 		<DebugType>embedded</DebugType>
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
