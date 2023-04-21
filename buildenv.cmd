@@ -123,7 +123,7 @@ if "%HAS_JUSTMOCK%"=="y" (
 )
 
 if "%HAS_JUSTMOCK%"=="1" (
-    setx JUSTMOCK_ENABLED "%HAS_JUSTMOCK%" /M > nul
+    setx JUSTMOCK_ENABLED "true" /M > nul
 )
 
 REM Get on with configuration.

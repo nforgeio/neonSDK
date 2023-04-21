@@ -32,13 +32,15 @@
         enable sourcelink to reference source code from our GitHub repos.
         -->
 
-        <ContinuousIntegrationBuild  Condition="'$(NEON_PUBLIC_SOURCELINK)' == 'true'">true</ContinuousIntegrationBuild>
+        <ContinuousIntegrationBuild Condition="'$(NEON_PUBLIC_SOURCELINK)' == 'true'">true</ContinuousIntegrationBuild>
 
         <!-- Publish defaults -->
 
         <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 
     </PropertyGroup>
+
+    <!-- Build configuration related settings -->
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
         <DefineConstants>$(DefineConstants);TRACE;DEBUG</DefineConstants>
@@ -49,7 +51,9 @@
         <Optimize>true</Optimize>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(JUSTMOCK_ENABLED)' != ''">
+    <!-- Telerik JustMock settings -->
+
+    <PropertyGroup Condition="'$(JUSTMOCK_ENABLED)' == 'true'">
         <DefineConstants>$(DefineConstants);JUSTMOCK</DefineConstants>
     </PropertyGroup>
 
@@ -83,20 +87,20 @@
     So here's what we're going to do:
     
         * Create a local [BuildInfo] library that has only one
-            build configuration and target framework.
+          build configuration and target framework.
             
         * Have [BuildInfo] reference the GitInfo nuget package
-            and then write a drop-in replacement for the [ThisAssembly]
-            class that returns the values from the local GitInfo generated
-            class.
+          and then write a drop-in replacement for the [ThisAssembly]
+          class that returns the values from the local GitInfo generated
+          class.
             
         * Disable generation of the [AssemblyInfoAttribute] and 
-            [TargetFrameworkAttribute] classes for all projects.
+          [TargetFrameworkAttribute] classes for all projects.
             
         * Manually add [AssemblyInfo.cs] and [AssemblyAttributes.cs]
-            classes to [BuildInfo] and reference these from other projects as
-            shared links.  This code will include #IFDEFs to compile the correct
-            code for the the current target framework, etc.
+          classes to [BuildInfo] and reference these from other projects as
+          shared links.  This code will include #IFDEFs to compile the correct
+          code for the the current target framework, etc.
     -->
 
     <PropertyGroup>
