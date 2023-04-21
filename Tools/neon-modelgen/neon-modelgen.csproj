@@ -5,7 +5,7 @@
         <OutputType>Exe</OutputType>
         <RootNamespace>NeonModelGen</RootNamespace>
         <Configurations>Debug;Release</Configurations>
-        <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+        <RuntimeIdentifiers>win-x64;osx-x64;linux-x64</RuntimeIdentifiers>
         <NoWarn>$(NoWarn);NU5100</NoWarn>
         <DebugType>embedded</DebugType>
     </PropertyGroup>

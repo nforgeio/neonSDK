@@ -1,86 +1,110 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<TargetFramework>netstandard2.0</TargetFramework>
-		<OutputType>Library</OutputType>
-		<RootNamespace>Neon.ModelGenerator</RootNamespace>
-		<Version>$(NeonSdkVersion)</Version>
-		<Description>
-		Includes the [neon-model] client which can be referenced from your project to generate data and service client models from class and other types describes in a type definition assembly.
-		</Description>
-		<PackageLicenseFile>LICENSE</PackageLicenseFile>
-		<PackageIcon>nuget-icon.png</PackageIcon>
-		<PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.ModelGenerator/README.md</PackageProjectUrl>
-		<RepositoryUrl>https://github.com/nforgeio/neonSDK</RepositoryUrl>
-		<RepositoryType>git</RepositoryType>
-		<PackageTags>data utility</PackageTags>
-		<PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
-		<Configurations>Debug;Release</Configurations>
-		<DevelopmentDependency>true</DevelopmentDependency>
-		<NoWarn>$(NoWarn);CS2008;NU5100</NoWarn>
-	</PropertyGroup>
+		<PropertyGroup>
+				<TargetFramework>netstandard2.0</TargetFramework>
+				<OutputType>Library</OutputType>
+				<RootNamespace>Neon.ModelGenerator</RootNamespace>
+				<Version>$(NeonSdkVersion)</Version>
+				<Description>
+						Includes the [neon-model] client which can be referenced from your project to generate data and service client models from class and other types describes in a type definition assembly.
+				</Description>
+				<PackageLicenseFile>LICENSE</PackageLicenseFile>
+				<PackageIcon>nuget-icon.png</PackageIcon>
+				<PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.ModelGenerator/README.md</PackageProjectUrl>
+				<RepositoryUrl>https://github.com/nforgeio/neonSDK</RepositoryUrl>
+				<RepositoryType>git</RepositoryType>
+				<PackageTags>data utility</PackageTags>
+				<PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
+				<RuntimeIdentifiers>win-x64;osx-x64;linux-x64</RuntimeIdentifiers>
+				<Configurations>Debug;Release</Configurations>
+				<NoWarn>$(NoWarn);CS2008;NU5100</NoWarn>
+		</PropertyGroup>
 
-	<ItemGroup>
-		<None Include="Neon.ModelGenerator.readme.txt" />
-	</ItemGroup>
+		<ItemGroup>
+				<Compile Include="$(NK_ROOT)\Lib\Neon.Kube.BuildInfo\AssemblyAttributes.cs" Link="Properties\AssemblyAttributes.cs" />
+				<Compile Include="$(NK_ROOT)\Lib\Neon.Kube.BuildInfo\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
+		</ItemGroup>
 
-	<ItemGroup>
-		<None Include="..\..\LICENSE">
-			<Pack>True</Pack>
-			<PackagePath></PackagePath>
-		</None>
-		<Content Include="..\nuget-icon.png">
-			<Pack>True</Pack>
-			<PackagePath></PackagePath>
-		</Content>
-		<Content Include="Neon.ModelGenerator.readme.txt">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</Content>
+		<ItemGroup>
+				<None Include="Neon.ModelGenerator.readme.txt" />
+		</ItemGroup>
 
-		<!--
+		<ItemGroup>
+				<None Include="..\..\LICENSE">
+						<Pack>True</Pack>
+						<PackagePath></PackagePath>
+				</None>
+				<Content Include="..\nuget-icon.png">
+						<Pack>True</Pack>
+						<PackagePath></PackagePath>
+				</Content>
+				<Content Include="Neon.ModelGenerator.readme.txt">
+						<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+				</Content>
+
+				<!--
 		Note that we're not using the glob [**] pattern in the <Content/> tags below
 		to avoid including any localization folders to reduce the package size.
 		-->
-		
-		<Content Include="linux-x64\*">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-			<CopyToPublishDirectory>true</CopyToPublishDirectory>
-		</Content>
-		
-		<Content Include="osx-x64\*">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-			<CopyToPublishDirectory>true</CopyToPublishDirectory>
-		</Content>
-		
-		<Content Include="win-x64\*">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-			<CopyToPublishDirectory>true</CopyToPublishDirectory>
-		</Content>
-	</ItemGroup>
 
-	<ItemGroup>
-	    <Folder Include="Properties\" />
-	</ItemGroup>
+				<Content Include="linux-x64\*">
+						<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+						<CopyToPublishDirectory>true</CopyToPublishDirectory>
+				</Content>
 
-	<ItemGroup>
-	  <ProjectReference Include="..\..\Lib\Neon.BuildInfo\Neon.BuildInfo.csproj" />
-	</ItemGroup>
+				<Content Include="osx-x64\*">
+						<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+						<CopyToPublishDirectory>true</CopyToPublishDirectory>
+				</Content>
 
-	<!-- 
+				<Content Include="win-x64\*">
+						<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+						<CopyToPublishDirectory>true</CopyToPublishDirectory>
+				</Content>
+		</ItemGroup>
+
+		<ItemGroup>
+				<Folder Include="Properties\" />
+		</ItemGroup>
+
+		<ItemGroup>
+				<ProjectReference Include="..\..\Lib\Neon.BuildInfo\Neon.BuildInfo.csproj" />
+		</ItemGroup>
+
+		<!-- 
 	We're going to publish the [neon-modelgen] binaries for [linux-x64], [osx-x64],
 	and [win-x64] to the [neon-modelgen] folder of this project.
 	-->
 
-	<Target Name="ModelGen" BeforeTargets="BeforeBuild">
+		<Target Name="_GenerateLinuxCli">
+				<MSBuild Projects="$(NF_ROOT)\Tools\neon-modelgen\neon-modelgen.csproj" Targets="Publish;PublishItemsOutputGroup" Properties="Configuration=$(Configuration);Platform=x64;RuntimeIdentifier=linux-x64;PublishSingleFile=true" RebaseOutputs="true">
+						<Output TaskParameter="TargetOutputs" ItemName="_ToolsProjectOutputs" />
+				</MSBuild>
+				<Copy SourceFiles="@(_ToolsProjectOutputs)" DestinationFolder="linux-x64" />
+		</Target>
 
-		<Message Importance="high" Text="pubcore --no-cmd &quot;$(NF_ROOT)\Tools\neon-modelgen\neon-modelgen.csproj&quot; $(configuration) &quot;$(NF_ROOT)\Lib\Neon.ModelGenerator\linux-x64&quot; linux-x64" />
-		<Exec Command="pubcore --no-cmd &quot;$(NF_ROOT)\Tools\neon-modelgen\neon-modelgen.csproj&quot; $(configuration) &quot;$(NF_ROOT)\Lib\Neon.ModelGenerator\linux-x64&quot; linux-x64" />
+		<Target Name="_GenerateOsxCli">
+				<MSBuild Projects="$(NF_ROOT)\Tools\neon-modelgen\neon-modelgen.csproj" Targets="Publish;PublishItemsOutputGroup" Properties="Configuration=$(Configuration);Platform=x64;RuntimeIdentifier=osx-x64;PublishSingleFile=true" RebaseOutputs="true">
+						<Output TaskParameter="TargetOutputs" ItemName="_ToolsProjectOutputs" />
+				</MSBuild>
+				<Copy SourceFiles="@(_ToolsProjectOutputs)" DestinationFolder="osx-x64" />
+		</Target>
 
-		<Message Importance="high" Text="pubcore --no-cmd &quot;$(NF_ROOT)\Tools\neon-modelgen\neon-modelgen.csproj&quot; $(configuration) &quot;$(NF_ROOT)\Lib\Neon.ModelGenerator\osx-x64&quot; osx-x64" />
-		<Exec Command="pubcore --no-cmd &quot;$(NF_ROOT)\Tools\neon-modelgen\neon-modelgen.csproj&quot; $(configuration) &quot;$(NF_ROOT)\Lib\Neon.ModelGenerator\osx-x64&quot; osx-x64" />
+		<Target Name="_GenerateWindowsCli">
+				<MSBuild Projects="$(NF_ROOT)\Tools\neon-modelgen\neon-modelgen.csproj" Targets="Publish;PublishItemsOutputGroup" Properties="Configuration=$(Configuration);Platform=x64;RuntimeIdentifier=win-x64;PublishSingleFile=true" RebaseOutputs="true">
+						<Output TaskParameter="TargetOutputs" ItemName="_ToolsProjectOutputs" />
+				</MSBuild>
+				<Copy SourceFiles="@(_ToolsProjectOutputs)" DestinationFolder="win-x64" />
+		</Target>
+		
+		<ItemGroup>
+				<ModelGenFiles Include="$(NF_ROOT)\Tools\neon-modelgen\*"/>
+		</ItemGroup>
 
-		<Message Importance="high" Text="pubcore --no-cmd &quot;$(NF_ROOT)\Tools\neon-modelgen\neon-modelgen.csproj&quot; $(configuration) &quot;$(NF_ROOT)\Lib\Neon.ModelGenerator\win-x64&quot; win-x64" />
-		<Exec Command="pubcore --no-cmd &quot;$(NF_ROOT)\Tools\neon-modelgen\neon-modelgen.csproj&quot; $(configuration) &quot;$(NF_ROOT)\Lib\Neon.ModelGenerator\win-x64&quot; win-x64" />
-	</Target>
+		<Target Inputs="@(ModelGenFiles)" Outputs="@(ModelGenFiles->'%(Filename).content')" Name="BuildModelGenerator" BeforeTargets="Build;BeforeCompile;CoreCompile">
+				<CallTarget Condition="$([MSBuild]::IsOSPlatform('Linux'))" Targets="_GenerateLinuxCli" />
+				<CallTarget Condition="$([MSBuild]::IsOSPlatform('OSX'))" Targets="_GenerateOsxCli" />
+				<CallTarget Condition="$([MSBuild]::IsOSPlatform('Windows'))" Targets="_GenerateWindowsCli" />
+		</Target>
 
 </Project>
