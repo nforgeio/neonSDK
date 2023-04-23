@@ -34,7 +34,7 @@ namespace NeonBuild
     /// </summary>
     public static partial class Program
     {
-        private const string version = "1.11";
+        private const string version = "1.12";
 
         private static readonly string usage =
 $@"
