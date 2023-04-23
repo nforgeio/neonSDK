@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:	    Program.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -371,6 +371,28 @@ ARGUMENTS:
                             Console.Error.WriteLine("*** ERROR: REPO-ROOT argument is required.");
                             Program.Exit(1);
                         }
+
+                        // Esure that the folder specified includes at least one solution file (*.sln).
+                        // This will help prevent developers from clean their whole drive or other
+                        // important folders by accident.
+                        //
+                        // $todo(jefflill): This almost happened to me but I was able to the kill
+                        //                  the process in time.
+
+                        if (!Directory.Exists(repoRoot))
+                        {
+                            Console.Error.WriteLine($"*** ERROR: [{repoRoot}] folder does not exist.");
+                            Program.Exit(1);
+                        }
+
+                        if (!Directory.GetFiles(repoRoot, "*.sln", SearchOption.TopDirectoryOnly).Any())
+                        {
+                            Console.Error.WriteLine($"*** ERROR: [{repoRoot}] folder does not include a Visual Studio solution.");
+                            Console.Error.WriteLine($"           This is required for your safety.");
+                            Program.Exit(1);
+                        }
+
+                        // Perform the operation.
 
                         buildFolder = Path.Combine(repoRoot, "Build");
 
