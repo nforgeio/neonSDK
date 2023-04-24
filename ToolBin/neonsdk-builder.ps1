@@ -2,7 +2,7 @@
 #------------------------------------------------------------------------------
 # FILE:         neonsdk-builder.ps1
 # CONTRIBUTOR:  Jeff Lill
-# COPYRIGHT:    Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+# COPYRIGHT:    Copyright Â© 2005-2023 by NEONFORGE LLC.  All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -141,19 +141,6 @@ try
         ThrowOnExitCode
 
         # Clean and build the solution.
-
-        Write-Info ""
-        Write-Info "*******************************************************************************"
-        Write-Info "***                           RESTORE PACKAGES                              ***"
-        Write-Info "*******************************************************************************"
-        Write-Info ""
-
-        & dotnet restore "$nfSolution"
-
-        if (-not $?)
-        {
-            throw "ERROR: RESTORE FAILED"
-        }
 
         Write-Info ""
         Write-Info "*******************************************************************************"
