@@ -48,8 +48,8 @@
             BeforeTargets="CoreCompile"
             DependsOnTargets="BeforeCompile">
 
-        <Message Importance="high" Text="neon-modelgen path: $(ModelGenToolPath)"/>
-                <Exec Command="&quot;$(ModelGeneratorPath)&quot; --target-namespace=Test.Neon.Models --persisted --debug-allow-stepinto &quot;$(NF_ROOT)\Test\Test.Neon.Models.Definitions\bin\$(Configuration)\netstandard2.0\Test.Neon.Models.Definitions.dll&quot; &quot;$(ProjectDir)GeneratedTypes.mg.cs&quot;" />
+        <Message Importance="high" Text="neon-modelgen path: $(ModelGeneratorPath)"/>
+        <Exec Command="&quot;$(ModelGeneratorPath)&quot; --target-namespace=Test.Neon.Models --persisted --debug-allow-stepinto &quot;$(NF_ROOT)\Test\Test.Neon.Models.Definitions\bin\$(Configuration)\netstandard2.0\Test.Neon.Models.Definitions.dll&quot; &quot;$(ProjectDir)GeneratedTypes.mg.cs&quot;" />
         <Exec Command="&quot;$(ModelGeneratorPath)&quot; --target-namespace=Test.Neon.UxModels --persisted --ux=xaml &quot;$(NF_ROOT)\Test\Test.Neon.Models.Definitions\bin\$(Configuration)\netstandard2.0\Test.Neon.Models.Definitions.dll&quot; &quot;$(ProjectDir)GeneratedUxTypes.mg.cs&quot;" />
         
         <!--- Ensure that the new files are included in the build -->
