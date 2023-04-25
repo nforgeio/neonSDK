@@ -48,12 +48,14 @@
             BeforeTargets="CoreCompile"
             DependsOnTargets="BeforeCompile">
 
+        <!-- Fail if we still don't know the [neon-modelgen] location -->
+        <Error Condition="'$(ModelGeneratorPath)' == ''" Text="Cannot locate: neon-modelgen] location"/>
+
         <Message Importance="high" Text="neon-modelgen path: $(ModelGeneratorPath)"/>
         <Exec Command="&quot;$(ModelGeneratorPath)&quot; --target-namespace=Test.Neon.Models --persisted --debug-allow-stepinto &quot;$(NF_ROOT)\Test\Test.Neon.Models.Definitions\bin\$(Configuration)\netstandard2.0\Test.Neon.Models.Definitions.dll&quot; &quot;$(ProjectDir)GeneratedTypes.mg.cs&quot;" />
         <Exec Command="&quot;$(ModelGeneratorPath)&quot; --target-namespace=Test.Neon.UxModels --persisted --ux=xaml &quot;$(NF_ROOT)\Test\Test.Neon.Models.Definitions\bin\$(Configuration)\netstandard2.0\Test.Neon.Models.Definitions.dll&quot; &quot;$(ProjectDir)GeneratedUxTypes.mg.cs&quot;" />
         
         <!--- Ensure that the new files are included in the build -->
-        
         <ItemGroup>
             <Compile Include="**\*.cs" KeepDuplicates="false" />
             <Compile Remove="bin/**/*.cs" />
