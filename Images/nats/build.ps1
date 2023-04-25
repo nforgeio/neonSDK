@@ -29,4 +29,3 @@ param
 
 Pull-DockerImage "nats:$version-linux"
 Invoke-CaptureStreams "docker build -t ${registry}:${tag} --build-arg VERSION=$version ." -interleave | Out-Null
-ThrowOnExitCode

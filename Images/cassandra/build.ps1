@@ -29,4 +29,3 @@ param
 
 Pull-DockerImage "cassandra:$version"
 Invoke-CaptureStreams "docker build -t ${registry}:${tag} --build-arg VERSION=$version ." -interleave$result | Out-Null
-ThrowOnExitCode

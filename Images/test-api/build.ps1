@@ -31,30 +31,29 @@ $organization      = SdkRegistryOrg
 $base_organization = KubeBaseRegistryOrg
 $branch            = GitBranch $env:NF_ROOT
 
-# Build and publish the app to a local [bin] folder.
-
-DeleteFolder bin
-
-mkdir bin | Out-Null
-ThrowOnExitCode
-
-dotnet publish "$nfServices\$appname\$appname.csproj" -c Release -o "$pwd\bin" 
-ThrowOnExitCode
-
-# Split the build binaries into [__app] (application) and [__dep] dependency subfolders
-# so we can tune the image layers.
-
-core-layers $appname "$pwd\bin" 
-ThrowOnExitCode
-
-# Build the image.
-
 try
 {
+    # Build and publish the app to a local [bin] folder.
+
+    DeleteFolder bin
+
+    mkdir bin | Out-Null
+    ThrowOnExitCode
+
+    dotnet publish "$nfServices\$appname\$appname.csproj" -c Release -o "$pwd\bin" 
+    ThrowOnExitCode
+
+    # Split the build binaries into [__app] (application) and [__dep] dependency subfolders
+    # so we can tune the image layers.
+
+    core-layers $appname "$pwd\bin" 
+    ThrowOnExitCode
+
+    # Build the image.
+
     $baseImage = Get-DotnetBaseImage "$nfRoot\global.json"
 
     Invoke-CaptureStreams "docker build -t ${registry}:${tag} --build-arg `"APPNAME=$appname`" --build-arg `"ORGANIZATION=$organization`" --build-arg `"BASE_ORGANIZATION=$base_organization`" --build-arg `"CLUSTER_VERSION=neonsdk-$neonSDK_Version`" --build-arg `"BASE_IMAGE=$baseImage`" --build-arg `"BRANCH=$branch`" ." -interleave | Out-Null
-    ThrowOnExitCode
 }
 finally
 {

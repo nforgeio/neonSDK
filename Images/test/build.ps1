@@ -29,4 +29,3 @@ param
 
 Pull-DockerImage "alpine:latest"
 Invoke-CaptureStreams "docker build -t ${registry}:${tag} --build-arg VERSION=$version ." -interleave | Out-Null
-ThrowOnExitCode
