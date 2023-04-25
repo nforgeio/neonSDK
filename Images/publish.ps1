@@ -1,4 +1,4 @@
-﻿#Requires -Version 7.1.3 -RunAsAdministrator
+#Requires -Version 7.1.3 -RunAsAdministrator
 #------------------------------------------------------------------------------
 # FILE:         publish.ps1
 # CONTRIBUTOR:  Jeff Lill
@@ -145,22 +145,6 @@ try
     # and also to speed this up a bit.
 
     $env:NEON_PUBCORE_DISABLE = "true"
-
-    # We need to do a release solution build to ensure that any tools or other
-    # dependencies are built before we build and publish the individual packages.
-
-    Write-Info ""
-    Write-Info "********************************************************************************"
-    Write-Info "***                           RESTORE PACKAGES                               ***"
-    Write-Info "********************************************************************************"
-    Write-Info ""
-
-    & nuget restore "$nfSolution"
-
-    if (-not $?)
-    {
-        throw "ERROR: RESTORE FAILED"
-    }
 
     Write-Info ""
     Write-Info "********************************************************************************"

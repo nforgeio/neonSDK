@@ -1,4 +1,4 @@
-﻿#Requires -Version 7.1.3 -RunAsAdministrator
+#Requires -Version 7.1.3 -RunAsAdministrator
 #------------------------------------------------------------------------------
 # FILE:         build.ps1
 # CONTRIBUTOR:  Marcus Bowyer
@@ -35,10 +35,16 @@ ThrowOnExitCode
 
 # Build the image.
 
-$baseImage = Get-DotnetBaseImage "$nfRoot\global.json"
+try
+{
+    $baseImage = Get-DotnetBaseImage "$nfRoot\global.json"
 
-Invoke-CaptureStreams "docker build -t ${registry}:${tag} --build-arg `"APPNAME=$appname`" --build-arg `"ORGANIZATION=$organization`" --build-arg `"BASE_IMAGE=$baseImage`" ." -interleave | Out-Null
+    Invoke-CaptureStreams "docker build -t ${registry}:${tag} --build-arg `"APPNAME=$appname`" --build-arg `"ORGANIZATION=$organization`" --build-arg `"BASE_IMAGE=$baseImage`" ." -interleave | Out-Null
+    ThrowOnExitCode
+}
+finally
+{
+    # Clean up
 
-# Clean up
-
-DeleteFolder bin
+    DeleteFolder bin
+}
