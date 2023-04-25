@@ -4,7 +4,6 @@
         <TargetFrameworks>net48; net6.0; net7.0</TargetFrameworks>
         <Configurations>Debug;Release</Configurations>
         <GenerateDocumentationFile>false</GenerateDocumentationFile>
-        <ModelGenToolPath>$(NF_ROOT)\Tools\neon-modelgen\bin\$(Configuration)\net7.0\win-x64\neon-modelgen.exe</ModelGenToolPath>
     </PropertyGroup>
 
     <ItemGroup>
@@ -26,6 +25,23 @@
         <Folder Include="Properties\" />
     </ItemGroup>
 
+    <!-- Figure out where the [neon-modelgen] tool is located -->
+
+    <Choose>
+        <When Condition="'$(NeonBuildUseNugets)' == 'true'">
+            <PropertyGroup>
+                <ModelGeneratorPath>$(PkgNeon_ModelGenerator)\contentFiles\any\netstandard2.0\$(RuntimePath)\neon-modelgen</ModelGeneratorPath>
+            </PropertyGroup>
+        </When>
+        <Otherwise>
+            <PropertyGroup>
+                <ModelGeneratorPath>$(NF_ROOT)\Lib\Neon.ModelGenerator\$(RuntimePath)\neon-modelgen</ModelGeneratorPath>
+            </PropertyGroup>    
+        </Otherwise>
+    </Choose>
+
+    <!--- Generate the model source files -->
+
     <Target Name="ModelGen"
             Inputs="$(NF_ROOT)\Test\Test.Neon.Models.Definitions\bin\$(Configuration)\netstandard2.0\Test.Neon.Models.Definitions.dll"
             Outputs="$(ProjectDir)GeneratedUxTypes.mg.cs"
@@ -33,12 +49,11 @@
             DependsOnTargets="BeforeCompile">
 
         <Message Importance="high" Text="neon-modelgen path: $(ModelGenToolPath)"/>
-        
-        <!--- Generate the model source files -->
-        <Exec Command="&quot;$(ModelGenToolPath)&quot; --target-namespace=Test.Neon.Models --persisted --debug-allow-stepinto &quot;$(NF_ROOT)\Test\Test.Neon.Models.Definitions\bin\$(Configuration)\netstandard2.0\Test.Neon.Models.Definitions.dll&quot; &quot;$(ProjectDir)GeneratedTypes.mg.cs&quot;" />
-        <Exec Command="&quot;$(ModelGenToolPath)&quot; --target-namespace=Test.Neon.UxModels --persisted --ux=xaml &quot;$(NF_ROOT)\Test\Test.Neon.Models.Definitions\bin\$(Configuration)\netstandard2.0\Test.Neon.Models.Definitions.dll&quot; &quot;$(ProjectDir)GeneratedUxTypes.mg.cs&quot;" />
+                <Exec Command="&quot;$(ModelGeneratorPath)&quot; --target-namespace=Test.Neon.Models --persisted --debug-allow-stepinto &quot;$(NF_ROOT)\Test\Test.Neon.Models.Definitions\bin\$(Configuration)\netstandard2.0\Test.Neon.Models.Definitions.dll&quot; &quot;$(ProjectDir)GeneratedTypes.mg.cs&quot;" />
+        <Exec Command="&quot;$(ModelGeneratorPath)&quot; --target-namespace=Test.Neon.UxModels --persisted --ux=xaml &quot;$(NF_ROOT)\Test\Test.Neon.Models.Definitions\bin\$(Configuration)\netstandard2.0\Test.Neon.Models.Definitions.dll&quot; &quot;$(ProjectDir)GeneratedUxTypes.mg.cs&quot;" />
         
         <!--- Ensure that the new files are included in the build -->
+        
         <ItemGroup>
             <Compile Include="**\*.cs" KeepDuplicates="false" />
             <Compile Remove="bin/**/*.cs" />
