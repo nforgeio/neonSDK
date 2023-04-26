@@ -133,6 +133,7 @@ try
     # are built before we build and publish the individual container images.
 
     $msbuild        = $env:MSBUILDPATH
+    $neonBuild      = "$env:NF_ROOT\ToolBin\neon-build\neon-build.exe"
     $nfRoot         = "$env:NF_ROOT"
     $nfSolution     = "$nfRoot\neonSDK.sln"
     $nfBuild        = "$env:NF_BUILD"
@@ -152,12 +153,7 @@ try
     Write-Info "********************************************************************************"
     Write-Info ""
 
-    & "$msbuild" "$nfSolution" $buildConfig -t:Clean -m -verbosity:quiet
-
-    if (-not $?)
-    {
-        throw "ERROR: CLEAN FAILED"
-    }
+    Invoke-Program "`"$neonBuild`" clean `"$nfRoot`""
 
     Write-Info  ""
     Write-Info  "*******************************************************************************"
@@ -165,7 +161,7 @@ try
     Write-Info  "*******************************************************************************"
     Write-Info  ""
 
-    & "$msbuild" "$nfSolution" -p:Configuration=Release -restore -m -verbosity:quiet
+    & "$msbuild" "$nfSolution" -p:Configuration=Release -t:restore,build -p:RestorePackagesConfig=true -m -verbosity:quiet
 
     if (-not $?)
     {

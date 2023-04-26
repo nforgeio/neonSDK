@@ -115,6 +115,7 @@ try
     # Load the library and neonKUBE versions.
 
     $msbuild        = $env:MSBUILDPATH
+    $neonBuild      = "$env:NF_ROOT\ToolBin\neon-build\neon-build.exe"
     $nfRoot         = "$env:NF_ROOT"
     $nfSolution     = "$nfRoot\neonSDK.sln"
     $nfBuild        = "$env:NF_BUILD"
@@ -154,12 +155,7 @@ try
     Write-Info "********************************************************************************"
     Write-Info ""
 
-    & "$msbuild" "$nfSolution" -p:Configuration=$config -t:Clean -m -verbosity:quiet
-
-    if (-not $?)
-    {
-        throw "ERROR: CLEAN FAILED"
-    }
+    Invoke-Program "`"$neonBuild`" clean `"$nfRoot`""
 
     Write-Info  ""
     Write-Info  "*******************************************************************************"
@@ -167,7 +163,7 @@ try
     Write-Info  "*******************************************************************************"
     Write-Info  ""
 
-    & "$msbuild" "$nfSolution" -p:Configuration=$config -restore -m -verbosity:quiet
+    & "$msbuild" "$nfSolution" -p:Configuration=$config -t:restore,build -p:RestorePackagesConfig=true -m -verbosity:quiet
 
     if (-not $?)
     {

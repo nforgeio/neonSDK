@@ -84,6 +84,7 @@ try
     }
 
     $msbuild     = $env:MSBUILDPATH
+    $neonBuild   = "$env:NF_ROOT\ToolBin\neon-build\neon-build.exe"
     $nfRoot      = $env:NF_ROOT
     $nfSolution  = "$nfRoot\neonSDK.sln"
     $nfBuild     = "$env:NF_BUILD"
@@ -148,12 +149,7 @@ try
         Write-Info "*******************************************************************************"
         Write-Info ""
 
-        & "$msbuild" "$nfSolution" $buildConfig -t:Clean -m -verbosity:$verbosity
-
-        if (-not $?)
-        {
-            throw "ERROR: CLEAN FAILED"
-        }
+        Invoke-Program "`"$neonBuild`" clean `"$nfRoot`""
 
         Write-Info ""
         Write-Info "*******************************************************************************"
@@ -161,7 +157,7 @@ try
         Write-Info "*******************************************************************************"
         Write-Info ""
 
-        & "$msbuild" "$nfSolution" $buildConfig -restore -m -verbosity:$verbosity
+        & "$msbuild" "$nfSolution" $buildConfig -t:restore,build -p:RestorePackagesConfig=true -m -verbosity:$verbosity
 
         if (-not $?)
         {
