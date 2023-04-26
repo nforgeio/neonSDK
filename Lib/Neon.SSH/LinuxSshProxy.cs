@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:	    LinuxSshProxy.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -210,7 +210,7 @@ namespace Neon.SSH
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(name), nameof(name));
             Covenant.Requires<ArgumentNullException>(credentials != null, nameof(credentials));
 
-            this.Name           = name;
+            this.Name          = name;
             this.Address        = address;
             this.credentials    = credentials;
             this.logWriter      = logWriter;
@@ -600,7 +600,7 @@ namespace Neon.SSH
             Covenant.Requires<ArgumentNullException>(password != null, nameof(password));
 
             const string sshProxyInitPath = SshProxyInitPath;
-            
+
             var connectionInfo = GetConnectionInfo();
 
             if (!FileExists(sshProxyInitPath))
@@ -826,12 +826,26 @@ rm {HostFolders.Home(Username)}/askpass
         }
 
         /// <summary>
+        /// Disables phased Linux updates.
+        /// </summary>
+        private void DisablePhasedUpdates()
+        {
+            // We need to disable phased updates because we've seen errors when building
+            // Azure node images and this could crop up elsewhere:
+            //
+            //      https://github.com/actions/runner-images/issues/7192
+
+            UploadText("/etc/apt/apt.conf.d/99-phased-updates", "APT::Get::Always-Include-Phased-Updates \"false\";", permissions: "664");
+        }
+
+        /// <summary>
         /// Patches Linux on the node applying all outstanding security patches but without 
         /// upgrading the Linux distribution.
         /// </summary>
         /// <returns><c>true</c> when a reboot is required.</returns>
         public bool PatchLinux()
         {
+            DisablePhasedUpdates();
             SudoCommand("safe-apt-get update", RunOptions.Defaults | RunOptions.FaultOnError);
             SudoCommand("safe-apt-get upgrade -yq", RunOptions.Defaults | RunOptions.FaultOnError);
 
@@ -844,6 +858,7 @@ rm {HostFolders.Home(Username)}/askpass
         /// <returns><c>true</c> when a reboot is required.</returns>
         public bool UpgradeLinuxDistribution()
         {
+            DisablePhasedUpdates();
             SudoCommand("safe-apt-get update -yq", RunOptions.Defaults | RunOptions.FaultOnError);
             SudoCommand("safe-apt-get dist-upgrade -yq", RunOptions.Defaults | RunOptions.FaultOnError);
 
