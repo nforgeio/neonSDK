@@ -826,26 +826,12 @@ rm {HostFolders.Home(Username)}/askpass
         }
 
         /// <summary>
-        /// Disables phased Linux updates.
-        /// </summary>
-        private void DisablePhasedUpdates()
-        {
-            // We need to disable phased updates because we've seen errors when building
-            // Azure node images and this could crop up elsewhere:
-            //
-            //      https://github.com/actions/runner-images/issues/7192
-
-            UploadText("/etc/apt/apt.conf.d/99-phased-updates", "APT::Get::Always-Include-Phased-Updates \"false\";", permissions: "664");
-        }
-
-        /// <summary>
         /// Patches Linux on the node applying all outstanding security patches but without 
         /// upgrading the Linux distribution.
         /// </summary>
         /// <returns><c>true</c> when a reboot is required.</returns>
         public bool PatchLinux()
         {
-            DisablePhasedUpdates();
             SudoCommand("safe-apt-get update", RunOptions.Defaults | RunOptions.FaultOnError);
             SudoCommand("safe-apt-get upgrade -yq", RunOptions.Defaults | RunOptions.FaultOnError);
 
@@ -858,7 +844,6 @@ rm {HostFolders.Home(Username)}/askpass
         /// <returns><c>true</c> when a reboot is required.</returns>
         public bool UpgradeLinuxDistribution()
         {
-            DisablePhasedUpdates();
             SudoCommand("safe-apt-get update -yq", RunOptions.Defaults | RunOptions.FaultOnError);
             SudoCommand("safe-apt-get dist-upgrade -yq", RunOptions.Defaults | RunOptions.FaultOnError);
 
