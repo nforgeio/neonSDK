@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:	    HttpException.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -60,7 +60,7 @@ namespace Neon.Net
                 return string.Empty;
             }
 
-            return $" status=[{(int)statusCode}]";
+            return $"status=[{(int)statusCode}]";
         }
 
         private static string GetMethodString(string method)
