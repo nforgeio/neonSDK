@@ -31,6 +31,7 @@ param
     [switch]$services    = $false,      # Rebuild all cluster service images
     [switch]$nopush      = $false,      # Don't push to the registry
     [switch]$noprune     = $false,      # Don't prune the local Docker cache
+    [switch]$noclean     = $false,      # Don't clean before building
     [switch]$allVersions = $false       # Rebuild all image versions
 )
 
@@ -147,13 +148,16 @@ try
 
     $env:NEON_PUBCORE_DISABLE = "true"
 
-    Write-Info ""
-    Write-Info "********************************************************************************"
-    Write-Info "***                            CLEAN SOLUTION                                ***"
-    Write-Info "********************************************************************************"
-    Write-Info ""
+    if (-not $noclean)
+    {
+        Write-Info ""
+        Write-Info "********************************************************************************"
+        Write-Info "***                            CLEAN SOLUTION                                ***"
+        Write-Info "********************************************************************************"
+        Write-Info ""
 
-    Invoke-Program "`"$neonBuild`" clean `"$nfRoot`""
+        Invoke-Program "`"$neonBuild`" clean `"$nfRoot`""
+    }
 
     Write-Info  ""
     Write-Info  "*******************************************************************************"
