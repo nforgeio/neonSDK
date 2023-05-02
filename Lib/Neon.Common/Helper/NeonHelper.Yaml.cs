@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:	    NeonHelper.Yaml.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -120,6 +120,13 @@ namespace Neon.Common
 
                         .ConfigureDefaultValuesHandling(DefaultValuesHandling.Preserve)
 
+                        // We need to disable aliases to prevent bogus values like
+                        // [&o1, &o0, *o1...] showing up in the output.
+                        //
+                        //      https://github.com/aaubry/YamlDotNet/issues/126
+
+                        .DisableAliases()
+
                         // We also need a custom type converter that honors [EnumMember]
                         // attributes on enumeration values.
                         //
@@ -127,7 +134,6 @@ namespace Neon.Common
                         //      https://www.cyotek.com/blog/using-custom-type-converters-with-csharp-and-yamldotnet-part-2
 
                         .WithTypeConverter(new YamlEnumTypeConverter())
-
                         .WithNamingConvention(new LowercaseYamlNamingConvention())
                         .Build();
                 });
