@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:	    Test_NeonHelper.Yaml.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -25,6 +25,7 @@ using Neon.Xunit;
 
 using YamlDotNet.Core;
 using Xunit;
+using System.IO;
 
 namespace TestCommon
 {
@@ -55,7 +56,7 @@ namespace TestCommon
                 new YamlPerson()
                 {
                     Name = "Jeff",
-                    Age  = 56,
+                    Age = 56,
                     Gender = YamlGender.Unknown
                 };
 
@@ -74,6 +75,48 @@ namespace TestCommon
             Assert.Equal("Jeff", after.Name);
             Assert.Equal(56, after.Age);
             Assert.Equal(YamlGender.Unknown, after.Gender);
+        }
+
+        [Fact]
+        public void YamlDoubleSpaced()
+        {
+            // The YamlDotNet serializer serializes multi-lined strings as double-spaced for
+            // for reason.  Our NeonHelper YAML serializer has been modified not to do this.
+            //
+            //      https://stackoverflow.com/questions/58431796/change-the-scalar-style-used-for-all-multi-line-strings-when-serialising-a-dynam
+            //
+            // We're going to verify our YAML serializer's behavior here.
+
+            var person = new YamlPerson() { Name = "line 1\nline 2" };
+            var yaml = NeonHelper.YamlSerialize(person);
+
+            // Confirm that there's no blank line between "line 1" and "line 2".
+
+            var lines = new List<string>();
+
+            using (var reader = new StringReader(yaml))
+            {
+                foreach (var line in reader.Lines())
+                {
+                    lines.Add(line.Trim());
+                }
+            }
+
+            var line1Index = -1;
+
+            for (int i = 0;i<lines.Count;i++)
+            {
+                if (lines[i] == "line 1")
+                {
+                    line1Index = i;
+                    break;
+                }
+            }
+
+            Assert.NotEqual(-1, line1Index);
+            Assert.Equal("line 1", lines[line1Index]);
+            Assert.NotEqual(string.Empty, lines[line1Index + 1]);
+            Assert.Equal("line 2", lines[line1Index + 1]);
         }
 
         [Fact]
