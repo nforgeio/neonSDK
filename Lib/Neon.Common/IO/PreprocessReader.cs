@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:	    PreprocessReader.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -462,8 +462,8 @@ namespace Neon.IO
         public void AddCommentMarker(string marker)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(marker), nameof(marker));
-            Covenant.Requires<ArgumentException>(!marker.Any(ch => char.IsWhiteSpace(ch)), nameof(marker), $"[marker={marker}]: cannot include whitespace.");
-            Covenant.Requires<ArgumentException>(!marker.Any(ch => !char.IsPunctuation(ch)), nameof(marker), $"[marker={marker}]: includes a non-punctuation character.");
+            Covenant.Requires<ArgumentException>(!marker.Any(ch => char.IsWhiteSpace(ch)), () => nameof(marker), () => $"[marker={marker}]: cannot include whitespace.");
+            Covenant.Requires<ArgumentException>(!marker.Any(ch => !char.IsPunctuation(ch)), () => nameof(marker), () => $"[marker={marker}]: includes a non-punctuation character.");
 
             // Add the marker if it's not already present.
 

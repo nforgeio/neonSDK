@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:	    ReflectionExtensions.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -60,7 +60,7 @@ namespace Neon.Common
         {
             Covenant.Requires<ArgumentNullException>(type != null, nameof(type));
             Covenant.Requires<ArgumentNullException>(interfaceType != null, nameof(interfaceType));
-            Covenant.Requires<ArgumentException>(interfaceType.IsInterface, nameof(interfaceType), $"Type [{interfaceType.FullName}] is not an interface.");
+            Covenant.Requires<ArgumentException>(interfaceType.IsInterface, () => nameof(interfaceType), () => $"Type [{interfaceType.FullName}] is not an interface.");
 
             foreach (var @interface in type.GetInterfaces())
             {

@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:	    AttributeLogger.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -93,7 +93,7 @@ namespace Neon.Diagnostics
         public AttributeLogger(ILogger logger, LogAttributes attributes)
         {
             Covenant.Requires<ArgumentNullException>(logger != null, nameof(logger));
-            Covenant.Requires<ArgumentException>(!(logger is AttributeLogger), $"A [{nameof(AttributeLogger)}] cannot wrap another [{nameof(AttributeLogger)}] instance.", nameof(logger));
+            Covenant.Requires<ArgumentException>(!(logger is AttributeLogger), nameof(logger), $"An [{nameof(AttributeLogger)}] cannot wrap another [{nameof(AttributeLogger)}] instance.");
             Covenant.Requires<ArgumentNullException>(attributes != null, nameof(attributes));
 
             this.logger     = logger;

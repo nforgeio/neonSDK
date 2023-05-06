@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:	    HttpApiException.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -91,7 +91,7 @@ namespace Neon.Net
         {
             if (string.IsNullOrEmpty(errorCode))
             {
-                Covenant.Requires<ArgumentException>(statusCodeRegex.IsMatch(errorCode), nameof(errorCode), $"Invalid error code [{errorCode}]: Error codes must consist of 1-32 ASCII letters, digits, underscores, dots, or dashes.");
+                Covenant.Requires<ArgumentException>(statusCodeRegex.IsMatch(errorCode), () => nameof(errorCode), () => $"Invalid error code [{errorCode}]: Error codes must consist of 1-32 ASCII letters, digits, underscores, dots, or dashes.");
             }
             else
             {

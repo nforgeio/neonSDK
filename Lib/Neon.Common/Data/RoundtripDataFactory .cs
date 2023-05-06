@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:	    RoundtripDataFactory.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -83,7 +83,7 @@ namespace Neon.Data
                 {
                     createMethod = resultType.GetMethod("CreateFrom", BindingFlags.Public | BindingFlags.Static, null, createFromJObjectArgTypes, null);
 #if DEBUG
-                    Covenant.Assert(createMethod != null, $"Cannot locate generated [{resultType.FullName}.CreateFrom(JObject)] method.");
+                    Covenant.Assert(createMethod != null, () => $"Cannot locate generated [{resultType.FullName}.CreateFrom(JObject)] method.");
 #endif
                     classNameToJObjectCreateMethod.Add(resultType.FullName, createMethod);
                 }
@@ -164,7 +164,7 @@ namespace Neon.Data
 
                     createMethod = resultType.GetMethod("CreateFromAsync", BindingFlags.Public | BindingFlags.Static, null, createFromStreamArgTypes, null);
 #if DEBUG
-                    Covenant.Assert(createMethod != null, $"Cannot locate generated [{resultType.FullName}.CreateFromAsync(Stream, Encoding)] method.");
+                    Covenant.Assert(createMethod != null, () => $"Cannot locate generated [{resultType.FullName}.CreateFromAsync(Stream, Encoding)] method.");
 #endif
                     classNameToStreamCreateMethod.Add(resultType.FullName, createMethod);
                 }
@@ -207,7 +207,7 @@ namespace Neon.Data
 
                     createMethod = resultType.GetMethod("CreateFromAsync", BindingFlags.Public | BindingFlags.Static, null, createFromStreamArgTypes, null);
 #if DEBUG
-                    Covenant.Assert(createMethod != null, $"Cannot locate generated [{resultType.FullName}.CreateFromAsync(Stream, Encoding)] method.");
+                    Covenant.Assert(createMethod != null, () => $"Cannot locate generated [{resultType.FullName}.CreateFromAsync(Stream, Encoding)] method.");
 #endif
                     classNameToStreamAsyncCreateMethod.Add(resultType.FullName, createMethod);
                 }

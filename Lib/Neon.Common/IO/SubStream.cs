@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:        SubStream.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -66,10 +66,10 @@ namespace Neon.IO
         {
             Covenant.Requires<ArgumentNullException>(baseStream != null, nameof(baseStream));
             Covenant.Requires<IOException>(baseStream.CanSeek, nameof(baseStream), "Base stream must support seek.");
-            Covenant.Requires<IOException>(start >= 0, nameof(start), $"[start={start}] must be >= 0");
-            Covenant.Requires<IOException>(start <= baseStream.Length, nameof(start), $"[start={start}] is beyond the base stream's EOF.");
-            Covenant.Requires<IOException>(length >= 0, nameof(length), $"[start={length}] must be >= 0");
-            Covenant.Requires<IOException>(start + length <= baseStream.Length, nameof(length), $"[start+length={start + length}] is beyond the base stream's EOF.");
+            Covenant.Requires<IOException>(start >= 0, () => nameof(start), () => $"[start={start}] must be >= 0");
+            Covenant.Requires<IOException>(start <= baseStream.Length, () => nameof(start), () => $"[start={start}] is beyond the base stream's EOF.");
+            Covenant.Requires<IOException>(length >= 0, () => nameof(length), () => $"[start={length}] must be >= 0");
+            Covenant.Requires<IOException>(start + length <= baseStream.Length, () => nameof(length), () => $"[start+length={start + length}] is beyond the base stream's EOF.");
 
             this.baseStream       = baseStream;
             this.start        = start;
