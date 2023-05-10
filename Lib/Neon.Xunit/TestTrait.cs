@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:	    TestTrait.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -68,5 +68,10 @@ namespace Neon.Xunit
         /// to enter a master password.
         /// </summary>
         public const string RequiresProfile = "requires-profile";
+
+        /// <summary>
+        /// Will incure cloud expenses when run.
+        /// </summary>
+        public const string CloudExpense = "cloud-expense";
     }
 }
