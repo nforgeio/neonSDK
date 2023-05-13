@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 // FILE:	    OutboundHttpMetrics.cs
 // CONTRIBUTOR: Marcus Bowyer
-// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright Â© 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,28 +30,23 @@ namespace NeonSignalRProxy
 
         private static readonly Counter _outboundRequestsStarted = Metrics.CreateCounter(
             "neonsignalrproxy_outbound_http_requests_started_total",
-            "Number of outbound requests inititated by the proxy"
-            );
+            "Number of outbound requests inititated by the proxy");
 
         private static readonly Counter _outboundRequestsFailed = Metrics.CreateCounter(
             "neonsignalrproxy_outbound_http_requests_failed_total",
-            "Number of outbound requests failed"
-            );
+            "Number of outbound requests failed");
 
         private static readonly Gauge _outboundCurrentRequests = Metrics.CreateGauge(
             "neonsignalrproxy_outbound_http_current_requests",
-            "Number of active outbound requests that have started but not yet completed or failed"
-            );
+            "Number of active outbound requests that have started but not yet completed or failed");
 
         private static readonly Gauge _outboundCurrentHttp11Connections = Metrics.CreateGauge(
             "neonsignalrproxy_outbound_http11_connections",
-            "Number of currently open HTTP 1.1 connections"
-            );
+            "Number of currently open HTTP 1.1 connections");
 
         private static readonly Gauge _outboundCurrentHttp20Connections= Metrics.CreateGauge(
             "neonsignalrproxy_outbound_http20_connections",
-            "Number of currently open HTTP 2.0 connections"
-            );
+            "Number of currently open HTTP 2.0 connections");
 
         private static readonly Histogram _outboundHttp11RequestQueueDuration= Metrics.CreateHistogram(
             "neonsignalrproxy_outbound_http11_request_queue_duration_seconds",

@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 // FILE:	    SocketMetrics.cs
 // CONTRIBUTOR: Marcus Bowyer
-// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright Â© 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,34 +26,28 @@ namespace NeonSignalRProxy
     {
         private static readonly Counter _outgoingConnectionsEstablished = Metrics.CreateCounter(
             "neonsignalrproxy_sockets_outgoing_connections_established_total",
-            "Number of outgoing (Connect) Socket connections established"
-            );
+            "Number of outgoing (Connect) Socket connections established");
 
 
         private static readonly Counter _incomingConnectionsEstablished = Metrics.CreateCounter(
             "neonsignalrproxy_sockets_incomming_connections_established_total",
-            "Number of incoming (Accept) Socket connections established"
-            );
+            "Number of incoming (Accept) Socket connections established");
 
         private static readonly Counter _bytesReceived = Metrics.CreateCounter(
             "neonsignalrproxy_sockets_bytes_recieved_total",
-            "Number of bytes received"
-            );
+            "Number of bytes received");
 
         private static readonly Counter _bytesSent = Metrics.CreateCounter(
             "neonsignalrproxy_sockets_bytes_sent_total",
-            "Number of bytes sent"
-            );
+            "Number of bytes sent");
 
         private static readonly Counter _datagramsReceived = Metrics.CreateCounter(
             "neonsignalrproxy_sockets_datagrams_received_total",
-            "Number of datagrams received"
-            );
+            "Number of datagrams received");
 
         private static readonly Counter _datagramsSent = Metrics.CreateCounter(
             "neonsignalrproxy_sockets_datagrams_sent",
-            "Number of datagrams Sent"
-            );
+            "Number of datagrams sent");
 
         /// <inheritdoc/>
         public void OnMetrics(SocketsMetrics previous, SocketsMetrics current)

@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 // FILE:	    ForwarderMetrics.cs
 // CONTRIBUTOR: Marcus Bowyer
-// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright Â© 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,18 +26,15 @@ namespace NeonSignalRProxy
     {
         private static readonly Counter _requestsStarted = Metrics.CreateCounter(
             "neonsignalrproxy_proxy_requests_started_total",
-            "Number of requests inititated through the proxy"
-            );
+            "Number of requests inititated through the proxy");
 
         private static readonly Counter _requestsFailed = Metrics.CreateCounter(
             "neonsignalrproxy_proxy_requests_failed_total",
-            "Number of proxy requests that failed"
-            );
+            "Number of proxy requests that failed");
 
         private static readonly Gauge _currentRequests = Metrics.CreateGauge(
             "neonsignalrproxy_proxy_current_requests",
-            "Number of active proxy requests that have started but not yet completed or failed"
-            );
+            "Number of active proxy requests that have started but not yet completed or failed");
 
         /// <inheritdoc/>
         public void OnMetrics(

@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 // FILE:	    SignalRController.cs
 // CONTRIBUTOR: Marcus Bowyer
-// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright Â© 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -234,8 +234,7 @@ namespace NeonSignalRProxy.Controllers
             }
 
             var isValid = dns.Answers.SrvRecords()
-                .Where(r => r.Port == backend.Port 
-                            && r.Target.Value == target).Any();
+                .Where(r => r.Port == backend.Port && r.Target.Value == target).Any();
 
             return isValid;
         }

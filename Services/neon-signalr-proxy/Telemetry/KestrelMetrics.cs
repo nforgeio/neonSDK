@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 // FILE:	    KestrelMetrics.cs
 // CONTRIBUTOR: Marcus Bowyer
-// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright Â© 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,38 +26,31 @@ namespace NeonSignalRProxy
     {
         private static readonly Counter Connections = Metrics.CreateCounter(
             "neonsignalrproxy_kestrel_connections_total",
-            "Number of incomming connections opened"
-            );
+            "Number of incomming connections opened");
 
         private static readonly Counter TlsHandshakes = Metrics.CreateCounter(
             "neonsignalrproxy_kestrel_tls_Handshakes_total",
-            "Numer of TLS handshakes started"
-            );
+            "Numer of TLS handshakes started");
 
         private static readonly Gauge _currentTlsHandshakes = Metrics.CreateGauge(
             "neonsignalrproxy_kestrel_current_tls_handshakes",
-            "Number of active TLS handshakes that have started but not yet completed or failed"
-            );
+            "Number of active TLS handshakes that have started but not yet completed or failed");
 
         private static readonly Counter _failedTlsHandshakes = Metrics.CreateCounter(
             "neonsignalrproxy_kestrel_failed_tls_handshakes_total",
-            "Number of TLS handshakes that failed"
-            );
+            "Number of TLS handshakes that failed");
 
         private static readonly Gauge _currentConnections = Metrics.CreateGauge(
             "neonsignalrproxy_kestrel_current_connections",
-            "Number of currently open incomming connections"
-            );
+            "Number of currently open incomming connections");
 
         private static readonly Gauge _connectionQueueLength = Metrics.CreateGauge(
             "neonsignalrproxy_kestrel_connection_queue_length",
-            "Number of connections on the queue."
-            );
+            "Number of connections on the queue.");
 
         private static readonly Gauge _requestQueueLength = Metrics.CreateGauge(
             "neonsignalrproxy_kestrel_request_queue_length",
-            "Number of requests on the queue"
-            );
+            "Number of requests on the queue");
 
         /// <inheritdoc/>
         public void OnMetrics(

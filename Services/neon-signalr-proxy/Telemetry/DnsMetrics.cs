@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 // FILE:	    DnsMetrics.cs
 // CONTRIBUTOR: Marcus Bowyer
-// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright Â© 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,8 +31,7 @@ namespace NeonSignalRProxy
 
         private static readonly Counter _dnsLookupsRequested = Metrics.CreateCounter(
             "neonsignalrproxy_dns_lookups_requested_total",
-            "Number of DNS lookups requested"
-            );
+            "Number of DNS lookups requested");
 
         /// <inheritdoc/>
         public void OnMetrics(NameResolutionMetrics previous, NameResolutionMetrics current)
