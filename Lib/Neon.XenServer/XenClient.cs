@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:	    XenClient.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -71,8 +71,8 @@ using ThinCLI;
 // can build or obtain [xe] for these platforms or convert the code below to
 // use the XenServer SDK (C# bindings).  This is being tracked here:
 //
-//      https://github.com/nforgeio/neonKUBE/issues/1130
-//      https://github.com/nforgeio/neonKUBE/issues/1132
+//      https://github.com/nforgeio/TEMPKUBE/issues/1130
+//      https://github.com/nforgeio/TEMPKUBE/issues/1132
 
 // NOTE: XE-CLI commands are documented here:
 //
@@ -604,7 +604,7 @@ namespace Neon.XenServer
 
         /// <summary>
         /// Used for temporarily uploading an ISO disk to a XenServer such that it can be mounted
-        /// to a VM, typically for one-time initialization purposes.  neonKUBE uses this as a very
+        /// to a VM, typically for one-time initialization purposes.  NEONKUBE uses this as a very
         /// simple poor man's alternative to <b>cloud-init</b> for initializing a VM on first boot.
         /// </summary>
         /// <param name="isoPath">Path to the source ISO file on the local workstation.</param>
@@ -612,7 +612,7 @@ namespace Neon.XenServer
         /// <returns>A <see cref="XenTempIso"/> with information about the new storage repository and its contents.</returns>
         /// <remarks>
         /// <para>
-        /// During cluster setup on virtualization platforms like XenServer and Hyper-V, neonKUBE need
+        /// During cluster setup on virtualization platforms like XenServer and Hyper-V, NEONKUBE need
         /// to configure new VMs with IP addresses, hostnames, etc.  Traditionally, we've relied on
         /// being able to SSH into the VM to perform all of these actions, but this relied on being
         /// VM being able to obtain an IP address via DHCP and for setup to be able to discover the
@@ -636,7 +636,7 @@ namespace Neon.XenServer
         /// via this ISO, but we decided not to go there, at least for now (we couldn't get that working).
         /// </note>
         /// <note>
-        /// neonKUBE doesn't use this technique for true cloud deployments (AWS, Azure, Google,...) because
+        /// NEONKUBE doesn't use this technique for true cloud deployments (AWS, Azure, Google,...) because
         /// we can configure VM networking directly via the cloud APIs.  
         /// </note>
         /// <para>

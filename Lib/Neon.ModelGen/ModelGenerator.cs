@@ -41,7 +41,7 @@ using Neon.Common;
 // XML code documentation and include this in the generated
 // source code as well.
 //
-//      https://github.com/nforgeio/neonKUBE/issues/594
+//      https://github.com/nforgeio/TEMPKUBE/issues/594
 
 namespace Neon.ModelGen
 {
@@ -2321,7 +2321,7 @@ namespace Neon.ModelGen
                     // ASP.NET copmplains about this being a synchronous operation???  We'll revert
                     // back to the inefficient ToString() method and revisit this later.
                     //
-                    //      https://github.com/nforgeio/neonKUBE/issues/485
+                    //      https://github.com/nforgeio/TEMPKUBE/issues/485
 
                     //writer.WriteLine($"            using (var writer = new JsonTextWriter(new StreamWriter(stream)))");
                     //writer.WriteLine($"            {{");

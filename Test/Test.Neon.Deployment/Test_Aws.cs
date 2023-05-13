@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:	    Test_Aws.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -70,7 +70,7 @@ namespace TestDeployment
 
         /// <summary>
         /// Checks the AWS credentials for the non-CI environments.  This works because
-        /// neonKUBE developers generally have their AWS credentials persisted as environment
+        /// NEONKUBE developers generally have their AWS credentials persisted as environment
         /// variables.  For CI environments, this is a NOP and we'll rely on fetching credentials
         /// from 1Password.
         /// </summary>

@@ -419,7 +419,7 @@ namespace Neon.Net
             //
             // It can take a bit of time for the Windows DNS resolver to pick up the change.
             //
-            //      https://github.com/nforgeio/neonKUBE/issues/244
+            //      https://github.com/nforgeio/TEMPKUBE/issues/244
             //
             // We're going to mitigate this by writing a [neonkube.neonforge-marker] record with
             // a random IP address and then wait for for the DNS resolver to report the correct
@@ -429,7 +429,7 @@ namespace Neon.Net
             // Linux because there's no central DNS resolver there.  See the issue below for
             // more information:
             //
-            //      https://github.com/nforgeio/neonKUBE/issues/271
+            //      https://github.com/nforgeio/TEMPKUBE/issues/271
 
             var updateHost    = section != null ? $"{section.ToLowerInvariant()}.neonforge-marker" : $"H-{Guid.NewGuid().ToString("d")}.neonforge-marker";
             var updateAddress = GetRandomAddress();

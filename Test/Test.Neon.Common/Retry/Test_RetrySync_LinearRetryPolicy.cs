@@ -464,7 +464,7 @@ namespace TestCommon
 
             // Additional test to verify this serious problem is fixed:
             //
-            //      https://github.com/nforgeio/neonKUBE/issues/762
+            //      https://github.com/nforgeio/TEMPKUBE/issues/762
             //
             // We'll wait a bit longer to enure that any (incorrect) deadline computed
             // by the policy when constructed above does not impact a subsequent run.

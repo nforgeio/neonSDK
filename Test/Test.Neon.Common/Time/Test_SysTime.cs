@@ -37,8 +37,8 @@ namespace TestCommon
         //
         // I'm going to simplify this to just use UTC for now:
         //
-        //      https://github.com/nforgeio/neonKUBE/issues/760
-        //      https://github.com/nforgeio/neonKUBE/issues/761
+        //      https://github.com/nforgeio/TEMPKUBE/issues/760
+        //      https://github.com/nforgeio/TEMPKUBE/issues/761
 #if TODO
         [Fact]
         [Trait(TestCategory.CategoryTrait, TestCategory.NeonCommon)]

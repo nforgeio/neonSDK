@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:	    Wsl2Proxy.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -38,9 +38,7 @@ using Neon.Net;
 namespace Neon.WSL
 {
     /// <summary>
-    /// <b>INTERNAL USE ONLY:</b> Handles interactions with our neonKUBE WSL2 distribution
-    /// running on the local Windows workstation.  Note that this is not intended to be 
-    /// generally useful at this time.
+    /// <b>INTERNAL USE ONLY:</b> Used internally for building Linux components.
     /// </summary>
     /// <remarks>
     /// <para>

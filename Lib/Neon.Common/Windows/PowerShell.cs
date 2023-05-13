@@ -193,7 +193,7 @@ catch [Exception]
                 // Powershell includes TTY color commands in its output and we need
                 // to strip these out of the the result:
                 //
-                //      https://github.com/nforgeio/neonKUBE/issues/1259
+                //      https://github.com/nforgeio/TEMPKUBE/issues/1259
 
                 allText = ttyColorRegex.Replace(allText, string.Empty);
 
@@ -211,7 +211,7 @@ catch [Exception]
                 // Powershell includes TTY color commands in its output and we need
                 // to strip these out of the the result:
                 //
-                //      https://github.com/nforgeio/neonKUBE/issues/1259
+                //      https://github.com/nforgeio/TEMPKUBE/issues/1259
 
                 return allText;
             }

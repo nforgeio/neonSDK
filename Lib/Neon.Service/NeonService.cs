@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:	    NeonService.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -295,7 +295,7 @@ namespace Neon.Service
     ///     When present and <see cref="NeonServiceOptions.TracerProvider"/> is <c>null</c>, then
     ///     this specifies the URI for the OpenTelemetry Collector where the traces will be sent.
     ///     If this environment variable is not present and the service is running in Kubernetes,
-    ///     then we're going to assume that you're running in a neonKUBE cluster and <see cref="NeonService"/>
+    ///     then we're going to assume that you're running in a NEONKUBE cluster and <see cref="NeonService"/>
     ///     will default to sending traces to the <see cref="NeonHelper.NeonKubeOtelCollectorUri"/>
     ///     (<b>http://grafana-agent-node.neon-monitor.svc.cluster.local</b>) service endpoint deployed to the same Kubernetes namespace.
     ///     </para>
@@ -502,7 +502,7 @@ namespace Neon.Service
     /// <note>
     /// Service dependencies are currently waited for when the service status is <see cref="NeonServiceStatus.Starting"/>,
     /// which means that they will need to complete before the startup or libeliness probes time out
-    /// resulting in service termination.  This behavior may change in the future: https://github.com/nforgeio/neonKUBE/issues/1361
+    /// resulting in service termination.  This behavior may change in the future: https://github.com/nforgeio/TEMPKUBE/issues/1361
     /// </note>
     /// <para><b>PROMETHEUS METRICS</b></para>
     /// <para>
@@ -556,7 +556,7 @@ namespace Neon.Service
     /// safe to set when running in a Kubernetes cluster.  Additional information:
     /// </para>
     /// <para>
-    /// https://github.com/nforgeio/neonKUBE/issues/1233
+    /// https://github.com/nforgeio/TEMPKUBE/issues/1233
     /// </para>
     /// </remarks>
     public abstract class NeonService : IDisposable
@@ -608,7 +608,7 @@ namespace Neon.Service
         // WARNING:
         //
         // The code below should be manually synchronized with similar code in [KubeHelper]
-        // if neonKUBE related folder names ever change in the future.
+        // if NEONKUBE related folder names ever change in the future.
 
         private static string   testFolder;
         private static string   cachedNeonKubeUserFolder;
@@ -1010,7 +1010,7 @@ namespace Neon.Service
         /// <note>
         /// Service dependencies are currently waited for when the service status is <see cref="NeonServiceStatus.Starting"/>,
         /// which means that they will need to complete before the startup or liveliness probes time out
-        /// resulting in service termination.  This behavior may change in the future: https://github.com/nforgeio/neonKUBE/issues/1361
+        /// resulting in service termination.  This behavior may change in the future: https://github.com/nforgeio/TEMPKUBE/issues/1361
         /// </note>
         /// </summary>
         public ServiceDependencies Dependencies { get; set; } = new ServiceDependencies();
@@ -1936,7 +1936,7 @@ namespace Neon.Service
         /// sidecars have been injected.
         /// </para>
         /// <para>
-        /// https://github.com/nforgeio/neonKUBE/issues/1233
+        /// https://github.com/nforgeio/TEMPKUBE/issues/1233
         /// </para>
         /// </summary>
         private void TerminateAnySidecars()

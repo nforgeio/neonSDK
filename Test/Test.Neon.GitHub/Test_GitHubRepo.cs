@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:        Test_GitHubRepo.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -604,7 +604,7 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task Open_NeonKube()
         {
-            // Verify that we can open the neonKUBE repo when present
+            // Verify that we can open the NEONKUBE repo when present
             // at the standard location.
 
             var repoPath = Environment.GetEnvironmentVariable("NK_ROOT");

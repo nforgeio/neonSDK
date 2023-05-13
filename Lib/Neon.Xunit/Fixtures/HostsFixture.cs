@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:	    HostsFixture.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -100,7 +100,7 @@ namespace Neon.Xunit
         //
         // It can take a bit of time for the Windows DNS resolver to pick up the change.
         //
-        //      https://github.com/nforgeio/neonKUBE/issues/244
+        //      https://github.com/nforgeio/TEMPKUBE/issues/244
         //
         // We're going to mitigate this by writing a [neon-GUID.nhive.io] record with the
         // [1.2.3.4] address and then wait the local DNS resolver to resolve or not

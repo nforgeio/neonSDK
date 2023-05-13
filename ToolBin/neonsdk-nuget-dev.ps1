@@ -56,7 +56,7 @@
 # This indicates that version numbers will be obtained from local counter files
 # within the local feed folder:
 #
-#   C:\nc-nuget-local\neonKUBE.version.txt
+#   C:\nc-nuget-local\NEONKUBE.version.txt
 #   C:\nc-nuget-local\neonSDK.version.txt
 #
 # These simply hold the next version as an integer on the first line for 
@@ -190,7 +190,7 @@ try
         # EMERGENCY MODE: Use local counters.
 
         $nfVersionPath = [System.IO.Path]::Combine($env:NC_NUGET_LOCAL, "neonSDK.version.txt")
-        $nkVersionPath = [System.IO.Path]::Combine($env:NC_NUGET_LOCAL, "neonKUBE.version.txt")
+        $nkVersionPath = [System.IO.Path]::Combine($env:NC_NUGET_LOCAL, "NEONKUBE.version.txt")
 
         if (![System.IO.File]::Exists("$nfVersionPath") -or ![System.IO.File]::Exists("$nfVersionPath"))
         {
@@ -206,11 +206,11 @@ try
             Write-Error "file extract the minor version for the package references as described below:" -ErrorAction continue
             Write-Error "" -ErrorAction continue
             Write-Error "    neonSDK.version.txt:  from Neon.Common" -ErrorAction continue
-            Write-Error "    neonKUBE.version.txt: from Neon.Kube" -ErrorAction continue
+            Write-Error "    NEONKUBE.version.txt: from Neon.Kube" -ErrorAction continue
             Write-Error "" -ErrorAction continue
             Write-Error "NOTE: These two version numbers are currently the same (Jan 2022), but they" -ErrorAction continue
             Write-Error "      may diverge at any time and will definitely diverge after we separate " -ErrorAction continue
-            Write-Error "      neonSDK and neonKUBE." -ErrorAction continue
+            Write-Error "      neonSDK and NEONKUBE." -ErrorAction continue
             exit 1
         }
 
@@ -224,7 +224,7 @@ try
         # We're going to call the neonCLOUD nuget versioner service to atomically increment the 
         # dev package version counters for the solution and then generate the full version for
         # the packages we'll be publishing.  We'll use separate counters for the neonSDK
-        # and neonKUBE packages.
+        # and NEONKUBE packages.
         #
         # The package versions will also include the current branch appended to the preview tag
         # so a typical package version will look like:

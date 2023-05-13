@@ -464,7 +464,7 @@ namespace Neon.SSH
             //
             // We sometimes see a deadlock when disposing SSH.NET clients.
             //
-            //      https://github.com/nforgeio/neonKUBE/issues/230
+            //      https://github.com/nforgeio/TEMPKUBE/issues/230
             //      https://github.com/sshnet/SSH.NET/issues/355
             //
             // I'm going to try to mitigate this by doing the dispose
@@ -559,7 +559,7 @@ namespace Neon.SSH
             //
             // This is part of the mitigation for:
             //
-            //      https://github.com/nforgeio/neonKUBE/issues/230
+            //      https://github.com/nforgeio/TEMPKUBE/issues/230
             //      https://github.com/sshnet/SSH.NET/issues/355
 
             //LogLine($"*** DEADLOCK EXECUTE: {actionName}");
@@ -614,7 +614,7 @@ namespace Neon.SSH
                     // TTY shell because the CentOS distribution deployed by XenServer/XCP-ng requires
                     // a TTY by default; bless their hearts :)
                     //
-                    //      https://github.com/nforgeio/neonKUBE/issues/926
+                    //      https://github.com/nforgeio/TEMPKUBE/issues/926
                     //
                     // We're going to quickly do this here using a SSH.NET shell stream and then follow up
                     // with a more definitive config just below.
@@ -1418,7 +1418,7 @@ rm {HostFolders.Home(Username)}/askpass
             // this host.  Note that you must be logged in using username/password 
             // authentication for this to work.
             //
-            // NOTE: neonKUBE cloud based images will already have SUDO prompting disabled
+            // NOTE: NEONKUBE cloud based images will already have SUDO prompting disabled
             //       as will VM based images for Hyper-V and XenServer and we initialize
             //       the VM images using password authentication, so this will work for
             //       creating the images as well.
@@ -2172,7 +2172,7 @@ echo $? > {cmdFolder}/exit
                         // fail the command and if it does not.  This will help mitigate situations 
                         // where the folder gets inadvertently deleted as happened with:
                         //
-                        //      https://github.com/nforgeio/neonKUBE/issues/496
+                        //      https://github.com/nforgeio/TEMPKUBE/issues/496
                         //
                         // We'll have the test command return 2 in this case to distinguish between
                         // the folder not being present from the exit file not being there.

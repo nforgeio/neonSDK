@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:	    ILinuxSshProxy.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -192,19 +192,19 @@ namespace Neon.SSH
 
         /// <summary>
         /// Used to indicate that the remote machine will be involved in a configuration step.  
-        /// This property is a bit of a hack used when displaying the status of a neonKUBE cluster setup.
+        /// This property is a bit of a hack used when displaying the status of a NEONKUBE cluster setup.
         /// </summary>
         bool IsInvolved { get; set; }
 
         /// <summary>
         /// Used to indicate that the remote machine is actively being being configured.  This property is 
-        /// a bit of a hack used when displaying the status of a neonKUBE cluster setup.
+        /// a bit of a hack used when displaying the status of a NEONKUBE cluster setup.
         /// </summary>
         bool IsConfiguring { get; set; }
 
         /// <summary>
         /// Indicates that the remote machine has completed or has failed the current set of operations.  
-        /// This property is a bit of a hack used when displaying the status of a neonKUBE cluster setup.
+        /// This property is a bit of a hack used when displaying the status of a NEONKUBE cluster setup.
         /// </summary>
         /// <remarks>
         /// <note>
@@ -215,7 +215,7 @@ namespace Neon.SSH
 
         /// <summary>
         /// Indicates that the remote machine is in a faulted state because one or more operations
-        /// have failed.  This property is a bit of a hack used when displaying the status of a neonKUBE
+        /// have failed.  This property is a bit of a hack used when displaying the status of a NEONKUBE
         /// cluster setup.
         /// </summary>
         bool IsFaulted { get; set; }
@@ -921,7 +921,7 @@ namespace Neon.SSH
         /// <summary>
         /// <para>
         /// Returns an indication of whether the <b>neon-init</b> service has been executed
-        /// on the remote machine.  This service is deployed to neonKUBE cluster nodes to
+        /// on the remote machine.  This service is deployed to NEONKUBE cluster nodes to
         /// act as a poor-man's <b>cloud-init</b> used to configure the network and credentials 
         /// by mounting a virual ISO drive with a configuration script for non-cloud environments.
         /// </para>
@@ -939,7 +939,7 @@ namespace Neon.SSH
         /// Manually sets the <b>neon-init</b> service execution status. 
         /// </para>
         /// <para>
-        /// The <b>neon-init</b> service is deployed to neonKUBE cluster nodes to act
+        /// The <b>neon-init</b> service is deployed to NEONKUBE cluster nodes to act
         /// as a poor-man's <b>cloud-init</b> to configure the network and credentials 
         /// by mounting a virual ISO drive with a configuration script for non-cloud 
         /// environments.

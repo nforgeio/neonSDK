@@ -449,7 +449,7 @@ namespace Neon.Common
                 // just a CR.  I'm not sure if there's a clean way to
                 // address this in .NET code.
                 //
-                //      https://github.com/nforgeio/neonKUBE/issues/461
+                //      https://github.com/nforgeio/TEMPKUBE/issues/461
 
                 var stdErrClosed = false;
                 var stdOutClosed = false;

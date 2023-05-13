@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:	    AppDomainExtensions.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -41,7 +41,7 @@ namespace Neon.Common
         /// <returns>The enumerated assemblies.</returns>
         /// <remarks>
         /// We also use this to work around this Visual Studio bug: 
-        /// <a href="https://github.com/nforgeio/neonKUBE/issues/531"/>
+        /// <a href="https://github.com/nforgeio/TEMPKUBE/issues/531"/>
         /// </remarks>
         public static IEnumerable<Assembly> GetUserAssemblies(this AppDomain appDomain)
         {

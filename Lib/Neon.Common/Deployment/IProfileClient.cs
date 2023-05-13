@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:	    IProfileClient.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -70,7 +70,7 @@ namespace Neon.Deployment
     /// <para>
     /// Profile values are also supported.  These are non-secret name/value pairs used for describing
     /// the local environment as required for CI/CD.  For example, we use this for describing the
-    /// IP addresses available for deploying a test neonKUBE cluster.  Each developer will often
+    /// IP addresses available for deploying a test NEONKUBE cluster.  Each developer will often
     /// need distict node IP addresses that work on the local LAN and also don't conflict with
     /// addresses assigned to other developers.
     /// </para>

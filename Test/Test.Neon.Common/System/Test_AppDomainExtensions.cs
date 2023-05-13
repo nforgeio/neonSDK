@@ -54,7 +54,7 @@ namespace TestCommon
                 // also that we scan types from the assemblies that are returned, to verify
                 // that this method works around this issue:
                 //
-                //      https://github.com/nforgeio/neonKUBE/issues/531
+                //      https://github.com/nforgeio/TEMPKUBE/issues/531
 
                 foreach (var assembly in AppDomain.CurrentDomain.GetUserAssemblies())
                 {

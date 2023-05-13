@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 // FILE:	    Build.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:	Copyright Â© 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -36,12 +36,12 @@ namespace Neon
         /// <summary>
         /// The copyright statement to be included in all assemblies.
         /// </summary>
-        public const string Copyright = "Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.";
+        public const string Copyright = "Copyright Â© 2005-2023 by NEONFORGE LLC.  All rights reserved.";
 
         /// <summary>
         /// Trademark statement.
         /// </summary>
-        public const string Trademark = "neonSDK, neonKUBE, and neonDESKTOP are trademarks of NEONFORGE LLC";
+        public const string Trademark = "neonSDK, NEONKUBE, and neonDESKTOP are trademarks of NEONFORGE LLC";
 
         /// <summary> 
         /// The product name.
