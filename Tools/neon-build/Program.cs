@@ -434,13 +434,13 @@ ARGUMENTS:
                             }
                         }
 
-                        // Delete any [$/Images/**/.version] files.  These files are generated for neonCLOUD
+                        // Delete any [$/Images/**/.version] files.  These files are generated for NEONCLOUD
                         // during cluster image builds.  These files are within [.gitignore] and should really
                         // be cleaned before builds etc.
                         
                         // $hack(jefflill):
                         // 
-                        // This is a bit of a hack since only the neonCLOUD repo currently generates these files,
+                        // This is a bit of a hack since only the NEONCLOUD repo currently generates these files,
                         // but this is somewhat carefully coded to not cause problems for the other repos.  Just
                         // be sure that those repos don't include a root [$/Images] folder that has [.version]
                         // files used for other purposes.

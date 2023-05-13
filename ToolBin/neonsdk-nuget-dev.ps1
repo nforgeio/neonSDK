@@ -33,7 +33,7 @@
 #       -restore        - Just restore the CSPROJ files after cancelling publish
 #
 # Generally, you'll use this script without any options to publish to the private
-# feed in the neonCLOUD headend using the atomic counter there to update VERSION
+# feed in the NEONCLOUD headend using the atomic counter there to update VERSION
 # numbers, especially for shared branches and especially the master branch.
 #
 # During development on private branches, you may wish to use a local feed
@@ -102,7 +102,7 @@ if ($release)
 }
 
 # Verify that the user has the required environment variables.  These will
-# be available only for maintainers and are intialized by the neonCLOUD
+# be available only for maintainers and are intialized by the NEONCLOUD
 # [buildenv.cmd] script.
 
 if (-not (Test-Path env:NC_ROOT))
@@ -110,7 +110,7 @@ if (-not (Test-Path env:NC_ROOT))
     "*** ERROR: This script is intended for use by maintainers only:"
     "           [NC_ROOT] environment variable is not defined."
     ""
-    "           Maintainers should re-run the neonCLOUD [buildenv.cmd] script."
+    "           Maintainers should re-run the NEONCLOUD [buildenv.cmd] script."
 
     return 1
 }
@@ -200,9 +200,9 @@ try
             Write-Error "    $nfVersionPath" -ErrorAction continue
             Write-Error "" -ErrorAction continue
             Write-Error "Create these files with the minor version number currently referenced" -ErrorAction continue
-            Write-Error "by your local neonCLOUD solution:" -ErrorAction continue
+            Write-Error "by your local NEONCLOUD solution:" -ErrorAction continue
             Write-Error "" -ErrorAction continue
-            Write-Error "The easiest way to do this is to open the [neonCLOUD/Tools/neon-cli/neon-cli.csproj]" -ErrorAction continue
+            Write-Error "The easiest way to do this is to open the [NEONCLOUD/Tools/neon-cli/neon-cli.csproj]" -ErrorAction continue
             Write-Error "file extract the minor version for the package references as described below:" -ErrorAction continue
             Write-Error "" -ErrorAction continue
             Write-Error "    neonSDK.version.txt:  from Neon.Common" -ErrorAction continue
@@ -221,7 +221,7 @@ try
     }
     else
     {
-        # We're going to call the neonCLOUD nuget versioner service to atomically increment the 
+        # We're going to call the NEONCLOUD nuget versioner service to atomically increment the 
         # dev package version counters for the solution and then generate the full version for
         # the packages we'll be publishing.  We'll use separate counters for the neonSDK
         # and NEONKUBE packages.

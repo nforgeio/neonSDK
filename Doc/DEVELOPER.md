@@ -1,4 +1,4 @@
-﻿# neonSDK Developer Setup
+# neonSDK Developer Setup
 
 This page describes how to get started with neonSDK development.
 
@@ -219,4 +219,4 @@ Follow the steps below to configure a development or test workstation:
 
 31: *Optional:* Maintainers will need to install **AWS client version 2** from: [here](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2-windows.html)
 
-32: *Optional:* Maintainers authorized to perform releases will need to follow the README.md instructions in the neonCLOUD repo to configure credentials for the GitHub Releases and the Container Registry.
+32: *Optional:* Maintainers authorized to perform releases will need to follow the README.md instructions in the NEONCLOUD repo to configure credentials for the GitHub Releases and the Container Registry.

@@ -207,7 +207,7 @@ function KubeBaseRegistryOrg
 }
 
 #------------------------------------------------------------------------------
-# Prefixes the image name passed with the target neonCLOUD GitHub container 
+# Prefixes the image name passed with the target NEONCLOUD GitHub container 
 # registry for the current git branch by default such that when the current branch
 # name starts with "release-" the image will be pushed to "ghcr.io/neonrelease/"
 # otherwise it will be pushed to "ghcr.io/neonrelease-dev/".
@@ -220,7 +220,7 @@ function GetNeonCloudRegistry($image)
 }
 
 #------------------------------------------------------------------------------
-# Returns the neonCLOUD container image registry .
+# Returns the NEONCLOUD container image registry .
 
 function NeonCloudRegistryOrg
 {
