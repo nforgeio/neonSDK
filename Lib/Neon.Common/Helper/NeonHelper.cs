@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:	    NeonHelper.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -45,17 +45,17 @@ namespace Neon.Common
     public static partial class NeonHelper
     {
         /// <summary>
-        /// Identifies the production neonSDK container image registry.
+        /// Identifies the production NEONSDK container image registry.
         /// </summary>
         public const string NeonSdkProdRegistry = "ghcr.io/neonrelease";
 
         /// <summary>
-        /// Identifies the development neonSDK container image registry.
+        /// Identifies the development NEONSDK container image registry.
         /// </summary>
         public const string NeonSdkDevRegistry = "ghcr.io/neonrelease-dev";
 
         /// <summary>
-        /// Returns the appropriate public container neonSDK registry to be used for the git 
+        /// Returns the appropriate public container NEONSDK registry to be used for the git 
         /// branch the assembly was built from.  This returns <see cref="NeonSdkProdRegistry"/> for
         /// release branches and <see cref="NeonSdkDevRegistry"/> for all other branches.
         /// </summary>

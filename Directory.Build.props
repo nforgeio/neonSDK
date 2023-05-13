@@ -1,7 +1,7 @@
 <Project>
 
     <PropertyGroup>
-        <Product>neonSDK</Product>
+        <Product>NEONSDK</Product>
         <Authors>NEONFORGE Team</Authors>
         <Company>NEONFORGE LLC</Company>
         <NeonSdkVersion>3.0.2</NeonSdkVersion>

@@ -1,5 +1,5 @@
 @echo off
-REM Configures the environment variables required to build neonSDK projects.
+REM Configures the environment variables required to build NEONSDK projects.
 REM 
 REM 	buildenv [ <source folder> ]
 REM
@@ -9,7 +9,7 @@ REM
 REM This must be [RUN AS ADMINISTRATOR].
 
 echo ==========================================
-echo * neonSDK Build Environment Configurator *
+echo * NEONSDK Build Environment Configurator *
 echo ==========================================
 
 REM Default NF_ROOT to the folder holding this batch file after stripping

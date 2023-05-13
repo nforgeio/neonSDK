@@ -12,7 +12,7 @@ The solution is to:
 
 ## Tasks
 
-1. **Clone:** You'll need to be clone the https://github.com/nforgeio/cadence repo to your workstation.  This must be called **neon-cadence** and it must be located in the same parent directory that also holds your **neonSDK** repo (e.g. **C:\src**).
+1. **Clone:** You'll need to be clone the https://github.com/nforgeio/cadence repo to your workstation.  This must be called **neon-cadence** and it must be located in the same parent directory that also holds your **NEONSDK** repo (e.g. **C:\src**).
 
 2. **Merge upstream master branch:** Simply run this command to sync our fork's **master** branch with the official Uber repo **master**:
 

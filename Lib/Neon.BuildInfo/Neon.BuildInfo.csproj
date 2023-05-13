@@ -5,7 +5,7 @@
         <OutputType>Library</OutputType>
         <RootNamespace>Neon.BuildInfo</RootNamespace>
         <Version>$(NeonSdkVersion)</Version>
-        <Description>INTERNAL USE ONLY: neonSDK build information</Description>
+        <Description>INTERNAL USE ONLY: NEONSDK build information</Description>
         <IsPackable>true</IsPackable>
         <PackageProjectUrl></PackageProjectUrl>
         <RepositoryType>git</RepositoryType>

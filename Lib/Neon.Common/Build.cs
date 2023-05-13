@@ -41,12 +41,12 @@ namespace Neon
         /// <summary>
         /// Trademark statement.
         /// </summary>
-        public const string Trademark = "neonSDK, NEONKUBE, and neonDESKTOP are trademarks of NEONFORGE LLC";
+        public const string Trademark = "NEONSDK, NEONKUBE, and neonDESKTOP are trademarks of NEONFORGE LLC";
 
         /// <summary> 
         /// The product name.
         /// </summary>
-        public const string ProductName = "neonSDK";
+        public const string ProductName = "NEONSDK";
 
         /// <summary>
         /// <para>

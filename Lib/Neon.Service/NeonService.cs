@@ -214,7 +214,7 @@ namespace Neon.Service
     /// The <see cref="NeonService"/> constructor initializes the OpenTelemetry logging pipeline
     /// by default, initializing the <see cref="Logger"/> property as well as initializing 
     /// <see cref="TelemetryHub.LoggerFactory"/> and adding the logger factor and logger to
-    /// <see cref="NeonHelper.ServiceContainer"/>, making them available to neonSDK libraries
+    /// <see cref="NeonHelper.ServiceContainer"/>, making them available to NEONSDK libraries
     /// so they may emit logs.  The logger created by <see cref="NeonService"/> in this case
     /// will be configured to write JSON formatted logs to the process standard output stream.
     /// </para>
