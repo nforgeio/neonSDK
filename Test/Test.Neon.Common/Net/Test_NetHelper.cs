@@ -546,7 +546,7 @@ namespace TestCommon
             Assert.Equal("127.0.0.1", NetHelper.GetReachableHost(new string[] { "127.0.0.1", "127.0.0.2", "127.0.0.3" }, ReachableHostMode.ReturnFirst).Host);
 
             // The [100.64.0.0/20] subnet is never supposed to be routable although NEONKUBE
-            // does use 100.64.0.0/24 for neonDESKTOP built-in (an other internal clusters)
+            // does use 100.64.0.0/24 for NEONDESKTOP built-in (an other internal clusters)
             // so we'll use some addresses at the upper end of 100.64.0.0/20.
 
             const string badIP0 = "100.64.15.252";
@@ -608,7 +608,7 @@ namespace TestCommon
             }
 
             // The [100.64.0.0/20] subnet is never supposed to be routable although NEONKUBE
-            // does use 100.64.0.0/24 for neonDESKTOP built-in (an other internal clusters)
+            // does use 100.64.0.0/24 for NEONDESKTOP built-in (an other internal clusters)
             // so we'll use some addresses at the upper end of 100.64.0.0/20 instead.
 
             const string badIP0 = "100.64.15.252";

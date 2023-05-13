@@ -2071,9 +2071,9 @@ namespace Neon.Service
         /// <exception cref="FormatException">Thrown for file formatting problems.</exception>
         /// <remarks>
         /// <para>
-        /// The default password provider assumes that you have neonDESKTOP installed and may be
+        /// The default password provider assumes that you have NEONDESKTOP installed and may be
         /// specifying passwords in the <b>~/.neonkube/passwords</b> folder (relative to the current
-        /// user's home directory).  This will be harmless if you don't have neonDESKTOP installed;
+        /// user's home directory).  This will be harmless if you don't have NEONDESKTOP installed;
         /// it just probably won't find any passwords.
         /// </para>
         /// <para>
@@ -2241,9 +2241,9 @@ namespace Neon.Service
         /// <exception cref="FileNotFoundException">Thrown if there's no file at <paramref name="physicalPath"/>.</exception>
         /// <remarks>
         /// <para>
-        /// The default password provider assumes that you have neonDESKTOP installed and may be
+        /// The default password provider assumes that you have NEONDESKTOP installed and may be
         /// specifying passwords in the <b>~/.neonkube/passwords</b> folder (relative to the current
-        /// user's home directory).  This will be harmless if you don't have neonDESKTOP installed;
+        /// user's home directory).  This will be harmless if you don't have NEONDESKTOP installed;
         /// it just probably won't find any passwords.
         /// </para>
         /// <para>
