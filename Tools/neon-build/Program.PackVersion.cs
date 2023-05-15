@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:	    Program.PackVersion.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -39,7 +39,7 @@ namespace NeonBuild
             if (commandLine.Arguments.Length != 3)
             {
                 Console.WriteLine(usage);
-                Program.Exit(1);
+                Program.Exit(-1);
             }
 
             var csPath             = commandLine.Arguments[0];

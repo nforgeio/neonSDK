@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:	    Program.Gzip.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -38,13 +38,13 @@ namespace NeonBuild
             if (sourcePath == null)
             {
                 Console.Error.WriteLine("*** ERROR: SOURCE argument is required.");
-                Program.Exit(1);
+                Program.Exit(-1);
             }
 
             if (targetPath == null)
             {
                 Console.Error.WriteLine("*** ERROR: TARGET argument is required.");
-                Program.Exit(1);
+                Program.Exit(-1);
             }
 
             if (!File.Exists(sourcePath))

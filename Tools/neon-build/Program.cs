@@ -369,7 +369,7 @@ ARGUMENTS:
                         if (string.IsNullOrEmpty(repoRoot))
                         {
                             Console.Error.WriteLine("*** ERROR: REPO-ROOT argument is required.");
-                            Program.Exit(1);
+                            Program.Exit(-1);
                         }
 
                         // Esure that the folder specified includes at least one solution file (*.sln).
@@ -470,7 +470,7 @@ ARGUMENTS:
                         if (string.IsNullOrEmpty(targetFolder))
                         {
                             Console.Error.WriteLine("*** ERROR: TARGET-FOLDER argument is required.");
-                            Program.Exit(1);
+                            Program.Exit(-1);
                         }
 
                         // $hack(jefflill): Remove any double quotes (I'm not sure why these are being added to the EXEC args).
@@ -541,13 +541,13 @@ ARGUMENTS:
                             if (sourcePath == null)
                             {
                                 Console.Error.WriteLine("*** ERROR: SOURCE argument is required.");
-                                Program.Exit(1);
+                                Program.Exit(-1);
                             }
 
                             if (targetPath == null)
                             {
                                 Console.Error.WriteLine("*** ERROR: TARGET argument is required.");
-                                Program.Exit(1);
+                                Program.Exit(-1);
                             }
 
                             if (!File.Exists(sourcePath))
@@ -660,7 +660,7 @@ ARGUMENTS:
                     default:
 
                         Console.Error.WriteLine($"*** ERROR: Unexpected command [{command}].");
-                        Program.Exit(1);
+                        Program.Exit(-1);
                         break;
                 }
 

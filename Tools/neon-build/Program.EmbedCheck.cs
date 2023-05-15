@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:	    Program.EmbedCheck.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -59,7 +59,7 @@ ensuring that no files are present that aren't being embeded.
             else if (commandLine.Arguments.Count() != 3)
             {
                 Console.WriteLine(usage);
-                Program.Exit(1);
+                Program.Exit(-1);
             }
 
             Console.WriteLine(commandLine);

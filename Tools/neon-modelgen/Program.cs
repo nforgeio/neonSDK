@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:	    Program.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -182,7 +182,7 @@ style design conventions.  See this GitHub issue for more information:
                 else
                 {
                     LogError($"*** ERROR: [--ux={ux}] does not specify one of the supported UX frameworks: XAML", critical: true);
-                    Program.Exit(1);
+                    Program.Exit(-1);
                 }
             }
 

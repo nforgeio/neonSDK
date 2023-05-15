@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:	    Program.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -130,7 +130,7 @@ COMMANDS:
                 if (command == null)
                 {
                     Console.WriteLine(usage);
-                    Program.Exit(1);
+                    Program.Exit(-1);
                 }
 
                 if (command.CheckOptions)
@@ -159,7 +159,7 @@ COMMANDS:
                             }
 
                             Console.Error.WriteLine($"*** ERROR: [{commandWords}] command does not support the [{option.Key}] option.");
-                            Program.Exit(1);
+                            Program.Exit(-1);
                         }
                     }
                 }

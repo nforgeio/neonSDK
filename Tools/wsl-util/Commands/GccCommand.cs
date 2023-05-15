@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:	    GccCommand.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -82,7 +82,7 @@ as described in the developer setup instructions.
             if (string.IsNullOrEmpty(sourceFolder) || string.IsNullOrEmpty(outputPath))
             {
                 Console.WriteLine(usage);
-                Program.Exit(1);
+                Program.Exit(-1);
             }
 
             Console.WriteLine();

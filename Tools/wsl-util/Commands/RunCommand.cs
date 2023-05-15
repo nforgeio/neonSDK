@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:	    RunCommand.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -82,7 +82,7 @@ This command returns the exitcode and output from the script.
             if (string.IsNullOrEmpty(scriptPath))
             {
                 Console.Error.WriteLine("*** ERROR: SCRIPT-PATH argument expected.");
-                Program.Exit(1);
+                Program.Exit(-1);
             }
 
             Console.WriteLine();

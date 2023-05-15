@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:	    Program.DotnetVersion.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -47,7 +47,7 @@ namespace NeonBuild
             if (string.IsNullOrEmpty(globalJsonPath))
             {
                 Console.Error.WriteLine("*** ERROR: GLOBAL-JSON-PATH argument is required.");
-                Program.Exit(1);
+                Program.Exit(-1);
             }
 
             if (!File.Exists(globalJsonPath))

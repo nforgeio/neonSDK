@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:	    Program.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -138,7 +138,7 @@ COMMANDS:
                     if (command == null)
                     {
                         Console.Error.WriteLine($"*** ERROR: Unexpected [{CommandLine.Arguments[0]}] command.");
-                        Program.Exit(1);
+                        Program.Exit(-1);
                     }
 
                     command.Help();
@@ -152,7 +152,7 @@ COMMANDS:
                 if (command == null)
                 {
                     Console.Error.WriteLine($"*** ERROR: Unexpected [{CommandLine.Arguments[0]}] command.");
-                    Program.Exit(1);
+                    Program.Exit(-1);
                 }
 
                 // Ensure that there are no unexpected command line options.
@@ -181,7 +181,7 @@ COMMANDS:
                             }
 
                             Console.Error.WriteLine($"*** ERROR: [{commandWords}] command does not support the [{option.Key}] option.");
-                            Program.Exit(1);
+                            Program.Exit(-1);
                         }
                     }
                 }
