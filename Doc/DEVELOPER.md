@@ -85,6 +85,27 @@ Follow the steps below to configure a development or test workstation:
     d. Open **Docker Desktop** and goto **Settings/Resources/WSL Integration**, turn on integration for
        the new **neon-ubuntu-20.04** distro and click **Apply & Restart**.
 
+    **MAINTAINER NOTE:**
+    
+    The **neon-ubuntu-20.04.** WSL distro starts off as a standard Ubuntu download from the MSFT
+    store.  The only change so far is that we add the **/etc/wsl.conf** file:
+
+    ```
+    [interop]
+    appendWindowsPath=False
+    ```
+
+    Then we export the distro to a TAR file, compress it and then upload it to S3, like:
+
+    ```
+    wsl --export neon-ubuntu-20.04 "$env:TEMP\neon-ubuntu-20.04.tar"
+    pigz --best --blocksize 512 "$env:TEMP\neon-ubuntu-20.04.tar"
+    ren "%TEMP%\neon-ubuntu-20.04.tar.gz" "$env:TEMP\neon-ubuntu-20.04.tar"
+
+    # manual: Upload compressed TAR file to S3
+    # manual: Edit S3 metadata: Content-Encoding=gzip
+    ```
+
 9. Install **Docker for Windows (Stable)** from [here](https://www.docker.com/products/docker-desktop)
 
     * You'll need to create a DockerHub account if you don't already have one
