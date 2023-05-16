@@ -33,13 +33,17 @@ pushd "%NF_ROOT%\.."
 set NF_REPOS=%cd%
 popd 
 
-REM We need to capture the user's GitHub username and email address:
+REM We need to capture the developer's GitHub username, email address and
+REM Personal Access Token (PAT):
 
 echo.
 set /p GITHUB_USERNAME="Enter your GitHub username: "
 
 echo.
-set /p GITHUB_EMAIL="Enter the email to be included in GitHub commits: "
+set /p GITHUB_EMAIL="Enter the email to be referenced in GitHub commits: "
+
+echo.
+set /p GITHUB_PAT="Enter your GitHub Personal Access Token (PAT): "
 
 REM Ask the developer if they're a maintainer and set NF_MAINTAINER if they say yes.
 
@@ -149,6 +153,7 @@ REM Persist the environment variables.
 
 setx GITHUB_USERNAME "%GITHUB_USERNAME%" /M       > nul
 setx GITHUB_EMAIL "%GITHUB_EMAIL%" /M             > nul
+setx GITHUB_PAT "%GITHUB_PAT%" /M                 > nul
 setx NF_MAINTAINER "%NF_MAINTAINER%" /M           > nul              
 setx NF_REPOS "%NF_REPOS%" /M                     > nul
 setx NF_ROOT "%NF_ROOT%" /M                       > nul
