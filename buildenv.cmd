@@ -40,7 +40,7 @@ echo.
 set /p GITHUB_USERNAME="Enter your GitHub username: "
 
 echo.
-set /p GITHUB_EMAIL="Enter the email to be referenced in GitHub commits: "
+set /p GITHUB_EMAIL="Enter the email to be referenced by GitHub commits: "
 
 echo.
 set /p GITHUB_PAT="Enter your GitHub Personal Access Token (PAT): "
@@ -71,7 +71,7 @@ REM Ask maintainers for their NEONFORGE Office 365 username.
 
 if "%NF_MAINTAINER%"=="1" (
     echo.
-    set /p NC_USER="Enter your NEONFORGE Office 365 username: "
+    set /p NC_USER="Enter your primary NEONFORGE Office 365 email: "
     setx NC_USER "%NC_USER%" /M > nul
 )
 
@@ -202,7 +202,12 @@ REM smart enough to only add directories that actually exist.
 %NF_TOOLBIN%\pathtool -dedup -system -add "%ProgramFiles%\WinSCP"
 %NF_TOOLBIN%\pathtool -dedup -system -add "%ProgramFiles(x86)%\WinSCP"
 
-REM Perform additional implementation via Powershell.
+REM Login Docker to GitHub Container Registry (GHCR).
+
+echo %GITHUB_PAT% | docker login ghcr.io -u %GITHUB_USERNAME% --password-stdin
+echo %GITHUB_PAT% | gh auth login --with-token
+
+REM Perform additional initialization via Powershell.
 
 pwsh -File "%NF_ROOT%\buildenv.ps1"
 
