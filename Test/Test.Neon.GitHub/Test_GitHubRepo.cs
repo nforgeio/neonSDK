@@ -394,11 +394,6 @@ namespace TestGitHub
                             // Lock the new remote branch and verify.  Note that we're going to enforce this
                             // for admins too.
 
-                            var protectionUpdate =
-                                new BranchProtectionSettingsUpdate(
-                                    new BranchProtectionPushRestrictionsUpdate(new BranchProtectionUserCollection()));
-
-                            await repo.Remote.Branch.UpdateBranchProtectionAsync(newBranchName, protectionUpdate);
                             await repo.Remote.Branch.UpdateBranchProtectionAsync(newBranchName, new BranchProtectionSettingsUpdate(enforceAdmins: true));
 
                             newRemoteBranch = await repo.Remote.Branch.FindAsync(newBranchName);
