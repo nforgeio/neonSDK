@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:	    RemoteRepoBranchApi.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -293,6 +293,55 @@ namespace Neon.GitHub
                     return reader.ReadToEnd();
                 }
             }
+        }
+
+        /// <summary>
+        /// Returns the branch protections settings for a specific GitHub origin repository branch.
+        /// </summary>
+        /// <param name="branchName">Specifies the origin repository branch name.</param>
+        /// <returns>The requested <see cref="BranchProtectionSettings"/>.</returns>
+        /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="Octokit.NotFoundException">Thrown when the branch does not exist.</exception>
+        /// <exception cref="Octokit.NotFoundException">Thrown when the branch is not currently protected.</exception>
+        public async Task<BranchProtectionSettings> GetBranchProtectionAsync(string branchName)
+        {
+            await SyncContext.Clear;
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
+            root.EnsureNotDisposed();
+
+            return await root.GitHubApi.Repository.Branch.GetBranchProtection(root.Remote.Id, branchName);
+        }
+
+        /// <summary>
+        /// Updates the branch protections settings for a specific GitHub origin repository branch.
+        /// </summary>
+        /// <param name="branchName">Specifies the origin repository branch name.</param>
+        /// <param name="update">Specifies the new protection settings update for the branch.</param>
+        /// <returns>The updated <see cref="BranchProtectionSettings"/>.</returns>
+        /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="Octokit.NotFoundException">Thrown when the branch does not exist.</exception>
+        public async Task<BranchProtectionSettings> UpdateBranchProtectionAsync(string branchName, BranchProtectionSettingsUpdate update)
+        {
+            await SyncContext.Clear;
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
+            Covenant.Requires<ArgumentNullException>(update != null, nameof(update));
+            root.EnsureNotDisposed();
+
+            return await root.GitHubApi.Repository.Branch.UpdateBranchProtection(root.Remote.Id, branchName, update);
+        }
+
+        /// <summary>
+        /// Removes all protection for for a specific GitHub origin repository branch.
+        /// </summary>
+        /// <param name="branchName">>Specifies the origin repository branch name.</param>
+        /// <returns>The tracking <see cref="Task"/>.</returns>
+        public async Task DeleteBranchProtection(string branchName)
+        {
+            await SyncContext.Clear;
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
+            root.EnsureNotDisposed();
+
+            await root.GitHubApi.Repository.Branch.DeleteBranchProtection(root.Remote.Id, branchName);
         }
     }
 }

@@ -172,7 +172,7 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task Fetch()
         {
-            // Verify that we can fetch remote info for a local repo without trouble.
+            // Verify that we can fetch remote info for a local repo.
 
             await GitHubTestHelper.RunTestAsync(
                 async () =>
@@ -358,6 +358,69 @@ namespace TestGitHub
                 });
         }
 
+        [MaintainerFact]
+        public async Task BranchProtection()
+        {
+            // Verify that we can change branch protection by locking and then unlocking a branch.
+
+            await GitHubTestHelper.RunTestAsync(
+                async () =>
+                {
+                    using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
+                    {
+                        var repoPath      = tempFolder.Path;
+                        var newBranchName = $"testbranch-{Guid.NewGuid()}";
+
+                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepoPath, repoPath))
+                        {
+                            // Create a new local branch and verify.
+
+                            Assert.True(await repo.Local.CreateBranchAsync(newBranchName, "master"));
+                            Assert.NotNull(repo.GitApi.Branches[newBranchName]);
+                            Assert.Null(await repo.Remote.Branch.FindAsync(newBranchName));
+
+                            // Push the branch to GitHub and verify.
+
+                            await repo.Local.PushAsync();
+
+                            var newRemoteBranch = await repo.Remote.Branch.FindAsync(newBranchName);
+
+                            Assert.NotNull(newRemoteBranch);
+
+                            // Verify that the new remote branch is not protected (yet).
+
+                            Assert.False(newRemoteBranch.Protected);
+
+                            // Lock the new remote branch and verify.  Note that we're going to enforce this
+                            // for admins too.
+
+                            var protectionUpdate =
+                                new BranchProtectionSettingsUpdate(
+                                    new BranchProtectionPushRestrictionsUpdate(new BranchProtectionUserCollection()));
+
+                            await repo.Remote.Branch.UpdateBranchProtectionAsync(newBranchName, protectionUpdate);
+                            await repo.Remote.Branch.UpdateBranchProtectionAsync(newBranchName, new BranchProtectionSettingsUpdate(enforceAdmins: true));
+
+                            newRemoteBranch = await repo.Remote.Branch.FindAsync(newBranchName);
+
+                            var protection = await repo.Remote.Branch.GetBranchProtectionAsync(newBranchName);
+
+                            Assert.NotNull(protection);
+                            Assert.True(newRemoteBranch.Protected);
+                            Assert.True(protection.EnforceAdmins.Enabled);
+                            Assert.Null(protection.Restrictions);
+
+                            // Reset all protections and verify.
+
+                            await repo.Remote.Branch.DeleteBranchProtection(newBranchName);
+
+                            newRemoteBranch = await repo.Remote.Branch.FindAsync(newBranchName);
+
+                            Assert.False(newRemoteBranch.Protected);
+                        }
+                    }
+                });
+        }
 
         [MaintainerFact]
         public async Task Merge()
