@@ -826,5 +826,33 @@ namespace TestCommon
             Assert.False(NetHelper.IsValidDnsHost(new string('a', 64)));
             Assert.False(NetHelper.IsValidDnsHost(host256));
         }
+
+        [Fact]
+        public void EnsureSuccess()
+        {
+            NetHelper.EnsureSuccess((HttpStatusCode)200);
+            NetHelper.EnsureSuccess((HttpStatusCode)250);
+            NetHelper.EnsureSuccess((HttpStatusCode)299);
+
+            Assert.Throws<HttpException>(() => NetHelper.EnsureSuccess((HttpStatusCode)0));
+            Assert.Throws<HttpException>(() => NetHelper.EnsureSuccess((HttpStatusCode)50));
+            Assert.Throws<HttpException>(() => NetHelper.EnsureSuccess((HttpStatusCode)99));
+
+            Assert.Throws<HttpException>(() => NetHelper.EnsureSuccess((HttpStatusCode)100));
+            Assert.Throws<HttpException>(() => NetHelper.EnsureSuccess((HttpStatusCode)150));
+            Assert.Throws<HttpException>(() => NetHelper.EnsureSuccess((HttpStatusCode)199));
+
+            Assert.Throws<HttpException>(() => NetHelper.EnsureSuccess((HttpStatusCode)300));
+            Assert.Throws<HttpException>(() => NetHelper.EnsureSuccess((HttpStatusCode)350));
+            Assert.Throws<HttpException>(() => NetHelper.EnsureSuccess((HttpStatusCode)399));
+
+            Assert.Throws<HttpException>(() => NetHelper.EnsureSuccess((HttpStatusCode)400));
+            Assert.Throws<HttpException>(() => NetHelper.EnsureSuccess((HttpStatusCode)459));
+            Assert.Throws<HttpException>(() => NetHelper.EnsureSuccess((HttpStatusCode)499));
+
+            Assert.Throws<HttpException>(() => NetHelper.EnsureSuccess((HttpStatusCode)500));
+            Assert.Throws<HttpException>(() => NetHelper.EnsureSuccess((HttpStatusCode)559));
+            Assert.Throws<HttpException>(() => NetHelper.EnsureSuccess((HttpStatusCode)599));
+        }
     }
 }
