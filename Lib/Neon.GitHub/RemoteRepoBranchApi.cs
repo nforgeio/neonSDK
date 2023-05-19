@@ -142,7 +142,7 @@ namespace Neon.GitHub
             //
             //      https://github.com/orgs/community/discussions/24603
 
-            var uri = $"/repos/{root.Remote.Path.Owner}/{root.Remote.Path.Name}/git/heads/{branchName}";
+            var uri = $"{root.GitHubApi.Connection.BaseAddress}repos/{root.Remote.Path.Owner}/{root.Remote.Path.Name}/git/refs/heads/{branchName}";
 
             NetHelper.EnsureSuccess(await root.GitHubApi.Connection.Delete(new Uri(uri)));
 
