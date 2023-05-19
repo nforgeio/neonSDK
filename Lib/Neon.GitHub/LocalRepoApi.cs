@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:	    LocalRepoApi.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -398,7 +398,7 @@ namespace Neon.GitHub
         }
 
         /// <summary>
-        /// Removes a branch from local repository as well as the from the GitHub origin repository, if they exist.
+        /// Removes a branch from the local repository if it exists.
         /// </summary>
         /// <param name="branchName">Specifies the branch to be removed.</param>
         /// <returns><c>true</c> if the branch existed and was removed, <c>false</c> otherwise.</returns>
@@ -411,12 +411,6 @@ namespace Neon.GitHub
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
             root.EnsureNotDisposed();
             root.EnsureLocalRepo();
-
-            // Remove the origin branch.
-
-            root.GitApi.Network.Push(root.Origin, $"+:refs/heads/{branchName}", CreatePushOptions());
-
-            // Remove the local branch.
 
             root.GitApi.Branches.Remove(branchName);
 
