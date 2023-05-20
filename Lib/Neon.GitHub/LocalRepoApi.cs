@@ -647,5 +647,33 @@ namespace Neon.GitHub
 
             return !remoteCommits.Any(remoteCommit => remoteCommit.Sha == localTipSha);
         }
+
+        /// <summary>
+        /// Enumerates the friendly names of the local branches.
+        /// </summary>
+        /// <returns>The friendly names.</returns>
+        public async Task<IEnumerable<string>> ListBrancheshAsync()
+        {
+            await SyncContext.Clear;
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
+
+            return root.GitApi.Branches.Select(branch => branch.FriendlyName);
+        }
+
+        /// <summary>
+        /// Determines whether a specific branch exists in the local repo.
+        /// </summary>
+        /// <param name="name">Specfies the friendly name of the target branch.</param>
+        /// <returns><c>true</c> when the branch exists.</returns>
+        public async Task<bool> BranchExistsAsync(string name)
+        {
+            await SyncContext.Clear;
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(name), nameof(name));
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
+
+            return (await ListBrancheshAsync()).Any(branch => branch == name);
+        }
     }
 }

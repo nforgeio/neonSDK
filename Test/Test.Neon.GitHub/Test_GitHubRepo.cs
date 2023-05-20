@@ -737,7 +737,8 @@ namespace TestGitHub
                         await Assert.ThrowsAsync<ObjectDisposedException>(async () => await repo.Local.PullAsync());
                         await Assert.ThrowsAsync<ObjectDisposedException>(async () => await repo.Local.PushAsync());
                         await Assert.ThrowsAsync<ObjectDisposedException>(async () => await repo.Local.RemoveBranchAsync("master"));
-                        await Assert.ThrowsAsync<ObjectDisposedException>(async () => await repo.Local.UndoAsync());
+                        await Assert.ThrowsAsync<ObjectDisposedException>(async () => await repo.Local.ListBrancheshAsync());
+                        await Assert.ThrowsAsync<ObjectDisposedException>(async () => await repo.Local.BranchExistsAsync("master"));
 
                         Assert.Throws<ObjectDisposedException>(() => repo.NormalizeBranchName("master"));
                     }
@@ -895,7 +896,7 @@ namespace TestGitHub
                     // remote repo.  Then verify that we get a FALSE result when the remote
                     // file doesn't exist.
                     //
-                    // Also verify that we can read a remot file as text.
+                    // Also verify that we can read a remote file as text.
 
                     using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
                     {
@@ -933,6 +934,68 @@ namespace TestGitHub
 
                             await Assert.ThrowsAsync<Octokit.NotFoundException>(async () => await repo.Remote.Branch.GetBranchFileAsTextAsync("bad", $"/{GitHubTestHelper.TestFolder}/{fileName}"));
                             await Assert.ThrowsAsync<Octokit.NotFoundException>(async () => await repo.Remote.Branch.GetBranchFileAsTextAsync("master", $"/{GitHubTestHelper.TestFolder}/{fileName}.bad"));
+                        }
+                    }
+                });
+        }
+
+        [MaintainerFact]
+        public async Task Local_ListBranches()
+        {
+            await GitHubTestHelper.RunTestAsync(
+                async () =>
+                {
+                    //-------------------------------------------------
+                    // Clone a repo, add a branch, and then verify that we can list local branches.
+
+                    using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
+                    {
+                        var repoPath = tempFolder.Path;
+
+                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepoPath, repoPath))
+                        {
+                            var testFolder = Path.Combine(tempFolder.Path, GitHubTestHelper.TestFolder);
+                            var fileName   = $"{Guid.NewGuid()}.txt";
+                            var filePath   = Path.Combine(testFolder, fileName);
+
+                            // Create the new local branch.
+
+                            var newBranchName = $"testbranch-{Guid.NewGuid()}";
+
+                            // Verify that the "master" and new branches exist.
+
+                            Assert.True(await repo.Local.CreateBranchAsync(newBranchName, "master"));
+                            Assert.Contains(newBranchName, await repo.Local.ListBrancheshAsync());
+                            Assert.Contains("master", await repo.Local.ListBrancheshAsync());
+                        }
+                    }
+                });
+        }
+
+        [MaintainerFact]
+        public async Task Local_BranchExists()
+        {
+            await GitHubTestHelper.RunTestAsync(
+                async () =>
+                {
+                    //-------------------------------------------------
+                    // Clone a repo and then verify BranchExistsAsync() works.
+
+                    using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
+                    {
+                        var repoPath = tempFolder.Path;
+
+                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepoPath, repoPath))
+                        {
+                            var testFolder        = Path.Combine(tempFolder.Path, GitHubTestHelper.TestFolder);
+                            var fileName          = $"{Guid.NewGuid()}.txt";
+                            var filePath          = Path.Combine(testFolder, fileName);
+                            var missingBranchName = $"testbranch-{Guid.NewGuid()}";
+
+                            // Verify that the "master" and new branches exist.
+
+                            Assert.True(await repo.Local.BranchExistsAsync("master"));
+                            Assert.False(await repo.Local.BranchExistsAsync(missingBranchName));
                         }
                     }
                 });
