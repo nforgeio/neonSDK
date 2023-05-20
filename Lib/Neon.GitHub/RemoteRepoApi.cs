@@ -45,6 +45,7 @@ using GitHubSignature  = Octokit.Signature;
 using GitBranch     = LibGit2Sharp.Branch;
 using GitRepository = LibGit2Sharp.Repository;
 using GitSignature  = LibGit2Sharp.Signature;
+using Neon.Collections;
 
 namespace Neon.GitHub
 {
@@ -259,6 +260,23 @@ namespace Neon.GitHub
                     Since = since,
                     Until = until
                 });
+        }
+
+        /// <summary>
+        /// Merges changes to the current forked repo from the upstream source repo.
+        /// </summary>
+        /// <param name="branch">Identifies the local branch to be merged.</param>
+        /// <returns>The tracking <see cref="Task"/>.</returns>
+        public async Task MergeUpstreamAsync(string branch)
+        {
+            await SyncContext.Clear;
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branch), nameof(branch));
+
+            var uri     = root.Remote.GetApiUri("/merge-upstream");
+            var content = new StringContent($"{{\"branch\":\"{branch}\"}}", Encoding.UTF8);
+            var headers = new ArgDictionary() { { "Accept", GitHubRepo.AcceptMediaType } };
+
+            await root.HttpClient.PostSafeAsync(uri, content, headers);
         }
     }
 }

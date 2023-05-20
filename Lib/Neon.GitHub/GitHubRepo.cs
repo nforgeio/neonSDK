@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:	    GitHubRepo.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -99,6 +99,11 @@ namespace Neon.GitHub
     {
         //---------------------------------------------------------------------
         // Static members
+
+        /// <summary>
+        /// The default media type for GitHub API responses.
+        /// </summary>
+        internal const string AcceptMediaType = "application/vnd.github+json";
 
         /// <summary>
         /// Creates a <see cref="GitHubRepo"/> instance that's connected to GitHub account
@@ -642,7 +647,7 @@ namespace Neon.GitHub
             }
 
             HttpClient.DefaultRequestHeaders.Add("User-Agent", userAgent);
-            HttpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github+json"));
+            HttpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(GitHubRepo.AcceptMediaType));
         }
 
         /// <summary>
