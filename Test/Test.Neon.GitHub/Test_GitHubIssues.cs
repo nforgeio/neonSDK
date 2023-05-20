@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:        Test_GitHubIssues.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -131,6 +131,12 @@ namespace TestGitHub
 
                         //-----------------------------------------------------
                         // Verify that SearchAsync() works.
+
+                        // Looks like GitHub may take some time to index new issues or something
+                        // and sometimes the search test below fails.  we'll mitigate this with
+                        // a short delay.
+
+                        await Task.Delay(TimeSpan.FromSeconds(15));
 
                         var searchRequest = new SearchIssuesRequest()
                         {
