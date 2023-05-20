@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:        GitHubTestHelper.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -117,25 +117,25 @@ namespace TestGitHub
 
                 using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepoPath, repoPath))
                 {
-                    // We need to check out the remote test branches first.
-
-                    foreach (var branch in repo.GitApi.Branches
-                        .Where(branch => branch.FriendlyName.StartsWith("origin/testbranch-"))
-                        .ToArray())
-                    {
-                        await repo.Local.CheckoutOriginAsync(repo.NormalizeBranchName(branch.FriendlyName));
-                    }
-
-                    // Now remove the test branches.
-
-                    await repo.Local.CheckoutAsync("master");
-
                     foreach (var branch in repo.GitApi.Branches
                         .Select(branch => repo.NormalizeBranchName(branch.FriendlyName))
                         .Where(branchName => branchName.StartsWith("testbranch-"))
                         .ToArray())
                     {
-                        await repo.Local.RemoveBranchAsync(branch);
+                        try
+                        {
+                            await repo.Remote.Branch.RemoveAsync(branch);
+                        }
+                        catch (Octokit.ApiValidationException)
+                        {
+                            // This can happen when a unit test locked a branch but didn't have the
+                            // chance to be unlocked due to a test failure or debugging.
+                            //
+                            // Ww'll address this by removing all branch protections and trying again.
+
+                            await repo.Remote.Branch.DeleteBranchProtection(branch);
+                            await repo.Remote.Branch.RemoveAsync(branch);
+                        }
                     }
                 }
             }

@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:	    RemoteRepoIssueApi.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -212,8 +212,10 @@ namespace Neon.GitHub
 
             var issues = new List<Issue>();
 
-            request.Repos = new RepositoryCollection();
-            request.Repos.Add(root.Remote.Owner, root.Remote.Name);
+            request.Repos = new RepositoryCollection()
+            {
+                { root.Remote.Owner, root.Remote.Name }
+            };
 
             while (true)
             {
@@ -234,7 +236,5 @@ namespace Neon.GitHub
 
             return issues;
         }
-
-        // $todo(Jefflill): There are many more sub-APIs to wrap here.
     }
 }

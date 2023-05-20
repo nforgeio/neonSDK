@@ -142,9 +142,7 @@ namespace Neon.GitHub
             //
             //      https://github.com/orgs/community/discussions/24603
 
-            var uri = $"{root.GitHubApi.Connection.BaseAddress}repos/{root.Remote.Path.Owner}/{root.Remote.Path.Name}/git/refs/heads/{branchName}";
-
-            NetHelper.EnsureSuccess(await root.GitHubApi.Connection.Delete(new Uri(uri)));
+            NetHelper.EnsureSuccess(await root.GitHubApi.Connection.Delete(new Uri(root.Remote.GetApiUri($"/repos/{root.Remote.Path.Owner}/{root.Remote.Path.Name}/git/refs/heads/{branchName}"))));
 
             return true;
         }
@@ -152,7 +150,7 @@ namespace Neon.GitHub
         /// <summary>
         /// <para>
         /// Converts a relative local repository file path like "/my-folder/test.txt" 
-        /// or "my-folder/test.txt to the remote GitHub URI for the file within the 
+        /// or "my-folder/test.txt" to the remote GitHub URI for the file within the 
         /// the currently checked out branch.
         /// </para>
         /// <note>

@@ -359,7 +359,7 @@ namespace TestGitHub
         }
 
         [MaintainerFact]
-        public async Task BranchProtection()
+        public async Task Branch_Protection()
         {
             // Verify that we can change branch protection by locking and then unlocking a branch.
 
@@ -391,27 +391,56 @@ namespace TestGitHub
 
                             Assert.False(newRemoteBranch.Protected);
 
-                            // Lock the new remote branch and verify.  Note that we're going to enforce this
-                            // for admins too.
+                            // Make the branch read-only and block deletions of new remote branch
+                            // for everybody (including admins) and verify.
 
-                            await repo.Remote.Branch.UpdateBranchProtectionAsync(newBranchName, new BranchProtectionSettingsUpdate(enforceAdmins: true));
+                            var protectionUpdate =
+                                new BranchProtectionSettingsUpdate(
+                                    new BranchProtectionPushRestrictionsUpdate())
+                                    {
+                                        EnforceAdmins  = true,
+                                        LockBranch     = true,
+                                        AllowDeletions = false
+                                    };
+
+                            await repo.Remote.Branch.UpdateBranchProtectionAsync(newBranchName, protectionUpdate);
 
                             newRemoteBranch = await repo.Remote.Branch.FindAsync(newBranchName);
 
                             var protection = await repo.Remote.Branch.GetBranchProtectionAsync(newBranchName);
 
                             Assert.NotNull(protection);
+                            Assert.NotNull(protection.Restrictions);
                             Assert.True(newRemoteBranch.Protected);
                             Assert.True(protection.EnforceAdmins.Enabled);
-                            Assert.Null(protection.Restrictions);
+                            Assert.True(protection.LockBranch.Enabled);
+                            Assert.False(protection.AllowDeletions.Enabled);
 
-                            // Reset all protections and verify.
+                            // Pushing a commit from the local repo to the read-only branch should fail.
+
+                            File.WriteAllText(await repo.Local.GetLocalFilePathAsync("/test.txt"), "HELLO WORLD!");
+                            await repo.Local.CommitAsync("This is a test.");
+                            await Assert.ThrowsAsync<LibGit2Sharp.LibGit2SharpException>(async () => await repo.Local.PushAsync());
+
+                            // Deleting the branch should fail too.
+
+                            await Assert.ThrowsAsync<ApiValidationException>(async () => await repo.Remote.Branch.RemoveAsync(newBranchName));
+
+                            // Remove all protections and verify.
 
                             await repo.Remote.Branch.DeleteBranchProtection(newBranchName);
 
                             newRemoteBranch = await repo.Remote.Branch.FindAsync(newBranchName);
 
                             Assert.False(newRemoteBranch.Protected);
+
+                            // Branch push should work now.
+
+                            await repo.Local.PushAsync();
+
+                            // Branch deletion should work now too.
+
+                            await repo.Remote.Branch.RemoveAsync(newBranchName);
                         }
                     }
                 });
@@ -593,13 +622,10 @@ namespace TestGitHub
                             Assert.NotNull(await repo.Remote.Branch.GetAsync(newBranchName));
                             await Assert.ThrowsAsync<Octokit.NotFoundException>(async () => await repo.Remote.Branch.GetAsync($"{Guid.NewGuid()}"));
 
-                            // Remove the new branch and verify.
+                            // Remove the new local branch and then verify.
 
                             await repo.Local.RemoveBranchAsync(newBranchName);
-
                             Assert.Null(repo.GitApi.Branches[newBranchName]);
-                            Assert.Null(await repo.Remote.Branch.FindAsync(newBranchName));
-                            Assert.Equal("master", repo.Local.CurrentBranch.FriendlyName);
                         }
                     }
                 });

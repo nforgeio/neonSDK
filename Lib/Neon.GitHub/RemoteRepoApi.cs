@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:	    RemoteRepoApi.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -86,6 +86,7 @@ namespace Neon.GitHub
 
         private GitHubRepo  root;
         private string      cachedBaseUri;
+        private string      cachedApiBaseUri;
         private long        cachedId = -1;
 
         /// <summary>
@@ -143,8 +144,7 @@ namespace Neon.GitHub
                     return cachedBaseUri;
                 }
 
-                // We need to strip off the last segment of the URI
-                // (the "NAME-git" part).
+                // We need to strip off the last segment of the URI (the "NAME-git" part).
 
                 var uri          = $"https://{root.Remote.Path}";
                 var lastSlashPos = uri.LastIndexOf('/');
@@ -152,6 +152,47 @@ namespace Neon.GitHub
                 Covenant.Assert(lastSlashPos > 0);
 
                 return cachedBaseUri = uri.Substring(0, lastSlashPos + 1);
+            }
+        }
+
+        /// <summary>
+        /// Returns a URI for the GitHub API server by combining the GitHub API endpoint
+        /// with the relative path passed.
+        /// </summary>
+        /// <param name="path">
+        /// Specifies the relative path.  This may or may not include a leading forward
+        /// slash (/).
+        /// </param>
+        /// <returns>The API URI.</returns>
+        public string GetApiUri(string path)
+        {
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(path), nameof(path));
+
+            if (cachedApiBaseUri == null)
+            {
+                // $hack(jefflill):
+                //
+                // This code assumes that the server hostname should always start with "api.",
+                // which will be true for GitHub but perhaps not for privately hosted enterprise
+                // GitHub deployments.  We're not going to worry about that right now.
+
+                var serverPart = root.Remote.Path.Server;
+
+                if (!serverPart.StartsWith("api.", StringComparison.CurrentCultureIgnoreCase))
+                {
+                    serverPart = $"api.{serverPart}";
+                }
+
+                cachedApiBaseUri = $"https://{serverPart}";
+            }
+
+            if (path.StartsWith('/'))
+            {
+                return cachedApiBaseUri + path;
+            }
+            else
+            {
+                return cachedApiBaseUri + '/' + path;
             }
         }
 

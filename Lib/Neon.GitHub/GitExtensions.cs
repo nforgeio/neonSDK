@@ -1,5 +1,5 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    GitRepositoryExtensions.cs
+//-----------------------------------------------------------------------------
+// FILE:	    GitExtensions.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
@@ -48,10 +48,13 @@ using GitSignature  = LibGit2Sharp.Signature;
 namespace Neon.GitHub
 {
     /// <summary>
-    /// Implements handy <see cref="GitRepository"/> extension methods.
+    /// Implements handy local git extension methods.
     /// </summary>
-    public static class GitRepositoryExtensions
+    public static class GitExtensions
     {
+        //---------------------------------------------------------------------
+        // GitRepository extensions
+
         /// <summary>
         /// Returns a local git repository is changes pending a commit.
         /// </summary>

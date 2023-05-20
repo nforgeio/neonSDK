@@ -109,6 +109,7 @@ namespace Neon.GitHub
         /// </summary>
         /// <returns>The new <see cref="PushOptions"/>.</returns>
         /// <exception cref="ObjectDisposedException">Thrown when the instance is disposed.</exception>
+        /// <exception cref="LibGit2SharpException">Thrown when the operation fails.</exception>
         public PushOptions CreatePushOptions()
         {
             root.EnsureNotDisposed();
@@ -116,7 +117,8 @@ namespace Neon.GitHub
 
             return new PushOptions()
             {
-                CredentialsProvider = root.CredentialsProvider
+                CredentialsProvider = root.CredentialsProvider,
+                OnPushStatusError   = errors => throw new LibGit2SharpException(errors.Message)
             };
         }
 
