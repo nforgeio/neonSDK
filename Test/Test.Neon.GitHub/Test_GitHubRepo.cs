@@ -962,9 +962,10 @@ namespace TestGitHub
 
                             var newBranchName = $"testbranch-{Guid.NewGuid()}";
 
+                            Assert.True(await repo.Local.CreateBranchAsync(newBranchName, "master"));
+
                             // Verify that the "master" and new branches exist.
 
-                            Assert.True(await repo.Local.CreateBranchAsync(newBranchName, "master"));
                             Assert.Contains(newBranchName, await repo.Local.ListBrancheshAsync());
                             Assert.Contains("master", await repo.Local.ListBrancheshAsync());
                         }
@@ -996,6 +997,69 @@ namespace TestGitHub
 
                             Assert.True(await repo.Local.BranchExistsAsync("master"));
                             Assert.False(await repo.Local.BranchExistsAsync(missingBranchName));
+                        }
+                    }
+                });
+        }
+
+        [MaintainerFact]
+        public async Task Local_CherryPick()
+        {
+            await GitHubTestHelper.RunTestAsync(
+                async () =>
+                {
+                    //-------------------------------------------------
+                    // Verify cherry picking commits from one branch to another.
+                    //
+                    //      1. Clone the repo.
+                    //      2. Create a test branch
+                    //      3. Make a couple commits to the new branch
+                    //      4. Checkout the master branch
+                    //      5. Cherry pick the two most recent commits from the test branch
+                    //      6. Verify that the commits now exist in master
+
+                    using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
+                    {
+                        var repoPath = tempFolder.Path;
+
+                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepoPath, repoPath))
+                        {
+                            var testFolder = Path.Combine(tempFolder.Path, GitHubTestHelper.TestFolder);
+                            var file1Name   = $"{Guid.NewGuid()}.txt";
+                            var file2Name   = $"{Guid.NewGuid()}.txt";
+                            var file1Path   = Path.Combine(testFolder, file1Name);
+                            var file2Path   = Path.Combine(testFolder, file2Name);
+
+                            // Create the new local branch.
+
+                            var newBranchName = $"testbranch-{Guid.NewGuid()}";
+
+                            Assert.True(await repo.Local.CreateBranchAsync(newBranchName, "master"));
+
+                            // Add two commits to the new branch.
+
+                            File.WriteAllText(file1Path, "HELLO WORLD!");
+                            await repo.Local.CommitAsync(file1Name);
+
+                            File.WriteAllText(file2Path, "GOODBYE WORLD!");
+                            await repo.Local.CommitAsync(file2Name);
+
+                            // Checkout master and cherry pick the most recent two commits from the test branch.
+
+                            var testCommits = await repo.Local.GetBranchCommitsAsync(newBranchName);
+
+                            await repo.Local.CheckoutAsync("master");
+                            await repo.Local.CherryPickAsync(newBranchName, testCommits.Take(2));
+
+                            // Verify that the master branch now includes these commits.
+                            // Note that the cherry-picked commits will get new IDs so we're
+                            // going to use the commit message which was set to the committed
+                            // file name added above in the source commit ID to verify.
+
+                            var newMasterCommits = (await repo.Local.GetBranchCommitsAsync("master")).Take(2);
+
+                            Assert.Contains(newMasterCommits, commit => commit.Message.StartsWith(file1Name));
+                            Assert.Contains(newMasterCommits, commit => commit.Message.StartsWith(file2Name));
                         }
                     }
                 });

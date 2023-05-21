@@ -45,6 +45,7 @@ using GitHubSignature  = Octokit.Signature;
 using GitBranch     = LibGit2Sharp.Branch;
 using GitRepository = LibGit2Sharp.Repository;
 using GitSignature  = LibGit2Sharp.Signature;
+using GitCommit     = LibGit2Sharp.Commit;
 
 namespace Neon.GitHub
 {
@@ -609,7 +610,7 @@ namespace Neon.GitHub
             await SyncContext.Clear;
 
             var localCommits  = await GetCommitsAsync();
-            var localTipSha   = localCommits.First().Id.Sha;
+            var localTipSha   = localCommits.First().Sha;
             var remoteCommits = await root.Remote.GetCommitsAsync(CurrentBranch.FriendlyName);
             var remoteTipSha  = remoteCommits.First().Sha;
 
@@ -621,7 +622,7 @@ namespace Neon.GitHub
             // We're behind when the local branch doesn't include the tip commit
             // of the remote branch.
 
-            return !localCommits.Any(localCommit => localCommit.Id.Sha == remoteTipSha);
+            return !localCommits.Any(localCommit => localCommit.Sha == remoteTipSha);
         }
 
         /// <summary>
@@ -633,7 +634,7 @@ namespace Neon.GitHub
             await SyncContext.Clear;
 
             var localCommits  = await GetCommitsAsync();
-            var localTipSha   = localCommits.First().Id.Sha;
+            var localTipSha   = localCommits.First().Sha;
             var remoteCommits = await root.Remote.GetCommitsAsync(CurrentBranch.FriendlyName);
             var remoteTipSha  = remoteCommits.First().Sha;
 
@@ -664,16 +665,148 @@ namespace Neon.GitHub
         /// <summary>
         /// Determines whether a specific branch exists in the local repo.
         /// </summary>
-        /// <param name="name">Specfies the friendly name of the target branch.</param>
+        /// <param name="branchName">Specfies the friendly name of the target branch.</param>
         /// <returns><c>true</c> when the branch exists.</returns>
-        public async Task<bool> BranchExistsAsync(string name)
+        public async Task<bool> BranchExistsAsync(string branchName)
         {
             await SyncContext.Clear;
-            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(name), nameof(name));
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
             root.EnsureNotDisposed();
             root.EnsureLocalRepo();
 
-            return (await ListBrancheshAsync()).Any(branch => branch == name);
+            return (await ListBrancheshAsync()).Any(branch => branch == branchName);
+        }
+
+        /// <summary>
+        /// Returns the named branch.
+        /// </summary>
+        /// <param name="branchName">Specifies the friendly name of the local branch.</param>
+        /// <returns>The <see cref="GitBranch"/>.</returns>
+        /// <exception cref="LibGit2Sharp.NotFoundException">Thrown if the branch doesn't exist.</exception>
+        private GitBranch GetBranch(string branchName)
+        {
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
+
+            var branch = root.GitApi.Branches.SingleOrDefault(branch => branch.FriendlyName == branchName);
+
+            if (branch == null)
+            {
+                throw new LibGit2Sharp.NotFoundException($"Branch does not exist: {branchName}");
+            }
+
+            return branch;
+        }
+
+        /// <summary>
+        /// Returns the commits for a local branch.
+        /// </summary>
+        /// <param name="branchName">Specifies the friendly name of the local branch.</param>
+        /// <returns>The commits.</returns>
+        /// <exception cref="LibGit2Sharp.NotFoundException">Thrown if the branch doesn't exist.</exception>
+        public async Task<IEnumerable<GitCommit>> GetBranchCommitsAsync(string branchName)
+        {
+            await SyncContext.Clear;
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
+
+            var branch = root.GitApi.Branches.SingleOrDefault(branch => branch.FriendlyName == branchName);
+
+            if (branch == null)
+            {
+                throw new LibGit2Sharp.NotFoundException($"Branch does not exist: {branchName}");
+            }
+
+            return branch.Commits.ToArray();
+        }
+
+        /// <summary>
+        /// Cherry-picks commits from a target branch and adds them to the current branch.
+        /// </summary>
+        /// <param name="sourceBranchName">Specifies the friendly name of the local source branch.</param>
+        /// <param name="commits">
+        /// Specifies the commits to be cherry-picked from the source branch and added to the target.
+        /// The commits will be applied in the order they appear here.
+        /// </param>
+        /// <param name="options">OPtionally specifies cherry-pick options.</param>
+        /// <returns>The tracking <see cref="Task"/>.</returns>
+        /// <exception cref="LibGit2SharpException">
+        /// Thrown when the source branch doesn't include any of the commits, the target
+        /// branch already includes one or more, or when there was a conflict cherry-picking
+        /// a commit.
+        /// </exception>
+        /// <remarks>
+        /// <para>
+        /// Before applying the commits from the source branch, this method verifies that
+        /// the source branch actually includes all of the specifies commits and the current
+        /// branch includes none of these commits.
+        /// </para>
+        /// <para>
+        /// Cherry-picking will stop if one of the operations fails due to a conflict.
+        /// </para>
+        /// </remarks>
+        public async Task CherryPickAsync(string sourceBranchName, IEnumerable<GitCommit> commits, CherryPickOptions options = null)
+        {
+            await SyncContext.Clear;
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(sourceBranchName), nameof(sourceBranchName));
+            Covenant.Requires<ArgumentNullException>(commits != null, nameof(commits));
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
+
+            options ??= new CherryPickOptions();
+
+            var sourceBranch      = GetBranch(sourceBranchName);
+            var idToPickCommit    = commits.ToDictionary(commit => commit.Sha);
+            var idToSourceCommit  = sourceBranch.Commits.ToDictionary(commit => commit.Sha);
+            var idToCurrentCommit = CurrentBranch.Commits.ToDictionary(commit => commit.Sha);
+
+            // Ensure that all of the requested commits exist in the source branch.
+
+            var sbError = new StringBuilder();
+
+            foreach (var commit in commits)
+            {
+                if (!idToSourceCommit.ContainsKey(commit.Sha))
+                {
+                    sbError.AppendWithSeparator(commit.Sha);
+                }
+            }
+
+            if (sbError.Length > 0)
+            {
+                throw new LibGit2SharpException($"Source branch [{sourceBranchName}] does not include these commits: {sbError}");
+            }
+
+            // Ensure that none of the commits already exist in the current branch.
+
+            sbError.Clear();
+
+            foreach (var commit in commits)
+            {
+                if (idToCurrentCommit.ContainsKey(commit.Sha))
+                {
+                    sbError.AppendWithSeparator(commit.Sha);
+                }
+            }
+
+            if (sbError.Length > 0)
+            {
+                throw new LibGit2SharpException($"Current branch [{CurrentBranch.FriendlyName}] already includes these commits: {sbError}");
+            }
+
+            // Cherry-pick the commits from the source branch.
+
+            var signature = CreateSignature();
+
+            foreach (var commit in commits)
+            {
+                var result = root.GitApi.CherryPick(commit, signature, options);
+
+                if (result.Status == CherryPickStatus.Conflicts)
+                {
+                    throw new LibGit2SharpException($"Conflict cherry-picking: {commit.Sha}");
+                }
+            }
         }
     }
 }
