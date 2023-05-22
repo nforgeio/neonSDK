@@ -378,6 +378,7 @@ namespace TestGitHub
                             Assert.True(await repo.Local.CreateBranchAsync(newBranchName, "master"));
                             Assert.NotNull(repo.GitApi.Branches[newBranchName]);
                             Assert.Null(await repo.Remote.Branch.FindAsync(newBranchName));
+                            Assert.False(await repo.Remote.Branch.ExistsAsync(newBranchName));
 
                             // Push the branch to GitHub and verify.
 
@@ -386,6 +387,7 @@ namespace TestGitHub
                             var newRemoteBranch = await repo.Remote.Branch.FindAsync(newBranchName);
 
                             Assert.NotNull(newRemoteBranch);
+                            Assert.True(await repo.Remote.Branch.ExistsAsync(newBranchName));
 
                             // Verify that the new remote branch is not protected (yet).
 

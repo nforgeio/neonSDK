@@ -119,6 +119,21 @@ namespace Neon.GitHub
         }
 
         /// <summary>
+        /// Determines whether a branch exists in the origin repo.
+        /// </summary>
+        /// <param name="branchName">Specifies the origin repository branch name.</param>
+        /// <returns><c>true</c> when the branch exists.</returns>
+        /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
+        public async Task<bool> ExistsAsync(string branchName)
+        {
+            await SyncContext.Clear;
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
+            root.EnsureNotDisposed();
+
+            return await FindAsync(branchName) != null;
+        }
+
+        /// <summary>
         /// Removes an origin branch, if it exists.
         /// </summary>
         /// <param name="branchName">Specifies the origin repository branch name.</param>
