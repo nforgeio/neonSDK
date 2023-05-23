@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:	    Test_Wsl2Proxy.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -289,7 +289,7 @@ Line 4
 
                     // Expecting to be logged in as [root]
 
-                    response = distro.Execute("echo", "$LOGNAME");
+                    response = distro.Execute("bash", "-c", "echo $USER");
 
                     Assert.Equal(0, response.ExitCode);
                     Assert.Equal("root", response.OutputText.Trim());

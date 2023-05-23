@@ -558,7 +558,7 @@ namespace Neon.WSL
                 {
                     "--distribution", this.Name,
                     "--user", this.User,
-                    "--",
+                    "--exec",
                     path,
                     args
                 },
@@ -582,7 +582,7 @@ namespace Neon.WSL
                 {
                     "--distribution", this.Name,
                     "--user", user,
-                    "--",
+                    "--exec",
                     path,
                     args
                 },
@@ -610,7 +610,7 @@ namespace Neon.WSL
                 {
                     "--distribution", this.Name,
                     "--user", this.User,
-                    "--",
+                    "--exec",
                     "sudo", path,
                     args
                 },
@@ -634,7 +634,7 @@ namespace Neon.WSL
                 {
                     "--distribution", this.Name,
                     "--user", user,
-                    "--",
+                    "--exec",
                     "sudo", path,
                     args
                 },
