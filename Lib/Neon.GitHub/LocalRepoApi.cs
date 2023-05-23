@@ -174,12 +174,39 @@ namespace Neon.GitHub
 
             if (autoStage)
             {
-                Commands.Stage(root.GitApi, "**");
+                var statusOptions = new StatusOptions
+                {
+                    DetectRenamesInIndex   = false,
+                    DetectRenamesInWorkDir = false
+                };
+
+                var changes = root.GitApi.RetrieveStatus(statusOptions)
+                    .Select(change => change.FilePath);
+
+                Commands.Stage(root.GitApi, "*");
             }
 
             var signature = CreateSignature();
 
-            root.GitApi.Commit(message, signature, signature);
+            try
+            {
+                root.GitApi.Commit(message, signature, signature);
+            }
+            catch (EmptyCommitException)
+            {
+                // $todo(jefflill):
+                // $hack(jefflill):
+                //
+                // I'm not entirely sure why we're seeing these exceptions when creating
+                // the [neonversion.go] source file while initializing a new [neon-kubernetes]
+                // branch via our [neon-kube] tool.
+                //
+                // In this case, the local repo branch reports being dirty and it the source
+                // file does end up being committed and pushed to GitHub.
+                //
+                // We're going to ignore this for the time being, but should have a look
+                // again sometime in the future.
+            }
 
             return await Task.FromResult(true);
         }
