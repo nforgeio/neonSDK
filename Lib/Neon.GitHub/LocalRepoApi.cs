@@ -154,11 +154,12 @@ namespace Neon.GitHub
         /// Commits any staged and pending changes to the local git repository.
         /// </summary>
         /// <param name="message">Optionally specifies the commit message.  This defaults to <b>unspecified changes"</b>.</param>
-        /// <returns><c>true</c> when changes were comitted, <c>false</c> when there were no pending changes.</returns>
+        /// <param name="autoStage">Optionally disable automatic staging of new and changed files.  This defaults to <c>true</c>.</param>
+        /// <returns><c>true</c> when changes were committed, <c>false</c> when there were no pending changes.</returns>
         /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
-        public async Task<bool> CommitAsync(string message = null)
+        public async Task<bool> CommitAsync(string message = null, bool autoStage = true)
         {
             await SyncContext.Clear;
             root.EnsureNotDisposed();
@@ -171,7 +172,10 @@ namespace Neon.GitHub
                 return false;
             }
 
-            Commands.Stage(root.GitApi, "*");
+            if (autoStage)
+            {
+                Commands.Stage(root.GitApi, "**");
+            }
 
             var signature = CreateSignature();
 
