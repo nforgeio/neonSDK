@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -143,7 +143,10 @@ namespace Neon.Blazor
             this.IntersectionObserverContext.IsIntersecting = args.IsIntersecting;
             this.IntersectionObserverContext.IsVisible = args.IsVisible;
 
-            await InvokeAsync(IntersectionChanged);
+            if (IntersectionChanged != null)
+            {
+                await InvokeAsync(IntersectionChanged);
+            }
             
             await OnIntersectionChanged.InvokeAsync(new IntersectionChangedEventArgs()
             {
