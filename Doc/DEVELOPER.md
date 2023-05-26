@@ -115,12 +115,6 @@ Follow the steps below to configure a development or test workstation:
 
 10. Create a **shortcut** for Visual Studio and configure it to run as **administrator**.  To build and run NEONSDK applications and services, **Visual Studio must have with elevated privileges**.
 
-11. Install Visual Studio Code and GO:
-
-    * Install **Visual Studio Code 64-bit** from [here](https://code.visualstudio.com/download)
-    * Create a desktop shortcut for Visual Studio Code and configure it to run as **administrator**.
-    * Install [Microsoft Remote Development Extension Pack](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack).
-
 12. Download the **SysInternals utiliies** from [here](https://download.sysinternals.com/files/SysinternalsSuite.zip) and extract them to a folder on your PATH, like: **C:\Tools**.
 
 13. Install some SDKs:
