@@ -142,8 +142,6 @@ namespace Neon.Common
         /// </summary>
         public class OptionDefinition
         {
-            private string def;
-
             /// <summary>
             /// Constructor.
             /// </summary>
@@ -168,19 +166,9 @@ namespace Neon.Common
             public string[] Names { get; private set; }
 
             /// <summary>
-            /// The option's default value or the empty string.
+            /// The option's default value.
             /// </summary>
-            public string Default
-            {
-                get { return def; }
-
-                set
-                {
-                    Covenant.Requires<ArgumentNullException>(value != null, nameof(Default));
-
-                    def = value;
-                }
-            }
+            public string Default { get; set; }
         }
 
         //---------------------------------------------------------------------
