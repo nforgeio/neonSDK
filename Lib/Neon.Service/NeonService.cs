@@ -502,7 +502,7 @@ namespace Neon.Service
     /// <note>
     /// Service dependencies are currently waited for when the service status is <see cref="NeonServiceStatus.Starting"/>,
     /// which means that they will need to complete before the startup or libeliness probes time out
-    /// resulting in service termination.  This behavior may change in the future: https://github.com/nforgeio/TEMPKUBE/issues/1361
+    /// resulting in service termination.  This behavior may change in the future.
     /// </note>
     /// <para><b>PROMETHEUS METRICS</b></para>
     /// <para>
@@ -553,10 +553,7 @@ namespace Neon.Service
     /// <see cref="NeonService"/>s that implement Kubernetes CRON jobs should consider setting 
     /// <see cref="AutoTerminateIstioSidecar"/><c>=true</c>.  This ensures that the pod scheduled
     /// for the job is terminated cleanly when it has Istio injected sidecars.  This is generally
-    /// safe to set when running in a Kubernetes cluster.  Additional information:
-    /// </para>
-    /// <para>
-    /// https://github.com/nforgeio/TEMPKUBE/issues/1233
+    /// safe to set when running in a Kubernetes cluster.
     /// </para>
     /// </remarks>
     public abstract class NeonService : IDisposable
@@ -1010,7 +1007,7 @@ namespace Neon.Service
         /// <note>
         /// Service dependencies are currently waited for when the service status is <see cref="NeonServiceStatus.Starting"/>,
         /// which means that they will need to complete before the startup or liveliness probes time out
-        /// resulting in service termination.  This behavior may change in the future: https://github.com/nforgeio/TEMPKUBE/issues/1361
+        /// resulting in service termination.  This behavior may change in the future.
         /// </note>
         /// </summary>
         public ServiceDependencies Dependencies { get; set; } = new ServiceDependencies();
@@ -1934,9 +1931,6 @@ namespace Neon.Service
         /// Calls the Envoy sidecar admin API when <see cref="AutoTerminateIstioSidecar"/><c>=true</c>
         /// to ensure that the sidecar containers are terminated.  This tolerates situations where no
         /// sidecars have been injected.
-        /// </para>
-        /// <para>
-        /// https://github.com/nforgeio/TEMPKUBE/issues/1233
         /// </para>
         /// </summary>
         private void TerminateAnySidecars()

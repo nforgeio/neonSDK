@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:	    NeonHelper.Process.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -448,8 +448,6 @@ namespace Neon.Common
                 // sure whether the "line" was terminated by a CRLF or
                 // just a CR.  I'm not sure if there's a clean way to
                 // address this in .NET code.
-                //
-                //      https://github.com/nforgeio/TEMPKUBE/issues/461
 
                 var stdErrClosed = false;
                 var stdOutClosed = false;

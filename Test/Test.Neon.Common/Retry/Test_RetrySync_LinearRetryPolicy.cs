@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:	    Test_RetrySync_LinearRetryPolicy.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -462,10 +462,6 @@ namespace TestCommon
 
             Assert.Equal(4, times.Count);
 
-            // Additional test to verify this serious problem is fixed:
-            //
-            //      https://github.com/nforgeio/TEMPKUBE/issues/762
-            //
             // We'll wait a bit longer to enure that any (incorrect) deadline computed
             // by the policy when constructed above does not impact a subsequent run.
 

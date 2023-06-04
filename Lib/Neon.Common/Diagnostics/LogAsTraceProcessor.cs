@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:	    LogAsTraceProcessor.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -171,7 +171,7 @@ namespace Neon.Diagnostics
 
                 if (logRecord.StateValues != null && logRecord.StateValues.Count > 0)
                 {
-                    var activityTags = new ActivityTagsCollection();    // $todo(jefflill): It would be really nice to be able to pool these: https://github.com/nforgeio/TEMPKUBE/issues/1668#issuecomment-1235696464
+                    var activityTags = new ActivityTagsCollection();
 
                     foreach (var attribute in logRecord.StateValues)
                     {

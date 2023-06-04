@@ -100,8 +100,6 @@ namespace Neon.Xunit
         //
         // It can take a bit of time for the Windows DNS resolver to pick up the change.
         //
-        //      https://github.com/nforgeio/TEMPKUBE/issues/244
-        //
         // We're going to mitigate this by writing a [neon-GUID.nhive.io] record with the
         // [1.2.3.4] address and then wait the local DNS resolver to resolve or not
         // resolve this host based on whether we've added or remove a section.

@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:	    SysTime.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -20,10 +20,7 @@ using System.Threading;
 
 // $todo(jeff.lill):
 //
-// I'm going to simplify this to just use UTC for now:
-//
-//      https://github.com/nforgeio/TEMPKUBE/issues/760
-//      https://github.com/nforgeio/TEMPKUBE/issues/761
+// I'm going to simplify this to just use UTC for now.
 
 // $todo(jefflill):
 //

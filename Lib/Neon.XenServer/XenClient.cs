@@ -71,8 +71,8 @@ using ThinCLI;
 // can build or obtain [xe] for these platforms or convert the code below to
 // use the XenServer SDK (C# bindings).  This is being tracked here:
 //
-//      https://github.com/nforgeio/TEMPKUBE/issues/1130
-//      https://github.com/nforgeio/TEMPKUBE/issues/1132
+//      https://github.com/nforgeio/neonKUBE/issues/1130
+//      https://github.com/nforgeio/neonKUBE/issues/1132
 
 // NOTE: XE-CLI commands are documented here:
 //

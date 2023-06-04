@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:	    LoggerExtensions.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -237,7 +237,7 @@ namespace Neon.Diagnostics
             // concept by persisting the user's message passed as an explicit [body] attribute and
             // then constructing a separate message used internally only for specifing attribute names.
 
-            var logAttributes = new LogAttributes();    // $todo(jefflill): It would be really nice to be able to pool these: https://github.com/nforgeio/TEMPKUBE/issues/1668#issuecomment-1235696464
+            var logAttributes = new LogAttributes();
 
             // Process the event message.
 

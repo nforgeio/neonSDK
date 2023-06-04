@@ -39,10 +39,6 @@ namespace Neon.Common
         /// </summary>
         /// <param name="appDomain">The <see cref="AppDomain"/>.</param>
         /// <returns>The enumerated assemblies.</returns>
-        /// <remarks>
-        /// We also use this to work around this Visual Studio bug: 
-        /// <a href="https://github.com/nforgeio/TEMPKUBE/issues/531"/>
-        /// </remarks>
         public static IEnumerable<Assembly> GetUserAssemblies(this AppDomain appDomain)
         {
             return appDomain.GetAssemblies()

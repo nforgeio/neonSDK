@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:	    PowerShell.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -190,11 +190,6 @@ catch [Exception]
                 var result  = NeonHelper.ExecuteCapture(GetPwshPath(), $"-File \"{file.Path}\" -NonInteractive -NoProfile", outputAction: outputAction, errorAction: errorAction);
                 var allText = result.AllText;
 
-                // Powershell includes TTY color commands in its output and we need
-                // to strip these out of the the result:
-                //
-                //      https://github.com/nforgeio/TEMPKUBE/issues/1259
-
                 allText = ttyColorRegex.Replace(allText, string.Empty);
 
                 // $hack(jefflill):
@@ -207,11 +202,6 @@ catch [Exception]
                 {
                     throw new PowerShellException(allText);
                 }
-
-                // Powershell includes TTY color commands in its output and we need
-                // to strip these out of the the result:
-                //
-                //      https://github.com/nforgeio/TEMPKUBE/issues/1259
 
                 return allText;
             }

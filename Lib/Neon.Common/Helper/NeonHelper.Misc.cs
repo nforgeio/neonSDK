@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:	    NeonHelper.Misc.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -131,8 +131,6 @@ namespace Neon.Common
 
             // Loopie encountered a strange situation where the inner exceptions apparently 
             // form a cycle which can result in a stack overflow if we keep drilling down.
-            //
-            //      https://github.com/nforgeio/TEMPKUBE/issues/737
             //
             // We're going to handle this by limiting the recursion depth.
 

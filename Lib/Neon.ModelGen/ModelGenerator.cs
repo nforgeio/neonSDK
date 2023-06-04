@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:	    ModelGenerator.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -34,14 +34,6 @@ using Microsoft.CodeAnalysis;
 using Newtonsoft.Json;
 
 using Neon.Common;
-
-// $todo(jefflill):
-//
-// At some point in the future it would be nice to read any
-// XML code documentation and include this in the generated
-// source code as well.
-//
-//      https://github.com/nforgeio/TEMPKUBE/issues/594
 
 namespace Neon.ModelGen
 {
@@ -2320,8 +2312,6 @@ namespace Neon.ModelGen
 
                     // ASP.NET copmplains about this being a synchronous operation???  We'll revert
                     // back to the inefficient ToString() method and revisit this later.
-                    //
-                    //      https://github.com/nforgeio/TEMPKUBE/issues/485
 
                     //writer.WriteLine($"            using (var writer = new JsonTextWriter(new StreamWriter(stream)))");
                     //writer.WriteLine($"            {{");

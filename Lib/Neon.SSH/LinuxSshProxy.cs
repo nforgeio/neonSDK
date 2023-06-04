@@ -464,9 +464,6 @@ namespace Neon.SSH
             //
             // We sometimes see a deadlock when disposing SSH.NET clients.
             //
-            //      https://github.com/nforgeio/TEMPKUBE/issues/230
-            //      https://github.com/sshnet/SSH.NET/issues/355
-            //
             // I'm going to try to mitigate this by doing the dispose
             // on another thread and having that thread killed if it
             // it appears to be deadlocked.  Note that this will likely
@@ -555,13 +552,6 @@ namespace Neon.SSH
         /// <param name="timeout">The timeout.</param>
         private void DeadlockBreaker(string actionName, Action action, TimeSpan timeout)
         {
-            // $todo(jefflill): 
-            //
-            // This is part of the mitigation for:
-            //
-            //      https://github.com/nforgeio/TEMPKUBE/issues/230
-            //      https://github.com/sshnet/SSH.NET/issues/355
-
             //LogLine($"*** DEADLOCK EXECUTE: {actionName}");
 
             var thread = NeonHelper.StartThread(action);
@@ -613,8 +603,6 @@ namespace Neon.SSH
                     // that sudo can execute commands without a password.  We have to do this using a 
                     // TTY shell because the CentOS distribution deployed by XenServer/XCP-ng requires
                     // a TTY by default; bless their hearts :)
-                    //
-                    //      https://github.com/nforgeio/TEMPKUBE/issues/926
                     //
                     // We're going to quickly do this here using a SSH.NET shell stream and then follow up
                     // with a more definitive config just below.
@@ -2171,8 +2159,6 @@ echo $? > {cmdFolder}/exit
                         // We're also going to check to ensure that the [cmdFolder] still exists and
                         // fail the command and if it does not.  This will help mitigate situations 
                         // where the folder gets inadvertently deleted as happened with:
-                        //
-                        //      https://github.com/nforgeio/TEMPKUBE/issues/496
                         //
                         // We'll have the test command return 2 in this case to distinguish between
                         // the folder not being present from the exit file not being there.

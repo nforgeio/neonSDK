@@ -94,9 +94,7 @@ REMARKS:
 
 This command is used to generate enhanced JSON based data models and
 REST API clients suitable for applications based on flexible noSQL
-style design conventions.  See this GitHub issue for more information:
-
-    https://github.com/nforgeio/TEMPKUBE/issues/463
+style design conventions.
 
 ";
         private static bool     suppressSpurious = false;

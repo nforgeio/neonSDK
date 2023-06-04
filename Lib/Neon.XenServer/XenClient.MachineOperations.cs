@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:	    XenClient.MachineOperations.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -180,7 +180,7 @@ namespace Neon.XenServer
                 // when [sr-uuid] is passed, even if the template and target VM storage repositories
                 // are the same.
                 //
-                //      https://github.com/nforgeio/TEMPKUBE/issues/326
+                //      https://github.com/nforgeio/neonKUBE/issues/326
                 //
                 // Unfortunately, there doesn't appear to be a clean way to inspect a VM template 
                 // to list its disks and determine where they live.  So we'll list the virtual disk
