@@ -31,6 +31,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Neon.Common;
+using Neon.Diagnostics;
 using Neon.Retry;
 using Neon.Tasks;
 
@@ -223,7 +224,7 @@ namespace Neon.Net
             var     addressBytes = address.GetAddressBytes();
             uint    addressValue;
 
-            addressValue  = (uint)addressBytes[0] << 24;
+            addressValue = (uint)addressBytes[0] << 24;
             addressValue |= (uint)addressBytes[1] << 16;
             addressValue |= (uint)addressBytes[2] << 8;
             addressValue |= (uint)addressBytes[3];
@@ -248,7 +249,7 @@ namespace Neon.Net
             var     addressBytes = address.GetAddressBytes();
             uint    addressValue;
 
-            addressValue  = (uint)addressBytes[0] << 24;
+            addressValue = (uint)addressBytes[0] << 24;
             addressValue |= (uint)addressBytes[1] << 16;
             addressValue |= (uint)addressBytes[2] << 8;
             addressValue |= (uint)addressBytes[3];
@@ -440,7 +441,7 @@ namespace Neon.Net
                     if (section != null)
                     {
                         beginMarker += section;
-                        endMarker   += section;
+                        endMarker += section;
                     }
 
                     var inputLines       = File.ReadAllLines(hostsPath);
@@ -555,7 +556,7 @@ namespace Neon.Net
                         lines.Add(endMarker);
                     }
 
-                    File.WriteAllLines(hostsPath, lines.ToArray());  
+                    File.WriteAllLines(hostsPath, lines.ToArray());
                 });
 
             if (!different)
@@ -722,8 +723,8 @@ namespace Neon.Net
                         }
 
                         withinSection = true;
-                        sectionName   = name;
-                        hostEntries   = new Dictionary<string, IPAddress>(StringComparer.InvariantCultureIgnoreCase);
+                        sectionName = name;
+                        hostEntries = new Dictionary<string, IPAddress>(StringComparer.InvariantCultureIgnoreCase);
                     }
                     else if (line.StartsWith(HostsSectionEndMarker))
                     {
@@ -1156,9 +1157,9 @@ namespace Neon.Net
 
                 return true;
             }
-            catch 
-            { 
-                return false; 
+            catch
+            {
+                return false;
             }
         }
 
@@ -1211,7 +1212,7 @@ namespace Neon.Net
 
                         // Filter out loopback interfaces, TAP interfaces and interfaces that aren't up.
 
-                        if (@interface.NetworkInterfaceType == NetworkInterfaceType.Loopback || 
+                        if (@interface.NetworkInterfaceType == NetworkInterfaceType.Loopback ||
                             @interface.Description.StartsWith("TAP-") ||
                             @interface.Description == "Hyper-V Virtual Ethernet Adapter" ||
                             @interface.OperationalStatus != OperationalStatus.Up)
@@ -1308,7 +1309,7 @@ namespace Neon.Net
 
                         // Filter out loopback interfaces, TAP interfaces and interfaces that aren't up.
 
-                        if (@interface.NetworkInterfaceType == NetworkInterfaceType.Loopback || 
+                        if (@interface.NetworkInterfaceType == NetworkInterfaceType.Loopback ||
                             @interface.Description.StartsWith("TAP-") ||
                             @interface.Description == "Hyper-V Virtual Ethernet Adapter" ||
                             @interface.OperationalStatus != OperationalStatus.Up)
@@ -1364,10 +1365,10 @@ namespace Neon.Net
                             return new NetworkConfiguration()
                             {
                                 InterfaceName = @interface.Name,
-                                Address       = routableIpAddress.ToString(),
-                                Subnet        = new NetworkCidr(routableIpAddress, unicastAddress.IPv4Mask).ToString(),
-                                Gateway       = ipProperties.GatewayAddresses.FirstOrDefault(gatewayAddr => gatewayAddr.Address.AddressFamily == AddressFamily.InterNetwork).Address.ToString(),
-                                NameServers   = ipProperties.DnsAddresses
+                                Address = routableIpAddress.ToString(),
+                                Subnet = new NetworkCidr(routableIpAddress, unicastAddress.IPv4Mask).ToString(),
+                                Gateway = ipProperties.GatewayAddresses.FirstOrDefault(gatewayAddr => gatewayAddr.Address.AddressFamily == AddressFamily.InterNetwork).Address.ToString(),
+                                NameServers = ipProperties.DnsAddresses
                                     .Where(address => address.AddressFamily == AddressFamily.InterNetwork)
                                     .Select(address => address.ToString())
                                     .ToArray()
@@ -1524,6 +1525,27 @@ namespace Neon.Net
         }
 
         /// <summary>
+        /// Returns a flattened ARP table for the current machine.  This is just a
+        /// dictionary keyed by IP addresses mapping to the cached MAC address.
+        /// </summary>
+        /// <returns>The IP/MAC dictionary.</returns>
+        public static async Task<Dictionary<IPAddress, byte[]>> GetArpFlatTableAsync()
+        {
+            var fullArpTable = await GetArpTableAsync();
+            var arpTable     = new Dictionary<IPAddress, byte[]>();
+
+            foreach (var @interfaceTable in fullArpTable.Values)
+            {
+                foreach (var item in interfaceTable)
+                {
+                    arpTable[item.Key] = item.Value;
+                }
+            }
+
+            return arpTable;
+        }
+
+        /// <summary>
         /// <para>
         /// Returns the ARP table for Windows.
         /// </para>
@@ -1534,6 +1556,8 @@ namespace Neon.Net
         /// <returns></returns>
         private static async Task<Dictionary<IPAddress, Dictionary<IPAddress, byte[]>>> GetWindowsArpTableAsync()
         {
+            Covenant.Assert(NeonHelper.IsWindows);
+
             // We're going to use the [ar /a] command line utility to retrieve this table.
             // The output will look something like:
             //
@@ -1626,7 +1650,7 @@ namespace Neon.Net
                         var interfaceIPString = line.Substring(colonPos + 1, dashPos - colonPos - 1).Trim();
                         var interfaceIP       = IPAddress.Parse(interfaceIPString);
 
-                        interfaceTable        = new Dictionary<IPAddress, byte[]>();
+                        interfaceTable = new Dictionary<IPAddress, byte[]>();
                         arpTable[interfaceIP] = interfaceTable;
                     }
                     else

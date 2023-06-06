@@ -880,6 +880,23 @@ namespace TestCommon
         }
 
         [Fact]
+        public async Task ArpFlatTable()
+        {
+            // Fetch the flasttened ARP table and make sure it looks reasonable.
+
+            var arpTable = await NetHelper.GetArpFlatTableAsync();
+
+            Assert.NotEmpty(arpTable);
+
+            foreach (var item in arpTable)
+            {
+                Assert.NotNull(item.Key);
+                Assert.NotEmpty(item.Value);
+                Assert.Equal(6, item.Value.Length);
+            }
+        }
+
+        [Fact]
         public async Task GetMacAddress()
         {
             // Attempt to fetch the MAC address for the local gateway.
