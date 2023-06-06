@@ -1483,6 +1483,11 @@ namespace Neon.Net
         {
             Covenant.Requires<ArgumentNullException>(address != null, nameof(address));
 
+            if (!NeonHelper.IsWindows)
+            {
+                throw new NotSupportedException($"[NetHelper.{nameof(GetMacAddressAsync)}()] is only supported on Windows.");
+            }
+
             using (var pinger = new Pinger())
             {
                 await pinger.SendPingAsync(address);
@@ -1505,6 +1510,9 @@ namespace Neon.Net
         /// <para>
         /// Returns the ARP table for the current machine.
         /// </para>
+        /// <note>
+        /// This is currently supported only for Windows.
+        /// </note>
         /// </summary>
         /// <returns>
         /// A dictionary of dictionaries, with the first level keyed by network interface
@@ -1520,17 +1528,28 @@ namespace Neon.Net
             }
             else
             {
-                throw new NotSupportedException($"NetHelper.{nameof(GetArpTableAsync)}() is only supported for Windows.");
+                throw new NotSupportedException($"[NetHelper.{nameof(GetArpTableAsync)}()] is only supported for Windows.");
             }
         }
 
         /// <summary>
+        /// <para>
         /// Returns a flattened ARP table for the current machine.  This is just a
         /// dictionary keyed by IP addresses mapping to the cached MAC address.
+        /// </para>
+        /// <note>
+        /// This is currently supported only for Windows.
+        /// </note>
         /// </summary>
         /// <returns>The IP/MAC dictionary.</returns>
+        /// <exception cref="NotSupportedException">Thrown when the current platform is not supported.</exception>
         public static async Task<Dictionary<IPAddress, byte[]>> GetArpFlatTableAsync()
         {
+            if (!NeonHelper.IsWindows)
+            {
+                throw new NotSupportedException($"[NetHelper.{nameof(GetArpFlatTableAsync)}()] is only supported for Windows.");
+            }
+
             var fullArpTable = await GetArpTableAsync();
             var arpTable     = new Dictionary<IPAddress, byte[]>();
 
@@ -1553,7 +1572,7 @@ namespace Neon.Net
         /// This is currently supported only for Windows.
         /// </note>
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The full ARP table.</returns>
         private static async Task<Dictionary<IPAddress, Dictionary<IPAddress, byte[]>>> GetWindowsArpTableAsync()
         {
             Covenant.Assert(NeonHelper.IsWindows);
@@ -1611,7 +1630,7 @@ namespace Neon.Net
             //   239.255.255.253       01-00-5e-7f-ff-fd     static  
             //   255.255.255.255       ff-ff-ff-ff-ff-ff     static
 
-            var response = NeonHelper.ExecuteCapture("arp.exe", new object[] { "/a" })
+            var response = NeonHelper.ExecuteCapture("arp.exe", new object[] { "-a" })
                 .EnsureSuccess();
 
             Dictionary<IPAddress, Dictionary<IPAddress, byte[]>>    arpTable       = new Dictionary<IPAddress, Dictionary<IPAddress, byte[]>>();
@@ -1686,6 +1705,28 @@ namespace Neon.Net
             }
 
             return await Task.FromResult(arpTable);
+        }
+
+        /// <summary>
+        /// <para>
+        /// Removes the cached ARP entry for an IP address if it's present.
+        /// </para>
+        /// <note>
+        /// This is currently supported only for Windows.
+        /// </note>
+        /// </summary>
+        /// <param name="address"></param>
+        /// <exception cref="NotSupportedException">Thrown when the current platform is not supported.</exception>
+        public static void DeleteArpEntry(IPAddress address)
+        {
+            Covenant.Requires<ArgumentNullException>(address != null, nameof(address));
+
+            if (!NeonHelper.IsWindows)
+            {
+                throw new NotSupportedException($"[NetHelper.{nameof(DeleteArpEntry)}()] is only supported for Windows.");
+            }
+
+            NeonHelper.ExecuteCapture("arp.exe", new object[] { "-d", address.ToString() });
         }
     }
 }
