@@ -24,6 +24,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
 
 using Neon.Common;
@@ -853,6 +854,49 @@ namespace TestCommon
             Assert.Throws<HttpException>(() => NetHelper.EnsureSuccess((HttpStatusCode)500));
             Assert.Throws<HttpException>(() => NetHelper.EnsureSuccess((HttpStatusCode)559));
             Assert.Throws<HttpException>(() => NetHelper.EnsureSuccess((HttpStatusCode)599));
+        }
+
+        [Fact]
+        public async Task ArpTable()
+        {
+            // Fetch the local ARP table and that it looks reasonable (not a very
+            // thorough check).  The main thing we're verifying is that executing
+            // the ARP tool and then parsing its output doesn't barf.
+
+            var arpTable = await NetHelper.GetArpTableAsync();
+
+            Assert.NotEmpty(arpTable);
+
+            foreach (var item in arpTable)
+            {
+                Assert.NotNull(item.Key);
+                Assert.NotEmpty(item.Value);
+
+                foreach (var macAddress in item.Value.Values)
+                {
+                    Assert.Equal(6, macAddress.Length);
+                }
+            }
+        }
+
+        [Fact]
+        public async Task GetMacAddress()
+        {
+            // Attempt to fetch the MAC address for the local gateway.
+
+            var gatewayAddress = NetHelper.GetConnectedGatewayAddress();
+
+            if (gatewayAddress == null)
+            {
+                // This workstation must be offline.
+
+                return;
+            }
+
+            var macAddress = await NetHelper.GetMacAddressAsync(gatewayAddress);
+
+            Assert.NotNull(macAddress);
+            Assert.Equal(6, macAddress.Length);
         }
     }
 }

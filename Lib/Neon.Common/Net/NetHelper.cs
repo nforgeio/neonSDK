@@ -1454,5 +1454,214 @@ namespace Neon.Net
 
             throw new HttpException(reasonPhrase: reasonPhrase, statusCode: statusCode);
         }
+
+        /// <summary>
+        /// <para>
+        /// Attempts to fetch the MAC address associated with an IP address.
+        /// </para>
+        /// <note>
+        /// This is currently supported only for Windows.
+        /// </note>
+        /// </summary>
+        /// <param name="address">Specifies the IP address.</param>
+        /// <returns>The MAC address as a byte array or <c>null</c> when no MAC address could be located.</returns>
+        /// <exception cref="NotSupportedException">Thrown when the current platform is not supported.</exception>
+        /// <remarks>
+        /// <para>
+        /// This works by sending an ICMP ping to <paramref name="address"/> and then using
+        /// the <b>arp</b> command line tool to fetch the local ARP table in an attempt to
+        /// locate the MAC address.  The idea here is that the ping should cause the target's
+        /// MAC address to be added to the ARP table when the target is running and is on
+        /// the local network.
+        /// </para>
+        /// <note>
+        /// The first MAC address for the IP address found will be returned.
+        /// </note>
+        /// </remarks>
+        public static async Task<byte[]> GetMacAddressAsync(IPAddress address)
+        {
+            Covenant.Requires<ArgumentNullException>(address != null, nameof(address));
+
+            using (var pinger = new Pinger())
+            {
+                await pinger.SendPingAsync(address);
+            }
+
+            var arpTable = await GetArpTableAsync();
+
+            foreach (var @interface in arpTable.Values)
+            {
+                if (@interface.TryGetValue(address, out var macAddress))
+                {
+                    return macAddress;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// <para>
+        /// Returns the ARP table for the current machine.
+        /// </para>
+        /// </summary>
+        /// <returns>
+        /// A dictionary of dictionaries, with the first level keyed by network interface
+        /// IP address, returning a dictionary relating IP addresses to MAC addresses for
+        /// that interface.
+        /// </returns>
+        /// <exception cref="NotSupportedException">Thrown when the current platform is not supported.</exception>
+        public static async Task<Dictionary<IPAddress, Dictionary<IPAddress, byte[]>>> GetArpTableAsync()
+        {
+            if (NeonHelper.IsWindows)
+            {
+                return await GetWindowsArpTableAsync();
+            }
+            else
+            {
+                throw new NotSupportedException($"NetHelper.{nameof(GetArpTableAsync)}() is only supported for Windows.");
+            }
+        }
+
+        /// <summary>
+        /// <para>
+        /// Returns the ARP table for Windows.
+        /// </para>
+        /// <note>
+        /// This is currently supported only for Windows.
+        /// </note>
+        /// </summary>
+        /// <returns></returns>
+        private static async Task<Dictionary<IPAddress, Dictionary<IPAddress, byte[]>>> GetWindowsArpTableAsync()
+        {
+            // We're going to use the [ar /a] command line utility to retrieve this table.
+            // The output will look something like:
+            //
+            // Interface: 10.100.254.3 --- 0xe                       
+            //   Internet Address      Physical Address      Type    
+            //   10.100.254.1          00-ff-93-e9-e6-e9     dynamic 
+            //   10.100.254.255        ff-ff-ff-ff-ff-ff     static  
+            //   224.0.0.2             01-00-5e-00-00-02     static  
+            //   224.0.0.22            01-00-5e-00-00-16     static  
+            //   224.0.0.250           01-00-5e-00-00-fa     static  
+            //   224.0.0.251           01-00-5e-00-00-fb     static  
+            //   224.0.0.252           01-00-5e-00-00-fc     static  
+            //   239.255.255.250       01-00-5e-7f-ff-fa     static  
+            //   239.255.255.251       01-00-5e-7f-ff-fb     static  
+            //   255.255.255.255       ff-ff-ff-ff-ff-ff     static  
+            //
+            // Interface: 172.18.80.1 --- 0x18                       
+            //   Internet Address      Physical Address      Type    
+            //   172.18.95.255         ff-ff-ff-ff-ff-ff     static  
+            //   224.0.0.2             01-00-5e-00-00-02     static  
+            //   224.0.0.22            01-00-5e-00-00-16     static  
+            //   224.0.0.250           01-00-5e-00-00-fa     static  
+            //   224.0.0.251           01-00-5e-00-00-fb     static  
+            //   239.255.255.250       01-00-5e-7f-ff-fa     static  
+            //   239.255.255.251       01-00-5e-7f-ff-fb     static  
+            //   239.255.255.253       01-00-5e-7f-ff-fd     static  
+            //   255.255.255.255       ff-ff-ff-ff-ff-ff     static  
+            //
+            // Interface: 10.0.0.2 --- 0x1a                          
+            //   Internet Address      Physical Address      Type    
+            //   10.0.0.1              00-cb-7a-ca-49-4b     dynamic 
+            //   10.0.0.5              f4-52-14-45-7a-d0     dynamic 
+            //   10.0.0.30             9e-02-07-37-94-f4     dynamic 
+            //   10.0.0.60             82-3f-88-3b-30-52     dynamic 
+            //   10.0.0.76             9c-b6-d0-e8-bf-37     dynamic 
+            //   10.0.0.77             24-4c-e3-30-00-82     dynamic 
+            //   10.0.0.131            f4-f5-d8-6b-87-dc     dynamic 
+            //   10.0.0.229            a4-77-33-71-0c-9a     dynamic 
+            //   10.0.1.10             00-15-5d-00-02-2c     dynamic 
+            //   10.0.1.20             00-15-5d-00-02-35     dynamic 
+            //   10.0.1.30             42-da-32-48-a3-88     dynamic 
+            //   10.0.1.100            d6-85-1d-00-61-cb     dynamic 
+            //   10.0.255.255          ff-ff-ff-ff-ff-ff     static  
+            //   224.0.0.2             01-00-5e-00-00-02     static  
+            //   224.0.0.22            01-00-5e-00-00-16     static  
+            //   224.0.0.250           01-00-5e-00-00-fa     static  
+            //   224.0.0.251           01-00-5e-00-00-fb     static  
+            //   224.0.0.252           01-00-5e-00-00-fc     static  
+            //   239.255.255.250       01-00-5e-7f-ff-fa     static  
+            //   239.255.255.251       01-00-5e-7f-ff-fb     static  
+            //   239.255.255.253       01-00-5e-7f-ff-fd     static  
+            //   255.255.255.255       ff-ff-ff-ff-ff-ff     static
+
+            var response = NeonHelper.ExecuteCapture("arp.exe", new object[] { "/a" })
+                .EnsureSuccess();
+
+            Dictionary<IPAddress, Dictionary<IPAddress, byte[]>>    arpTable       = new Dictionary<IPAddress, Dictionary<IPAddress, byte[]>>();
+            Dictionary<IPAddress, byte[]>                           interfaceTable = new Dictionary<IPAddress, byte[]>();
+
+            const string badArpOutput = "Unexpected [arp.exe] output.";
+
+            using (var reader = new StringReader(response.OutputText))
+            {
+                foreach (var line in reader.Lines())
+                {
+                    if (line.Trim() == string.Empty)
+                    {
+                        if (interfaceTable != null)
+                        {
+                            // Empty lines terminate interface tables.
+
+                            interfaceTable = null;
+                        }
+
+                        continue;
+                    }
+
+                    if (line[0] != ' ')
+                    {
+                        // Looks like this starts a new interface.  Extract the interface IP address.
+
+                        var colonPos = line.IndexOf(':');
+                        var dashPos  = line.IndexOf('-');
+
+                        if (colonPos == -1 || dashPos == -1 || dashPos < colonPos)
+                        {
+                            throw new InvalidDataException(badArpOutput);
+                        }
+
+                        var interfaceIPString = line.Substring(colonPos + 1, dashPos - colonPos - 1).Trim();
+                        var interfaceIP       = IPAddress.Parse(interfaceIPString);
+
+                        interfaceTable        = new Dictionary<IPAddress, byte[]>();
+                        arpTable[interfaceIP] = interfaceTable;
+                    }
+                    else
+                    {
+                        // The line should hold a cached ARP record for the current interface.
+                        // The output format must be bad when there's no current interface.
+
+                        if (interfaceTable == null)
+                        {
+                            throw new InvalidDataException(badArpOutput);
+                        }
+
+                        // Trim the line and then ignore lines that don't start with a digit
+                        // because it looks like the table header.
+
+                        var trimmed = line.Trim();
+
+                        if (!char.IsDigit(trimmed[0]))
+                        {
+                            continue;
+                        }
+
+                        // Extract the IP and MAC addresses and the convert the MAC address into
+                        // a byte array.
+
+                        var fields  = trimmed.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                        var address = IPAddress.Parse(fields[0]);
+                        var macHex  = fields[1].Replace("-", string.Empty);
+
+                        interfaceTable[address] = NeonHelper.FromHex(macHex);
+                    }
+                }
+            }
+
+            return await Task.FromResult(arpTable);
+        }
     }
 }
