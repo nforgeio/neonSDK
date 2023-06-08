@@ -25,9 +25,10 @@ export function triggerFileDownload(url, fileName) {
     anchorElement.remove();
 }
 
+
 export function construct(options) {
     return new IntersectionObserver(elements => {
-        elements.forEach(element => {
+      elements.forEach(element => {
             element.target.dispatchEvent(
                 new CustomEvent("intersectionchanged",
                     {
@@ -35,7 +36,8 @@ export function construct(options) {
                         detail: {
                             ratio: element.intersectionRatio,
                             isVisible: element.isVisible,
-                            isIntersecting: element.isIntersecting
+                            isIntersecting: element.isIntersecting,
+                            boundingClientRect: element.boundingClientRect
                         }
                     }));
         });
@@ -48,6 +50,7 @@ Blazor.registerCustomEventType('intersectionchanged', {
             ratio: event.detail.ratio,
             isVisible: event.detail.isVisible,
             isIntersecting: event.detail.isIntersecting,
+            boundingClientRect: event.detail.boundingClientRect
         }
     )
 });

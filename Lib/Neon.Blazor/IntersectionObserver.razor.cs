@@ -47,6 +47,7 @@ namespace Neon.Blazor
         public bool IsIntersecting => IntersectionObserverContext.IsIntersecting;
         public bool IsVisible => IntersectionObserverContext.IsVisible;
         public double Ratio => IntersectionObserverContext.Ratio;
+        public DOMRectReadOnly BoundingClientRect => IntersectionObserverContext.BoundingClientRect;
 
         private IJSObjectReference jsModule;
 
@@ -67,7 +68,7 @@ namespace Neon.Blazor
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            if (!HttpContextAccessor.HttpContext.WebSockets.IsWebSocketRequest)
+            if (HttpContextAccessor.HttpContext != null && !HttpContextAccessor.HttpContext.WebSockets.IsWebSocketRequest)
             {
                 return;
             }
@@ -142,6 +143,8 @@ namespace Neon.Blazor
 
             this.IntersectionObserverContext.IsIntersecting = args.IsIntersecting;
             this.IntersectionObserverContext.IsVisible = args.IsVisible;
+            this.IntersectionObserverContext.BoundingClientRect = args.BoundingClientRect;
+
 
             if (IntersectionChanged != null)
             {
@@ -150,9 +153,10 @@ namespace Neon.Blazor
             
             await OnIntersectionChanged.InvokeAsync(new IntersectionChangedEventArgs()
             {
-                Ratio          = args.Ratio,
-                IsIntersecting = args.IsIntersecting,
-                IsVisible      = args.IsVisible
+                Ratio               = args.Ratio,
+                IsIntersecting      = args.IsIntersecting,
+                IsVisible           = args.IsVisible,
+                BoundingClientRect  = args.BoundingClientRect
             });
         }
     }
@@ -162,6 +166,8 @@ namespace Neon.Blazor
         public double Ratio { get; set; }
         public bool IsVisible { get; set; }
         public bool IsIntersecting { get; set; }
+        public DOMRectReadOnly BoundingClientRect { get; set; }
+
     }
 
     public class IntersectionObserverContext
@@ -169,8 +175,21 @@ namespace Neon.Blazor
         public double Ratio { get; set; }
         public bool IsVisible { get; set; }
         public bool IsIntersecting { get; set; }
+        public DOMRectReadOnly BoundingClientRect {get;set;}
     }
 
+    public class DOMRectReadOnly
+    {
+        public double X { get; set; }
+        public double Y { get; set; }
+        public double Width { get; set; }
+        public double Height { get; set; }
+        public double Left { get; set; }
+        public double Top { get; set; }
+        public double Right { get; set; }
+        public double Bottom { get; set; }
+
+    }
     [EventHandler("onintersectionchanged", typeof(IntersectionChangedEventArgs), enableStopPropagation: true, enablePreventDefault: true)]
     public static class EventHandlers
     {
