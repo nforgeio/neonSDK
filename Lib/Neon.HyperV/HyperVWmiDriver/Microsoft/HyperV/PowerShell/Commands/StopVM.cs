@@ -147,7 +147,7 @@ internal sealed class StopVM : VirtualizationCmdlet<VirtualMachine>, IVMObjectOr
 	private void DeleteAutomaticCheckpoint(VirtualMachine vm, IOperationWatcher operationWatcher)
 	{
 		VMSnapshot parentSnapshot = vm.GetParentSnapshot();
-		if (parentSnapshot.IsAutomaticCheckpoint)
+		if (parentSnapshot != null && parentSnapshot.IsAutomaticCheckpoint)
 		{
 			((IRemovable)parentSnapshot).Remove(operationWatcher);
 		}
