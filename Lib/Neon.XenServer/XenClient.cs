@@ -762,5 +762,52 @@ namespace Neon.XenServer
 
             return proxy;
         }
+
+        /// <summary>
+        /// <para>
+        /// Cleans the connected XenServer host by terminating and shutting down all virtual
+        /// machines by default and optionally, selected virtual machine templates.
+        /// </para>
+        /// <note>
+        /// **WARNING:** This is dangerous and should only be used when you are **VERY**
+        /// sure that important workloads are not being hosted on the XenServer.  We
+        /// generally use this for integration testing where XenServer hosts are dedicated
+        /// exclusively for specific test runners.
+        /// </note>
+        /// </summary>
+        /// <param name="deleteVMs">Optionally disable virtual machine removal by passing <c>false</c>.</param>
+        /// <param name="templateSelector">Optionally specifies a selector that chooses which templates are removed.</param>
+        public void CleanHost(bool deleteVMs = true, Func<XenTemplate, bool> templateSelector = null)
+        {
+            if (templateSelector != null)
+            {
+                foreach (var template in Template.List()
+                    .Where(template => templateSelector(template)))
+                {
+                    Template.Destroy(template);
+                }
+            }
+
+            if (deleteVMs)
+            {
+                Parallel.ForEach(Machine.List(), new ParallelOptions() { MaxDegreeOfParallelism = 10 },
+                    machine =>
+                    {
+                        // Don't mess with the dedicated host controller VM.
+
+                        if (machine.Properties["is-control-domain"] == "true")
+                        {
+                            return;
+                        }
+
+                        if (machine.PowerState != XenVmPowerState.Halted)
+                        {
+                            Machine.Shutdown(machine, turnOff: true);
+                        }
+
+                        Machine.Remove(machine);
+                    });
+            }
+        }
     }
 }
