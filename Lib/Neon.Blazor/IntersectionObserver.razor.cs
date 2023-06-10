@@ -33,6 +33,9 @@ namespace Neon.Blazor
         [Parameter]
         public string DocumentQuery { get; set; } = null;
 
+        [Parameter]
+        public string Class { get; set;} = "";
+
         [Inject]
         public IJSRuntime JS { get; set; }
 
