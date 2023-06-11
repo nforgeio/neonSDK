@@ -51,10 +51,10 @@ to all of the files within EMBED-FOLDER (recurively).  This is handy for
 ensuring that no files are present that aren't being embeded.
 ";
 
-            if (commandLine.Arguments.Count() == 0)
+            if (commandLine.HasHelpOption || commandLine.Arguments.Count() == 0)
             {
                 Console.Error.WriteLine(usage);
-                Program.Exit(0);
+                Program.Exit(commandLine.HasHelpOption ? 0 : -1);
             }
             else if (commandLine.Arguments.Count() != 3)
             {

@@ -73,7 +73,7 @@ as described in the developer setup instructions.
             if (commandLine.HasHelpOption || commandLine.Arguments.Length == 0)
             {
                 Console.WriteLine(usage);
-                Program.Exit(0);
+                Program.Exit(commandLine.HasHelpOption ? 0 : -1);
             }
 
             var sourceFolder = commandLine.Arguments.ElementAtOrDefault(0);

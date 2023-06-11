@@ -337,10 +337,10 @@ ARGUMENTS:
                 command = command.ToLowerInvariant();
             }
 
-            if (commandLine.Arguments.Length == 0 || commandLine.HasHelpOption || command == "help")
+            if (commandLine.Arguments.Length == 0 || commandLine.HasHelpOption)
             {
                 Console.WriteLine(usage);
-                Program.Exit(0);
+                Program.Exit(commandLine.HasHelpOption ? 0 : -1);
             }
 
             try

@@ -77,10 +77,10 @@ COMMANDS:
 
                 CommandLine = new CommandLine(args);
 
-                if (CommandLine.Arguments.Length == 0)
+                if (CommandLine.HasHelpOption || CommandLine.Arguments.Length == 0)
                 {
                     Console.WriteLine(usage);
-                    Program.Exit(0);
+                    Program.Exit(CommandLine.HasHelpOption ? 0 : -1);
                 }
 
                 // Scan for enabled commands in the current assembly.
