@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:	    LinearRetryPolicy.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -57,7 +57,7 @@ namespace Neon.Retry
         private Func<Exception, bool>   transientDetector;
 
         /// <summary>
-        /// Constructs the retry policy with a specific transitent detection function.d
+        /// Constructs the retry policy with a specific transitent detection function.
         /// </summary>
         /// <param name="transientDetector">
         /// Optionally specifies the function that determines whether an exception is transient 
