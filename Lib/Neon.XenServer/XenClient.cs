@@ -112,6 +112,11 @@ namespace Neon.XenServer
         // Static members
 
         /// <summary>
+        /// Identifies the local storage repository.
+        /// </summary>
+        public const string LocalStorageName = "Local storage";
+
+        /// <summary>
         /// Parses <b>xe</b> client properties formatted like <b>name1:value1; name2: value2;...</b>
         /// into a dictionary, making it easy to retrieve specific values.
         /// </summary>

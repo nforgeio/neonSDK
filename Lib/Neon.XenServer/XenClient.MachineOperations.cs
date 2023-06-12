@@ -158,8 +158,8 @@ namespace Neon.XenServer
                 long                            diskBytes                = 0, 
                 bool                            snapshot                 = false,
                 IEnumerable<XenVirtualDisk>     extraDisks               = null,
-                string                          primaryStorageRepository = "Local storage",
-                string                          extraStorageRespository  = "Local storage")
+                string                          primaryStorageRepository = XenClient.LocalStorageName,
+                string                          extraStorageRespository  = XenClient.LocalStorageName)
             {
                 Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(templateName), nameof(templateName));
                 Covenant.Requires<ArgumentException>(cores > 0, nameof(cores));
