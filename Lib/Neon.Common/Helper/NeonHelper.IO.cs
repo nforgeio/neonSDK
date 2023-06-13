@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:	    NeonHelper.IO.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
@@ -202,7 +202,7 @@ namespace Neon.Common
         }
 
         /// <summary>
-        /// Recursively copies the files within one directory to another, creating
+        /// Recursively copies the files within one folder to another, creating
         /// target folders as required.
         /// </summary>
         /// <param name="sourceFolder">The source folder.</param>
