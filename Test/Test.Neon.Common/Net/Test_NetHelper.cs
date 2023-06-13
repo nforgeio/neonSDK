@@ -711,10 +711,10 @@ namespace TestCommon
             Assert.True(NetHelper.IsValidDnsHost("0.com"));
             Assert.True(NetHelper.IsValidDnsHost("test0.com"));
             Assert.True(NetHelper.IsValidDnsHost("test-0.com"));
-            Assert.True(NetHelper.IsValidDnsHost("test_0.com"));
             Assert.True(NetHelper.IsValidDnsHost($"{longestLabel}.com"));
 
             Assert.False(NetHelper.IsValidDnsHost("test..com"));
+            Assert.False(NetHelper.IsValidDnsHost("test_0.com"));
             Assert.False(NetHelper.IsValidDnsHost("/test.com"));
             Assert.False(NetHelper.IsValidDnsHost("{test}.com"));
 
