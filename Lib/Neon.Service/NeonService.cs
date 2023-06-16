@@ -441,6 +441,7 @@ namespace Neon.Service
     ///       labels:
     ///         operator: my-app
     ///     spec:
+    ///       enableServiceLinks: false
     ///       containers:
     ///       - name: my-app
     ///         image: docker.io/my-app:latest
