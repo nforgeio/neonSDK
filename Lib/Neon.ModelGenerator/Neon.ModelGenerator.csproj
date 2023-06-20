@@ -80,21 +80,21 @@
         <MSBuild Projects="$(NF_ROOT)\Tools\neon-modelgen\neon-modelgen.csproj" Targets="Publish;PublishItemsOutputGroup" Properties="Configuration=$(Configuration);Platform=x64;RuntimeIdentifier=linux-x64;PublishSingleFile=true" RebaseOutputs="true">
             <Output TaskParameter="TargetOutputs" ItemName="_ToolsProjectOutputs" />
         </MSBuild>
-        <Copy SourceFiles="@(_ToolsProjectOutputs)" DestinationFolder="linux-x64" />
+        <Copy SourceFiles="@(_ToolsProjectOutputs)" DestinationFolder="linux-x64" Retries="$(CopyRetries)" RetryDelayMilliseconds="$(CopyRetryDelayMilliseconds)" />
     </Target>
 
     <Target Name="_GenerateOsxCli">
         <MSBuild Projects="$(NF_ROOT)\Tools\neon-modelgen\neon-modelgen.csproj" Targets="Publish;PublishItemsOutputGroup" Properties="Configuration=$(Configuration);Platform=x64;RuntimeIdentifier=osx-x64;PublishSingleFile=true" RebaseOutputs="true">
             <Output TaskParameter="TargetOutputs" ItemName="_ToolsProjectOutputs" />
         </MSBuild>
-        <Copy SourceFiles="@(_ToolsProjectOutputs)" DestinationFolder="osx-x64" />
+        <Copy SourceFiles="@(_ToolsProjectOutputs)" DestinationFolder="osx-x64" Retries="$(CopyRetries)" RetryDelayMilliseconds="$(CopyRetryDelayMilliseconds)" />
     </Target>
 
     <Target Name="_GenerateWindowsCli">
         <MSBuild Projects="$(NF_ROOT)\Tools\neon-modelgen\neon-modelgen.csproj" Targets="Publish;PublishItemsOutputGroup" Properties="Configuration=$(Configuration);Platform=x64;RuntimeIdentifier=win-x64;PublishSingleFile=true" RebaseOutputs="true">
             <Output TaskParameter="TargetOutputs" ItemName="_ToolsProjectOutputs" />
         </MSBuild>
-        <Copy SourceFiles="@(_ToolsProjectOutputs)" DestinationFolder="win-x64" />
+        <Copy SourceFiles="@(_ToolsProjectOutputs)" DestinationFolder="win-x64" Retries="$(CopyRetries)" RetryDelayMilliseconds="$(CopyRetryDelayMilliseconds)" />
     </Target>
 
     <ItemGroup>
