@@ -434,10 +434,29 @@ ARGUMENTS:
                             }
                         }
 
+                        foreach (var folder in Directory.EnumerateDirectories(repoRoot, "node_modules", SearchOption.AllDirectories))
+                        {
+                            if (Directory.Exists(folder))
+                            {
+                                NeonHelper.DeleteFolder(folder);
+                            }
+
+                            var parentDir = Directory.GetParent(folder);
+
+                            if (parentDir.ToString().Contains(repoRoot))
+                            {
+                                var packageLock = Path.Combine(parentDir.ToString(), "package-lock.json");
+                                if (File.Exists(packageLock))
+                                {
+                                    NeonHelper.DeleteFile(packageLock);
+                                }
+                            }
+                        }
+
                         // Delete any [$/Images/**/.version] files.  These files are generated for NEONCLOUD
                         // during cluster image builds.  These files are within [.gitignore] and should really
                         // be cleaned before builds etc.
-                        
+
                         // $hack(jefflill):
                         // 
                         // This is a bit of a hack since only the NEONCLOUD repo currently generates these files,

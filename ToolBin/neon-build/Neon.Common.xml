@@ -1022,7 +1022,7 @@
         </member>
         <member name="P:Neon.Common.CommandLine.OptionDefinition.Default">
             <summary>
-            The option's default value or the empty string.
+            The option's default value.
             </summary>
         </member>
         <member name="M:Neon.Common.CommandLine.Parse(System.String)">
@@ -2748,10 +2748,6 @@
             </summary>
             <param name="appDomain">The <see cref="T:System.AppDomain"/>.</param>
             <returns>The enumerated assemblies.</returns>
-            <remarks>
-            We also use this to work around this Visual Studio bug: 
-            <a href="https://github.com/nforgeio/neonKUBE/issues/531"/>
-            </remarks>
         </member>
         <member name="T:Neon.Common.DateTimeExtensions">
             <summary>
@@ -4546,17 +4542,17 @@
         </member>
         <member name="F:Neon.Common.NeonHelper.NeonSdkProdRegistry">
             <summary>
-            Identifies the production neonSDK container image registry.
+            Identifies the production NEONSDK container image registry.
             </summary>
         </member>
         <member name="F:Neon.Common.NeonHelper.NeonSdkDevRegistry">
             <summary>
-            Identifies the development neonSDK container image registry.
+            Identifies the development NEONSDK container image registry.
             </summary>
         </member>
         <member name="P:Neon.Common.NeonHelper.NeonSdkBranchRegistry">
             <summary>
-            Returns the appropriate public container neonSDK registry to be used for the git 
+            Returns the appropriate public container NEONSDK registry to be used for the git 
             branch the assembly was built from.  This returns <see cref="F:Neon.Common.NeonHelper.NeonSdkProdRegistry"/> for
             release branches and <see cref="F:Neon.Common.NeonHelper.NeonSdkDevRegistry"/> for all other branches.
             </summary>
@@ -4974,7 +4970,7 @@
         </member>
         <member name="M:Neon.Common.NeonHelper.CopyFolder(System.String,System.String)">
             <summary>
-            Recursively copies the files within one directory to another, creating
+            Recursively copies the files within one folder to another, creating
             target folders as required.
             </summary>
             <param name="sourceFolder">The source folder.</param>
@@ -5933,6 +5929,13 @@
             on Linux and OS/X.
             </summary>
             <returns>The path to the Docker CLI or <c>null</c> when it couldn't be located.</returns>
+        </member>
+        <member name="P:Neon.Common.NeonHelper.VerifiedDockerCli">
+            <summary>
+            Returns the path to the Docker CLI on the current machine or throws
+            an exception when the CLI cannot be located.
+            </summary>
+            <exception cref="T:System.IO.FileNotFoundException">Thrown when the Docker CLI could not be located.</exception>
         </member>
         <member name="P:Neon.Common.NeonHelper.DockerComposeCli">
             <summary>
@@ -6926,6 +6929,12 @@
         <member name="M:Neon.Common.NeonHelper.YamlEnumTypeConverter.WriteYaml(YamlDotNet.Core.IEmitter,System.Object,System.Type)">
             <inheritdoc/>
         </member>
+        <member name="T:Neon.Common.NeonHelper.MultilineScalarFlowStyleEmitter">
+            <summary>
+            We're using this to prevent YamlDotNet from serializing mult-line strings
+            as double spaced: https://stackoverflow.com/questions/58431796/change-the-scalar-style-used-for-all-multi-line-strings-when-serialising-a-dynam
+            </summary>
+        </member>
         <member name="M:Neon.Common.NeonHelper.YamlSerialize(System.Object)">
             <summary>
             <para>
@@ -7579,7 +7588,7 @@
         <member name="T:Neon.Common.NamespaceDoc">
             <summary>
             This namespace includes generally useful types that are consumed by
-            the remaining neonSDK libraries and can also be useful for
+            the remaining NEONSDK libraries and can also be useful for
             end-user applications.
             </summary>
         </member>
@@ -8546,7 +8555,7 @@
             <para>
             Profile values are also supported.  These are non-secret name/value pairs used for describing
             the local environment as required for CI/CD.  For example, we use this for describing the
-            IP addresses available for deploying a test neonKUBE cluster.  Each developer will often
+            IP addresses available for deploying a test NEONKUBE cluster.  Each developer will often
             need distict node IP addresses that work on the local LAN and also don't conflict with
             addresses assigned to other developers.
             </para>
@@ -14646,13 +14655,90 @@
             Ensures that the status code passed indicates an HTTP request completed successfully.
             </para>
             <note>
-            Status codes between 400-499 are considered to indicate success.
+            Status codes between 200-299 are considered to indicate success.
             </note>
             </summary>
             <param name="statusCode">Specifies the status code.</param>
             <param name="reasonPhrase">Optionally specifies the reason phrase to be included in any exception thrown.</param>
             <returns>The status code passed.</returns>
             <exception cref="T:Neon.Net.HttpException">Thrown for non-success status codes.</exception>
+        </member>
+        <member name="M:Neon.Net.NetHelper.GetMacAddressAsync(System.Net.IPAddress)">
+            <summary>
+            <para>
+            Attempts to fetch the MAC address associated with an IP address.
+            </para>
+            <note>
+            This is currently supported only for Windows.
+            </note>
+            </summary>
+            <param name="address">Specifies the IP address.</param>
+            <returns>The MAC address as a byte array or <c>null</c> when no MAC address could be located.</returns>
+            <exception cref="T:System.NotSupportedException">Thrown when the current platform is not supported.</exception>
+            <remarks>
+            <para>
+            This works by sending an ICMP ping to <paramref name="address"/> and then using
+            the <b>arp</b> command line tool to fetch the local ARP table in an attempt to
+            locate the MAC address.  The idea here is that the ping should cause the target's
+            MAC address to be added to the ARP table when the target is running and is on
+            the local network.
+            </para>
+            <note>
+            The first MAC address for the IP address found will be returned.
+            </note>
+            </remarks>
+        </member>
+        <member name="M:Neon.Net.NetHelper.GetArpTableAsync">
+            <summary>
+            <para>
+            Returns the ARP table for the current machine.
+            </para>
+            <note>
+            This is currently supported only for Windows.
+            </note>
+            </summary>
+            <returns>
+            A dictionary of dictionaries, with the first level keyed by network interface
+            IP address, returning a dictionary relating IP addresses to MAC addresses for
+            that interface.
+            </returns>
+            <exception cref="T:System.NotSupportedException">Thrown when the current platform is not supported.</exception>
+        </member>
+        <member name="M:Neon.Net.NetHelper.GetArpFlatTableAsync">
+            <summary>
+            <para>
+            Returns a flattened ARP table for the current machine.  This is just a
+            dictionary keyed by IP addresses mapping to the cached MAC address.
+            </para>
+            <note>
+            This is currently supported only for Windows.
+            </note>
+            </summary>
+            <returns>The IP/MAC dictionary.</returns>
+            <exception cref="T:System.NotSupportedException">Thrown when the current platform is not supported.</exception>
+        </member>
+        <member name="M:Neon.Net.NetHelper.GetWindowsArpTableAsync">
+            <summary>
+            <para>
+            Returns the ARP table for Windows.
+            </para>
+            <note>
+            This is currently supported only for Windows.
+            </note>
+            </summary>
+            <returns>The full ARP table.</returns>
+        </member>
+        <member name="M:Neon.Net.NetHelper.DeleteArpEntry(System.Net.IPAddress)">
+            <summary>
+            <para>
+            Removes the cached ARP entry for an IP address if it's present.
+            </para>
+            <note>
+            This is currently supported only for Windows.
+            </note>
+            </summary>
+            <param name="address"></param>
+            <exception cref="T:System.NotSupportedException">Thrown when the current platform is not supported.</exception>
         </member>
         <member name="T:Neon.Net.NetworkCidr">
             <summary>
@@ -15262,11 +15348,11 @@
         </member>
         <member name="M:Neon.Net.Pinger.SendPingAsync(System.Net.IPAddress,System.Int32)">
             <summary>
-            Pings a IP address.
+            Pings an IP address.
             </summary>
             <param name="address">The target address.</param>
             <param name="timeoutMilliseconds">Optional timeout in milliseconds (defaults to 2000).</param>
-            <returns>A <see cref="T:System.Net.NetworkInformation.PingReply"/>.</returns>
+            <returns>A <see cref="T:System.Net.NetworkInformation.PingReply"/> with the reply or an error indication.</returns>
         </member>
         <member name="M:Neon.Net.Pinger.SendPingAsync(System.String,System.Int32)">
             <summary>
@@ -15274,7 +15360,7 @@
             </summary>
             <param name="address">The target address.</param>
             <param name="timeoutMilliseconds">Optional timeout in milliseconds (defaults to 2000).</param>
-            <returns>A <see cref="T:System.Net.NetworkInformation.PingReply"/>.</returns>
+            <returns>A <see cref="T:System.Net.NetworkInformation.PingReply"/> with the reply or an error indication.</returns>
         </member>
         <member name="T:Neon.Net.ReachableHost">
             <summary>
@@ -15611,7 +15697,7 @@
         </member>
         <member name="M:Neon.Retry.LinearRetryPolicy.#ctor(System.Func{System.Exception,System.Boolean},System.Int32,System.Nullable{System.TimeSpan},System.Nullable{System.TimeSpan},System.String)">
             <summary>
-            Constructs the retry policy with a specific transitent detection function.d
+            Constructs the retry policy with a specific transitent detection function.
             </summary>
             <param name="transientDetector">
             Optionally specifies the function that determines whether an exception is transient 
@@ -18702,39 +18788,47 @@
         </member>
         <member name="T:System.Diagnostics.Contracts.Covenant">
             <summary>
-            A simple, lightweight, and partial implementation of the Microsoft Dev Labs <c>Contract</c> class.
+            A simple, lightweight, and inspired by the <see cref="T:System.Diagnostics.Contracts.Contract"/> class.
             </summary>
             <remarks>
-            <para>
             This class is intended to be a drop-in replacement for code contract assertions by simply
             searching and replacing <b>"Contract."</b> with "<see cref="T:System.Diagnostics.Contracts.Covenant"/>." in all source code.
             In my experience, code contracts slow down build times too much and often obsfucate 
             <c>async</c> methods such that they cannot be debugged effectively using the debugger.
             Code Contracts are also somewhat of a pain to configure as project propoerties.
-            </para>
-            <para>
-            This class includes the <see cref="M:System.Diagnostics.Contracts.Covenant.Requires(System.Boolean,System.String)"/>, <see cref="M:System.Diagnostics.Contracts.Covenant.Requires``1(System.Boolean,System.String,System.String)"/>
-            and <see cref="M:System.Diagnostics.Contracts.Covenant.Assert(System.Boolean,System.String)"/> methods that can be used to capture validation
-            requirements in code, but these methods don't currently generate any code. 
-            </para>
             </remarks>
-        </member>
-        <member name="M:System.Diagnostics.Contracts.Covenant.Requires(System.Boolean,System.String)">
-            <summary>
-            Verifies a method pre-condition.
-            </summary>
-            <param name="condition">The condition to be tested.</param>
-            <param name="message">An optional message to be included in the exception thrown.</param>
-            <exception cref="T:Neon.Diagnostics.AssertException">Thrown if <paramref name="condition"/> is <c>false</c>.</exception>
         </member>
         <member name="M:System.Diagnostics.Contracts.Covenant.Requires``1(System.Boolean,System.String,System.String)">
             <summary>
             Verifies a method pre-condition throwing a custom exception.
             </summary>
-            <typeparam name="TException">The exception to be thrown if the condition is <c>false</c>.</typeparam>
-            <param name="condition">The condition to be tested.</param>
-            <param name="arg1">The first optional string argument to the exception constructor.</param>
-            <param name="arg2">The second optional string argument to the exception constructor.</param>
+            <typeparam name="TException">Specifies exception to be thrown if the condition is <c>false</c>.</typeparam>
+            <param name="condition">Specifies the condition to be tested.</param>
+            <param name="arg1">Optionally specifies the first string argument to the exception constructor.</param>
+            <param name="arg2">Optionally specifies the second optional string argument to the exception constructor.</param>
+            <remarks>
+            <para>
+            This method throws a <typeparamref name="TException"/> instance when <paramref name="condition"/>
+            is <c>false</c>.  Up to two string arguments may be passed to the exception constructor when an
+            appropriate constructor exists, otherwise these arguments will be ignored.
+            </para>
+            </remarks>
+        </member>
+        <member name="M:System.Diagnostics.Contracts.Covenant.Requires``1(System.Boolean,System.Func{System.String},System.Func{System.String})">
+            <summary>
+            Verifies a method pre-condition throwing a custom exception using lambda functions
+            to obtain the messages to be included in the exception.  Use this override for better
+            performance when the messages need to be formatted at runtime.
+            </summary>
+            <typeparam name="TException">Specifies exception to be thrown if the condition is <c>false</c>.</typeparam>
+            <param name="condition">Specifies the condition to be tested.</param>
+            <param name="arg1Func">
+            Specifies a function that returns first string argument to the exception constructor.
+            This may be <c>null</c>.
+            </param>
+            <param name="arg2Func">
+            Optionally a function that returns the second optional string argument to the exception constructor.
+            </param>
             <remarks>
             <para>
             This method throws a <typeparamref name="TException"/> instance when <paramref name="condition"/>
@@ -18747,9 +18841,20 @@
             <summary>
             Asserts that a condition is <c>true</c>.
             </summary>
-            <param name="condition">The condition to be tested.</param>
-            <param name="message">An optional message to be included in the exception thrown.</param>
+            <param name="condition">Specifies the condition to be tested.</param>
+            <param name="message">Optionally spacifies the message to be included in the exception thrown.</param>
             <exception cref="T:Neon.Diagnostics.AssertException">Thrown if <paramref name="condition"/> is <c>false</c>.</exception>
+        </member>
+        <member name="M:System.Diagnostics.Contracts.Covenant.Assert(System.Boolean,System.Func{System.String})">
+            <summary>
+            Asserts that a condition is <c>true</c>.  Use this override for better performance
+            when the message needs to be formatted at runtime.
+            </summary>
+            <param name="condition">Specifies the condition to be tested.</param>
+            <param name="messageFunc">
+            Specifies a lambda function that returns the message to be included in the
+            exception thrown.  This may be <c>null</c>.
+            </param>
         </member>
         <member name="T:ICSharpCode.SharpZipLib.Zip.StaticBytesDataSource">
             <summary>
