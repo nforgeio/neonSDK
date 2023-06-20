@@ -770,8 +770,9 @@ namespace Neon.XenServer
 
         /// <summary>
         /// <para>
-        /// Cleans the connected XenServer host by terminating and shutting down all virtual
-        /// machines by default and optionally, selected virtual machine templates.
+        /// Wipes the connected XenServer host clean by terminating and deleting all
+        /// virtual machines by default and optionally, selected virtual machine
+        /// templates.
         /// </para>
         /// <note>
         /// **WARNING:** This is dangerous and should only be used when you are **VERY**
@@ -782,7 +783,7 @@ namespace Neon.XenServer
         /// </summary>
         /// <param name="deleteVMs">Optionally disable virtual machine removal by passing <c>false</c>.</param>
         /// <param name="templateSelector">Optionally specifies a selector that chooses which templates are removed.</param>
-        public void CleanHost(bool deleteVMs = true, Func<XenTemplate, bool> templateSelector = null)
+        public void WipeHost(bool deleteVMs = true, Func<XenTemplate, bool> templateSelector = null)
         {
             if (templateSelector != null)
             {
