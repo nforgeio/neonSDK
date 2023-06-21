@@ -3,11 +3,11 @@ namespace Microsoft.Virtualization.Client.Management.Clustering;
 [WmiName("MSCluster_Node")]
 internal interface IMSClusterNode : IVirtualizationManagementObject
 {
-	string Name { get; }
+    string Name { get; }
 
-	IMSClusterCluster GetCluster();
+    IMSClusterCluster GetCluster();
 
-	IMSClusterReplicaBrokerResource GetReplicaBroker();
+    IMSClusterReplicaBrokerResource GetReplicaBroker();
 
-	IMSClusterVMResource GetVirtualMachineResource(string virtualMachineInstanceId);
+    IMSClusterVMResource GetVirtualMachineResource(string virtualMachineInstanceId);
 }

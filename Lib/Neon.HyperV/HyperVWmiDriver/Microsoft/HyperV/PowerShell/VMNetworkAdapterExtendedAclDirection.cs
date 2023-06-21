@@ -6,6 +6,6 @@ namespace Microsoft.HyperV.PowerShell;
 [SuppressMessage("Microsoft.Design", "CA1028:EnumStorageShouldBeInt32", Justification = "This is consistent with MOF.")]
 internal enum VMNetworkAdapterExtendedAclDirection : byte
 {
-	Inbound = 1,
-	Outbound
+    Inbound = 1,
+    Outbound
 }

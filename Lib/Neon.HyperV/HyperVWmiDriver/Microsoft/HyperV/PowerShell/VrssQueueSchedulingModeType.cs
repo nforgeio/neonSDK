@@ -2,7 +2,7 @@ namespace Microsoft.HyperV.PowerShell;
 
 internal enum VrssQueueSchedulingModeType
 {
-	Dynamic,
-	StaticVmq,
-	StaticVrss
+    Dynamic,
+    StaticVmq,
+    StaticVrss
 }

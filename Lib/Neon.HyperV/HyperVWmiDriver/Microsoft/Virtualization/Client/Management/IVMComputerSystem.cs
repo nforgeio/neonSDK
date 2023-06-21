@@ -6,56 +6,56 @@ namespace Microsoft.Virtualization.Client.Management;
 [WmiName("Msvm_ComputerSystem")]
 internal interface IVMComputerSystem : IVMComputerSystemBase, IVirtualizationManagementObject, IDeleteableAsync, IDeleteable, IMetricMeasurableElement
 {
-	FailoverReplicationMode ReplicationMode { get; }
+    FailoverReplicationMode ReplicationMode { get; }
 
-	EnhancedSessionModeStateType EnhancedSessionModeState { get; }
+    EnhancedSessionModeStateType EnhancedSessionModeState { get; }
 
-	IEnumerable<IVMCollection> CollectingCollections { get; }
+    IEnumerable<IVMCollection> CollectingCollections { get; }
 
-	IFailoverReplicationAuthorizationSetting ReplicationAuthorizationSetting { get; }
+    IFailoverReplicationAuthorizationSetting ReplicationAuthorizationSetting { get; }
 
-	IVMComputerSystem TestReplicaSystem { get; }
+    IVMComputerSystem TestReplicaSystem { get; }
 
-	[SuppressMessage("Microsoft.Design", "CA1009")]
-	event SnapshotCreatedEventHandler SnapshotCreated;
+    [SuppressMessage("Microsoft.Design", "CA1009")]
+    event SnapshotCreatedEventHandler SnapshotCreated;
 
-	IVMTask BeginSetReplicationStateEx(IVMReplicationRelationship replicationRelationship, FailoverReplicationState state);
+    IVMTask BeginSetReplicationStateEx(IVMReplicationRelationship replicationRelationship, FailoverReplicationState state);
 
-	void EndSetReplicationState(IVMTask task);
+    void EndSetReplicationState(IVMTask task);
 
-	IVMTask BeginTakeSnapshot();
+    IVMTask BeginTakeSnapshot();
 
-	IVMTask BeginTakeSnapshot(bool takeAutomaticSnapshot);
+    IVMTask BeginTakeSnapshot(bool takeAutomaticSnapshot);
 
-	IVMComputerSystemSetting EndTakeSnapshot(IVMTask snapshotTask);
+    IVMComputerSystemSetting EndTakeSnapshot(IVMTask snapshotTask);
 
-	IVMTask BeginInjectNonMaskableInterrupt();
+    IVMTask BeginInjectNonMaskableInterrupt();
 
-	void EndInjectNonMaskableInterrupt(IVMTask injectNonMaskableInterruptTask);
+    void EndInjectNonMaskableInterrupt(IVMTask injectNonMaskableInterruptTask);
 
-	IVMTask BeginUpgrade();
+    IVMTask BeginUpgrade();
 
-	void EndUpgrade(IVMTask upgradeTask);
+    void EndUpgrade(IVMTask upgradeTask);
 
-	ISummaryInformation GetVMSummaryInformation(SummaryInformationRequest requestedInformation = SummaryInformationRequest.Update);
+    ISummaryInformation GetVMSummaryInformation(SummaryInformationRequest requestedInformation = SummaryInformationRequest.Update);
 
-	ReplicationHealthInformation GetVMReplicationStatisticsEx(IVMReplicationRelationship replicationRelationship);
+    ReplicationHealthInformation GetVMReplicationStatisticsEx(IVMReplicationRelationship replicationRelationship);
 
-	void RemoveKvpItem(string name, KvpItemPool pool);
+    void RemoveKvpItem(string name, KvpItemPool pool);
 
-	bool IsExtendedReplicationEnabled();
+    bool IsExtendedReplicationEnabled();
 
-	bool IsSnapshotAvailable();
+    bool IsSnapshotAvailable();
 
-	bool IsProductionSnapshotAvailable();
+    bool IsProductionSnapshotAvailable();
 
-	bool WasOnlineProductionSnapshot();
+    bool WasOnlineProductionSnapshot();
 
-	bool IsUpgradable();
+    bool IsUpgradable();
 
-	IEnumerable<ITerminalConnection> GetTerminalConnections();
+    IEnumerable<ITerminalConnection> GetTerminalConnections();
 
-	bool DoesTerminalConnectionExist();
+    bool DoesTerminalConnectionExist();
 
-	IEnumerable<IVMMigrationTask> GetMigrationTasks();
+    IEnumerable<IVMMigrationTask> GetMigrationTasks();
 }

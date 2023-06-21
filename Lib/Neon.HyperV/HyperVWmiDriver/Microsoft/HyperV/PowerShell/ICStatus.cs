@@ -5,7 +5,7 @@ namespace Microsoft.HyperV.PowerShell;
 [TypeConverter(typeof(ICStatusEnumResourceConverter))]
 internal enum ICStatus
 {
-	None,
-	UpToDate,
-	RequiresUpdate
+    None,
+    UpToDate,
+    RequiresUpdate
 }

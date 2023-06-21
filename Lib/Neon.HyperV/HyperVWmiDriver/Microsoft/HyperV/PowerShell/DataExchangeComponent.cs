@@ -6,17 +6,17 @@ namespace Microsoft.HyperV.PowerShell;
 
 internal sealed class DataExchangeComponent : VMIntegrationComponent
 {
-	public bool IsClustered => ((IVMDataExchangeComponentSetting)m_IntegrationComponentSetting.GetData(UpdatePolicy.EnsureUpdated)).VMIsClustered;
+    public bool IsClustered => ((IVMDataExchangeComponentSetting)m_IntegrationComponentSetting.GetData(UpdatePolicy.EnsureUpdated)).VMIsClustered;
 
-	internal override string PutDescription => TaskDescriptions.SetVMDataExchangeComponent;
+    internal override string PutDescription => TaskDescriptions.SetVMDataExchangeComponent;
 
-	internal DataExchangeComponent(IVMDataExchangeComponentSetting setting, VirtualMachineBase parentVirtualMachineObject)
-		: base(setting, parentVirtualMachineObject)
-	{
-	}
+    internal DataExchangeComponent(IVMDataExchangeComponentSetting setting, VirtualMachineBase parentVirtualMachineObject)
+        : base(setting, parentVirtualMachineObject)
+    {
+    }
 
-	internal IEnumerable<DataExchangeItem> GetHostOnlyKeyValuePairItems()
-	{
-		return ((IVMDataExchangeComponentSetting)m_IntegrationComponentSetting.GetData(UpdatePolicy.EnsureUpdated)).GetHostOnlyKeyValuePairItems();
-	}
+    internal IEnumerable<DataExchangeItem> GetHostOnlyKeyValuePairItems()
+    {
+        return ((IVMDataExchangeComponentSetting)m_IntegrationComponentSetting.GetData(UpdatePolicy.EnsureUpdated)).GetHostOnlyKeyValuePairItems();
+    }
 }

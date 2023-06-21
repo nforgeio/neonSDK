@@ -4,17 +4,17 @@ namespace Microsoft.HyperV.PowerShell;
 
 internal interface IOperationWatcher
 {
-	void WriteObject(object output);
+    void WriteObject(object output);
 
-	void WriteVerbose(string message);
+    void WriteVerbose(string message);
 
-	void WriteWarning(string message);
+    void WriteWarning(string message);
 
-	void WriteError(ErrorRecord record);
+    void WriteError(ErrorRecord record);
 
-	void Watch(WatchableTask task);
+    void Watch(WatchableTask task);
 
-	bool ShouldProcess(string description);
+    bool ShouldProcess(string description);
 
-	bool ShouldContinue(string description);
+    bool ShouldContinue(string description);
 }

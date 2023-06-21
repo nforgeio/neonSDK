@@ -1,5 +1,5 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    Program.cs
+//-----------------------------------------------------------------------------
+// FILE:        Program.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:   Copyright (c) 2005-2022 by neonFORGE LLC.  All rights reserved.
 //

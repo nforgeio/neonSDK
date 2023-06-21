@@ -5,9 +5,9 @@ namespace Microsoft.Virtualization.Client.Management;
 [WmiName("Msvm_ManagementCollection")]
 internal interface IManagementCollection : IHyperVCollection, IVirtualizationManagementObject, IPutableAsync, IPutable, IDeleteableAsync, IDeleteable
 {
-	IEnumerable<IHyperVCollection> CollectedCollections { get; }
+    IEnumerable<IHyperVCollection> CollectedCollections { get; }
 
-	IVMTask BeginAddCollection(IHyperVCollection collection);
+    IVMTask BeginAddCollection(IHyperVCollection collection);
 
-	void EndAddCollection(IVMTask task);
+    void EndAddCollection(IVMTask task);
 }

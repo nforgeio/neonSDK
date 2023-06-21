@@ -5,5 +5,5 @@ namespace Microsoft.Virtualization.Client.Management;
 [WmiName("Msvm_VirtualSystemMigrationCapabilities")]
 internal interface IVMMigrationCapabilities : IVirtualizationManagementObject
 {
-	IEnumerable<IVMMigrationSetting> MigrationSettings { get; }
+    IEnumerable<IVMMigrationSetting> MigrationSettings { get; }
 }

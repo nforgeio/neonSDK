@@ -4,5 +4,5 @@ namespace Microsoft.HyperV.PowerShell.Commands;
 
 internal interface ISupportsAsJob
 {
-	SwitchParameter AsJob { get; set; }
+    SwitchParameter AsJob { get; set; }
 }

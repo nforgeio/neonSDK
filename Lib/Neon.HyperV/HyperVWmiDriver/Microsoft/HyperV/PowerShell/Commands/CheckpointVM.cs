@@ -12,65 +12,65 @@ namespace Microsoft.HyperV.PowerShell.Commands;
 [OutputType(new Type[] { typeof(VMSnapshot) })]
 internal sealed class CheckpointVM : VirtualizationCmdlet<VirtualMachine>, IVMObjectOrNameCmdlet, IVmByObjectCmdlet, IVirtualMachineCmdlet, IServerParameters, IParameterSet, IVmByNameCmdlet, ISupportsAsJob, ISupportsPassthrough
 {
-	[SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "This is by spec.")]
-	[Parameter(ParameterSetName = "Name")]
-	[ValidateNotNullOrEmpty]
-	public override CimSession[] CimSession { get; set; }
+    [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "This is by spec.")]
+    [Parameter(ParameterSetName = "Name")]
+    [ValidateNotNullOrEmpty]
+    public override CimSession[] CimSession { get; set; }
 
-	[SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "This is by spec.")]
-	[Parameter(ParameterSetName = "Name")]
-	[ValidateNotNullOrEmpty]
-	public override string[] ComputerName { get; set; }
+    [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "This is by spec.")]
+    [Parameter(ParameterSetName = "Name")]
+    [ValidateNotNullOrEmpty]
+    public override string[] ComputerName { get; set; }
 
-	[SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "This is by spec.")]
-	[Parameter(ParameterSetName = "Name")]
-	[ValidateNotNullOrEmpty]
-	[CredentialArray]
-	public override PSCredential[] Credential { get; set; }
+    [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "This is by spec.")]
+    [Parameter(ParameterSetName = "Name")]
+    [ValidateNotNullOrEmpty]
+    [CredentialArray]
+    public override PSCredential[] Credential { get; set; }
 
-	[SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "This is per spec.")]
-	[ValidateNotNullOrEmpty]
-	[Parameter(ParameterSetName = "VMObject", ValueFromPipeline = true, Position = 0, Mandatory = true)]
-	public VirtualMachine[] VM { get; set; }
+    [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "This is per spec.")]
+    [ValidateNotNullOrEmpty]
+    [Parameter(ParameterSetName = "VMObject", ValueFromPipeline = true, Position = 0, Mandatory = true)]
+    public VirtualMachine[] VM { get; set; }
 
-	[SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "This is by spec.")]
-	[ValidateNotNullOrEmpty]
-	[Alias(new string[] { "VMName" })]
-	[Parameter(ParameterSetName = "Name", ValueFromPipeline = true, Position = 0, Mandatory = true)]
-	public string[] Name { get; set; }
+    [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "This is by spec.")]
+    [ValidateNotNullOrEmpty]
+    [Alias(new string[] { "VMName" })]
+    [Parameter(ParameterSetName = "Name", ValueFromPipeline = true, Position = 0, Mandatory = true)]
+    public string[] Name { get; set; }
 
-	[Parameter(Position = 1)]
-	[ValidateNotNullOrEmpty]
-	[Alias(new string[] { "CheckpointName" })]
-	public string SnapshotName { get; set; }
+    [Parameter(Position = 1)]
+    [ValidateNotNullOrEmpty]
+    [Alias(new string[] { "CheckpointName" })]
+    public string SnapshotName { get; set; }
 
-	[Parameter]
-	public SwitchParameter AsJob { get; set; }
+    [Parameter]
+    public SwitchParameter AsJob { get; set; }
 
-	[SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Passthru", Justification = "This is a standard PowerShell term.")]
-	[Parameter]
-	public SwitchParameter Passthru { get; set; }
+    [SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Passthru", Justification = "This is a standard PowerShell term.")]
+    [Parameter]
+    public SwitchParameter Passthru { get; set; }
 
-	internal override IList<VirtualMachine> EnumerateOperands(IOperationWatcher operationWatcher)
-	{
-		return ParameterResolvers.ResolveVirtualMachines(this, operationWatcher);
-	}
+    internal override IList<VirtualMachine> EnumerateOperands(IOperationWatcher operationWatcher)
+    {
+        return ParameterResolvers.ResolveVirtualMachines(this, operationWatcher);
+    }
 
-	internal override void ProcessOneOperand(VirtualMachine operand, IOperationWatcher operationWatcher)
-	{
-		string name = operand.Name;
-		if (operationWatcher.ShouldProcess(string.Format(CultureInfo.CurrentCulture, CmdletResources.ShouldProcess_CheckpointVM, name)))
-		{
-			VMSnapshot vMSnapshot = operand.TakeSnapshot(operationWatcher);
-			if (!string.IsNullOrEmpty(SnapshotName))
-			{
-				vMSnapshot.Name = SnapshotName;
-				((IUpdatable)vMSnapshot).Put(operationWatcher);
-			}
-			if (Passthru.IsPresent)
-			{
-				operationWatcher.WriteObject(vMSnapshot);
-			}
-		}
-	}
+    internal override void ProcessOneOperand(VirtualMachine operand, IOperationWatcher operationWatcher)
+    {
+        string name = operand.Name;
+        if (operationWatcher.ShouldProcess(string.Format(CultureInfo.CurrentCulture, CmdletResources.ShouldProcess_CheckpointVM, name)))
+        {
+            VMSnapshot vMSnapshot = operand.TakeSnapshot(operationWatcher);
+            if (!string.IsNullOrEmpty(SnapshotName))
+            {
+                vMSnapshot.Name = SnapshotName;
+                ((IUpdatable)vMSnapshot).Put(operationWatcher);
+            }
+            if (Passthru.IsPresent)
+            {
+                operationWatcher.WriteObject(vMSnapshot);
+            }
+        }
+    }
 }

@@ -6,52 +6,52 @@ namespace Microsoft.Virtualization.Client.Management;
 [WmiName("CIM_ConcreteJob")]
 internal interface IVMTask : IVirtualizationManagementObject, IDisposable
 {
-	[Key]
-	string InstanceId { get; }
+    [Key]
+    string InstanceId { get; }
 
-	DateTime? StartTime { get; }
+    DateTime? StartTime { get; }
 
-	DateTime ScheduledStartTime { get; }
+    DateTime ScheduledStartTime { get; }
 
-	[FrequentlyChanging]
-	TimeSpan ElapsedTime { get; }
+    [FrequentlyChanging]
+    TimeSpan ElapsedTime { get; }
 
-	[FrequentlyChanging]
-	int PercentComplete { get; }
+    [FrequentlyChanging]
+    int PercentComplete { get; }
 
-	bool IsCompleted { get; }
+    bool IsCompleted { get; }
 
-	long ErrorCode { get; }
+    long ErrorCode { get; }
 
-	string Name { get; }
+    string Name { get; }
 
-	string ErrorDetailsDescription { get; }
+    string ErrorDetailsDescription { get; }
 
-	string ErrorSummaryDescription { get; }
+    string ErrorSummaryDescription { get; }
 
-	VMTaskStatus Status { get; }
+    VMTaskStatus Status { get; }
 
-	bool CompletedWithWarnings { get; }
+    bool CompletedWithWarnings { get; }
 
-	bool Cancelable { get; }
+    bool Cancelable { get; }
 
-	int JobType { get; }
+    int JobType { get; }
 
-	bool IsDeleted { get; }
+    bool IsDeleted { get; }
 
-	IDictionary<string, object> PutProperties { get; set; }
+    IDictionary<string, object> PutProperties { get; set; }
 
-	string ClientSideFailedMessage { get; set; }
+    string ClientSideFailedMessage { get; set; }
 
-	IEnumerable<IVirtualizationManagementObject> AffectedElements { get; }
+    IEnumerable<IVirtualizationManagementObject> AffectedElements { get; }
 
-	event EventHandler Completed;
+    event EventHandler Completed;
 
-	void Cancel();
+    void Cancel();
 
-	bool WaitForCompletion();
+    bool WaitForCompletion();
 
-	bool WaitForCompletion(TimeSpan timeout);
+    bool WaitForCompletion(TimeSpan timeout);
 
-	List<MsvmError> GetErrors();
+    List<MsvmError> GetErrors();
 }

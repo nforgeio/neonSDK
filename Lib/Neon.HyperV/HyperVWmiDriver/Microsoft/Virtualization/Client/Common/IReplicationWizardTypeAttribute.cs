@@ -4,8 +4,8 @@ namespace Microsoft.Virtualization.Client.Common;
 
 internal class IReplicationWizardTypeAttribute : TypeAttribute
 {
-	internal IReplicationWizardTypeAttribute(Type implementingType)
-		: base(implementingType)
-	{
-	}
+    internal IReplicationWizardTypeAttribute(Type implementingType)
+        : base(implementingType)
+    {
+    }
 }

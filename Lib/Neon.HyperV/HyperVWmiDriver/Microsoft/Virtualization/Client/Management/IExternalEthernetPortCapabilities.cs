@@ -5,7 +5,7 @@ namespace Microsoft.Virtualization.Client.Management;
 [WmiName("Msvm_ExternalEthernetPortCapabilities")]
 internal interface IExternalEthernetPortCapabilities : IVirtualizationManagementObject
 {
-	bool SupportsIov { get; }
+    bool SupportsIov { get; }
 
-	IReadOnlyList<string> IovSupportReasons { get; }
+    IReadOnlyList<string> IovSupportReasons { get; }
 }

@@ -5,7 +5,7 @@ namespace Microsoft.Virtualization.Client.Management;
 [SuppressMessage("Microsoft.Naming", "CA1704")]
 internal interface IDeleteableAsync : IDeleteable
 {
-	IVMTask BeginDelete();
+    IVMTask BeginDelete();
 
-	void EndDelete(IVMTask deleteTask);
+    void EndDelete(IVMTask deleteTask);
 }

@@ -5,11 +5,11 @@ namespace Microsoft.Virtualization.Client.Management;
 [WmiName("Msvm_Memory")]
 internal interface IVMMemory : IVMDevice, IVirtualizationManagementObject
 {
-	ulong AllocatedRam { get; }
+    ulong AllocatedRam { get; }
 
-	IHostNumaNode GetNumaNode();
+    IHostNumaNode GetNumaNode();
 
-	IEnumerable<IVMMemory> GetVirtualNumaNodes();
+    IEnumerable<IVMMemory> GetVirtualNumaNodes();
 
-	IEnumerable<IVMMemory> GetPhysicalMemory();
+    IEnumerable<IVMMemory> GetPhysicalMemory();
 }

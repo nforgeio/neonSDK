@@ -3,17 +3,17 @@ namespace Microsoft.Virtualization.Client.Management;
 [WmiName("Msvm_ResourceAllocationSettingData", PrimaryMapping = false)]
 internal interface IVMDriveSetting : IVMDeviceSetting, IVirtualizationManagementObject, IPutableAsync, IPutable, IDeleteableAsync, IDeleteable
 {
-	WmiObjectPath PhysicalPassThroughDrivePath { get; set; }
+    WmiObjectPath PhysicalPassThroughDrivePath { get; set; }
 
-	string KSDConnectionPath { get; set; }
+    string KSDConnectionPath { get; set; }
 
-	IVMDriveControllerSetting ControllerSetting { get; set; }
+    IVMDriveControllerSetting ControllerSetting { get; set; }
 
-	int ControllerAddress { get; set; }
+    int ControllerAddress { get; set; }
 
-	IVMBootEntry BootEntry { get; }
+    IVMBootEntry BootEntry { get; }
 
-	IVirtualDiskSetting GetInsertedDisk();
+    IVirtualDiskSetting GetInsertedDisk();
 
-	IVMHardDiskDrive GetPhysicalDrive();
+    IVMHardDiskDrive GetPhysicalDrive();
 }

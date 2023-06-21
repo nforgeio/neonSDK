@@ -2,17 +2,17 @@ namespace Microsoft.Virtualization.Client.Management;
 
 internal interface IEthernetPortSetting : IVMDeviceSetting, IVirtualizationManagementObject, IPutableAsync, IPutable, IDeleteableAsync, IDeleteable
 {
-	bool IsNetworkAddressStatic { get; set; }
+    bool IsNetworkAddressStatic { get; set; }
 
-	string NetworkAddress { get; set; }
+    string NetworkAddress { get; set; }
 
-	IEthernetPort EthernetDevice { get; }
+    IEthernetPort EthernetDevice { get; }
 
-	bool ClusterMonitored { get; set; }
+    bool ClusterMonitored { get; set; }
 
-	IVMBootEntry BootEntry { get; }
+    IVMBootEntry BootEntry { get; }
 
-	IEthernetConnectionAllocationRequest GetConnectionConfiguration();
+    IEthernetConnectionAllocationRequest GetConnectionConfiguration();
 
-	IGuestNetworkAdapterConfiguration GetGuestNetworkAdapterConfiguration();
+    IGuestNetworkAdapterConfiguration GetGuestNetworkAdapterConfiguration();
 }

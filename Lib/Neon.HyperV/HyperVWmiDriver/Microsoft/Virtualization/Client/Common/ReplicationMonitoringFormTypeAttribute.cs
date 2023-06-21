@@ -4,8 +4,8 @@ namespace Microsoft.Virtualization.Client.Common;
 
 internal class ReplicationMonitoringFormTypeAttribute : TypeAttribute
 {
-	internal ReplicationMonitoringFormTypeAttribute(Type implementingType)
-		: base(implementingType)
-	{
-	}
+    internal ReplicationMonitoringFormTypeAttribute(Type implementingType)
+        : base(implementingType)
+    {
+    }
 }

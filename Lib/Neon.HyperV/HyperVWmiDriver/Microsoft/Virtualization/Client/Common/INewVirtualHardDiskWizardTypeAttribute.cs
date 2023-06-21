@@ -4,8 +4,8 @@ namespace Microsoft.Virtualization.Client.Common;
 
 internal class INewVirtualHardDiskWizardTypeAttribute : TypeAttribute
 {
-	internal INewVirtualHardDiskWizardTypeAttribute(Type implementingType)
-		: base(implementingType)
-	{
-	}
+    internal INewVirtualHardDiskWizardTypeAttribute(Type implementingType)
+        : base(implementingType)
+    {
+    }
 }

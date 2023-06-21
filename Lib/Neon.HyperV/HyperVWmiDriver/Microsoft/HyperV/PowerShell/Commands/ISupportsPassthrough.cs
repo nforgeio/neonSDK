@@ -4,5 +4,5 @@ namespace Microsoft.HyperV.PowerShell.Commands;
 
 internal interface ISupportsPassthrough
 {
-	SwitchParameter Passthru { get; set; }
+    SwitchParameter Passthru { get; set; }
 }

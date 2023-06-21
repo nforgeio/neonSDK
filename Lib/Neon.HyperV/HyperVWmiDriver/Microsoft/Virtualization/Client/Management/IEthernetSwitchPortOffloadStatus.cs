@@ -3,33 +3,33 @@ namespace Microsoft.Virtualization.Client.Management;
 [WmiName("Msvm_EthernetSwitchPortOffloadData")]
 internal interface IEthernetSwitchPortOffloadStatus : IEthernetPortStatus, IEthernetStatus, IVirtualizationManagementObject
 {
-	int VmqOffloadUsage { get; }
+    int VmqOffloadUsage { get; }
 
-	int IovOffloadUsage { get; }
+    int IovOffloadUsage { get; }
 
-	uint IovQueuePairUsage { get; }
+    uint IovQueuePairUsage { get; }
 
-	bool IovOffloadActive { get; }
+    bool IovOffloadActive { get; }
 
-	uint IpsecCurrentOffloadSaCount { get; }
+    uint IpsecCurrentOffloadSaCount { get; }
 
-	uint VmqId { get; }
+    uint VmqId { get; }
 
-	ushort IovVirtualFunctionId { get; }
+    ushort IovVirtualFunctionId { get; }
 
-	bool VrssEnabled { get; }
+    bool VrssEnabled { get; }
 
-	bool VmmqEnabled { get; }
+    bool VmmqEnabled { get; }
 
-	uint VmmqQueuePairs { get; }
+    uint VmmqQueuePairs { get; }
 
-	uint VrssMinQueuePairs { get; }
+    uint VrssMinQueuePairs { get; }
 
-	uint VrssQueueSchedulingMode { get; }
+    uint VrssQueueSchedulingMode { get; }
 
-	bool VrssExcludePrimaryProcessor { get; }
+    bool VrssExcludePrimaryProcessor { get; }
 
-	bool VrssIndependentHostSpreading { get; }
+    bool VrssIndependentHostSpreading { get; }
 
-	uint VrssVmbusChannelAffinityPolicy { get; }
+    uint VrssVmbusChannelAffinityPolicy { get; }
 }

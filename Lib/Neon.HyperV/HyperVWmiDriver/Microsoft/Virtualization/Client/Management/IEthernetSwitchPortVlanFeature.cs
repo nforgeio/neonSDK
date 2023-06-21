@@ -5,23 +5,23 @@ namespace Microsoft.Virtualization.Client.Management;
 [WmiName("Msvm_EthernetSwitchPortVlanSettingData")]
 internal interface IEthernetSwitchPortVlanFeature : IEthernetSwitchPortFeature, IEthernetFeature, IVirtualizationManagementObject
 {
-	int AccessVlan { get; set; }
+    int AccessVlan { get; set; }
 
-	int NativeVlan { get; set; }
+    int NativeVlan { get; set; }
 
-	VlanOperationMode OperationMode { get; set; }
+    VlanOperationMode OperationMode { get; set; }
 
-	PrivateVlanMode PrivateMode { get; set; }
+    PrivateVlanMode PrivateMode { get; set; }
 
-	int PrimaryVlan { get; set; }
+    int PrimaryVlan { get; set; }
 
-	int SecondaryVlan { get; set; }
+    int SecondaryVlan { get; set; }
 
-	IList<int> GetTrunkVlanList();
+    IList<int> GetTrunkVlanList();
 
-	void SetTrunkVlanList(IList<int> trunkList);
+    void SetTrunkVlanList(IList<int> trunkList);
 
-	IList<int> GetSecondaryVlanList();
+    IList<int> GetSecondaryVlanList();
 
-	void SetSecondaryVlanList(IList<int> secondaryVlanList);
+    void SetSecondaryVlanList(IList<int> secondaryVlanList);
 }

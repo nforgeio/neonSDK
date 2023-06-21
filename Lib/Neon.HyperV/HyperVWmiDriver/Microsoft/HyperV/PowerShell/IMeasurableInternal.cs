@@ -5,7 +5,7 @@ namespace Microsoft.HyperV.PowerShell;
 
 internal interface IMeasurableInternal
 {
-	IMetricMeasurableElement GetMeasurableElement(UpdatePolicy policy);
+    IMetricMeasurableElement GetMeasurableElement(UpdatePolicy policy);
 
-	IEnumerable<IMetricValue> GetMetricValues();
+    IEnumerable<IMetricValue> GetMetricValues();
 }

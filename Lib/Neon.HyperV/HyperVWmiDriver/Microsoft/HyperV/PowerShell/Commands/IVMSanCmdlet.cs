@@ -4,9 +4,9 @@ namespace Microsoft.HyperV.PowerShell.Commands;
 
 internal interface IVMSanCmdlet : IParameterSet
 {
-	CimInstance[] HostBusAdapter { get; }
+    CimInstance[] HostBusAdapter { get; }
 
-	string[] WorldWideNodeName { get; }
+    string[] WorldWideNodeName { get; }
 
-	string[] WorldWidePortName { get; }
+    string[] WorldWidePortName { get; }
 }

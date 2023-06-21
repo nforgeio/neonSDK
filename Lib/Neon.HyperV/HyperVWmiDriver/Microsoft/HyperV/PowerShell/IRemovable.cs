@@ -2,5 +2,5 @@ namespace Microsoft.HyperV.PowerShell;
 
 internal interface IRemovable
 {
-	void Remove(IOperationWatcher operationWatcher);
+    void Remove(IOperationWatcher operationWatcher);
 }
