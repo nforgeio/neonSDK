@@ -5,14 +5,14 @@ namespace Microsoft.Virtualization.Client.Management;
 [WmiName("Win32_Directory")]
 internal interface IWin32Directory : IVirtualizationManagementObject, IDeleteable
 {
-	[Key]
-	string Name { get; }
+    [Key]
+    string Name { get; }
 
-	bool IsHidden { get; }
+    bool IsHidden { get; }
 
-	bool IsSystem { get; }
+    bool IsSystem { get; }
 
-	IEnumerable<IDataFile> GetFiles();
+    IEnumerable<IDataFile> GetFiles();
 
-	IEnumerable<IWin32Directory> GetSubdirectories();
+    IEnumerable<IWin32Directory> GetSubdirectories();
 }

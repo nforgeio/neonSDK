@@ -4,7 +4,7 @@ namespace Microsoft.Virtualization.Client.Management;
 
 internal interface IMetricMeasurableElement : IVirtualizationManagementObject
 {
-	MetricEnabledState AggregateMetricEnabledState { get; }
+    MetricEnabledState AggregateMetricEnabledState { get; }
 
-	IReadOnlyCollection<IMetricValue> GetMetricValues();
+    IReadOnlyCollection<IMetricValue> GetMetricValues();
 }

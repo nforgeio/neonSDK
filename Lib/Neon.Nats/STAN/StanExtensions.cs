@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    StanExtensions.cs
+//-----------------------------------------------------------------------------
+// FILE:        StanExtensions.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 // COPYRIGHT:   Copyright (c) 2015-2018 The NATS Authors (method comments)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -176,7 +176,7 @@ namespace STAN.Client
         /// <param name="handler">A message handler to process messages.</param>
         /// <returns>A new Subscription</returns>
         /// <exception cref="StanException">An error occured creating the subscriber.</exception>
-	    public static IStanSubscription Subscribe<TMessage>(this IStanConnection connection, string subject, EventHandler<StanMsgHandlerArgs<TMessage>> handler)
+        public static IStanSubscription Subscribe<TMessage>(this IStanConnection connection, string subject, EventHandler<StanMsgHandlerArgs<TMessage>> handler)
             where TMessage : class, IRoundtripData, new()
         {
             return connection.Subscribe(subject,

@@ -5,7 +5,7 @@ namespace Microsoft.Virtualization.Client.Management.Clustering;
 [WmiName("MSCluster_ResourceGroup")]
 internal interface IMSClusterResourceGroup : IVirtualizationManagementObject
 {
-	string Name { get; }
+    string Name { get; }
 
-	IReadOnlyCollection<IMSClusterResource> GetResources();
+    IReadOnlyCollection<IMSClusterResource> GetResources();
 }

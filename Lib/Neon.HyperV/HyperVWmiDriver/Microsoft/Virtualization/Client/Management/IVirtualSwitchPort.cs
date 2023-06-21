@@ -3,8 +3,8 @@ namespace Microsoft.Virtualization.Client.Management;
 [WmiName("CIM_NetworkPort")]
 internal interface IVirtualSwitchPort : IVirtualizationManagementObject
 {
-	[Key]
-	string Name { get; }
+    [Key]
+    string Name { get; }
 
-	string FriendlyName { get; }
+    string FriendlyName { get; }
 }

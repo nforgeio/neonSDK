@@ -5,7 +5,7 @@ namespace Microsoft.Virtualization.Client.Management;
 [SuppressMessage("Microsoft.Naming", "CA1704")]
 internal interface IPutableAsync : IPutable
 {
-	IVMTask BeginPut();
+    IVMTask BeginPut();
 
-	void EndPut(IVMTask putTask);
+    void EndPut(IVMTask putTask);
 }

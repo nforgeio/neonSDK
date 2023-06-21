@@ -3,12 +3,12 @@ namespace Microsoft.Virtualization.Client.Management;
 [WmiName("CIM_LogicalDevice")]
 internal interface IVMDevice : IVirtualizationManagementObject
 {
-	string FriendlyName { get; }
+    string FriendlyName { get; }
 
-	[Key]
-	string DeviceId { get; }
+    [Key]
+    string DeviceId { get; }
 
-	IVMComputerSystem VirtualComputerSystem { get; }
+    IVMComputerSystem VirtualComputerSystem { get; }
 
-	IVMDeviceSetting VirtualDeviceSetting { get; }
+    IVMDeviceSetting VirtualDeviceSetting { get; }
 }

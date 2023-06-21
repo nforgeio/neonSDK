@@ -5,7 +5,7 @@ namespace Microsoft.Virtualization.Client.Management;
 [WmiName("Msvm_KvpExchangeComponentSettingData")]
 internal interface IVMDataExchangeComponentSetting : IVMIntegrationComponentSetting, IVMDeviceSetting, IVirtualizationManagementObject, IPutableAsync, IPutable
 {
-	bool VMIsClustered { get; }
+    bool VMIsClustered { get; }
 
-	IEnumerable<DataExchangeItem> GetHostOnlyKeyValuePairItems();
+    IEnumerable<DataExchangeItem> GetHostOnlyKeyValuePairItems();
 }

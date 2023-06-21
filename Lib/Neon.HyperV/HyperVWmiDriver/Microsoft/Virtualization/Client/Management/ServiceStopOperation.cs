@@ -5,7 +5,7 @@ namespace Microsoft.Virtualization.Client.Management;
 [TypeConverter(typeof(EnumResourceConverter<ServiceStopOperation>))]
 internal enum ServiceStopOperation
 {
-	PowerOff = 2,
-	SaveState,
-	Shutdown
+    PowerOff = 2,
+    SaveState,
+    Shutdown
 }

@@ -5,6 +5,6 @@ namespace Microsoft.Virtualization.Client.Management;
 [TypeConverter(typeof(EnumResourceConverter<VMMigrationTransportType>))]
 internal enum VMMigrationTransportType
 {
-	TCP = 5,
-	SMB = 32768
+    TCP = 5,
+    SMB = 32768
 }

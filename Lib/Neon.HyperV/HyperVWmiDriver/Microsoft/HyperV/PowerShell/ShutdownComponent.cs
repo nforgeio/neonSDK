@@ -5,10 +5,10 @@ namespace Microsoft.HyperV.PowerShell;
 
 internal sealed class ShutdownComponent : VMIntegrationComponent
 {
-	internal override string PutDescription => TaskDescriptions.SetVMShutdownComponent;
+    internal override string PutDescription => TaskDescriptions.SetVMShutdownComponent;
 
-	internal ShutdownComponent(IVMShutdownComponentSetting setting, VirtualMachineBase parentVirtualMachineObject)
-		: base(setting, parentVirtualMachineObject)
-	{
-	}
+    internal ShutdownComponent(IVMShutdownComponentSetting setting, VirtualMachineBase parentVirtualMachineObject)
+        : base(setting, parentVirtualMachineObject)
+    {
+    }
 }

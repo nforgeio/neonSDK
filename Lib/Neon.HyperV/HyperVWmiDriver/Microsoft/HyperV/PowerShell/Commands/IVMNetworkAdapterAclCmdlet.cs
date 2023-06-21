@@ -2,11 +2,11 @@ namespace Microsoft.HyperV.PowerShell.Commands;
 
 internal interface IVMNetworkAdapterAclCmdlet
 {
-	string[] LocalIPAddress { get; }
+    string[] LocalIPAddress { get; }
 
-	string[] LocalMacAddress { get; }
+    string[] LocalMacAddress { get; }
 
-	string[] RemoteIPAddress { get; }
+    string[] RemoteIPAddress { get; }
 
-	string[] RemoteMacAddress { get; }
+    string[] RemoteMacAddress { get; }
 }

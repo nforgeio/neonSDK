@@ -6,31 +6,31 @@ namespace Microsoft.HyperV.PowerShell;
 
 internal sealed class VMHostCluster : VirtualizationObject, IUpdatable
 {
-	private readonly DataUpdater<IMSClusterWmiProviderResource> m_ClusterWmiProvider;
+    private readonly DataUpdater<IMSClusterWmiProviderResource> m_ClusterWmiProvider;
 
-	[VirtualizationObjectIdentifier(IdentifierFlags.UniqueIdentifier | IdentifierFlags.FriendlyName)]
-	public string ClusterName => base.Server.Name;
+    [VirtualizationObjectIdentifier(IdentifierFlags.UniqueIdentifier | IdentifierFlags.FriendlyName)]
+    public string ClusterName => base.Server.Name;
 
-	public string SharedStoragePath
-	{
-		get
-		{
-			return m_ClusterWmiProvider.GetData(UpdatePolicy.EnsureUpdated).ConfigStoreRootPath;
-		}
-		internal set
-		{
-			m_ClusterWmiProvider.GetData(UpdatePolicy.None).ConfigStoreRootPath = value;
-		}
-	}
+    public string SharedStoragePath
+    {
+        get
+        {
+            return m_ClusterWmiProvider.GetData(UpdatePolicy.EnsureUpdated).ConfigStoreRootPath;
+        }
+        internal set
+        {
+            m_ClusterWmiProvider.GetData(UpdatePolicy.None).ConfigStoreRootPath = value;
+        }
+    }
 
-	internal VMHostCluster(IMSClusterWmiProviderResource wmiProviderResource)
-		: base(wmiProviderResource)
-	{
-		m_ClusterWmiProvider = InitializePrimaryDataUpdater(wmiProviderResource);
-	}
+    internal VMHostCluster(IMSClusterWmiProviderResource wmiProviderResource)
+        : base(wmiProviderResource)
+    {
+        m_ClusterWmiProvider = InitializePrimaryDataUpdater(wmiProviderResource);
+    }
 
-	void IUpdatable.Put(IOperationWatcher operationWatcher)
-	{
-		operationWatcher.PerformPut(m_ClusterWmiProvider.GetData(UpdatePolicy.None), TaskDescriptions.SetVMHostCluster, this);
-	}
+    void IUpdatable.Put(IOperationWatcher operationWatcher)
+    {
+        operationWatcher.PerformPut(m_ClusterWmiProvider.GetData(UpdatePolicy.None), TaskDescriptions.SetVMHostCluster, this);
+    }
 }

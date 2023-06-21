@@ -5,7 +5,7 @@ namespace Microsoft.Virtualization.Client.Management;
 [WmiName("Msvm_ResourcePool", PrimaryMapping = false)]
 internal interface IEthernetConnectionResourcePool : IResourcePool, IVirtualizationManagementObject, IDeleteableAsync, IDeleteable, IMetricMeasurableElement
 {
-	IEnumerable<IVirtualEthernetSwitch> GetSwitches();
+    IEnumerable<IVirtualEthernetSwitch> GetSwitches();
 
-	bool HasSwitch(IVirtualEthernetSwitch virtualSwitch);
+    bool HasSwitch(IVirtualEthernetSwitch virtualSwitch);
 }

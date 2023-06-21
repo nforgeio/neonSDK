@@ -9,18 +9,18 @@ namespace Microsoft.HyperV.PowerShell.Commands;
 [Cmdlet("Enable", "VMEventing", SupportsShouldProcess = true)]
 internal sealed class EnableVMEventing : VirtualizationCmdletBase, ISupportsForce
 {
-	[Parameter]
-	public SwitchParameter Force { get; set; }
+    [Parameter]
+    public SwitchParameter Force { get; set; }
 
-	internal override void PerformOperation(IOperationWatcher operationWatcher)
-	{
-		if (!operationWatcher.ShouldProcess(CmdletResources.ShouldProcess_EnableVMEventing) || !operationWatcher.ShouldContinue(CmdletResources.ShouldContinue_EnableVMEventing))
-		{
-			return;
-		}
-		foreach (Server server in ParameterResolvers.GetServers(this, operationWatcher))
-		{
-			server.FlushCache();
-		}
-	}
+    internal override void PerformOperation(IOperationWatcher operationWatcher)
+    {
+        if (!operationWatcher.ShouldProcess(CmdletResources.ShouldProcess_EnableVMEventing) || !operationWatcher.ShouldContinue(CmdletResources.ShouldContinue_EnableVMEventing))
+        {
+            return;
+        }
+        foreach (Server server in ParameterResolvers.GetServers(this, operationWatcher))
+        {
+            server.FlushCache();
+        }
+    }
 }

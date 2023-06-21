@@ -4,11 +4,11 @@ namespace Microsoft.HyperV.PowerShell;
 
 internal interface IDataUpdater<out T>
 {
-	bool IsDeleted { get; }
+    bool IsDeleted { get; }
 
-	bool IsTemplate { get; }
+    bool IsTemplate { get; }
 
-	event EventHandler Deleted;
+    event EventHandler Deleted;
 
-	T GetData(UpdatePolicy policy);
+    T GetData(UpdatePolicy policy);
 }

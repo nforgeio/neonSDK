@@ -5,25 +5,25 @@ namespace Microsoft.Virtualization.Client.Management;
 [WmiName("Msvm_VirtualSystemMigrationService")]
 internal interface IVMMigrationService : IVirtualizationManagementObject, IPutable
 {
-	IVMMigrationServiceSetting Setting { get; }
+    IVMMigrationServiceSetting Setting { get; }
 
-	IVMMigrationCapabilities Capabilities { get; }
+    IVMMigrationCapabilities Capabilities { get; }
 
-	IVMMigrationSetting GetMigrationSetting(VMMigrationType migrationType);
+    IVMMigrationSetting GetMigrationSetting(VMMigrationType migrationType);
 
-	string[] GetMigrationServiceListenerIPAddressList();
+    string[] GetMigrationServiceListenerIPAddressList();
 
-	IVMTask BeginMigration(IVMComputerSystem computerSystem, string destinationHost, IVMMigrationSetting migrationSetting, IVMComputerSystemSetting newSystemSettingData, List<IVirtualDiskSetting> newResourceSettingData);
+    IVMTask BeginMigration(IVMComputerSystem computerSystem, string destinationHost, IVMMigrationSetting migrationSetting, IVMComputerSystemSetting newSystemSettingData, List<IVirtualDiskSetting> newResourceSettingData);
 
-	void EndMigration(IVMTask task);
+    void EndMigration(IVMTask task);
 
-	IVMTask BeginCheckMigratability(IVMComputerSystem computerSystem, string destinationHost, IVMMigrationSetting migrationSetting, IVMComputerSystemSetting newSystemSettingData, List<IVirtualDiskSetting> newResourceSettingData);
+    IVMTask BeginCheckMigratability(IVMComputerSystem computerSystem, string destinationHost, IVMMigrationSetting migrationSetting, IVMComputerSystemSetting newSystemSettingData, List<IVirtualDiskSetting> newResourceSettingData);
 
-	void EndCheckMigratability(IVMTask task);
+    void EndCheckMigratability(IVMTask task);
 
-	void AddNetworkSettings(string[] networkSettings);
+    void AddNetworkSettings(string[] networkSettings);
 
-	void ModifyNetworkSettings(string[] networkSettings);
+    void ModifyNetworkSettings(string[] networkSettings);
 
-	void RemoveNetworkSettings(WmiObjectPath[] networkSettingPaths);
+    void RemoveNetworkSettings(WmiObjectPath[] networkSettingPaths);
 }

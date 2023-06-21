@@ -4,21 +4,21 @@ namespace Microsoft.HyperV.PowerShell.Commands;
 
 internal interface IImportOrCompareVMCmdlet : IServerParameters, IParameterSet
 {
-	string Path { get; set; }
+    string Path { get; set; }
 
-	SwitchParameter Register { get; }
+    SwitchParameter Register { get; }
 
-	SwitchParameter Copy { get; }
+    SwitchParameter Copy { get; }
 
-	SwitchParameter GenerateNewId { get; }
+    SwitchParameter GenerateNewId { get; }
 
-	string VirtualMachinePath { get; set; }
+    string VirtualMachinePath { get; set; }
 
-	string SnapshotFilePath { get; set; }
+    string SnapshotFilePath { get; set; }
 
-	string SmartPagingFilePath { get; set; }
+    string SmartPagingFilePath { get; set; }
 
-	string VhdDestinationPath { get; set; }
+    string VhdDestinationPath { get; set; }
 
-	string VhdSourcePath { get; set; }
+    string VhdSourcePath { get; set; }
 }

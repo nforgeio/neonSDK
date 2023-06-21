@@ -4,8 +4,8 @@ namespace Microsoft.HyperV.PowerShell;
 
 internal sealed class VMVfdResourcePool : VMStorageResourcePool
 {
-	internal VMVfdResourcePool(IResourcePool resourcePool)
-		: base(resourcePool)
-	{
-	}
+    internal VMVfdResourcePool(IResourcePool resourcePool)
+        : base(resourcePool)
+    {
+    }
 }

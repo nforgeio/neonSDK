@@ -4,5 +4,5 @@ namespace Microsoft.HyperV.PowerShell.Commands;
 
 internal interface ISupportsForce
 {
-	SwitchParameter Force { get; set; }
+    SwitchParameter Force { get; set; }
 }

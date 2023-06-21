@@ -4,8 +4,8 @@ namespace Microsoft.Virtualization.Client.Common;
 
 internal class ImportReplicationFormTypeAttribute : TypeAttribute
 {
-	internal ImportReplicationFormTypeAttribute(Type implementingType)
-		: base(implementingType)
-	{
-	}
+    internal ImportReplicationFormTypeAttribute(Type implementingType)
+        : base(implementingType)
+    {
+    }
 }

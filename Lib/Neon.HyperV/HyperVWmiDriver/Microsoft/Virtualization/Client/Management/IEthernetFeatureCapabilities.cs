@@ -5,7 +5,7 @@ namespace Microsoft.Virtualization.Client.Management;
 [WmiName("Msvm_EthernetSwitchFeatureCapabilities")]
 internal interface IEthernetFeatureCapabilities : IVirtualizationManagementObject
 {
-	string FeatureId { get; }
+    string FeatureId { get; }
 
-	IEnumerable<IEthernetFeature> FeatureSettings { get; }
+    IEnumerable<IEthernetFeature> FeatureSettings { get; }
 }

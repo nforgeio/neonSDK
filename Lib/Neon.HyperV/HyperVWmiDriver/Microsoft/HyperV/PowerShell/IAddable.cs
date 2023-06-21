@@ -2,5 +2,5 @@ namespace Microsoft.HyperV.PowerShell;
 
 internal interface IAddable
 {
-	bool IsTemplate { get; }
+    bool IsTemplate { get; }
 }

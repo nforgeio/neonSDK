@@ -12,29 +12,29 @@ namespace Microsoft.HyperV.PowerShell.Commands;
 [OutputType(new Type[] { typeof(VMReplicationServer) })]
 internal sealed class GetVMReplicationServer : VirtualizationCmdlet<VMReplicationServer>
 {
-	[SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "This is by spec.")]
-	[Parameter(Mandatory = true, Position = 0, ValueFromPipeline = true, ParameterSetName = "CimSession")]
-	[ValidateNotNullOrEmpty]
-	public override CimSession[] CimSession { get; set; }
+    [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "This is by spec.")]
+    [Parameter(Mandatory = true, Position = 0, ValueFromPipeline = true, ParameterSetName = "CimSession")]
+    [ValidateNotNullOrEmpty]
+    public override CimSession[] CimSession { get; set; }
 
-	[SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "This is by spec.")]
-	[Parameter(Position = 0, ValueFromPipeline = true, ParameterSetName = "ComputerName")]
-	[ValidateNotNullOrEmpty]
-	public override string[] ComputerName { get; set; }
+    [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "This is by spec.")]
+    [Parameter(Position = 0, ValueFromPipeline = true, ParameterSetName = "ComputerName")]
+    [ValidateNotNullOrEmpty]
+    public override string[] ComputerName { get; set; }
 
-	[SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "This is by spec.")]
-	[Parameter(Position = 1, ParameterSetName = "ComputerName")]
-	[ValidateNotNullOrEmpty]
-	[CredentialArray]
-	public override PSCredential[] Credential { get; set; }
+    [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "This is by spec.")]
+    [Parameter(Position = 1, ParameterSetName = "ComputerName")]
+    [ValidateNotNullOrEmpty]
+    [CredentialArray]
+    public override PSCredential[] Credential { get; set; }
 
-	internal override IList<VMReplicationServer> EnumerateOperands(IOperationWatcher operationWatcher)
-	{
-		return ParameterResolvers.GetServers(this, operationWatcher).SelectWithLogging(VMReplicationServer.GetReplicationServer, operationWatcher).ToList();
-	}
+    internal override IList<VMReplicationServer> EnumerateOperands(IOperationWatcher operationWatcher)
+    {
+        return ParameterResolvers.GetServers(this, operationWatcher).SelectWithLogging(VMReplicationServer.GetReplicationServer, operationWatcher).ToList();
+    }
 
-	internal override void ProcessOneOperand(VMReplicationServer operand, IOperationWatcher operationWatcher)
-	{
-		operationWatcher.WriteObject(operand);
-	}
+    internal override void ProcessOneOperand(VMReplicationServer operand, IOperationWatcher operationWatcher)
+    {
+        operationWatcher.WriteObject(operand);
+    }
 }

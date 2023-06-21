@@ -14,40 +14,40 @@ namespace Microsoft.Virtualization.Client.Common.Types.Resources;
 [CompilerGenerated]
 internal class ErrorMessages
 {
-	private static ResourceManager resourceMan;
+    private static ResourceManager resourceMan;
 
-	private static CultureInfo resourceCulture;
+    private static CultureInfo resourceCulture;
 
-	[EditorBrowsable(EditorBrowsableState.Advanced)]
-	internal static ResourceManager ResourceManager
-	{
-		get
-		{
-			if (resourceMan == null)
-			{
-				resourceMan = new ResourceManager(WmiHelper.GetResourceName("Microsoft.Virtualization.Client.Common.Types.Resources.ErrorMessages"), typeof(ErrorMessages).GetTypeInfo().Assembly);
-			}
-			return resourceMan;
-		}
-	}
+    [EditorBrowsable(EditorBrowsableState.Advanced)]
+    internal static ResourceManager ResourceManager
+    {
+        get
+        {
+            if (resourceMan == null)
+            {
+                resourceMan = new ResourceManager(WmiHelper.GetResourceName("Microsoft.Virtualization.Client.Common.Types.Resources.ErrorMessages"), typeof(ErrorMessages).GetTypeInfo().Assembly);
+            }
+            return resourceMan;
+        }
+    }
 
-	[EditorBrowsable(EditorBrowsableState.Advanced)]
-	internal static CultureInfo Culture
-	{
-		get
-		{
-			return resourceCulture;
-		}
-		set
-		{
-			resourceCulture = value;
-		}
-	}
+    [EditorBrowsable(EditorBrowsableState.Advanced)]
+    internal static CultureInfo Culture
+    {
+        get
+        {
+            return resourceCulture;
+        }
+        set
+        {
+            resourceCulture = value;
+        }
+    }
 
-	internal static string WindowsCredentials_InvalidUserName => ResourceManager.GetString("WindowsCredentials_InvalidUserName", resourceCulture);
+    internal static string WindowsCredentials_InvalidUserName => ResourceManager.GetString("WindowsCredentials_InvalidUserName", resourceCulture);
 
-	[SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-	internal ErrorMessages()
-	{
-	}
+    [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
+    internal ErrorMessages()
+    {
+    }
 }

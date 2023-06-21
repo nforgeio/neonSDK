@@ -5,9 +5,9 @@ namespace Microsoft.Virtualization.Client.Common;
 
 internal interface IUserPassCredential : IEquatable<IUserPassCredential>, IDisposable
 {
-	string DomainName { get; }
+    string DomainName { get; }
 
-	SecureString Password { get; }
+    SecureString Password { get; }
 
-	string UserName { get; }
+    string UserName { get; }
 }

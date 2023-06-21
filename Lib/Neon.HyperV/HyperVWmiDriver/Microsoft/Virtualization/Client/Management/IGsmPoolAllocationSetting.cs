@@ -4,15 +4,15 @@ namespace Microsoft.Virtualization.Client.Management;
 
 internal interface IGsmPoolAllocationSetting : IResourcePoolAllocationSetting, IVMDeviceSetting, IVirtualizationManagementObject, IPutableAsync, IPutable
 {
-	bool HasAnySwitch();
+    bool HasAnySwitch();
 
-	bool HasSwitch(IVirtualSwitch virtualSwitch);
+    bool HasSwitch(IVirtualSwitch virtualSwitch);
 
-	IEnumerable<IVirtualSwitch> GetSwitches();
+    IEnumerable<IVirtualSwitch> GetSwitches();
 
-	void RemoveSwitch(IVirtualSwitch virtualSwitch);
+    void RemoveSwitch(IVirtualSwitch virtualSwitch);
 
-	void AddSwitch(IVirtualSwitch virtualSwitch);
+    void AddSwitch(IVirtualSwitch virtualSwitch);
 
-	void SetSwitches(IList<IVirtualSwitch> virtualSwitches);
+    void SetSwitches(IList<IVirtualSwitch> virtualSwitches);
 }

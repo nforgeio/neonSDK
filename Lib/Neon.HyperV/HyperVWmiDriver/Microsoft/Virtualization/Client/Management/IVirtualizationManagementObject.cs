@@ -4,31 +4,31 @@ namespace Microsoft.Virtualization.Client.Management;
 
 internal interface IVirtualizationManagementObject
 {
-	Server Server { get; }
+    Server Server { get; }
 
-	WmiObjectPath ManagementPath { get; }
+    WmiObjectPath ManagementPath { get; }
 
-	event EventHandler Deleted;
+    event EventHandler Deleted;
 
-	event EventHandler CacheUpdated;
+    event EventHandler CacheUpdated;
 
-	void InvalidatePropertyCache();
+    void InvalidatePropertyCache();
 
-	void UpdatePropertyCache();
+    void UpdatePropertyCache();
 
-	void UpdatePropertyCache(TimeSpan threshold);
+    void UpdatePropertyCache(TimeSpan threshold);
 
-	void RegisterForInstanceModificationEvents(InstanceModificationEventStrategy strategy);
+    void RegisterForInstanceModificationEvents(InstanceModificationEventStrategy strategy);
 
-	void UnregisterForInstanceModificationEvents();
+    void UnregisterForInstanceModificationEvents();
 
-	void InvalidateAssociationCache();
+    void InvalidateAssociationCache();
 
-	void UpdateAssociationCache();
+    void UpdateAssociationCache();
 
-	void UpdateAssociationCache(TimeSpan threshold);
+    void UpdateAssociationCache(TimeSpan threshold);
 
-	string GetEmbeddedInstance();
+    string GetEmbeddedInstance();
 
-	void DiscardPendingPropertyChanges();
+    void DiscardPendingPropertyChanges();
 }

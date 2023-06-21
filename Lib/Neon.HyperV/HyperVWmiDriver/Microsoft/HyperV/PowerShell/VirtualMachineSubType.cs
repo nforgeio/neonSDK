@@ -2,7 +2,7 @@ namespace Microsoft.HyperV.PowerShell;
 
 internal enum VirtualMachineSubType
 {
-	Unknown,
-	Generation1,
-	Generation2
+    Unknown,
+    Generation1,
+    Generation2
 }

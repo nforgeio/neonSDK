@@ -5,17 +5,17 @@ namespace Microsoft.HyperV.PowerShell;
 
 internal sealed class VMSwitchExtensionPortData : VMSwitchExtensionRuntimeData
 {
-	private readonly VMNetworkAdapterBase m_ParentAdapter;
+    private readonly VMNetworkAdapterBase m_ParentAdapter;
 
-	public Guid VMId => m_ParentAdapter.VMId;
+    public Guid VMId => m_ParentAdapter.VMId;
 
-	public string VMName => m_ParentAdapter.VMName;
+    public string VMName => m_ParentAdapter.VMName;
 
-	public string VMNetworkAdapterName => m_ParentAdapter.Name;
+    public string VMNetworkAdapterName => m_ParentAdapter.Name;
 
-	internal VMSwitchExtensionPortData(IEthernetPortStatus portStatus, VMNetworkAdapterBase parentAdapter)
-		: base(portStatus)
-	{
-		m_ParentAdapter = parentAdapter;
-	}
+    internal VMSwitchExtensionPortData(IEthernetPortStatus portStatus, VMNetworkAdapterBase parentAdapter)
+        : base(portStatus)
+    {
+        m_ParentAdapter = parentAdapter;
+    }
 }

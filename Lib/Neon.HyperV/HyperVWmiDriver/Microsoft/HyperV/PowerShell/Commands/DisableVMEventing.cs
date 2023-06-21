@@ -8,14 +8,14 @@ namespace Microsoft.HyperV.PowerShell.Commands;
 [Cmdlet("Disable", "VMEventing", SupportsShouldProcess = true)]
 internal sealed class DisableVMEventing : VirtualizationCmdletBase, ISupportsForce
 {
-	[Parameter]
-	public SwitchParameter Force { get; set; }
+    [Parameter]
+    public SwitchParameter Force { get; set; }
 
-	internal override void PerformOperation(IOperationWatcher operationWatcher)
-	{
-		if (operationWatcher.ShouldProcess(CmdletResources.ShouldProcess_DisableVMEventing))
-		{
-			operationWatcher.ShouldContinue(CmdletResources.ShouldContinue_DisableVMEventing);
-		}
-	}
+    internal override void PerformOperation(IOperationWatcher operationWatcher)
+    {
+        if (operationWatcher.ShouldProcess(CmdletResources.ShouldProcess_DisableVMEventing))
+        {
+            operationWatcher.ShouldContinue(CmdletResources.ShouldContinue_DisableVMEventing);
+        }
+    }
 }

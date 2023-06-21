@@ -2,8 +2,8 @@ namespace Microsoft.HyperV.PowerShell;
 
 internal enum VMReplicationHealthState
 {
-	NotApplicable,
-	Normal,
-	Warning,
-	Critical
+    NotApplicable,
+    Normal,
+    Warning,
+    Critical
 }

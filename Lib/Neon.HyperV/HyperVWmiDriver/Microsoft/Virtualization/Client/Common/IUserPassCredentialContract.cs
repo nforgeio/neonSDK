@@ -5,13 +5,13 @@ namespace Microsoft.Virtualization.Client.Common;
 
 internal abstract class IUserPassCredentialContract : IUserPassCredential, IEquatable<IUserPassCredential>, IDisposable
 {
-	string IUserPassCredential.DomainName => null;
+    string IUserPassCredential.DomainName => null;
 
-	SecureString IUserPassCredential.Password => null;
+    SecureString IUserPassCredential.Password => null;
 
-	string IUserPassCredential.UserName => null;
+    string IUserPassCredential.UserName => null;
 
-	public abstract bool Equals(IUserPassCredential other);
+    public abstract bool Equals(IUserPassCredential other);
 
-	public abstract void Dispose();
+    public abstract void Dispose();
 }

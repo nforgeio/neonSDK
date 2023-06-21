@@ -2,7 +2,7 @@ namespace Microsoft.Virtualization.Client.Management;
 
 internal interface IVMIntegrationComponentSetting : IVMDeviceSetting, IVirtualizationManagementObject, IPutableAsync, IPutable
 {
-	bool Enabled { get; set; }
+    bool Enabled { get; set; }
 
-	IVMIntegrationComponent GetIntegrationComponent();
+    IVMIntegrationComponent GetIntegrationComponent();
 }
