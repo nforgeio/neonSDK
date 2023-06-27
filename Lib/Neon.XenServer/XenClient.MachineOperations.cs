@@ -121,7 +121,7 @@ namespace Neon.XenServer
             /// </summary>
             /// <param name="name">Name for the new virtual machine.</param>
             /// <param name="templateName">Identifies the template.</param>
-            /// <param name="cores">Optionally specifies the number of CPU cores to be assigned.  This defaults to <b>2</b>.</param>
+            /// <param name="vcpus">Optionally specifies the number of CPU cores to be assigned.  This defaults to <b>2</b>.</param>
             /// <param name="memoryBytes">Optionally specifies the memory assigned to the machine (overriding the template).</param>
             /// <param name="diskBytes">Optionally specifies the primary disk size (overriding the template).</param>
             /// <param name="snapshot">Optionally specifies that the virtual machine should snapshot the template.  This defaults to <c>false</c>.</param>
@@ -153,7 +153,7 @@ namespace Neon.XenServer
             public XenVirtualMachine Create(
                 string                          name, 
                 string                          templateName, 
-                int                             cores                    = 2, 
+                int                             vcpus                    = 2, 
                 long                            memoryBytes              = 0, 
                 long                            diskBytes                = 0, 
                 bool                            snapshot                 = false,
@@ -162,7 +162,7 @@ namespace Neon.XenServer
                 string                          extraStorageRespository  = XenClient.LocalStorageName)
             {
                 Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(templateName), nameof(templateName));
-                Covenant.Requires<ArgumentException>(cores > 0, nameof(cores));
+                Covenant.Requires<ArgumentException>(vcpus > 0, nameof(vcpus));
                 Covenant.Requires<ArgumentException>(memoryBytes >= 0, nameof(memoryBytes));
                 Covenant.Requires<ArgumentException>(diskBytes >= 0, nameof(diskBytes));
                 Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(primaryStorageRepository), nameof(primaryStorageRepository));
@@ -222,8 +222,8 @@ namespace Neon.XenServer
                 // Configure the processors.
 
                 client.SafeInvoke("vm-param-set", $"uuid={vmUuid}", $"platform:cores-per-socket=1");
-                client.SafeInvoke("vm-param-set", $"uuid={vmUuid}", $"VCPUs-max={cores}");
-                client.SafeInvoke("vm-param-set", $"uuid={vmUuid}", $"VCPUs-at-startup={cores}");
+                client.SafeInvoke("vm-param-set", $"uuid={vmUuid}", $"VCPUs-max={vcpus}");
+                client.SafeInvoke("vm-param-set", $"uuid={vmUuid}", $"VCPUs-at-startup={vcpus}");
 
                 // Citrix says that VM autostart is not compatible with HA so we don't
                 // want to enable autostart when HA is enabled.  We'll assume that the
