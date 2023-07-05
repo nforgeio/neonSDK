@@ -157,7 +157,7 @@ namespace Neon.Net
         {
             if (!IsSuccess)
             {
-                throw new HttpException(HttpResponse.ReasonPhrase, RequestUri, RequestMethod, HttpResponse.StatusCode);
+                throw new HttpException(HttpResponse.ReasonPhrase, RequestMethod, RequestUri, HttpResponse.StatusCode);
             }
         }
     }
