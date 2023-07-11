@@ -1715,7 +1715,7 @@ namespace Neon.Net
         /// This is currently supported only for Windows.
         /// </note>
         /// </summary>
-        /// <param name="address"></param>
+        /// <param name="address">Specifies the IP address being removed from the ARP cache.</param>
         /// <exception cref="NotSupportedException">Thrown when the current platform is not supported.</exception>
         public static void DeleteArpEntry(IPAddress address)
         {
