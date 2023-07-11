@@ -27,12 +27,12 @@ namespace Neon.Xunit
 {
     /// <summary>
     /// Returned by <see cref="ITestFixture.Start(Action)"/> to indicate whether
-    /// the test fixture is disabled, was just started, or was already running.
+    /// the test fixture is not running, was just started, or was already running.
     /// </summary>
     public enum TestFixtureStatus
     {
         /// <summary>
-        /// The fixrture is disable.
+        /// The fixture is disabled.
         /// </summary>
         Disabled = 0,
 
