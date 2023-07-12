@@ -26,6 +26,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 using Neon.Common;
+using Neon.Diagnostics;
 
 namespace TestApiService
 {
@@ -53,11 +54,23 @@ namespace TestApiService
             }
             catch (Exception e)
             {
-                // We really shouldn't see exceptions here but let's log something
-                // just in case.  Note that logging may not be initialized yet so
-                // we'll just output a string.
+                if (Service?.Logger != null)
+                {
+                    Service.Logger.LogCriticalEx(e);
+                }
+                else
+                {
+                    // Logging isn't initialized, so fallback to just writing to SDTERR.
 
-                Console.Error.WriteLine(NeonHelper.ExceptionError(e));
+                    Console.Error.WriteLine("CRITICAL: " + NeonHelper.ExceptionError(e, stackTrace: true));
+
+                    if (e.StackTrace != null)
+                    {
+                        Console.Error.WriteLine("STACK TRACE:");
+                        Console.Error.WriteLine(e.StackTrace);
+                    }
+                }
+
                 Environment.Exit(-1);
             }
         }
