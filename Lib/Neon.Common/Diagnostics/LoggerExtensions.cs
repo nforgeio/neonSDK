@@ -26,9 +26,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.Logging;
+
 using Neon.Common;
+
 using OpenTelemetry.Trace;
-using YamlDotNet.Core.Tokens;
 
 namespace Neon.Diagnostics
 {

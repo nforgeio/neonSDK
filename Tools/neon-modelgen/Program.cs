@@ -139,7 +139,7 @@ style design conventions.
             catch (Exception e)
             {
                 // Something must be wrong with the log path so explicitly
-                // return the error.
+                // output the error.
 
                 Console.Error.WriteLine(NeonHelper.ExceptionError(e));
                 Environment.Exit(1);
@@ -255,8 +255,7 @@ style design conventions.
             }
             catch (Exception e)
             {
-                Console.Error.WriteLine($"*** ERROR: {NeonHelper.ExceptionError(e)}");
-                Console.Error.WriteLine(e.StackTrace);
+                Console.Error.WriteLine($"*** ERROR: {NeonHelper.ExceptionError(e, stackTrace: true)}");
                 Console.Error.WriteLine(string.Empty);
                 return 1;
             }
