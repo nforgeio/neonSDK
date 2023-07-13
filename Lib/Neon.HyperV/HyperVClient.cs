@@ -329,6 +329,21 @@ namespace Neon.HyperV
         }
 
         /// <summary>
+        /// Stops and removes all virtual machines whose name includes a prefix.
+        /// </summary>
+        /// <param name="namePrefix">Specifies the name prefix.</param>
+        public void RemoveVmsWithPrefix(string namePrefix)
+        {
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(namePrefix), nameof(namePrefix));
+
+            foreach (var vm in ListVms()
+                .Where(vm => vm.Name.StartsWith(namePrefix)))
+            {
+                RemoveVm(vm.Name);
+            }
+        }
+
+        /// <summary>
         /// Lists the virtual machines.
         /// </summary>
         /// <returns><see cref="IEnumerable{VirtualMachine}"/>.</returns>
