@@ -308,14 +308,26 @@ namespace Neon.HyperV
             CheckDisposed();
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
 
-            if (!VmExists(machineName))
+            var vm = FindVm(machineName);
+
+            if (vm == null)
             {
                 throw new HyperVException($"Virtual machine [{machineName}] does not exist.");
             }
 
-            var drives  = ListVmDrives(machineName);
+            // Only non-running VMs may be removed.
+
+            switch (vm.State)
+            {
+                case VirtualMachineState.Running:
+                case VirtualMachineState.Starting:
+
+                    throw new HyperVException($"Cannot remove running or starting virtual machine: {machineName}");
+            }
 
             // Remove the machine along with any of of its virtual hard drive files.
+
+            var drives = ListVmDrives(machineName);
 
             hypervDriver.RemoveVm(machineName);
 
@@ -339,6 +351,11 @@ namespace Neon.HyperV
             foreach (var vm in ListVms()
                 .Where(vm => vm.Name.StartsWith(namePrefix)))
             {
+                if (vm.State == VirtualMachineState.Running || vm.State == VirtualMachineState.Starting)
+                {
+                    StopVm(vm.Name);
+                }
+
                 RemoveVm(vm.Name);
             }
         }
