@@ -717,10 +717,10 @@ namespace Neon.XenServer
             tempIso.SrUuid = response.OutputText.Trim();
 
             // XenServer created a PBD behind the scenes for the new SR.  We're going
-            // to need its UUID so we can completely remove the SR later.  Note that
+            // to need its UUID so we can completely remove the SR later).  Note that
             // doesn't seem to appear immediately so, we'll retry a few times.
 
-            var retry = new ExponentialRetryPolicy(typeof(InvalidOperationException), maxAttempts: 5, initialRetryInterval: TimeSpan.FromSeconds(0.5), maxRetryInterval: TimeSpan.FromSeconds(5));
+            var retry = new ExponentialRetryPolicy(typeof(InvalidOperationException), maxAttempts: 10, initialRetryInterval: TimeSpan.FromSeconds(5), maxRetryInterval: TimeSpan.FromSeconds(5));
 
             retry.Invoke(
                 () =>
@@ -734,7 +734,6 @@ namespace Neon.XenServer
                     result = SafeInvokeItems("vdi-list", $"sr-uuid={tempIso.SrUuid}");
 
                     tempIso.VdiUuid = result.Items.Single()["uuid"];
-
                 });
 
             return tempIso;
