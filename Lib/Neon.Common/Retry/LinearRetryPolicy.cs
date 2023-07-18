@@ -55,6 +55,7 @@ namespace Neon.Retry
     public class LinearRetryPolicy : RetryPolicyBase, IRetryPolicy
     {
         private Func<Exception, bool>   transientDetector;
+        private CancellationToken?      cancellationToken;
 
         /// <summary>
         /// Constructs the retry policy with a specific transitent detection function.
@@ -68,6 +69,7 @@ namespace Neon.Retry
         /// <param name="retryInterval">Optionally specifies time interval between retry attempts (defaults to <b>1 second</b>).</param>
         /// <param name="timeout">Optionally specifies the maximum time the operation will be retried (defaults to unconstrained)</param>
         /// <param name="categoryName">Optionally enables transient error logging by identifying the source category name (defaults to <c>null</c>).</param>
+        /// <param name="cancellationToken">Optionally specifies a cancellation token which will be checked before retries.</param>
         /// <remarks>
         /// <para>
         /// The <paramref name="maxAttempts"/> parameter defaults to <b>-1</b> indicating that the
@@ -86,7 +88,8 @@ namespace Neon.Retry
             int                     maxAttempts       = -1, 
             TimeSpan?               retryInterval     = null, 
             TimeSpan?               timeout           = null, 
-            string                  categoryName      = null)
+            string                  categoryName      = null,
+            CancellationToken?      cancellationToken = null)
 
             : base(categoryName, timeout)
         {
@@ -94,6 +97,7 @@ namespace Neon.Retry
 
             this.transientDetector = transientDetector ?? (e => true);
             this.RetryInterval     = retryInterval ?? TimeSpan.FromSeconds(1);
+            this.cancellationToken = cancellationToken;
 
             if (maxAttempts < 0)
             {
@@ -113,6 +117,7 @@ namespace Neon.Retry
         /// <param name="retryInterval">Optionally specifies the time interval between retry attempts (defaults to <b>1 second</b>).</param>
         /// <param name="categoryName">Optionally enables transient error logging by identifying the source category name (defaults to <c>null</c>).</param>
         /// <param name="timeout">Optionally specifies the maximum time the operation will be retried (defaults to unconstrained)</param>
+        /// <param name="cancellationToken">Optionally specifies a cancellation token which will be checked before retries.</param>
         /// <remarks>
         /// <para>
         /// The <paramref name="maxAttempts"/> parameter defaults to <b>-1</b> indicating that the
@@ -127,18 +132,20 @@ namespace Neon.Retry
         /// </para>
         /// </remarks>
         public LinearRetryPolicy(
-            Type        exceptionType, 
-            int         maxAttempts   = -1, 
-            TimeSpan?   retryInterval = null, 
-            TimeSpan?   timeout       = null, 
-            string      categoryName  = null)
+            Type                exceptionType, 
+            int                 maxAttempts       = -1, 
+            TimeSpan?           retryInterval     = null, 
+            TimeSpan?           timeout           = null, 
+            string              categoryName      = null,
+            CancellationToken?  cancellationToken = null)
             : this
             (
                 e => TransientDetector.MatchException(e, exceptionType),
                 maxAttempts,
                 retryInterval,
                 timeout,
-                categoryName
+                categoryName,
+                cancellationToken
             )
         {
             Covenant.Requires<ArgumentNullException>(exceptionType != null, nameof(exceptionType));
@@ -152,6 +159,7 @@ namespace Neon.Retry
         /// <param name="retryInterval">Optionally specifies the time interval between retry attempts (defaults to <b>1 second</b>).</param>
         /// <param name="timeout">Optionally specifies the maximum time the operation will be retried (defaults to unconstrained)</param>
         /// <param name="categoryName">Optionally enables transient error logging by identifying the source category name (defaults to <c>null</c>).</param>
+        /// <param name="cancellationToken">Optionally specifies a cancellation token which will be checked before retries.</param>
         /// <remarks>
         /// <para>
         /// The <paramref name="maxAttempts"/> parameter defaults to <b>-1</b> indicating that the
@@ -166,11 +174,12 @@ namespace Neon.Retry
         /// </para>
         /// </remarks>
         public LinearRetryPolicy(
-            Type[]      exceptionTypes, 
-            int         maxAttempts   = -1, 
-            TimeSpan?   retryInterval = null, 
-            TimeSpan?   timeout       = null, 
-            string      categoryName  = null)
+            Type[]              exceptionTypes, 
+            int                 maxAttempts       = -1, 
+            TimeSpan?           retryInterval     = null, 
+            TimeSpan?           timeout           = null, 
+            string              categoryName      = null,
+            CancellationToken?  cancellationToken = null)
             : this
             (
                 e =>
@@ -193,7 +202,8 @@ namespace Neon.Retry
                 maxAttempts,
                 retryInterval,
                 timeout,
-                categoryName
+                categoryName,
+                cancellationToken
             )
         {
         }
@@ -220,7 +230,7 @@ namespace Neon.Retry
             }
             else
             {
-                return new LinearRetryPolicy(transientDetector ?? this.transientDetector, MaxAttempts, RetryInterval, Timeout, CategoryName);
+                return new LinearRetryPolicy(transientDetector ?? this.transientDetector, MaxAttempts, RetryInterval, Timeout, CategoryName, cancellationToken);
             }
         }
 
@@ -248,6 +258,7 @@ namespace Neon.Retry
                         throw;
                     }
 
+                    cancellationToken?.ThrowIfCancellationRequested();
                     LogTransient(e);
                     await Task.Delay(adjustedDelay);
                 }
@@ -277,6 +288,7 @@ namespace Neon.Retry
                         throw;
                     }
 
+                    cancellationToken?.ThrowIfCancellationRequested();
                     LogTransient(e);
                     await Task.Delay(adjustedDelay);
                 }
@@ -305,6 +317,7 @@ namespace Neon.Retry
                         throw;
                     }
 
+                    cancellationToken?.ThrowIfCancellationRequested();
                     LogTransient(e);
                     Thread.Sleep(adjustedDelay);
                 }
@@ -332,6 +345,7 @@ namespace Neon.Retry
                         throw;
                     }
 
+                    cancellationToken?.ThrowIfCancellationRequested();
                     LogTransient(e);
                     Thread.Sleep(RetryInterval);
                 }

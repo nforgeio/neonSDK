@@ -500,5 +500,28 @@ namespace TestCommon
 
             Assert.Equal(3, times.Count);
         }
+
+        [Fact]
+        public void Cancel()
+        {
+            // Have test code throw TimeoutExceptions which will be considered to be transient and
+            // then in another task, cancel a cancellation token and then verify that the policy
+            // cancelled the operation.
+
+            var cts    = new CancellationTokenSource();
+            var policy = new ExponentialRetryPolicy(typeof(TransientException), maxAttempts: 6, initialRetryInterval: TimeSpan.FromSeconds(1), maxRetryInterval: TimeSpan.FromSeconds(1), cancellationToken: cts.Token);
+
+            cts.CancelAfter(TimeSpan.FromSeconds(2));
+
+            Assert.Throws<OperationCanceledException>(
+                () =>
+                {
+                    policy.Invoke(
+                        () =>
+                        {
+                            throw new TransientException();
+                        });
+                });
+        }
     }
 }
