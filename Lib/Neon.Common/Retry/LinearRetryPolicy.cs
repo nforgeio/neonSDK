@@ -55,7 +55,7 @@ namespace Neon.Retry
     public class LinearRetryPolicy : RetryPolicyBase, IRetryPolicy
     {
         private Func<Exception, bool>   transientDetector;
-        private CancellationToken?      cancellationToken;
+        private CancellationToken       cancellationToken;
 
         /// <summary>
         /// Constructs the retry policy with a specific transitent detection function.
@@ -89,7 +89,7 @@ namespace Neon.Retry
             TimeSpan?               retryInterval     = null, 
             TimeSpan?               timeout           = null, 
             string                  categoryName      = null,
-            CancellationToken?      cancellationToken = null)
+            CancellationToken       cancellationToken = default)
 
             : base(categoryName, timeout)
         {
@@ -137,7 +137,7 @@ namespace Neon.Retry
             TimeSpan?           retryInterval     = null, 
             TimeSpan?           timeout           = null, 
             string              categoryName      = null,
-            CancellationToken?  cancellationToken = null)
+            CancellationToken   cancellationToken = default)
             : this
             (
                 e => TransientDetector.MatchException(e, exceptionType),
@@ -179,7 +179,7 @@ namespace Neon.Retry
             TimeSpan?           retryInterval     = null, 
             TimeSpan?           timeout           = null, 
             string              categoryName      = null,
-            CancellationToken?  cancellationToken = null)
+            CancellationToken   cancellationToken = default)
             : this
             (
                 e =>
@@ -258,7 +258,7 @@ namespace Neon.Retry
                         throw;
                     }
 
-                    cancellationToken?.ThrowIfCancellationRequested();
+                    cancellationToken.ThrowIfCancellationRequested();
                     LogTransient(e);
                     await Task.Delay(adjustedDelay);
                 }
@@ -288,7 +288,7 @@ namespace Neon.Retry
                         throw;
                     }
 
-                    cancellationToken?.ThrowIfCancellationRequested();
+                    cancellationToken.ThrowIfCancellationRequested();
                     LogTransient(e);
                     await Task.Delay(adjustedDelay);
                 }
@@ -317,7 +317,7 @@ namespace Neon.Retry
                         throw;
                     }
 
-                    cancellationToken?.ThrowIfCancellationRequested();
+                    cancellationToken.ThrowIfCancellationRequested();
                     LogTransient(e);
                     Thread.Sleep(adjustedDelay);
                 }
@@ -345,7 +345,7 @@ namespace Neon.Retry
                         throw;
                     }
 
-                    cancellationToken?.ThrowIfCancellationRequested();
+                    cancellationToken.ThrowIfCancellationRequested();
                     LogTransient(e);
                     Thread.Sleep(RetryInterval);
                 }
