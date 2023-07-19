@@ -25,26 +25,26 @@ namespace Neon.Roslyn
 {
     public class MetadataLoadContext
     {
-        private readonly Compilation _compilation;
-        private readonly ConcurrentDictionary<ISymbol, object> _cache = new(SymbolEqualityComparer.Default);
+        private readonly Compilation                           compilation;
+        private readonly ConcurrentDictionary<ISymbol, object> cache = new(SymbolEqualityComparer.Default);
 
         public MetadataLoadContext(Compilation compilation)
         {
-            _compilation = compilation;
+            this.compilation = compilation;
         }
 
-        public Assembly Assembly => _compilation.Assembly.AsAssembly(this);
+        public Assembly Assembly => compilation.Assembly.AsAssembly(this);
 
-        internal Compilation Compilation => _compilation;
+        internal Compilation Compilation => compilation;
 
         public Type ResolveType(string fullyQualifiedMetadataName)
         {
-            return _compilation.GetTypeByMetadataName(fullyQualifiedMetadataName)?.AsType(this);
+            return compilation.GetTypeByMetadataName(fullyQualifiedMetadataName)?.AsType(this);
         }
 
         public Type ResolveType(ISymbol symbol)
         {
-            return _compilation.GetTypeByMetadataName(symbol.ToDisplayString(DisplayFormat.NameAndContainingTypesAndNamespaces))?.AsType(this);
+            return compilation.GetTypeByMetadataName(symbol.ToDisplayString(DisplayFormat.NameAndContainingTypesAndNamespaces))?.AsType(this);
         }
 
         public Type ResolveType<T>() => ResolveType(typeof(T));
@@ -56,7 +56,7 @@ namespace Neon.Roslyn
                 return type;
             }
 
-            var resolvedType = _compilation.GetTypeByMetadataName(type.FullName);
+            var resolvedType = compilation.GetTypeByMetadataName(type.FullName);
 
             if (resolvedType is not null)
             {
@@ -65,18 +65,18 @@ namespace Neon.Roslyn
 
             if (type.IsArray)
             {
-                var typeSymbol = _compilation.GetTypeByMetadataName(type.GetElementType().FullName);
+                var typeSymbol = compilation.GetTypeByMetadataName(type.GetElementType().FullName);
                 if (typeSymbol is null)
                 {
                     return null;
                 }
 
-                return _compilation.CreateArrayTypeSymbol(typeSymbol).AsType(this);
+                return compilation.CreateArrayTypeSymbol(typeSymbol).AsType(this);
             }
 
             if (type.IsGenericType)
             {
-                var openGenericTypeSymbol = _compilation.GetTypeByMetadataName(type.GetGenericTypeDefinition().FullName);
+                var openGenericTypeSymbol = compilation.GetTypeByMetadataName(type.GetGenericTypeDefinition().FullName);
                 if (openGenericTypeSymbol is null)
                 {
                     return null;
@@ -95,7 +95,7 @@ namespace Neon.Roslyn
                 return null;
             }
 
-            return (TMember)_cache.GetOrAdd(symbol, s => s switch
+            return (TMember)cache.GetOrAdd(symbol, s => s switch
             {
                 ITypeSymbol      t                   => new RoslynType(t, this),
                 IFieldSymbol     f                   => new RoslynFieldInfo(f, this),

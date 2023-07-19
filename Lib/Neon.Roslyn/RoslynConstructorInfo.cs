@@ -26,42 +26,42 @@ namespace Neon.Roslyn
 {
     internal class RoslynConstructorInfo : ConstructorInfo
     {
-        private readonly IMethodSymbol       _ctor;
-        private readonly MetadataLoadContext _metadataLoadContext;
+        private readonly IMethodSymbol       ctor;
+        private readonly MetadataLoadContext metadataLoadContext;
 
         public RoslynConstructorInfo(IMethodSymbol ctor, MetadataLoadContext metadataLoadContext)
         {
-            _ctor                = ctor;
-            _metadataLoadContext = metadataLoadContext;
-            Attributes           = SharedUtilities.GetMethodAttributes(ctor);
+            this.ctor                = ctor;
+            this.metadataLoadContext = metadataLoadContext;
+            Attributes               = SharedUtilities.GetMethodAttributes(ctor);
         }
 
-        public override Type DeclaringType => _ctor.ContainingType.AsType(_metadataLoadContext);
+        public override Type DeclaringType => ctor.ContainingType.AsType(metadataLoadContext);
 
         public override MethodAttributes Attributes { get; }
 
         public override RuntimeMethodHandle MethodHandle => throw new NotSupportedException();
 
-        public override string Name => _ctor.Name;
+        public override string Name => ctor.Name;
 
         public override Type ReflectedType => throw new NotImplementedException();
 
-        public override bool IsGenericMethod => _ctor.IsGenericMethod;
+        public override bool IsGenericMethod => ctor.IsGenericMethod;
 
         public override Type[] GetGenericArguments()
         {
             var typeArguments = new List<Type>();
 
-            foreach (var t in _ctor.TypeArguments)
+            foreach (var t in ctor.TypeArguments)
             {
-                typeArguments.Add(t.AsType(_metadataLoadContext));
+                typeArguments.Add(t.AsType(metadataLoadContext));
             }
             return typeArguments.ToArray();
         }
 
         public override IList<CustomAttributeData> GetCustomAttributesData()
         {
-            return SharedUtilities.GetCustomAttributesData(_ctor, _metadataLoadContext);
+            return SharedUtilities.GetCustomAttributesData(ctor, metadataLoadContext);
         }
 
         public override object[] GetCustomAttributes(bool inherit)
@@ -83,10 +83,10 @@ namespace Neon.Roslyn
         {
             List<ParameterInfo> parameters = default;
 
-            foreach (var p in _ctor.Parameters)
+            foreach (var p in ctor.Parameters)
             {
                 parameters ??= new();
-                parameters.Add(p.AsParameterInfo(_metadataLoadContext));
+                parameters.Add(p.AsParameterInfo(metadataLoadContext));
             }
             return parameters?.ToArray() ?? Array.Empty<ParameterInfo>();
         }

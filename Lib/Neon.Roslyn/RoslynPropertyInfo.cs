@@ -26,16 +26,16 @@ namespace Neon.Roslyn
 {
     internal class RoslynPropertyInfo : PropertyInfo
     {
-        private readonly IPropertySymbol     _property;
-        private readonly MetadataLoadContext _metadataLoadContext;
+        private readonly IPropertySymbol     property;
+        private readonly MetadataLoadContext metadataLoadContext;
 
         public RoslynPropertyInfo(IPropertySymbol property, MetadataLoadContext metadataLoadContext)
         {
-            _property            = property;
-            _metadataLoadContext = metadataLoadContext;
+            this.property            = property;
+            this.metadataLoadContext = metadataLoadContext;
         }
 
-        public IPropertySymbol PropertySymbol => _property;
+        public IPropertySymbol PropertySymbol => property;
 
         public override PropertyAttributes Attributes => PropertyAttributes.None;
 
@@ -43,20 +43,20 @@ namespace Neon.Roslyn
         {
             get
             {
-                return SharedUtilities.GetCustomAttributesData(_property, _metadataLoadContext);
+                return SharedUtilities.GetCustomAttributesData(property, metadataLoadContext);
             }
         }
 
 
-        public override bool CanRead => _property.GetMethod != null;
+        public override bool CanRead => property.GetMethod != null;
 
-        public override bool CanWrite => _property.SetMethod != null;
+        public override bool CanWrite => property.SetMethod != null;
 
-        public override Type PropertyType => _property.Type.AsType(_metadataLoadContext);
+        public override Type PropertyType => property.Type.AsType(metadataLoadContext);
 
-        public override Type DeclaringType => _property.ContainingType.AsType(_metadataLoadContext);
+        public override Type DeclaringType => property.ContainingType.AsType(metadataLoadContext);
 
-        public override string Name => _property.Name;
+        public override string Name => property.Name;
 
         public override Type ReflectedType => throw new NotImplementedException();
 
@@ -77,17 +77,17 @@ namespace Neon.Roslyn
 
         public override MethodInfo GetGetMethod(bool nonPublic)
         {
-            return _property.GetMethod.AsMethodInfo(_metadataLoadContext);
+            return property.GetMethod.AsMethodInfo(metadataLoadContext);
         }
 
         public override ParameterInfo[] GetIndexParameters()
         {
             List<ParameterInfo> parameters = default;
 
-            foreach (var p in _property.Parameters)
+            foreach (var p in property.Parameters)
             {
                 parameters ??= new();
-                parameters.Add(p.AsParameterInfo(_metadataLoadContext));
+                parameters.Add(p.AsParameterInfo(metadataLoadContext));
             }
 
             return parameters?.ToArray() ?? Array.Empty<ParameterInfo>();
@@ -95,7 +95,7 @@ namespace Neon.Roslyn
 
         public override MethodInfo GetSetMethod(bool nonPublic)
         {
-            return _property.SetMethod.AsMethodInfo(_metadataLoadContext);
+            return property.SetMethod.AsMethodInfo(metadataLoadContext);
         }
 
         public override object GetValue(object obj, BindingFlags invokeAttr, Binder binder, object[] index, CultureInfo culture)

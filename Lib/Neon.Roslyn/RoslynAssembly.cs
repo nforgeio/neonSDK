@@ -25,12 +25,12 @@ namespace Neon.Roslyn
 {
     internal class RoslynAssembly : Assembly
     {
-        private readonly MetadataLoadContext _metadataLoadContext;
+        private readonly MetadataLoadContext metadataLoadContext;
 
         public RoslynAssembly(IAssemblySymbol assembly, MetadataLoadContext metadataLoadContext)
         {
-            Symbol               = assembly;
-            _metadataLoadContext = metadataLoadContext;
+            Symbol                   = assembly;
+            this.metadataLoadContext = metadataLoadContext;
         }
 
         public override string FullName => Symbol.Name;
@@ -55,7 +55,7 @@ namespace Neon.Roslyn
 
                 foreach (var type in current.GetTypeMembers())
                 {
-                    types.Add(type.AsType(_metadataLoadContext));
+                    types.Add(type.AsType(metadataLoadContext));
                 }
 
                 foreach (var ns in current.GetNamespaceMembers())
@@ -68,7 +68,7 @@ namespace Neon.Roslyn
 
         public override Type GetType(string name)
         {
-            return Symbol.GetTypeByMetadataName(name).AsType(_metadataLoadContext);
+            return Symbol.GetTypeByMetadataName(name).AsType(metadataLoadContext);
         }
     }
 }

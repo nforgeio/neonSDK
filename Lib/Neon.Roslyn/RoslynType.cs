@@ -27,23 +27,23 @@ namespace Neon.Roslyn
 {
     internal class RoslynType : Type
     {
-        private readonly ITypeSymbol         _typeSymbol;
-        private readonly MetadataLoadContext _metadataLoadContext;
-        private readonly bool                _isByRef;
-        private TypeAttributes?              _typeAttributes;
+        private readonly ITypeSymbol         typeSymbol;
+        private readonly MetadataLoadContext metadataLoadContext;
+        private readonly bool                isByRef;
+        private TypeAttributes?              typeAttributes;
 
         public RoslynType(ITypeSymbol typeSymbol, MetadataLoadContext metadataLoadContext, bool isByRef = false)
         {
-            _typeSymbol          = typeSymbol;
-            _metadataLoadContext = metadataLoadContext;
-            _isByRef             = isByRef;
+            this.typeSymbol          = typeSymbol;
+            this.metadataLoadContext = metadataLoadContext;
+            this.isByRef             = isByRef;
         }
 
-        public override Assembly Assembly => _typeSymbol.ContainingAssembly.AsAssembly(_metadataLoadContext);
+        public override Assembly Assembly => typeSymbol.ContainingAssembly.AsAssembly(metadataLoadContext);
 
         public override string AssemblyQualifiedName => throw new NotImplementedException();
 
-        public override Type BaseType => _typeSymbol.BaseType.AsType(_metadataLoadContext);
+        public override Type BaseType => typeSymbol.BaseType.AsType(metadataLoadContext);
 
         public override string FullName => Namespace is null ? Name : Namespace + "." + Name;
 
@@ -51,29 +51,29 @@ namespace Neon.Roslyn
 
         public override Module Module => throw new NotImplementedException();
 
-        public override string Namespace => _typeSymbol.ContainingNamespace?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat.WithGlobalNamespaceStyle(SymbolDisplayGlobalNamespaceStyle.Omitted)) is { Length: > 0 } ns ? ns : null;
+        public override string Namespace => typeSymbol.ContainingNamespace?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat.WithGlobalNamespaceStyle(SymbolDisplayGlobalNamespaceStyle.Omitted)) is { Length: > 0 } ns ? ns : null;
 
         public override Type UnderlyingSystemType => this;
 
-        public override string Name => ArrayTypeSymbol is { } ar ? ar.ElementType.MetadataName + "[]" : _typeSymbol.MetadataName;
+        public override string Name => ArrayTypeSymbol is { } ar ? ar.ElementType.MetadataName + "[]" : typeSymbol.MetadataName;
 
         public override bool IsGenericType => NamedTypeSymbol?.IsGenericType ?? false;
 
-        private INamedTypeSymbol NamedTypeSymbol => _typeSymbol as INamedTypeSymbol;
+        private INamedTypeSymbol NamedTypeSymbol => typeSymbol as INamedTypeSymbol;
 
-        private IArrayTypeSymbol ArrayTypeSymbol => _typeSymbol as IArrayTypeSymbol;
+        private IArrayTypeSymbol ArrayTypeSymbol => typeSymbol as IArrayTypeSymbol;
 
         public override bool IsGenericTypeDefinition => IsGenericType && SymbolEqualityComparer.Default.Equals(NamedTypeSymbol, NamedTypeSymbol.ConstructedFrom);
 
-        public override bool IsGenericParameter => _typeSymbol.TypeKind == TypeKind.TypeParameter;
+        public override bool IsGenericParameter => typeSymbol.TypeKind == TypeKind.TypeParameter;
 
-        public ITypeSymbol TypeSymbol => _typeSymbol;
+        public ITypeSymbol TypeSymbol => typeSymbol;
 
-        public override bool IsEnum => _typeSymbol.TypeKind == TypeKind.Enum;
+        public override bool IsEnum => typeSymbol.TypeKind == TypeKind.Enum;
 
         public override bool IsConstructedGenericType => NamedTypeSymbol?.IsUnboundGenericType == false;
 
-        public override Type DeclaringType => _typeSymbol.ContainingType?.AsType(_metadataLoadContext);
+        public override Type DeclaringType => typeSymbol.ContainingType?.AsType(metadataLoadContext);
 
         public override int GetArrayRank()
         {
@@ -91,7 +91,7 @@ namespace Neon.Roslyn
 
             foreach (var item in NamedTypeSymbol.TypeArguments)
             {
-                args.Add(item.AsType(_metadataLoadContext));
+                args.Add(item.AsType(metadataLoadContext));
             }
 
             return args.ToArray();
@@ -99,12 +99,12 @@ namespace Neon.Roslyn
 
         public override Type GetGenericTypeDefinition()
         {
-            return NamedTypeSymbol?.ConstructedFrom.AsType(_metadataLoadContext) ?? throw new NotSupportedException();
+            return NamedTypeSymbol?.ConstructedFrom.AsType(metadataLoadContext) ?? throw new NotSupportedException();
         }
 
         public override IList<CustomAttributeData> GetCustomAttributesData()
         {
-            return SharedUtilities.GetCustomAttributesData(_typeSymbol, _metadataLoadContext);
+            return SharedUtilities.GetCustomAttributesData(typeSymbol, metadataLoadContext);
         }
 
         public override ConstructorInfo[] GetConstructors(BindingFlags bindingAttr)
@@ -118,13 +118,13 @@ namespace Neon.Roslyn
 
             foreach (var c in NamedTypeSymbol.Constructors)
             {
-                if (!SharedUtilities.MatchBindingFlags(bindingAttr, _typeSymbol, c))
+                if (!SharedUtilities.MatchBindingFlags(bindingAttr, typeSymbol, c))
                 {
                     continue;
                 }
 
                 ctors ??= new();
-                ctors.Add(c.AsConstructorInfo(_metadataLoadContext));
+                ctors.Add(c.AsConstructorInfo(metadataLoadContext));
             }
 
             return ctors?.ToArray() ?? Array.Empty<ConstructorInfo>();
@@ -132,7 +132,7 @@ namespace Neon.Roslyn
 
         public override Type MakeByRefType()
         {
-            return new RoslynType(_typeSymbol, _metadataLoadContext, isByRef: true);
+            return new RoslynType(typeSymbol, metadataLoadContext, isByRef: true);
         }
 
         public override object[] GetCustomAttributes(bool inherit)
@@ -147,7 +147,7 @@ namespace Neon.Roslyn
 
         public override Type MakeArrayType()
         {
-            return _metadataLoadContext.Compilation.CreateArrayTypeSymbol(_typeSymbol).AsType(_metadataLoadContext);
+            return metadataLoadContext.Compilation.CreateArrayTypeSymbol(typeSymbol).AsType(metadataLoadContext);
         }
 
         public override Type MakeGenericType(params Type[] typeArguments)
@@ -160,15 +160,15 @@ namespace Neon.Roslyn
             var typeSymbols = new ITypeSymbol[typeArguments.Length];
             for (int i = 0; i < typeArguments.Length; i++)
             {
-                typeSymbols[i] = _metadataLoadContext.ResolveType(typeArguments[i]).GetTypeSymbol();
+                typeSymbols[i] = metadataLoadContext.ResolveType(typeArguments[i]).GetTypeSymbol();
             }
 
-            return NamedTypeSymbol.Construct(typeSymbols).AsType(_metadataLoadContext);
+            return NamedTypeSymbol.Construct(typeSymbols).AsType(metadataLoadContext);
         }
 
         public override Type GetElementType()
         {
-            return ArrayTypeSymbol?.ElementType.AsType(_metadataLoadContext);
+            return ArrayTypeSymbol?.ElementType.AsType(metadataLoadContext);
         }
 
         public override EventInfo GetEvent(string name, BindingFlags bindingAttr)
@@ -183,19 +183,19 @@ namespace Neon.Roslyn
 
         public override FieldInfo GetField(string name, BindingFlags bindingAttr)
         {
-            foreach (var symbol in _typeSymbol.GetMembers())
+            foreach (var symbol in typeSymbol.GetMembers())
             {
                 if (symbol is not IFieldSymbol fieldSymbol)
                 {
                     continue;
                 }
 
-                if (!SharedUtilities.MatchBindingFlags(bindingAttr, _typeSymbol, symbol))
+                if (!SharedUtilities.MatchBindingFlags(bindingAttr, typeSymbol, symbol))
                 {
                     continue;
                 }
 
-                return fieldSymbol.AsFieldInfo(_metadataLoadContext);
+                return fieldSymbol.AsFieldInfo(metadataLoadContext);
             }
 
             return null;
@@ -205,20 +205,20 @@ namespace Neon.Roslyn
         {
             List<FieldInfo> fields = default;
 
-            foreach (var symbol in _typeSymbol.GetMembers())
+            foreach (var symbol in typeSymbol.GetMembers())
             {
                 if (symbol is not IFieldSymbol fieldSymbol)
                 {
                     continue;
                 }
 
-                if (!SharedUtilities.MatchBindingFlags(bindingAttr, _typeSymbol, symbol))
+                if (!SharedUtilities.MatchBindingFlags(bindingAttr, typeSymbol, symbol))
                 {
                     continue;
                 }
 
                 fields ??= new();
-                fields.Add(fieldSymbol.AsFieldInfo(_metadataLoadContext));
+                fields.Add(fieldSymbol.AsFieldInfo(metadataLoadContext));
             }
 
             return fields?.ToArray() ?? Array.Empty<FieldInfo>();
@@ -227,11 +227,11 @@ namespace Neon.Roslyn
         public override Type GetInterface(string name, bool ignoreCase)
         {
             var comparison = ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
-            foreach (var i in _typeSymbol.Interfaces)
+            foreach (var i in typeSymbol.Interfaces)
             {
                 if (i.Name.Equals(name, comparison))
                 {
-                    return i.AsType(_metadataLoadContext);
+                    return i.AsType(metadataLoadContext);
                 }
             }
             return null;
@@ -240,10 +240,10 @@ namespace Neon.Roslyn
         public override Type[] GetInterfaces()
         {
             List<Type> interfaces = default;
-            foreach (var i in _typeSymbol.Interfaces)
+            foreach (var i in typeSymbol.Interfaces)
             {
                 interfaces ??= new();
-                interfaces.Add(i.AsType(_metadataLoadContext));
+                interfaces.Add(i.AsType(metadataLoadContext));
             }
             return interfaces?.ToArray() ?? Array.Empty<Type>();
         }
@@ -252,21 +252,21 @@ namespace Neon.Roslyn
         {
             List<MemberInfo> members = null;
 
-            foreach (var t in _typeSymbol.BaseTypes())
+            foreach (var t in typeSymbol.BaseTypes())
             {
                 foreach (var symbol in t.GetMembers())
                 {
-                    if (!SharedUtilities.MatchBindingFlags(bindingAttr, _typeSymbol, symbol))
+                    if (!SharedUtilities.MatchBindingFlags(bindingAttr, typeSymbol, symbol))
                     {
                         continue;
                     }
 
                     MemberInfo member = symbol switch
                     {
-                        IFieldSymbol    f                   => f.AsFieldInfo(_metadataLoadContext),
-                        IPropertySymbol p                   => p.AsPropertyInfo(_metadataLoadContext),
-                        IMethodSymbol   c when c.MethodKind == MethodKind.Constructor => c.AsConstructorInfo(_metadataLoadContext),
-                        IMethodSymbol   m                   => m.AsMethodInfo(_metadataLoadContext),
+                        IFieldSymbol    f                   => f.AsFieldInfo(metadataLoadContext),
+                        IPropertySymbol p                   => p.AsPropertyInfo(metadataLoadContext),
+                        IMethodSymbol   c when c.MethodKind == MethodKind.Constructor => c.AsConstructorInfo(metadataLoadContext),
+                        IMethodSymbol   m                   => m.AsMethodInfo(metadataLoadContext),
                         _                                   => null
                     };
 
@@ -300,7 +300,7 @@ namespace Neon.Roslyn
         {
             List<MethodInfo> methods = null;
 
-            foreach (var t in _typeSymbol.BaseTypes())
+            foreach (var t in typeSymbol.BaseTypes())
             {
                 foreach (var m in t.GetMembers())
                 {
@@ -309,13 +309,13 @@ namespace Neon.Roslyn
                         continue;
                     }
 
-                    if (!SharedUtilities.MatchBindingFlags(bindingAttr, _typeSymbol, method))
+                    if (!SharedUtilities.MatchBindingFlags(bindingAttr, typeSymbol, method))
                     {
                         continue;
                     }
 
                     methods ??= new();
-                    methods.Add(method.AsMethodInfo(_metadataLoadContext));
+                    methods.Add(method.AsMethodInfo(metadataLoadContext));
                 }
             }
 
@@ -324,14 +324,14 @@ namespace Neon.Roslyn
 
         public override Type GetNestedType(string name, BindingFlags bindingAttr)
         {
-            foreach (var type in _typeSymbol.GetTypeMembers(name))
+            foreach (var type in typeSymbol.GetTypeMembers(name))
             {
-                if (!SharedUtilities.MatchBindingFlags(bindingAttr, _typeSymbol, type))
+                if (!SharedUtilities.MatchBindingFlags(bindingAttr, typeSymbol, type))
                 {
                     continue;
                 }
 
-                return type.AsType(_metadataLoadContext);
+                return type.AsType(metadataLoadContext);
             }
             return null;
         }
@@ -339,15 +339,15 @@ namespace Neon.Roslyn
         public override Type[] GetNestedTypes(BindingFlags bindingAttr)
         {
             List<Type> nestedTypes = default;
-            foreach (var type in _typeSymbol.GetTypeMembers())
+            foreach (var type in typeSymbol.GetTypeMembers())
             {
-                if (!SharedUtilities.MatchBindingFlags(bindingAttr, _typeSymbol, type))
+                if (!SharedUtilities.MatchBindingFlags(bindingAttr, typeSymbol, type))
                 {
                     continue;
                 }
 
                 nestedTypes ??= new();
-                nestedTypes.Add(type.AsType(_metadataLoadContext));
+                nestedTypes.Add(type.AsType(metadataLoadContext));
             }
             return nestedTypes?.ToArray() ?? Array.Empty<Type>();
         }
@@ -355,7 +355,7 @@ namespace Neon.Roslyn
         public override PropertyInfo[] GetProperties(BindingFlags bindingAttr)
         {
             List<PropertyInfo> properties = default;
-            foreach (var t in _typeSymbol.BaseTypes())
+            foreach (var t in typeSymbol.BaseTypes())
             {
                 foreach (var symbol in t.GetMembers())
                 {
@@ -364,13 +364,13 @@ namespace Neon.Roslyn
                         continue;
                     }
 
-                    if (!SharedUtilities.MatchBindingFlags(bindingAttr, _typeSymbol, symbol))
+                    if (!SharedUtilities.MatchBindingFlags(bindingAttr, typeSymbol, symbol))
                     {
                         continue;
                     }
 
                     properties ??= new();
-                    properties.Add(new RoslynPropertyInfo(property, _metadataLoadContext));
+                    properties.Add(new RoslynPropertyInfo(property, metadataLoadContext));
                 }
             }
             return properties?.ToArray() ?? Array.Empty<PropertyInfo>();
@@ -388,52 +388,52 @@ namespace Neon.Roslyn
 
         protected override TypeAttributes GetAttributeFlagsImpl()
         {
-            if (!_typeAttributes.HasValue)
+            if (!typeAttributes.HasValue)
             {
-                _typeAttributes = default(TypeAttributes);
+                typeAttributes = default(TypeAttributes);
 
-                if (_typeSymbol.IsAbstract)
+                if (typeSymbol.IsAbstract)
                 {
-                    _typeAttributes |= TypeAttributes.Abstract;
+                    typeAttributes |= TypeAttributes.Abstract;
                 }
 
-                if (_typeSymbol.TypeKind == TypeKind.Interface)
+                if (typeSymbol.TypeKind == TypeKind.Interface)
                 {
-                    _typeAttributes |= TypeAttributes.Interface;
+                    typeAttributes |= TypeAttributes.Interface;
                 }
 
-                if (_typeSymbol.IsSealed)
+                if (typeSymbol.IsSealed)
                 {
-                    _typeAttributes |= TypeAttributes.Sealed;
+                    typeAttributes |= TypeAttributes.Sealed;
                 }
 
-                bool isNested = _typeSymbol.ContainingType != null;
+                bool isNested = typeSymbol.ContainingType != null;
 
-                switch (_typeSymbol.DeclaredAccessibility)
+                switch (typeSymbol.DeclaredAccessibility)
                 {
                     case Accessibility.NotApplicable:
                     case Accessibility.Private:
-                        _typeAttributes |= isNested ? TypeAttributes.NestedPrivate : TypeAttributes.NotPublic;
+                        typeAttributes |= isNested ? TypeAttributes.NestedPrivate : TypeAttributes.NotPublic;
                         break;
                     case Accessibility.ProtectedAndInternal:
-                        _typeAttributes |= isNested ? TypeAttributes.NestedFamANDAssem : TypeAttributes.NotPublic;
+                        typeAttributes |= isNested ? TypeAttributes.NestedFamANDAssem : TypeAttributes.NotPublic;
                         break;
                     case Accessibility.Protected:
-                        _typeAttributes |= isNested ? TypeAttributes.NestedFamily : TypeAttributes.NotPublic;
+                        typeAttributes |= isNested ? TypeAttributes.NestedFamily : TypeAttributes.NotPublic;
                         break;
                     case Accessibility.Internal:
-                        _typeAttributes |= isNested ? TypeAttributes.NestedAssembly : TypeAttributes.NotPublic;
+                        typeAttributes |= isNested ? TypeAttributes.NestedAssembly : TypeAttributes.NotPublic;
                         break;
                     case Accessibility.ProtectedOrInternal:
-                        _typeAttributes |= isNested ? TypeAttributes.NestedFamORAssem : TypeAttributes.NotPublic;
+                        typeAttributes |= isNested ? TypeAttributes.NestedFamORAssem : TypeAttributes.NotPublic;
                         break;
                     case Accessibility.Public:
-                        _typeAttributes |= isNested ? TypeAttributes.NestedPublic : TypeAttributes.Public;
+                        typeAttributes |= isNested ? TypeAttributes.NestedPublic : TypeAttributes.Public;
                         break;
                 }
             }
 
-            return _typeAttributes.Value;
+            return typeAttributes.Value;
         }
 
         protected override ConstructorInfo GetConstructorImpl(BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
@@ -443,7 +443,7 @@ namespace Neon.Roslyn
                 ? StringComparison.OrdinalIgnoreCase
                 : StringComparison.Ordinal;
 
-            foreach (var m in _typeSymbol.GetMembers())
+            foreach (var m in typeSymbol.GetMembers())
             {
                 if (m is not IMethodSymbol method || method.MethodKind != MethodKind.Constructor)
                 {
@@ -451,7 +451,7 @@ namespace Neon.Roslyn
                     continue;
                 }
 
-                if (!SharedUtilities.MatchBindingFlags(bindingAttr, _typeSymbol, m))
+                if (!SharedUtilities.MatchBindingFlags(bindingAttr, typeSymbol, m))
                 {
                     continue;
                 }
@@ -471,7 +471,7 @@ namespace Neon.Roslyn
                     for (int i = 0; i < parameterCount; i++)
                     {
                         var parameterType = types[i];
-                        var parameterTypeSymbol = _metadataLoadContext.ResolveType(parameterType)?.GetTypeSymbol();
+                        var parameterTypeSymbol = metadataLoadContext.ResolveType(parameterType)?.GetTypeSymbol();
 
                         if (parameterTypeSymbol is null)
                         {
@@ -489,7 +489,7 @@ namespace Neon.Roslyn
 
                 if (valid)
                 {
-                    return method.AsConstructorInfo(_metadataLoadContext);
+                    return method.AsConstructorInfo(metadataLoadContext);
                 }
             }
 
@@ -503,7 +503,7 @@ namespace Neon.Roslyn
                 ? StringComparison.OrdinalIgnoreCase
                 : StringComparison.Ordinal;
 
-            foreach (var m in _typeSymbol.GetMembers())
+            foreach (var m in typeSymbol.GetMembers())
             {
                 if (m is not IMethodSymbol method || method.MethodKind == MethodKind.Constructor)
                 {
@@ -511,7 +511,7 @@ namespace Neon.Roslyn
                     continue;
                 }
 
-                if (!SharedUtilities.MatchBindingFlags(bindingAttr, _typeSymbol, m))
+                if (!SharedUtilities.MatchBindingFlags(bindingAttr, typeSymbol, m))
                 {
                     continue;
                 }
@@ -536,7 +536,7 @@ namespace Neon.Roslyn
                     for (int i = 0; i < parameterCount; i++)
                     {
                         var parameterType = types[i];
-                        var parameterTypeSymbol = _metadataLoadContext.ResolveType(parameterType)?.GetTypeSymbol();
+                        var parameterTypeSymbol = metadataLoadContext.ResolveType(parameterType)?.GetTypeSymbol();
 
                         if (parameterTypeSymbol is null)
                         {
@@ -554,7 +554,7 @@ namespace Neon.Roslyn
 
                 if (valid)
                 {
-                    return method.AsMethodInfo(_metadataLoadContext);
+                    return method.AsMethodInfo(metadataLoadContext);
                 }
             }
 
@@ -567,14 +567,14 @@ namespace Neon.Roslyn
                 ? StringComparison.OrdinalIgnoreCase
                 : StringComparison.Ordinal;
 
-            foreach (var symbol in _typeSymbol.GetMembers())
+            foreach (var symbol in typeSymbol.GetMembers())
             {
                 if (symbol is not IPropertySymbol property)
                 {
                     continue;
                 }
 
-                if (!SharedUtilities.MatchBindingFlags(bindingAttr, _typeSymbol, symbol))
+                if (!SharedUtilities.MatchBindingFlags(bindingAttr, typeSymbol, symbol))
                 {
                     continue;
                 }
@@ -584,7 +584,7 @@ namespace Neon.Roslyn
                     continue;
                 }
 
-                var roslynReturnType = _metadataLoadContext.ResolveType(returnType);
+                var roslynReturnType = metadataLoadContext.ResolveType(returnType);
 
                 if (roslynReturnType?.Equals(property.Type) == false)
                 {
@@ -603,7 +603,7 @@ namespace Neon.Roslyn
                 }
                 // TODO: Use parameters
 
-                return property.AsPropertyInfo(_metadataLoadContext);
+                return property.AsPropertyInfo(metadataLoadContext);
 
             }
             return null;
@@ -619,7 +619,7 @@ namespace Neon.Roslyn
             return ArrayTypeSymbol is not null;
         }
 
-        protected override bool IsByRefImpl() => _isByRef;
+        protected override bool IsByRefImpl() => isByRef;
 
         protected override bool IsCOMObjectImpl()
         {
@@ -628,7 +628,7 @@ namespace Neon.Roslyn
 
         protected override bool IsPointerImpl()
         {
-            return _typeSymbol.Kind == SymbolKind.PointerType;
+            return typeSymbol.Kind == SymbolKind.PointerType;
         }
 
         protected override bool IsPrimitiveImpl()
@@ -636,7 +636,7 @@ namespace Neon.Roslyn
             // Is IsPrimitive
             // https://github.com/dotnet/runtime/blob/55e95c80a7d7ec9d7bbbd5ad434604a1dc33e19c/src/libraries/System.Reflection.MetadataLoadContext/src/System/Reflection/TypeLoading/Types/RoType.TypeClassification.cs#L85
 
-            return _typeSymbol.SpecialType switch
+            return typeSymbol.SpecialType switch
             {
                 SpecialType.System_Boolean => true,
                 SpecialType.System_Char    => true,
@@ -659,15 +659,15 @@ namespace Neon.Roslyn
 
         public override string ToString()
         {
-            return _typeSymbol.ToString();
+            return typeSymbol.ToString();
         }
 
         public override bool IsAssignableFrom(Type c)
         {
             var otherTypeSymbol = c switch
             {
-                RoslynType rt => rt._typeSymbol,
-                Type t when _metadataLoadContext.ResolveType(t) is RoslynType rt => rt._typeSymbol,
+                RoslynType rt => rt.typeSymbol,
+                Type t when metadataLoadContext.ResolveType(t) is RoslynType rt => rt.typeSymbol,
                 _ => null
             };
 
@@ -676,16 +676,16 @@ namespace Neon.Roslyn
                 return false;
             }
 
-            return otherTypeSymbol.AllInterfaces.Contains(_typeSymbol, SymbolEqualityComparer.Default) ||
-                   (otherTypeSymbol is INamedTypeSymbol ns && ns.BaseTypes().Contains(_typeSymbol, SymbolEqualityComparer.Default));
+            return otherTypeSymbol.AllInterfaces.Contains(typeSymbol, SymbolEqualityComparer.Default) ||
+                   (otherTypeSymbol is INamedTypeSymbol ns && ns.BaseTypes().Contains(typeSymbol, SymbolEqualityComparer.Default));
         }
 
         public bool IsAssignableTo(Type c)
         {
             var otherTypeSymbol = c switch
             {
-                RoslynType rt => rt._typeSymbol,
-                Type t when _metadataLoadContext.ResolveType(t) is RoslynType rt => rt._typeSymbol,
+                RoslynType rt => rt.typeSymbol,
+                Type t when metadataLoadContext.ResolveType(t) is RoslynType rt => rt.typeSymbol,
                 _ => null
             };
 
@@ -694,37 +694,37 @@ namespace Neon.Roslyn
                 return false;
             }
 
-            return otherTypeSymbol.AllInterfaces.Contains(_typeSymbol, SymbolEqualityComparer.Default) ||
-                   (otherTypeSymbol is INamedTypeSymbol ns && ns.BaseTypes().Contains(_typeSymbol, SymbolEqualityComparer.Default));
+            return otherTypeSymbol.AllInterfaces.Contains(typeSymbol, SymbolEqualityComparer.Default) ||
+                   (otherTypeSymbol is INamedTypeSymbol ns && ns.BaseTypes().Contains(typeSymbol, SymbolEqualityComparer.Default));
         }
 
         public override int GetHashCode()
         {
-            return SymbolEqualityComparer.Default.GetHashCode(_typeSymbol);
+            return SymbolEqualityComparer.Default.GetHashCode(typeSymbol);
         }
 
         public override bool Equals(object o)
         {
             var otherTypeSymbol = o switch
             {
-                RoslynType  rt                                                          => rt._typeSymbol,
-                Type        t when _metadataLoadContext.ResolveType(t) is RoslynType rt => rt._typeSymbol,
+                RoslynType  rt                                                          => rt.typeSymbol,
+                Type        t when metadataLoadContext.ResolveType(t) is RoslynType rt => rt.typeSymbol,
                 ITypeSymbol ts                                                          => ts,
                 _                                                                       => null
             };
 
-            return _typeSymbol.Equals(otherTypeSymbol, SymbolEqualityComparer.Default);
+            return typeSymbol.Equals(otherTypeSymbol, SymbolEqualityComparer.Default);
         }
 
         public override bool Equals(Type o)
         {
             var otherTypeSymbol = o switch
             {
-                RoslynType rt                                                          => rt._typeSymbol,
-                Type       t when _metadataLoadContext.ResolveType(t) is RoslynType rt => rt._typeSymbol,
+                RoslynType rt                                                          => rt.typeSymbol,
+                Type       t when metadataLoadContext.ResolveType(t) is RoslynType rt => rt.typeSymbol,
                 _                                                                      => null
             };
-            return _typeSymbol.Equals(otherTypeSymbol, SymbolEqualityComparer.Default);
+            return typeSymbol.Equals(otherTypeSymbol, SymbolEqualityComparer.Default);
         }
     }
 }

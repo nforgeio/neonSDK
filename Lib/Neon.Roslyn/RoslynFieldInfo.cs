@@ -26,61 +26,61 @@ namespace Neon.Roslyn
 {
     internal class RoslynFieldInfo : FieldInfo
     {
-        private readonly IFieldSymbol        _field;
-        private readonly MetadataLoadContext _metadataLoadContext;
-        private FieldAttributes?             _attributes;
+        private readonly IFieldSymbol        field;
+        private readonly MetadataLoadContext metadataLoadContext;
+        private FieldAttributes?             attributes;
 
         public RoslynFieldInfo(IFieldSymbol parameter, MetadataLoadContext metadataLoadContext)
         {
-            _field               = parameter;
-            _metadataLoadContext = metadataLoadContext;
+            this.field               = parameter;
+            this.metadataLoadContext = metadataLoadContext;
         }
 
-        public IFieldSymbol FieldSymbol => _field;
+        public IFieldSymbol FieldSymbol => field;
 
         public override FieldAttributes Attributes
         {
             get
             {
-                if (!_attributes.HasValue)
+                if (!attributes.HasValue)
                 {
-                    _attributes = default(FieldAttributes);
+                    attributes = default(FieldAttributes);
 
-                    if (_field.IsStatic)
+                    if (field.IsStatic)
                     {
-                        _attributes |= FieldAttributes.Static;
+                        attributes |= FieldAttributes.Static;
                     }
 
-                    if (_field.IsReadOnly)
+                    if (field.IsReadOnly)
                     {
-                        _attributes |= FieldAttributes.InitOnly;
+                        attributes |= FieldAttributes.InitOnly;
                     }
 
-                    switch (_field.DeclaredAccessibility)
+                    switch (field.DeclaredAccessibility)
                     {
                         case Accessibility.Public:
-                            _attributes |= FieldAttributes.Public;
+                            attributes |= FieldAttributes.Public;
                             break;
                         case Accessibility.Private:
-                            _attributes |= FieldAttributes.Private;
+                            attributes |= FieldAttributes.Private;
                             break;
                         case Accessibility.Protected:
-                            _attributes |= FieldAttributes.Family;
+                            attributes |= FieldAttributes.Family;
                             break;
                     }
                 }
 
-                return _attributes.Value;
+                return attributes.Value;
             }
         }
 
         public override RuntimeFieldHandle FieldHandle => throw new NotSupportedException();
 
-        public override Type FieldType => _field.Type.AsType(_metadataLoadContext);
+        public override Type FieldType => field.Type.AsType(metadataLoadContext);
 
-        public override Type DeclaringType => _field.ContainingType.AsType(_metadataLoadContext);
+        public override Type DeclaringType => field.ContainingType.AsType(metadataLoadContext);
 
-        public override string Name => _field.Name;
+        public override string Name => field.Name;
 
         public override Type ReflectedType => throw new NotImplementedException();
 
@@ -101,7 +101,7 @@ namespace Neon.Roslyn
 
         public override IList<CustomAttributeData> GetCustomAttributesData()
         {
-            return SharedUtilities.GetCustomAttributesData(_field, _metadataLoadContext);
+            return SharedUtilities.GetCustomAttributesData(field, metadataLoadContext);
         }
 
         public override bool IsDefined(Type attributeType, bool inherit)
@@ -114,6 +114,6 @@ namespace Neon.Roslyn
             throw new NotSupportedException();
         }
 
-        public override string ToString() => _field.ToString();
+        public override string ToString() => field.ToString();
     }
 }

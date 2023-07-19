@@ -25,30 +25,30 @@ namespace Neon.Roslyn
 {
     public class RoslynParameterInfo : ParameterInfo
     {
-        private readonly IParameterSymbol    _parameter;
-        private readonly MetadataLoadContext _metadataLoadContext;
+        private readonly IParameterSymbol    parameter;
+        private readonly MetadataLoadContext metadataLoadContext;
 
         public RoslynParameterInfo(IParameterSymbol parameter, MetadataLoadContext metadataLoadContext)
         {
-            _parameter           = parameter;
-            _metadataLoadContext = metadataLoadContext;
+            this.parameter           = parameter;
+            this.metadataLoadContext = metadataLoadContext;
         }
 
-        public IParameterSymbol ParameterSymbol => _parameter;
+        public IParameterSymbol ParameterSymbol => parameter;
 
-        public override Type ParameterType => _parameter.Type.AsType(_metadataLoadContext);
-        public override string Name => _parameter.Name;
-        public override bool HasDefaultValue => _parameter.HasExplicitDefaultValue;
+        public override Type ParameterType => parameter.Type.AsType(metadataLoadContext);
+        public override string Name => parameter.Name;
+        public override bool HasDefaultValue => parameter.HasExplicitDefaultValue;
 
-        public override object DefaultValue => HasDefaultValue ? _parameter.ExplicitDefaultValue : null;
+        public override object DefaultValue => HasDefaultValue ? parameter.ExplicitDefaultValue : null;
 
-        public override int Position => _parameter.Ordinal;
+        public override int Position => parameter.Ordinal;
 
         public override IList<CustomAttributeData> GetCustomAttributesData()
         {
-            return SharedUtilities.GetCustomAttributesData(_parameter, _metadataLoadContext);
+            return SharedUtilities.GetCustomAttributesData(parameter, metadataLoadContext);
         }
 
-        public override string ToString() => _parameter.ToString();
+        public override string ToString() => parameter.ToString();
     }
 }

@@ -26,13 +26,13 @@ namespace Neon.Roslyn
 {
     internal class RoslynMethodInfo : MethodInfo
     {
-        private readonly IMethodSymbol       _method;
-        private readonly MetadataLoadContext _metadataLoadContext;
+        private readonly IMethodSymbol       method;
+        private readonly MetadataLoadContext metadataLoadContext;
 
         public RoslynMethodInfo(IMethodSymbol method, MetadataLoadContext metadataLoadContext)
         {
-            _method              = method;
-            _metadataLoadContext = metadataLoadContext;
+            this.method              = method;
+            this.metadataLoadContext = metadataLoadContext;
 
             Attributes = SharedUtilities.GetMethodAttributes(method);
         }
@@ -43,26 +43,26 @@ namespace Neon.Roslyn
 
         public override RuntimeMethodHandle MethodHandle => throw new NotSupportedException();
 
-        public override Type DeclaringType => _method.ContainingType.AsType(_metadataLoadContext);
+        public override Type DeclaringType => method.ContainingType.AsType(metadataLoadContext);
 
-        public override Type ReturnType => _method.ReturnType.AsType(_metadataLoadContext);
+        public override Type ReturnType => method.ReturnType.AsType(metadataLoadContext);
 
-        public override string Name => _method.Name;
+        public override string Name => method.Name;
 
-        public override bool IsGenericMethod => _method.IsGenericMethod;
+        public override bool IsGenericMethod => method.IsGenericMethod;
 
         public override Type ReflectedType => throw new NotImplementedException();
 
-        public IMethodSymbol MethodSymbol => _method;
+        public IMethodSymbol MethodSymbol => method;
 
         public override IList<CustomAttributeData> GetCustomAttributesData()
         {
-            return SharedUtilities.GetCustomAttributesData(_method, _metadataLoadContext);
+            return SharedUtilities.GetCustomAttributesData(method, metadataLoadContext);
         }
 
         public override MethodInfo GetBaseDefinition()
         {
-            var method = _method;
+            var method = this.method;
 
             // Walk until we find the base definition for this method
             while (method.OverriddenMethod is not null)
@@ -70,12 +70,12 @@ namespace Neon.Roslyn
                 method = method.OverriddenMethod;
             }
 
-            if (method.Equals(_method, SymbolEqualityComparer.Default))
+            if (method.Equals(this.method, SymbolEqualityComparer.Default))
             {
                 return this;
             }
 
-            return method.AsMethodInfo(_metadataLoadContext);
+            return method.AsMethodInfo(metadataLoadContext);
         }
 
         public override MethodInfo MakeGenericMethod(params Type[] typeArguments)
@@ -84,10 +84,10 @@ namespace Neon.Roslyn
 
             for (int i = 0; i < typeSymbols.Length; i++)
             {
-                typeSymbols[i] = _metadataLoadContext.ResolveType(typeArguments[i]).GetTypeSymbol();
+                typeSymbols[i] = metadataLoadContext.ResolveType(typeArguments[i]).GetTypeSymbol();
             }
 
-            return _method.Construct(typeSymbols).AsMethodInfo(_metadataLoadContext);
+            return method.Construct(typeSymbols).AsMethodInfo(metadataLoadContext);
         }
 
         public override object[] GetCustomAttributes(bool inherit)
@@ -104,10 +104,10 @@ namespace Neon.Roslyn
         {
             List<Type> typeArguments = default;
 
-            foreach (var t in _method.TypeArguments)
+            foreach (var t in method.TypeArguments)
             {
                 typeArguments ??= new();
-                typeArguments.Add(t.AsType(_metadataLoadContext));
+                typeArguments.Add(t.AsType(metadataLoadContext));
             }
 
             return typeArguments?.ToArray() ?? Array.Empty<Type>();
@@ -122,10 +122,10 @@ namespace Neon.Roslyn
         {
             List<ParameterInfo> parameters = default;
 
-            foreach (var p in _method.Parameters)
+            foreach (var p in method.Parameters)
             {
                 parameters ??= new();
-                parameters.Add(p.AsParameterInfo(_metadataLoadContext));
+                parameters.Add(p.AsParameterInfo(metadataLoadContext));
             }
 
             return parameters?.ToArray() ?? Array.Empty<ParameterInfo>();
@@ -141,6 +141,6 @@ namespace Neon.Roslyn
             throw new NotSupportedException();
         }
 
-        public override string ToString() => _method.ToString();
+        public override string ToString() => method.ToString();
     }
 }
