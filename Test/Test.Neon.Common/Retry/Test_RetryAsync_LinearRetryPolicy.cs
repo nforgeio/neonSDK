@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Neon.Common;
@@ -501,6 +502,30 @@ namespace TestCommon
                 });
 
             Assert.True(4 <= times.Count && times.Count <= 6);
+        }
+
+        [Fact]
+        public async Task Cancel()
+        {
+            // Have test code throw TimeoutExceptions which will be considered to be transient and
+            // then in another task, cancel a cancellation token and then verify that the policy
+            // cancelled the operation.
+
+            var cts    = new CancellationTokenSource();
+            var policy = new LinearRetryPolicy(typeof(TransientException), maxAttempts: 6, retryInterval: TimeSpan.FromSeconds(1), cancellationToken: cts.Token);
+
+            cts.CancelAfter(TimeSpan.FromSeconds(2));
+
+            await Assert.ThrowsAsync<OperationCanceledException>(
+                async () =>
+                {
+                    await policy.InvokeAsync(
+                        async () =>
+                        {
+                            await Task.CompletedTask;
+                            throw new TransientException();
+                        });
+                });
         }
     }
 }
