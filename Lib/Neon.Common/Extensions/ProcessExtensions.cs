@@ -35,7 +35,8 @@ namespace Neon.Common
         /// <summary>
         /// Signals the process to be killed and then waits for it to exit.
         /// Note that <see cref="Process.Kill"/> only initiates process
-        /// termination but that the process actually dies asynchronously.
+        /// termination but that the process actually dies asynchronously,
+        /// whereas the method actually waits for the process to terminate.
         /// </summary>
         /// <param name="process">The target process.</param>
         public static void KillNow(this Process process)
