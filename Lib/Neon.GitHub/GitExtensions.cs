@@ -74,5 +74,20 @@ namespace Neon.GitHub
         {
             return localRepo.Branches.SingleOrDefault(branch => branch.IsCurrentRepositoryHead);
         }
+
+        //---------------------------------------------------------------------
+        // GitSDignature extensions
+
+        /// <summary>
+        /// Converts a <see cref="LibGit2Sharp.Signature"/> into a <see cref="LibGit2Sharp.Identity"/>.
+        /// </summary>
+        /// <param name="signature">The signature being converted.</param>
+        /// <returns>The equivalent identity.</returns>
+        public static Identity ToIdentity(this LibGit2Sharp.Signature signature)
+        {
+            Covenant.Requires<ArgumentNullException>(signature != null, nameof(signature));
+
+            return new Identity(name: signature.Name, email: signature.Email);
+        }
     }
 }
