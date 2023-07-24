@@ -1267,5 +1267,146 @@ namespace TestGitHub
                     }
                 });
         }
+
+        [MaintainerFact]
+        public async Task Local_Reset_Hard_ToCommit()
+        {
+            await GitHubTestHelper.RunTestAsync(
+                async () =>
+                {
+                    //-------------------------------------------------
+                    // Verify HARD reset to a previous commit.
+
+                    using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
+                    {
+                        var repoPath = tempFolder.Path;
+
+                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepoPath, repoPath))
+                        {
+                            var testFolder = Path.Combine(tempFolder.Path, GitHubTestHelper.TestFolder);
+                            var file1Name   = $"{Guid.NewGuid()}.txt";
+                            var file2Name   = $"{Guid.NewGuid()}.txt";
+                            var file1Path   = Path.Combine(testFolder, file1Name);
+                            var file2Path   = Path.Combine(testFolder, file2Name);
+
+                            var newBranchName = $"testbranch-{Guid.NewGuid()}";
+
+                            Assert.True(await repo.Local.CreateBranchAsync(newBranchName, "master"));
+
+                            var initialCommit = repo.Local.CurrentBranch.Tip;
+
+                            //-------------------------------------------------
+                            // Create a file and commit it.
+
+                            File.WriteAllText(file1Path, "HELLO WORLD!");
+                            await repo.Local.CommitAsync();
+
+                            var secondCommit = repo.Local.CurrentBranch.Tip;
+
+                            //-------------------------------------------------
+                            // Create update the first file and add a second file
+                            // and then commit them.
+
+                            File.WriteAllText(file1Path, "GOODBYE WORLD!");
+                            File.WriteAllText(file2Path, "TEST");
+                            await repo.Local.CommitAsync();
+
+                            var thirdCommit = repo.Local.CurrentBranch.Tip;
+
+                            //-------------------------------------------------
+                            // Perform a HARD reset to the second commit and verify
+                            // that the stage index was reset and that the first file
+                            // still exists but was reverted and the second file
+                            // doesn't exist.
+
+                            await repo.Local.ResetAsync(ResetMode.Hard, secondCommit);
+
+                            Assert.True(File.Exists(file1Path));
+                            Assert.Equal("HELLO WORLD!", File.ReadAllText(file1Path));
+                            Assert.False(File.Exists(file2Path));
+
+                            //-------------------------------------------------
+                            // Perform a HARD reset to the initial commit and verify
+                            // that both files are gone now.
+
+                            await repo.Local.ResetAsync(ResetMode.Hard, initialCommit);
+
+                            Assert.False(File.Exists(file1Path));
+                            Assert.False(File.Exists(file2Path));
+                        }
+                    }
+                });
+        }
+
+        [MaintainerFact]
+        public async Task Local_Reset_Soft_ToCommit()
+        {
+            await GitHubTestHelper.RunTestAsync(
+                async () =>
+                {
+                    //-------------------------------------------------
+                    // Verify HARD reset to a previous commit.
+
+                    using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
+                    {
+                        var repoPath = tempFolder.Path;
+
+                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepoPath, repoPath))
+                        {
+                            var testFolder = Path.Combine(tempFolder.Path, GitHubTestHelper.TestFolder);
+                            var file1Name   = $"{Guid.NewGuid()}.txt";
+                            var file2Name   = $"{Guid.NewGuid()}.txt";
+                            var file1Path   = Path.Combine(testFolder, file1Name);
+                            var file2Path   = Path.Combine(testFolder, file2Name);
+
+                            var newBranchName = $"testbranch-{Guid.NewGuid()}";
+
+                            Assert.True(await repo.Local.CreateBranchAsync(newBranchName, "master"));
+
+                            var initialCommit = repo.Local.CurrentBranch.Tip;
+
+                            //-------------------------------------------------
+                            // Create a file and commit it.
+
+                            File.WriteAllText(file1Path, "HELLO WORLD!");
+                            await repo.Local.CommitAsync();
+
+                            var secondCommit = repo.Local.CurrentBranch.Tip;
+
+                            //-------------------------------------------------
+                            // Create update the first file and add a second file
+                            // and then commit them.
+
+                            File.WriteAllText(file1Path, "GOODBYE WORLD!");
+                            File.WriteAllText(file2Path, "TEST");
+                            await repo.Local.CommitAsync();
+
+                            var thirdCommit = repo.Local.CurrentBranch.Tip;
+
+                            //-------------------------------------------------
+                            // Perform a SOFT reset to the second commit and verify
+                            // that the stage index was not reset and that the first
+                            // file still exists but was not reverted.
+
+                            await repo.Local.ResetAsync(ResetMode.Soft, secondCommit);
+
+                            Assert.True(File.Exists(file1Path));
+                            Assert.Equal("GOODBYE WORLD!", File.ReadAllText(file1Path));
+                            Assert.True(File.Exists(file2Path));
+
+                            //-------------------------------------------------
+                            // Perform a SOFT reset to the initial commit and verify
+                            // that both files still exist and that the first file
+                            // was not reverted.
+
+                            await repo.Local.ResetAsync(ResetMode.Soft, initialCommit);
+
+                            Assert.True(File.Exists(file1Path));
+                            Assert.Equal("GOODBYE WORLD!", File.ReadAllText(file1Path));
+                            Assert.True(File.Exists(file2Path));
+                        }
+                    }
+                });
+        }
     }
 }
