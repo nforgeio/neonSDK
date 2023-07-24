@@ -508,7 +508,8 @@ namespace Neon.GitHub
         }
 
         /// <summary>
-        /// Reverts any uncommitted changes in the current local repository branch.
+        /// Reverts any uncommitted changes in the current local repository branch,
+        /// including untracked files.
         /// </summary>
         /// <returns>The tracking <see cref="Task"/>.</returns>
         /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
@@ -752,6 +753,69 @@ namespace Neon.GitHub
         }
 
         /// <summary>
+        /// Returns the status of a working file by comparing it against any staged file
+        /// and the current commit.
+        /// </summary>
+        /// <param name="path">Path to the working file.</param>
+        /// <returns>The <see cref="FileStatus"/>.</returns>
+        public async Task<FileStatus> RetrieveStatusAsync(string path)
+        {
+            await SyncContext.Clear;
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(path), nameof(path));
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
+
+            return await Task.FromResult(root.GitApi.RetrieveStatus(path));
+        }
+
+        /// <summary>
+        /// Returns the status of a working file by comparing it against any staged file
+        /// and the current commit.
+        /// </summary>
+        /// <param name="options">Optionally specifies status retrieval options.</param>
+        /// <returns>The <see cref="RepositoryStatus"/>.</returns>
+        public async Task<RepositoryStatus> RetrieveStatusAsync(StatusOptions options = null)
+        {
+            await SyncContext.Clear;
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
+
+            return await Task.FromResult(root.GitApi.RetrieveStatus(options ?? new StatusOptions()));
+        }
+
+        /// <summary>
+        /// Stages a file.
+        /// </summary>
+        /// <param name="path">Path to the file.</param>
+        /// <returns>The tracking <see cref="Task"/>.</returns>
+        public async Task StageAsync(string path)
+        {
+            await SyncContext.Clear;
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(path), nameof(path));
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
+
+            Commands.Stage(root.GitApi, path);
+            await Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Unstages a file.
+        /// </summary>
+        /// <param name="path">Path to the file.</param>
+        /// <returns>The tracking <see cref="Task"/>.</returns>
+        public async Task UnstageAsync(string path)
+        {
+            await SyncContext.Clear;
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(path), nameof(path));
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
+
+            Commands.Unstage(root.GitApi, path);
+            await Task.CompletedTask;
+        }
+
+        /// <summary>
         /// Cherry-picks commits from a target branch and adds them to the current branch.
         /// </summary>
         /// <param name="sourceBranchName">Specifies the friendly name of the local source branch.</param>
@@ -759,7 +823,6 @@ namespace Neon.GitHub
         /// Specifies the commits to be cherry-picked from the source branch and added to the target.
         /// The commits will be applied in the order they appear here.
         /// </param>
-        /// <param name="options">OPtionally specifies cherry-pick options.</param>
         /// <returns>The tracking <see cref="Task"/>.</returns>
         /// <exception cref="LibGit2SharpException">
         /// Thrown when the source branch doesn't include any of the commits, the target
@@ -776,15 +839,13 @@ namespace Neon.GitHub
         /// Cherry-picking will stop if one of the operations fails due to a conflict.
         /// </para>
         /// </remarks>
-        public async Task CherryPickAsync(string sourceBranchName, IEnumerable<GitCommit> commits, CherryPickOptions options = null)
+        public async Task CherryPickAsync(string sourceBranchName, IEnumerable<GitCommit> commits)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(sourceBranchName), nameof(sourceBranchName));
             Covenant.Requires<ArgumentNullException>(commits != null, nameof(commits));
             root.EnsureNotDisposed();
             root.EnsureLocalRepo();
-
-            options ??= new CherryPickOptions();
 
             var sourceBranch      = GetBranch(sourceBranchName);
             var idToPickCommit    = commits.ToDictionary(commit => commit.Sha);
@@ -831,13 +892,150 @@ namespace Neon.GitHub
 
             foreach (var commit in commits)
             {
-                var result = root.GitApi.CherryPick(commit, signature, options);
+                // Merge commits have two parents and we need to configure the cherry-pick
+                // mainline option for these.  We're going to hardcode the first branch there.
 
-                if (result.Status == CherryPickStatus.Conflicts)
+                var options = new CherryPickOptions()
                 {
-                    throw new LibGit2SharpException($"Conflict cherry-picking: {commit.Sha}");
+                    FileConflictStrategy = CheckoutFileConflictStrategy.Theirs,
+                    CommitOnSuccess      = true,
+                };
+
+                if (commit.Parents.Count() > 1)
+                {
+                    options.Mainline = 1;
+                }
+
+                try
+                {
+                    var result = root.GitApi.CherryPick(commit, signature, options);
+
+                    if (result.Status == CherryPickStatus.Conflicts)
+                    {
+                        throw new LibGit2SharpException($"Conflict cherry-picking: {commit.Sha}: {commit.Message}");
+                    }
+                }
+                catch (EmptyCommitException)
+                {
+                    // We're going to ignore these.
                 }
             }
+        }
+
+        /// <summary>
+        /// Resets the current repo branch to match the HEAD commit using the <paramref name="resetMode"/>.
+        /// </summary>
+        /// <param name="resetMode">Specifies the reset mode</param>
+        /// <returns>The tracking <see cref="Task"/>.</returns>
+        /// <remarks>
+        /// <para>
+        /// This method is used to undo uncommitted changes to the local repository.
+        /// This may impact the repo's working directory and staging index, depending
+        /// on the <paramref name="resetMode"/> passed.
+        /// </para>
+        /// <list type="table">
+        /// <item>
+        ///     <term><see cref="ResetMode.Hard"/></term>
+        ///     <description>
+        ///     <para>
+        ///     Resets the working directory and staging index to match the current
+        ///     branch's HEAD commit.  This effectively undoes all repo changes with
+        ///     any pending changes being lost.
+        ///     </para>
+        ///     <note>
+        ///     Untracked files in the working directory are not impacted.
+        ///     </note>
+        ///     </description>
+        /// </item>
+        /// <item>
+        ///     <term><see cref="ResetMode.Mixed"/></term>
+        ///     <description>
+        ///     Unstages any changes by moving them back to the working directory
+        ///     with any other changes to the working directory being left alone.
+        ///     </description>
+        /// </item>
+        /// <item>
+        ///     <term><see cref="ResetMode.Soft"/></term>
+        ///     <description>
+        ///     This mode doesn't make sense when working with the HEAD commit
+        ///     and does nothing.
+        ///     </description>
+        /// </item>
+        /// </list>
+        /// <para>
+        /// See this for more details: <a href="https://www.atlassian.com/git/tutorials/undoing-changes/git-reset"/>
+        /// </para>
+        /// </remarks>
+        public async Task ResetAsync(ResetMode resetMode)
+        {
+            await SyncContext.Clear;
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
+
+            if (resetMode == ResetMode.Soft)
+            {
+                return;
+            }
+
+            root.GitApi.Reset(resetMode);
+        }
+
+        /// <summary>
+        /// Changes current branch HEAD commit to the specified commit and then applies
+        /// any changes from this commit as specified by <paramref name="resetMode"/>.
+        /// </summary>
+        /// <param name="resetMode">Specifies the reset mode</param>
+        /// <param name="commit">Specifies the target commit.</param>
+        /// <param name="options">Optionally specifies checkout options.</param>
+        /// <returns>The tracking <see cref="Task"/>.</returns>
+        /// <remarks>
+        /// <para>
+        /// This method is used to undo uncommitted changes to the local repository.
+        /// This may impact the repo's working directory and staging index, depending
+        /// on the <paramref name="resetMode"/> passed.
+        /// </para>
+        /// <list type="table">
+        /// <item>
+        ///     <term><see cref="ResetMode.Hard"/></term>
+        ///     <description>
+        ///     <para>
+        ///     Moves the current branch HEAD to the specified commit and resets
+        ///     the working directory and staging index to match this commit.
+        ///     This effectively undoes changes to staged and tracked files.
+        ///     </para>
+        ///     <note>
+        ///     Untracked files in the working directory are not impacted.
+        ///     </note>
+        ///     </description>
+        /// </item>
+        /// <item>
+        ///     <term><see cref="ResetMode.Mixed"/></term>
+        ///     <description>
+        ///     Moves the current branch HEAD to the specified commit, applying any
+        ///     staged changes back to the working directory.  No other modifications
+        ///     will be made to the working directory.
+        ///     </description>
+        /// </item>
+        /// <item>
+        ///     <term><see cref="ResetMode.Soft"/></term>
+        ///     <description>
+        ///     Moves the current branch HEAD to the specified commit.  The working
+        ///     directory and any staged files will remain unchanged.
+        ///     </description>
+        /// </item>
+        /// </list>
+        /// <para>
+        /// See this for more details: <a href="https://www.atlassian.com/git/tutorials/undoing-changes/git-reset"/>
+        /// </para>
+        /// </remarks>
+        public async Task ResetAsync(ResetMode resetMode, GitCommit commit, CheckoutOptions options = null)
+        {
+            await SyncContext.Clear;
+            Covenant.Requires<ArgumentNullException>(commit != null, nameof(commit));
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
+
+            root.GitApi.Reset(resetMode, commit, options ?? new CheckoutOptions());
         }
     }
 }

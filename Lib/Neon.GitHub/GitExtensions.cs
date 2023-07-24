@@ -76,7 +76,7 @@ namespace Neon.GitHub
         }
 
         //---------------------------------------------------------------------
-        // GitSDignature extensions
+        // GitSignature extensions
 
         /// <summary>
         /// Converts a <see cref="LibGit2Sharp.Signature"/> into a <see cref="LibGit2Sharp.Identity"/>.

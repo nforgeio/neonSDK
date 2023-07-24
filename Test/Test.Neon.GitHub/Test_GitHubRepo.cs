@@ -1066,5 +1066,206 @@ namespace TestGitHub
                     }
                 });
         }
+
+        [MaintainerFact]
+        public async Task Local_Stage()
+        {
+            await GitHubTestHelper.RunTestAsync(
+                async () =>
+                {
+                    //-------------------------------------------------
+                    // Verify that we can stage and unstage files.
+
+                    using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
+                    {
+                        var repoPath = tempFolder.Path;
+
+                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepoPath, repoPath))
+                        {
+                            var testFolder = Path.Combine(tempFolder.Path, GitHubTestHelper.TestFolder);
+                            var file1Name   = $"{Guid.NewGuid()}.txt";
+                            var file2Name   = $"{Guid.NewGuid()}.txt";
+                            var file1Path   = Path.Combine(testFolder, file1Name);
+                            var file2Path   = Path.Combine(testFolder, file2Name);
+
+                            var newBranchName = $"testbranch-{Guid.NewGuid()}";
+
+                            Assert.True(await repo.Local.CreateBranchAsync(newBranchName, "master"));
+
+                            //-------------------------------------------------
+                            // Stage a new file and verify.
+
+                            var status = await repo.Local.RetrieveStatusAsync();
+
+                            Assert.Empty(status.Added.Union(status.Staged));
+
+                            File.WriteAllText(file1Path, "HELLO WORLD!");
+                            await repo.Local.StageAsync(file1Path);
+
+                            status = await repo.Local.RetrieveStatusAsync();
+
+                            Assert.Single(status.Added.Union(status.Staged));
+
+                            //-------------------------------------------------
+                            // Create another file, but don't stage it and verify
+                            // that we still have only one staged file.
+
+                            File.WriteAllText(file2Path, "GOODBYE WORLD!");
+
+                            status = await repo.Local.RetrieveStatusAsync();
+
+                            Assert.Single(status.Added.Union(status.Staged));
+
+                            //-------------------------------------------------
+                            // Stage the second file and verify.
+
+                            await repo.Local.StageAsync(file2Path);
+
+                            status = await repo.Local.RetrieveStatusAsync();
+
+                            Assert.Equal(2, status.Added.Union(status.Staged).Count());
+
+                            //-------------------------------------------------
+                            // Unstage just the second file and verify.
+
+                            await repo.Local.UnstageAsync(file2Path);
+
+                            status = await repo.Local.RetrieveStatusAsync();
+
+                            Assert.Single(status.Added.Union(status.Staged));
+
+                            //-------------------------------------------------
+                            // Unstage the first file and verify.
+
+                            await repo.Local.UnstageAsync(file1Path);
+
+                            status = await repo.Local.RetrieveStatusAsync();
+
+                            Assert.Empty(status.Added.Union(status.Staged));
+                        }
+                    }
+                });
+        }
+
+        [MaintainerFact]
+        public async Task Local_Reset_Hard()
+        {
+            await GitHubTestHelper.RunTestAsync(
+                async () =>
+                {
+                    //-------------------------------------------------
+                    // Verify HARD reset on the HEAD branch.
+
+                    using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
+                    {
+                        var repoPath = tempFolder.Path;
+
+                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepoPath, repoPath))
+                        {
+                            var testFolder = Path.Combine(tempFolder.Path, GitHubTestHelper.TestFolder);
+                            var file1Name   = $"{Guid.NewGuid()}.txt";
+                            var file2Name   = $"{Guid.NewGuid()}.txt";
+                            var file1Path   = Path.Combine(testFolder, file1Name);
+                            var file2Path   = Path.Combine(testFolder, file2Name);
+
+                            var newBranchName = $"testbranch-{Guid.NewGuid()}";
+
+                            Assert.True(await repo.Local.CreateBranchAsync(newBranchName, "master"));
+
+                            //-------------------------------------------------
+                            // Stage a new file and verify.
+
+                            var status = await repo.Local.RetrieveStatusAsync();
+
+                            Assert.Empty(status.Staged);
+
+                            File.WriteAllText(file1Path, "HELLO WORLD!");
+                            await repo.Local.StageAsync(file1Path);
+
+                            status = await repo.Local.RetrieveStatusAsync();
+
+                            Assert.NotEmpty(status.Added.Union(status.Staged));
+
+                            //-------------------------------------------------
+                            // Create another file, but don't stage it.
+
+                            File.WriteAllText(file2Path, "GOODBYE WORLD!");
+
+                            //-------------------------------------------------
+                            // Perform a HARD reset and verify that the stage index
+                            // was reset and that the first file was removed but the
+                            // second (untracked file) remains.
+
+                            await repo.Local.ResetAsync(ResetMode.Hard);
+
+                            status = await repo.Local.RetrieveStatusAsync();
+
+                            Assert.Empty(status.Added.Union(status.Staged));
+                            Assert.False(File.Exists(file1Path));
+                            Assert.True(File.Exists(file2Path));
+                        }
+                    }
+                });
+        }
+
+        [MaintainerFact]
+        public async Task Local_Reset_Soft()
+        {
+            await GitHubTestHelper.RunTestAsync(
+                async () =>
+                {
+                    //-------------------------------------------------
+                    // Verify SOFT reset on the HEAD branch.
+
+                    using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
+                    {
+                        var repoPath = tempFolder.Path;
+
+                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepoPath, repoPath))
+                        {
+                            var testFolder = Path.Combine(tempFolder.Path, GitHubTestHelper.TestFolder);
+                            var file1Name   = $"{Guid.NewGuid()}.txt";
+                            var file2Name   = $"{Guid.NewGuid()}.txt";
+                            var file1Path   = Path.Combine(testFolder, file1Name);
+                            var file2Path   = Path.Combine(testFolder, file2Name);
+
+                            var newBranchName = $"testbranch-{Guid.NewGuid()}";
+
+                            Assert.True(await repo.Local.CreateBranchAsync(newBranchName, "master"));
+
+                            //-------------------------------------------------
+                            // Stage a new file and verify.
+
+                            var status = await repo.Local.RetrieveStatusAsync();
+
+                            Assert.Empty(status.Staged);
+
+                            File.WriteAllText(file1Path, "HELLO WORLD!");
+                            await repo.Local.StageAsync(file1Path);
+
+                            status = await repo.Local.RetrieveStatusAsync();
+
+                            Assert.NotEmpty(status.Added.Union(status.Staged));
+
+                            //-------------------------------------------------
+                            // Create another file, but don't stage it.
+
+                            File.WriteAllText(file2Path, "GOODBYE WORLD!");
+
+                            //-------------------------------------------------
+                            // Perform a SOFT reset and verify that the stage index
+                            // as well as the working directory remain unchanged.
+
+                            await repo.Local.ResetAsync(ResetMode.Soft);
+
+                            status = await repo.Local.RetrieveStatusAsync();
+
+                            Assert.Single(status.Added.Union(status.Staged));
+                            Assert.True(File.Exists(file1Path));
+                            Assert.True(File.Exists(file2Path));
+                        }
+                    }
+                });
+        }
     }
 }
