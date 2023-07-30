@@ -976,13 +976,14 @@ namespace TestGitHub
         }
 
         [MaintainerFact]
-        public async Task Local_BranchExists()
+        public async Task Local_BranchExistsFindGet()
         {
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
                     //-------------------------------------------------
-                    // Clone a repo and then verify BranchExistsAsync() works.
+                    // Clone a repo and then verify BranchExistsAsync(),
+                    // GetBranchAsync(), and FindBranchAsync() all work.
 
                     using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
                     {
@@ -995,10 +996,28 @@ namespace TestGitHub
                             var filePath          = Path.Combine(testFolder, fileName);
                             var missingBranchName = $"testbranch-{Guid.NewGuid()}";
 
-                            // Verify that the "master" and new branches exist.
+                            // Verify that the "master" exists and a missing branch does not.
 
                             Assert.True(await repo.Local.BranchExistsAsync("master"));
                             Assert.False(await repo.Local.BranchExistsAsync(missingBranchName));
+
+                            // Verify that FindBranchAsync() works.
+
+                            var master = await repo.Local.FindBranchAsync("master");
+
+                            Assert.NotNull(master);
+                            Assert.Equal("master", master.FriendlyName);
+
+                            Assert.Null(await repo.Local.FindBranchAsync(missingBranchName));
+
+                            // Verify that GetBranchAsync() works.
+
+                            master = await repo.Local.GetBranchAsync("master");
+
+                            Assert.NotNull(master);
+                            Assert.Equal("master", master.FriendlyName);
+
+                            await Assert.ThrowsAsync<LibGit2Sharp.NotFoundException>(async () => await repo.Local.GetBranchAsync(missingBranchName));
                         }
                     }
                 });

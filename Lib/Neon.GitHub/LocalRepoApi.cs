@@ -710,16 +710,28 @@ namespace Neon.GitHub
         }
 
         /// <summary>
-        /// Returns the named branch.
+        /// Attempts to retrieve a branch by name.
         /// </summary>
         /// <param name="branchName">Specifies the friendly name of the local branch.</param>
-        /// <returns>The <see cref="GitBranch"/>.</returns>
-        /// <exception cref="LibGit2Sharp.NotFoundException">Thrown if the branch doesn't exist.</exception>
-        private GitBranch GetBranch(string branchName)
+        /// <returns>The <see cref="GitBranch"/> if it exists, <c>null</c> otherwise.</returns>
+        public async Task<GitBranch> FindBranchAsync(string branchName)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
 
-            var branch = root.GitApi.Branches.SingleOrDefault(branch => branch.FriendlyName == branchName);
+            return await Task.FromResult(root.GitApi.Branches.SingleOrDefault(branch => branch.FriendlyName == branchName));
+        }
+
+        /// <summary>
+        /// Returns the named branch.
+        /// </summary>
+        /// <param name="branchName">Specifies the friendly name of the local branch.</param>s
+        /// <returns>The <see cref="GitBranch"/>.</returns>
+        /// <exception cref="LibGit2Sharp.NotFoundException">Thrown if the branch doesn't exist.</exception>
+        public async Task<GitBranch> GetBranchAsync(string branchName)
+        {
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
+
+            var branch = await FindBranchAsync(branchName);
 
             if (branch == null)
             {
@@ -847,7 +859,7 @@ namespace Neon.GitHub
             root.EnsureNotDisposed();
             root.EnsureLocalRepo();
 
-            var sourceBranch      = GetBranch(sourceBranchName);
+            var sourceBranch      = await GetBranchAsync(sourceBranchName);
             var idToPickCommit    = commits.ToDictionary(commit => commit.Sha);
             var idToSourceCommit  = sourceBranch.Commits.ToDictionary(commit => commit.Sha);
             var idToCurrentCommit = CurrentBranch.Commits.ToDictionary(commit => commit.Sha);
