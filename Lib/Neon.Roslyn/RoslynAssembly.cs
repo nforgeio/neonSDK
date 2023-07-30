@@ -23,7 +23,7 @@ using Microsoft.CodeAnalysis;
 
 namespace Neon.Roslyn
 {
-    internal class RoslynAssembly : Assembly
+    public class RoslynAssembly : Assembly
     {
         private readonly MetadataLoadContext metadataLoadContext;
 

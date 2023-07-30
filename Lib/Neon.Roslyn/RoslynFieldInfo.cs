@@ -24,7 +24,7 @@ using Microsoft.CodeAnalysis;
 
 namespace Neon.Roslyn
 {
-    internal class RoslynFieldInfo : FieldInfo
+    public class RoslynFieldInfo : FieldInfo
     {
         private readonly IFieldSymbol        field;
         private readonly MetadataLoadContext metadataLoadContext;
