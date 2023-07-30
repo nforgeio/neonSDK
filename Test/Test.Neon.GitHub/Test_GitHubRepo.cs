@@ -982,7 +982,7 @@ namespace TestGitHub
                 async () =>
                 {
                     //-------------------------------------------------
-                    // Clone a repo and then verify BranchExistsAsync(),
+                    // Clone a repo and then verify that BranchExistsAsync(),
                     // GetBranchAsync(), and FindBranchAsync() all work.
 
                     using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
@@ -1423,6 +1423,56 @@ namespace TestGitHub
                             Assert.True(File.Exists(file1Path));
                             Assert.Equal("GOODBYE WORLD!", File.ReadAllText(file1Path));
                             Assert.True(File.Exists(file2Path));
+                        }
+                    }
+                });
+        }
+
+        [MaintainerFact]
+        public async Task Local_Tag()
+        {
+            await GitHubTestHelper.RunTestAsync(
+                async () =>
+                {
+                    //-------------------------------------------------
+                    // Clone a repo and then verify that [ListTagsAsync()]
+                    // and [ApplyTagAsync()] work.
+
+                    using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
+                    {
+                        var repoPath = tempFolder.Path;
+
+                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepoPath, repoPath))
+                        {
+                            var testFolder = Path.Combine(tempFolder.Path, GitHubTestHelper.TestFolder);
+                            var tagName    = Guid.NewGuid().ToString("d");
+
+                            // List the current tags and verify that the new tag doesn't exist yet.
+
+                            Assert.DoesNotContain(await repo.Local.ListTagsAsync(), tag => tag.FriendlyName == tagName);
+
+                            // Apply the new tag and verify.
+
+                            var tag = await repo.Local.ApplyTagAsync(tagName);
+
+                            Assert.Contains(await repo.Local.ListTagsAsync(), tag => tag.FriendlyName == tagName);
+
+                            // Verify that we can push the tag to GitHub.
+
+                            await repo.Local.PushTagAsync(tag);
+                            Assert.NotNull(await repo.Remote.Tag.FindAsync(tagName));
+
+                            // Apply another new tag and verify that [PushAllTagsAsync()] pushes
+                            // the new tag but doesn't barf when pushing tags that already exist
+                            // on the remote.
+
+                            tagName = Guid.NewGuid().ToString("d");
+                            tag     = await repo.Local.ApplyTagAsync(tagName);
+
+                            Assert.Contains(await repo.Local.ListTagsAsync(), tag => tag.FriendlyName == tagName);
+
+                            await repo.Local.PushAllTagsAsync();
+                            Assert.NotNull(await repo.Remote.Tag.FindAsync(tagName));
                         }
                     }
                 });

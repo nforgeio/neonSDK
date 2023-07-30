@@ -1064,18 +1064,51 @@ namespace Neon.GitHub
         }
 
         /// <summary>
-        /// Creates a lightweight tag from the HEAD commit for the current local branch.
+        /// Creates a lightweight tag from the HEAD commit for the current local branch,
+        /// optionally pushing the new tag to GitHub.
         /// </summary>
         /// <param name="tagName">The new tag name.</param>
+        /// <param name="push">Optionally push the tag to GitHub.</param>
         /// <returns>The new <see cref="Tag"/>.</returns>
-        public async Task<Tag> ApplyTagAsync(string tagName)
+        public async Task<Tag> ApplyTagAsync(string tagName, bool push = false)
         {
             await SyncContext.Clear;
-            Covenant.Requires<ArgumentNullException>(tagName != null, nameof(tagName));
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(tagName), nameof(tagName));
             root.EnsureNotDisposed();
             root.EnsureLocalRepo();
 
             return await Task.FromResult(root.GitApi.ApplyTag(tagName));
+        }
+
+        /// <summary>
+        /// Pushes a local tag to GitHub.
+        /// </summary>
+        /// <param name="tag">Specifies the tag being pushed.</param>
+        /// <returns>The tracking <see cref="Task"/>.</returns>
+        public async Task PushTagAsync(Tag tag)
+        {
+            await SyncContext.Clear;
+            Covenant.Requires<ArgumentNullException>(tag != null, nameof(tag));
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
+
+            root.GitApi.Network.Push(root.GitApi.Network.Remotes["origin"], tag.CanonicalName, CreatePushOptions());
+        }
+
+        /// <summary>
+        /// Pushes all tags to GitHub.
+        /// </summary>
+        /// <returns>The tracking <see cref="Task"/>.</returns>
+        public async Task PushAllTagsAsync()
+        {
+            await SyncContext.Clear;
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
+
+            foreach (var tag in await ListTagsAsync())
+            {
+                await PushTagAsync(tag);
+            }
         }
     }
 }
