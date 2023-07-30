@@ -1049,5 +1049,33 @@ namespace Neon.GitHub
 
             root.GitApi.Reset(resetMode, commit, options ?? new CheckoutOptions());
         }
+
+        /// <summary>
+        /// Lists all tags from the local repo.
+        /// </summary>
+        /// <returns>The <see cref="TagCollection"/>.</returns>
+        public async Task<TagCollection> ListTagsAsync()
+        {
+            await SyncContext.Clear;
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
+
+            return await Task.FromResult(root.GitApi.Tags);
+        }
+
+        /// <summary>
+        /// Creates a lightweight tag from the HEAD commit for the current local branch.
+        /// </summary>
+        /// <param name="tagName">The new tag name.</param>
+        /// <returns>The new <see cref="Tag"/>.</returns>
+        public async Task<Tag> ApplyTagAsync(string tagName)
+        {
+            await SyncContext.Clear;
+            Covenant.Requires<ArgumentNullException>(tagName != null, nameof(tagName));
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
+
+            return await Task.FromResult(root.GitApi.ApplyTag(tagName));
+        }
     }
 }
