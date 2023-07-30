@@ -1429,7 +1429,7 @@ namespace TestGitHub
         }
 
         [MaintainerFact]
-        public async Task Local_Tag()
+        public async Task Local_AnnotatedTag()
         {
             await GitHubTestHelper.RunTestAsync(
                 async () =>
@@ -1449,29 +1449,19 @@ namespace TestGitHub
 
                             // List the current tags and verify that the new tag doesn't exist yet.
 
-                            Assert.DoesNotContain(await repo.Local.ListTagsAsync(), tag => tag.FriendlyName == tagName);
+                            Assert.DoesNotContain(await repo.Local.ListAllTagsAsync(), tag => tag.FriendlyName == tagName);
 
                             // Apply the new tag and verify.
 
-                            var tag = await repo.Local.ApplyTagAsync(tagName);
+                            var tag = await repo.Local.ApplyAnnotatedTagAsync(tagName);
 
-                            Assert.Contains(await repo.Local.ListTagsAsync(), tag => tag.FriendlyName == tagName);
+                            Assert.Contains(await repo.Local.ListAllTagsAsync(), tag => tag.FriendlyName == tagName);
+                            Assert.Contains(await repo.Local.ListAnnotatedTagsAsync(), tag => tag.FriendlyName == tagName);
+                            Assert.DoesNotContain(await repo.Local.ListLightweightTagsAsync(), tag => tag.FriendlyName == tagName);
 
                             // Verify that we can push the tag to GitHub.
 
                             await repo.Local.PushTagAsync(tag);
-                            Assert.NotNull(await repo.Remote.Tag.FindAsync(tagName));
-
-                            // Apply another new tag and verify that [PushAllTagsAsync()] pushes
-                            // the new tag but doesn't barf when pushing tags that already exist
-                            // on the remote.
-
-                            tagName = Guid.NewGuid().ToString("d");
-                            tag     = await repo.Local.ApplyTagAsync(tagName);
-
-                            Assert.Contains(await repo.Local.ListTagsAsync(), tag => tag.FriendlyName == tagName);
-
-                            await repo.Local.PushAllTagsAsync();
                             Assert.NotNull(await repo.Remote.Tag.FindAsync(tagName));
                         }
                     }

@@ -1051,64 +1051,99 @@ namespace Neon.GitHub
         }
 
         /// <summary>
-        /// Lists all tags from the local repo.
+        /// <para>
+        /// Lists all tags (lightweight and annotated) from the local repo.
+        /// </para>
+        /// <note>
+        /// You can use the <see cref="Tag.IsAnnotated"/> property to distinguish between
+        /// annotated and lightweight tags.
+        /// </note>
         /// </summary>
-        /// <returns>The <see cref="TagCollection"/>.</returns>
-        public async Task<TagCollection> ListTagsAsync()
+        /// <returns>The tags.</returns>
+        public async Task<IEnumerable<Tag>> ListAllTagsAsync()
         {
             await SyncContext.Clear;
             root.EnsureNotDisposed();
             root.EnsureLocalRepo();
 
-            return await Task.FromResult(root.GitApi.Tags);
+            return (await Task.FromResult(root.GitApi.Tags))
+                .ToArray();
         }
 
         /// <summary>
-        /// Creates a lightweight tag from the HEAD commit for the current local branch,
-        /// optionally pushing the new tag to GitHub.
+        /// Lists the annotated tags from the local repo.
+        /// </summary>
+        /// <returns>The tags.</returns>
+        public async Task<IEnumerable<Tag>> ListAnnotatedTagsAsync()
+        {
+            await SyncContext.Clear;
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
+
+            return (await Task.FromResult(root.GitApi.Tags))
+                .Where(tag => tag.IsAnnotated)
+                .ToArray();
+        }
+
+        /// <summary>
+        /// Lists the lightweight tags from the local repo.
+        /// </summary>
+        /// <returns>The tags.</returns>
+        public async Task<IEnumerable<Tag>> ListLightweightTagsAsync()
+        {
+            await SyncContext.Clear;
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
+
+            return (await Task.FromResult(root.GitApi.Tags))
+                .Where(tag => !tag.IsAnnotated)
+                .ToArray();
+        }
+
+        /// <summary>
+        /// Creates an annotated tag from the HEAD commit for the specified or
+        /// current local branch, optionally pushing the new tag to GitHub.
         /// </summary>
         /// <param name="tagName">The new tag name.</param>
+        /// <param name="branch">Optionally specifies the source branch, overriding the current branch default.</param>
+        /// <param name="message">Optional tag commit message.</param>
         /// <param name="push">Optionally push the tag to GitHub.</param>
         /// <returns>The new <see cref="Tag"/>.</returns>
-        public async Task<Tag> ApplyTagAsync(string tagName, bool push = false)
+        public async Task<Tag> ApplyAnnotatedTagAsync(string tagName, GitBranch branch = null, string message = null, bool push = false)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(tagName), nameof(tagName));
             root.EnsureNotDisposed();
             root.EnsureLocalRepo();
 
-            return await Task.FromResult(root.GitApi.ApplyTag(tagName));
+            branch  ??= root.GitApi.CurrentBranch();
+            message ??= $"tag created: {tagName}";
+
+            var tag = root.GitApi.Tags.Add(tagName, branch.Tip.Id.Sha, CreateSignature(), message);
+
+            if (push)
+            {
+                await PushTagAsync(tag);
+            }
+
+            return tag;
         }
 
         /// <summary>
-        /// Pushes a local tag to GitHub.
+        /// Pushes a local annotated tag to GitHub.
         /// </summary>
         /// <param name="tag">Specifies the tag being pushed.</param>
         /// <returns>The tracking <see cref="Task"/>.</returns>
+        /// <exception cref="InvalidOperationException">Thrown for non-anotated tags.</exception>
         public async Task PushTagAsync(Tag tag)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(tag != null, nameof(tag));
+            Covenant.Requires<InvalidOperationException>(tag.IsAnnotated, nameof(tag));
             root.EnsureNotDisposed();
             root.EnsureLocalRepo();
 
             root.GitApi.Network.Push(root.GitApi.Network.Remotes["origin"], tag.CanonicalName, CreatePushOptions());
-        }
-
-        /// <summary>
-        /// Pushes all tags to GitHub.
-        /// </summary>
-        /// <returns>The tracking <see cref="Task"/>.</returns>
-        public async Task PushAllTagsAsync()
-        {
-            await SyncContext.Clear;
-            root.EnsureNotDisposed();
-            root.EnsureLocalRepo();
-
-            foreach (var tag in await ListTagsAsync())
-            {
-                await PushTagAsync(tag);
-            }
         }
     }
 }
