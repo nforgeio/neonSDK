@@ -98,7 +98,7 @@ namespace TestGitHub
                     if (Directory.Exists(testFolder) && Directory.GetFiles(testFolder, "*", SearchOption.AllDirectories).Length > 0)
                     {
                         NeonHelper.DeleteFolderContents(testFolder);
-                        Assert.True(await repo.Local.CommitAsync("delete: accumulated test files"));
+                        Assert.NotNull(await repo.Local.CommitAsync("delete: accumulated test files"));
                         Assert.True(await repo.Local.PushAsync());
                     }
                 }

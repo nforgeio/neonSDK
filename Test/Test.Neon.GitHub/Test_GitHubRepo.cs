@@ -120,7 +120,7 @@ namespace TestGitHub
         }
 
         [MaintainerFact]
-        public async Task Open()
+        public async Task Local_Open()
         {
             // Verify that we can open an existing local repo.
 
@@ -170,7 +170,7 @@ namespace TestGitHub
         }
 
         [MaintainerFact]
-        public async Task Fetch()
+        public async Task Local_Fetch()
         {
             // Verify that we can fetch remote info for a local repo.
 
@@ -191,7 +191,7 @@ namespace TestGitHub
         }
 
         [MaintainerFact]
-        public async Task CommitPushPull()
+        public async Task Remote_CommitPushPull()
         {
             // Here's what we're going to do:
             //
@@ -231,7 +231,7 @@ namespace TestGitHub
 
                                     Directory.CreateDirectory(Path.Combine(repoPath1, testFolder));
                                     File.WriteAllText(testPath1, "HELLO WORLD!");
-                                    Assert.True(await repo1.Local.CommitAsync("add: test file"));
+                                    Assert.NotNull(await repo1.Local.CommitAsync("add: test file"));
                                     Assert.True(await repo1.Local.PushAsync());
 
                                     // Pull the second repo from the remote:
@@ -247,7 +247,7 @@ namespace TestGitHub
                                     // push to the remote:
 
                                     File.Delete(testPath2);
-                                    Assert.True(await repo2.Local.CommitAsync("delete: test file"));
+                                    Assert.NotNull(await repo2.Local.CommitAsync("delete: test file"));
                                     Assert.True(await repo2.Local.PushAsync());
 
                                     // Go back to the first repo and pull changes from the remote 
@@ -258,12 +258,12 @@ namespace TestGitHub
                                 }
                             }
                         }
-                        }
+                    }
                 });
         }
 
         [MaintainerFact]
-        public async Task CreateBranch()
+        public async Task Local_CreateBranch()
         {
             // Verify that we can create a new local branch from master.
 
@@ -323,7 +323,7 @@ namespace TestGitHub
         }
 
         [MaintainerFact]
-        public async Task CreateRemoveBranch()
+        public async Task Local_CreateRemoveBranch()
         {
             // Verify that we can create a local branch (from master) and then remove it.
 
@@ -359,7 +359,7 @@ namespace TestGitHub
         }
 
         [MaintainerFact]
-        public async Task Branch_Protection()
+        public async Task Remote_Branch_Protection()
         {
             // Verify that we can change branch protection by locking and then unlocking a branch.
 
@@ -449,7 +449,7 @@ namespace TestGitHub
         }
 
         [MaintainerFact]
-        public async Task Merge()
+        public async Task Local_Merge()
         {
             // Verify that we can merge changes from one branch into another.
 
@@ -491,7 +491,7 @@ namespace TestGitHub
         }
 
         [MaintainerFact]
-        public async Task Merge_WithConflict()
+        public async Task Local_Merge_WithConflict()
         {
             // Verify that merge conflicts are detected.
 
@@ -552,7 +552,7 @@ namespace TestGitHub
         }
 
         [MaintainerFact]
-        public async Task Undo()
+        public async Task Local_Undo()
         {
             // Verify that we can undo uncommited changes to a repo.
 
@@ -634,7 +634,7 @@ namespace TestGitHub
         }
 
         [MaintainerFact]
-        public async Task Checkout()
+        public async Task Remote_Checkout()
         {
             // Verify that we can checkout an existing remote branch to the
             // local repo with the same name (the default) or to a new branch
@@ -688,7 +688,7 @@ namespace TestGitHub
         }
 
         [MaintainerFact]
-        public async Task Open_NeonKube()
+        public async Task Local_Open_NeonKube()
         {
             // Verify that we can open the NEONKUBE repo when present
             // at the standard location.
@@ -748,7 +748,7 @@ namespace TestGitHub
         }
 
         [MaintainerFact]
-        public async Task GetCommits()
+        public async Task Local_GetCommits()
         {
             await GitHubTestHelper.RunTestAsync(
                 async () =>
@@ -798,7 +798,7 @@ namespace TestGitHub
         }
 
         [MaintainerFact]
-        public async Task Commit_NotAheadOrBehind()
+        public async Task Local_Commit_NotAheadOrBehind()
         {
             await GitHubTestHelper.RunTestAsync(
                 async () =>
@@ -822,7 +822,7 @@ namespace TestGitHub
         }
 
         [MaintainerFact]
-        public async Task Commit_IsAhead()
+        public async Task Local_Commit_IsAhead()
         {
             await GitHubTestHelper.RunTestAsync(
                 async () =>
@@ -852,7 +852,7 @@ namespace TestGitHub
         }
 
         [MaintainerFact]
-        public async Task Commit_IsBehind()
+        public async Task Local_Commit_IsBehind()
         {
             await GitHubTestHelper.RunTestAsync(
                 async () =>
@@ -887,7 +887,7 @@ namespace TestGitHub
         }
 
         [MaintainerFact]
-        public async Task GetRemoteFile()
+        public async Task Remote_GetFile()
         {
             await GitHubTestHelper.RunTestAsync(
                 async () =>
@@ -1024,6 +1024,61 @@ namespace TestGitHub
         }
 
         [MaintainerFact]
+        public async Task Local_Commit_AutoStage()
+        {
+            await GitHubTestHelper.RunTestAsync(
+                async () =>
+                {
+                    using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
+                    {
+                        var repoPath = tempFolder.Path;
+
+                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepoPath, repoPath))
+                        {
+                            var testFolder = Path.Combine(tempFolder.Path, GitHubTestHelper.TestFolder);
+                            var file1Name   = $"{Guid.NewGuid()}.txt";
+                            var file2Name   = $"{Guid.NewGuid()}.txt";
+                            var file1Path   = Path.Combine(testFolder, file1Name);
+                            var file2Path   = Path.Combine(testFolder, file2Name);
+
+                            // Create the new local branch.
+
+                            var newBranchName = $"testbranch-{Guid.NewGuid()}";
+
+                            Assert.True(await repo.Local.CreateBranchAsync(newBranchName, "master"));
+
+                            //---------------------------------------------
+                            // Create a new untracked file and verify that committing with
+                            // [autoStage=false] is a NOP.
+
+                            Directory.CreateDirectory(testFolder);
+                            File.WriteAllText(file1Path, Guid.NewGuid().ToString("d"));
+
+                            var message   = $"TEST COMMIT: {file1Path}";
+                            var orgCommit = (await repo.Local.GetCommitsAsync()).First();
+
+                            await repo.Local.CommitAsync(message, autoStage: false);
+
+                            var curCommit = (await repo.Local.GetCommitsAsync()).First();
+
+                            Assert.Equal(orgCommit.Sha, curCommit.Sha);
+
+                            //---------------------------------------------
+                            // Try again with [autoStage=true] and verify that a commit
+                            // was added this time.
+
+                            await repo.Local.CommitAsync(message, autoStage: true);
+
+                            curCommit = (await repo.Local.GetCommitsAsync()).First();
+
+                            Assert.NotEqual(orgCommit.Sha, curCommit.Sha);
+                            Assert.Equal(message, curCommit.Message.Trim());
+                        }
+                    }
+                });
+        }
+
+        [MaintainerFact]
         public async Task Local_CherryPick()
         {
             await GitHubTestHelper.RunTestAsync(
@@ -1107,6 +1162,9 @@ namespace TestGitHub
                             var file1Path   = Path.Combine(testFolder, file1Name);
                             var file2Path   = Path.Combine(testFolder, file2Name);
 
+                            //-------------------------------------------------
+                            // Create the test branch.
+
                             var newBranchName = $"testbranch-{Guid.NewGuid()}";
 
                             Assert.True(await repo.Local.CreateBranchAsync(newBranchName, "master"));
@@ -1161,6 +1219,93 @@ namespace TestGitHub
                             status = await repo.Local.RetrieveStatusAsync();
 
                             Assert.Empty(status.Added.Union(status.Staged));
+
+                            //-------------------------------------------------
+                            // Stage "*" and verify that both files are staged again.
+
+                            await repo.Local.StageAsync("*");
+
+                            status = await repo.Local.RetrieveStatusAsync();
+
+                            Assert.Equal(2, status.Added.Union(status.Staged).Count());
+                        }
+                    }
+                });
+        }
+
+        [MaintainerFact]
+        public async Task Local_IsPathRooted()
+        {
+            await GitHubTestHelper.RunTestAsync(
+                async () =>
+                {
+                    //-------------------------------------------------
+                    // Verify that [IsPathRooted()] works as expected.
+
+                    using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
+                    {
+                        var repoPath = tempFolder.Path;
+
+                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepoPath, repoPath))
+                        {
+                            var testFolder = Path.Combine(tempFolder.Path, GitHubTestHelper.TestFolder);
+                            var file1Name  = $"{Guid.NewGuid()}.txt";
+                            var file2Name  = $"{Guid.NewGuid()}.txt";
+                            var file1Path  = Path.Combine(testFolder, file1Name);
+                            var file2Path  = Path.Combine(testFolder, file2Name);
+
+                            //-------------------------------------------------
+                            // Create the test branch.
+
+                            var newBranchName = $"testbranch-{Guid.NewGuid()}";
+
+                            Assert.True(await repo.Local.CreateBranchAsync(newBranchName, "master"));
+
+                            //-------------------------------------------------
+                            // Delete the [.gitignore] file if present and verify that nothing is ignored.
+                            // We're also goind to verify that we can specify forward and back slash directory
+                            // separator characters.
+                            //
+                            // NOTE: We don't commit any changes in this test, so the change won't
+                            //       make it into the remote repo.
+
+                            var gitIgnorePath = await repo.Local.GetLocalFilePathAsync("/.gitignore");
+
+                            NeonHelper.DeleteFile(gitIgnorePath);
+
+                            Assert.False(await repo.Local.IsPathIgnoredAsync(@"test.txt"));
+                            Assert.False(await repo.Local.IsPathIgnoredAsync(@"test.cs"));
+                            Assert.False(await repo.Local.IsPathIgnoredAsync(@"folder/test.cs"));
+                            Assert.False(await repo.Local.IsPathIgnoredAsync(@"folder/test.txt"));
+                            Assert.False(await repo.Local.IsPathIgnoredAsync(@"folder\test.cs"));
+                            Assert.False(await repo.Local.IsPathIgnoredAsync(@"folder\test.txt"));
+
+                            //-------------------------------------------------
+                            // Add the "test.txt" rule to [.gitignore] and verify that those files
+                            // are ignored now.
+
+                            File.WriteAllText(gitIgnorePath, "*.txt\r\n");
+
+                            Assert.True(await repo.Local.IsPathIgnoredAsync(@"test.txt"));
+                            Assert.False(await repo.Local.IsPathIgnoredAsync(@"test.cs"));
+                            Assert.False(await repo.Local.IsPathIgnoredAsync(@"folder/test.cs"));
+                            Assert.True(await repo.Local.IsPathIgnoredAsync(@"folder/test.txt"));
+                            Assert.False(await repo.Local.IsPathIgnoredAsync(@"folder\test.cs"));
+                            Assert.True(await repo.Local.IsPathIgnoredAsync(@"folder\test.txt"));
+
+                            //-------------------------------------------------
+                            // Verify that we check for invalid paths.
+
+                            await Assert.ThrowsAsync<ArgumentNullException>(async () => await repo.Local.IsPathIgnoredAsync(null));
+                            await Assert.ThrowsAsync<ArgumentNullException>(async () => await repo.Local.IsPathIgnoredAsync(@""));
+                            await Assert.ThrowsAsync<ArgumentException>(async () => await repo.Local.IsPathIgnoredAsync(@"/test.txt"));
+                            await Assert.ThrowsAsync<ArgumentException>(async () => await repo.Local.IsPathIgnoredAsync(@"\test.txt"));
+
+                            if (NeonHelper.IsWindows)
+                            {
+                                await Assert.ThrowsAsync<ArgumentException>(async () => await repo.Local.IsPathIgnoredAsync(@"C:test.txt"));
+                                await Assert.ThrowsAsync<ArgumentException>(async () => await repo.Local.IsPathIgnoredAsync(@"C:\test.txt"));
+                            }
                         }
                     }
                 });
@@ -1182,10 +1327,13 @@ namespace TestGitHub
                         using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepoPath, repoPath))
                         {
                             var testFolder = Path.Combine(tempFolder.Path, GitHubTestHelper.TestFolder);
-                            var file1Name   = $"{Guid.NewGuid()}.txt";
-                            var file2Name   = $"{Guid.NewGuid()}.txt";
-                            var file1Path   = Path.Combine(testFolder, file1Name);
-                            var file2Path   = Path.Combine(testFolder, file2Name);
+                            var file1Name  = $"{Guid.NewGuid()}.txt";
+                            var file2Name  = $"{Guid.NewGuid()}.txt";
+                            var file1Path  = Path.Combine(testFolder, file1Name);
+                            var file2Path  = Path.Combine(testFolder, file2Name);
+
+                            //-------------------------------------------------
+                            // Create the test branch.
 
                             var newBranchName = $"testbranch-{Guid.NewGuid()}";
 
@@ -1243,10 +1391,13 @@ namespace TestGitHub
                         using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepoPath, repoPath))
                         {
                             var testFolder = Path.Combine(tempFolder.Path, GitHubTestHelper.TestFolder);
-                            var file1Name   = $"{Guid.NewGuid()}.txt";
-                            var file2Name   = $"{Guid.NewGuid()}.txt";
-                            var file1Path   = Path.Combine(testFolder, file1Name);
-                            var file2Path   = Path.Combine(testFolder, file2Name);
+                            var file1Name  = $"{Guid.NewGuid()}.txt";
+                            var file2Name  = $"{Guid.NewGuid()}.txt";
+                            var file1Path  = Path.Combine(testFolder, file1Name);
+                            var file2Path  = Path.Combine(testFolder, file2Name);
+
+                            //-------------------------------------------------
+                            // Create the test branch.
 
                             var newBranchName = $"testbranch-{Guid.NewGuid()}";
 
@@ -1303,10 +1454,13 @@ namespace TestGitHub
                         using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepoPath, repoPath))
                         {
                             var testFolder = Path.Combine(tempFolder.Path, GitHubTestHelper.TestFolder);
-                            var file1Name   = $"{Guid.NewGuid()}.txt";
-                            var file2Name   = $"{Guid.NewGuid()}.txt";
-                            var file1Path   = Path.Combine(testFolder, file1Name);
-                            var file2Path   = Path.Combine(testFolder, file2Name);
+                            var file1Name  = $"{Guid.NewGuid()}.txt";
+                            var file2Name  = $"{Guid.NewGuid()}.txt";
+                            var file1Path  = Path.Combine(testFolder, file1Name);
+                            var file2Path  = Path.Combine(testFolder, file2Name);
+
+                            //-------------------------------------------------
+                            // Create the test branch.
 
                             var newBranchName = $"testbranch-{Guid.NewGuid()}";
 
@@ -1373,10 +1527,13 @@ namespace TestGitHub
                         using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepoPath, repoPath))
                         {
                             var testFolder = Path.Combine(tempFolder.Path, GitHubTestHelper.TestFolder);
-                            var file1Name   = $"{Guid.NewGuid()}.txt";
-                            var file2Name   = $"{Guid.NewGuid()}.txt";
-                            var file1Path   = Path.Combine(testFolder, file1Name);
-                            var file2Path   = Path.Combine(testFolder, file2Name);
+                            var file1Name  = $"{Guid.NewGuid()}.txt";
+                            var file2Name  = $"{Guid.NewGuid()}.txt";
+                            var file1Path  = Path.Combine(testFolder, file1Name);
+                            var file2Path  = Path.Combine(testFolder, file2Name);
+
+                            //-------------------------------------------------
+                            // Create the test branch.
 
                             var newBranchName = $"testbranch-{Guid.NewGuid()}";
 

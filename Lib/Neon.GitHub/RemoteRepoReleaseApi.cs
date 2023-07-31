@@ -243,7 +243,18 @@ namespace Neon.GitHub
             Covenant.Requires<ArgumentNullException>(releaseUpdate != null, nameof(releaseUpdate));
             root.EnsureNotDisposed();
 
-            return await root.GitHubApi.Repository.Release.Edit(root.Remote.Id, release.Id, releaseUpdate);
+            var updatedRelease = await root.GitHubApi.Repository.Release.Edit(root.Remote.Id, release.Id, releaseUpdate);
+
+            // $hack(jefflill):
+            //
+            // It appears that it can take some time for the release to actually
+            // be updated on GitHub.  I'm going to hardcode a brief delay here
+            // as a hack, but we should figure out a way to explicitly poll
+            // to verify that this has actually happened.
+
+            await Task.Delay(TimeSpan.FromSeconds(10));
+
+            return updatedRelease;
         }
 
         /// <summary>

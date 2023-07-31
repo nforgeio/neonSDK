@@ -46,6 +46,7 @@ using GitBranch     = LibGit2Sharp.Branch;
 using GitRepository = LibGit2Sharp.Repository;
 using GitSignature  = LibGit2Sharp.Signature;
 using GitCommit     = LibGit2Sharp.Commit;
+using Neon.Time;
 
 namespace Neon.GitHub
 {
@@ -151,15 +152,16 @@ namespace Neon.GitHub
         }
 
         /// <summary>
-        /// Commits any staged and pending changes to the local git repository.
+        /// Commits any staged and non-staged changes to the local git repository by default.  You
+        /// can also just commit staged changes by passing <paramref name="autoStage"/><c>=false</c>.
         /// </summary>
         /// <param name="message">Optionally specifies the commit message.  This defaults to <b>unspecified changes"</b>.</param>
         /// <param name="autoStage">Optionally disable automatic staging of new and changed files.  This defaults to <c>true</c>.</param>
-        /// <returns><c>true</c> when changes were committed, <c>false</c> when there were no pending changes.</returns>
+        /// <returns>The new <see cref="GitCommit"/> when changes were committed, <c>null</c> when there were no pending changes.</returns>
         /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
-        public async Task<bool> CommitAsync(string message = null, bool autoStage = true)
+        public async Task<GitCommit> CommitAsync(string message = null, bool autoStage = true)
         {
             await SyncContext.Clear;
             root.EnsureNotDisposed();
@@ -169,7 +171,7 @@ namespace Neon.GitHub
 
             if (!IsDirty)
             {
-                return false;
+                return null;
             }
 
             if (autoStage)
@@ -187,10 +189,11 @@ namespace Neon.GitHub
             }
 
             var signature = CreateSignature();
+            var commit    = (GitCommit)null;
 
             try
             {
-                root.GitApi.Commit(message, signature, signature);
+                commit = root.GitApi.Commit(message, signature, signature);
             }
             catch (EmptyCommitException)
             {
@@ -208,7 +211,7 @@ namespace Neon.GitHub
                 // again sometime in the future.
             }
 
-            return await Task.FromResult(true);
+            return await Task.FromResult(commit);
         }
 
         /// <summary>
@@ -798,7 +801,14 @@ namespace Neon.GitHub
         /// <summary>
         /// Stages a file.
         /// </summary>
-        /// <param name="path">Path to the file.</param>
+        /// <param name="path">
+        /// <para>
+        /// Path to the file.
+        /// </para>
+        /// <note>
+        /// You can pass <b>"*"</b> to stage all untracked files.
+        /// </note>
+        /// </param>
         /// <returns>The tracking <see cref="Task"/>.</returns>
         public async Task StageAsync(string path)
         {
@@ -1144,6 +1154,63 @@ namespace Neon.GitHub
             root.EnsureLocalRepo();
 
             root.GitApi.Network.Push(root.GitApi.Network.Remotes["origin"], tag.CanonicalName, CreatePushOptions());
+
+            // It appears that it can take a moment or two for the new tag
+            // to show up on GitHub, so we'll wait for that to happen.
+
+            await NeonHelper.WaitForAsync(
+                predicate:      async () => (await root.Remote.Tag.FindAsync(tag.FriendlyName)) != null,
+                timeout:        TimeSpan.FromSeconds(120),
+                pollInterval:   TimeSpan.FromSeconds(1),
+                timeoutMessage: $"Timeout waiting for new [{tag.FriendlyName}] tag on remote.");
+        }
+
+        /// <summary>
+        /// Determines whether the file system path will be ignored by Git due to
+        /// the repo's current <b>.gitignore</b> file state.  Note that the path
+        /// does not need to exist within the repo.
+        /// </summary>
+        /// <param name="path">
+        /// <para>
+        /// Specifies the relative file path (relative to the local repo root
+        /// directory) to be tested.
+        /// </para>
+        /// <note>
+        /// You may use either forward or back slashes in the path as directory
+        /// separators.
+        /// </note>
+        /// </param>
+        /// <returns><c>true</c> when the path will be ignored.</returns>
+        public async Task<bool> IsPathIgnoredAsync(string path)
+        {
+            await SyncContext.Clear;
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(path), nameof(path));
+            Covenant.Requires<ArgumentException>(!Path.IsPathRooted(path) && path[0] != '/' && path[0] != '\\', nameof(path), $"Path cannot be absolute or rooted: {path}");
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
+
+            // Normalize directory path separators to match the current platform character.
+
+            switch (Path.DirectorySeparatorChar)
+            {
+                case '/':
+
+                    path = path.Replace('\\', '/');
+                    break;
+
+                case '\\':
+
+                    path = path.Replace('/', '\\');
+                    break;
+
+                default:
+
+                    throw new NotSupportedException($"Unsupported platform directory separator: {Path.DirectorySeparatorChar}");
+            }
+
+            // Perform the test.
+
+            return await Task.FromResult(root.GitApi.Ignore.IsPathIgnored(path));
         }
     }
 }
