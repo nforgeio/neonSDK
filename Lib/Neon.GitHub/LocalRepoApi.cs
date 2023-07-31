@@ -167,7 +167,7 @@ namespace Neon.GitHub
             root.EnsureNotDisposed();
             root.EnsureLocalRepo();
 
-            message ??= "unspecified changes";
+            message ??= "[no message]";
 
             if (!IsDirty)
             {
@@ -185,7 +185,10 @@ namespace Neon.GitHub
                 var changes = root.GitApi.RetrieveStatus(statusOptions)
                     .Select(change => change.FilePath);
 
-                Commands.Stage(root.GitApi, "*");
+                foreach (var change in changes)
+                {
+                    Commands.Stage(root.GitApi, change);
+                }
             }
 
             var signature = CreateSignature();
@@ -294,26 +297,9 @@ namespace Neon.GitHub
             }
 
             root.GitApi.Network.Push(currentBranch, CreatePushOptions());
+            await root.WaitForGitHubAsync(async () => await root.Remote.Branch.FindAsync(currentBranch.FriendlyName) != null);
 
-            await root.WaitForGitHubAsync(
-                async () =>
-                {
-                    // It may take some time for the new branch to be created
-                    // on GitHub, so we're going to ignore [NotFoundException].
-
-                    try
-                    {
-                        var serverBranchUpdate = await root.Remote.Branch.GetAsync(currentBranch.FriendlyName);
-
-                        return serverBranchUpdate.Commit.Sha == currentBranch.Tip.Sha;
-                    }
-                    catch (Octokit.NotFoundException)
-                    {
-                        return false;
-                    }
-                });
-
-            return await Task.FromResult(true);
+            return true;
         }
 
         /// <summary>
@@ -1158,11 +1144,7 @@ namespace Neon.GitHub
             // It appears that it can take a moment or two for the new tag
             // to show up on GitHub, so we'll wait for that to happen.
 
-            await NeonHelper.WaitForAsync(
-                predicate:      async () => (await root.Remote.Tag.FindAsync(tag.FriendlyName)) != null,
-                timeout:        TimeSpan.FromSeconds(120),
-                pollInterval:   TimeSpan.FromSeconds(1),
-                timeoutMessage: $"Timeout waiting for new [{tag.FriendlyName}] tag on remote.");
+            await root.WaitForGitHubAsync(async () => (await root.Remote.Tag.FindAsync(tag.FriendlyName)) != null);
         }
 
         /// <summary>
