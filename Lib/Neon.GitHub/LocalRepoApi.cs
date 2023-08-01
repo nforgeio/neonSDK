@@ -349,6 +349,63 @@ namespace Neon.GitHub
         }
 
         /// <summary>
+        /// Wait for a local branch to exist or not.
+        /// </summary>
+        /// <param name="branchName">Specifies the branch name.</param>
+        /// <param name="exists">
+        /// Pass <c>true</c> to wait for the branch to appear or <c>false</c>
+        /// for it to disappers.
+        /// </param>
+        private void WaitForBranch(string branchName, bool exists)
+        {
+            NeonHelper.WaitFor(() => exists ? root.GitApi.Branches[branchName] != null : root.GitApi.Branches[branchName] == null,
+                timeout:      TimeSpan.FromSeconds(60),
+                pollInterval: TimeSpan.FromMilliseconds(250));
+        }
+
+        /// <summary>
+        /// Creates a local branch from a named GitHub repository origin branch and then checks 
+        /// out the branch.  By default, the local branch will have the same name as the origin, 
+        /// but this can be customized.
+        /// </summary>
+        /// <param name="originBranchName">Specifies the GitHub origin repository branch name.</param>
+        /// <param name="branchName">Optionally specifies the local branch name.  This defaults to <paramref name="originBranchName"/>.</param>
+        /// <returns><c>true</c> if the local branch didn't already exist and was created from the GitHub origin repository, <c>false</c> if it already existed.</returns>
+        /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
+        /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
+        public async Task<bool> CheckoutOriginAsync(string originBranchName, string branchName = null)
+        {
+            await SyncContext.Clear;
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(originBranchName), nameof(originBranchName));
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
+
+            branchName ??= originBranchName;
+
+            var created = root.GitApi.Branches[branchName] == null;
+
+            if (created)
+            {
+                var branch = root.GitApi.CreateBranch(branchName, $"{root.Origin.Name}/{originBranchName}");
+
+                // Configure the new branch to track the remote.
+
+                branch = root.GitApi.Branches.Update(branch,
+                    updater => updater.Remote = root.Origin.Name,
+                    updater => updater.UpstreamBranch = branch.CanonicalName);
+            }
+
+            await CheckoutAsync(branchName);
+
+            // Wait for the branch to appear.
+
+            WaitForBranch(branchName, exists: true);
+
+            return created;
+        }
+
+        /// <summary>
         /// Creates a new local branch from the tip of a source branch if the new branch
         /// doesn't already exist and then checks out the new branch.
         /// </summary>
@@ -385,44 +442,13 @@ namespace Neon.GitHub
             root.GitApi.CreateBranch(branchName, sourceBranch.Tip);
             await CheckoutAsync(branchName);
 
+            // Wait for the branch to appear.
+
+            WaitForBranch(branchName, exists: true);
+
             return await Task.FromResult(true);
         }
 
-        /// <summary>
-        /// Creates a local branch from a named GitHub repository origin branch and then checks 
-        /// out the branch.  By default, the local branch will have the same name as the origin, 
-        /// but this can be customized.
-        /// </summary>
-        /// <param name="originBranchName">Specifies the GitHub origin repository branch name.</param>
-        /// <param name="branchName">Optionally specifies the local branch name.  This defaults to <paramref name="originBranchName"/>.</param>
-        /// <returns><c>true</c> if the local branch didn't already exist and was created from the GitHub origin repository, <c>false</c> if it already existed.</returns>
-        /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
-        /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
-        /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
-        public async Task<bool> CheckoutOriginAsync(string originBranchName, string branchName = null)
-        {
-            await SyncContext.Clear;
-            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(originBranchName), nameof(originBranchName));
-            root.EnsureNotDisposed();
-            root.EnsureLocalRepo();
-
-            branchName ??= originBranchName;
-
-            var created = root.GitApi.Branches[branchName] == null;
-
-            if (created)
-            {
-                var branch = root.GitApi.CreateBranch(branchName, $"{root.Origin.Name}/{originBranchName}");
-
-                // Configure the new branch to track the remote.
-
-                root.GitApi.Branches.Update(branch, b => b.TrackedBranch = branch.CanonicalName);
-            }
-
-            await CheckoutAsync(branchName);
-
-            return created;
-        }
 
         /// <summary>
         /// Removes a branch from the local repository if it exists.
@@ -440,6 +466,10 @@ namespace Neon.GitHub
             root.EnsureLocalRepo();
 
             root.GitApi.Branches.Remove(branchName);
+
+            // Wait for the branch to show disappear.
+
+            WaitForBranch(branchName, exists: false);
 
             await Task.CompletedTask;
         }

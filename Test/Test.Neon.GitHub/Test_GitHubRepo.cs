@@ -1624,5 +1624,74 @@ namespace TestGitHub
                     }
                 });
         }
+
+        [MaintainerFact]
+        public async Task Local_Tracking()
+        {
+            await GitHubTestHelper.RunTestAsync(
+                async () =>
+                {
+                    //-------------------------------------------------
+                    // Clone a repo and then verify that we can manage branches locally
+                    // and also push them to GitHub.
+
+                    using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
+                    {
+                        var repoPath = tempFolder.Path;
+
+                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepoPath, repoPath))
+                        {
+                            var testFolder = Path.Combine(tempFolder.Path, GitHubTestHelper.TestFolder);
+                            var file1Name  = $"{Guid.NewGuid()}.txt";
+                            var file2Name  = $"{Guid.NewGuid()}.txt";
+                            var file1Path  = Path.Combine(testFolder, file1Name);
+                            var file2Path  = Path.Combine(testFolder, file2Name);
+
+                            // Delete the test branch on GitHub if it already exists.
+
+                            if (await repo.Remote.Branch.ExistsAsync("test"))
+                            {
+                                await repo.Remote.Branch.RemoveAsync("test");
+                            }
+
+                            try
+                            {
+                                // Create a new test branch from master, add a file, and then push
+                                // the branch to GitHub.
+
+                                await repo.Local.CreateBranchAsync("test", "master");
+                                Directory.CreateDirectory(testFolder);
+                                File.WriteAllText(file1Path, "HELLO WORLD!");
+                                await repo.Local.PushAsync();
+                                Assert.True(repo.Local.CurrentBranch.IsTracking);
+
+                                // Switch back to the master branch and remove the local test branch.
+
+                                await repo.Local.CheckoutAsync("master");
+                                await repo.Local.RemoveBranchAsync("test");
+
+                                // Checkout the test branch from GitHub and verify that the test branch
+                                // is tracked by making a change and pushing that to GitHub.
+
+                                await repo.Local.CheckoutOriginAsync("test");
+                                Assert.True(repo.Local.CurrentBranch.IsTracking);
+
+                                Directory.CreateDirectory(testFolder);
+                                File.WriteAllText(file1Path, "HELLO WORLD!");
+                                await repo.Local.PushAsync();
+
+                                File.WriteAllText(file1Path, "GOODBYE WORLD!");
+                                await repo.Local.PushAsync();
+                            }
+                            finally
+                            {
+                                // Cleanup the remote test branch.
+
+                                await repo.Remote.Branch.RemoveAsync("test");
+                            }
+                        }
+                    }
+                });
+        }
     }
 }
