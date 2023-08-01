@@ -354,7 +354,7 @@ namespace Neon.GitHub
         /// </summary>
         /// <param name="branchName">Identifies the branch to being created.</param>
         /// <param name="sourceBranchName">Identifies the source branch.</param>
-        /// <returns><c>true</c> if the branch didn't already exist and was created, <c>false</c> otherwise.</returns>
+        /// <returns><c>true</c> if the branch didn't already exist and was created, <c>false</c> if it already existed.</returns>
         /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
@@ -395,7 +395,7 @@ namespace Neon.GitHub
         /// </summary>
         /// <param name="originBranchName">Specifies the GitHub origin repository branch name.</param>
         /// <param name="branchName">Optionally specifies the local branch name.  This defaults to <paramref name="originBranchName"/>.</param>
-        /// <returns><c>true</c> if the local branch didn't already exist and was created from the GitHub origin repository, <c>false</c> otherwise.</returns>
+        /// <returns><c>true</c> if the local branch didn't already exist and was created from the GitHub origin repository, <c>false</c> if it already existed.</returns>
         /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
@@ -412,7 +412,11 @@ namespace Neon.GitHub
 
             if (created)
             {
-                root.GitApi.CreateBranch(branchName, $"{root.Origin.Name}/{originBranchName}");
+                var branch = root.GitApi.CreateBranch(branchName, $"{root.Origin.Name}/{originBranchName}");
+
+                // Configure the new branch to track the remote.
+
+                root.GitApi.Branches.Update(branch, b => b.TrackedBranch = branch.CanonicalName);
             }
 
             await CheckoutAsync(branchName);
@@ -674,7 +678,7 @@ namespace Neon.GitHub
         /// Enumerates the friendly names of the local branches.
         /// </summary>
         /// <returns>The friendly names.</returns>
-        public async Task<IEnumerable<string>> ListBrancheshAsync()
+        public async Task<IEnumerable<string>> ListBranchesAsync()
         {
             await SyncContext.Clear;
             root.EnsureNotDisposed();
@@ -695,7 +699,7 @@ namespace Neon.GitHub
             root.EnsureNotDisposed();
             root.EnsureLocalRepo();
 
-            return (await ListBrancheshAsync()).Any(branch => branch == branchName);
+            return (await ListBranchesAsync()).Any(branch => branch == branchName);
         }
 
         /// <summary>

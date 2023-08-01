@@ -739,7 +739,7 @@ namespace TestGitHub
                         await Assert.ThrowsAsync<ObjectDisposedException>(async () => await repo.Local.PullAsync());
                         await Assert.ThrowsAsync<ObjectDisposedException>(async () => await repo.Local.PushAsync());
                         await Assert.ThrowsAsync<ObjectDisposedException>(async () => await repo.Local.RemoveBranchAsync("master"));
-                        await Assert.ThrowsAsync<ObjectDisposedException>(async () => await repo.Local.ListBrancheshAsync());
+                        await Assert.ThrowsAsync<ObjectDisposedException>(async () => await repo.Local.ListBranchesAsync());
                         await Assert.ThrowsAsync<ObjectDisposedException>(async () => await repo.Local.BranchExistsAsync("master"));
 
                         Assert.Throws<ObjectDisposedException>(() => repo.NormalizeBranchName("master"));
@@ -968,8 +968,8 @@ namespace TestGitHub
 
                             // Verify that the "master" and new branches exist.
 
-                            Assert.Contains(newBranchName, await repo.Local.ListBrancheshAsync());
-                            Assert.Contains("master", await repo.Local.ListBrancheshAsync());
+                            Assert.Contains(newBranchName, await repo.Local.ListBranchesAsync());
+                            Assert.Contains("master", await repo.Local.ListBranchesAsync());
                         }
                     }
                 });
