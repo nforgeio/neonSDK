@@ -430,7 +430,7 @@ namespace TestGitHub
 
                             // Remove all protections and verify.
 
-                            await repo.Remote.Branch.DeleteBranchProtection(newBranchName);
+                            await repo.Remote.Branch.RemoveBranchProtection(newBranchName);
 
                             newRemoteBranch = await repo.Remote.Branch.FindAsync(newBranchName);
 

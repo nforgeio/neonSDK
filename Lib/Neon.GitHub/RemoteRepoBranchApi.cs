@@ -348,7 +348,7 @@ namespace Neon.GitHub
         /// </summary>
         /// <param name="branchName">>Specifies the origin repository branch name.</param>
         /// <returns>The tracking <see cref="Task"/>.</returns>
-        public async Task DeleteBranchProtection(string branchName)
+        public async Task RemoveBranchProtection(string branchName)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));

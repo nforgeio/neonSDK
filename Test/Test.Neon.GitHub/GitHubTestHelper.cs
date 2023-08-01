@@ -133,7 +133,7 @@ namespace TestGitHub
                             //
                             // Ww'll address this by removing all branch protections and trying again.
 
-                            await repo.Remote.Branch.DeleteBranchProtection(branch);
+                            await repo.Remote.Branch.RemoveBranchProtection(branch);
                             await repo.Remote.Branch.RemoveAsync(branch);
                         }
                     }
