@@ -117,11 +117,11 @@ ARGUMENTS:
     TARGET          - Path to the (compressed) target file
 
 ---------------------------------------------------------------------
-neon-build replace PATH BEFORE AFTER
+neon-build replace PATH OLD NEW
 
-Searches and replaces instances of case sensitive the BEFORE string and
-replaces them with the AFTER string in the file at PATH, writing the changes
-to the same file.
+Searches and replaces instances of case sensitive OLD string and
+replaces them with the NEW string in the file at PATH, writing
+any changes to the same file.
 
 ---------------------------------------------------------------------
 neon-build read-version [-n] CSPATH CONSTANT

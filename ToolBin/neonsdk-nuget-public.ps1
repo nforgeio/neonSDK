@@ -147,6 +147,40 @@ try
     [System.IO.File]::WriteAllText("$nfRoot\build\nuget\version.txt", $neonSdkVersion)
 
     #------------------------------------------------------------------------------
+    # Update the SDK version in [Directory.Build.props] and commit/push any change.
+
+    $buildPropsPath = "$nfRoot\Directory.Build.props"
+    $buildPropsOrg  = [System.IO.File]::ReadAllText($buildPropsPath);
+
+    $buildPropsOrg -match "(?<NeonSdkVersion>.*</NeonSdkVersion>)" | Out-Null
+    $buildPropsOrgVersion = $matches[0].Trim()
+
+    $buildPropsNewVersion = "<NeonSdkVersion>$neonSdkVersion</NeonSdkVersion>"
+    $buildPropsNew        = $buildPropsOrg.Replace($buildPropsOrgVersion, $buildPropsNewVersion)
+
+    if ($buildPropsOrg -ne $buildPropsNew)
+    {
+        $commitMessage = "Directory.Build.props: bump SDK version to: $neonSdkVersion"
+
+        Write-Info $commitMessage
+
+        [System.IO.File]::WriteAllText($buildPropsPath, $buildPropsNew)
+
+        Push-Location $nfRoot
+
+        git add .
+        ThrowOnExitCode
+
+        git commit -m $commitMessage
+        ThrowOnExitCode
+
+        git push
+        ThrowOnExitCode
+
+        Pop-Location
+    }
+
+    #------------------------------------------------------------------------------
     # Clean and build the solution.
 
     Write-Info ""
@@ -182,8 +216,8 @@ try
     Publish Neon.Deployment             $neonSdkVersion
     Publish Neon.Docker                 $neonSdkVersion
     Publish Neon.GitHub                 $neonSdkVersion
-    Publish Neon.JsonConverters         $neonSdkVersion
     Publish Neon.HyperV                 $neonSdkVersion
+    Publish Neon.JsonConverters         $neonSdkVersion
     Publish Neon.Service                $neonSdkVersion
     Publish Neon.ModelGen               $neonSdkVersion
     Publish Neon.ModelGenerator         $neonSdkVersion

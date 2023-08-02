@@ -13,7 +13,7 @@
         <PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.ModelGenerator/README.md</PackageProjectUrl>
         <RepositoryUrl>https://github.com/nforgeio/neonSDK</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
-        <PackageTags>data utility</PackageTags>
+        <PackageTags>service data model</PackageTags>
         <PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
         <RuntimeIdentifiers>win-x64;osx-x64;linux-x64</RuntimeIdentifiers>
         <Configurations>Debug;Release</Configurations>
