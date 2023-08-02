@@ -1,4 +1,4 @@
-﻿The [Neon.ModelGenerator] package includes the [neon-modelgen] command line
+The [Neon.ModelGenerator] package includes the [neon-modelgen] command line
 tool that can be used to convert simple class and struct definitions into 
 model classes that can be easily serialized and deserialized from JSON and/or
 implement INotifyPropertyChanged for UX integration.  [neon-modelgen] can
@@ -121,5 +121,5 @@ This command is used to generate enhanced JSON based data models and
 REST API clients suitable for applications based on flexible noSQL
 style design conventions.  See this GitHub issue for more information:
 
-    https://github.com/nforgeio/TEMPKUBE/issues/463
+    https://github.com/nforgeio/neonkube/issues/463
 
