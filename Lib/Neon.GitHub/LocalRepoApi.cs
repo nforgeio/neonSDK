@@ -46,7 +46,6 @@ using GitBranch     = LibGit2Sharp.Branch;
 using GitRepository = LibGit2Sharp.Repository;
 using GitSignature  = LibGit2Sharp.Signature;
 using GitCommit     = LibGit2Sharp.Commit;
-using Neon.Time;
 
 namespace Neon.GitHub
 {
@@ -369,38 +368,47 @@ namespace Neon.GitHub
         /// but this can be customized.
         /// </summary>
         /// <param name="originBranchName">Specifies the GitHub origin repository branch name.</param>
-        /// <param name="branchName">Optionally specifies the local branch name.  This defaults to <paramref name="originBranchName"/>.</param>
+        /// <param name="localBranchName">Optionally specifies the local branch name.  This defaults to <paramref name="originBranchName"/>.</param>
+        /// <param name="detached">
+        /// Optionally detach the local branch from the remote.  This means you won't be able to
+        /// push changes back to the remote but this is useful for situations where you just need
+        /// the current snapshot of a remote branch rather than the entire branch history (i.e.
+        /// for a build).
+        /// </param>
         /// <returns><c>true</c> if the local branch didn't already exist and was created from the GitHub origin repository, <c>false</c> if it already existed.</returns>
         /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
-        public async Task<bool> CheckoutOriginAsync(string originBranchName, string branchName = null)
+        public async Task<bool> CheckoutOriginAsync(string originBranchName, string localBranchName = null, bool detached = false)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(originBranchName), nameof(originBranchName));
             root.EnsureNotDisposed();
             root.EnsureLocalRepo();
 
-            branchName ??= originBranchName;
+            localBranchName ??= originBranchName;
 
-            var created = root.GitApi.Branches[branchName] == null;
+            var created = root.GitApi.Branches[localBranchName] == null;
 
             if (created)
             {
-                var branch = root.GitApi.CreateBranch(branchName, $"{root.Origin.Name}/{originBranchName}");
+                var branch = root.GitApi.CreateBranch(localBranchName, $"{root.Origin.Name}/{originBranchName}");
 
-                // Configure the new branch to track the remote.
+                if (!detached)
+                {
+                    // Configure the new branch to track the remote.
 
-                branch = root.GitApi.Branches.Update(branch,
-                    updater => updater.Remote = root.Origin.Name,
-                    updater => updater.UpstreamBranch = branch.CanonicalName);
+                    branch = root.GitApi.Branches.Update(branch,
+                        updater => updater.Remote = root.Origin.Name,
+                        updater => updater.UpstreamBranch = branch.CanonicalName);
+                }
             }
 
-            await CheckoutAsync(branchName);
+            await CheckoutAsync(localBranchName);
 
             // Wait for the branch to appear.
 
-            WaitForBranch(branchName, exists: true);
+            WaitForBranch(localBranchName, exists: true);
 
             return created;
         }

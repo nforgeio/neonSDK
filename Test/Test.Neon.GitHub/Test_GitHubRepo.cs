@@ -1626,7 +1626,7 @@ namespace TestGitHub
         }
 
         [MaintainerFact]
-        public async Task Local_Tracking()
+        public async Task Remote_Checkout_Tracking()
         {
             await GitHubTestHelper.RunTestAsync(
                 async () =>
@@ -1682,6 +1682,14 @@ namespace TestGitHub
 
                                 File.WriteAllText(file1Path, "GOODBYE WORLD!");
                                 await repo.Local.PushAsync();
+
+                                // Remove the local test branch and then check it out again, detached
+                                // this time and verify.
+
+                                await repo.Local.CheckoutAsync("master");
+                                await repo.Local.RemoveBranchAsync("test");
+                                await repo.Local.CheckoutOriginAsync("test", detached: true);
+                                Assert.False(repo.Local.CurrentBranch.IsTracking);
                             }
                             finally
                             {
