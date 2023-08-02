@@ -43,8 +43,6 @@
     <!--- Generate the model source files -->
 
     <Target Name="ModelGen"
-            Inputs="$(NF_ROOT)\Test\Test.Neon.Models.Definitions\bin\$(Configuration)\netstandard2.0\Test.Neon.Models.Definitions.dll"
-            Outputs="$(ProjectDir)GeneratedUxTypes.mg.cs"
             BeforeTargets="CoreCompile"
             DependsOnTargets="BeforeCompile">
 
