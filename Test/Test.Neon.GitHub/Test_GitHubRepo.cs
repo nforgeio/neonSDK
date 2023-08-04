@@ -968,8 +968,11 @@ namespace TestGitHub
 
                             // Verify that the "master" and new branches exist.
 
-                            Assert.Contains(newBranchName, await repo.Local.ListBranchesAsync());
-                            Assert.Contains("master", await repo.Local.ListBranchesAsync());
+                            var branchNames = (await repo.Local.ListBranchesAsync())
+                                .Select(branch => branch.FriendlyName);
+
+                            Assert.Contains(newBranchName, branchNames);
+                            Assert.Contains("master", branchNames);
                         }
                     }
                 });
@@ -1615,6 +1618,17 @@ namespace TestGitHub
                             Assert.Contains(await repo.Local.ListAllTagsAsync(), tag => tag.FriendlyName == tagName);
                             Assert.Contains(await repo.Local.ListAnnotatedTagsAsync(), tag => tag.FriendlyName == tagName);
                             Assert.DoesNotContain(await repo.Local.ListLightweightTagsAsync(), tag => tag.FriendlyName == tagName);
+
+                            // Test other tag info methods.
+
+                            Assert.True(await repo.Local.AnnotatedTagExistsAsync(tagName));
+                            Assert.False(await repo.Local.AnnotatedTagExistsAsync(Guid.NewGuid().ToString("d")));
+
+                            Assert.NotNull(await repo.Local.FindAnnotatedTagAsync(tagName));
+                            Assert.Null(await repo.Local.FindAnnotatedTagAsync(Guid.NewGuid().ToString("d")));
+
+                            Assert.NotNull(await repo.Local.GetAnnotatedTagAsync(tagName));
+                            await Assert.ThrowsAsync<LibGit2Sharp.NotFoundException>(async () => await repo.Local.GetAnnotatedTagAsync(Guid.NewGuid().ToString("d")));
 
                             // Verify that we can push the tag to GitHub.
 

@@ -715,18 +715,18 @@ namespace Neon.GitHub
         /// <summary>
         /// Enumerates the friendly names of the local branches.
         /// </summary>
-        /// <returns>The friendly names.</returns>
-        public async Task<IEnumerable<string>> ListBranchesAsync()
+        /// <returns>The <see cref="GitBranch"/> instances.</returns>
+        public async Task<IEnumerable<GitBranch>> ListBranchesAsync()
         {
             await SyncContext.Clear;
             root.EnsureNotDisposed();
             root.EnsureLocalRepo();
 
-            return root.GitApi.Branches.Select(branch => branch.FriendlyName);
+            return root.GitApi.Branches.ToArray();
         }
 
         /// <summary>
-        /// Determines whether a specific branch exists in the local repo.
+        /// Determines whether a specific branch exists by friendly name.
         /// </summary>
         /// <param name="branchName">Specfies the friendly name of the target branch.</param>
         /// <returns><c>true</c> when the branch exists.</returns>
@@ -737,13 +737,13 @@ namespace Neon.GitHub
             root.EnsureNotDisposed();
             root.EnsureLocalRepo();
 
-            return (await ListBranchesAsync()).Any(branch => branch == branchName);
+            return (await ListBranchesAsync()).Any(branch => branch.FriendlyName == branchName);
         }
 
         /// <summary>
-        /// Attempts to retrieve a branch by name.
+        /// Attempts to retrieve a branch by friendly name.
         /// </summary>
-        /// <param name="branchName">Specifies the friendly name of the local branch.</param>
+        /// <param name="branchName">Specifies the friendly name of the target branch.</param>
         /// <returns>The <see cref="GitBranch"/> if it exists, <c>null</c> otherwise.</returns>
         public async Task<GitBranch> FindBranchAsync(string branchName)
         {
@@ -753,9 +753,9 @@ namespace Neon.GitHub
         }
 
         /// <summary>
-        /// Returns the named branch.
+        /// Returns the branch by friendly name
         /// </summary>
-        /// <param name="branchName">Specifies the friendly name of the local branch.</param>s
+        /// <param name="branchName">Specifies the friendly name of the target branch.</param>s
         /// <returns>The <see cref="GitBranch"/>.</returns>
         /// <exception cref="LibGit2Sharp.NotFoundException">Thrown if the branch doesn't exist.</exception>
         public async Task<GitBranch> GetBranchAsync(string branchName)
@@ -773,9 +773,9 @@ namespace Neon.GitHub
         }
 
         /// <summary>
-        /// Returns the commits for a local branch.
+        /// Returns the commits for a local branch by friendly name.
         /// </summary>
-        /// <param name="branchName">Specifies the friendly name of the local branch.</param>
+        /// <param name="branchName">Specifies the friendly name of the target branch.</param>
         /// <returns>The commits.</returns>
         /// <exception cref="LibGit2Sharp.NotFoundException">Thrown if the branch doesn't exist.</exception>
         public async Task<IEnumerable<GitCommit>> GetBranchCommitsAsync(string branchName)
@@ -1109,21 +1109,6 @@ namespace Neon.GitHub
         }
 
         /// <summary>
-        /// Lists the annotated tags from the local repo.
-        /// </summary>
-        /// <returns>The tags.</returns>
-        public async Task<IEnumerable<Tag>> ListAnnotatedTagsAsync()
-        {
-            await SyncContext.Clear;
-            root.EnsureNotDisposed();
-            root.EnsureLocalRepo();
-
-            return (await Task.FromResult(root.GitApi.Tags))
-                .Where(tag => tag.IsAnnotated)
-                .ToArray();
-        }
-
-        /// <summary>
         /// Lists the lightweight tags from the local repo.
         /// </summary>
         /// <returns>The tags.</returns>
@@ -1136,6 +1121,68 @@ namespace Neon.GitHub
             return (await Task.FromResult(root.GitApi.Tags))
                 .Where(tag => !tag.IsAnnotated)
                 .ToArray();
+        }
+
+        /// <summary>
+        /// Lists the annotated tags from the local repo.
+        /// </summary>
+        /// <returns>The annotated tag names.</returns>
+        public async Task<IEnumerable<Tag>> ListAnnotatedTagsAsync()
+        {
+            await SyncContext.Clear;
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
+
+            return (await Task.FromResult(root.GitApi.Tags))
+                .Where(tag => tag.IsAnnotated)
+                .ToArray();
+        }
+
+        /// <summary>
+        /// Determines whether a specific annotated tag exists.
+        /// </summary>
+        /// <param name="tagName">Specfies the target tag's friendly name.</param>
+        /// <returns><c>true</c> when the annotated tag exists.</returns>
+        public async Task<bool> AnnotatedTagExistsAsync(string tagName)
+        {
+            await SyncContext.Clear;
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(tagName), nameof(tagName));
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
+
+            return (await ListAnnotatedTagsAsync()).Any(tag => tag.FriendlyName == tagName);
+        }
+
+        /// <summary>
+        /// Attempts to retrieve an annotated tag by friendly name.
+        /// </summary>
+        /// <param name="tagName">Specifies target tag's friendly name.</param>
+        /// <returns>The annotated <see cref="Tag"/> if it exists, <c>null</c> otherwise.</returns>
+        public async Task<Tag> FindAnnotatedTagAsync(string tagName)
+        {
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(tagName), nameof(tagName));
+
+            return (await ListAnnotatedTagsAsync()).SingleOrDefault(tag => tag.FriendlyName == tagName);
+        }
+
+        /// <summary>
+        /// Returns an annotated tag by friendly name.
+        /// </summary>
+        /// <param name="tagName">Specifies target tag's friendly name.</param>s
+        /// <returns>The annotated <see cref="Tag"/>.</returns>
+        /// <exception cref="LibGit2Sharp.NotFoundException">Thrown if the annotated tag doesn't exist.</exception>
+        public async Task<Tag> GetAnnotatedTagAsync(string tagName)
+        {
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(tagName), nameof(tagName));
+
+            var tag = await FindAnnotatedTagAsync(tagName);
+
+            if (tag == null)
+            {
+                throw new LibGit2Sharp.NotFoundException($"Annotated tag does not exist: {tagName}");
+            }
+
+            return tag;
         }
 
         /// <summary>
