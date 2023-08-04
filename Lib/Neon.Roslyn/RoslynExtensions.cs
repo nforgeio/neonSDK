@@ -74,7 +74,8 @@ namespace Neon.Roslyn
 
             if (attributeData.ConstructorArguments.Count > 0 && attributeData.Constructor != null)
             {
-                attribute = (T)Activator.CreateInstance(typeof(T), attributeData.GetActualConstuctorParams().ToArray());
+                var actualArgs = attributeData.GetActualConstuctorParams().ToArray();
+                attribute = (T)Activator.CreateInstance(typeof(T), actualArgs);
             }
             else
             {
