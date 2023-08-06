@@ -157,6 +157,12 @@ namespace Neon.GitHub
         }
 
         /// <summary>
+        /// Specifies the maximum time to wait while uploading files to GitHub, such
+        /// as GitHub release assets.  This defaults to <b>10 minutes</b>.
+        /// </summary>
+        public TimeSpan UploadTimeout { get; set; } = TimeSpan.FromMinutes(10);
+
+        /// <summary>
         /// Returns a URI for the GitHub API server by combining the GitHub API endpoint
         /// with the relative path passed.
         /// </summary>

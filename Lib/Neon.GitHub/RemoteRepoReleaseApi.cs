@@ -345,7 +345,8 @@ namespace Neon.GitHub
             {
                 FileName    = assetName,
                 ContentType = contentType,
-                RawData     = stream
+                RawData     = stream,
+                Timeout     = root.Remote.UploadTimeout
             };
 
             var newAsset = await root.GitHubApi.Repository.Release.UploadAsset(release, upload);
