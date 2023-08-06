@@ -564,6 +564,17 @@ namespace Neon.GitHub
                 Credentials = new Octokit.Credentials(Credentials.AccessToken)
             };
 
+            // $hack(jefflill):
+            // $todo(jefflill):
+            //
+            // UploadAsset() doesn't seem to honor the timeout, so we're going to set the
+            // underlying HttpClient timeout to 10 minutes instead.
+            //
+            // This may be fixed on future Octokit releases and we can remove this hack then.
+            // We should probably submit a pull request.
+
+            GitHubApi.Connection.SetRequestTimeout(TimeSpan.FromMinutes(10));
+
             LibGit2Sharp.Credentials libCredentials;
 
             // We're going to default to using [accesstoken] when [password]

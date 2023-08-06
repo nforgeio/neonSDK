@@ -157,8 +157,15 @@ namespace Neon.GitHub
         }
 
         /// <summary>
+        /// <para>
         /// Specifies the maximum time to wait while uploading files to GitHub, such
         /// as GitHub release assets.  This defaults to <b>10 minutes</b>.
+        /// </para>
+        /// <note>
+        /// This doesn't work right now due to an Octokit bug.  We work around this
+        /// by initializing the underlying <see cref="HttpClient"/> timeout to 10
+        /// minutes.
+        /// </note>
         /// </summary>
         public TimeSpan UploadTimeout { get; set; } = TimeSpan.FromMinutes(10);
 

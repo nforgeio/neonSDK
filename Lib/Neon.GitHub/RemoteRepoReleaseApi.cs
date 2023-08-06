@@ -340,16 +340,8 @@ namespace Neon.GitHub
             root.EnsureNotDisposed();
 
             var releaseName = release.Name;
-
-            var upload = new ReleaseAssetUpload()
-            {
-                FileName    = assetName,
-                ContentType = contentType,
-                RawData     = stream,
-                Timeout     = root.Remote.UploadTimeout
-            };
-
-            var newAsset = await root.GitHubApi.Repository.Release.UploadAsset(release, upload);
+            var upload      = new ReleaseAssetUpload(assetName, contentType, stream, root.Remote.UploadTimeout);
+            var newAsset    = await root.GitHubApi.Repository.Release.UploadAsset(release, upload);
 
             // GitHub doesn't appear to upload assets synchronously, so we're going to wait for the new asset to show up.
 
