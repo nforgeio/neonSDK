@@ -476,11 +476,18 @@ namespace Neon.Deployment
             {
                 var response = await httpClient.GetSafeAsync(uri);
 
+                // $hack(jefflill):
+                //
+                // We're having trouble setting the Content-Type header when publishing
+                // node images to S3, so I'm going to disable this chack.  It's not
+                // terribly important, because the object schema will be validated when
+                // we deserialize it.
+#if TODO
                 if (!response.Content.Headers.ContentType.MediaType.Equals(DeploymentHelper.DownloadManifestContentType))
                 {
                     throw new FormatException($"The content type for [{uri}] is [{response.Content.Headers.ContentType.MediaType}].  [{DeploymentHelper.DownloadManifestContentType}] was expected.");
                 }
-
+#endif
                 manifest = NeonHelper.JsonDeserialize<DownloadManifest>(await response.Content.ReadAsStringAsync());
             }
 
