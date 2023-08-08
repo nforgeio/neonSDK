@@ -61,8 +61,8 @@ namespace Neon.Retry
         /// </summary>
         /// <param name="transientDetector">
         /// Optionally specifies the function that determines whether an exception is transient 
-        /// (see <see cref="TransientDetector"/>).  You can pass <c>null</c>
-        /// if all exceptions are to be considered to be transient.
+        /// (see <see cref="TransientDetector"/>).  You can pass <c>null</c> when all exceptions
+        /// are to be considered to be transient.
         /// </param>
         /// <param name="maxAttempts">Optionally specifies the maximum number of times an action should be retried (defaults to <b>5</b>).</param>
         /// <param name="retryInterval">Optionally specifies time interval between retry attempts (defaults to <b>1 second</b>).</param>
@@ -108,7 +108,7 @@ namespace Neon.Retry
         /// <summary>
         /// Constructs the retry policy to handle a specific exception type as transient.
         /// </summary>
-        /// <param name="exceptionType">The exception type to be considered to be transient.</param>
+        /// <param name="exceptionType">Specifies the exception type to be considered to be transient.</param>
         /// <param name="maxAttempts">Optionally specifies the maximum number of times an action should be retried (defaults to <b>5</b>).</param>
         /// <param name="retryInterval">Optionally specifies the time interval between retry attempts (defaults to <b>1 second</b>).</param>
         /// <param name="categoryName">Optionally enables transient error logging by identifying the source category name (defaults to <c>null</c>).</param>
@@ -147,7 +147,7 @@ namespace Neon.Retry
         /// <summary>
         /// Constructs the retry policy to handle a multiple exception types as transient.
         /// </summary>
-        /// <param name="exceptionTypes">The exception type to be considered to be transient.</param>
+        /// <param name="exceptionTypes">Specifies the exception types to be considered to be transient.</param>
         /// <param name="maxAttempts">Optionally specifies the maximum number of times an action should be retried (defaults to <b>5</b>).</param>
         /// <param name="retryInterval">Optionally specifies the time interval between retry attempts (defaults to <b>1 second</b>).</param>
         /// <param name="timeout">Optionally specifies the maximum time the operation will be retried (defaults to unconstrained)</param>
