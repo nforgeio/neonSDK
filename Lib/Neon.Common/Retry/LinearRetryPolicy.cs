@@ -235,7 +235,7 @@ namespace Neon.Retry
         }
 
         /// <inheritdoc/>
-        public override async Task InvokeAsync(Func<Task> action)
+        public override async Task InvokeAsync(Func<Task> action, CancellationToken cancellationToken = default)
         {
             await SyncContext.Clear;
 
@@ -244,6 +244,8 @@ namespace Neon.Retry
 
             while (true)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 try
                 {
                     await action();
@@ -260,13 +262,13 @@ namespace Neon.Retry
 
                     cancellationToken.ThrowIfCancellationRequested();
                     LogTransient(e);
-                    await Task.Delay(adjustedDelay);
+                    await Task.Delay(adjustedDelay, cancellationToken);
                 }
             }
         }
 
         /// <inheritdoc/>
-        public override async Task<TResult> InvokeAsync<TResult>(Func<Task<TResult>> action)
+        public override async Task<TResult> InvokeAsync<TResult>(Func<Task<TResult>> action, CancellationToken cancellationToken = default)
         {
             await SyncContext.Clear;
 
@@ -275,6 +277,8 @@ namespace Neon.Retry
 
             while (true)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 try
                 {
                     return await action();
@@ -290,19 +294,21 @@ namespace Neon.Retry
 
                     cancellationToken.ThrowIfCancellationRequested();
                     LogTransient(e);
-                    await Task.Delay(adjustedDelay);
+                    await Task.Delay(adjustedDelay, cancellationToken);
                 }
             }
         }
 
         /// <inheritdoc/>
-        public override void Invoke(Action action)
+        public override void Invoke(Action action, CancellationToken cancellationToken = default)
         {
             var attempts    = 0;
             var sysDeadline = base.SysDeadline();
 
             while (true)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 try
                 {
                     action();
@@ -325,13 +331,15 @@ namespace Neon.Retry
         }
 
         /// <inheritdoc/>
-        public override TResult Invoke<TResult>(Func<TResult> action)
+        public override TResult Invoke<TResult>(Func<TResult> action, CancellationToken cancellationToken = default)
         {
             var attempts    = 0;
             var sysDeadline = base.SysDeadline();
 
             while (true)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 try
                 {
                     return action();

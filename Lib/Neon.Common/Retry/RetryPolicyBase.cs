@@ -64,16 +64,16 @@ namespace Neon.Retry
         public abstract IRetryPolicy Clone(Func<Exception, bool> transientDetector = null);
 
         /// <inheritdoc/>
-        public abstract Task InvokeAsync(Func<Task> action);
+        public abstract Task InvokeAsync(Func<Task> action, CancellationToken cancellationToken = default);
 
         /// <inheritdoc/>
-        public abstract Task<TResult> InvokeAsync<TResult>(Func<Task<TResult>> action);
+        public abstract Task<TResult> InvokeAsync<TResult>(Func<Task<TResult>> action, CancellationToken cancellationToken = default);
 
         /// <inheritdoc/>
-        public abstract void Invoke(Action action);
+        public abstract void Invoke(Action action, CancellationToken cancellationToken = default);
 
         /// <inheritdoc/>
-        public abstract TResult Invoke<TResult>(Func<TResult> action);
+        public abstract TResult Invoke<TResult>(Func<TResult> action, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Returns the associated log source category name (or <c>null)</c>.
