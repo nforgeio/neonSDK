@@ -507,25 +507,23 @@ namespace TestCommon
         [Fact]
         public async Task Cancel()
         {
-            // Have test code throw TimeoutExceptions which will be considered to be transient and
-            // then in another task, have the cancellation token cancel itself and then verify that
-            // the policy invoke fails with a CancellationException.
+            // Use a cancellation token to cancel an operation.
 
             var cts    = new CancellationTokenSource();
-            var policy = new LinearRetryPolicy(typeof(TransientException), maxAttempts: 6, retryInterval: TimeSpan.FromSeconds(1), cancellationToken: cts.Token);
+            var policy = new LinearRetryPolicy(typeof(TransientException), maxAttempts: 6, retryInterval: TimeSpan.FromSeconds(1));
 
             cts.CancelAfter(TimeSpan.FromSeconds(2));
 
-            await Assert.ThrowsAsync<OperationCanceledException>(
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(
                 async () =>
                 {
                     await policy.InvokeAsync(
                         async () =>
                         {
-                            cts.Token.ThrowIfCancellationRequested();
                             await Task.CompletedTask;
                             throw new TransientException();
-                        });
+                        },
+                        cts.Token);
                 });
         }
     }

@@ -495,19 +495,19 @@ namespace TestCommon
             // the policy invoke fails with a CancellationException.
 
             var cts    = new CancellationTokenSource();
-            var policy = new LinearRetryPolicy(typeof(TransientException), maxAttempts: 6, retryInterval: TimeSpan.FromSeconds(1), cancellationToken: cts.Token);
+            var policy = new LinearRetryPolicy(typeof(TransientException), maxAttempts: 6, retryInterval: TimeSpan.FromSeconds(1));
 
             cts.CancelAfter(TimeSpan.FromSeconds(2));
 
-            Assert.Throws<OperationCanceledException>(
+            Assert.ThrowsAny<OperationCanceledException>(
                 () =>
                 {
                     policy.Invoke(
                         () =>
                         {
-                            cts.Token.ThrowIfCancellationRequested();
                             throw new TransientException();
-                        });
+                        },
+                        cts.Token);
                 });
         }
     }

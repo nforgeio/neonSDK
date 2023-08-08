@@ -409,7 +409,7 @@ namespace TestCommon
         [Fact]
         public async Task SuccessCustom()
         {
-            var policy  = new ExponentialRetryPolicy(TransientDetector, maxAttempts: 6, initialRetryInterval: TimeSpan.FromSeconds(0.5), maxRetryInterval: TimeSpan.FromSeconds(4));
+            var policy  = new ExponentialRetryPolicy(TransientDetector, maxAttempts: 10, initialRetryInterval: TimeSpan.FromSeconds(0.5), maxRetryInterval: TimeSpan.FromSeconds(4));
             var times   = new List<DateTime>();
             var success = false;
 
@@ -439,7 +439,7 @@ namespace TestCommon
         [Fact]
         public async Task SuccessCustom_Result()
         {
-            var policy = new ExponentialRetryPolicy(TransientDetector, maxAttempts: 6, initialRetryInterval: TimeSpan.FromSeconds(0.5), maxRetryInterval: TimeSpan.FromSeconds(4));
+            var policy = new ExponentialRetryPolicy(TransientDetector, maxAttempts: 10, initialRetryInterval: TimeSpan.FromSeconds(0.5), maxRetryInterval: TimeSpan.FromSeconds(4));
             var times  = new List<DateTime>();
 
             Assert.Equal(6, policy.MaxAttempts);
@@ -521,25 +521,23 @@ namespace TestCommon
         [Fact]
         public async Task Cancel()
         {
-            // Have test code throw TimeoutExceptions which will be considered to be transient and
-            // then in another task, have the cancellation token cancel itself and then verify that
-            // the policy invoke fails with a CancellationException.
+            // Use a cancellation token to cancel an operation.
 
             var cts    = new CancellationTokenSource();
-            var policy = new ExponentialRetryPolicy(typeof(TransientException), maxAttempts: 6, initialRetryInterval: TimeSpan.FromSeconds(1), maxRetryInterval: TimeSpan.FromSeconds(1), cancellationToken: cts.Token);
+            var policy = new ExponentialRetryPolicy(typeof(TransientException), maxAttempts: 10, initialRetryInterval: TimeSpan.FromSeconds(1), maxRetryInterval: TimeSpan.FromSeconds(1));
 
             cts.CancelAfter(TimeSpan.FromSeconds(2));
 
-            await Assert.ThrowsAsync<OperationCanceledException>(
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(
                 async () =>
                 {
                     await policy.InvokeAsync(
                         async () =>
                         {
-                            cts.Token.ThrowIfCancellationRequested();
                             await Task.CompletedTask;
                             throw new TransientException();
-                        });
+                        },
+                        cts.Token);
                 });
         }
     }
