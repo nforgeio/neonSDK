@@ -413,7 +413,7 @@ namespace TestCommon
             var times   = new List<DateTime>();
             var success = false;
 
-            Assert.Equal(6, policy.MaxAttempts);
+            Assert.Equal(10, policy.MaxAttempts);
             Assert.Equal(TimeSpan.FromSeconds(0.5), policy.InitialRetryInterval);
             Assert.Equal(TimeSpan.FromSeconds(4), policy.MaxRetryInterval);
 
@@ -442,7 +442,7 @@ namespace TestCommon
             var policy = new ExponentialRetryPolicy(TransientDetector, maxAttempts: 10, initialRetryInterval: TimeSpan.FromSeconds(0.5), maxRetryInterval: TimeSpan.FromSeconds(4));
             var times  = new List<DateTime>();
 
-            Assert.Equal(6, policy.MaxAttempts);
+            Assert.Equal(10, policy.MaxAttempts);
             Assert.Equal(TimeSpan.FromSeconds(0.5), policy.InitialRetryInterval);
             Assert.Equal(TimeSpan.FromSeconds(4), policy.MaxRetryInterval);
 
