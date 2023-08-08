@@ -106,17 +106,17 @@ namespace Neon.Net
         /// <param name="requestMethod">Optionally specifies the request method.</param>
         /// <param name="statusCode">Optionally specifies the response status code.</param>
         public HttpException(string reasonPhrase = null, string requestUri = null, string requestMethod = null, HttpStatusCode statusCode = (HttpStatusCode)0)
-            : base(GetMessage(reasonPhrase, requestUri, requestMethod, statusCode))
+            : base(GetMessage(reasonPhrase, requestMethod, requestUri, statusCode))
         {
-            this.RequestUri    = requestUri;
             this.RequestMethod = requestMethod;
+            this.RequestUri    = requestUri;
             this.ReasonPhrase  = reasonPhrase ?? string.Empty;
             this.StatusCode    = statusCode;
         }
 
         /// <summary>
         /// <para>
-        /// Constructs an exception from a <see cref="HttpRequestException"/> and optional
+        /// Constructs an exception from a <see cref="HttpRequestException"/> and optionals
         /// request details.
         /// </para>
         /// <note>
