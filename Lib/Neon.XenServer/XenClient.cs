@@ -217,9 +217,9 @@ namespace Neon.XenServer
 
             // Initialize the operation classes.
 
-            this.Storage = new StorageOperations(this);
-            this.Template   = new TemplateOperations(this);
-            this.Machine    = new MachineOperations(this);
+            this.Storage  = new StorageOperations(this);
+            this.Template = new TemplateOperations(this);
+            this.Machine  = new MachineOperations(this);
         }
 
         /// <summary>
