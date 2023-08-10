@@ -79,6 +79,7 @@ namespace TestCommon
             Assert.Equal(0, v.Minor);
             Assert.Equal(0, v.Patch);
             Assert.Null(v.Prerelease);
+            Assert.False(v.IsPrerelease);
             Assert.Null(v.Build);
 
             v = SemanticVersion.Parse("1.2");
@@ -87,6 +88,7 @@ namespace TestCommon
             Assert.Equal(2, v.Minor);
             Assert.Equal(0, v.Patch);
             Assert.Null(v.Prerelease);
+            Assert.False(v.IsPrerelease);
             Assert.Null(v.Build);
 
             v = SemanticVersion.Parse("1.2.3");
@@ -95,6 +97,7 @@ namespace TestCommon
             Assert.Equal(2, v.Minor);
             Assert.Equal(3, v.Patch);
             Assert.Null(v.Prerelease);
+            Assert.False(v.IsPrerelease);
             Assert.Null(v.Build);
 
             v = SemanticVersion.Parse("11.22.33");
@@ -103,6 +106,7 @@ namespace TestCommon
             Assert.Equal(22, v.Minor);
             Assert.Equal(33, v.Patch);
             Assert.Null(v.Prerelease);
+            Assert.False(v.IsPrerelease);
             Assert.Null(v.Build);
 
             v = SemanticVersion.Parse("1.2.3-alpha");
@@ -111,6 +115,7 @@ namespace TestCommon
             Assert.Equal(2, v.Minor);
             Assert.Equal(3, v.Patch);
             Assert.Equal("alpha", v.Prerelease);
+            Assert.True(v.IsPrerelease);
             Assert.Null(v.Build);
 
             v = SemanticVersion.Parse("1.2.3-alpha-0");
@@ -119,6 +124,7 @@ namespace TestCommon
             Assert.Equal(2, v.Minor);
             Assert.Equal(3, v.Patch);
             Assert.Equal("alpha-0", v.Prerelease);
+            Assert.True(v.IsPrerelease);
             Assert.Null(v.Build);
 
             v = SemanticVersion.Parse("1.2.3-alpha.0.1");
@@ -127,6 +133,7 @@ namespace TestCommon
             Assert.Equal(2, v.Minor);
             Assert.Equal(3, v.Patch);
             Assert.Equal("alpha.0.1", v.Prerelease);
+            Assert.True(v.IsPrerelease);
             Assert.Null(v.Build);
 
             v = SemanticVersion.Parse("1.2.3+build-27");
@@ -135,6 +142,7 @@ namespace TestCommon
             Assert.Equal(2, v.Minor);
             Assert.Equal(3, v.Patch);
             Assert.Null(v.Prerelease);
+            Assert.False(v.IsPrerelease);
             Assert.Equal("build-27", v.Build);
 
             v = SemanticVersion.Parse("1.2.3-alpha.0.1+build-27");
@@ -143,6 +151,7 @@ namespace TestCommon
             Assert.Equal(2, v.Minor);
             Assert.Equal(3, v.Patch);
             Assert.Equal("alpha.0.1", v.Prerelease);
+            Assert.True(v.IsPrerelease);
             Assert.Equal("build-27", v.Build);
         }
 

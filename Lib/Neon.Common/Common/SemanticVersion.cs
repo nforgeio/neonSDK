@@ -520,6 +520,11 @@ namespace Neon.Common
         public string Prerelease { get; set; }
 
         /// <summary>
+        /// Indicates whether the version specifies a prerelease.
+        /// </summary>
+        public bool IsPrerelease => Prerelease != null;
+
+        /// <summary>
         /// The build information or <c>null</c>.
         /// </summary>
         public string Build { get; set; }

@@ -73,7 +73,7 @@ namespace NeonBuild
 
             string version = null;
 
-            if (solutionVersion.Prerelease != null && (string.IsNullOrEmpty(localPrerelease) || solutionVersion.Prerelease.ToLowerInvariant().CompareTo(localPrerelease) < 0))
+            if (!solutionVersion.IsPrerelease && (string.IsNullOrEmpty(localPrerelease) || solutionVersion.Prerelease.ToLowerInvariant().CompareTo(localPrerelease) < 0))
             {
                 // The solution version specifies a pre-release identifier which is less than
                 // the local version or there is no local version.
