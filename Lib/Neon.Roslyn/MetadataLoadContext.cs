@@ -19,6 +19,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
+
 using Microsoft.CodeAnalysis;
 
 namespace Neon.Roslyn

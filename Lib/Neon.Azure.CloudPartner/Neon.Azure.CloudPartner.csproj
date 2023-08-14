@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <OutputType>Library</OutputType>
+        <RootNamespace>Neon.Azure.CloudPartner</RootNamespace>
+        <Version>$(NeonSdkVersion)</Version>
+        <Description>Implements some Azure Cloud Partner management APIs</Description>
+        <PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
+        <IsPackable>true</IsPackable>
+        <PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.Azure.CloudPartner/README.md</PackageProjectUrl>
+        <RepositoryType>git</RepositoryType>
+        <RepositoryUrl>https://github.com/nforgeio/neonSDK</RepositoryUrl>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <Configurations>Debug;Release</Configurations>
+        <PackageIcon>nuget-icon.png</PackageIcon>
+        <PackageTags>Azure Cloud Partner classes</PackageTags>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Include="..\Neon.BuildInfo\AssemblyAttributes.cs" Link="Properties\AssemblyAttributes.cs" />
+        <Compile Include="..\Neon.BuildInfo\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
+        <PackageReference Include="Microsoft.Extensions.ObjectPool" Version="7.0.5" />
+        <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+        <PackageReference Include="System.Diagnostics.Contracts" Version="4.3.0" />
+        <PackageReference Include="System.Diagnostics.Process" Version="4.3.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="..\nuget-icon.png" Pack="true" PackagePath="" />
+        <None Include="..\..\LICENSE" Pack="true" PackagePath="" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\Lib\Neon.BuildInfo\Neon.BuildInfo.csproj" />
+        <ProjectReference Include="..\Neon.Common\Neon.Common.csproj" />
+    </ItemGroup>
+
+</Project>
