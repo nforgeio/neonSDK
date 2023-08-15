@@ -103,6 +103,11 @@ namespace Neon.Diagnostics
                     {
                         Console.Out.WriteLine(message);
                     }
+
+                    if (Debugger.IsAttached && options.EmitToAttachedDebugger)
+                    {
+                        Debug.WriteLine(message);
+                    }
                 }
             }
 

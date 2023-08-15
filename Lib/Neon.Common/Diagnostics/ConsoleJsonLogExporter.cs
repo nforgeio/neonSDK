@@ -157,6 +157,12 @@ namespace Neon.Diagnostics
                             Console.Out.WriteLine(jsonText);
                             Console.Out.WriteLine();
                         }
+
+                        if (Debugger.IsAttached && options.EmitToAttachedDebugger)
+                        {
+                            Debug.WriteLine(jsonText);
+                            Console.Out.WriteLine();
+                        }
                     }
                 }
             }

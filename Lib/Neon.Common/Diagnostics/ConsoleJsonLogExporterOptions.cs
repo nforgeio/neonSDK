@@ -48,7 +48,7 @@ namespace Neon.Diagnostics
         /// <summary>
         /// <para>
         /// Used to disable writing events to the output stream.  This can be useful for
-        /// unit testing.
+        /// unit testing.  This is enabled by default.
         /// </para>
         /// <note>
         /// Any configured <see cref="LogEventInterceptor"/> actions will still be called
@@ -56,6 +56,12 @@ namespace Neon.Diagnostics
         /// </note>
         /// </summary>
         public bool Emit { get; set; } = true;
+
+        /// <summary>
+        /// Used to disable writing logs to an attached debugger's output window.  This
+        /// is enabled by default.
+        /// </summary>
+        public bool EmitToAttachedDebugger { get; set; } = true;
 
         /// <summary>
         /// Used to direct log output for events to <b>standard error</b> based on the
