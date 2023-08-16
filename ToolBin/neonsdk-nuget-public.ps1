@@ -207,7 +207,6 @@ try
     #------------------------------------------------------------------------------
     # Build and publish the projects.
 
-    Publish Neon.Azure.CloudPartner     $neonSdkVersion
     Publish Neon.Blazor                 $neonSdkVersion
     Publish Neon.BuildInfo              $neonSdkVersion
     Publish Neon.Cassandra              $neonSdkVersion
