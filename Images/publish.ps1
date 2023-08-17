@@ -20,7 +20,7 @@
 #
 # NOTE: You must be already logged into the target container registry.
 #
-# USAGE: pwsh -f publish-all.ps1 [-all]
+# USAGE: pwsh -f publish.ps1 [-all]
 
 param 
 (
@@ -42,7 +42,7 @@ $image_root = [System.IO.Path]::Combine($env:NF_ROOT, "Images")
 #----------------------------------------------------------
 
 # Take care to ensure that you order the image builds such that
-# dependant images are built before any dependancies.
+# dependencies are built before images that rely on them.
 
 function Publish
 {
