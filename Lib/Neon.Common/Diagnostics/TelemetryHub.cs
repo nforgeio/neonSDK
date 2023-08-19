@@ -214,6 +214,11 @@ namespace Neon.Diagnostics
 
                         logLevel = LogLevel.None;
                         break;
+
+                    default:
+
+                        logLevel = LogLevel.Information;
+                        break;
                 }
             }
 
