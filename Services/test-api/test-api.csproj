@@ -8,10 +8,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <_ContentIncludedByDefault Remove="app.config" />
-    </ItemGroup>
-
-    <ItemGroup>
         <Compile Include="$(NF_ROOT)\Lib\Neon.BuildInfo\AssemblyAttributes.cs" Link="Properties\AssemblyAttributes.cs" />
         <Compile Include="$(NF_ROOT)\Lib\Neon.BuildInfo\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
     </ItemGroup>

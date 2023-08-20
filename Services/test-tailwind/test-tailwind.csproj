@@ -33,10 +33,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <_ContentIncludedByDefault Remove="app.config" />
-    </ItemGroup>
-
-    <ItemGroup>
         <PackageReference Include="HeroIcons.Blazor" Version="1.0.6" />
     </ItemGroup>
 
