@@ -35,8 +35,7 @@ namespace Neon.Deployment
     public static class CodeSigner
     {
         /// <summary>
-        /// Signs an EXE or MSI file using a code signing certificate and the Windows
-        /// <b>signtool.exe</b> program.
+        /// Signs an EXE or MSI file using a code signing certificate and Microsoft Built Tools <b>signtool</b> program.
         /// </summary>
         /// <param name="targetPath">Specifies the path to the file being signed.</param>
         /// <param name="provider">Specifies the certificate provider, like: "eToken Base Cryptographic Provider"</param>
@@ -50,11 +49,6 @@ namespace Neon.Deployment
         /// <b>WARNING!</b> Be very careful when using this method with Extended Validation (EV) code signing 
         /// USB tokens.  Using an incorrect password can brick EV tokens since thay typically allow only a 
         /// very limited number of signing attempts with invalid passwords.
-        /// </note>
-        /// <note>
-        /// This method uses the Windows version of <b>signtool.exe</b> embedded into the
-        /// the <b>Neon.Deployment</b> library and to perform the code signing and this 
-        /// tool runs only on Windows.
         /// </note>
         /// </remarks>
         public static void SignBinary(
@@ -83,10 +77,9 @@ namespace Neon.Deployment
             using (var tempFolder = new TempFolder())
             {
                 var tempCertPath = Path.Combine(tempFolder.Path, "certificate.cer");
-                var signToolPath = Path.Combine(tempFolder.Path, "signtool.exe");
+                var signToolPath = InstallSignTool(tempFolder.Path);
 
                 File.WriteAllBytes(tempCertPath, Convert.FromBase64String(certBase64));
-                ExtractSignTool(signToolPath);
 
                 NeonHelper.ExecuteCapture(signToolPath,
                     new object[]
@@ -148,8 +141,6 @@ namespace Neon.Deployment
             {
                 using (var tempFile = new TempFile(suffix: ".exe"))
                 {
-                    ExtractSignTool(tempFile.Path);
-
                     SignBinary(
                         targetPath:   tempFile.Path,
                         provider:     provider,
@@ -171,20 +162,37 @@ namespace Neon.Deployment
         /// Extracts the <b>signtool.exe</b> binary from the embedded resource
         /// to the specified path.
         /// </summary>
-        /// <param name="targetPath">The target path for the binary.</param>
-        private static void ExtractSignTool(string targetPath)
+        /// <param name="installFolder">The folder where the build tools will be installed.</param>
+        /// <returns>The path to the SignTool binary.</returns>
+        private static string InstallSignTool(string installFolder)
         {
-            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(targetPath));
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(installFolder));
 
-            var assembly = Assembly.GetExecutingAssembly();
+            // We're going to use the nuget CLI to install the Microsoft Build Tools
+            // within the folder specified which creates some subfolders.  The method
+            // returns the path to the Windows x64 version of the SignTool binary.
 
-            using (var signToolStream = assembly.GetManifestResourceStream("Neon.Deployment.Resources.signtool.exe"))
-            {
-                using (var output = File.Create(targetPath))
+            const string buildToolsVersion = "10.0.20348.19";
+
+            NeonHelper.ExecuteCapture("nuget",
+                new object[]
                 {
-                    signToolStream.CopyTo(output);
-                }
+                    "install",
+                    "Microsoft.Windows.SDK.BuildTools",
+                    "-Version", buildToolsVersion,
+                    "-o", installFolder
+                })
+                .EnsureSuccess();
+
+            var version       = Version.Parse(buildToolsVersion);
+            var signToolPath  = Path.Combine(installFolder, $"Microsoft.Windows.SDK.BuildTools.{buildToolsVersion}", "bin", $"{version.Major}.{version.Minor}.{version.Build}.0", "x64", "signtool.exe");
+
+            if (!File.Exists(signToolPath))
+            {
+                throw new FileNotFoundException($"SignTool installation signtool file does not found: {signToolPath}");
             }
+
+            return signToolPath;
         }
     }
 }
