@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -48,7 +49,6 @@ namespace TestDeployment
     [CollectionDefinition(TestCollection.NonParallel, DisableParallelization = true)]
     public partial class Test_CodeSigner
     {
-        private readonly string     signeePath;
         private readonly string     provider;
         private readonly string     certBase64;
         private readonly string     container;
@@ -58,12 +58,6 @@ namespace TestDeployment
         public Test_CodeSigner()
         {
 #pragma warning disable CS0618 // Type or member is obsolete
-
-            // Get the path to the binary we'll copy and sign for testing.
-
-            signeePath = Path.Combine(NeonHelper.GetAssemblyFolder(Assembly.GetExecutingAssembly()), "signee.exe");
-
-            Assert.True(File.Exists(signeePath));
 
             // Fetch the required secrets.
 
@@ -78,23 +72,14 @@ namespace TestDeployment
 #pragma warning restore CS0618 // Type or member is obsolete
         }
 
-        /// <summary>
-        /// Copies the [signee.exe] binary to the path specified.
-        /// </summary>
-        /// <param name="targetPath">Specifies the target path.</param>
-        private void CopySigneeTo(string targetPath)
-        {
-            File.Copy(signeePath, targetPath);
-        }
-
-        [Fact(Skip = "Needs to be run manually by a maintainer")]
-        // [Fact]
+        //[Fact(Skip = "Needs to be run manually by a maintainer")]
+        [Fact]
         public void IsReady()
         {
             Assert.True(CodeSigner.IsReady(provider, certBase64, container, timestampUri, password));
         }
 
-        //[MaintainerFact(Skip = "Needs to be run manually by a maintainer")]
+        //MaintainerFact(Skip = "Needs to be run manually by a maintainer")]
         [MaintainerFact]
         public void Sign()
         {
@@ -102,15 +87,35 @@ namespace TestDeployment
 
             using (var tempFile = new TempFile(suffix: ".exe"))
             {
-                CopySigneeTo(tempFile.Path);
+                ExtractTestBinaryTo(tempFile.Path);
 
                 var beforeHash = CryptoHelper.ComputeMD5StringFromFile(tempFile.Path);
 
-                CodeSigner.SignBinary(tempFile.Path, provider, certBase64, container, timestampUri, password);
+                CodeSigner.SignTool(tempFile.Path, provider, certBase64, container, timestampUri, password);
 
                 var afterHash = CryptoHelper.ComputeMD5StringFromFile(tempFile.Path);
 
                 Assert.NotEqual(beforeHash, afterHash);
+            }
+        }
+
+        /// <summary>
+        /// Extracts the <b>signee.exe</b> binary from the embedded resource
+        /// to the specified path.
+        /// </summary>
+        /// <param name="targetPath">The target path for the binary.</param>
+        private static void ExtractTestBinaryTo(string targetPath)
+        {
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(targetPath));
+
+            var assembly = Assembly.GetExecutingAssembly();
+
+            using (var toolStream = assembly.GetManifestResourceStream("TestDeployment.Resources.Windows.signee.exe"))
+            {
+                using (var output = File.Create(targetPath))
+                {
+                    toolStream.CopyTo(output);
+                }
             }
         }
     }

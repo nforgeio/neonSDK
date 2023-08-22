@@ -19,6 +19,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <None Remove="Resources\Windows\signee.exe" />
         <None Remove="xunit.runner.json" />
     </ItemGroup>
 
@@ -26,6 +27,12 @@
         <Content Include="xunit.runner.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Include="Resources\Windows\signee.exe">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </EmbeddedResource>
     </ItemGroup>
 
     <ItemGroup>
@@ -51,12 +58,6 @@
 
     <ItemGroup>
         <Folder Include="Properties\" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <None Update="signee.exe">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
     </ItemGroup>
 
 </Project>

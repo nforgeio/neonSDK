@@ -51,7 +51,7 @@ namespace Neon.Deployment
         /// very limited number of signing attempts with invalid passwords.
         /// </note>
         /// </remarks>
-        public static void SignBinary(
+        public static void SignTool(
             string      targetPath, 
             string      provider, 
             string      certBase64, 
@@ -134,14 +134,16 @@ namespace Neon.Deployment
             Covenant.Requires<PlatformNotSupportedException>(NeonHelper.IsWindows && NeonHelper.Is64BitOS, "This is supported only for 64-bit Windows.");
 
             // We're going to verify that code signing can complete by signing
-            // a copy of the [signtool.exe] itself.  This verifies that the parameters
+            // a copy of a small embedded executable.  This verifies that the parameters
             // are correct and also that the code-signing token is actually available.
 
             try
             {
                 using (var tempFile = new TempFile(suffix: ".exe"))
                 {
-                    SignBinary(
+                    ExtractTestBinaryTo(tempFile.Path);
+
+                    SignTool(
                         targetPath:   tempFile.Path,
                         provider:     provider,
                         certBase64:   certBase64,
@@ -193,6 +195,26 @@ namespace Neon.Deployment
             }
 
             return signToolPath;
+        }
+
+        /// <summary>
+        /// Extracts the <b>signee.exe</b> binary from the embedded resource
+        /// to the specified path.
+        /// </summary>
+        /// <param name="targetPath">The target path for the binary.</param>
+        private static void ExtractTestBinaryTo(string targetPath)
+        {
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(targetPath));
+
+            var assembly = Assembly.GetExecutingAssembly();
+
+            using (var toolStream = assembly.GetManifestResourceStream("Neon.Deployment.Resources.Windows.signee.exe"))
+            {
+                using (var output = File.Create(targetPath))
+                {
+                    toolStream.CopyTo(output);
+                }
+            }
         }
     }
 }
