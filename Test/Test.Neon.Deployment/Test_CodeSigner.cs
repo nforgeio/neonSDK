@@ -29,6 +29,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Neon.Common;
 using Neon.Cryptography;
 using Neon.Deployment;
+using Neon.Deployment.CodeSigning;
 using Neon.IO;
 using Neon.Xunit;
 
@@ -49,38 +50,35 @@ namespace TestDeployment
     [CollectionDefinition(TestCollection.NonParallel, DisableParallelization = true)]
     public partial class Test_CodeSigner
     {
-        private readonly string     provider;
-        private readonly string     certBase64;
-        private readonly string     container;
-        private readonly string     timestampUri;
-        private readonly string     password;
+        private UsbTokenProfile signToolProfile;
 
         public Test_CodeSigner()
         {
 #pragma warning disable CS0618 // Type or member is obsolete
 
-            // Fetch the required secrets.
+            // Fetch the required secrets and construct the signing profiles.
 
             var profileClient = new MaintainerProfile();
 
-            provider     = profileClient.GetSecretValue("codesign_token[provider]",     vault: "group-devops");
-            certBase64   = profileClient.GetSecretValue("codesign_token[pubcert]",      vault: "group-devops");
-            container    = profileClient.GetSecretValue("codesign_token[container]",    vault: "group-devops");
-            timestampUri = profileClient.GetSecretValue("codesign_token[timestampuri]", vault: "group-devops");
-            password     = profileClient.GetSecretValue("codesign_token[password]",     vault: "group-devops");
+            signToolProfile = new UsbTokenProfile(
+                provider:     profileClient.GetSecretValue("codesign_token[provider]",     vault: "group-devops"),
+                certBase64:   profileClient.GetSecretValue("codesign_token[pubcert]",      vault: "group-devops"),
+                container:    profileClient.GetSecretValue("codesign_token[container]",    vault: "group-devops"),
+                timestampUri: profileClient.GetSecretValue("codesign_token[timestampuri]", vault: "group-devops"),
+                password:     profileClient.GetSecretValue("codesign_token[password]",     vault: "group-devops"));
 
 #pragma warning restore CS0618 // Type or member is obsolete
         }
 
-        //[Fact(Skip = "Needs to be run manually by a maintainer")]
-        [Fact]
+        [Fact(Skip = "Needs to be run manually by a maintainer")]
+        //[Fact]
         public void IsReady()
         {
-            Assert.True(CodeSigner.IsReady(provider, certBase64, container, timestampUri, password));
+            Assert.True(CodeSigner.IsReady(signToolProfile));
         }
 
-        //MaintainerFact(Skip = "Needs to be run manually by a maintainer")]
-        [MaintainerFact]
+        [MaintainerFact(Skip = "Needs to be run manually by a maintainer")]
+        //[MaintainerFact]
         public void Sign()
         {
             // Verify that signing an executable actually changes the file.
@@ -91,7 +89,7 @@ namespace TestDeployment
 
                 var beforeHash = CryptoHelper.ComputeMD5StringFromFile(tempFile.Path);
 
-                CodeSigner.SignTool(tempFile.Path, provider, certBase64, container, timestampUri, password);
+                CodeSigner.Sign(signToolProfile, tempFile.Path);
 
                 var afterHash = CryptoHelper.ComputeMD5StringFromFile(tempFile.Path);
 
