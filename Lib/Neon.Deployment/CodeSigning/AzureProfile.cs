@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------------
-// FILE:	    AzureSignProfile.cs
+// FILE:	    AzureProfile.cs
 // CONTRIBUTOR: NEONFORGE Team
 // COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
@@ -24,7 +24,7 @@ namespace Neon.Deployment.CodeSigning
     /// <summary>
     /// Defines parameters required for code signing using <b>Azure Code Signing</b>.
     /// </summary>
-    public class AzureSignProfile
+    public class AzureProfile
     {
     }
 }
