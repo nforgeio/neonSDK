@@ -61,11 +61,11 @@ namespace TestDeployment
             var profileClient = new MaintainerProfile();
 
             signToolProfile = new UsbTokenProfile(
-                provider:     profileClient.GetSecretValue("codesign_token[provider]",     vault: "group-devops"),
-                certBase64:   profileClient.GetSecretValue("codesign_token[pubcert]",      vault: "group-devops"),
-                container:    profileClient.GetSecretValue("codesign_token[container]",    vault: "group-devops"),
-                timestampUri: profileClient.GetSecretValue("codesign_token[timestampuri]", vault: "group-devops"),
-                password:     profileClient.GetSecretValue("codesign_token[password]",     vault: "group-devops"));
+                provider:     profileClient.GetSecretValue("CODESIGN_TOKEN[provider]",     vault: "group-devops"),
+                certBase64:   profileClient.GetSecretValue("CODESIGN_TOKEN[pubcert]",      vault: "group-devops"),
+                container:    profileClient.GetSecretValue("CODESIGN_TOKEN[container]",    vault: "group-devops"),
+                timestampUri: profileClient.GetSecretValue("CODESIGN_TOKEN[timestampuri]", vault: "group-devops"),
+                password:     profileClient.GetSecretValue("CODESIGN_TOKEN[password]",     vault: "group-devops"));
 
 #pragma warning restore CS0618 // Type or member is obsolete
         }
