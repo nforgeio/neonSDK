@@ -41,7 +41,7 @@ namespace ICSharpCode.SharpZipLib.Zip
         }
 
         /// <summary>
-        /// Constructs a source from a UTG-8 encopded string.
+        /// Constructs a source from a UTG-8 encoded string.
         /// </summary>
         /// <param name="data">The data string</param>
         public StaticBytesDataSource(string data)

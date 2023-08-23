@@ -50,7 +50,8 @@ namespace TestDeployment
     [CollectionDefinition(TestCollection.NonParallel, DisableParallelization = true)]
     public partial class Test_CodeSigner
     {
-        private UsbTokenProfile signToolProfile;
+        private UsbTokenProfile usbTokenProfile;
+        private AzureProfile    azureProfile;
 
         public Test_CodeSigner()
         {
@@ -60,12 +61,20 @@ namespace TestDeployment
 
             var profileClient = new MaintainerProfile();
 
-            signToolProfile = new UsbTokenProfile(
+            usbTokenProfile = new UsbTokenProfile(
                 provider:     profileClient.GetSecretValue("CODESIGN_TOKEN[provider]",     vault: "group-devops"),
                 certBase64:   profileClient.GetSecretValue("CODESIGN_TOKEN[pubcert]",      vault: "group-devops"),
                 container:    profileClient.GetSecretValue("CODESIGN_TOKEN[container]",    vault: "group-devops"),
                 timestampUri: profileClient.GetSecretValue("CODESIGN_TOKEN[timestampuri]", vault: "group-devops"),
                 password:     profileClient.GetSecretValue("CODESIGN_TOKEN[password]",     vault: "group-devops"));
+
+            azureProfile = new AzureProfile(
+                azureTenantId:                   profileClient.GetSecretValue("AZURE_NEONFORGE[TENANT_ID]"),
+                azureClientId:                   profileClient.GetSecretValue("AZURE_NEONFORGE[CLIENT_ID]"),
+                azureClientSecret:               profileClient.GetSecretValue("AZURE_NEONFORGE[CLIENT_SECRET]"),
+                codeSigningAccountEndpoint: profileClient.GetSecretValue("CODESIGN_AZURE[CODESIGNING_ACCOUNT_ENDPOINT]", vault: "group-devops"),
+                codeSigningAccountName:     profileClient.GetSecretValue("CODESIGN_AZURE[CODESIGNING_ACCOUNT_NAME]", vault: "group-devops"),
+                certificateProfileName:     profileClient.GetSecretValue("CODESIGN_AZURE[CERTIFICATE_PROFILE_NAME]", vault: "group-devops"));
 
 #pragma warning restore CS0618 // Type or member is obsolete
         }
@@ -74,12 +83,12 @@ namespace TestDeployment
         //[Fact]
         public void IsReady()
         {
-            Assert.True(CodeSigner.IsReady(signToolProfile));
+            Assert.True(CodeSigner.IsReady(usbTokenProfile));
         }
 
         [MaintainerFact(Skip = "Needs to be run manually by a maintainer")]
         //[MaintainerFact]
-        public void Sign()
+        public void Sign_WithUsbToken()
         {
             // Verify that signing an executable actually changes the file.
 
@@ -89,7 +98,27 @@ namespace TestDeployment
 
                 var beforeHash = CryptoHelper.ComputeMD5StringFromFile(tempFile.Path);
 
-                CodeSigner.Sign(signToolProfile, tempFile.Path);
+                CodeSigner.Sign(usbTokenProfile, tempFile.Path);
+
+                var afterHash = CryptoHelper.ComputeMD5StringFromFile(tempFile.Path);
+
+                Assert.NotEqual(beforeHash, afterHash);
+            }
+        }
+
+        //[MaintainerFact(Skip = "Needs to be run manually by a maintainer")]
+        [MaintainerFact]
+        public void Sign_WithAzure()
+        {
+            // Verify that signing an executable actually changes the file.
+
+            using (var tempFile = new TempFile(suffix: ".exe"))
+            {
+                ExtractTestBinaryTo(tempFile.Path);
+
+                var beforeHash = CryptoHelper.ComputeMD5StringFromFile(tempFile.Path);
+
+                CodeSigner.Sign(azureProfile, tempFile.Path);
 
                 var afterHash = CryptoHelper.ComputeMD5StringFromFile(tempFile.Path);
 

@@ -17,15 +17,20 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.Contracts;
 using System.IO;
 using System.IO.Pipes;
+using System.Net.Http;
 using System.Reflection;
 using System.Text;
 using System.Threading;
 
+using ICSharpCode.SharpZipLib.Zip;
+
 using Neon.Common;
 using Neon.Deployment.CodeSigning;
+using Neon.Diagnostics;
 using Neon.IO;
 
 namespace Neon.Deployment.CodeSigning
@@ -36,7 +41,45 @@ namespace Neon.Deployment.CodeSigning
     public static class CodeSigner
     {
         /// <summary>
-        /// Signs an EXE, DLL or MSI file using a USB code signing certificate and the Microsoft Built Tools <b>signtool</b> program.
+        /// Verifies that the current machine is ready for code signing using a USB code signing certificate and the Microsoft Built Tools <b>signtool</b> program.
+        /// </summary>
+        /// <param name="profile">Specifies a <see cref="UsbTokenProfile"/> with the required signing prarameters.</param>
+        /// <returns><c>true</c> when the signing token is available and the profile ius correct.</returns>
+        /// <exception cref="PlatformNotSupportedException">Thrown when executed on a non 64-bit Windows machine.</exception>
+        /// <remarks>
+        /// <note>
+        /// <b>WARNING!</b> Be very careful when using this method with Extended Validation (EV) code signing 
+        /// USB tokens.  Using an incorrect password can brkick EV tokens since thay typically allow only a 
+        /// very limited number of signing attempts with invalid passwords.
+        /// </note>
+        /// </remarks>
+        public static bool IsReady(UsbTokenProfile profile)
+        {
+            Covenant.Requires<ArgumentNullException>(profile != null, nameof(profile));
+            Covenant.Requires<PlatformNotSupportedException>(NeonHelper.IsWindows && NeonHelper.Is64BitOS, "This is supported only for 64-bit Windows.");
+
+            // We're going to verify that code signing can complete by signing
+            // a copy of a small embedded executable.  This verifies that the parameters
+            // are correct and also that the code-signing token is actually available.
+
+            try
+            {
+                using (var tempFile = new TempFile(suffix: ".exe"))
+                {
+                    ExtractTestBinaryTo(tempFile.Path);
+                    Sign(profile, tempFile.Path);
+                }
+            }
+            catch
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Signs an EXE, DLL or MSI file using a USB code signing certificate and the <b>SignTool</b> from the Microsoft Built Tools.
         /// </summary>
         /// <param name="profile">Specifies a <see cref="UsbTokenProfile"/> with the required signing prarameters.</param>
         /// <param name="targetPath">Specifies the path to the file being signed.</param>
@@ -48,9 +91,7 @@ namespace Neon.Deployment.CodeSigning
         /// very limited number of signing attempts with invalid passwords.
         /// </note>
         /// </remarks>
-        public static void Sign(
-            UsbTokenProfile profile,
-            string          targetPath)
+        public static void Sign(UsbTokenProfile profile, string targetPath)
         {
             Covenant.Requires<ArgumentNullException>(profile != null, nameof(profile));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(targetPath), nameof(targetPath));
@@ -88,53 +129,75 @@ namespace Neon.Deployment.CodeSigning
         }
 
         /// <summary>
-        /// Verrifies that the current machine is ready for code signing using a USB code signing certificate and the Microsoft Built Tools <b>signtool</b> program.
+        /// Signs an EXE, DLL or MSI file using Azure Code Signing using the <b>AzureSignTool</b>.
         /// </summary>
         /// <param name="profile">Specifies a <see cref="UsbTokenProfile"/> with the required signing prarameters.</param>
-        /// <returns><c>true</c> when signing is available.</returns>
+        /// <param name="targetPath">Specifies the path to the file being signed.</param>
         /// <exception cref="PlatformNotSupportedException">Thrown when executed on a non 64-bit Windows machine.</exception>
-        /// <remarks>
-        /// <note>
-        /// <b>WARNING!</b> Be very careful when using this method with Extended Validation (EV) code signing 
-        /// USB tokens.  Using an incorrect password can brick EV tokens since thay typically allow only a 
-        /// very limited number of signing attempts with invalid passwords.
-        /// </note>
-        /// </remarks>
-        public static bool IsReady(
-            UsbTokenProfile     profile)
+        public static void Sign(AzureProfile profile, string targetPath)
         {
             Covenant.Requires<ArgumentNullException>(profile != null, nameof(profile));
-            Covenant.Requires<PlatformNotSupportedException>(NeonHelper.IsWindows && NeonHelper.Is64BitOS, "This is supported only for 64-bit Windows.");
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(targetPath), nameof(targetPath));
 
-            // We're going to verify that code signing can complete by signing
-            // a copy of a small embedded executable.  This verifies that the parameters
-            // are correct and also that the code-signing token is actually available.
-
-            try
+            using (var tempFolder = new TempFolder())
             {
-                using (var tempFile = new TempFile(suffix: ".exe"))
+                // Install the SignTool and the signing DLL to the temp folder.
+
+                var signToolPath = InstallSignTool(tempFolder.Path);
+                var signDllPath  = InstallSigningDll(tempFolder.Path);
+
+                // Create the metadata file.
+
+                var metadataPath = Path.Combine(tempFolder.Path, "metadata.json");
+                var metadata     =
+$@"{{
+    ""Endpoint"": ""{profile.CodeSigningAccountEndpoint}"",
+    ""CodeSigningAccountName"": ""{profile.CodeSigningAccountName}"",
+    ""CertificateProfileName"": ""{profile.CertificateProfileName}""
+}}
+";
+                File.WriteAllText(metadataPath, metadata);
+
+                // We're going to present the Azure credentials as environment variables.
+
+                var azureCredentials = new Dictionary<string, string>()
                 {
-                    ExtractTestBinaryTo(tempFile.Path);
-                    Sign(profile, tempFile.Path);
-                }
-            }
-            catch
-            {
-                return false;
-            }
+                    { "AZURE_TENANT_ID", profile.AzureTenantId },
+                    { "AZURE_CLIENT_ID", profile.AzureClientId },
+                    { "AZURE_CLIENT_SECRET", profile.AzureClientSecret}
+                };
 
-            return true;
+                // Sign the binary.
+
+                var response = NeonHelper.ExecuteCapture(signToolPath,
+                    new object[]
+                    {
+                        "sign",
+                        "/v",
+                        "/debug",
+                        "/fd", "SHA256",
+                        "/tr", "http://timestamp.acs.microsoft.com",
+                        "/td", "SHA256",
+                        "/dlib", signDllPath,
+                        "/dmdf", metadataPath,
+                        targetPath
+                    },
+                    environmentVariables: azureCredentials);
+
+                response.EnsureSuccess();
+            }
         }
 
         /// <summary>
-        /// Extracts the <b>signtool.exe</b> binary from the embedded resource
-        /// to the specified path.
+        /// Downloads and installs the <b>SignTool</b> binary.
         /// </summary>
-        /// <param name="installFolder">The folder where the build tools will be installed.</param>
-        /// <returns>The path to the SignTool binary.</returns>
+        /// <param name="installFolder">The folder where the tool will be installed.</param>
+        /// <returns>The path to the <b>SignTool</b> binary.</returns>
         private static string InstallSignTool(string installFolder)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(installFolder));
+
+            Directory.CreateDirectory(installFolder);
 
             // We're going to use the nuget CLI to install the Microsoft Build Tools
             // within the folder specified which creates some subfolders.  The method
@@ -157,10 +220,62 @@ namespace Neon.Deployment.CodeSigning
 
             if (!File.Exists(signToolPath))
             {
-                throw new FileNotFoundException($"SignTool installation signtool file does not found: {signToolPath}");
+                throw new FileNotFoundException($"SignTool not found: {signToolPath}");
             }
 
             return signToolPath;
+        }
+
+        /// <summary>
+        /// Downloads and installs the <b>Azure.CodeSigning.Dlib</b> DLL.
+        /// </summary>
+        /// <param name="installFolder">The folder where the DLL will be installed.</param>
+        /// <returns>The path to the installed DLL.</returns>
+        private static string InstallSigningDll(string installFolder)
+        {
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(installFolder));
+
+            Directory.CreateDirectory(installFolder);
+
+            // $note(jefflill):
+            //
+            // I've uploaded the code signing DLL and related files as a ZIP
+            // to our s3://neon-public/build-assets/ docket/folder.
+
+            // Download the Azure.CodeSigning.Dlib ZIP file to the install folder. 
+
+            const string version = "1.0.32";
+            const string zipFile = $"Azure.CodeSigning.Dlib.{version}.zip";
+            const string zipUri  = $"https://neon-public.s3.us-west-2.amazonaws.com/build-assets/{zipFile}";
+
+            var zipPath = Path.Combine(installFolder, zipFile);
+
+            using (var httpClient = new HttpClient())
+            {
+                using (var zipStream = File.OpenWrite(zipPath))
+                {
+                    var request  = new HttpRequestMessage(HttpMethod.Get, zipUri);
+                    var response = httpClient.SendAsync(request).Result;
+
+                    response.EnsureSuccessStatusCode();
+                    response.Content.CopyToAsync(zipStream).Wait();
+                }
+            }
+
+            // Extract the Azure.CodeSigning.Dlib ZIP file to the install folder.
+
+            new FastZip().ExtractZip(zipPath, installFolder, fileFilter: null);
+
+            // Return the path the x64 version of the unzipped Azure.CodeSigning.Dlib.dll file.
+
+            var dllPath = Path.Combine(installFolder, "bin", "x64", "Azure.CodeSigning.Dlib.dll");
+
+            if (!File.Exists(dllPath))
+            {
+                throw new FileNotFoundException($"Signing DLL not found: {dllPath}");
+            }
+
+            return dllPath;
         }
 
         /// <summary>
