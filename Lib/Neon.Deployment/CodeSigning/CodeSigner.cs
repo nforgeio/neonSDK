@@ -234,8 +234,8 @@ $@"{{
                 })
                 .EnsureSuccess();
 
-            var version       = Version.Parse(buildToolsVersion);
-            var signToolPath  = Path.Combine(installFolder, $"Microsoft.Windows.SDK.BuildTools.{buildToolsVersion}", "bin", $"{version.Major}.{version.Minor}.{version.Build}.0", "x64", "signtool.exe");
+            var version      = Version.Parse(buildToolsVersion);
+            var signToolPath = Path.Combine(installFolder, $"Microsoft.Windows.SDK.BuildTools.{buildToolsVersion}", "bin", $"{version.Major}.{version.Minor}.{version.Build}.0", "x64", "signtool.exe");
 
             if (!File.Exists(signToolPath))
             {
@@ -258,8 +258,8 @@ $@"{{
 
             // $note(jefflill):
             //
-            // I've uploaded the code signing DLL and related files as a ZIP
-            // to our [s3://neon-public/build-assets] bucket folder.
+            // I've uploaded the code signing DLL and related files as ZIP
+            // files to our [s3://neon-public/build-assets] bucket folder.
 
             // Download the [Azure.CodeSigning.Dlib] ZIP file to the install folder. 
 
