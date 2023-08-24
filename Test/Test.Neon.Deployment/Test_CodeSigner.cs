@@ -69,9 +69,9 @@ namespace TestDeployment
                 password:     profileClient.GetSecretValue("CODESIGN_TOKEN[password]",     vault: "group-devops"));
 
             azureProfile = new AzureProfile(
-                azureTenantId:                   profileClient.GetSecretValue("AZURE_NEONFORGE[TENANT_ID]"),
-                azureClientId:                   profileClient.GetSecretValue("AZURE_NEONFORGE[CLIENT_ID]"),
-                azureClientSecret:               profileClient.GetSecretValue("AZURE_NEONFORGE[CLIENT_SECRET]"),
+                azureTenantId:              profileClient.GetSecretValue("CODESIGN_AZURE[AZURE_TENANT_ID]", vault: "group-devops"),
+                azureClientId:              profileClient.GetSecretValue("CODESIGN_AZURE[AZURE_CLIENT_ID]", vault: "group-devops"),
+                azureClientSecret:          profileClient.GetSecretValue("CODESIGN_AZURE[AZURE_CLIENT_SECRET]", vault: "group-devops"),
                 codeSigningAccountEndpoint: profileClient.GetSecretValue("CODESIGN_AZURE[CODESIGNING_ACCOUNT_ENDPOINT]", vault: "group-devops"),
                 codeSigningAccountName:     profileClient.GetSecretValue("CODESIGN_AZURE[CODESIGNING_ACCOUNT_NAME]", vault: "group-devops"),
                 certificateProfileName:     profileClient.GetSecretValue("CODESIGN_AZURE[CERTIFICATE_PROFILE_NAME]", vault: "group-devops"));
@@ -115,6 +115,7 @@ namespace TestDeployment
             using (var tempFile = new TempFile(suffix: ".exe"))
             {
                 ExtractTestBinaryTo(tempFile.Path);
+                Assert.True(File.Exists(tempFile.Path));
 
                 var beforeHash = CryptoHelper.ComputeMD5StringFromFile(tempFile.Path);
 

@@ -21,6 +21,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.Contracts;
 using System.IO;
 using System.IO.Pipes;
+using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Text;
@@ -141,6 +142,16 @@ namespace Neon.Deployment.CodeSigning
 
             using (var tempFolder = new TempFolder())
             {
+                // Verify that a .NET CORE 6.x runtime is installed.
+
+                var response = NeonHelper.ExecuteCapture("dotnet", new object[] { "--list-runtimes" })
+                    .EnsureSuccess();
+
+                if (!response.OutputText.ToLines().Any(line => line.StartsWith("Microsoft.NETCore.App 6.")))
+                {
+                    throw new NotSupportedException(".NET 6.x runtime is required to use Azure Code Signing.");
+                }
+
                 // Install the SignTool and the signing DLL to the temp folder.
 
                 var signToolPath = InstallSignTool(tempFolder.Path);
@@ -158,7 +169,8 @@ $@"{{
 ";
                 File.WriteAllText(metadataPath, metadata);
 
-                // We're going to present the Azure credentials as environment variables.
+                // We're going to present the [code-signer] Azure service principal
+                // credentials to SignTool as environment variables.
 
                 var azureCredentials = new Dictionary<string, string>()
                 {
@@ -167,14 +179,21 @@ $@"{{
                     { "AZURE_CLIENT_SECRET", profile.AzureClientSecret}
                 };
 
+                // Ensure that the referenced files actually exist.
+
+                Covenant.Assert(File.Exists(signToolPath), $"signtool not found: {signToolPath}");
+                Covenant.Assert(File.Exists(signDllPath), $"signing DLL not found: {signDllPath}");
+                Covenant.Assert(File.Exists(metadataPath), $"metadata file not found: {metadataPath}");
+                Covenant.Assert(File.Exists(targetPath), $"target file not found: {targetPath}");
+
                 // Sign the binary.
 
-                var response = NeonHelper.ExecuteCapture(signToolPath,
+                response = NeonHelper.ExecuteCapture(signToolPath,
                     new object[]
                     {
                         "sign",
-                        "/v",
                         "/debug",
+                        "/v",
                         "/fd", "SHA256",
                         "/tr", "http://timestamp.acs.microsoft.com",
                         "/td", "SHA256",
@@ -240,11 +259,11 @@ $@"{{
             // $note(jefflill):
             //
             // I've uploaded the code signing DLL and related files as a ZIP
-            // to our s3://neon-public/build-assets/ docket/folder.
+            // to our [s3://neon-public/build-assets] bucket folder.
 
-            // Download the Azure.CodeSigning.Dlib ZIP file to the install folder. 
+            // Download the [Azure.CodeSigning.Dlib] ZIP file to the install folder. 
 
-            const string version = "1.0.32";
+            const string version = "1.0.28";
             const string zipFile = $"Azure.CodeSigning.Dlib.{version}.zip";
             const string zipUri  = $"https://neon-public.s3.us-west-2.amazonaws.com/build-assets/{zipFile}";
 
@@ -264,11 +283,11 @@ $@"{{
 
             // Extract the Azure.CodeSigning.Dlib ZIP file to the install folder.
 
-            new FastZip().ExtractZip(zipPath, installFolder, fileFilter: null);
+            new FastZip().ExtractZip(zipPath, Path.Combine(installFolder, "AzureCodeSigning"), fileFilter: null);
 
             // Return the path the x64 version of the unzipped Azure.CodeSigning.Dlib.dll file.
 
-            var dllPath = Path.Combine(installFolder, "bin", "x64", "Azure.CodeSigning.Dlib.dll");
+            var dllPath = Path.Combine(installFolder, "AzureCodeSigning", "bin", "x64", "Azure.CodeSigning.Dlib.dll");
 
             if (!File.Exists(dllPath))
             {
