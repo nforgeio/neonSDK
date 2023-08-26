@@ -36,6 +36,7 @@ using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 
 using Neon.Diagnostics;
+using OpenTelemetry.Trace;
 
 namespace Neon.Common
 {
@@ -184,6 +185,16 @@ namespace Neon.Common
         private static bool specialUtf8EncodingProvider = false;
 
         /// <summary>
+        /// Set to the user's NEONSDK folder.
+        /// </summary>
+        private static string cachedNeonSdkFolder = null;
+
+        /// <summary>
+        /// Set to the user's NEONSDK Azure code signing cache folder.
+        /// </summary>
+        private static string cachedNeonSdkAzureCodeSigningFolder = null;
+
+        /// <summary>
         /// The root dependency injection service container used by Neon class libraries. 
         /// and applications.
         /// </summary>
@@ -236,6 +247,49 @@ namespace Neon.Common
 
                 Encoding.RegisterProvider(new SpecialUtf8EncodingProvider());
                 specialUtf8EncodingProvider = true;
+            }
+        }
+
+        /// <summary>
+        /// Returns the path to the folder used by NEONSDK to persist and cache state, creating
+        /// the directory if it doesn't exist.  This folder is located at: <b>~/.neonsdk</b>
+        /// </summary>
+        public static string NeonSdkFolder
+        {
+            get
+            {
+                if (!string.IsNullOrEmpty(cachedNeonSdkFolder))
+                {
+                    return cachedNeonSdkFolder;
+                }
+
+                var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".neonsdk");
+
+                Directory.CreateDirectory(path);
+
+                return cachedNeonSdkFolder = path;
+            }
+        }
+
+        /// <summary>
+        /// Returns the path to the folder used by NEONSDK to cache download Azure code signing code,
+        /// creating the directory if it doesn't exist.  This folder is located at: <b>~/.neonsdk/azure-codesigning</b>
+        /// </summary>
+        /// </summary>
+        public static string NeonSdkAzureCodeSigningFolder
+        {
+            get
+            {
+                if (!string.IsNullOrEmpty(cachedNeonSdkAzureCodeSigningFolder))
+                {
+                    return cachedNeonSdkAzureCodeSigningFolder;
+                }
+
+                var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".neonsdk", "azure-codesigning");
+
+                Directory.CreateDirectory(path);
+
+                return cachedNeonSdkAzureCodeSigningFolder = path;
             }
         }
 

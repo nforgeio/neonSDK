@@ -54,6 +54,19 @@ namespace TestCommon
         }
 
         [Fact]
+        public void SdkFolders()
+        {
+            var sdkFolder        = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".neonsdk");
+            var azureCacheFolder = Path.Combine(sdkFolder, "azure-codesigning");
+
+            Assert.Equal(sdkFolder, NeonHelper.NeonSdkFolder);
+            Assert.True(Directory.Exists(sdkFolder));
+
+            Assert.Equal(azureCacheFolder, NeonHelper.NeonSdkAzureCodeSigningFolder);
+            Assert.True(Directory.Exists(azureCacheFolder));
+        }
+
+        [Fact]
         public void ParseCsv()
         {
             string[] fields;
