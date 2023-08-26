@@ -36,13 +36,18 @@ namespace Neon.Deployment.CodeSigning
         /// <param name="codeSigningAccountEndpoint">Specifies the code signing account endpoint.</param>
         /// <param name="codeSigningAccountName">Specifies the name of the Azure code signing account being used.</param>
         /// <param name="certificateProfileName">Specifies the signing certificate name within the code signing account.</param>
+        /// <param name="correlationId">
+        /// Optionally specifies an opaque ID that will be logged by Azure for the signing operation.  This may
+        /// be useful for auditing, depending on the scenario.
+        /// </param>
         public AzureProfile(
             string      azureTenantId,
             string      azureClientId,
             string      azureClientSecret,
             string      codeSigningAccountEndpoint,
             string      codeSigningAccountName,
-            string      certificateProfileName)
+            string      certificateProfileName,
+            string      correlationId = null)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(azureTenantId), nameof(azureTenantId));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(azureClientId), nameof(azureClientId));
@@ -57,6 +62,7 @@ namespace Neon.Deployment.CodeSigning
             this.CodeSigningAccountEndpoint = codeSigningAccountEndpoint;
             this.CodeSigningAccountName     = codeSigningAccountName;
             this.CertificateProfileName     = certificateProfileName;
+            this.CorrelationId              = correlationId;
         }
 
         /// <summary>
@@ -88,5 +94,10 @@ namespace Neon.Deployment.CodeSigning
         /// Returns the signing certificate name within the key vault.
         /// </summary>
         public string CertificateProfileName { get; private set; }
+
+        /// <summary>
+        /// Returns the optional correlation ID.
+        /// </summary>
+        public string CorrelationId { get; private set; }
     }
 }

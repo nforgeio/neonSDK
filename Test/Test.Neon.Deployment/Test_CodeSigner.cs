@@ -127,6 +127,36 @@ namespace TestDeployment
             }
         }
 
+        //[MaintainerFact(Skip = "Needs to be run manually by a maintainer")]
+        [MaintainerFact]
+        public void Sign_WithAzure_AndCorrelationId()
+        {
+            // Verify that signing an executable actually changes the file.
+
+            var profile = new AzureProfile(
+                azureTenantId:              azureProfile.AzureTenantId,
+                azureClientId:              azureProfile.AzureClientId,
+                azureClientSecret:          azureProfile.AzureClientSecret,
+                codeSigningAccountEndpoint: azureProfile.CodeSigningAccountEndpoint,
+                codeSigningAccountName:     azureProfile.CodeSigningAccountName,
+                certificateProfileName:     azureProfile.CertificateProfileName,
+                correlationId:              "my-correlation-id");
+
+            using (var tempFile = new TempFile(suffix: ".exe"))
+            {
+                ExtractTestBinaryTo(tempFile.Path);
+                Assert.True(File.Exists(tempFile.Path));
+
+                var beforeHash = CryptoHelper.ComputeMD5StringFromFile(tempFile.Path);
+
+                CodeSigner.Sign(profile, tempFile.Path);
+
+                var afterHash = CryptoHelper.ComputeMD5StringFromFile(tempFile.Path);
+
+                Assert.NotEqual(beforeHash, afterHash);
+            }
+        }
+
         /// <summary>
         /// Extracts the <b>signee.exe</b> binary from the embedded resource
         /// to the specified path.

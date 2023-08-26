@@ -160,14 +160,28 @@ namespace Neon.Deployment.CodeSigning
                 // Create the metadata file.
 
                 var metadataPath = Path.Combine(tempFolder.Path, "metadata.json");
-                var metadata     =
+
+                if (!string.IsNullOrEmpty(profile.CorrelationId))
+                {
+                    File.WriteAllText(metadataPath,
+$@"{{
+    ""Endpoint"": ""{profile.CodeSigningAccountEndpoint}"",
+    ""CodeSigningAccountName"": ""{profile.CodeSigningAccountName}"",
+    ""CertificateProfileName"": ""{profile.CertificateProfileName}"",
+    ""CorrelationId"": ""{profile.CorrelationId}""
+}}
+");
+                }
+                else
+                {
+                    File.WriteAllText(metadataPath,
 $@"{{
     ""Endpoint"": ""{profile.CodeSigningAccountEndpoint}"",
     ""CodeSigningAccountName"": ""{profile.CodeSigningAccountName}"",
     ""CertificateProfileName"": ""{profile.CertificateProfileName}""
 }}
-";
-                File.WriteAllText(metadataPath, metadata);
+");
+                }
 
                 // We're going to present the [code-signer] Azure service principal
                 // credentials to SignTool as environment variables.
