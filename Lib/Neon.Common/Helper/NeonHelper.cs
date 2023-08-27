@@ -190,7 +190,12 @@ namespace Neon.Common
         private static string cachedNeonSdkFolder = null;
 
         /// <summary>
-        /// Set to the user's NEONSDK Azure code signing cache folder.
+        /// Set to the user's NEONSDK USB token code signing cache folder path.
+        /// </summary>
+        private static string cachedNeonSdkUsbCodeSigningFolder = null;
+
+        /// <summary>
+        /// Set to the user's NEONSDK Azure code signing cache folder path.
         /// </summary>
         private static string cachedNeonSdkAzureCodeSigningFolder = null;
 
@@ -258,7 +263,7 @@ namespace Neon.Common
         {
             get
             {
-                if (!string.IsNullOrEmpty(cachedNeonSdkFolder))
+                if (!string.IsNullOrEmpty(cachedNeonSdkFolder) && Directory.Exists(cachedNeonSdkFolder))
                 {
                     return cachedNeonSdkFolder;
                 }
@@ -272,20 +277,40 @@ namespace Neon.Common
         }
 
         /// <summary>
-        /// Returns the path to the folder used by NEONSDK to cache download Azure code signing code,
-        /// creating the directory if it doesn't exist.  This folder is located at: <b>~/.neonsdk/azure-codesigning</b>
+        /// Returns the path to the folder used by NEONSDK to cache download local USB token code signing code,
+        /// creating the directory if it doesn't exist.  This folder is located at: <b>~/.neonsdk/codesigning-usb</b>
         /// </summary>
+        public static string NeonSdkUsbCodeSigningFolder
+        {
+            get
+            {
+                if (!string.IsNullOrEmpty(cachedNeonSdkUsbCodeSigningFolder) && Directory.Exists(cachedNeonSdkUsbCodeSigningFolder))
+                {
+                    return cachedNeonSdkUsbCodeSigningFolder;
+                }
+
+                var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".neonsdk", "codesigning-usb");
+
+                Directory.CreateDirectory(path);
+
+                return cachedNeonSdkUsbCodeSigningFolder = path;
+            }
+        }
+
+        /// <summary>
+        /// Returns the path to the folder used by NEONSDK to cache download Azure code signing code,
+        /// creating the directory if it doesn't exist.  This folder is located at: <b>~/.neonsdk/codesigning-azure</b>
         /// </summary>
         public static string NeonSdkAzureCodeSigningFolder
         {
             get
             {
-                if (!string.IsNullOrEmpty(cachedNeonSdkAzureCodeSigningFolder))
+                if (!string.IsNullOrEmpty(cachedNeonSdkAzureCodeSigningFolder) && Directory.Exists(cachedNeonSdkAzureCodeSigningFolder))
                 {
                     return cachedNeonSdkAzureCodeSigningFolder;
                 }
 
-                var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".neonsdk", "azure-codesigning");
+                var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".neonsdk", "codesigning-azure");
 
                 Directory.CreateDirectory(path);
 

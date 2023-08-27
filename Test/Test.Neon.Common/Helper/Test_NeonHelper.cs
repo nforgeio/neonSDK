@@ -57,13 +57,31 @@ namespace TestCommon
         public void SdkFolders()
         {
             var sdkFolder        = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".neonsdk");
-            var azureCacheFolder = Path.Combine(sdkFolder, "azure-codesigning");
+            var azureCacheFolder = Path.Combine(sdkFolder, "codesigning-azure");
+            var usbCacheFolder   = Path.Combine(sdkFolder, "codesigning-usb");
 
             Assert.Equal(sdkFolder, NeonHelper.NeonSdkFolder);
             Assert.True(Directory.Exists(sdkFolder));
 
             Assert.Equal(azureCacheFolder, NeonHelper.NeonSdkAzureCodeSigningFolder);
             Assert.True(Directory.Exists(azureCacheFolder));
+
+            Assert.Equal(usbCacheFolder, NeonHelper.NeonSdkUsbCodeSigningFolder);
+            Assert.True(Directory.Exists(usbCacheFolder));
+
+            // Verify that these folder are recreated after being deleted.
+
+            Directory.Delete(NeonHelper.NeonSdkFolder, recursive: true);
+            Assert.Equal(sdkFolder, NeonHelper.NeonSdkFolder);
+            Assert.True(Directory.Exists(sdkFolder));
+
+            Directory.Delete(NeonHelper.NeonSdkAzureCodeSigningFolder, recursive: true);
+            Assert.Equal(azureCacheFolder, NeonHelper.NeonSdkAzureCodeSigningFolder);
+            Assert.True(Directory.Exists(azureCacheFolder));
+
+            Directory.Delete(NeonHelper.NeonSdkUsbCodeSigningFolder, recursive: true);
+            Assert.Equal(usbCacheFolder, NeonHelper.NeonSdkUsbCodeSigningFolder);
+            Assert.True(Directory.Exists(usbCacheFolder));
         }
 
         [Fact]

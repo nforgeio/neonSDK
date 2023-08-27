@@ -86,31 +86,11 @@ namespace TestDeployment
             Assert.True(CodeSigner.IsReady(usbTokenProfile));
         }
 
-        [MaintainerFact(Skip = "Needs to be run manually by a maintainer")]
-        //[MaintainerFact]
-        public void Sign_WithUsbToken()
-        {
-            // Verify that signing an executable actually changes the file.
-
-            using (var tempFile = new TempFile(suffix: ".exe"))
-            {
-                ExtractTestBinaryTo(tempFile.Path);
-
-                var beforeHash = CryptoHelper.ComputeMD5StringFromFile(tempFile.Path);
-
-                CodeSigner.Sign(usbTokenProfile, tempFile.Path);
-
-                var afterHash = CryptoHelper.ComputeMD5StringFromFile(tempFile.Path);
-
-                Assert.NotEqual(beforeHash, afterHash);
-            }
-        }
-
         //[MaintainerFact(Skip = "Needs to be run manually by a maintainer")]
         [MaintainerFact]
         public void Sign_WithAzure()
         {
-            // Verify that signing an executable actually changes the file.
+            var signingCacheFolder = NeonHelper.NeonSdkAzureCodeSigningFolder;
 
             using (var tempFile = new TempFile(suffix: ".exe"))
             {
@@ -124,6 +104,44 @@ namespace TestDeployment
                 var afterHash = CryptoHelper.ComputeMD5StringFromFile(tempFile.Path);
 
                 Assert.NotEqual(beforeHash, afterHash);
+
+                // Perform another signing operation and verify that the cached 
+                // client signing tools were not downloaded by verifying that none
+                // of the cached files have been modified.
+
+                var cachedFiles = new Dictionary<string, DateTime>();
+
+                foreach (var file in Directory.GetFiles(signingCacheFolder, "*.*", SearchOption.AllDirectories))
+                {
+                    cachedFiles.Add(file, File.GetLastWriteTimeUtc(file));
+                }
+
+                ExtractTestBinaryTo(tempFile.Path);
+                Assert.True(File.Exists(tempFile.Path));
+                CodeSigner.Sign(azureProfile, tempFile.Path);
+
+                foreach (var item in cachedFiles)
+                {
+                    Assert.Equal(item.Value, File.GetLastWriteTimeUtc(item.Key));
+                }
+
+                // Clear the signing cache folder, set the cached [version.txt] file to
+                // an invalid version, and re-sign the binary to verify that we reinstall
+                // the client signing tools.
+
+                NeonHelper.DeleteFolderContents(signingCacheFolder);
+                File.WriteAllText(Path.Combine(signingCacheFolder, "version.txt"), "INVALID");
+
+                ExtractTestBinaryTo(tempFile.Path);
+                Assert.True(File.Exists(tempFile.Path));
+
+                beforeHash = CryptoHelper.ComputeMD5StringFromFile(tempFile.Path);
+
+                CodeSigner.Sign(azureProfile, tempFile.Path);
+
+                afterHash = CryptoHelper.ComputeMD5StringFromFile(tempFile.Path);
+
+                Assert.NotEqual(beforeHash, afterHash);
             }
         }
 
@@ -131,8 +149,6 @@ namespace TestDeployment
         [MaintainerFact]
         public void Sign_WithAzure_AndCorrelationId()
         {
-            // Verify that signing an executable actually changes the file.
-
             var profile = new AzureProfile(
                 azureTenantId:              azureProfile.AzureTenantId,
                 azureClientId:              azureProfile.AzureClientId,
@@ -152,6 +168,46 @@ namespace TestDeployment
                 CodeSigner.Sign(profile, tempFile.Path);
 
                 var afterHash = CryptoHelper.ComputeMD5StringFromFile(tempFile.Path);
+
+                Assert.NotEqual(beforeHash, afterHash);
+            }
+        }
+
+        [MaintainerFact(Skip = "Needs to be run manually by a maintainer")]
+        //[MaintainerFact]
+        public void Sign_WithUsbToken()
+        {
+            // Verify that signing an executable actually changes the file.
+
+            using (var tempFile = new TempFile(suffix: ".exe"))
+            {
+                ExtractTestBinaryTo(tempFile.Path);
+
+                var beforeHash = CryptoHelper.ComputeMD5StringFromFile(tempFile.Path);
+
+                CodeSigner.Sign(usbTokenProfile, tempFile.Path);
+
+                var afterHash = CryptoHelper.ComputeMD5StringFromFile(tempFile.Path);
+
+                Assert.NotEqual(beforeHash, afterHash);
+
+                // Clear the signing cache folder, set the cached [version.txt] file to
+                // an invalid version, and re-sign the binary to verify that we reinstall
+                // the client signing tools.
+
+                var signingCacheFolder = NeonHelper.NeonSdkUsbCodeSigningFolder;
+
+                NeonHelper.DeleteFolderContents(signingCacheFolder);
+                File.WriteAllText(Path.Combine(signingCacheFolder, "version.txt"), "INVALID");
+
+                ExtractTestBinaryTo(tempFile.Path);
+                Assert.True(File.Exists(tempFile.Path));
+
+                beforeHash = CryptoHelper.ComputeMD5StringFromFile(tempFile.Path);
+
+                CodeSigner.Sign(azureProfile, tempFile.Path);
+
+                afterHash = CryptoHelper.ComputeMD5StringFromFile(tempFile.Path);
 
                 Assert.NotEqual(beforeHash, afterHash);
             }
