@@ -24,7 +24,7 @@ using Microsoft.CodeAnalysis;
 
 namespace Neon.Roslyn
 {
-    internal class RoslynCustomAttributeData : CustomAttributeData
+    public class RoslynCustomAttributeData : CustomAttributeData
     {
         public RoslynCustomAttributeData(AttributeData a, MetadataLoadContext metadataLoadContext)
         {

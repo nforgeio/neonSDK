@@ -18,17 +18,18 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
 using System.Reflection;
 
 using Microsoft.CodeAnalysis;
 
 namespace Neon.Roslyn
 {
-    internal static class SharedUtilities
+    public static class SharedUtilities
     {
-        public static IList<CustomAttributeData> GetCustomAttributesData(ISymbol symbol, MetadataLoadContext metadataLoadContext)
+        public static IList<System.Reflection.CustomAttributeData> GetCustomAttributesData(ISymbol symbol, MetadataLoadContext metadataLoadContext)
         {
-            List<CustomAttributeData> attributes = default;
+            List<System.Reflection.CustomAttributeData> attributes = default;
 
             foreach (var a in symbol.GetAttributes())
             {
@@ -36,50 +37,50 @@ namespace Neon.Roslyn
                 attributes.Add(new RoslynCustomAttributeData(a, metadataLoadContext));
             }
 
-            return (IList<CustomAttributeData>)attributes ?? Array.Empty<CustomAttributeData>();
+            return (IList<System.Reflection.CustomAttributeData>)attributes ?? Array.Empty<System.Reflection.CustomAttributeData>();
         }
 
-        public static MethodAttributes GetMethodAttributes(IMethodSymbol method)
+        public static System.Reflection.MethodAttributes GetMethodAttributes(IMethodSymbol method)
         {
-            MethodAttributes attributes = default;
+            System.Reflection.MethodAttributes attributes = default;
 
             if (method.IsAbstract)
             {
-                attributes |= MethodAttributes.Abstract | MethodAttributes.Virtual;
+                attributes |= System.Reflection.MethodAttributes.Abstract | System.Reflection.MethodAttributes.Virtual;
             }
 
             if (method.IsStatic)
             {
-                attributes |= MethodAttributes.Static;
+                attributes |= System.Reflection.MethodAttributes.Static;
             }
 
             if (method.IsVirtual || method.IsOverride)
             {
-                attributes |= MethodAttributes.Virtual;
+                attributes |= System.Reflection.MethodAttributes.Virtual;
             }
 
             switch (method.DeclaredAccessibility)
             {
                 case Accessibility.Public:
-                    attributes |= MethodAttributes.Public;
+                    attributes |= System.Reflection.MethodAttributes.Public;
                     break;
                 case Accessibility.Private:
-                    attributes |= MethodAttributes.Private;
+                    attributes |= System.Reflection.MethodAttributes.Private;
                     break;
                 case Accessibility.Internal:
-                    attributes |= MethodAttributes.Assembly;
+                    attributes |= System.Reflection.MethodAttributes.Assembly;
                     break;
             }
 
             if (method.MethodKind != MethodKind.Ordinary)
             {
-                attributes |= MethodAttributes.SpecialName;
+                attributes |= System.Reflection.MethodAttributes.SpecialName;
             }
 
             return attributes;
         }
 
-        public static bool MatchBindingFlags(BindingFlags bindingFlags, ITypeSymbol thisType, ISymbol symbol)
+        public static bool MatchBindingFlags(System.Reflection.BindingFlags bindingFlags, ITypeSymbol thisType, ISymbol symbol)
         {
             var isPublic               = (symbol.DeclaredAccessibility & Accessibility.Public) == Accessibility.Public;
             var isNonProtectedInternal = (symbol.DeclaredAccessibility & Accessibility.ProtectedOrInternal) == 0;
@@ -112,21 +113,21 @@ namespace Neon.Roslyn
             // Filter by Public & Private
             if (isPublic)
             {
-                if ((bindingFlags & BindingFlags.Public) == 0)
+                if ((bindingFlags & System.Reflection.BindingFlags.Public) == 0)
                 {
                     return false;
                 }
             }
             else
             {
-                if ((bindingFlags & BindingFlags.NonPublic) == 0)
+                if ((bindingFlags & System.Reflection.BindingFlags.NonPublic) == 0)
                 {
                     return false;
                 }
             }
 
             // Filter by DeclaredOnly
-            if ((bindingFlags & BindingFlags.DeclaredOnly) != 0 && isInherited)
+            if ((bindingFlags & System.Reflection.BindingFlags.DeclaredOnly) != 0 && isInherited)
             {
                 return false;
             }
@@ -135,19 +136,19 @@ namespace Neon.Roslyn
             {
                 if (isStatic)
                 {
-                    if ((bindingFlags & BindingFlags.FlattenHierarchy) == 0 && isInherited)
+                    if ((bindingFlags & System.Reflection.BindingFlags.FlattenHierarchy) == 0 && isInherited)
                     {
                         return false;
                     }
 
-                    if ((bindingFlags & BindingFlags.Static) == 0)
+                    if ((bindingFlags & System.Reflection.BindingFlags.Static) == 0)
                     {
                         return false;
                     }
                 }
                 else
                 {
-                    if ((bindingFlags & BindingFlags.Instance) == 0)
+                    if ((bindingFlags & System.Reflection.BindingFlags.Instance) == 0)
                     {
                         return false;
                     }
@@ -156,14 +157,14 @@ namespace Neon.Roslyn
 
             // @Asymmetry - Internal, inherited, instance, non -protected, non-virtual, non-abstract members returned
             //              iff BindingFlags !DeclaredOnly, Instance and Public are present except for fields
-            if (((bindingFlags & BindingFlags.DeclaredOnly) == 0) &&        // DeclaredOnly not present
+            if (((bindingFlags & System.Reflection.BindingFlags.DeclaredOnly) == 0) &&        // DeclaredOnly not present
                  isInherited &&                                            // Is inherited Member
 
                 isNonProtectedInternal &&                                 // Is non-protected internal member
-                ((bindingFlags & BindingFlags.NonPublic) != 0) &&           // BindingFlag.NonPublic present
+                ((bindingFlags & System.Reflection.BindingFlags.NonPublic) != 0) &&           // BindingFlag.NonPublic present
 
                 (!isStatic) &&                                              // Is instance member
-                ((bindingFlags & BindingFlags.Instance) != 0))              // BindingFlag.Instance present
+                ((bindingFlags & System.Reflection.BindingFlags.Instance) != 0))              // BindingFlag.Instance present
             {
                 if (symbol is not IMethodSymbol method)
                 {
@@ -179,17 +180,17 @@ namespace Neon.Roslyn
             return true;
         }
 
-        public static BindingFlags ComputeBindingFlags(MemberInfo member)
+        public static System.Reflection.BindingFlags ComputeBindingFlags(System.Reflection.MemberInfo member)
         {
-            if (member is PropertyInfo p)
+            if (member is System.Reflection.PropertyInfo p)
             {
                 return ComputeBindingFlags(p.GetMethod ?? p.SetMethod);
             }
 
             var (isPublic, isStatic) = member switch
             {
-                FieldInfo  f => (f.IsPublic, f.IsStatic),
-                MethodInfo m => (m.IsPublic, m.IsStatic),
+                System.Reflection.FieldInfo f => (f.IsPublic, f.IsStatic),
+                System.Reflection.MethodInfo m => (m.IsPublic, m.IsStatic),
                 _            => throw new NotSupportedException()
             };
 
@@ -198,33 +199,33 @@ namespace Neon.Roslyn
             return ComputeBindingFlags(isPublic, isStatic, isInherited);
         }
 
-        private static BindingFlags ComputeBindingFlags(bool isPublic, bool isStatic, bool isInherited)
+        private static System.Reflection.BindingFlags ComputeBindingFlags(bool isPublic, bool isStatic, bool isInherited)
         {
-            BindingFlags bindingFlags = isPublic ? BindingFlags.Public : BindingFlags.NonPublic;
+            System.Reflection.BindingFlags bindingFlags = isPublic ? System.Reflection.BindingFlags.Public : System.Reflection.BindingFlags.NonPublic;
 
             if (isInherited)
             {
                 // We arrange things so the DeclaredOnly flag means "include inherited members"
-                bindingFlags |= BindingFlags.DeclaredOnly;
+                bindingFlags |= System.Reflection.BindingFlags.DeclaredOnly;
 
                 if (isStatic)
                 {
-                    bindingFlags |= BindingFlags.Static | BindingFlags.FlattenHierarchy;
+                    bindingFlags |= System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.FlattenHierarchy;
                 }
                 else
                 {
-                    bindingFlags |= BindingFlags.Instance;
+                    bindingFlags |= System.Reflection.BindingFlags.Instance;
                 }
             }
             else
             {
                 if (isStatic)
                 {
-                    bindingFlags |= BindingFlags.Static;
+                    bindingFlags |= System.Reflection.BindingFlags.Static;
                 }
                 else
                 {
-                    bindingFlags |= BindingFlags.Instance;
+                    bindingFlags |= System.Reflection.BindingFlags.Instance;
                 }
             }
 
@@ -250,7 +251,7 @@ namespace Neon.Roslyn
             }
         }
 
-        public static IEnumerable<object> GetActualConstuctorParams(this CustomAttributeData attributeData)
+        public static IEnumerable<object> GetActualConstuctorParams(this System.Reflection.CustomAttributeData attributeData)
         {
             foreach (var arg in attributeData.ConstructorArguments)
             {

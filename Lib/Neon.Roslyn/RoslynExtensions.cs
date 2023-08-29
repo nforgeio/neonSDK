@@ -74,7 +74,8 @@ namespace Neon.Roslyn
 
             if (attributeData.ConstructorArguments.Count > 0 && attributeData.Constructor != null)
             {
-                attribute = (T)Activator.CreateInstance(typeof(T), attributeData.GetActualConstuctorParams().ToArray());
+                var actualArgs = attributeData.GetActualConstuctorParams().ToArray();
+                attribute = (T)Activator.CreateInstance(typeof(T), actualArgs);
             }
             else
             {
@@ -127,5 +128,26 @@ namespace Neon.Roslyn
                 t = t.BaseType;
             }
         }
+
+        private const string SourceItemGroupMetadata = "build_metadata.AdditionalFiles.SourceItemGroup";
+
+        public static string GetMSBuildProperty(
+            this GeneratorExecutionContext context,
+            string name,
+            string defaultValue = "")
+        {
+            context.AnalyzerConfigOptions.GlobalOptions.TryGetValue($"build_property.{name}", out var value);
+            return value ?? defaultValue;
+        }
+
+        public static string[] GetMSBuildItems(this GeneratorExecutionContext context, string name)
+            => context
+                .AdditionalFiles
+                .Where(f => context.AnalyzerConfigOptions
+                    .GetOptions(f)
+                    .TryGetValue(SourceItemGroupMetadata, out var sourceItemGroup)
+                    && sourceItemGroup == name)
+                .Select(f => f.Path)
+                .ToArray();
     }
 }

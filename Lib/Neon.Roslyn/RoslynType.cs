@@ -25,7 +25,7 @@ using Microsoft.CodeAnalysis;
 
 namespace Neon.Roslyn
 {
-    internal class RoslynType : Type
+    public class RoslynType : Type
     {
         private readonly ITypeSymbol         typeSymbol;
         private readonly MetadataLoadContext metadataLoadContext;

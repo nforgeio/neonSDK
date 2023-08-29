@@ -24,7 +24,7 @@ using Microsoft.CodeAnalysis;
 
 namespace Neon.Roslyn
 {
-    internal class RoslynMethodInfo : MethodInfo
+    public class RoslynMethodInfo : MethodInfo
     {
         private readonly IMethodSymbol       method;
         private readonly MetadataLoadContext metadataLoadContext;
