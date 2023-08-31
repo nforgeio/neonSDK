@@ -28,12 +28,12 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Neon.BuildInfo;
 using Neon.Collections;
 using Neon.Common;
 using Neon.Diagnostics;
 using Neon.Net;
 using Neon.Tasks;
-using Neon.BuildInfo;
 
 namespace Neon.Common
 {
