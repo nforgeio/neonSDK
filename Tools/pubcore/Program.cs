@@ -37,10 +37,12 @@ namespace pubcore
     /// </summary>
     public static class Program
     {
+        public static bool verbose;
+
         /// <summary>
         /// Tool version number.
         /// </summary>
-        public const string Version = "3.1";
+        public const string Version = "3.2";
 
         /// <summary>
         /// Program entry point.
@@ -79,6 +81,8 @@ namespace pubcore
                 var noCmd   = args.Any(arg => arg == "--no-cmd");
                 var keepXml = args.Any(arg => arg == "--keep-xml");
 
+                verbose = args.Any(arg => arg == "--verbose");
+
                 args = args.Where(arg => !arg.StartsWith("--")).ToArray();
 
                 // Verify the number of non-option arguments.
@@ -105,6 +109,8 @@ OPTIONS:
                           that executes the published program.
     --keep-xml          - Don't remove published [*.xml] files.  We remove these by
                           default, assuming that they're generatedcode comment files.
+
+    --verbose           - Output debug info
 
 REMARKS:
 
@@ -148,6 +154,7 @@ scripts or MSBUILD/CSPROJ files to quickly disable publication.
 
                 if ("true".Equals(Environment.GetEnvironmentVariable("NEON_PUBCORE_DISABLE"), StringComparison.InvariantCultureIgnoreCase))
                 {
+                    LogVerbose($"Aborting because NEON_PUBCORE_DISABLE is defined");
                     Environment.Exit(0);
                 }
 
@@ -161,6 +168,7 @@ scripts or MSBUILD/CSPROJ files to quickly disable publication.
                 {
                     // Looks like we've recursed, so just bail right now.
 
+                    LogVerbose($"Aborting due to recursion.");
                     return;
                 }
 
@@ -327,6 +335,18 @@ $@"@echo off
                 Console.Error.WriteLine($"** ERROR: [{e.GetType().Name}]: {e.Message}");
 
                 Environment.Exit(1);
+            }
+        }
+
+        /// <summary>
+        /// Logs a message to STDERR when [--verbose] was specified.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        private static void LogVerbose(string message)
+        {
+            if (verbose)
+            {
+                Console.Error.WriteLine($"DEBUG: {message}");
             }
         }
     }
