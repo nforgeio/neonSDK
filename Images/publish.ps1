@@ -41,8 +41,8 @@ $image_root = [System.IO.Path]::Combine($env:NF_ROOT, "Images")
 . $image_root/includes.ps1
 #----------------------------------------------------------
 
-# Take care to ensure that you order the image builds such that
-# dependencies are built before images that rely on them.
+#------------------------------------------------------------------------------
+# Builds and publishes a container image.
 
 function Publish
 {
@@ -85,8 +85,12 @@ function Publish
     }
 }
 
+#------------------------------------------------------------------------------
+# Main
+
 try
 {
+    #--------------------------------------------------------------------------
     # Process the command line arguments.
 
     if ($all)
@@ -106,6 +110,7 @@ try
         $services = $true
     }
 
+    #--------------------------------------------------------------------------
     # Verify that the user has the required environment variables.  These will
     # be available only for maintainers and are intialized by the neonCLOUD
     # [buildenv.cmd] script.
@@ -120,6 +125,7 @@ try
         return 1
     }
 
+    #--------------------------------------------------------------------------
     # We need to do a solution build to ensure that any tools or other dependencies 
     # are built before we build and publish the individual container images.
 
@@ -131,12 +137,9 @@ try
     $nfLib          = "$nfRoot\Lib"
     $nfTools        = "$nfRoot\Tools"
     $nfToolBin      = "$nfRoot\ToolBin"
-    $neonSdkVersion = $(& "$nfToolBin\neon-build" read-version "$nfLib/Neon.Common/Build.cs" NeonSdkVersion)
+    $neonSdkVersion = $(& $neonBuild read-version "$nfLib/Neon.Common/Build.cs" NeonSdkVersion)
 
-    # Disable the [pubcore.exe] tool to avoid file locking conflicts with Visual Studio
-    # and also to speed this up a bit.
-
-    $env:NEON_PUBCORE_DISABLE = "true"
+    Invoke-CaptureStreams "
 
     if (-not $noclean)
     {
