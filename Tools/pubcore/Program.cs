@@ -234,7 +234,7 @@ scripts or MSBUILD/CSPROJ files to quickly disable publication.
                     process.BeginOutputReadLine();
                     process.WaitForExit();
 
-                    // Write the output capture from the [dotnet publish ...] operation to the program
+                    // Write the output captured from the [dotnet publish ...] operation to the program
                     // STDOUT, prefixing each line with some text so that MSBUILD/Visual Studio won't
                     // try to interpret error/warning messages.
 
