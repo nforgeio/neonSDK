@@ -37,7 +37,7 @@ namespace pubcore
     /// </summary>
     public static class Program
     {
-        public static bool verbose;
+        private static bool verbose;
 
         /// <summary>
         /// Tool version number.

@@ -22,8 +22,9 @@
 
 param 
 (
-	[parameter(Mandatory=$True,Position=1)][string] $registry,
-	[parameter(Mandatory=$True,Position=2)][string] $tag
+	[parameter(Mandatory=$true, Position=1)][string] $registry,
+	[parameter(Mandatory=$true, Position=2)][string] $tag,
+	[parameter(Mandatory=$true, Position=3)][string] $config
 )
 
 $appname           = "test-api"
@@ -40,7 +41,7 @@ try
     mkdir bin | Out-Null
     ThrowOnExitCode
 
-    dotnet publish "$nfServices\$appname\$appname.csproj" -c Release -o "$pwd\bin" 
+    dotnet publish "$nfServices\$appname\$appname.csproj" -c $config -o "$pwd\bin" 
     ThrowOnExitCode
 
     # Split the build binaries into [__app] (application) and [__dep] dependency subfolders

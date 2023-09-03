@@ -24,6 +24,8 @@
 
 param 
 (
+    [Parameter(Position=0, Mandatory=$false)]
+    [string]$config,                    # Identifies the build configuration
     [switch]$all         = $false,      # Rebuild all images
     [switch]$base        = $false,      # Rebuild base images
     [switch]$test        = $false,      # Rebuild test related images
@@ -42,7 +44,7 @@ $image_root = [System.IO.Path]::Combine($env:NF_ROOT, "Images")
 #----------------------------------------------------------
 
 #------------------------------------------------------------------------------
-# Builds and publishes a container image.
+# Builds and publishes a container image, passing $config.
 
 function Publish
 {
@@ -60,24 +62,56 @@ function Publish
         {
             if ($nopush)
             {
-                ./publish.ps1 -all -nopush
+                Invoke-Program "pwsh -NonInteractive -f ./publish.ps1 -config $config -all -nopush"
             }
             else
             {
-                ./publish.ps1 -all
+                Invoke-Program "pwsh -NonInteractive -f ./publish.ps1 -config $config -all"
             }
         }
         else
         {
             if ($nopush)
             {
-                ./publish.ps1 -nopush
+                Invoke-Program "pwsh -NonInteractive -f ./publish.ps1 -config $config -nopush"
             }
             else
             {
-                ./publish.ps1
+                Invoke-Program "pwsh -NonInteractive -f ./publish.ps1 -config $config"
             }
         }
+    }
+    finally
+    {
+        Pop-Cwd | Out-Null
+    }
+}
+
+#------------------------------------------------------------------------------
+# Builds and publishes a container image, WITHOUT passing $config.
+
+function PublishWithoutConfig
+{
+    [CmdletBinding()]
+    param (
+        [Parameter(Position=0, Mandatory=$true)]
+        [string]$path,
+        [Parameter(Position=1, Mandatory=$false)]
+        [string]$noBuildOption = $null
+    )
+
+    try
+    {
+        Push-Cwd "$path" | Out-Null
+
+        $noPushOption = ""
+    
+        if ($nopush)
+        {
+            $noPushOption = "-nopush"
+        }
+
+        Invoke-Program "pwsh -NonInteractive -f publish.ps1 $noPushOption $noBuildOption"
     }
     finally
     {
@@ -92,6 +126,11 @@ try
 {
     #--------------------------------------------------------------------------
     # Process the command line arguments.
+
+    if ([System.String]::IsNullOrEmpty($config))
+    {
+        $config = "Debug"
+    }
 
     if ($all)
     {
@@ -129,6 +168,7 @@ try
     # We need to do a solution build to ensure that any tools or other dependencies 
     # are built before we build and publish the individual container images.
 
+    $buildConfig    = "-p:Configuration=$config"
     $msbuild        = $env:MSBUILDPATH
     $neonBuild      = "$env:NF_ROOT\ToolBin\neon-build\neon-build.exe"
     $nfRoot         = "$env:NF_ROOT"
@@ -158,7 +198,7 @@ try
     Write-Info  "*******************************************************************************"
     Write-Info  ""
 
-    & "$msbuild" "$nfSolution" -p:Configuration=Release -t:restore,build -p:RestorePackagesConfig=true -m -verbosity:quiet
+    & "$msbuild" "$nfSolution" $buildConfig -t:restore,build -p:RestorePackagesConfig=true -m -verbosity:quiet
 
     if (-not $?)
     {
