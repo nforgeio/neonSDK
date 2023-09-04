@@ -163,7 +163,7 @@ namespace Neon.Common
 
                 if (stackTrace)
                 {
-                    message += $" [stack:{new StackTrace(e, skipFrames: 0, fNeedFileInfo: true)}]";
+                    message += $" [stack:{Environment.NewLine}{new StackTrace(e, skipFrames: 0, fNeedFileInfo: true)}]";
                 }
             }
 
