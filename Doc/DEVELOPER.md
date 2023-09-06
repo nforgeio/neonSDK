@@ -71,6 +71,11 @@ Follow the steps below to configure a development or test workstation:
     * Start Docker and click the Settings **Gear** on the right side of the title bar
     * Click **General** and check **Start Docker Desktop when you log in**
 	* Start a command window and use `docker login` to login using your GitHub credentials
+    * **Important:** Disable experimental features
+      a. Goto **Docker Desktop Settings**
+      b. Click **Features in development**
+      c. Click **Exteimental features**
+      d. Uncheck **Access Experimental Features**
 
 9. Install the **neon-ubuntu-20.04** WSL2 distro:
 
