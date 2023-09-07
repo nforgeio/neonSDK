@@ -50,7 +50,7 @@ namespace Neon.Windows
         // Static members
 
         private const int               PowershellBufferWidth = 16192;
-        private static readonly Regex   ttyColorRegex         = new Regex(@"\u001b\[.*?m", RegexOptions.ExplicitCapture);     // Matches TTY color commands
+        private static readonly Regex   ttyColorRegex         = new Regex("\u001b\\[.*?m", RegexOptions.ExplicitCapture);     // Matches TTY color commands
 
         /// <summary>
         /// Optional path to the Powershell Core <b>pwsh</b> executable.  The <b>PATH</b>
