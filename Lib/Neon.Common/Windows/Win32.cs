@@ -71,5 +71,32 @@ namespace Neon.Windows
         /// <returns><c>true</c> on success.</returns>
         [DllImport("kernel32.dll", CharSet = CharSet.Auto, EntryPoint = "GlobalMemoryStatusEx", SetLastError = true)]
         public static extern bool GlobalMemoryStatusEx([In, Out] MEMORYSTATUSEX lpBuffer);
+
+        //---------------------------------------------------------------------
+        // Z-Order positioning
+
+        private static readonly IntPtr HWND_TOPMOST = new IntPtr(-1);
+        private static readonly IntPtr HWND_NOTOPMOST = new IntPtr(-2);
+        private static readonly IntPtr HWND_TOP = new IntPtr(0);
+        private static readonly IntPtr HWND_BOTTOM = new IntPtr(1);
+        private const UInt32 SWP_NOSIZE = 0x0001;
+        private const UInt32 SWP_NOMOVE = 0x0002;
+        private const UInt32 TOPMOST_FLAGS = SWP_NOMOVE | SWP_NOSIZE;
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
+
+        /// <summary>
+        /// Relocates a window to be topmost in the z-order such that it will be
+        /// above all other windows on the desktop.
+        /// </summary>
+        /// <param name="hWnd">Specifies the low-level handle for the target window.</param>
+        public static void MakeWindowTopmost(IntPtr hWnd)
+        {
+            Covenant.Requires<ArgumentNullException>(hWnd != IntPtr.Zero, nameof(hWnd));
+
+            SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, TOPMOST_FLAGS);
+        }
     }
 }
