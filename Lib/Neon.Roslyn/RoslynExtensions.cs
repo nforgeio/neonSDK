@@ -101,8 +101,36 @@ namespace Neon.Roslyn
             }
             return attribute;
         }
-    }
 
+        public static IEnumerable<INamedTypeSymbol> GetNamedTypeSymbols(this Compilation compilation)
+        {
+            var stack = new Stack<INamespaceSymbol>();
+
+            stack.Push(compilation.Assembly.GlobalNamespace);
+
+            foreach (var assemblySymbol in compilation.SourceModule.ReferencedAssemblySymbols)
+            {
+                stack.Push(assemblySymbol.GlobalNamespace);
+            }
+
+            while (stack.Count > 0)
+            {
+                var @namespace = stack.Pop();
+
+                foreach (var member in @namespace.GetMembers())
+                {
+                    if (member is INamespaceSymbol memberAsNamespace)
+                    {
+                        stack.Push(memberAsNamespace);
+                    }
+                    else if (member is INamedTypeSymbol memberAsNamedTypeSymbol)
+                    {
+                        yield return memberAsNamedTypeSymbol;
+                    }
+                }
+            }
+        }
+    }
     internal static class RoslynInternalExtensions
     {
         public static Assembly AsAssembly(this IAssemblySymbol assemblySymbol, MetadataLoadContext metadataLoadContext) => metadataLoadContext.GetOrCreate<Assembly>(assemblySymbol);

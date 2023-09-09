@@ -51,7 +51,20 @@ namespace Neon.Roslyn
 
         public override Module Module => throw new NotImplementedException();
 
-        public override string Namespace => typeSymbol.ContainingNamespace?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat.WithGlobalNamespaceStyle(SymbolDisplayGlobalNamespaceStyle.Omitted)) is { Length: > 0 } ns ? ns : null;
+        public override string Namespace
+        {
+            get
+            {
+                if (typeSymbol.ContainingType != null)
+                {
+                    return typeSymbol.ContainingType?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat.WithGlobalNamespaceStyle(SymbolDisplayGlobalNamespaceStyle.Omitted)) is { Length: > 0 } ns ? ns : null;
+                }
+                else
+                {
+                    return typeSymbol.ContainingNamespace?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat.WithGlobalNamespaceStyle(SymbolDisplayGlobalNamespaceStyle.Omitted)) is { Length: > 0 } ns ? ns : null;
+                }
+            }
+        }
 
         public override Type UnderlyingSystemType => this;
 
