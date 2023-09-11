@@ -1,0 +1,8 @@
+<Project>
+    <ItemGroup>
+        <CompilerVisibleProperty Include="NeonBlazorSvgClass" />
+        <CompilerVisibleProperty Include="NeonBlazorSvgFill" />
+        <CompilerVisibleProperty Include="NeonBlazorSvgStroke" />
+        <CompilerVisibleProperty Include="NeonBlazorSvgTargetNamespace" />
+    </ItemGroup>
+</Project>
