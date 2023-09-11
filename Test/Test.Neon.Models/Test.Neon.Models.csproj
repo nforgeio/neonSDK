@@ -27,9 +27,7 @@
 
     <!--- Generate the model source files -->
 
-    <Target Name="ModelGen"
-            BeforeTargets="CoreCompile"
-            DependsOnTargets="BeforeCompile">
+    <Target Name="ModelGen" BeforeTargets="CoreCompile">
 
         <!-- Fail if we still don't know the [neon-modelgen] location -->
         <Error Condition="'$(ModelGeneratorPath)' == ''" Text="Cannot locate: [neon-modelgen] (NeonBuildUseNugets: $(NeonBuildUseNugets))"/>
