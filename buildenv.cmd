@@ -212,8 +212,11 @@ REM Perform additional initialization via Powershell.
 pwsh -File "%NF_ROOT%\buildenv.ps1"
 
 :done
+
+if not "%2" == "no-exit-msg" goto quit
 echo.
 echo ============================================================================================
 echo * Be sure to close and reopen Visual Studio and any command windows to pick up the changes *
 echo ============================================================================================
 pause
+:quit
