@@ -28,7 +28,6 @@
     <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App" />
         <PackageReference Include="LiquidTestReports.Markdown" Version="1.1.1-beta" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0" />
         <PackageReference Include="prometheus-net.DotNetRuntime" Version="4.4.0" />
         <PackageReference Include="xunit" Version="2.4.2" />
         <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
