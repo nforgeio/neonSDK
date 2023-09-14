@@ -14,7 +14,6 @@
         <Configurations>Debug;Release</Configurations>
         <PackageIcon>nuget-icon.png</PackageIcon>
         <PackageTags>XenServer</PackageTags>
-        <WarningsAsErrors>NU1605</WarningsAsErrors>
         <NoWarn>$(NoWarn);NU5100</NoWarn>
     </PropertyGroup>
 
