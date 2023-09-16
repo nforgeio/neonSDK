@@ -38,7 +38,7 @@ namespace Neon.Service
 {
     /// <summary>
     /// <para>
-    /// This OpenTelemetry processor maintains the labeled <b>neon_log_events</b> metrics
+    /// This OpenTelemetry processor maintains the labeled <b>neonsdk_log_events_total</b> metrics
     /// counter by incrementing the counter whenever events are logged, using the event's 
     /// <see cref="LogLevel"/> as the counter label.
     /// </para>
