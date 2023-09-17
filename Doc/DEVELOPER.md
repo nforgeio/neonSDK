@@ -81,7 +81,7 @@ Follow the steps below to configure a development or test workstation:
 
     a. Execute these Powershell commands in **pwsh** to install **neon-ubuntu-20.04** WSL2 distro:
        ```
-       Invoke-WebRequest https://neon-public.s3.us-west-2.amazonaws.com/download/neon-ubuntu-20.04.tar -OutFile $env:TEMP\neon-ubuntu-20.04.tar
+       Invoke-WebRequest https://neon-public.s3.us-west-2.amazonaws.com/build-assets/wsl/neon-ubuntu-20.04.tar -OutFile $env:TEMP\neon-ubuntu-20.04.tar
        wsl --import neon-ubuntu-20.04 $env:USERPROFILE\wsl-neon-ubuntu-20.04 $env:TEMP\neon-ubuntu-20.04.tar
        Remove-Item $env:TEMP\neon-ubuntu-20.04.tar
        wsl --set-default-version 2
@@ -97,27 +97,6 @@ Follow the steps below to configure a development or test workstation:
        sc stop com.docker.service
        sc start com.docker.service
        ```
-
-    **MAINTAINER NOTE:**
-    
-    The **neon-ubuntu-20.04.** WSL distro starts off as a standard Ubuntu download from the MSFT
-    store.  The only change so far is that we add the **/etc/wsl.conf** file:
-
-    ```
-    [interop]
-    appendWindowsPath=False
-    ```
-
-    Then we export the distro to a TAR file, compress it and then upload it to S3, like:
-
-    ```
-    wsl --export neon-ubuntu-20.04 "$env:TEMP\neon-ubuntu-20.04.tar"
-    pigz --best --blocksize 512 "$env:TEMP\neon-ubuntu-20.04.tar"
-    ren "%TEMP%\neon-ubuntu-20.04.tar.gz" "$env:TEMP\neon-ubuntu-20.04.tar"
-
-    # manual: Upload compressed TAR file to S3
-    # manual: Edit S3 metadata: Content-Encoding=gzip
-    ```
 
 10. Install **Visual Studio 2022 Community 17.6.2+** from [here](https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030&passive=false)
 
