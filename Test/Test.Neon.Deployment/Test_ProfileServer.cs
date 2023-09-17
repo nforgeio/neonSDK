@@ -119,6 +119,12 @@ namespace TestDeployment
 
                     return ProfileHandlerResult.Create(request.Args["command"]);
                 };
+
+            server.SignoutHandler =
+                request =>
+                {
+                    return ProfileHandlerResult.Create(string.Empty);
+                };
         }
 
         [Theory]

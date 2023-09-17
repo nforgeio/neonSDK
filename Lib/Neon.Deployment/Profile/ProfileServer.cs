@@ -252,7 +252,7 @@ namespace Neon.Deployment
         }
 
         /// <summary>
-        /// Starts the server.  You should call this after configuring the handler callbacks.
+        /// Starts the server.  You must call this after configuring the handler callbacks.
         /// </summary>
         /// <exception cref="InvalidOperationException">Thrown if any of the handlers are not initialized.</exception>
         public void Start()

@@ -202,11 +202,19 @@ namespace TestDeployment
                 Assert.False(release.Draft);
                 Assert.NotNull(release.PublishedAt);
 
-                // List all releases to ensure that new release is included:
+                // List all releases to ensure that new release is included.  Note
+                // that GitHub release publication appears to happen asynchronously
+                // so we're going to use a wait.
 
-                var releaseList = GitHub.Releases.List(repo);
+                NeonHelper.WaitFor(
+                    () =>
+                    {
+                        var releaseList = GitHub.Releases.List(repo);
 
-                Assert.NotNull(releaseList.FirstOrDefault(r => r.Id == release.Id));
+                        return releaseList.FirstOrDefault(r => r.Id == release.Id) != null;
+                    },
+                    timeout:      TimeSpan.FromMinutes(5),
+                    pollInterval: TimeSpan.FromSeconds(5));
 
                 // Fetch the new release:
 
@@ -226,7 +234,7 @@ namespace TestDeployment
 
                 // List all releases to ensure that the new release is no longer present:
 
-                releaseList = GitHub.Releases.List(repo);
+                var releaseList = GitHub.Releases.List(repo);
 
                 Assert.Null(releaseList.FirstOrDefault(r => r.Id == release.Id));
 
