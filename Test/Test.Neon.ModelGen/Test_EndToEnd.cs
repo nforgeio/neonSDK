@@ -37,11 +37,11 @@ using Neon.Web;
 using Neon.Xunit;
 
 using Newtonsoft.Json.Linq;
+
 using Test.Neon.Models;
 
 using Xunit;
 using Xunit.Abstractions;
-using System.Diagnostics.Contracts;
 
 namespace TestModelGen.AspNet
 {
@@ -96,9 +96,9 @@ namespace TestModelGen.AspNet
         {
             return new Person()
             {
-                Id = id,
-                Name = name,
-                Age = age,
+                Id     = id,
+                Name   = name,
+                Age    = age,
                 Gender = gender
             };
         }
@@ -109,9 +109,9 @@ namespace TestModelGen.AspNet
         {
             return new NonPersistablePerson()
             {
-                Id = id,
-                Name = name,
-                Age = age,
+                Id     = id,
+                Name   = name,
+                Age    = age,
                 Gender = gender
             };
         }
@@ -267,6 +267,7 @@ namespace TestModelGen.AspNet
 
         [HttpPut]
         [Route("PutStreamAsBody")]
+        [Neon.ModelGen.NoControllerValidation]  // $todo(jefflill): https://github.com/nforgeio/neonSDK/issues/80
         public async Task<byte[]> PutStreamAsBody()
         {
             var memStream = new MemoryStream();

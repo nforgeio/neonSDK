@@ -29,7 +29,7 @@ namespace Neon.ModelGen
     /// service controller implements some extra endpoints that are not covered by the
     /// generated client.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class)]
+    [AttributeUsage(AttributeTargets.Method)]
     public class NoControllerValidationAttribute : Attribute
     {
     }
