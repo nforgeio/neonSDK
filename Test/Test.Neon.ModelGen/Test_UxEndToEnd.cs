@@ -245,16 +245,19 @@ namespace TestModelGen.UxAspNet
         //    return date;
         //}
 
-        [HttpPut]
-        [Route("PutStreamAsBody")]
-        public async Task<byte[]> PutStreamAsBody()
-        {
-            var memStream = new MemoryStream();
+        // $todo(jefflill): https://github.com/nforgeio/neonSDK/issues/80
 
-            await Request.Body.CopyToAsync(memStream);
+        //[HttpPut]
+        //[Route("PutStreamAsBody")]
+        //[Neon.ModelGen.NoControllerValidation]
+        //public async Task<byte[]> PutStreamAsBody()
+        //{
+        //    var memStream = new MemoryStream();
 
-            return memStream.ToArray();
-        }
+        //    await Request.Body.CopyToAsync(memStream);
+
+        //    return memStream.ToArray();
+        //}
     }
 
     public class Startup

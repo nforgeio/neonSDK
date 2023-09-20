@@ -310,10 +310,12 @@ namespace Test.Neon.Models.Definitions
         //[Route("EchoDateTime")]
         //DateTime EchoDateTime([FromQuery] DateTime date);
 
-        [HttpPut]
-        [Route("PutStreamAsBody")]
-        [BodyStream]
-        byte[] PutStreamAsBody();
+        // $todo(jefflill): https://github.com/nforgeio/neonSDK/issues/80
+
+        //[HttpPut]
+        //[Route("PutStreamAsBody")]
+        //[BodyStream]
+        //byte[] PutStreamAsBody();
     }
 
     [ServiceModel]
