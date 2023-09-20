@@ -409,7 +409,7 @@ namespace Neon.ModelGen
                         var methodRouteParameterNames = new List<string>();
                         var methodParameterNames      = new HashSet<string>();
 
-                        ExtractRouteParameterNames(methodRouteParameterNames, serviceRouteAttribute.Template);
+                        ExtractRouteParameterNames(methodRouteParameterNames, methodRouteAttribute.Template);
 
                         foreach (var parameter in methodInfo.GetParameters())
                         {
