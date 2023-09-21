@@ -27,6 +27,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Neon;
 using Neon.Common;
 using Neon.ModelGen;
+using Neon.Retry;
 
 namespace NeonModelGen
 {
@@ -210,7 +211,7 @@ style design conventions.
             }
             catch (Exception e)
             {
-                LogError(NeonHelper.ExceptionError(e), critical: true);
+                LogError(NeonHelper.ExceptionError(e, stackTrace: true), critical: true);
                 Program.Exit(1);
             }
 
@@ -228,21 +229,31 @@ style design conventions.
             {
                 if (!string.IsNullOrEmpty(outputPath))
                 {
-                    // Ensure that all of the parent folders exist.
+                    // It's possible for builds to try generating models for the same
+                    // project in parallel.  We're going to use a retry policy to handle
+                    // file conflict exceptions.
 
-                    var folderPath = Path.GetDirectoryName(outputPath);
+                    var retry = new LinearRetryPolicy(typeof(IOException), 25, retryInterval: TimeSpan.FromMilliseconds(10));
 
-                    Directory.CreateDirectory(folderPath);
+                    retry.Invoke(
+                        () =>
+                        {
+                            // Ensure that all of the parent folders exist.
 
-                    // Don't write the output file if its contents are already
-                    // the same as the generated output.  This will help reduce
-                    // wear on SSDs and also make things a tiny bit easier for
-                    // source control.
+                            var folderPath = Path.GetDirectoryName(outputPath);
 
-                    if (!File.Exists(outputPath) || File.ReadAllText(outputPath) != output.SourceCode)
-                    {
-                        File.WriteAllText(outputPath, output.SourceCode);
-                    }
+                            Directory.CreateDirectory(folderPath);
+
+                            // Don't write the output file if its contents are already
+                            // the same as the generated output.  This will help reduce
+                            // wear on SSDs and also make things a tiny bit easier for
+                            // source control.
+
+                            if (!File.Exists(outputPath) || File.ReadAllText(outputPath) != output.SourceCode)
+                            {
+                                File.WriteAllText(outputPath, output.SourceCode);
+                            }
+                        });
                 }
                 else
                 {
