@@ -185,11 +185,11 @@ namespace Neon.Diagnostics
                 tags.Add(LogAttributeNames.CategoryName, logEvent.CategoryName);
             }
 
-            if ((record.StateValues != null && record.StateValues.Count > 0) || record.Exception != null)
+            if ((record.Attributes != null && record.Attributes.Count > 0) || record.Exception != null)
             {
-                if (record.StateValues != null)
+                if (record.Attributes != null)
                 {
-                    foreach (var item in record.StateValues)
+                    foreach (var item in record.Attributes)
                     {
                         // Ignore tags without a name to be safe.
 
