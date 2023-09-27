@@ -281,14 +281,14 @@ namespace TestCommon
             try
             {
                 await task;
-                Assert.True(false, $"Expected a [{nameof(NotSupportedException)}].");
+                Assert.Fail($"Expected a [{nameof(NotSupportedException)}].");
             }
             catch (NotSupportedException)
             {
             }
             catch (Exception e)
             {
-                Assert.True(false, $"Expected a [{nameof(NotSupportedException)}] but got a [{e.GetType().FullName}].");
+                Assert.Fail($"Expected a [{nameof(NotSupportedException)}] but got a [{e.GetType().FullName}].");
             }
 
             // Verify

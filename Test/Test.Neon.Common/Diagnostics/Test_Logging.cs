@@ -313,7 +313,7 @@ namespace TestCommon
             }
             catch (Exception e)
             {
-                Assert.True(false, $"Expected an AggregateException, not a [{e.GetType().FullName}]");
+                Assert.Fail($"Expected an AggregateException, not a [{e.GetType().FullName}]");
             }
 
             //-----------------------------------------------------------------
@@ -647,7 +647,7 @@ namespace TestCommon
             }
             catch (Exception e)
             {
-                Assert.True(false, $"Expected an AggregateException, not a [{e.GetType().FullName}]");
+                Assert.Fail($"Expected an AggregateException, not a [{e.GetType().FullName}]");
             }
 
             //-----------------------------------------------------------------
