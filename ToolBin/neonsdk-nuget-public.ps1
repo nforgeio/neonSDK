@@ -211,6 +211,7 @@ try
     Publish Neon.BuildInfo              $neonSdkVersion
     Publish Neon.Cassandra              $neonSdkVersion
     Publish Neon.Common                 $neonSdkVersion
+    Publish Neon.Common.Extensions      $neonSdkVersion
     Publish Neon.Cryptography           $neonSdkVersion
     Publish Neon.CSharp                 $neonSdkVersion
     Publish Neon.Deployment             $neonSdkVersion
