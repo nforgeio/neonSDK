@@ -713,5 +713,25 @@ namespace TestCommon
                 Assert.Equal($"{i + 1}.0.0", (string)list[i]);
             }
         }
+
+        [Fact]
+        public void NumericPart()
+        {
+            Assert.Equal("1", SemanticVersion.Parse("1").Numeric);
+            Assert.Equal("1.2", SemanticVersion.Parse("1.2").Numeric);
+            Assert.Equal("1.2.3", SemanticVersion.Parse("1.2.3").Numeric);
+
+            Assert.Equal("1", SemanticVersion.Parse("1-alpha.1").Numeric);
+            Assert.Equal("1.2", SemanticVersion.Parse("1.2-alpha.1").Numeric);
+            Assert.Equal("1.2.3", SemanticVersion.Parse("1.2.3-alpha.1").Numeric);
+
+            Assert.Equal("1", SemanticVersion.Parse("1+build").Numeric);
+            Assert.Equal("1.2", SemanticVersion.Parse("1.2+build").Numeric);
+            Assert.Equal("1.2.3", SemanticVersion.Parse("1.2.3+build").Numeric);
+
+            Assert.Equal("1", SemanticVersion.Parse("1-alpha.1+build").Numeric);
+            Assert.Equal("1.2", SemanticVersion.Parse("1.2-alpha.1+build").Numeric);
+            Assert.Equal("1.2.3", SemanticVersion.Parse("1.2.3-alpha.1+build").Numeric);
+        }
     }
 }

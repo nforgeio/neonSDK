@@ -513,6 +513,28 @@ namespace Neon.Common
             }
         }
 
+        /// <summary>
+        /// Returns only the numeric part of the semantic version, excluding
+        /// any prerelase or build parts.
+        /// </summary>
+        public string Numeric
+        {
+            get
+            {
+                if (minorValue == null)
+                {
+                    return majorValue;
+                }
+                else if (patchValue == null)
+                {
+                    return $"{majorValue}.{minorValue}";
+                }
+                else
+                {
+                    return $"{majorValue}.{minorValue}.{patchValue}";
+                }
+            }
+        }
 
         /// <summary>
         /// The prerelease identifer or <c>null</c>.
