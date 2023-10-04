@@ -46,7 +46,7 @@ namespace Neon.IO
         /// </summary>
         /// <param name="folder">Optionally overrides <see cref="Root"/> as the parent folder for this instance.</param>
         /// <param name="prefix">Optionally specifies a prefix to be added to the temporary directory name.</param>
-        /// <param name="create">Optionally controls whether the temporary folder should actuall be created.  This defaults to <c>true</c>.</param>
+        /// <param name="create">Optionally controls whether the temporary folder should actually be created.  This defaults to <c>true</c>.</param>
         public TempFolder(string folder = null, string prefix = null, bool create = true)
         {
             prefix ??= string.Empty;
@@ -79,11 +79,16 @@ namespace Neon.IO
         public string Path { get; private set; }
 
         /// <summary>
+        /// Optionally used to disable folder deletion when the temporary folder is disposed.
+        /// </summary>
+        public bool DisableDelete { get; set; }
+
+        /// <summary>
         /// Deletes the temporary folder and all of its contents.
         /// </summary>
         public void Dispose()
         {
-            if (Path != null && Directory.Exists(Path))
+            if (!DisableDelete && Path != null && Directory.Exists(Path))
             {
                 try
                 {
