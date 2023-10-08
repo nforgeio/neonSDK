@@ -49,9 +49,13 @@ namespace Neon.Common
             var attributes = (EnumMemberAttribute[])(info.GetCustomAttributes(typeof(EnumMemberAttribute), false));
 
             if (attributes.Length > 0)
+            {
                 return attributes.First().Value;
+            }
             else
+            {
                 return value.ToString();
+            }
         }
     }
 }
