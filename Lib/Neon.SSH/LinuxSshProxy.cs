@@ -832,6 +832,21 @@ rm {HostFolders.Home(Username)}/askpass
         /// <returns><c>true</c> when a reboot is required.</returns>
         public bool UpgradeLinuxDistribution()
         {
+            // $hack(jefflill):
+            //
+            // We just started seeing trouble with upgrading Ubuntu on Azure.  Other people
+            // have been seeing the same thing for other environments and I'm not sure why
+            // were only seeing this on Azure.  Here's an issue with the fix:
+            //
+            //      https://github.com/orgs/community/discussions/47863#discussioncomment-5228032
+            //
+            // ...and here's our issue:
+            //
+            //      https://github.com/nforgeio/neonCLOUD/issues/415
+
+            SudoCommand("apt-mark hold grub-efi-amd64-signed", RunOptions.Defaults | RunOptions.FaultOnError);
+            SudoCommand("safe-apt-get update --fix-missing", RunOptions.Defaults | RunOptions.FaultOnError);
+
             SudoCommand("safe-apt-get update -yq", RunOptions.Defaults | RunOptions.FaultOnError);
             SudoCommand("safe-apt-get dist-upgrade -yq", RunOptions.Defaults | RunOptions.FaultOnError);
 
