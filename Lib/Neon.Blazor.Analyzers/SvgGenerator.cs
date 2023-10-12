@@ -25,6 +25,10 @@ using System.Xml.Linq;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Text;
+
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Neon.Blazor.Analyzers
 {
@@ -89,12 +93,18 @@ namespace Neon.Blazor.Analyzers
                 }
                 sb.AppendLine();
 
+                sb.AppendLine("#pragma warning disable CS1591 // Disable warnings for missing comments.");
+                sb.AppendLine();
+
                 sb.AppendLine($@"namespace {targetNamespace}
 {{
     public partial class {svg.ClassName} : ComponentBase
     {{
+        /// <summary>
+        /// Catch all for additional attributes.
+        /// </summary>
         [Parameter(CaptureUnmatchedValues = true)]
-        public IReadOnlyDictionary<string, object> AdditionalAttributes {{ get; set; }}
+        public IReadOnlyDictionary<string, object> AdditionalAttributes {{ get; set; }} = new Dictionary<string, object>();
 
         private Dictionary<string, object> Attributes {{ get; set; }}
 
@@ -106,23 +116,21 @@ namespace Neon.Blazor.Analyzers
         {{
             Attributes = GetDefaultAttributes();
 
-            if (AdditionalAttributes == null)
-            {{
-                StateHasChanged();
+            var classes = new List<string>();
 
-                return;
+            if (!string.IsNullOrEmpty(baseClass))
+            {{
+                classes = baseClass.Split(null).ToList();
             }}
 
-            AdditionalAttributes.TryGetValue(""class"", out var _class);
-
-            var classes = baseClass.Split(' ').ToList();
-            classes.AddRange(((string)_class).Split(' '));
-
-            var svgClass = string.Join("" "", classes.ToHashSet());
-
-            if (!string.IsNullOrEmpty(svgClass))
+            if (AdditionalAttributes.TryGetValue(""class"", out var additionalClasses))
             {{
-                Attributes[""class""] = svgClass;
+                classes.AddRange(((string)additionalClasses).Split(null));
+            }}
+
+            if (classes.Count > 0)
+            {{
+                Attributes[""class""] = string.Join("" "", classes.ToHashSet());
             }}
 
             if (AdditionalAttributes.TryGetValue(""fill"", out var _fill))
@@ -157,7 +165,7 @@ namespace Neon.Blazor.Analyzers
                 builder.AddMultipleAttributes(1, Attributes.Select(a => new KeyValuePair<string, object>(a.Key, a.Value)));
             }}
 
-            builder.AddMarkupContent(2, @""<path d=""""M4 5v11h16V5H4Zm-2-.993C2 3.451 2.455 3 2.992 3h18.016c.548 0 .992.449.992 1.007V18H2V4.007ZM1 19h22v2H1v-2Z"""" xmlns=""""http://www.w3.org/2000/svg"""" />"");
+            builder.AddMarkupContent(2, {svg.Body});
             builder.CloseElement();
         }}
 
@@ -174,6 +182,8 @@ namespace Neon.Blazor.Analyzers
         }}
     }}
 }}");
+
+                sb.AppendLine("#pragma warning restore CS1591 // Restore warnings for missing comments.");
 
                 var sourceString = sb.ToString();
                 context.AddSource($"{svg.ClassName}.g.cs", sourceString);
