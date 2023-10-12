@@ -409,7 +409,7 @@ namespace Neon.ModelGen
                         var methodRouteParameterNames = new List<string>();
                         var methodParameterNames      = new HashSet<string>();
 
-                        ExtractRouteParameterNames(methodRouteParameterNames, serviceRouteAttribute.Template);
+                        ExtractRouteParameterNames(methodRouteParameterNames, methodRouteAttribute.Template ?? methodInfo.Name);
 
                         foreach (var parameter in methodInfo.GetParameters())
                         {
@@ -2307,6 +2307,7 @@ namespace Neon.ModelGen
                     writer.WriteLine($"        public {virtualModifier} async Task WriteJsonToAsync(Stream stream)");
                     writer.WriteLine($"        {{");
                     writer.WriteLine($"            await SyncContext.Clear;");
+                    writer.WriteLine();
                     writer.WriteLine($"            __Save();");
                     writer.WriteLine();
 
@@ -3135,6 +3136,7 @@ namespace Neon.ModelGen
             writer.WriteLine($"{indent}        public async {methodReturnType} {methodName}({sbParameters})");
             writer.WriteLine($"{indent}        {{");
             writer.WriteLine($"{indent}            await SyncContext.Clear;");
+            writer.WriteLine();
 
             if (bodyStreamAttribute != null)
             {
@@ -3177,6 +3179,7 @@ namespace Neon.ModelGen
             writer.WriteLine($"{indent}        public async Task<JsonResponse> Unsafe{methodName}({sbParameters})");
             writer.WriteLine($"{indent}        {{");
             writer.WriteLine($"{indent}            await SyncContext.Clear;");
+            writer.WriteLine();
 
             if (bodyStreamAttribute != null)
             {

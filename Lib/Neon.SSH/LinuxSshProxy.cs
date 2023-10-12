@@ -832,6 +832,31 @@ rm {HostFolders.Home(Username)}/askpass
         /// <returns><c>true</c> when a reboot is required.</returns>
         public bool UpgradeLinuxDistribution()
         {
+            // $hack(jefflill):
+            //
+            // We just started seeing trouble with upgrading Ubuntu on Azure.  Other people
+            // have been seeing the same thing for other environments and I'm not sure why
+            // were only seeing this on Azure.  Here's an issue with the fix:
+            //
+            //      https://github.com/orgs/community/discussions/47863#discussioncomment-5228032
+            //
+            // ...and here's our issue:
+            //
+            //      https://github.com/nforgeio/neonCLOUD/issues/415
+            //
+            // Note that the [grub-efi-amd64-signed] package is not always installed, it looks
+            // like it's present for standard cloud VM images but not for images created via
+            // installing Ubuntu Server directly as we do for Hyper-V and XenServer.
+            //
+            // In the latter case, the [apt-mark hold grub-efi-amd64-signed] command will fail.
+            // We're just going to ignore any errors from the first command and also skip the
+            // second command in that situation.
+
+            if (SudoCommand("apt-mark hold grub-efi-amd64-signed", RunOptions.Defaults).ExitCode == 0)
+            {
+                SudoCommand("safe-apt-get update --fix-missing", RunOptions.Defaults | RunOptions.FaultOnError);
+            }
+
             SudoCommand("safe-apt-get update -yq", RunOptions.Defaults | RunOptions.FaultOnError);
             SudoCommand("safe-apt-get dist-upgrade -yq", RunOptions.Defaults | RunOptions.FaultOnError);
 

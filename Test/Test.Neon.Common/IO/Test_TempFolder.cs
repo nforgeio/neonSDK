@@ -117,5 +117,21 @@ namespace TestCommon
                 Directory.Delete(customRoot);
             }
         }
+
+        [Fact]
+        public void NoDelete()
+        {
+            string path;
+
+            using (var temFolder = new TempFolder() { DisableDelete = true })
+            {
+                path = temFolder.Path;
+
+                Assert.True(Directory.Exists(path));
+            }
+
+            Assert.True(Directory.Exists(path));
+            Directory.Delete(path);
+        }
     }
 }

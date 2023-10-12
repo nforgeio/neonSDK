@@ -63,7 +63,7 @@ namespace TestCommon
                 }
             }
 
-            Assert.True(false, "Random selection may not be working (there's a one-in-a-million chance that this is an invalid failure).");
+            Assert.Fail("Random selection may not be working (there's a one-in-a-million chance that this is an invalid failure).");
         }
 
         [Fact]

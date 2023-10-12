@@ -1283,5 +1283,100 @@ namespace Neon.GitHub
 
             return await Task.FromResult(root.GitApi.Ignore.IsPathIgnored(path));
         }
+
+        /// <summary>
+        /// Changes the upstream <b>origin</b> remote URL for the local repo.  This works
+        /// by editing the <b>~/.git/config</b> file within the local repo.
+        /// </summary>
+        /// <param name="url">Specifies the new remote URL.</param>
+        /// <returns>The tracking <see cref="Task"/>.</returns>
+        public async Task SetOriginUrlAsync(string url)
+        {
+            await SyncContext.Clear;
+            Covenant.Assert(Uri.IsWellFormedUriString(url, UriKind.Absolute), $"Invalid URL: {url}");
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
+
+            var configPath  = Path.Combine(Folder, ".git", "config");
+            var configLines = await File.ReadAllLinesAsync(configPath);
+
+            // The [config] file is going to look something like this:
+            //
+            //  [core]
+            //        bare = false
+            //        repositoryformatversion = 0
+            //        filemode = false
+            //        symlinks = false
+            //        ignorecase = true
+            //        logallrefupdates = true
+            //  [remote "origin"]
+            //        url = https://github.com/nforgeio/neon-kubernetes.git
+            //        fetch = +refs/heads/*:refs/remotes/origin/*
+            //  [branch "master"]
+            //        remote = origin
+            //        merge = refs/heads/master
+            //
+            // We're going to look for the [remote "origin"] section and then
+            // edit the [url = ...] entry beneath this.
+
+            // $todo(jefflill):
+            //
+            // This could be hardened better and eventually, we'll want to
+            // generalize this method to be able to change this for other
+            // remotes besides "origin".  We could also add other methods
+            // add/remove remotes as well.
+
+            // Scan for the [remote "origin"] section start line.
+
+            var originSectionIndex = -1;
+            var originUrlIndex     = -1;
+
+            for (int i = 0; i < configLines.Length; i++)
+            {
+                if (configLines[i].StartsWith("[remote \"origin\"]"))
+                {
+                    originSectionIndex = i;
+                    break;
+                }
+            }
+
+            if (originSectionIndex == -1)
+            {
+                throw new LibGit2SharpException("Cannot locate the [origin] remote config.");
+            }
+
+            // Scan forward for the [url = ...] line within the section.
+
+            for (int i = originSectionIndex + 1; i <= configLines.Length; i++)
+            {
+                var cleaned = configLines[i]
+                    .Trim()
+                    .Replace(" ", string.Empty)
+                    .Replace("\t", string.Empty);
+
+                if (cleaned.StartsWith("url="))
+                {
+                    originUrlIndex = i;
+                    break;
+                }
+                else if (cleaned.StartsWith("["))
+                {
+                    // We didn't find the URL before the next config section.
+
+                    break;
+                }
+            }
+
+            if (originUrlIndex == -1)
+            {
+                throw new LibGit2SharpException("Cannot locate the [origin] URL.");
+            }
+
+            // Replace the [origin] URL line with the new one.
+
+            configLines[originUrlIndex] = $"\turl = {url}";
+
+            await File.WriteAllLinesAsync(configPath, configLines);
+        }
     }
 }

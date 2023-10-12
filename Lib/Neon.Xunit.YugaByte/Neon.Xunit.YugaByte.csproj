@@ -14,6 +14,7 @@
         <PackageTags>xunit yugabyte yugabytedb</PackageTags>
         <PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
         <Configurations>Debug;Release</Configurations>
+        <IsTestProject>false</IsTestProject>
     </PropertyGroup>
 
     <ItemGroup>
@@ -22,8 +23,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Npgsql" Version="7.0.2" />
-        <PackageReference Include="xunit.extensibility.core" Version="2.4.2" />
+        <PackageReference Include="Npgsql" Version="7.0.6" />
+        <PackageReference Include="xunit.extensibility.core" Version="2.5.0" />
         <PackageReference Include="YugaByteCassandraCSharpDriver" Version="3.16.3" />
     </ItemGroup>
 

@@ -513,9 +513,36 @@ namespace Neon.Common
             }
         }
 
+        /// <summary>
+        /// Returns only the numeric part of the semantic version, excluding
+        /// any prerelase or build parts.
+        /// </summary>
+        public string Numeric
+        {
+            get
+            {
+                if (minorValue == null)
+                {
+                    return majorValue;
+                }
+                else if (patchValue == null)
+                {
+                    return $"{majorValue}.{minorValue}";
+                }
+                else
+                {
+                    return $"{majorValue}.{minorValue}.{patchValue}";
+                }
+            }
+        }
 
         /// <summary>
+        /// <para>
         /// The prerelease identifer or <c>null</c>.
+        /// </para>
+        /// <note>
+        /// Prerelease identifiers <b>do not</b> include the prefix dash <b>(-)</b>.
+        /// </note>
         /// </summary>
         public string Prerelease { get; set; }
 
@@ -525,7 +552,12 @@ namespace Neon.Common
         public bool IsPrerelease => Prerelease != null;
 
         /// <summary>
+        /// <para>
         /// The build information or <c>null</c>.
+        /// </para>
+        /// <note>
+        /// Build information does not include the prefix plus <b>(+)</b> sign.
+        /// </note>
         /// </summary>
         public string Build { get; set; }
 

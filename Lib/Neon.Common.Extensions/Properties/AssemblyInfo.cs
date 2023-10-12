@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------
-// FILE:        NoControllerValidationAttribute.cs
+// FILE:        AssemblyInfo.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
@@ -17,20 +17,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
-using System.Text;
+using System.Runtime.CompilerServices;
 
-namespace Neon.ModelGen
-{
-    /// <summary>
-    /// Used to prevent the <c>Neon.Xunit.XunitExtensions.ValidateController&lt;T&gt;()</c>
-    /// method from including the tagged method when validating the service controller
-    /// against its definining interface.  This is useful for rare situations where a
-    /// service controller implements some extra endpoints that are not covered by the
-    /// generated client.
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Method)]
-    public class NoControllerValidationAttribute : Attribute
-    {
-    }
-}
+[assembly: InternalsVisibleTo("Test.Neon.Common")]

@@ -1386,7 +1386,7 @@ namespace Neon.Service
         }
 
         /// <summary>
-        /// Called by <see cref="OnRunAsync"/> implementation to indicate that the service
+        /// Called by your <see cref="OnRunAsync"/> implementation to indicate that the service
         /// is either <see cref="NeonServiceStatus.Running"/> (the default) or <see cref="NeonServiceStatus.NotReady"/>.
         /// </summary>
         /// <remarks>

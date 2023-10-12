@@ -192,46 +192,37 @@ namespace Neon.Service
 
                     if (!NetHelper.IsValidPort(Port))
                     {
-                        throw new ArgumentNullException($"Metrics [Port={Port}] is not valid.");
+                        throw new ArgumentException($"Metrics [Port={Port}] is not valid.");
                     }
 
                     if (string.IsNullOrEmpty(Path))
                     {
-                        throw new ArgumentNullException("Metrics [Path] is required.");
+                        throw new ArgumentException("Metrics [Path] is required.");
                     }
-#if NET6_0_OR_GREATER
-                    if (Path.EndsWith("/"))
-                    {
-                        throw new ArgumentNullException($"Metrics [Path={Path}] cannot end with a slash [/].");
-                    }
+
+                    // Ensure that the path starts with a "/" but does not end with one.
 
                     if (!Path.StartsWith("/"))
                     {
-                        throw new ArgumentNullException($"Metrics [Path={Path}] must start with a slash [/].");
-                    }
-#else
-                    if (Path.StartsWith("/"))
-                    {
-                        throw new ArgumentNullException($"Metrics [Path={Path}] cannot start with a slash [/].");
+                        Path = "/" + Path;
                     }
 
-                    if (!Path.EndsWith("/"))
+                    if (Path.EndsWith("/"))
                     {
-                        throw new ArgumentNullException($"Metrics [Path={Path}] must end with a slash [/].");
+                        Path = Path.Substring(0, Path.Length - 1);
                     }
-#endif
                     break;
 
                 case MetricsMode.Push:
 
                     if (string.IsNullOrEmpty(PushUrl))
                     {
-                        throw new ArgumentNullException("Metrics [PushUrl] is required.");
+                        throw new ArgumentException("Metrics [PushUrl] is required.");
                     }
 
                     if (!Uri.TryCreate(PushUrl, UriKind.Absolute, out var uri))
                     {
-                        throw new ArgumentNullException($"Metrics [PushUrl={PushUrl}] is not a valid URL.");
+                        throw new ArgumentException($"Metrics [PushUrl={PushUrl}] is not a valid URL.");
                     }
                     break;
 

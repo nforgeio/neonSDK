@@ -37,11 +37,11 @@ using Neon.Web;
 using Neon.Xunit;
 
 using Newtonsoft.Json.Linq;
+
 using Test.Neon.Models;
 
 using Xunit;
 using Xunit.Abstractions;
-using System.Diagnostics.Contracts;
 
 namespace TestModelGen.AspNet
 {
@@ -96,9 +96,9 @@ namespace TestModelGen.AspNet
         {
             return new Person()
             {
-                Id = id,
-                Name = name,
-                Age = age,
+                Id     = id,
+                Name   = name,
+                Age    = age,
                 Gender = gender
             };
         }
@@ -109,9 +109,9 @@ namespace TestModelGen.AspNet
         {
             return new NonPersistablePerson()
             {
-                Id = id,
-                Name = name,
-                Age = age,
+                Id     = id,
+                Name   = name,
+                Age    = age,
                 Gender = gender
             };
         }
@@ -265,16 +265,19 @@ namespace TestModelGen.AspNet
         //    return date;
         //}
 
-        [HttpPut]
-        [Route("PutStreamAsBody")]
-        public async Task<byte[]> PutStreamAsBody()
-        {
-            var memStream = new MemoryStream();
+        // $todo(jefflill): https://github.com/nforgeio/neonSDK/issues/80
 
-            await Request.Body.CopyToAsync(memStream);
+        //[HttpPut]
+        //[Route("PutStreamAsBody")]
+        //[Neon.ModelGen.NoControllerValidation]  // $todo(jefflill): https://github.com/nforgeio/neonSDK/issues/80
+        //public async Task<byte[]> PutStreamAsBody()
+        //{
+        //    var memStream = new MemoryStream();
 
-            return memStream.ToArray();
-        }
+        //    await Request.Body.CopyToAsync(memStream);
+
+        //    return memStream.ToArray();
+        //}
     }
 
     public class Startup
@@ -437,22 +440,24 @@ namespace TestModelGen.AspNet
             Assert.Equal(Gender.Male, modified.Gender);
         }
 
-        [Fact]
-        public async Task PutStream()
-        {
-            var inputString = "Hello World!";
+        // $todo(jefflill): https://github.com/nforgeio/neonSDK/issues/80
 
-            using (var memStream = new MemoryStream())
-            {
-                memStream.Write(Encoding.UTF8.GetBytes(inputString));
-                memStream.Position = 0;
+        //[Fact]
+        //public async Task PutStreamAsBody()
+        //{
+        //    var inputString = "Hello World!";
 
-                var outputBytes  = await client.PutStreamAsBodyAsync(memStream);
-                var outputString = Encoding.UTF8.GetString(outputBytes);
+        //    using (var memStream = new MemoryStream())
+        //    {
+        //        memStream.Write(Encoding.UTF8.GetBytes(inputString));
+        //        memStream.Position = 0;
 
-                Assert.Equal(inputString, outputString);
-            }
-        }
+        //        var outputBytes  = await client.PutStreamAsBodyAsync(memStream);
+        //        var outputString = Encoding.UTF8.GetString(outputBytes);
+
+        //        Assert.Equal(inputString, outputString);
+        //    }
+        //}
 
         [Fact]
         public async Task OptionalParams()

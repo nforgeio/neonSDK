@@ -85,16 +85,21 @@ namespace Neon.Common
         /// <summary>
         /// Ensure that the command returned a zero exit code.
         /// </summary>
+        /// <param name="errorOnly">
+        /// Optionally return only the text written to STDERR in the exception
+        /// for errors when something besides whitespace was written to STDERR,
+        /// otherwise include all text written to the output streams.
+        /// </param>
         /// <returns>The response for fluent-style chaining.</returns>
         /// <exception cref="ExecuteException">Thrown if the exit code isn't zero.</exception>
-        public ExecuteResponse EnsureSuccess()
+        public ExecuteResponse EnsureSuccess(bool errorOnly = false)
         {
             if (ExitCode != 0)
             {
-                // We're going to use the error text as the exception message if this
+                // We're going to use the error text as the exception message if that
                 // isn't empty, otherwise we'll use the output text.
 
-                if (ErrorText.Trim().Length > 0)
+                if (errorOnly && ErrorText.Trim().Length > 0)
                 {
                     throw new ExecuteException(this, ErrorText);
                 }

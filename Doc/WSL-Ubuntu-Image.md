@@ -1,27 +1,22 @@
 # Maintainer: Create Ubuntu 20.04 WSL image
 
-These are the instructions for creating and publishing the Ubuntu 20.04 TAR 
-image used by NEONFORGE related repos for building components, etc.  This may
-need to be recreated from time-to-time.
+The **neon-ubuntu-20.04.** WSL distro starts off as a standard Ubuntu download from the MSFT
+store.  The only change so far is that we add the **/etc/wsl.conf** file:
 
-1. Be sure that WSL2 is installed and configured
-2. Install Ubuntu 20.04 WSL from the Windows Store: https://www.microsoft.com/store/productId/9MTTCL66CPXJ
-3. Configure root login by default and then login:
-   ```
-   ubuntu2004 config --default-user root
-   wsl -d Ubuntu-20.04
-   ```
-4. Update the distro via:
-   ```
-   apt-get update
-   apt-get dist-upgrade -y
-   exit
-   ```
-5. Run this in PowerShell (pwsh.exe) to export the distro TAR file and upload it to S3:
-   ```
-   . $env:NF_ROOT\Powershell\includes.ps1
-   Import-AwsCliCredentials
-   wsl --export Ubuntu-20.04 neon-ubuntu-20.04.tar
-   Save-ToS3 neon-ubuntu-20.04.tar s3://neon-public/download/neon-ubuntu-20.04.tar -publicReadAccess $true
-   Remove-Item neon-ubuntu-20.04.tar
-   ```
+```
+[interop]
+appendWindowsPath=False
+```
+
+Then export the distro to a TAR file, compress it and then upload it to S3, like:
+
+```
+wsl --export neon-ubuntu-20.04 "$env:TEMP\neon-ubuntu-20.04.tar"
+pigz --best --blocksize 512 "$env:TEMP\neon-ubuntu-20.04.tar"
+ren "%TEMP%\neon-ubuntu-20.04.tar.gz" "$env:TEMP\neon-ubuntu-20.04.tar"
+
+Finally upload the compressed TAR file to S3:
+
+1. Upload compressed TAR file to S3  to: https://neon-public.s3.us-west-2.amazonaws.com/build-assets/wsl/neon-ubuntu-20.04.tar
+2. Edit S3 metadata: Content-Encoding=gzip
+```

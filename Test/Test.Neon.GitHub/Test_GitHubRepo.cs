@@ -1715,5 +1715,33 @@ namespace TestGitHub
                     }
                 });
         }
+
+        [MaintainerFact]
+        public async Task Local_SetOrigin()
+        {
+            await GitHubTestHelper.RunTestAsync(
+                async () =>
+                {
+                    //-------------------------------------------------
+                    // Clone a repo and then verify that we can change the remote origin.
+
+                    using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
+                    {
+                        var repoPath = tempFolder.Path;
+
+                        using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepoPath, repoPath))
+                        {
+                            var orgOriginUrl = repo.Origin.Url;
+
+                            Assert.Equal($"https://{repo.Remote.Path}.git", orgOriginUrl);
+
+                            var newOriginUrl = "https://github.com/test/test.git";
+
+                            await repo.Local.SetOriginUrlAsync(newOriginUrl);
+                            Assert.Equal(newOriginUrl, repo.GitApi.Network.Remotes.Single().Url);
+                        }
+                    }
+                });
+        }
     }
 }
