@@ -360,7 +360,7 @@ namespace Neon.Common
                 }
                 else
                 {
-                    throw new NotImplementedException();
+                    return string.Empty;
                 }
             }
         }

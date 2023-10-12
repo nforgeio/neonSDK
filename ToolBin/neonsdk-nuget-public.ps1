@@ -208,6 +208,7 @@ try
     # Build and publish the projects.
 
     Publish Neon.Blazor                 $neonSdkVersion
+    Publish Neon.Blazor.Analyzers       $neonSdkVersion
     Publish Neon.BuildInfo              $neonSdkVersion
     Publish Neon.Cassandra              $neonSdkVersion
     Publish Neon.Common                 $neonSdkVersion
