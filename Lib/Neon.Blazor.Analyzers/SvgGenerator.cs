@@ -38,6 +38,9 @@ namespace Neon.Blazor.Analyzers
     [Generator]
     public class SvgGenerator : ISourceGenerator
     {
+
+        private static TextInfo textInfo = new CultureInfo("en-US",false).TextInfo;
+
         private static List<string> attributesToKeep = new List<string>()
         {
             "viewBox"
@@ -206,7 +209,7 @@ namespace Neon.Blazor.Analyzers
         {
             var fileName = Path.GetFileNameWithoutExtension(filePath);
 
-            string className = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(fileName);
+            string className = textInfo.ToTitleCase(fileName);
 
             if (!SyntaxFacts.IsValidIdentifier(className))
             {
