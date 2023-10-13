@@ -7,15 +7,16 @@
         <Version>$(NeonSdkVersion)</Version>
         <Description>INTERNAL USE ONLY: NEONSDK build information</Description>
         <IsPackable>true</IsPackable>
-        <PackageProjectUrl></PackageProjectUrl>
+        <PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.BuildInfo/README.md</PackageProjectUrl>
         <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/nforgeio/neonSDK</RepositoryUrl>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
-        <Configurations>Debug</Configurations>
+        <Configurations>Debug;Release</Configurations>
         <PackageIcon>nuget-icon.png</PackageIcon>
         <PackageTags></PackageTags>
-
         <ThisAssemblyNamespace>Internal</ThisAssemblyNamespace>
+        <PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
+        <GitVersion>false</GitVersion>
     </PropertyGroup>
 
     <ItemGroup>
