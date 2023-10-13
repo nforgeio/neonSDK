@@ -57,7 +57,7 @@ namespace Neon
         /// release scripts to match.
         /// </note>
         /// </summary>
-        public const string NeonSdkVersion = "3.1.2";
+        public const string NeonSdkVersion = "3.1.3";
 
         /// <summary>
         /// The product license.
