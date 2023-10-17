@@ -92,7 +92,7 @@ namespace Neon.Net
         /// <param name="statusCode">Optionally specifies the response status code.</param>
         private static string GetMessage(string reasonPhrase, string requestUri = null, string requestMethod = null, HttpStatusCode statusCode = (HttpStatusCode)0)
         {
-            return $"HTTP ERROR:{GetStatusString(statusCode)}{GetMethodString(requestMethod)}{GetUriString(requestUri)}{GetReasonString(reasonPhrase)}";
+            return $"HTTP ERROR: {GetStatusString(statusCode)}{GetMethodString(requestMethod)}{GetUriString(requestUri)}{GetReasonString(reasonPhrase)}";
         }
 
         //---------------------------------------------------------------------
