@@ -2224,10 +2224,7 @@ namespace Neon.Common
                     {
                         var dockerPath = Path.Combine(folder.Trim(), "docker");
 
-                        if (File.Exists(dockerPath))
-                        {
-                            return dockerCliPath = "docker";
-                        }
+                        return dockerCliPath = "docker";
                     }
 
                     return null;
