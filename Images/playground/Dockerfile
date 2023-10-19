@@ -23,7 +23,7 @@
 
 ARG         VERSION
 FROM        alpine:latest
-MAINTAINER  jeff@lilltek.com
+MAINTAINER  jeff@lill.io
 STOPSIGNAL  SIGTERM
 
 RUN apk update && \

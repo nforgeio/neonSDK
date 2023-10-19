@@ -16,7 +16,7 @@
 # limitations under the License.
 
 FROM        ubuntu:22.04
-MAINTAINER  jeff@lilltek.com
+MAINTAINER  jeff@lill.io
 STOPSIGNAL  SIGTERM
 
 # Environment

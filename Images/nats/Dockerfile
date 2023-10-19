@@ -23,7 +23,7 @@
 
 ARG         VERSION
 FROM        nats:${VERSION}-linux
-MAINTAINER  jeff@lilltek.com
+MAINTAINER  jeff@lill.io
 STOPSIGNAL  SIGTERM
 
 # Expose client, management, and cluster ports

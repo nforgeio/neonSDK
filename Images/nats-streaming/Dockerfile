@@ -23,7 +23,7 @@
 
 ARG         VERSION
 FROM        nats-streaming:${VERSION}-linux
-MAINTAINER  jeff@lilltek.com
+MAINTAINER  jeff@lill.io
 STOPSIGNAL  SIGTERM
 
 # Expose client and management ports

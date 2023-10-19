@@ -26,7 +26,7 @@
 ARG         ORGANIZATION
 ARG         BRANCH
 FROM        alpine:latest
-MAINTAINER  jeff@lilltek.com
+MAINTAINER  jeff@lill.io
 STOPSIGNAL  SIGTERM
 
 # Environment
