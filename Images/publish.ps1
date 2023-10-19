@@ -179,8 +179,6 @@ try
     $nfToolBin      = "$nfRoot\ToolBin"
     $neonSdkVersion = $(& $neonBuild read-version "$nfLib/Neon.Common/Build.cs" NeonSdkVersion)
 
-    Invoke-CaptureStreams "
-
     if (-not $noclean)
     {
         Write-Info ""
@@ -225,6 +223,7 @@ try
 
     if ($other)
     {
+        Publish "$image_root\dotnet-vsdbg"
         Publish "$image_root\nats"
         Publish "$image_root\nats-streaming"
         Publish "$image_root\playground"
