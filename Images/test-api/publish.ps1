@@ -19,8 +19,6 @@
 # Builds the test-api images and pushes them to the container registry.
 #
 # NOTE: You must be already logged into the target container registry.
-#
-# USAGE: pwsh -f publish.ps1 [-all]
 
 param 
 (

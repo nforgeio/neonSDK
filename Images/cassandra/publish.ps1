@@ -19,8 +19,6 @@
 # Builds the cassandra images and pushes them to the container registry.
 #
 # NOTE: You must be already logged into the target container registry.
-#
-# USAGE: pwsh -f publish.ps1 [-all]
 
 param 
 (
@@ -52,12 +50,12 @@ function Build
 
 	# Build and publish the images.
 
-	. ./build.ps1 -registry $registry -version $version -tag $tag -config $config
+	. ./build.ps1 -registry $registry -version $version -tag $tag
     Push-DockerImage "${registry}:${tag}"
 
 	if ($latest -and $tagAsLatest)
 	{
-		Invoke-CaptureStreams "docker tag ${registry}:${tag} ${registry}:latest" -interleave$result | Out-Null 
+		Invoke-CaptureStreams "docker tag ${registry}:${tag} ${registry}:latest" -interleave | Out-Null 
 		Push-DockerImage "${registry}:latest"
 	}
 }

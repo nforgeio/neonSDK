@@ -19,8 +19,6 @@
 # Builds the [ghcr.io/neonrelease/yugabyte] images and pushes them to the container registry.
 #
 # NOTE: You must be already logged into the target container registry.
-#
-# USAGE: pwsh -f publish.ps1 [-all]
 
 param 
 (
@@ -52,7 +50,7 @@ function Build
 
 	# Build and publish the images.
 
-	. ./build.ps1 -registry $registry -yugabyteVersion $yugabyteVersion -tag $tag -config $config
+	. ./build.ps1 -registry $registry -yugabyteVersion $yugabyteVersion -tag $tag
     Push-DockerImage "${registry}:${tag}"
 
 	if ($latest -and $tagAsLatest)
