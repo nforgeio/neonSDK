@@ -79,8 +79,7 @@ namespace Neon.Service
         Running,
 
         /// <summary>
-        /// Indicates that the service is running but it's not ready to receive
-        /// external traffic.
+        /// Indicates that the service is running but it's not ready to perform operations.
         /// </summary>
         [EnumMember(Value = "not-ready")]
         NotReady,

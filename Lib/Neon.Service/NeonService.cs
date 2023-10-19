@@ -1330,7 +1330,6 @@ namespace Neon.Service
                 }
                 else
                 {
-
                     Logger.LogInformationEx(() => $"[{Name}] health status: [{newStatusString}]");
                 }
 
@@ -1338,7 +1337,7 @@ namespace Neon.Service
                 {
                     // We're going to use a retry policy to handle the rare situations
                     // where the [health-check] or [ready-check] binaries and this method
-                    // try to access this file at the exact same moment.
+                    // try to access the [health-status] file at the exact same moment.
 
                     healthRetryPolicy.Invoke(() => File.WriteAllText(healthStatusPath, newStatusString));
                 }
@@ -1410,7 +1409,6 @@ namespace Neon.Service
             Covenant.Requires<ArgumentException>(status == NeonServiceStatus.Running || status == NeonServiceStatus.NotReady, nameof(status));
 
             startedEvent.Set();
-
             await SetStatusAsync(status);
         }
 
