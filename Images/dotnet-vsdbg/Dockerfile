@@ -23,6 +23,12 @@ STOPSIGNAL  SIGTERM
 
 ENV TZ=UTC
 
+# Set the dotnet runtime to invariant cluture mode.
+#
+#   https://learn.microsoft.com/en-us/dotnet/core/runtime-config/globalization
+
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
+
 # Configure: Install the remote debugger at: \vsdbg\vsdbg
 
 RUN apt-get update \
