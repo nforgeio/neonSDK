@@ -1,5 +1,6 @@
+#Requires -Version 7.1.3 -RunAsAdministrator
 #------------------------------------------------------------------------------
-# FILE:         Dockerfile
+# FILE:         build.ps1
 # CONTRIBUTOR:  Jeff Lill
 # COPYRIGHT:    Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 #
@@ -15,25 +16,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM        ubuntu:22.04
-MAINTAINER  jeff@lill.io
-STOPSIGNAL  SIGTERM
-
-# Environment
-
-ENV TZ=UTC
-
-# Set the dotnet runtime to invariant cuture mode.
+# Builds the NATS image.
 #
-#   https://learn.microsoft.com/en-us/dotnet/core/runtime-config/globalization
+# USAGE: pwsh -f build.ps1 REGISTRY VERSION TAG
 
-ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
+param 
+(
+	[parameter(Mandatory=$true, Position=1)][string] $registry,
+	[parameter(Mandatory=$true, Position=2)][string] $version,
+	[parameter(Mandatory=$true, Position=3)][string] $tag
+)
 
-# Configure: Install the remote debugger at: \vsdbg\vsdbg
-
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends ca-certificates unzip wget \
-    && rm -rf /var/lib/apt/lists/* \
-    && wget https://aka.ms/getvsdbgsh -O /tmp/vsdbg.sh \
-    && bash /tmp/vsdbg.sh -v latest -l /vsdbg \
-    && rm /tmp/vsdbg.sh
+Invoke-CaptureStreams "docker build -t ${registry}:${tag} ." -interleave | Out-Null

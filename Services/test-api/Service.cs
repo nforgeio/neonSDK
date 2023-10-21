@@ -118,7 +118,7 @@ namespace TestApiService
             webHost.Start();
 
             // Start a do-nothing thread that we can use to set breakpoints
-            // to verify that Bridge to Kubernetes works.
+            // to verify that we can debug remotely and set breakpoints.
 
             var nothingThread = NeonHelper.StartThread(NothingThread);
 
