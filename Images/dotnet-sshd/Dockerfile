@@ -28,11 +28,12 @@ ENV TZ=UTC
 
 EXPOSE 22/tcp
 
-# Configure
+# Install SSHD and other tools required for remote debugging.
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends ca-certificates openssh-server unzip curl \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && mkdir -p /root/.vs-debugger
 
 # SSHD configuration:
 #
@@ -44,12 +45,21 @@ RUN apt-get update \
 # port forwarding to connect to the ephemeral container which means the
 # connection will already be secured via the user's Kubernetes certificate.
 
-RUN echo "PermitRootLogin yes"            > /etc/ssh/sshd_config.d/05-auth.conf \
+RUN mkdir -p /etc/ssh/sshd_config.d \
+    && echo "PermitRootLogin yes"         > /etc/ssh/sshd_config.d/05-auth.conf \
     && echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config.d/05-auth.conf \
     && echo "PermitEmptyPasswords yes"   >> /etc/ssh/sshd_config.d/05-auth.conf \
     && echo "ssh"                         > /etc/securetty \
     && touch /root/.hushlogin \
     && passwd --delete root
 
+# We need to proactively create the [/root/.vs-debugger] directory so
+# the VS debugger will be able to attach and do its thing and we also
+# need to explcitly configure the server's SSH certificats so developers
+# won't need to reverify the connection everytime a new pod is deployed.
+
+COPY ssh/* /etc/ssh
+
+# Start the SSHD server automatically.
+
 CMD ["service", "ssh", "start", "-D"]
-#CMD ["sleep", "100000"]
