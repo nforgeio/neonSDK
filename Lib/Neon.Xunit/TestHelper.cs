@@ -374,7 +374,7 @@ namespace Neon.Xunit
         /// </summary>
         /// <param name="expected">The expected value.</param>
         /// <param name="actual">The actual valut.</param>
-        /// <exception cref="AssertException">Thrown on failure.</exception>
+        /// <exception cref="AssertException">Thrown when the strings are not equal after removing CR characters.</exception>
         public static void AssertEqualLines(string expected, string actual)
         {
             if (expected != null)
@@ -388,6 +388,32 @@ namespace Neon.Xunit
             }
 
             if (expected != actual)
+            {
+                throw new AssertException($"Expected: [{expected} != [{actual}].");
+            }
+        }
+
+        /// <summary>
+        /// Compares two strings such that platform line ending differences will be
+        /// ignored.  This works by removing any embedded carriage returns before
+        /// performing the comparision.
+        /// </summary>
+        /// <param name="expected">The expected value.</param>
+        /// <param name="actual">The actual valut.</param>
+        /// <exception cref="AssertException">Thrown when the strings are equal after removing CR characters.</exception>
+        public static void AssertNotEqualLines(string expected, string actual)
+        {
+            if (expected != null)
+            {
+                expected = expected.Replace("\r", string.Empty);
+            }
+
+            if (actual != null)
+            {
+                actual = actual.Replace("\r", string.Empty);
+            }
+
+            if (expected == actual)
             {
                 throw new AssertException($"Expected: [{expected} != [{actual}].");
             }

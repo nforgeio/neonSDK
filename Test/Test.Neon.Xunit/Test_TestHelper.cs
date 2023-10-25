@@ -24,6 +24,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Neon.Common;
+using Neon.Diagnostics;
 using Neon.Xunit;
 
 using Xunit;
@@ -85,7 +86,7 @@ namespace TestXunit
         }
 
         [Fact]
-        public void Enumerable_Equivalent()
+        public void AssertEnumerable_Equivalent()
         {
             TestHelper.AssertEquivalent(new List<string>(), new List<string>());
             TestHelper.AssertEquivalent(new List<string>() { "0" }, new List<string>() { "0" });
@@ -99,7 +100,7 @@ namespace TestXunit
         }
 
         [Fact]
-        public void Enumerable_NotEquivalent()
+        public void AssertEnumerable_NotEquivalent()
         {
             Assert.ThrowsAny<Exception>(() => TestHelper.AssertNotEquivalent(new List<string>(), new List<string>()));
             Assert.ThrowsAny<Exception>(() => TestHelper.AssertNotEquivalent(new List<string>() { "0" }, new List<string>() { "0" }));
@@ -113,7 +114,7 @@ namespace TestXunit
         }
 
         [Fact]
-        public void Enumerable_EquivalentComparer()
+        public void AssertEnumerable_EquivalentComparer()
         {
             var comparer = new ItemComparer();
 
@@ -129,7 +130,7 @@ namespace TestXunit
         }
 
         [Fact]
-        public void Enumerable_NotEquivalentComparer()
+        public void AssertEnumerable_NotEquivalentComparer()
         {
             var comparer = new ItemComparer();
 
@@ -145,7 +146,7 @@ namespace TestXunit
         }
 
         [Fact]
-        public void Collection_Equivalent()
+        public void AssertCollection_Equivalent()
         {
             TestHelper.AssertEquivalent(new Dictionary<string, string>(), new Dictionary<string, string>());
             TestHelper.AssertEquivalent(new Dictionary<string, string>() { { "0", "0" } }, new Dictionary<string, string>() { { "0", "0" } });
@@ -158,7 +159,7 @@ namespace TestXunit
         }
 
         [Fact]
-        public void Collection_NotEquivalent()
+        public void AssertCollection_NotEquivalent()
         {
             Assert.ThrowsAny<Exception>(() => TestHelper.AssertNotEquivalent(new Dictionary<string, string>(), new Dictionary<string, string>()));
             Assert.ThrowsAny<Exception>(() => TestHelper.AssertNotEquivalent(new Dictionary<string, string>() { { "0", "0" } }, new Dictionary<string, string>() { { "0", "0" } }));
@@ -171,7 +172,7 @@ namespace TestXunit
         }
 
         [Fact]
-        public void Collection_EquivalentComparer()
+        public void AssertCollection_EquivalentComparer()
         {
             var comparer = new ItemComparer();
 
@@ -186,7 +187,7 @@ namespace TestXunit
         }
 
         [Fact]
-        public void Collection_NotEquivalentComparer()
+        public void AssertCollection_NotEquivalentComparer()
         {
             var comparer = new ItemComparer();
 
@@ -198,6 +199,34 @@ namespace TestXunit
             TestHelper.AssertNotEquivalent(new Dictionary<string, Item>() { { "0", new Item("0") } }, new Dictionary<string, Item>(), comparer);
             TestHelper.AssertNotEquivalent(new Dictionary<string, Item>() { { "0", new Item("0") } }, new Dictionary<string, Item>() { { "1", new Item("1") } }, comparer);
             TestHelper.AssertNotEquivalent(new Dictionary<string, Item>() { { "0", new Item("0") } }, new Dictionary<string, Item>() { { "0", new Item("0") }, { "1", new Item("1") } }, comparer);
+        }
+
+        [Fact]
+        public void AssertEqualLines()
+        {
+            TestHelper.AssertEqualLines("test", "test");
+            TestHelper.AssertEqualLines("line 0\r\nline 1", "line 0\r\nline 1");
+            TestHelper.AssertEqualLines("line 0\nline 1", "line 0\r\nline 1");
+            TestHelper.AssertEqualLines("line 0\nline 1", "line 0\nline 1");
+
+            Assert.Throws<AssertException>(() => TestHelper.AssertEqualLines("test", "different"));
+            Assert.Throws<AssertException>(() => TestHelper.AssertEqualLines("line 0\r\nline 1", "line 0\r\ndifferent 1"));
+            Assert.Throws<AssertException>(() => TestHelper.AssertEqualLines("line 0\nline 1", "line 0\r\ndifferent 1"));
+            Assert.Throws<AssertException>(() => TestHelper.AssertEqualLines("line 0\nline 1", "line 0\ndifferent 1"));
+        }
+
+        [Fact]
+        public void AssertNotEqualLines()
+        {
+            TestHelper.AssertNotEqualLines("test", "ndifferent");
+            TestHelper.AssertNotEqualLines("line 0\r\nline 1", "line 0\r\ndifferent 1");
+            TestHelper.AssertNotEqualLines("line 0\nline 1", "line 0\r\ndifferent 1");
+            TestHelper.AssertNotEqualLines("line 0\nline 1", "line 0\ndifferent 1");
+
+            Assert.Throws<AssertException>(() => TestHelper.AssertNotEqualLines("test", "test"));
+            Assert.Throws<AssertException>(() => TestHelper.AssertNotEqualLines("line 0\r\nline 1", "line 0\r\nline 1"));
+            Assert.Throws<AssertException>(() => TestHelper.AssertNotEqualLines("line 0\nline 1", "line 0\r\nline 1"));
+            Assert.Throws<AssertException>(() => TestHelper.AssertNotEqualLines("line 0\nline 1", "line 0\nline 1"));
         }
     }
 }
