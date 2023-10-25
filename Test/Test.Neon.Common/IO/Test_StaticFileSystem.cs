@@ -1101,7 +1101,7 @@ namespace TestCommon
             var fs   = Assembly.GetExecutingAssembly().GetResourceFileSystem();
             var file = fs.GetFile("/TestCommon/IORes/Resources/TextFile1.txt");
 
-            Assert.Equal(
+            TestHelper.AssertEqualLines(
 @"TextFile1.txt:
 Line 1
 Line 2
@@ -1122,7 +1122,7 @@ Line 9
             var fs   = Assembly.GetExecutingAssembly().GetResourceFileSystem();
             var file = fs.GetFile("/TestCommon/IORes/Resources/TextFile2.txt");
 
-            Assert.Equal(
+            TestHelper.AssertEqualLines(
 @"TextFile2.txt:
 Line 1
 Line 2
@@ -1143,7 +1143,7 @@ Line 9
             var fs   = Assembly.GetExecutingAssembly().GetResourceFileSystem();
             var file = fs.GetFile("/TestCommon/IORes/Resources/Folder1/TextFile3.txt");
 
-            Assert.Equal(
+            TestHelper.AssertEqualLines(
 @"TextFile3.txt:
 Line 1
 Line 2
@@ -1164,7 +1164,7 @@ Line 9
             var fs   = Assembly.GetExecutingAssembly().GetResourceFileSystem();
             var file = fs.GetFile("/TestCommon/IORes/Resources/Folder1/TextFile4.txt");
 
-            Assert.Equal(
+            TestHelper.AssertEqualLines(
 @"TextFile4.txt:
 Line 1
 Line 2
@@ -1187,7 +1187,7 @@ Line 9
 
             using (var reader = file.OpenReader())
             {
-                Assert.Equal(
+                TestHelper.AssertEqualLines(
 @"TextFile5.txt:
 Line 1
 Line 2
@@ -1212,7 +1212,7 @@ Line 9
 
             using (reader)
             {
-                Assert.Equal(
+                TestHelper.AssertEqualLines(
 @"TextFile8.txt:
 Line 1
 Line 2
@@ -1236,7 +1236,7 @@ Line 9
 
             using (var stream = file.OpenStream())
             {
-                Assert.Equal(
+                TestHelper.AssertEqualLines(
 @"TextFile5.txt:
 Line 1
 Line 2
@@ -1261,7 +1261,7 @@ Line 9
 
             using (stream)
             {
-                Assert.Equal(
+                TestHelper.AssertEqualLines(
 @"TextFile8.txt:
 Line 1
 Line 2
@@ -1286,7 +1286,7 @@ Line 9
             var fs   = Assembly.GetExecutingAssembly().GetResourceFileSystem("TestCommon.IORes.Resources");
             var file = fs.GetFile("/TextFile1.txt");
 
-            Assert.Equal(
+            TestHelper.AssertEqualLines(
 @"TextFile1.txt:
 Line 1
 Line 2
@@ -1307,7 +1307,7 @@ Line 9
             var fs   = Assembly.GetExecutingAssembly().GetResourceFileSystem("TestCommon.IORes.Resources");
             var file = fs.GetFile("/TextFile2.txt");
 
-            Assert.Equal(
+            TestHelper.AssertEqualLines(
 @"TextFile2.txt:
 Line 1
 Line 2
@@ -1328,7 +1328,7 @@ Line 9
             var fs   = Assembly.GetExecutingAssembly().GetResourceFileSystem("TestCommon.IORes.Resources");
             var file = fs.GetFile("/Folder1/TextFile3.txt");
 
-            Assert.Equal(
+            TestHelper.AssertEqualLines(
 @"TextFile3.txt:
 Line 1
 Line 2
@@ -1349,7 +1349,7 @@ Line 9
             var fs   = Assembly.GetExecutingAssembly().GetResourceFileSystem("TestCommon.IORes.Resources");
             var file = fs.GetFile("/Folder1/TextFile4.txt");
 
-            Assert.Equal(
+            TestHelper.AssertEqualLines(
 @"TextFile4.txt:
 Line 1
 Line 2
@@ -1372,7 +1372,7 @@ Line 9
 
             using (var reader = file.OpenReader())
             {
-                Assert.Equal(
+                TestHelper.AssertEqualLines(
 @"TextFile5.txt:
 Line 1
 Line 2
@@ -1397,7 +1397,7 @@ Line 9
 
             using (reader)
             {
-                Assert.Equal(
+                TestHelper.AssertEqualLines(
 @"TextFile8.txt:
 Line 1
 Line 2
@@ -1421,7 +1421,7 @@ Line 9
 
             using (var stream = file.OpenStream())
             {
-                Assert.Equal(
+                TestHelper.AssertEqualLines(
 @"TextFile5.txt:
 Line 1
 Line 2
@@ -1446,7 +1446,7 @@ Line 9
 
             using (stream)
             {
-                Assert.Equal(
+                TestHelper.AssertEqualLines(
 @"TextFile8.txt:
 Line 1
 Line 2

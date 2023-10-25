@@ -41,7 +41,7 @@ namespace TestCommon
             writer.WriteLine("End");
             writer.Close();
 
-            Assert.Equal(
+            TestHelper.AssertEqualLines(
 @"10,20,11.5,Hello,""Hello,World"",""Hello """"Cruel"""" World"",
 End
 ", sb.ToString());

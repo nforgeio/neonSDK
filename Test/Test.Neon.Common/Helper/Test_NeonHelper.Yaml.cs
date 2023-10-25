@@ -354,7 +354,7 @@ string-bool-off: 'off'
 string-bool-yes: 'yes'
 string-bool-no: 'no'
 ";
-            Assert.Equal(yamlExpected, yamlText);
+            TestHelper.AssertEqualLines(yamlExpected, yamlText);
             NeonHelper.YamlDeserialize<dynamic>(yamlText);
         }
 
@@ -382,7 +382,7 @@ nested:
   property2:
     hello: world
 ";
-            Assert.Equal(yamlExpected, yamlText);
+            TestHelper.AssertEqualLines(yamlExpected, yamlText);
             NeonHelper.YamlDeserialize<dynamic>(yamlText);
         }
 
@@ -404,7 +404,7 @@ nested:
 - two
 - three
 ";
-            Assert.Equal(yamlExpected, yamlText);
+            TestHelper.AssertEqualLines(yamlExpected, yamlText);
             NeonHelper.YamlDeserialize<dynamic>(yamlText);
         }
 
@@ -441,7 +441,7 @@ nested:
     - name: norman
       type: pony
 ";
-            Assert.Equal(yamlExpected, yamlText);
+            TestHelper.AssertEqualLines(yamlExpected, yamlText);
             NeonHelper.YamlDeserialize<dynamic>(yamlText);
         }
     }

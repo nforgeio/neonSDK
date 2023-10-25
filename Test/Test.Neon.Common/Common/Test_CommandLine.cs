@@ -451,15 +451,15 @@ namespace TestCommon
 
             // Verify: Commandline.ToFormatted() with bars
 
-            Assert.Equal($"test{NeonHelper.LineEnding}", new CommandLine().ToFormatted("test"));
+            TestHelper.AssertEqualLines($"test{NeonHelper.LineEnding}", new CommandLine().ToFormatted("test"));
 
-            Assert.Equal(
+            TestHelper.AssertEqualLines(
 $@"test{lineContinuation}
     p1
 ",
                 new CommandLine("p1").ToFormatted("test"));
 
-            Assert.Equal(
+            TestHelper.AssertEqualLines(
 $@"test{lineContinuation}
     p1{lineContinuation}
     p2
@@ -474,15 +474,15 @@ $@"test{lineContinuation}
 
             // Verify: Commandline.ToFormatted() with bars
 
-            Assert.Equal($"test{NeonHelper.LineEnding}", new CommandLine().ToFormatted("test", withLineContinuation: true));
+            TestHelper.AssertEqualLines($"test{NeonHelper.LineEnding}", new CommandLine().ToFormatted("test", withLineContinuation: true));
 
-            Assert.Equal(
+            TestHelper.AssertEqualLines(
 $@"test{lineContinuation}
     p1
 ",
                 new CommandLine("p1").ToFormatted("test", withLineContinuation: true));
 
-            Assert.Equal(
+            TestHelper.AssertEqualLines(
 $@"test{lineContinuation}
     p1{lineContinuation}
     p2
@@ -504,7 +504,7 @@ $@"{bar}
 test
 {bar}
 ";
-            Assert.Equal(expected, new CommandLine().ToFormatted("test", withBars: true, withLineContinuation: true));
+            TestHelper.AssertEqualLines(expected, new CommandLine().ToFormatted("test", withBars: true, withLineContinuation: true));
 
             expected =
 $@"{bar}
@@ -512,7 +512,7 @@ test{lineContinuation}
     p1
 {bar}
 ";
-            Assert.Equal(expected, new CommandLine("p1").ToFormatted("test", withBars: true, withLineContinuation: true));
+            TestHelper.AssertEqualLines(expected, new CommandLine("p1").ToFormatted("test", withBars: true, withLineContinuation: true));
 
             expected =
 $@"{bar}
@@ -521,7 +521,7 @@ test{lineContinuation}
     p2
 {bar}
 ";
-            Assert.Equal(expected, new CommandLine("p1", "p2").ToFormatted("test", withBars: true, withLineContinuation: true));
+            TestHelper.AssertEqualLines(expected, new CommandLine("p1", "p2").ToFormatted("test", withBars: true, withLineContinuation: true));
 
             // Verify that shifting the command line still formats the original.
 
@@ -531,7 +531,7 @@ test{lineContinuation}
     p1
 {bar}
 ";
-            Assert.Equal(expected, new CommandLine("p1").Shift(1).ToFormatted("test", withBars: true, withLineContinuation: true));
+            TestHelper.AssertEqualLines(expected, new CommandLine("p1").Shift(1).ToFormatted("test", withBars: true, withLineContinuation: true));
         }
 
         [Fact]
@@ -548,7 +548,7 @@ $@"{bar}
 test
 {bar}
 ";
-            Assert.Equal(expected, new CommandLine().ToFormatted("test", withBars: true));
+            TestHelper.AssertEqualLines(expected, new CommandLine().ToFormatted("test", withBars: true));
 
             expected =
 $@"{bar}
@@ -556,7 +556,7 @@ test{lineContinuation}
     p1
 {bar}
 ";
-            Assert.Equal(expected, new CommandLine("p1").ToFormatted("test", withBars: true));
+            TestHelper.AssertEqualLines(expected, new CommandLine("p1").ToFormatted("test", withBars: true));
 
             expected =
 $@"{bar}
@@ -565,7 +565,7 @@ test{lineContinuation}
     p2
 {bar}
 ";
-            Assert.Equal(expected, new CommandLine("p1", "p2").ToFormatted("test", withBars: true));
+            TestHelper.AssertEqualLines(expected, new CommandLine("p1", "p2").ToFormatted("test", withBars: true));
 
             // Verify that shifting the command line still formats the original.
 
@@ -575,7 +575,7 @@ test{lineContinuation}
     p1
 {bar}
 ";
-            Assert.Equal(expected, new CommandLine("p1").Shift(1).ToFormatted("test", withBars: true));
+            TestHelper.AssertEqualLines(expected, new CommandLine("p1").Shift(1).ToFormatted("test", withBars: true));
         }
 
         [Fact]
@@ -594,7 +594,7 @@ test{lineContinuation}
     ""hello world!""
 {bar}
 ";
-            Assert.Equal(expected, new CommandLine("hello world!").ToFormatted("test", withBars: true));
+            TestHelper.AssertEqualLines(expected, new CommandLine("hello world!").ToFormatted("test", withBars: true));
 
             expected =
 $@"{bar}
@@ -602,7 +602,7 @@ test{lineContinuation}
     "" <>:|&^""
 {bar}
 ";
-            Assert.Equal(expected, new CommandLine(" <>:|&^").ToFormatted("test", withBars: true));
+            TestHelper.AssertEqualLines(expected, new CommandLine(" <>:|&^").ToFormatted("test", withBars: true));
 
             // Ensure that we see an InvalidOperationException when the arg contains single and double quotes.
 
@@ -617,7 +617,7 @@ test{lineContinuation}
     --option=""hello world!""
 {bar}
 ";
-            Assert.Equal(expected, new CommandLine("--option=hello world!").ToFormatted("test", withBars: true));
+            TestHelper.AssertEqualLines(expected, new CommandLine("--option=hello world!").ToFormatted("test", withBars: true));
 
             expected =
 $@"{bar}
@@ -625,7 +625,7 @@ test{lineContinuation}
     --option="" <>:|&^""
 {bar}
 ";
-            Assert.Equal(expected, new CommandLine("--option= <>:|&^").ToFormatted("test", withBars: true));
+            TestHelper.AssertEqualLines(expected, new CommandLine("--option= <>:|&^").ToFormatted("test", withBars: true));
 
             // Ensure that we see an InvalidOperationException when the arg contains single and double quotes.
 
