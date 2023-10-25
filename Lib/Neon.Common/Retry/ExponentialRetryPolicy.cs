@@ -69,7 +69,11 @@ namespace Neon.Retry
         /// <param name="initialRetryInterval">Optionally specifies the initial retry interval between retry attempts (defaults to <b>1 second</b>).</param>
         /// <param name="maxRetryInterval">Optionally specifies the maximum retry interval (defaults to essentially unlimited: 24 hours).</param>
         /// <param name="timeout">Optionally specifies the maximum time the operation will be retried (defaults to unconstrained)</param>
-        /// <param name="categoryName">Optionally enables transient error logging by identifying the source category name (defaults to <c>null</c>).</param>
+        /// <param name="categoryName">
+        /// Optionally customizes the transient error logging source category name (defaults to <see cref="RetryPolicyBase.DefaultCategoryName"/>).
+        /// You can disable transient error logging by passing <c>null</c> or by adding an event handler to <see cref="IRetryPolicy.OnTransient"/>
+        /// that ignores the event and also indicates that the event was handled.
+        /// </param>
         /// <remarks>
         /// <para>
         /// The <paramref name="maxAttempts"/> parameter defaults to <b>-1</b> indicating that the
@@ -89,7 +93,7 @@ namespace Neon.Retry
             TimeSpan?               initialRetryInterval = null, 
             TimeSpan?               maxRetryInterval     = null, 
             TimeSpan?               timeout              = null, 
-            string                  categoryName         = null)
+            string                  categoryName         = DefaultCategoryName)
 
             : base(categoryName, timeout)
         {

@@ -96,10 +96,16 @@ namespace Neon.Retry
         TResult Invoke<TResult>(Func<TResult> action, CancellationToken cancellationToken = default);
 
         /// <summary>
+        /// <para>
         /// Used to intercept and handle logging for transient exceptions detected by
         /// a retry policy.  Handlers can set <see cref="RetryTransientArgs.Handled"/>
         /// in the argument passed to prevent subsequent handlers from being invoked
         /// and also prevent the transient exception from being logged.
+        /// </para>
+        /// <para>
+        /// When no handlers are added to this event, the default behavior is to log
+        /// all transient failures.
+        /// </para>
         /// </summary>
         event Action<RetryTransientArgs> OnTransient;
     }

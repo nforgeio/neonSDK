@@ -36,14 +36,23 @@ namespace Neon.Retry
     /// </summary>
     public abstract class RetryPolicyBase : IRetryPolicy
     {
+        /// <summary>
+        /// Specifies the default default category name for logging transient exceptions.
+        /// </summary>
+        protected const string DefaultCategoryName = "transient-errors";
+
         private ILogger logger;
 
         /// <summary>
         /// Constructor.
         /// </summary>
-        /// <param name="categoryName">Optionally enables transient error logging by identifying the source category name (defaults to <c>null</c>).</param>
-        /// <param name="timeout">Optionally specifies the maximum time the operation will be retried (defaults to unconstrained)</param>
-        public RetryPolicyBase(string categoryName = null, TimeSpan? timeout = null)
+        /// <param name="categoryName">
+        /// Optionally customizes the transient error logging source category name (defaults to <see cref="RetryPolicyBase.DefaultCategoryName"/>).
+        /// You can disable transient error logging by passing <c>null</c> or by adding an event handler to <see cref="IRetryPolicy.OnTransient"/>
+        /// that ignores the event and also indicates that the event was handled.
+        /// </param>
+        /// <param name="timeout">Optionally specifies the maximum time the operation will be retried (defaults to unconstrained).</param>
+        public RetryPolicyBase(string categoryName = DefaultCategoryName, TimeSpan? timeout = null)
         {
             this.CategoryName = categoryName;
             this.Timeout      = timeout;
@@ -83,7 +92,7 @@ namespace Neon.Retry
         /// <summary>
         /// Handles logging of transient exceptions by invoking any <see cref="OnTransient"/>
         /// event handlers and then logging the transient exception when none of the handlers
-        /// indicated that they handled the event.
+        /// indicated that they handled the event (or there were no handlers).
         /// </summary>
         /// <param name="e">The transient exception.</param>
         protected void LogTransient(Exception e)
