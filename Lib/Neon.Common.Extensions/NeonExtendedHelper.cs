@@ -145,16 +145,17 @@ namespace Neon.Common
         /// to hit the service at the same time.
         /// </para>
         /// </summary>
-        /// <param name="expression">Specifies the extended schdule string.</param>
+        /// <param name="enhancedCronExpression">Specifies the extended schdule string.</param>
         /// <returns>The standard schedule string.</returns>
-        public static string FromEnhancedCronExpression(string expression)
+        /// <exception cref="FormatException">Thrown for invalid cron expressions.</exception>
+        public static string FromEnhancedCronExpression(string enhancedCronExpression)
         {
-            Covenant.Assert(!string.IsNullOrEmpty(expression), nameof(expression));
+            Covenant.Assert(!string.IsNullOrEmpty(enhancedCronExpression), nameof(enhancedCronExpression));
 
             // Temporarily replace any "R" fields with a "1" and then verify
             // that the result is a valid cron expression.
 
-            var fields = expression.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            var fields = enhancedCronExpression.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
             var sb     = new StringBuilder();
 
             for (int i = 0; i < fields.Length; i++)
@@ -171,9 +172,9 @@ namespace Neon.Common
 
             CronExpression.ValidateExpression(sb.ToString());
 
-            if (!CronExpression.IsValidExpression(expression.Replace('R', '1')))
+            if (!CronExpression.IsValidExpression(enhancedCronExpression.Replace('R', '1')))
             {
-                throw new FormatException($"Invalid cron expression: {expression}");
+                throw new FormatException($"Invalid cron expression: {enhancedCronExpression}");
             }
 
             // Verify that any "R" characters appear without anything else in the hour/min/sec fields.
@@ -182,7 +183,7 @@ namespace Neon.Common
             {
                 if (field.Contains("R") && field.Length > 1)
                 {
-                    throw new FormatException($"Invalid cron expression: {expression}");
+                    throw new FormatException($"Invalid cron expression: {enhancedCronExpression}");
                 }
             }
 
@@ -190,7 +191,7 @@ namespace Neon.Common
 
             if (fields.Length >= 7 && fields[6] == "R")
             {
-                throw new FormatException($"Invalid cron expression: {expression}");
+                throw new FormatException($"Invalid cron expression: {enhancedCronExpression}");
             }
 
             // Convert any "R" characters into a random value for the field.
