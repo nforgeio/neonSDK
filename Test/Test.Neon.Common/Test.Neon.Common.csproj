@@ -56,6 +56,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\Lib\Neon.BuildInfo\Neon.BuildInfo.csproj" />
+        <ProjectReference Include="..\..\Lib\Neon.Common.Extensions\Neon.Common.Extensions.csproj" />
         <ProjectReference Include="..\..\Lib\Neon.Common\Neon.Common.csproj" />
         <ProjectReference Include="..\..\Lib\Neon.Xunit\Neon.Xunit.csproj" />
     </ItemGroup>

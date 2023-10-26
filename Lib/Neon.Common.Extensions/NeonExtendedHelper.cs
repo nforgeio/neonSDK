@@ -25,6 +25,10 @@ using System.Text;
 
 using Neon.Common;
 
+using OpenTelemetry;
+
+using Quartz;
+
 namespace Neon.Common
 {
     /// <summary>
@@ -126,6 +130,117 @@ namespace Neon.Common
                         .EnsureSuccess();
                 }
             }
+        }
+
+        /// <summary>
+        /// <para>
+        /// Converts an extended Quartz cron expression string into a standard Quartz
+        /// expression.  Currently, this supports the <b>"R"</b> character in any of
+        /// the fields except for the year.  This method will replace any <b>"R"</b>
+        /// it finds with a random value for the fields it appears in.
+        /// </para>
+        /// <para>
+        /// This is useful for situations like uploading telemetry to a global service
+        /// where you don't want a potentially large number of clients being scheduled
+        /// to hit the service at the same time.
+        /// </para>
+        /// </summary>
+        /// <param name="expression">Specifies the extended schdule string.</param>
+        /// <returns>The standard schedule string.</returns>
+        public static string FromEnhancedCronExpression(string expression)
+        {
+            Covenant.Assert(!string.IsNullOrEmpty(expression), nameof(expression));
+
+            // Temporarily replace any "R" fields with a "1" and then verify
+            // that the result is a valid cron expression.
+
+            var fields = expression.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            var sb     = new StringBuilder();
+
+            for (int i = 0; i < fields.Length; i++)
+            {
+                if (fields[i] == "R")
+                {
+                    sb.AppendWithSeparator("1");
+                }
+                else
+                {
+                    sb.AppendWithSeparator(fields[i]);
+                }
+            }
+
+            CronExpression.ValidateExpression(sb.ToString());
+
+            if (!CronExpression.IsValidExpression(expression.Replace('R', '1')))
+            {
+                throw new FormatException($"Invalid cron expression: {expression}");
+            }
+
+            // Verify that any "R" characters appear without anything else in the hour/min/sec fields.
+
+            foreach (var field in fields)
+            {
+                if (field.Contains("R") && field.Length > 1)
+                {
+                    throw new FormatException($"Invalid cron expression: {expression}");
+                }
+            }
+
+            // Verify that the YEAR field (if present) isn't a "R".
+
+            if (fields.Length >= 7 && fields[6] == "R")
+            {
+                throw new FormatException($"Invalid cron expression: {expression}");
+            }
+
+            // Convert any "R" characters into a random value for the field.
+
+            if (fields[0] == "R")   // Seconds (zero based)
+            {
+                fields[0] = NeonHelper.PseudoRandomIndex(60).ToString();
+            }
+
+            if (fields[1] == "R")   // Minutes (zero based)
+            {
+                fields[1] = NeonHelper.PseudoRandomIndex(60).ToString();
+            }
+
+            if (fields[2] == "R")   // Hours (zero based)
+            {
+                fields[2] = NeonHelper.PseudoRandomIndex(24).ToString();
+            }
+
+            if (fields[3] == "R")   // Day of month (one based)
+            {
+                fields[3] = (NeonHelper.PseudoRandomIndex(31) + 1).ToString();
+            }
+
+            if (fields[4] == "R")   // Month (one based)
+            {
+                fields[4] = (NeonHelper.PseudoRandomIndex(12) + 1).ToString();
+            }
+
+            if (fields[5] == "R")   // Day of week (one based)
+            {
+                fields[5] = (NeonHelper.PseudoRandomIndex(7) + 1).ToString();
+            }
+
+            // Returns the converted cron schedule.
+
+            sb.Clear();
+            for (int i = 0; i < fields.Length; i++)
+            {
+                if (fields[i] == "R")
+                {
+                    sb.AppendWithSeparator("1");
+                }
+                else
+                {
+                    sb.AppendWithSeparator(fields[i]);
+                }
+            }
+
+            return sb.ToString();
         }
     }
 }
