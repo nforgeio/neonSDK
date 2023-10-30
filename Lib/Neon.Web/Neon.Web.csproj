@@ -24,7 +24,7 @@
 
     <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App" />
-        <PackageReference Include="AsyncKeyedLock" Version="6.2.1" />
+        <PackageReference Include="AsyncKeyedLock" Version="6.2.2" />
         <PackageReference Include="Microsoft.Net.Http.Headers" Version="2.2.8" />
         <PackageReference Include="MessagePack" Version="2.5.124" />
         <PackageReference Include="NATS.Client" Version="1.0.8" />
