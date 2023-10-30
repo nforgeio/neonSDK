@@ -5,8 +5,4 @@
 		<Configurations>Debug;Release</Configurations>
 	</PropertyGroup>
 
-	<ItemGroup>
-	  <Folder Include="dotnet-sshd\ssh\" />
-	</ItemGroup>
-
 </Project>

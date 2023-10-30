@@ -224,7 +224,6 @@ try
     if ($other)
     {
         Publish "$image_root\dotnet-vsdbg"
-        Publish "$image_root\dotnet-sshd"
         Publish "$image_root\nats"
         Publish "$image_root\nats-streaming"
         Publish "$image_root\playground"
