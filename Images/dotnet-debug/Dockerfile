@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM        ubuntu:22.04
+FROM        mcr.microsoft.com/dotnet/sdk:7.0
 MAINTAINER  jeff@lill.io
 STOPSIGNAL  SIGTERM
 
@@ -24,7 +24,7 @@ STOPSIGNAL  SIGTERM
 
 ENV TZ=UTC
 
-# Set the dotnet runtime to invariant cuture mode.
+# Set the dotnet runtime to invariant cuture mode (required by [vsdbg]).
 #
 #   https://learn.microsoft.com/en-us/dotnet/core/runtime-config/globalization
 
@@ -32,6 +32,9 @@ ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
 
 #------------------------------------------------------------------------------
 # Install SSHD and the remote debugger at: \vsdbg\vsdbg
+#
+# We also need to proactively create the [/root/.vs-debugger] directory
+# so the VS debugger will be able to attach and do its thing.
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends ca-certificates unzip curl openssh-server \
@@ -56,9 +59,6 @@ COPY ssh/* /etc/ssh
 # This looks insecure but the user doing this will be using Kubernetes
 # port forwarding to connect to the ephemeral container which means the
 # connection will already be secured via the user's Kubernetes certificate.
-#
-# We also need to proactively create the [/root/.vs-debugger] directory
-# so the VS debugger will be able to attach and do its thing.
 
 RUN mkdir -p /etc/ssh/sshd_config.d \
     && echo "PermitRootLogin yes"         > /etc/ssh/sshd_config.d/05-auth.conf \
@@ -67,8 +67,7 @@ RUN mkdir -p /etc/ssh/sshd_config.d \
     && echo "ssh"                         > /etc/securetty \
     && touch /root/.hushlogin \
     && passwd --delete root \
-    && chmod 600 /etc/ssh/* \
-    && mkdir -p /root/.vs-debugger
+    && chmod 600 /etc/ssh/*
 
 # Start the SSHD server automatically.
 
