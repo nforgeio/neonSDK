@@ -42,7 +42,7 @@ function Build
 		[switch]$latest = $false
 	)
 
-	$registry    = GetSdkRegistry "dotnet-debug"
+	$registry    = GetSdkRegistry "vs-debug"
 	$tag         = $version
 	$tagAsLatest = TagAsLatest
 

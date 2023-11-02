@@ -223,7 +223,7 @@ try
 
     if ($other)
     {
-        Publish "$image_root\dotnet-debug"
+        Publish "$image_root\vs-debug"
         Publish "$image_root\nats"
         Publish "$image_root\nats-streaming"
         Publish "$image_root\playground"

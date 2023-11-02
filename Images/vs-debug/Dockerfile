@@ -69,6 +69,23 @@ RUN mkdir -p /etc/ssh/sshd_config.d \
     && passwd --delete root \
     && chmod 600 /etc/ssh/*
 
+#------------------------------------------------------------------------------
+# Install useful debugging tools.
+
+RUN apt-get update \
+    && apt-get install -yq dnsutils \
+    && apt-get install -yq iproute2 \
+    && apt-get install -yq iputils-ping \
+    && apt-get install -yq mtr \
+    && apt-get install -yq nano \
+    && apt-get install -yq netcat \
+    && apt-get install -yq net-tools \
+    && apt-get install -yq traceroute \
+    && apt-get install -yq tcpdump \
+    && apt-get install -yq rsync \
+    && apt-get install -yq wget \
+    && rm -rf /var/lib/apt/lists/*
+
 # Start the SSHD server automatically.
 
 CMD ["service", "ssh", "start", "-D"]
