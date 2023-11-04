@@ -70,6 +70,13 @@ RUN mkdir -p /etc/ssh/sshd_config.d \
     && chmod 600 /etc/ssh/*
 
 #------------------------------------------------------------------------------
+# Install the .NET diagnostic tools.
+
+RUN dotnet tool install --tool-path /tools dotnet-trace \
+  && dotnet tool install --tool-path /tools dotnet-dump \
+  && dotnet tool install --tool-path /tools dotnet-counters
+
+#------------------------------------------------------------------------------
 # Install useful debugging tools.
 
 RUN apt-get update \
