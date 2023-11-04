@@ -93,6 +93,6 @@ RUN apt-get update \
     && apt-get install -yq wget \
     && rm -rf /var/lib/apt/lists/*
 
-# Start the SSHD server automatically.
+# Start the SSHD server when the container starts.
 
 CMD ["service", "ssh", "start", "-D"]
