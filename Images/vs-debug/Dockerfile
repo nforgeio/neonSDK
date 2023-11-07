@@ -37,7 +37,7 @@ ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
 # so the VS debugger will be able to attach and do its thing.
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends ca-certificates unzip curl openssh-server \
+    && apt-get install -y --no-install-recommends man-db ca-certificates unzip curl openssh-server \
     && rm -rf /var/lib/apt/lists/* \
     && curl -sSL https://aka.ms/getvsdbgsh -o /tmp/vsdbg.sh \
     && bash /tmp/vsdbg.sh -v latest -l /vsdbg \
@@ -60,6 +60,8 @@ COPY ssh/* /etc/ssh
 # port forwarding to connect to the ephemeral container which means the
 # connection will already be secured via the user's Kubernetes certificate.
 
+EXPOSE 22
+
 RUN mkdir -p /etc/ssh/sshd_config.d \
     && echo "PermitRootLogin yes"         > /etc/ssh/sshd_config.d/05-auth.conf \
     && echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config.d/05-auth.conf \
@@ -68,6 +70,10 @@ RUN mkdir -p /etc/ssh/sshd_config.d \
     && touch /root/.hushlogin \
     && passwd --delete root \
     && chmod 600 /etc/ssh/*
+
+# Start the SSHD server when the container starts.
+
+CMD ["service", "ssh", "start"]
 
 #------------------------------------------------------------------------------
 # Install the .NET diagnostic tools.
@@ -92,7 +98,3 @@ RUN apt-get update \
     && apt-get install -yq rsync \
     && apt-get install -yq wget \
     && rm -rf /var/lib/apt/lists/*
-
-# Start the SSHD server when the container starts.
-
-CMD ["service", "ssh", "start", "-D"]
