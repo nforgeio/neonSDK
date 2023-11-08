@@ -49,11 +49,15 @@ RUN apt-get update \
 
 # We need to explcitly configure the server's SSH certificates so developers
 # won't need to verify the SSH connection everytime a new pod is deployed.
+#
+# NOTE: These keys must NEVER BE CHANGED so that older versions of the
+#       KubernetesDebugger will still work against newer debug containers.
 
-COPY ssh/* /etc/ssh
+COPY ssh/host/*           /etc/ssh
+COPY ssh/root/id_rsa.pub  /root/.ssh/authorized_keys
 
-# We're going to allow root login via SSH with a blank password to make
-# ie easy to attach a debugger to a Kubernetes pod with this container
+# We're going to allow root SSh login via a hardcoded key pair to make it
+# easy to attach a debugger to a Kubernetes pod when this container is
 # attached as an ephemeral sidecar.
 #
 # This looks insecure but the user doing this will be using Kubernetes
@@ -63,17 +67,18 @@ COPY ssh/* /etc/ssh
 EXPOSE 22
 
 RUN mkdir -p /etc/ssh/sshd_config.d \
-    && echo "PermitRootLogin yes"         > /etc/ssh/sshd_config.d/05-auth.conf \
-    && echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config.d/05-auth.conf \
-    && echo "PermitEmptyPasswords yes"   >> /etc/ssh/sshd_config.d/05-auth.conf \
-    && echo "ssh"                         > /etc/securetty \
+    && echo "PermitRootLogin yes" > /etc/ssh/sshd_config.d/05-auth.conf \
+    && echo "ssh"                 > /etc/securetty \
     && touch /root/.hushlogin \
     && passwd --delete root \
-    && chmod 600 /etc/ssh/*
+    && chmod 600 /etc/ssh/* \
+    && chmod 600 /root/.ssh/authorized_keys \
+    && mkdir -p /run/sshd \
+    && chmod 700 /run/sshd
 
 # Start the SSHD server when the container starts.
 
-CMD ["service", "ssh", "start"]
+CMD ["/usr/sbin/sshd", "-D"]
 
 #------------------------------------------------------------------------------
 # Install the .NET diagnostic tools.
