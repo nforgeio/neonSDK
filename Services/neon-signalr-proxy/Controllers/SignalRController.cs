@@ -16,37 +16,25 @@
 // limitations under the License.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
-using System.Web;
-
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Features;
-using Microsoft.AspNetCore.Mvc;
-
-using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.Logging;
-
-using Neon.Common;
-using Neon.Cryptography;
-using Neon.Diagnostics;
-using Neon.Service;
-using Neon.Tasks;
-using Neon.Web;
 
 using DnsClient;
 using DnsClient.Protocol;
 
-using Newtonsoft.Json;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
-using Yarp;
-using Yarp.ReverseProxy;
+using Neon.Common;
+using Neon.Cryptography;
+using Neon.Diagnostics;
+using Neon.Tasks;
+using Neon.Web;
+
+using Prometheus;
+
 using Yarp.ReverseProxy.Forwarder;
-using Yarp.ReverseProxy.Configuration;
 
 namespace NeonSignalRProxy.Controllers
 {
@@ -143,6 +131,8 @@ namespace NeonSignalRProxy.Controllers
 
                 if (!upstreamIsvalid)
                 {
+                    using (WebsocketMetrics.CurrentConnections.TrackInProgress());
+
                     var host = await GetHostAsync();
                     error    = await forwarder.SendAsync(HttpContext, $"{backend.Scheme}://{host}:{backend.Port}", httpClient, forwarderRequestConfig, transformer);
 
@@ -153,6 +143,8 @@ namespace NeonSignalRProxy.Controllers
 
                         Logger.LogErrorEx(exception, "CatchAll");
                     }
+
+                    return;
                 }
 
                 Logger.LogDebugEx(() => NeonHelper.JsonSerialize(session));
@@ -164,7 +156,7 @@ namespace NeonSignalRProxy.Controllers
                     await cache.SetAsync(session.Id, session);
                 }
 
-                WebsocketMetrics.CurrentConnections.Inc();
+                using (WebsocketMetrics.CurrentConnections.TrackInProgress());
                 WebsocketMetrics.ConnectionsEstablished.Inc();
                 signalrProxyService.CurrentConnections.Add(session.ConnectionId);
 
