@@ -88,7 +88,7 @@ RUN dotnet tool install --tool-path /tools dotnet-trace \
   && dotnet tool install --tool-path /tools dotnet-counters
 
 #------------------------------------------------------------------------------
-# Install useful debugging tools.
+# Install other useful debugging tools.
 
 RUN apt-get update \
     && apt-get install -yq dnsutils \
@@ -100,6 +100,7 @@ RUN apt-get update \
     && apt-get install -yq net-tools \
     && apt-get install -yq traceroute \
     && apt-get install -yq tcpdump \
+    && setcap cap_net_raw,cap_net_admin=eip /usr/bin/tcpdump \
     && apt-get install -yq rsync \
     && apt-get install -yq wget \
     && rm -rf /var/lib/apt/lists/*
