@@ -37,7 +37,7 @@ ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
 # so the VS debugger will be able to attach and do its thing.
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends ca-certificates unzip curl openssh-server \
+    && apt-get install -y --no-install-recommends man-db ca-certificates unzip curl openssh-server \
     && rm -rf /var/lib/apt/lists/* \
     && curl -sSL https://aka.ms/getvsdbgsh -o /tmp/vsdbg.sh \
     && bash /tmp/vsdbg.sh -v latest -l /vsdbg \
@@ -49,25 +49,36 @@ RUN apt-get update \
 
 # We need to explcitly configure the server's SSH certificates so developers
 # won't need to verify the SSH connection everytime a new pod is deployed.
+#
+# NOTE: These keys must NEVER BE CHANGED so that older versions of the
+#       KubernetesDebugger will still work against newer debug containers.
 
-COPY ssh/* /etc/ssh
+COPY ssh/host/*           /etc/ssh
+COPY ssh/root/id_rsa.pub  /root/.ssh/authorized_keys
 
-# We're going to allow root login via SSH with a blank password to make
-# ie easy to attach a debugger to a Kubernetes pod with this container
+# We're going to allow root SSh login via a hardcoded key pair to make it
+# easy to attach a debugger to a Kubernetes pod when this container is
 # attached as an ephemeral sidecar.
 #
 # This looks insecure but the user doing this will be using Kubernetes
 # port forwarding to connect to the ephemeral container which means the
 # connection will already be secured via the user's Kubernetes certificate.
 
+EXPOSE 22
+
 RUN mkdir -p /etc/ssh/sshd_config.d \
-    && echo "PermitRootLogin yes"         > /etc/ssh/sshd_config.d/05-auth.conf \
-    && echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config.d/05-auth.conf \
-    && echo "PermitEmptyPasswords yes"   >> /etc/ssh/sshd_config.d/05-auth.conf \
-    && echo "ssh"                         > /etc/securetty \
+    && echo "PermitRootLogin yes" > /etc/ssh/sshd_config.d/05-auth.conf \
+    && echo "ssh"                 > /etc/securetty \
     && touch /root/.hushlogin \
     && passwd --delete root \
-    && chmod 600 /etc/ssh/*
+    && chmod 600 /etc/ssh/* \
+    && chmod 600 /root/.ssh/authorized_keys \
+    && mkdir -p /run/sshd \
+    && chmod 700 /run/sshd
+
+# Start the SSHD server when the container starts.
+
+CMD ["/usr/sbin/sshd", "-D"]
 
 #------------------------------------------------------------------------------
 # Install the .NET diagnostic tools.
@@ -77,7 +88,7 @@ RUN dotnet tool install --tool-path /tools dotnet-trace \
   && dotnet tool install --tool-path /tools dotnet-counters
 
 #------------------------------------------------------------------------------
-# Install useful debugging tools.
+# Install other useful debugging tools.
 
 RUN apt-get update \
     && apt-get install -yq dnsutils \
@@ -89,10 +100,7 @@ RUN apt-get update \
     && apt-get install -yq net-tools \
     && apt-get install -yq traceroute \
     && apt-get install -yq tcpdump \
+    && setcap cap_net_raw,cap_net_admin=eip /usr/bin/tcpdump \
     && apt-get install -yq rsync \
     && apt-get install -yq wget \
     && rm -rf /var/lib/apt/lists/*
-
-# Start the SSHD server when the container starts.
-
-CMD ["service", "ssh", "start", "-D"]
