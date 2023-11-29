@@ -37,9 +37,6 @@ namespace Neon.Blazor
         public IJSRuntime JS { get; set; }
 
         [Inject]
-        public IHttpContextAccessor HttpContextAccessor { get; set; }
-
-        [Inject]
         public IServiceProvider ServiceProvider { get; set; }
 
         public event Action IntersectionChanged;
@@ -53,7 +50,6 @@ namespace Neon.Blazor
         private IJSObjectReference intersectionObserver;
 
         private ILogger<IntersectionObserver> logger;
-
         protected HtmlElement rootElement { get; set; }
         private IntersectionObserverContext IntersectionObserverContext { get; set; } = new IntersectionObserverContext();
         private ElementReference elementReference;
@@ -67,11 +63,6 @@ namespace Neon.Blazor
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            if (!HttpContextAccessor.HttpContext.WebSockets.IsWebSocketRequest)
-            {
-                return;
-            }
-
             if (jsModule == null)
             {
                 jsModule = await JS.InvokeAsync<IJSObjectReference>("import", "./_content/Neon.Blazor/interop.js");

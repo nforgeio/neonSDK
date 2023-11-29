@@ -16,14 +16,10 @@ namespace Neon.Blazor
     {
         private IJSRuntime JS { get; set; }
 
-        private IHttpContextAccessor HttpContextAccessor { get; set; }
-
         private IJSObjectReference jsModule;
 
-        public FileDownloader(IJSRuntime js,
-            IHttpContextAccessor httpContextAccessor)
+        public FileDownloader(IJSRuntime js)
         {
-            HttpContextAccessor = httpContextAccessor;
             JS = js;
         }
 
@@ -34,10 +30,6 @@ namespace Neon.Blazor
 
         public async Task DownloadFileFromUrlAsync(string fileUrl, string fileName = null)
         {
-            if (!HttpContextAccessor.HttpContext.WebSockets.IsWebSocketRequest)
-            {
-                return;
-            }
             if (jsModule == null)
             {
                 jsModule = await JS.InvokeAsync<IJSObjectReference>("import", "./_content/Neon.Blazor/interop.js");

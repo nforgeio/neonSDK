@@ -19,12 +19,8 @@ namespace Neon.Blazor
 
         private IJSRuntime JS { get; set; }
 
-        private IHttpContextAccessor HttpContextAccessor { get; set; }
-
-        public BodyOutlet(IJSRuntime js,
-            IHttpContextAccessor httpContextAccessor)
+        public BodyOutlet(IJSRuntime js)
         {
-            HttpContextAccessor = httpContextAccessor;
             JS = js;
         }
 
@@ -43,11 +39,6 @@ namespace Neon.Blazor
 
         public async Task AddPropertyAsync(string property)
         {
-            if (!HttpContextAccessor.HttpContext.WebSockets.IsWebSocketRequest)
-            {
-                return;
-            }
-
             await InitializeAsync();
             Class.Add(property);
             await OnPropertyChangedAsync();
@@ -55,11 +46,6 @@ namespace Neon.Blazor
 
         public async Task AddPropertiesAsync(string[] properties)
         {
-            if (!HttpContextAccessor.HttpContext.WebSockets.IsWebSocketRequest)
-            {
-                return;
-            }
-
             await InitializeAsync();
             foreach (var property in properties)
             {
@@ -70,11 +56,6 @@ namespace Neon.Blazor
 
         public async Task AddPropertiesAsync(string properties)
         {
-            if (!HttpContextAccessor.HttpContext.WebSockets.IsWebSocketRequest)
-            {
-                return;
-            }
-
             await InitializeAsync();
             foreach (var property in properties.Split())
             {
@@ -85,11 +66,6 @@ namespace Neon.Blazor
 
         public async Task RemovePropertyAsync(string property)
         {
-            if (!HttpContextAccessor.HttpContext.WebSockets.IsWebSocketRequest)
-            {
-                return;
-            }
-
             await InitializeAsync();
             if (Class.TryGetValue(property, out var val))
             {
@@ -100,11 +76,6 @@ namespace Neon.Blazor
 
         public async Task RemovePropertiesAsync(string properties)
         {
-            if (!HttpContextAccessor.HttpContext.WebSockets.IsWebSocketRequest)
-            {
-                return;
-            }
-
             await InitializeAsync();
             foreach (var property in properties.Split())
             {
@@ -118,11 +89,6 @@ namespace Neon.Blazor
 
         public async Task RemovePropertiesAsync(string[] properties)
         {
-            if (!HttpContextAccessor.HttpContext.WebSockets.IsWebSocketRequest)
-            {
-                return;
-            }
-
             await InitializeAsync();
             foreach (var property in properties)
             {

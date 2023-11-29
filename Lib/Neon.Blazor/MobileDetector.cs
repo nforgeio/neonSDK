@@ -17,12 +17,8 @@ namespace Neon.Blazor
 
         private IJSRuntime JS { get; set; }
 
-        private IHttpContextAccessor HttpContextAccessor { get; set; }
-
-        public MobileDetector(IJSRuntime js,
-            IHttpContextAccessor httpContextAccessor)
+        public MobileDetector(IJSRuntime js)
         {
-            HttpContextAccessor = httpContextAccessor;
             JS = js;
         }
 
@@ -35,10 +31,6 @@ namespace Neon.Blazor
 
         public async Task<bool?> IsMobileAsync()
         {
-            if (!HttpContextAccessor.HttpContext.WebSockets.IsWebSocketRequest)
-            {
-                return null;
-            }
             if (jsModule == null)
             {
                 jsModule = await JS.InvokeAsync<IJSObjectReference>("import", "./_content/Neon.Blazor/interop.js");
