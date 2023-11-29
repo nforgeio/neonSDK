@@ -18,23 +18,23 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="DnsClient" Version="1.6.1" />
+        <PackageReference Include="DnsClient" Version="1.7.0" />
         <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0" />
-        <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.4.0" />
-        <PackageReference Include="prometheus-net" Version="8.0.0" />
+        <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.6.0" />
+        <PackageReference Include="prometheus-net" Version="8.0.1" />
         <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
         <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.0.0-rc9.14" />
         <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.0.0-rc9.14" />
-        <PackageReference Include="prometheus-net.AspNetCore" Version="8.0.0" />
+        <PackageReference Include="prometheus-net.AspNetCore" Version="8.0.1" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
         <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.0.0-rc9.14" />
         <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.0.0-rc9.14" />
-        <PackageReference Include="prometheus-net.AspNetCore" Version="8.0.0" />
+        <PackageReference Include="prometheus-net.AspNetCore" Version="8.0.1" />
     </ItemGroup>
 
     <ItemGroup>
@@ -58,37 +58,37 @@
     </ItemGroup>
 
     <!--
-	NOTE(jefflill):
-	===============
-	
-	We used to build the Linux health probe executables here via WSL, and that worked
-	fine until we added a second target framework.  After that, we started seeing random
-	failures building these programs.  After thinking about it this is due to Visual Studio
-	building the project for target frameworks in parallel.
-	
-	The workaround is to build these manually and commit the binaries to GitHub.  These
-	executables are very simple and will rarely need to be updated if ever.  If you do 
-	need to	rebuild these manually, execute these commands:
-	
-		wsl-util gcc "%NF_ROOT%\Lib\Neon.Service\health-probes\health-check" "%NF_ROOT%\Lib\Neon.Service\Resources\health-check"
-		wsl-util gcc "%NF_ROOT%\Lib\Neon.Service\health-probes\ready-check" "%NF_ROOT%\Lib\Neon.Service\Resources\ready-check"
-	
-	This target builds the [health-check] and [ready-check] probe binaries for Linux.
-	These need to be built before the Neon.Service library so they can be embedded
-	as resources.
-	
-	OLD TARGET:
-	===========
-	
-	These are C programs built via the [wsl-util gcc ...] command.
+    NOTE(jefflill):
+    ===============
+    
+    We used to build the Linux health probe executables here via WSL, and that worked
+    fine until we added a second target framework.  After that, we started seeing random
+    failures building these programs.  After thinking about it this is due to Visual Studio
+    building the project for target frameworks in parallel.
+    
+    The workaround is to build these manually and commit the binaries to GitHub.  These
+    executables are very simple and will rarely need to be updated if ever.  If you do 
+    need to	rebuild these manually, execute these commands:
+    
+        wsl-util gcc "%NF_ROOT%\Lib\Neon.Service\health-probes\health-check" "%NF_ROOT%\Lib\Neon.Service\Resources\health-check"
+        wsl-util gcc "%NF_ROOT%\Lib\Neon.Service\health-probes\ready-check" "%NF_ROOT%\Lib\Neon.Service\Resources\ready-check"
+    
+    This target builds the [health-check] and [ready-check] probe binaries for Linux.
+    These need to be built before the Neon.Service library so they can be embedded
+    as resources.
+    
+    OLD TARGET:
+    ===========
+    
+    These are C programs built via the [wsl-util gcc ...] command.
 
-	<Target Name="BuildProbes" BeforeTargets="Build">
-		<Message Importance="high" Text="Building: health-check" />
-		<Exec Command="wsl-util gcc &quot;$(NF_ROOT)\Lib\Neon.Service\health-probes\health-check&quot; &quot;$(NF_ROOT)\Lib\Neon.Service\Resources\health-check&quot;" />
+    <Target Name="BuildProbes" BeforeTargets="Build">
+        <Message Importance="high" Text="Building: health-check" />
+        <Exec Command="wsl-util gcc &quot;$(NF_ROOT)\Lib\Neon.Service\health-probes\health-check&quot; &quot;$(NF_ROOT)\Lib\Neon.Service\Resources\health-check&quot;" />
 
-		<Message Importance="high" Text="Building: ready-check" />
-		<Exec Command="wsl-util gcc &quot;$(NF_ROOT)\Lib\Neon.Service\health-probes\ready-check&quot; &quot;$(NF_ROOT)\Lib\Neon.Service\Resources\ready-check&quot;" />
-	</Target>
-	-->
+        <Message Importance="high" Text="Building: ready-check" />
+        <Exec Command="wsl-util gcc &quot;$(NF_ROOT)\Lib\Neon.Service\health-probes\ready-check&quot; &quot;$(NF_ROOT)\Lib\Neon.Service\Resources\ready-check&quot;" />
+    </Target>
+    -->
 
 </Project>

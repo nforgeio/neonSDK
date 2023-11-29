@@ -5,5 +5,5 @@ namespace Microsoft.Virtualization.Client.Management;
 [WmiName("Msvm_AllocationCapabilities")]
 internal interface IAllocationCapabilities : IVirtualizationManagementObject
 {
-	IEnumerable<IVMDeviceSetting> Capabilities { get; }
+    IEnumerable<IVMDeviceSetting> Capabilities { get; }
 }

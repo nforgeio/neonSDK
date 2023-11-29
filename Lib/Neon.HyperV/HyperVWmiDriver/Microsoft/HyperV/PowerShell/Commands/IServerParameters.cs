@@ -5,9 +5,9 @@ namespace Microsoft.HyperV.PowerShell.Commands;
 
 internal interface IServerParameters
 {
-	CimSession[] CimSession { get; }
+    CimSession[] CimSession { get; }
 
-	string[] ComputerName { get; }
+    string[] ComputerName { get; }
 
-	PSCredential[] Credential { get; }
+    PSCredential[] Credential { get; }
 }

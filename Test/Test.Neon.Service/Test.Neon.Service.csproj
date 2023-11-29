@@ -1,55 +1,56 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<TargetFrameworks>net6.0; net7.0</TargetFrameworks>
-		<OutputType>Library</OutputType>
-		<RootNamespace>TestNeonService</RootNamespace>
-		<IsPackable>false</IsPackable>
-		<Configurations>Debug;Release</Configurations>
-		<GenerateDocumentationFile>false</GenerateDocumentationFile>
-		<NoWarn>$(NoWarn);CS0436</NoWarn>
-	</PropertyGroup>
+    <PropertyGroup>
+        <TargetFrameworks>net6.0; net7.0</TargetFrameworks>
+        <OutputType>Library</OutputType>
+        <RootNamespace>TestNeonService</RootNamespace>
+        <IsPackable>false</IsPackable>
+        <Configurations>Debug;Release</Configurations>
+        <GenerateDocumentationFile>false</GenerateDocumentationFile>
+        <NoWarn>$(NoWarn);CS0436</NoWarn>
+    </PropertyGroup>
 
-	<ItemGroup>
-		<Compile Include="$(NF_ROOT)\Lib\Neon.BuildInfo\AssemblyAttributes.cs" Link="Properties\AssemblyAttributes.cs" />
-		<Compile Include="$(NF_ROOT)\Lib\Neon.BuildInfo\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
-	</ItemGroup>
+    <ItemGroup>
+        <Compile Include="$(NF_ROOT)\Lib\Neon.BuildInfo\AssemblyAttributes.cs" Link="Properties\AssemblyAttributes.cs" />
+        <Compile Include="$(NF_ROOT)\Lib\Neon.BuildInfo\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
+    </ItemGroup>
 
-	<ItemGroup>
-		<None Remove="xunit.runner.json" />
-	</ItemGroup>
+    <ItemGroup>
+        <None Remove="xunit.runner.json" />
+    </ItemGroup>
 
-	<ItemGroup>
-		<Content Include="xunit.runner.json">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</Content>
-	</ItemGroup>
+    <ItemGroup>
+        <Content Include="xunit.runner.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
 
-	<ItemGroup>
-		<FrameworkReference Include="Microsoft.AspNetCore.App" />
-		<PackageReference Include="LiquidTestReports.Markdown" Version="1.1.1-beta" />
-		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0" />
-		<PackageReference Include="prometheus-net.DotNetRuntime" Version="4.4.0" />
-		<PackageReference Include="xunit" Version="2.4.2" />
-		<PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
-		<PackageReference Include="coverlet.collector" Version="3.2.0">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
-	</ItemGroup>
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.2" />
+        <PackageReference Include="Microsoft.TestPlatform.TestHost" Version="17.7.2" />
+        <PackageReference Include="LiquidTestReports.Markdown" Version="1.1.1-beta" />
+        <PackageReference Include="prometheus-net.DotNetRuntime" Version="4.4.0" />
+        <PackageReference Include="xunit" Version="2.5.0" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="2.5.0">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="coverlet.collector" Version="6.0.0">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\..\Lib\Neon.BuildInfo\Neon.BuildInfo.csproj" />
-		<ProjectReference Include="..\..\Lib\Neon.Common\Neon.Common.csproj" />
-		<ProjectReference Include="..\..\Lib\Neon.Service\Neon.Service.csproj" />
-		<ProjectReference Include="..\..\Lib\Neon.Xunit\Neon.Xunit.csproj" />
-	</ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\Lib\Neon.BuildInfo\Neon.BuildInfo.csproj" />
+        <ProjectReference Include="..\..\Lib\Neon.Common\Neon.Common.csproj" />
+        <ProjectReference Include="..\..\Lib\Neon.Service\Neon.Service.csproj" />
+        <ProjectReference Include="..\..\Lib\Neon.Xunit\Neon.Xunit.csproj" />
+    </ItemGroup>
 
-	<ItemGroup>
-	    <Folder Include="Properties\" />
-	</ItemGroup>
+    <ItemGroup>
+        <Folder Include="Properties\" />
+    </ItemGroup>
 
 </Project>

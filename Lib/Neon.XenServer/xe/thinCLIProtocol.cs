@@ -1,4 +1,4 @@
-﻿/* Copyright (c) Citrix Systems, Inc. 
+/* Copyright (c) Citrix Systems, Inc. 
  * All rights reserved. 
  * 
  * Redistribution and use in source and binary forms, 
@@ -75,8 +75,8 @@ namespace CommandLib
         public delegateExit dExit;
         public Config conf;
         public string magic_string = "XenSource thin CLI protocol";
-	    public int major = 0;
-	    public int minor = 1;
+        public int major = 0;
+        public int minor = 1;
         public bool dropOut;
 
         public thinCLIProtocol(delegateGlobalError dGlobalError, 
@@ -118,44 +118,44 @@ namespace CommandLib
 
         public static Stream connect(thinCLIProtocol tCLIprotocol, String hostname, int port)
         {
-		    if (port != 443){
-			    TcpClient client = new TcpClient(hostname, port);
-			    Stream stream = client.GetStream();
-			    return stream;
-		    } else {
-        	    TcpClient client = new TcpClient(hostname, port);
-        	    // Create an SSL stream that will close the client's stream.
-        	    SslStream sslStream = new SslStream(
-            	    client.GetStream(),
-            	    false,
-            	    new RemoteCertificateValidationCallback(ValidateServerCertificate),
-            	    null
+            if (port != 443){
+                TcpClient client = new TcpClient(hostname, port);
+                Stream stream = client.GetStream();
+                return stream;
+            } else {
+                TcpClient client = new TcpClient(hostname, port);
+                // Create an SSL stream that will close the client's stream.
+                SslStream sslStream = new SslStream(
+                    client.GetStream(),
+                    false,
+                    new RemoteCertificateValidationCallback(ValidateServerCertificate),
+                    null
                 );
-        	    try
-        	    {
+                try
+                {
                     sslStream.AuthenticateAsClient("", null, SslProtocols.Tls | SslProtocols.Tls11 | SslProtocols.Tls12, true);
                 }
-        	    catch (AuthenticationException){
-        		    if (tCLIprotocol.conf.debug) throw;
-        		    tCLIprotocol.dGlobalError("Authentication failed - closing the connection.");
-            	    client.Close();
-            	    return null;
+                catch (AuthenticationException){
+                    if (tCLIprotocol.conf.debug) throw;
+                    tCLIprotocol.dGlobalError("Authentication failed - closing the connection.");
+                    client.Close();
+                    return null;
                 } catch (Exception) {
-            	    if (tCLIprotocol.conf.debug) throw;
-            	    tCLIprotocol.dGlobalError("Exception during SSL auth - closing the connection.");
-            	    client.Close();
-            	    return null;
+                    if (tCLIprotocol.conf.debug) throw;
+                    tCLIprotocol.dGlobalError("Exception during SSL auth - closing the connection.");
+                    client.Close();
+                    return null;
                 }
-			    return sslStream;
-		    }
-	    }
+                return sslStream;
+            }
+        }
     }
 
     internal class HTTP{
-	    public static string readLine(Stream stream){
-		    StringBuilder messageData = new StringBuilder();
-		    do {
-        	    int i = stream.ReadByte();
+        public static string readLine(Stream stream){
+            StringBuilder messageData = new StringBuilder();
+            do {
+                int i = stream.ReadByte();
                 if (i == -1)
                 {
                     throw new EndOfStreamException();
@@ -166,22 +166,22 @@ namespace CommandLib
                     messageData.Append(b);
                     if (b == '\n') break;
                 }
-		    } while (true);
+            } while (true);
 
             return messageData.ToString();
-	    }
+        }
 
-	    public static void writeLine(Stream stream, string line){
+        public static void writeLine(Stream stream, string line){
             byte[] message = Encoding.UTF8.GetBytes(string.Format("{0}\r\n", line));
-		    stream.Write(message, 0, message.Length);
-		    stream.Flush();
-	    }
+            stream.Write(message, 0, message.Length);
+            stream.Flush();
+        }
 
-	    public static int getResultCode(string line){
-		    string[] bits = line.Split(new char[] {' '});
-		    if (bits.Length < 2) return 0;
-		    return Int32.Parse(bits[1]);
-	    }
+        public static int getResultCode(string line){
+            string[] bits = line.Split(new char[] {' '});
+            if (bits.Length < 2) return 0;
+            return Int32.Parse(bits[1]);
+        }
 
         public static Stream doRPC(String method, Uri uri, thinCLIProtocol tCLIprotocol, params string[] headers)
         {
@@ -228,53 +228,53 @@ namespace CommandLib
     }
 
     internal class Types{
-	    public static uint unmarshal_int32(Stream stream){
-		    uint a = (uint)stream.ReadByte();
-		    uint b = (uint)stream.ReadByte();
-		    uint c = (uint)stream.ReadByte();
-		    uint d = (uint)stream.ReadByte();
-		    //Console.WriteLine("a = " + a + " b = " + b + " c = " + c + " d = " + d);
-		    return (a << 0) | (b << 8) | (c << 16) | (d << 24);
-	    }
-	    public static void marshal_int32(Stream stream, uint x){
-		    uint mask = 0xff;
-		    stream.WriteByte((byte) ((x >> 0) & mask));
-		    stream.WriteByte((byte) ((x >> 8) & mask));
-		    stream.WriteByte((byte) ((x >> 16) & mask));
-		    stream.WriteByte((byte) ((x >> 24) & mask));
-	    }
-	    public static int unmarshal_int(Stream stream){
-		    return (int)unmarshal_int32(stream);
-	    }
-	    public static void marshal_int(Stream stream, int x){
-		    marshal_int32(stream, (uint)x);
-	    }
-	    public static byte[] unmarshal_n(Stream stream, uint n){
-		    byte[] buffer = new byte[n];
-		    int toread = (int)n;
-		    int offset = 0;
-		    while (toread > 0){
-			    int nread = stream.Read(buffer, offset, toread);
-			    offset= nread; toread -= nread;
-		    }
-		    return buffer;
-	    }
-	    public static string unmarshal_string(Stream stream){
-		    uint length = unmarshal_int32(stream);
-		    byte[] buffer = unmarshal_n(stream, length);
-		    Decoder decoder = Encoding.UTF8.GetDecoder();
-		    char[] chars = new char[decoder.GetCharCount(buffer, 0, (int)length)];
-		    decoder.GetChars(buffer, 0, (int)length, chars, 0);
-		    return new string(chars);
-	    }
-	    public static void marshal_string(Stream stream, string x){
-		    marshal_int(stream, x.Length);
-		    char[] c = x.ToCharArray();
-		    Encoder encoder = Encoding.UTF8.GetEncoder();
-		    byte[] bytes = new byte[encoder.GetByteCount(c, 0, c.Length, true)];
-		    encoder.GetBytes(c, 0, c.Length, bytes, 0, true);
-		    stream.Write(bytes, 0, bytes.Length);
-	    }
+        public static uint unmarshal_int32(Stream stream){
+            uint a = (uint)stream.ReadByte();
+            uint b = (uint)stream.ReadByte();
+            uint c = (uint)stream.ReadByte();
+            uint d = (uint)stream.ReadByte();
+            //Console.WriteLine("a = " + a + " b = " + b + " c = " + c + " d = " + d);
+            return (a << 0) | (b << 8) | (c << 16) | (d << 24);
+        }
+        public static void marshal_int32(Stream stream, uint x){
+            uint mask = 0xff;
+            stream.WriteByte((byte) ((x >> 0) & mask));
+            stream.WriteByte((byte) ((x >> 8) & mask));
+            stream.WriteByte((byte) ((x >> 16) & mask));
+            stream.WriteByte((byte) ((x >> 24) & mask));
+        }
+        public static int unmarshal_int(Stream stream){
+            return (int)unmarshal_int32(stream);
+        }
+        public static void marshal_int(Stream stream, int x){
+            marshal_int32(stream, (uint)x);
+        }
+        public static byte[] unmarshal_n(Stream stream, uint n){
+            byte[] buffer = new byte[n];
+            int toread = (int)n;
+            int offset = 0;
+            while (toread > 0){
+                int nread = stream.Read(buffer, offset, toread);
+                offset= nread; toread -= nread;
+            }
+            return buffer;
+        }
+        public static string unmarshal_string(Stream stream){
+            uint length = unmarshal_int32(stream);
+            byte[] buffer = unmarshal_n(stream, length);
+            Decoder decoder = Encoding.UTF8.GetDecoder();
+            char[] chars = new char[decoder.GetCharCount(buffer, 0, (int)length)];
+            decoder.GetChars(buffer, 0, (int)length, chars, 0);
+            return new string(chars);
+        }
+        public static void marshal_string(Stream stream, string x){
+            marshal_int(stream, x.Length);
+            char[] c = x.ToCharArray();
+            Encoder encoder = Encoding.UTF8.GetEncoder();
+            byte[] bytes = new byte[encoder.GetByteCount(c, 0, c.Length, true)];
+            encoder.GetBytes(c, 0, c.Length, bytes, 0, true);
+            stream.Write(bytes, 0, bytes.Length);
+        }
     }
 
     internal class Messages
@@ -509,7 +509,7 @@ namespace CommandLib
             string msg = "";
             while (!tCLIprotocol.dropOut)
             {
-                Types.unmarshal_int32(stream); // total message length (unused here)	
+                Types.unmarshal_int32(stream); // total message length (unused here)    
                 Messages.tag t = Messages.unmarshal_tag(stream);
                 switch (t)
                 {
@@ -554,9 +554,9 @@ namespace CommandLib
                             case Messages.tag.Prompt:
                                 tCLIprotocol.dGlobalDebug("Read: Command Prompt", tCLIprotocol);
                                 string response = tCLIprotocol.dConsoleReadLine();
-				tCLIprotocol.dConsoleWriteLine("Read "+response);
-				/* NB, 4+4+4 here for the blob, chunk and string length, put in by the marshal_string
-				function. A franken-marshal. */
+                tCLIprotocol.dConsoleWriteLine("Read "+response);
+                /* NB, 4+4+4 here for the blob, chunk and string length, put in by the marshal_string
+                function. A franken-marshal. */
                                 Types.marshal_int(stream, 4 + 4 + 4); // length
                                 Messages.marshal_tag(stream, Messages.tag.Blob);
                                 Messages.marshal_tag(stream, Messages.tag.Chunk);

@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    TestModels.cs
+//-----------------------------------------------------------------------------
+// FILE:        TestModels.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -310,10 +310,12 @@ namespace Test.Neon.Models.Definitions
         //[Route("EchoDateTime")]
         //DateTime EchoDateTime([FromQuery] DateTime date);
 
-        [HttpPut]
-        [Route("PutStreamAsBody")]
-        [BodyStream]
-        byte[] PutStreamAsBody();
+        // $todo(jefflill): https://github.com/nforgeio/neonSDK/issues/80
+
+        //[HttpPut]
+        //[Route("PutStreamAsBody")]
+        //[BodyStream]
+        //byte[] PutStreamAsBody();
     }
 
     [ServiceModel]
@@ -416,10 +418,12 @@ namespace Test.Neon.Models.Definitions
         //[Route("EchoDateTime")]
         //DateTime EchoDateTime([FromQuery] DateTime date);
 
-        [HttpPut]
-        [Route("PutStreamAsBody")]
-        [BodyStream]
-        byte[] PutStreamAsBody();
+        // $todo(jefflill): https://github.com/nforgeio/neonSDK/issues/80
+
+        //[HttpPut]
+        //[Route("PutStreamAsBody")]
+        //[BodyStream]
+        //byte[] PutStreamAsBody();
     }
 
     [ServiceModel]

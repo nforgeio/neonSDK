@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    Service.cs
+//-----------------------------------------------------------------------------
+// FILE:        Service.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -118,7 +118,7 @@ namespace TestApiService
             webHost.Start();
 
             // Start a do-nothing thread that we can use to set breakpoints
-            // to verify that Bridge to Kubernetes works.
+            // to verify that we can debug remotely and set breakpoints.
 
             var nothingThread = NeonHelper.StartThread(NothingThread);
 

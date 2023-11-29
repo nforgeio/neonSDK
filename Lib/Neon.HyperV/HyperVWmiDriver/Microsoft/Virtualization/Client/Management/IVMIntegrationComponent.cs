@@ -2,9 +2,9 @@ namespace Microsoft.Virtualization.Client.Management;
 
 internal interface IVMIntegrationComponent : IVMDevice, IVirtualizationManagementObject
 {
-	bool Enabled { get; }
+    bool Enabled { get; }
 
-	VMIntegrationComponentOperationalStatus[] GetOperationalStatus();
+    VMIntegrationComponentOperationalStatus[] GetOperationalStatus();
 
-	string[] GetOperationalStatusDescriptions();
+    string[] GetOperationalStatusDescriptions();
 }

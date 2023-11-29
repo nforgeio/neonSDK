@@ -4,36 +4,36 @@ namespace Microsoft.Virtualization.Client.Management;
 
 internal interface ISummaryInformationProperties : ISummaryInformationPropertiesBase
 {
-	int ProcessorLoad { get; }
+    int ProcessorLoad { get; }
 
-	long AssignedMemory { get; }
+    long AssignedMemory { get; }
 
-	int MemoryAvailable { get; }
+    int MemoryAvailable { get; }
 
-	long MemoryDemand { get; }
+    long MemoryDemand { get; }
 
-	int AvailableMemoryBuffer { get; }
+    int AvailableMemoryBuffer { get; }
 
-	bool SwapFilesInUse { get; }
+    bool SwapFilesInUse { get; }
 
-	[SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly")]
-	bool MemorySpansPhysicalNumaNodes { get; }
+    [SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly")]
+    bool MemorySpansPhysicalNumaNodes { get; }
 
-	VMHeartbeatStatus Heartbeat { get; }
+    VMHeartbeatStatus Heartbeat { get; }
 
-	FailoverReplicationMode ReplicationMode { get; }
+    FailoverReplicationMode ReplicationMode { get; }
 
-	WmiObjectPath TestReplicaSystemPath { get; }
+    WmiObjectPath TestReplicaSystemPath { get; }
 
-	int ThumbnailImageWidth { get; }
+    int ThumbnailImageWidth { get; }
 
-	int ThumbnailImageHeight { get; }
+    int ThumbnailImageHeight { get; }
 
-	byte[] GetThumbnailImage();
+    byte[] GetThumbnailImage();
 
-	FailoverReplicationState[] GetReplicationStateEx();
+    FailoverReplicationState[] GetReplicationStateEx();
 
-	FailoverReplicationHealth[] GetReplicationHealthEx();
+    FailoverReplicationHealth[] GetReplicationHealthEx();
 
-	bool[] GetReplicatingToDefaultProvider();
+    bool[] GetReplicatingToDefaultProvider();
 }

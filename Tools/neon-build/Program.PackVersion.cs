@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    Program.PackVersion.cs
+//-----------------------------------------------------------------------------
+// FILE:        Program.PackVersion.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ namespace NeonBuild
             if (commandLine.Arguments.Length != 3)
             {
                 Console.WriteLine(usage);
-                Program.Exit(1);
+                Program.Exit(-1);
             }
 
             var csPath             = commandLine.Arguments[0];
@@ -73,7 +73,7 @@ namespace NeonBuild
 
             string version = null;
 
-            if (solutionVersion.Prerelease != null && (string.IsNullOrEmpty(localPrerelease) || solutionVersion.Prerelease.ToLowerInvariant().CompareTo(localPrerelease) < 0))
+            if (!solutionVersion.IsPrerelease && (string.IsNullOrEmpty(localPrerelease) || solutionVersion.Prerelease.ToLowerInvariant().CompareTo(localPrerelease) < 0))
             {
                 // The solution version specifies a pre-release identifier which is less than
                 // the local version or there is no local version.

@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    NeonServiceStatus.cs
+//-----------------------------------------------------------------------------
+// FILE:        NeonServiceStatus.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -79,8 +79,7 @@ namespace Neon.Service
         Running,
 
         /// <summary>
-        /// Indicates that the service is running but it's not ready to receive
-        /// external traffic.
+        /// Indicates that the service is running but it's not ready to perform operations.
         /// </summary>
         [EnumMember(Value = "not-ready")]
         NotReady,

@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
-// FILE:	    WebsocketMetrics.cs
+// FILE:        WebsocketMetrics.cs
 // CONTRIBUTOR: Marcus Bowyer
-// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright Â© 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,15 +31,13 @@ namespace NeonSignalRProxy
         /// </summary>
         public static readonly Counter ConnectionsEstablished = Metrics.CreateCounter(
             "neonsignalrproxy_websockets_connections_established_total",
-            "Number of websocket requests inititated."
-            );
+            "Number of websocket requests inititated.");
 
         /// <summary>
         /// The current number of open websocket connections.
         /// </summary>
         public static readonly Gauge CurrentConnections = Metrics.CreateGauge(
             "neonsignalrproxy_websockets_current_connections",
-            "Number of active websocket connections that have are connected."
-            );
+            "Number of active websocket connections that have are connected.");
     }
 }

@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    NoRetryPolicy.cs
+//-----------------------------------------------------------------------------
+// FILE:        NoRetryPolicy.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Neon.Tasks;
@@ -67,26 +68,26 @@ namespace Neon.Retry
         }
 
         /// <inheritdoc/>
-        public async Task InvokeAsync(Func<Task> action)
+        public async Task InvokeAsync(Func<Task> action, CancellationToken cancellationToken = default)
         {
             await SyncContext.Clear;
             await action();
         }
 
         /// <inheritdoc/>
-        public async Task<TResult> InvokeAsync<TResult>(Func<Task<TResult>> action)
+        public async Task<TResult> InvokeAsync<TResult>(Func<Task<TResult>> action, CancellationToken cancellationToken  = default)
         {
             await SyncContext.Clear;
             return await action();
         }
 
         /// <inheritdoc/>
-        public void Invoke(Action action)
+        public void Invoke(Action action, CancellationToken cancellationToken = default)
         {
         }
 
         /// <inheritdoc/>
-        public TResult Invoke<TResult>(Func<TResult> action)
+        public TResult Invoke<TResult>(Func<TResult> action, CancellationToken cancellationToken = default)
         {
             return default(TResult);
         }

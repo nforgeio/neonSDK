@@ -10,69 +10,69 @@ namespace Microsoft.HyperV.PowerShell.Commands;
 [OutputType(new Type[] { typeof(VMNetworkAdapterRdmaSetting) })]
 internal sealed class GetVMNetworkAdapterRdma : VirtualizationCmdlet<VMNetworkAdapterBase>, IVmBySingularVMNameCmdlet, IVirtualMachineCmdlet, IServerParameters, IParameterSet, IVmBySingularObjectCmdlet, IVMInternalNetworkAdapterBySwitchNameCmdlet, IVMNetworkAdapterBaseCmdlet, ISupportsPassthrough
 {
-	[Parameter(ParameterSetName = "ManagementOS", Mandatory = true)]
-	public SwitchParameter ManagementOS { get; set; }
+    [Parameter(ParameterSetName = "ManagementOS", Mandatory = true)]
+    public SwitchParameter ManagementOS { get; set; }
 
-	[SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "This is by spec.")]
-	[Parameter(ParameterSetName = "VMName")]
-	[Parameter(ParameterSetName = "ManagementOS")]
-	[ValidateNotNullOrEmpty]
-	public override CimSession[] CimSession { get; set; }
+    [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "This is by spec.")]
+    [Parameter(ParameterSetName = "VMName")]
+    [Parameter(ParameterSetName = "ManagementOS")]
+    [ValidateNotNullOrEmpty]
+    public override CimSession[] CimSession { get; set; }
 
-	[SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "This is by spec.")]
-	[Parameter(ParameterSetName = "VMName")]
-	[Parameter(ParameterSetName = "ManagementOS")]
-	[ValidateNotNullOrEmpty]
-	public override string[] ComputerName { get; set; }
+    [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "This is by spec.")]
+    [Parameter(ParameterSetName = "VMName")]
+    [Parameter(ParameterSetName = "ManagementOS")]
+    [ValidateNotNullOrEmpty]
+    public override string[] ComputerName { get; set; }
 
-	[SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "This is by spec.")]
-	[Parameter(ParameterSetName = "VMName")]
-	[Parameter(ParameterSetName = "ManagementOS")]
-	[ValidateNotNullOrEmpty]
-	[CredentialArray]
-	public override PSCredential[] Credential { get; set; }
+    [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "This is by spec.")]
+    [Parameter(ParameterSetName = "VMName")]
+    [Parameter(ParameterSetName = "ManagementOS")]
+    [ValidateNotNullOrEmpty]
+    [CredentialArray]
+    public override PSCredential[] Credential { get; set; }
 
-	[ValidateNotNullOrEmpty]
-	[Parameter(ParameterSetName = "VMName", ValueFromPipeline = true, Position = 0, Mandatory = true)]
-	public string VMName { get; set; }
+    [ValidateNotNullOrEmpty]
+    [Parameter(ParameterSetName = "VMName", ValueFromPipeline = true, Position = 0, Mandatory = true)]
+    public string VMName { get; set; }
 
-	[ValidateNotNull]
-	[Parameter(ParameterSetName = "ResourceObject", ValueFromPipeline = true, Position = 0, Mandatory = true)]
-	public VMNetworkAdapterBase VMNetworkAdapter { get; set; }
+    [ValidateNotNull]
+    [Parameter(ParameterSetName = "ResourceObject", ValueFromPipeline = true, Position = 0, Mandatory = true)]
+    public VMNetworkAdapterBase VMNetworkAdapter { get; set; }
 
-	[ValidateNotNullOrEmpty]
-	[Parameter(ParameterSetName = "VMObject", ValueFromPipeline = true, Position = 0, Mandatory = true)]
-	public VirtualMachine VM { get; set; }
+    [ValidateNotNullOrEmpty]
+    [Parameter(ParameterSetName = "VMObject", ValueFromPipeline = true, Position = 0, Mandatory = true)]
+    public VirtualMachine VM { get; set; }
 
-	[Parameter(ParameterSetName = "VMObject")]
-	[Parameter(ParameterSetName = "VMName")]
-	[Parameter(ParameterSetName = "ManagementOS")]
-	[Alias(new string[] { "VMNetworkAdapterName" })]
-	public string Name { get; set; }
+    [Parameter(ParameterSetName = "VMObject")]
+    [Parameter(ParameterSetName = "VMName")]
+    [Parameter(ParameterSetName = "ManagementOS")]
+    [Alias(new string[] { "VMNetworkAdapterName" })]
+    public string Name { get; set; }
 
-	[Parameter(ParameterSetName = "ManagementOS")]
-	[ValidateNotNullOrEmpty]
-	public string SwitchName { get; set; }
+    [Parameter(ParameterSetName = "ManagementOS")]
+    [ValidateNotNullOrEmpty]
+    public string SwitchName { get; set; }
 
-	[SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Passthru", Justification = "This is a standard PowerShell term.")]
-	[Parameter]
-	public SwitchParameter Passthru { get; set; }
+    [SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Passthru", Justification = "This is a standard PowerShell term.")]
+    [Parameter]
+    public SwitchParameter Passthru { get; set; }
 
-	internal override IList<VMNetworkAdapterBase> EnumerateOperands(IOperationWatcher operationWatcher)
-	{
-		if (CurrentParameterSetIs("ResourceObject"))
-		{
-			return new VMNetworkAdapterBase[1] { VMNetworkAdapter };
-		}
-		return ParameterResolvers.ResolveNetworkAdapters(this, Name, operationWatcher);
-	}
+    internal override IList<VMNetworkAdapterBase> EnumerateOperands(IOperationWatcher operationWatcher)
+    {
+        if (CurrentParameterSetIs("ResourceObject"))
+        {
+            return new VMNetworkAdapterBase[1] { VMNetworkAdapter };
+        }
+        return ParameterResolvers.ResolveNetworkAdapters(this, Name, operationWatcher);
+    }
 
-	internal override void ProcessOneOperand(VMNetworkAdapterBase operand, IOperationWatcher operationWatcher)
-	{
-		VMNetworkAdapterRdmaSetting rdmaSetting = operand.RdmaSetting;
-		if (rdmaSetting != null)
-		{
-			operationWatcher.WriteObject(rdmaSetting);
-		}
-	}
+    internal override void ProcessOneOperand(VMNetworkAdapterBase operand, IOperationWatcher operationWatcher)
+    {
+        VMNetworkAdapterRdmaSetting rdmaSetting = operand.RdmaSetting;
+        if (rdmaSetting != null)
+        {
+            operationWatcher.WriteObject(rdmaSetting);
+        }
+    }
 }

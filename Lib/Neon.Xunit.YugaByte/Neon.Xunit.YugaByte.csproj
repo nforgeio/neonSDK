@@ -1,45 +1,46 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<TargetFrameworks>net48; net6.0; net7.0</TargetFrameworks>
-		<OutputType>Library</OutputType>
-		<RootNamespace>Neon.Xunit.YugaByte</RootNamespace>
-		<Version>$(NeonSdkVersion)</Version>
-		<Description>Xunit test fixture for YugaByteDB</Description>
-		<PackageLicenseFile>LICENSE</PackageLicenseFile>
-		<PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.Xunit.YugaByte/README.md</PackageProjectUrl>
-		<PackageIcon>nuget-icon.png</PackageIcon>
-		<RepositoryUrl>https://github.com/nforgeio/neonSDK</RepositoryUrl>
-		<RepositoryType>git</RepositoryType>
-		<PackageTags>xunit yugabyte yugabytedb</PackageTags>
-		<PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
-		<Configurations>Debug;Release</Configurations>
-	</PropertyGroup>
+    <PropertyGroup>
+        <TargetFrameworks>net48; net6.0; net7.0</TargetFrameworks>
+        <OutputType>Library</OutputType>
+        <RootNamespace>Neon.Xunit.YugaByte</RootNamespace>
+        <Version>$(NeonSdkVersion)</Version>
+        <Description>Xunit test fixture for YugaByteDB</Description>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.Xunit.YugaByte/README.md</PackageProjectUrl>
+        <PackageIcon>nuget-icon.png</PackageIcon>
+        <RepositoryUrl>https://github.com/nforgeio/neonSDK</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageTags>xunit yugabyte yugabytedb</PackageTags>
+        <PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
+        <Configurations>Debug;Release</Configurations>
+        <IsTestProject>false</IsTestProject>
+    </PropertyGroup>
 
-	<ItemGroup>
-		<Compile Include="..\Neon.BuildInfo\AssemblyAttributes.cs" Link="Properties\AssemblyAttributes.cs" />
-		<Compile Include="..\Neon.BuildInfo\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
-	</ItemGroup>
+    <ItemGroup>
+        <Compile Include="..\Neon.BuildInfo\AssemblyAttributes.cs" Link="Properties\AssemblyAttributes.cs" />
+        <Compile Include="..\Neon.BuildInfo\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
+    </ItemGroup>
 
-	<ItemGroup>
-		<PackageReference Include="Npgsql" Version="7.0.2" />
-		<PackageReference Include="xunit.extensibility.core" Version="2.4.2" />
-		<PackageReference Include="YugaByteCassandraCSharpDriver" Version="3.16.3" />
-	</ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Npgsql" Version="7.0.6" />
+        <PackageReference Include="xunit.extensibility.core" Version="2.5.0" />
+        <PackageReference Include="YugaByteCassandraCSharpDriver" Version="3.16.3" />
+    </ItemGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\..\Lib\Neon.BuildInfo\Neon.BuildInfo.csproj" />
-		<ProjectReference Include="..\Neon.Common\Neon.Common.csproj" />
-		<ProjectReference Include="..\Neon.Xunit\Neon.Xunit.csproj" />
-	</ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\Lib\Neon.BuildInfo\Neon.BuildInfo.csproj" />
+        <ProjectReference Include="..\Neon.Common\Neon.Common.csproj" />
+        <ProjectReference Include="..\Neon.Xunit\Neon.Xunit.csproj" />
+    </ItemGroup>
 
-	<ItemGroup>
-		<None Include="..\nuget-icon.png" Pack="true" PackagePath="" />
-		<None Include="..\..\LICENSE" Pack="true" PackagePath="" />
-	</ItemGroup>
+    <ItemGroup>
+        <None Include="..\nuget-icon.png" Pack="true" PackagePath="" />
+        <None Include="..\..\LICENSE" Pack="true" PackagePath="" />
+    </ItemGroup>
 
-	<ItemGroup>
-	    <Folder Include="Properties\" />
-	</ItemGroup>
+    <ItemGroup>
+        <Folder Include="Properties\" />
+    </ItemGroup>
 
 </Project>

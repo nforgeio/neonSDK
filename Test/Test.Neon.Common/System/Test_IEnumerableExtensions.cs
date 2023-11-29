@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    Test_IEnumerableExtensions.cs
+//-----------------------------------------------------------------------------
+// FILE:        Test_IEnumerableExtensions.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -63,7 +63,7 @@ namespace TestCommon
                 }
             }
 
-            Assert.True(false, "Random selection may not be working (there's a one-in-a-million chance that this is an invalid failure).");
+            Assert.Fail("Random selection may not be working (there's a one-in-a-million chance that this is an invalid failure).");
         }
 
         [Fact]

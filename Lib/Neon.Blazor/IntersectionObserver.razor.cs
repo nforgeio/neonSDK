@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,6 +33,9 @@ namespace Neon.Blazor
         [Parameter]
         public string DocumentQuery { get; set; } = null;
 
+        [Parameter]
+        public string Class { get; set;} = "";
+
         [Inject]
         public IJSRuntime JS { get; set; }
 
@@ -44,6 +47,7 @@ namespace Neon.Blazor
         public bool IsIntersecting => IntersectionObserverContext.IsIntersecting;
         public bool IsVisible => IntersectionObserverContext.IsVisible;
         public double Ratio => IntersectionObserverContext.Ratio;
+        public DOMRectReadOnly BoundingClientRect => IntersectionObserverContext.BoundingClientRect;
 
         private IJSObjectReference jsModule;
 
@@ -133,14 +137,20 @@ namespace Neon.Blazor
 
             this.IntersectionObserverContext.IsIntersecting = args.IsIntersecting;
             this.IntersectionObserverContext.IsVisible = args.IsVisible;
+            this.IntersectionObserverContext.BoundingClientRect = args.BoundingClientRect;
 
-            await InvokeAsync(IntersectionChanged);
+
+            if (IntersectionChanged != null)
+            {
+                await InvokeAsync(IntersectionChanged);
+            }
             
             await OnIntersectionChanged.InvokeAsync(new IntersectionChangedEventArgs()
             {
-                Ratio          = args.Ratio,
-                IsIntersecting = args.IsIntersecting,
-                IsVisible      = args.IsVisible
+                Ratio               = args.Ratio,
+                IsIntersecting      = args.IsIntersecting,
+                IsVisible           = args.IsVisible,
+                BoundingClientRect  = args.BoundingClientRect
             });
         }
     }
@@ -150,6 +160,8 @@ namespace Neon.Blazor
         public double Ratio { get; set; }
         public bool IsVisible { get; set; }
         public bool IsIntersecting { get; set; }
+        public DOMRectReadOnly BoundingClientRect { get; set; }
+
     }
 
     public class IntersectionObserverContext
@@ -157,8 +169,21 @@ namespace Neon.Blazor
         public double Ratio { get; set; }
         public bool IsVisible { get; set; }
         public bool IsIntersecting { get; set; }
+        public DOMRectReadOnly BoundingClientRect {get;set;}
     }
 
+    public class DOMRectReadOnly
+    {
+        public double X { get; set; }
+        public double Y { get; set; }
+        public double Width { get; set; }
+        public double Height { get; set; }
+        public double Left { get; set; }
+        public double Top { get; set; }
+        public double Right { get; set; }
+        public double Bottom { get; set; }
+
+    }
     [EventHandler("onintersectionchanged", typeof(IntersectionChangedEventArgs), enableStopPropagation: true, enablePreventDefault: true)]
     public static class EventHandlers
     {

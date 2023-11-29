@@ -6,83 +6,83 @@ namespace Microsoft.Virtualization.Client.Management;
 [WmiName("Msvm_ReplicationService")]
 internal interface IReplicationService : IVirtualizationManagementObject
 {
-	ushort[] OperationalStatus { get; }
+    ushort[] OperationalStatus { get; }
 
-	string[] StatusDescriptions { get; }
+    string[] StatusDescriptions { get; }
 
-	IFailoverReplicationServiceSetting Setting { get; }
+    IFailoverReplicationServiceSetting Setting { get; }
 
-	IEnumerable<IFailoverReplicationAuthorizationSetting> AuthorizationSettings { get; }
+    IEnumerable<IFailoverReplicationAuthorizationSetting> AuthorizationSettings { get; }
 
-	IVMTask BeginStartReplication(IVMComputerSystem computerSystem, InitialReplicationType initialReplicationType, string initialReplicationShare, DateTime scheduledDateTime);
+    IVMTask BeginStartReplication(IVMComputerSystem computerSystem, InitialReplicationType initialReplicationType, string initialReplicationShare, DateTime scheduledDateTime);
 
-	void EndStartReplication(IVMTask task);
+    void EndStartReplication(IVMTask task);
 
-	IVMTask BeginImportInitialReplica(IVMComputerSystem computerSystem, string initialReplicationImportLocation);
+    IVMTask BeginImportInitialReplica(IVMComputerSystem computerSystem, string initialReplicationImportLocation);
 
-	void EndImportInitialReplica(IVMTask task);
+    void EndImportInitialReplica(IVMTask task);
 
-	IVMTask BeginRemoveReplicationRelationshipEx(IVMComputerSystem computerSystem, IVMReplicationRelationship replicationRelationship);
+    IVMTask BeginRemoveReplicationRelationshipEx(IVMComputerSystem computerSystem, IVMReplicationRelationship replicationRelationship);
 
-	void EndRemoveReplicationRelationshipEx(IVMTask task);
+    void EndRemoveReplicationRelationshipEx(IVMTask task);
 
-	IVMTask BeginCreateReplicationRelationship(IVMComputerSystem computerSystem, IVMReplicationSettingData replicationSettingData);
+    IVMTask BeginCreateReplicationRelationship(IVMComputerSystem computerSystem, IVMReplicationSettingData replicationSettingData);
 
-	void EndCreateReplicationRelationship(IVMTask task);
+    void EndCreateReplicationRelationship(IVMTask task);
 
-	IVMTask BeginReverseReplicationRelationship(IVMComputerSystem computerSystem, IVMReplicationSettingData replicationSettingData);
+    IVMTask BeginReverseReplicationRelationship(IVMComputerSystem computerSystem, IVMReplicationSettingData replicationSettingData);
 
-	void EndReverseReplicationRelationship(IVMTask task);
+    void EndReverseReplicationRelationship(IVMTask task);
 
-	IVMTask BeginChangeReplicationModeToPrimary(IVMComputerSystem computerSystem, IVMReplicationRelationship replicationRelationship);
+    IVMTask BeginChangeReplicationModeToPrimary(IVMComputerSystem computerSystem, IVMReplicationRelationship replicationRelationship);
 
-	void EndChangeReplicationModeToPrimary(IVMTask task);
+    void EndChangeReplicationModeToPrimary(IVMTask task);
 
-	IVMTask BeginResynchronizeReplication(IVMComputerSystem computerSystem, DateTime scheduledDateTime);
+    IVMTask BeginResynchronizeReplication(IVMComputerSystem computerSystem, DateTime scheduledDateTime);
 
-	void EndResynchronizeReplication(IVMTask task);
+    void EndResynchronizeReplication(IVMTask task);
 
-	IVMTask BeginResetReplicationStatisticsEx(IVMComputerSystem computerSystem, IVMReplicationRelationship replicationRelationship);
+    IVMTask BeginResetReplicationStatisticsEx(IVMComputerSystem computerSystem, IVMReplicationRelationship replicationRelationship);
 
-	void ResetReplicationStatisticsEx(IVMComputerSystem computerSystem, IVMReplicationRelationship replicationRelationship);
+    void ResetReplicationStatisticsEx(IVMComputerSystem computerSystem, IVMReplicationRelationship replicationRelationship);
 
-	void EndResetReplicationStatisticsEx(IVMTask task);
+    void EndResetReplicationStatisticsEx(IVMTask task);
 
-	string[] GetSystemCertificates();
+    string[] GetSystemCertificates();
 
-	IVMTask BeginInitiateFailover(IVMComputerSystem computerSystem, IVMComputerSystemSetting snapshot);
+    IVMTask BeginInitiateFailover(IVMComputerSystem computerSystem, IVMComputerSystemSetting snapshot);
 
-	void EndInitiateFailover(IVMTask task);
+    void EndInitiateFailover(IVMTask task);
 
-	IVMTask BeginRevertFailover(IVMComputerSystem computerSystem);
+    IVMTask BeginRevertFailover(IVMComputerSystem computerSystem);
 
-	void EndRevertFailover(IVMTask task);
+    void EndRevertFailover(IVMTask task);
 
-	IVMTask BeginCommitFailover(IVMComputerSystem computerSystem);
+    IVMTask BeginCommitFailover(IVMComputerSystem computerSystem);
 
-	void EndCommitFailover(IVMTask task);
+    void EndCommitFailover(IVMTask task);
 
-	IVMTask BeginCreateTestVirtualSystem(IVMComputerSystem computerSystem, IVMComputerSystemSetting snapshot);
+    IVMTask BeginCreateTestVirtualSystem(IVMComputerSystem computerSystem, IVMComputerSystemSetting snapshot);
 
-	IVMComputerSystem EndCreateTestVirtualSystem(IVMTask task, string instanceId);
+    IVMComputerSystem EndCreateTestVirtualSystem(IVMTask task, string instanceId);
 
-	IVMTask BeginTestReplicationConnection(string recoveryConnectionPoint, ushort recoveryServerPortNumber, RecoveryAuthenticationType authenticationType, string certificateThumbPrint, bool bypassProxyServer);
+    IVMTask BeginTestReplicationConnection(string recoveryConnectionPoint, ushort recoveryServerPortNumber, RecoveryAuthenticationType authenticationType, string certificateThumbPrint, bool bypassProxyServer);
 
-	void EndTestReplicationConnection(IVMTask task);
+    void EndTestReplicationConnection(IVMTask task);
 
-	IVMTask BeginAddAuthorizationEntry(ReplicationAuthorizationEntry replicationAuthEntry);
+    IVMTask BeginAddAuthorizationEntry(ReplicationAuthorizationEntry replicationAuthEntry);
 
-	void AddAuthorizationEntry(ReplicationAuthorizationEntry replicationAuthEntry);
+    void AddAuthorizationEntry(ReplicationAuthorizationEntry replicationAuthEntry);
 
-	void EndAddAuthorizationEntry(IVMTask task);
+    void EndAddAuthorizationEntry(IVMTask task);
 
-	void ModifyAuthorizationEntry(ReplicationAuthorizationEntry replicationAuthEntry);
+    void ModifyAuthorizationEntry(ReplicationAuthorizationEntry replicationAuthEntry);
 
-	IVMTask BeginSetAuthorizationEntry(IVMComputerSystem computerSystem, ReplicationAuthorizationEntry replicationAuthEntry);
+    IVMTask BeginSetAuthorizationEntry(IVMComputerSystem computerSystem, ReplicationAuthorizationEntry replicationAuthEntry);
 
-	void SetAuthorizationEntry(IVMComputerSystem computerSystem, ReplicationAuthorizationEntry replicationAuthEntry);
+    void SetAuthorizationEntry(IVMComputerSystem computerSystem, ReplicationAuthorizationEntry replicationAuthEntry);
 
-	void EndSetAuthorizationEntry(IVMTask task);
+    void EndSetAuthorizationEntry(IVMTask task);
 
-	void RemoveAuthorizationEntry(string allowedPrimaryHostSystem);
+    void RemoveAuthorizationEntry(string allowedPrimaryHostSystem);
 }

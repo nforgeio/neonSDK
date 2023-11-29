@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    CommandLine.cs
+//-----------------------------------------------------------------------------
+// FILE:        CommandLine.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -142,8 +142,6 @@ namespace Neon.Common
         /// </summary>
         public class OptionDefinition
         {
-            private string def;
-
             /// <summary>
             /// Constructor.
             /// </summary>
@@ -168,19 +166,9 @@ namespace Neon.Common
             public string[] Names { get; private set; }
 
             /// <summary>
-            /// The option's default value or the empty string.
+            /// The option's default value.
             /// </summary>
-            public string Default
-            {
-                get { return def; }
-
-                set
-                {
-                    Covenant.Requires<ArgumentNullException>(value != null, nameof(Default));
-
-                    def = value;
-                }
-            }
+            public string Default { get; set; }
         }
 
         //---------------------------------------------------------------------

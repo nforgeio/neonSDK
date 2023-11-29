@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    XenClient.cs
+//-----------------------------------------------------------------------------
+// FILE:        XenClient.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -112,6 +112,11 @@ namespace Neon.XenServer
         // Static members
 
         /// <summary>
+        /// Identifies the local storage repository.
+        /// </summary>
+        public const string LocalStorageName = "Local storage";
+
+        /// <summary>
         /// Parses <b>xe</b> client properties formatted like <b>name1:value1; name2: value2;...</b>
         /// into a dictionary, making it easy to retrieve specific values.
         /// </summary>
@@ -212,9 +217,9 @@ namespace Neon.XenServer
 
             // Initialize the operation classes.
 
-            this.Storage = new StorageOperations(this);
-            this.Template   = new TemplateOperations(this);
-            this.Machine    = new MachineOperations(this);
+            this.Storage  = new StorageOperations(this);
+            this.Template = new TemplateOperations(this);
+            this.Machine  = new MachineOperations(this);
         }
 
         /// <summary>
@@ -604,7 +609,7 @@ namespace Neon.XenServer
 
         /// <summary>
         /// Used for temporarily uploading an ISO disk to a XenServer such that it can be mounted
-        /// to a VM, typically for one-time initialization purposes.  neonKUBE uses this as a very
+        /// to a VM, typically for one-time initialization purposes.  NEONKUBE uses this as a very
         /// simple poor man's alternative to <b>cloud-init</b> for initializing a VM on first boot.
         /// </summary>
         /// <param name="isoPath">Path to the source ISO file on the local workstation.</param>
@@ -612,7 +617,7 @@ namespace Neon.XenServer
         /// <returns>A <see cref="XenTempIso"/> with information about the new storage repository and its contents.</returns>
         /// <remarks>
         /// <para>
-        /// During cluster setup on virtualization platforms like XenServer and Hyper-V, neonKUBE need
+        /// During cluster setup on virtualization platforms like XenServer and Hyper-V, NEONKUBE need
         /// to configure new VMs with IP addresses, hostnames, etc.  Traditionally, we've relied on
         /// being able to SSH into the VM to perform all of these actions, but this relied on being
         /// VM being able to obtain an IP address via DHCP and for setup to be able to discover the
@@ -636,7 +641,7 @@ namespace Neon.XenServer
         /// via this ISO, but we decided not to go there, at least for now (we couldn't get that working).
         /// </note>
         /// <note>
-        /// neonKUBE doesn't use this technique for true cloud deployments (AWS, Azure, Google,...) because
+        /// NEONKUBE doesn't use this technique for true cloud deployments (AWS, Azure, Google,...) because
         /// we can configure VM networking directly via the cloud APIs.  
         /// </note>
         /// <para>
@@ -712,10 +717,10 @@ namespace Neon.XenServer
             tempIso.SrUuid = response.OutputText.Trim();
 
             // XenServer created a PBD behind the scenes for the new SR.  We're going
-            // to need its UUID so we can completely remove the SR later.  Note that
+            // to need its UUID so we can completely remove the SR later).  Note that
             // doesn't seem to appear immediately so, we'll retry a few times.
 
-            var retry = new ExponentialRetryPolicy(typeof(InvalidOperationException), maxAttempts: 5, initialRetryInterval: TimeSpan.FromSeconds(0.5), maxRetryInterval: TimeSpan.FromSeconds(5));
+            var retry = new ExponentialRetryPolicy(typeof(InvalidOperationException), maxAttempts: 10, initialRetryInterval: TimeSpan.FromSeconds(5), maxRetryInterval: TimeSpan.FromSeconds(5));
 
             retry.Invoke(
                 () =>
@@ -729,7 +734,6 @@ namespace Neon.XenServer
                     result = SafeInvokeItems("vdi-list", $"sr-uuid={tempIso.SrUuid}");
 
                     tempIso.VdiUuid = result.Items.Single()["uuid"];
-
                 });
 
             return tempIso;
@@ -761,6 +765,53 @@ namespace Neon.XenServer
             proxy.Connect();
 
             return proxy;
+        }
+
+        /// <summary>
+        /// <para>
+        /// Wipes the connected XenServer host by terminating and shutting down all virtual
+        /// machines by default and optionally, selected virtual machine templates.
+        /// </para>
+        /// <note>
+        /// **WARNING:** This is dangerous and should only be used when you are **VERY**
+        /// sure that important workloads are not being hosted on the XenServer.  We
+        /// generally use this for integration testing where XenServer hosts are dedicated
+        /// exclusively for specific test runners.
+        /// </note>
+        /// </summary>
+        /// <param name="deleteVMs">Optionally disable virtual machine removal by passing <c>false</c>.</param>
+        /// <param name="templateSelector">Optionally specifies a selector that chooses which templates are removed.</param>
+        public void WipeHost(bool deleteVMs = true, Func<XenTemplate, bool> templateSelector = null)
+        {
+            if (templateSelector != null)
+            {
+                foreach (var template in Template.List()
+                    .Where(template => templateSelector(template)))
+                {
+                    Template.Destroy(template);
+                }
+            }
+
+            if (deleteVMs)
+            {
+                Parallel.ForEach(Machine.List(), new ParallelOptions() { MaxDegreeOfParallelism = 10 },
+                    machine =>
+                    {
+                        // Don't mess with the dedicated host controller VM.
+
+                        if (machine.Properties["is-control-domain"] == "true")
+                        {
+                            return;
+                        }
+
+                        if (machine.PowerState != XenVmPowerState.Halted)
+                        {
+                            Machine.Shutdown(machine, turnOff: true);
+                        }
+
+                        Machine.Remove(machine);
+                    });
+            }
         }
     }
 }

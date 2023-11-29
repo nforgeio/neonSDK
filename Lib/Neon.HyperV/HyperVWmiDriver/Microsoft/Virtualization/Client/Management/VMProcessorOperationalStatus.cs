@@ -7,14 +7,14 @@ namespace Microsoft.Virtualization.Client.Management;
 [TypeConverter(typeof(VMProcessorOperationalStatusConverter))]
 internal enum VMProcessorOperationalStatus
 {
-	Ok = 2,
-	HostResourceProtectionUnknown = 40000,
-	HostResourceProtectionEnabled = 40001,
-	HostResourceProtectionDisabled = 40002,
-	HostResourceProtectionDegradedSuspended = 40003,
-	HostResourceProtectionDegradedSerialPipe = 40020,
-	HostResourceProtectionDegradedSynthDebug = 40021,
-	HostResourceProtectionDegradedLegacyNic = 40022,
-	HostResourceProtectionDegradedDvdMedia = 40023,
-	HostResourceProtectionDegradedFloppyMedia = 40024
+    Ok = 2,
+    HostResourceProtectionUnknown = 40000,
+    HostResourceProtectionEnabled = 40001,
+    HostResourceProtectionDisabled = 40002,
+    HostResourceProtectionDegradedSuspended = 40003,
+    HostResourceProtectionDegradedSerialPipe = 40020,
+    HostResourceProtectionDegradedSynthDebug = 40021,
+    HostResourceProtectionDegradedLegacyNic = 40022,
+    HostResourceProtectionDegradedDvdMedia = 40023,
+    HostResourceProtectionDegradedFloppyMedia = 40024
 }

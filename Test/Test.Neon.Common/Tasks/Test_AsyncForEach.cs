@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    Test_AsyncForEach.cs
+//-----------------------------------------------------------------------------
+// FILE:        Test_AsyncForEach.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -281,14 +281,14 @@ namespace TestCommon
             try
             {
                 await task;
-                Assert.True(false, $"Expected a [{nameof(NotSupportedException)}].");
+                Assert.Fail($"Expected a [{nameof(NotSupportedException)}].");
             }
             catch (NotSupportedException)
             {
             }
             catch (Exception e)
             {
-                Assert.True(false, $"Expected a [{nameof(NotSupportedException)}] but got a [{e.GetType().FullName}].");
+                Assert.Fail($"Expected a [{nameof(NotSupportedException)}] but got a [{e.GetType().FullName}].");
             }
 
             // Verify

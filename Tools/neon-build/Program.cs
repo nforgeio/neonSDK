@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    Program.cs
+//-----------------------------------------------------------------------------
+// FILE:        Program.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -34,11 +34,11 @@ namespace NeonBuild
     /// </summary>
     public static partial class Program
     {
-        private const string version = "1.11";
+        private const string version = "1.12";
 
         private static readonly string usage =
 $@"
-Internal neonSDK project build related utilities: v{version}
+Internal NEONSDK project build related utilities: v{version}
 
 NOTE: Command line arguments and options may include references to 
       profile values, secrets and environment variables, like:
@@ -117,11 +117,11 @@ ARGUMENTS:
     TARGET          - Path to the (compressed) target file
 
 ---------------------------------------------------------------------
-neon-build replace PATH BEFORE AFTER
+neon-build replace PATH OLD NEW
 
-Searches and replaces instances of case sensitive the BEFORE string and
-replaces them with the AFTER string in the file at PATH, writing the changes
-to the same file.
+Searches and replaces instances of case sensitive OLD string and
+replaces them with the NEW string in the file at PATH, writing
+any changes to the same file.
 
 ---------------------------------------------------------------------
 neon-build read-version [-n] CSPATH CONSTANT
@@ -337,10 +337,10 @@ ARGUMENTS:
                 command = command.ToLowerInvariant();
             }
 
-            if (commandLine.Arguments.Length == 0 || commandLine.HasHelpOption || command == "help")
+            if (commandLine.Arguments.Length == 0 || commandLine.HasHelpOption)
             {
                 Console.WriteLine(usage);
-                Program.Exit(0);
+                Program.Exit(commandLine.HasHelpOption ? 0 : -1);
             }
 
             try
@@ -349,7 +349,7 @@ ARGUMENTS:
 
                 if (string.IsNullOrEmpty(Program.NeonSdkRepoPath) || !Directory.Exists(Program.NeonSdkRepoPath))
                 {
-                    Console.Error.WriteLine("*** ERROR: NF_ROOT environment variable does not reference the local neonSDK repostory.");
+                    Console.Error.WriteLine("*** ERROR: NF_ROOT environment variable does not reference the local NEONSDK repostory.");
                     Program.Exit(1);
                 }
 
@@ -369,8 +369,30 @@ ARGUMENTS:
                         if (string.IsNullOrEmpty(repoRoot))
                         {
                             Console.Error.WriteLine("*** ERROR: REPO-ROOT argument is required.");
+                            Program.Exit(-1);
+                        }
+
+                        // Esure that the folder specified includes at least one solution file (*.sln).
+                        // This will help prevent developers from clean their whole drive or other
+                        // important folders by accident.
+                        //
+                        // $todo(jefflill): This almost happened to me but I was able to the kill
+                        //                  the process in time.
+
+                        if (!Directory.Exists(repoRoot))
+                        {
+                            Console.Error.WriteLine($"*** ERROR: [{repoRoot}] folder does not exist.");
                             Program.Exit(1);
                         }
+
+                        if (!Directory.GetFiles(repoRoot, "*.sln", SearchOption.TopDirectoryOnly).Any())
+                        {
+                            Console.Error.WriteLine($"*** ERROR: [{repoRoot}] folder does not include a Visual Studio solution.");
+                            Console.Error.WriteLine($"           This is required for your safety.");
+                            Program.Exit(1);
+                        }
+
+                        // Perform the operation.
 
                         buildFolder = Path.Combine(repoRoot, "Build");
 
@@ -412,13 +434,32 @@ ARGUMENTS:
                             }
                         }
 
-                        // Delete any [$/Images/**/.version] files.  These files are generated for neonCLOUD
+                        foreach (var folder in Directory.EnumerateDirectories(repoRoot, "node_modules", SearchOption.AllDirectories))
+                        {
+                            if (Directory.Exists(folder))
+                            {
+                                NeonHelper.DeleteFolder(folder);
+                            }
+
+                            var parentDir = Directory.GetParent(folder);
+
+                            if (parentDir.ToString().Contains(repoRoot))
+                            {
+                                var packageLock = Path.Combine(parentDir.ToString(), "package-lock.json");
+                                if (File.Exists(packageLock))
+                                {
+                                    NeonHelper.DeleteFile(packageLock);
+                                }
+                            }
+                        }
+
+                        // Delete any [$/Images/**/.version] files.  These files are generated for NEONCLOUD
                         // during cluster image builds.  These files are within [.gitignore] and should really
                         // be cleaned before builds etc.
-                        
+
                         // $hack(jefflill):
                         // 
-                        // This is a bit of a hack since only the neonCLOUD repo currently generates these files,
+                        // This is a bit of a hack since only the NEONCLOUD repo currently generates these files,
                         // but this is somewhat carefully coded to not cause problems for the other repos.  Just
                         // be sure that those repos don't include a root [$/Images] folder that has [.version]
                         // files used for other purposes.
@@ -448,7 +489,7 @@ ARGUMENTS:
                         if (string.IsNullOrEmpty(targetFolder))
                         {
                             Console.Error.WriteLine("*** ERROR: TARGET-FOLDER argument is required.");
-                            Program.Exit(1);
+                            Program.Exit(-1);
                         }
 
                         // $hack(jefflill): Remove any double quotes (I'm not sure why these are being added to the EXEC args).
@@ -469,7 +510,7 @@ ARGUMENTS:
 
                             // Note that the glob pattern will match files named like:
                             //
-                            //      C:/src/neonSDK/Lib/Neon.Common/Collections/ObjectDictionary.cs
+                            //      C:/src/NEONSDK/Lib/Neon.Common/Collections/ObjectDictionary.cs
                             //
                             // which we don't want to remove.  We're going to mitigate this by 
                             // ensuring that the file name includes an "/obj/" directory in
@@ -519,13 +560,13 @@ ARGUMENTS:
                             if (sourcePath == null)
                             {
                                 Console.Error.WriteLine("*** ERROR: SOURCE argument is required.");
-                                Program.Exit(1);
+                                Program.Exit(-1);
                             }
 
                             if (targetPath == null)
                             {
                                 Console.Error.WriteLine("*** ERROR: TARGET argument is required.");
-                                Program.Exit(1);
+                                Program.Exit(-1);
                             }
 
                             if (!File.Exists(sourcePath))
@@ -638,7 +679,7 @@ ARGUMENTS:
                     default:
 
                         Console.Error.WriteLine($"*** ERROR: Unexpected command [{command}].");
-                        Program.Exit(1);
+                        Program.Exit(-1);
                         break;
                 }
 
@@ -652,7 +693,7 @@ ARGUMENTS:
         }
 
         /// <summary>
-        /// Returns the path to the neonSDK local repository root folder.
+        /// Returns the path to the NEONSDK local repository root folder.
         /// </summary>
         public static string NeonSdkRepoPath { get; private set; }
 

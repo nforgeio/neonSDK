@@ -155,3 +155,4 @@ KubernetesWithRetry.cs
 /UpgradeLog.htm
 /ToolBin/nuget.config
 /Lib/Neon.Blazor/IntersectionObserver
+/Services/test-tailwind/package-lock.json

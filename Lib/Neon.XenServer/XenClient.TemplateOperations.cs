@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    XenClient.TemplateOperations.cs
+//-----------------------------------------------------------------------------
+// FILE:        XenClient.TemplateOperations.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -113,7 +113,7 @@ namespace Neon.XenServer
             /// </param>
             /// <returns>The installed template.</returns>
             /// <exception cref="XenException">Thrown if the operation failed.</exception>
-            public XenTemplate ImportVmTemplate(string path, string name = null, string repositoryNameOrUuid = "Local storage", string description = null)
+            public XenTemplate ImportVmTemplate(string path, string name = null, string repositoryNameOrUuid = XenClient.LocalStorageName, string description = null)
             {
                 Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(path), nameof(path));
                 Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(repositoryNameOrUuid), nameof(repositoryNameOrUuid));
@@ -162,6 +162,55 @@ namespace Neon.XenServer
             public void Destroy(XenTemplate template)
             {
                 Covenant.Requires<ArgumentNullException>(template != null, nameof(template));
+
+                // First, we need to destroy any disks associated with the template because
+                // the XE [vm-destroy] command doesn't delete these and [vm-uninstall] doesn't
+                // work for templates.
+                //
+                // Note that the templates [VDBs] property seems to include two (perhaps more)
+                // VDB UUIDs (separated by semicolons) but only of them actually exists in the
+                // storage repo.  We're just going to delete the VBD that actually exisits.
+                //
+                // Also note that UUIDS for disks returned by [vdi-list] do not match any of
+                // the UUIDs listed in template (or VM) [VDBs] property.  These seem to be
+                // included in the disk [vdb-uuids] property and strangly, both the template's
+                // disk and the disk for any VMs created from the template will have [vdb-uuids]
+                // matching the UUIDs from the template.
+                //
+                // We don't want to delete VM disks here so we need to distinguish between VM
+                // disks and the template disk.  It appears that disks with [sm-config=vdi_type: vhd]
+                // indicate VHDs attached to a VM, so we won't delete these.
+
+                var vdbUUids = template.Properties["VBDs"].Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(item => item.Trim())
+                    .ToDictionary(item => item);
+
+                var sr = client.Storage.Find(XenClient.LocalStorageName);
+
+                Covenant.Assert(sr != null);
+
+                // Destroy the template's disk(s).
+
+                var response = client.SafeInvokeItems("vdi-list", $"sr-uuid={sr.Uuid}", "managed=true", "params=all");
+
+                foreach (var disk in response.Items
+                    .Where(item => item["sm-config"] != "vdi_type: vhd"))
+                {
+                    var diskUuid     = disk["uuid"];
+                    var diskVdbUuids = disk["vbd-uuids"].Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries)
+                        .Select(item => item.Trim());
+
+                    foreach (var diskVdbUuid in diskVdbUuids)
+                    {
+                        if (vdbUUids.ContainsKey(diskVdbUuid))
+                        {
+                            client.SafeInvoke("vdi-destroy", $"uuid={diskUuid}");
+                            break;
+                        }
+                    }
+                }
+
+                // Destroy the template.
 
                 client.SafeInvoke("vm-destroy", $"uuid={template.Uuid}");
             }

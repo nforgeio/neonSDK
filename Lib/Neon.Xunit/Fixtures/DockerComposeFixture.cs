@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    DockerComposeFixture.cs
+//-----------------------------------------------------------------------------
+// FILE:        DockerComposeFixture.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -297,8 +297,6 @@ namespace Neon.Xunit
             //
             // We're experiencing clock skew between containers running in Docker/WSL2 and the
             // host system clock that is causing unit test failures:
-            //
-            //      https://github.com/nforgeio/neonKUBE/issues/1166
             //
             // It's also possible that folks could see clock skew between the Docker Hyper-V
             // VM and this host machine.  The solution is to run a special container that

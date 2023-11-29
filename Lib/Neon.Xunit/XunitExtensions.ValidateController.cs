@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    XunitExtensions.cs
+//-----------------------------------------------------------------------------
+// FILE:        XunitExtensions.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -119,7 +119,7 @@ namespace Neon.Xunit
                 throw new IncompatibleServiceException($"The generated service client code is not compatible with this version of the validator.  Consider upgrading to the latest Neon packages and rebuilding your service clients.");
             }
 
-            // The idea here is to construct two dictionaries that map method signatures
+            // The idea here is to construct two dictionaries that map method signatures to
             // [MethodInfo] instances.  One dictionary will do this for [TServiceImplementation]
             // and the other one for the [client] passed.
             //
@@ -132,7 +132,7 @@ namespace Neon.Xunit
             // specific, like timeout or CancellationToken.
             //
             // We're also going to use the request route template (in brackets) rather 
-            // than the method name (because the names may differ).
+            // than the method name because the names may differ.
             //
             // We'll use these dictionaries to ensure that both the service controller
             // and the generated service client implement the same methods and then
@@ -141,9 +141,9 @@ namespace Neon.Xunit
             // NOTE: By default, we assume that all public non-static service controller
             // methods will be validated against the generated service client.  In rare
             // situations, it may be useful to have service controller endpoint that are
-            // not covered by the generated clients.  In these situations, you may
-            // tag these methods with [Neon.Common.ModelGen.NoValidation] and the those
-            // methods will be ignored.
+            // not covered by the generated clients.  For this situations, you may tag
+            // these methods with [Neon.ModelGen.NoControllerValidation] and then
+            // those methods will be ignored.
 
             var controllerMethods = new Dictionary<string, MethodInfo>();
             var clientMethods     = new Dictionary<string, MethodInfo>();

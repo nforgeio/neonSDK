@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
-// FILE:	    Startup.cs
+// FILE:        Startup.cs
 // CONTRIBUTOR: Marcus Bowyer
-// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright Â© 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+
 using Neon.Common;
 using Neon.Diagnostics;
 using Neon.Web;
@@ -61,7 +62,7 @@ namespace NeonSignalRProxy
         /// <param name="service">Specifies the service.</param>
         public Startup(IConfiguration configuration, Service service)
         {
-            this.Configuration = configuration;
+            this.Configuration           = configuration;
             this.NeonSignalRProxyService = service;
         }
 
@@ -80,7 +81,7 @@ namespace NeonSignalRProxy
                     {
                         options.AddServer(
                             address: NeonSignalRProxyService.Config.Cache.Memcached.Address,
-                            port: NeonSignalRProxyService.Config.Cache.Memcached.Port);
+                            port:    NeonSignalRProxyService.Config.Cache.Memcached.Port);
                         
                         options.SuppressException = false;
                         options.Protocol          = Enyim.Caching.Memcached.MemcachedProtocol.Text;

@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:        SemanticVersion.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -513,14 +513,51 @@ namespace Neon.Common
             }
         }
 
+        /// <summary>
+        /// Returns only the numeric part of the semantic version, excluding
+        /// any prerelase or build parts.
+        /// </summary>
+        public string Numeric
+        {
+            get
+            {
+                if (minorValue == null)
+                {
+                    return majorValue;
+                }
+                else if (patchValue == null)
+                {
+                    return $"{majorValue}.{minorValue}";
+                }
+                else
+                {
+                    return $"{majorValue}.{minorValue}.{patchValue}";
+                }
+            }
+        }
 
         /// <summary>
+        /// <para>
         /// The prerelease identifer or <c>null</c>.
+        /// </para>
+        /// <note>
+        /// Prerelease identifiers <b>do not</b> include the prefix dash <b>(-)</b>.
+        /// </note>
         /// </summary>
         public string Prerelease { get; set; }
 
         /// <summary>
+        /// Indicates whether the version specifies a prerelease.
+        /// </summary>
+        public bool IsPrerelease => Prerelease != null;
+
+        /// <summary>
+        /// <para>
         /// The build information or <c>null</c>.
+        /// </para>
+        /// <note>
+        /// Build information does not include the prefix plus <b>(+)</b> sign.
+        /// </note>
         /// </summary>
         public string Build { get; set; }
 

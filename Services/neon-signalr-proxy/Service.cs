@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
-// FILE:	    Service.cs
+// FILE:        Service.cs
 // CONTRIBUTOR: Marcus Bowyer
-// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright Â© 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -42,8 +42,6 @@ using OpenTelemetry;
 using OpenTelemetry.Trace;
 
 using Prometheus;
-using Prometheus.DotNetRuntime;
-
 
 namespace NeonSignalRProxy
 {
@@ -85,32 +83,28 @@ namespace NeonSignalRProxy
         /// </summary>
         public static readonly Counter CacheLookupsRequested = Metrics.CreateCounter(
             "neonsignalrproxy_cache_lookups_total",
-            "Number of Cache lookups requested"
-            );
+            "Number of Cache lookups requested");
 
         /// <summary>
         /// Counts the items persisted to the cache.
         /// </summary>
         public static readonly Counter CacheItemsStored = Metrics.CreateCounter(
             "neonsignalrproxy_cache_items_stored_total",
-            "Number of items stored in the Cache"
-            );
+            "Number of items stored in the Cache");
 
         /// <summary>
         /// Counts cache hits.
         /// </summary>
         public static readonly Counter CacheHits = Metrics.CreateCounter(
             "neonsignalrproxy_cache_hits_total",
-            "Number of Cache hits"
-            );
+            "Number of Cache hits");
 
         /// <summary>
         /// Counts cache misses.
         /// </summary>
         public static readonly Counter CacheMisses = Metrics.CreateCounter(
             "neonsignalrproxy_cache_misses_total",
-            "Number of Cache misses"
-            );
+            "Number of Cache misses");
 
         //---------------------------------------------------------------------
         // Instance members

@@ -2,7 +2,7 @@
 #------------------------------------------------------------------------------
 # FILE:         neon-nuget-public.ps1
 # CONTRIBUTOR:  Jeff Lill
-# COPYRIGHT:    Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+# COPYRIGHT:    Copyright Â© 2005-2023 by NEONFORGE LLC.  All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ param
 #Ensure-VisualStudioNotRunning
 
 # Verify that the user has the required environment variables.  These will
-# be available only for maintainers and are intialized by the neonCLOUD
+# be available only for maintainers and are intialized by the NEONCLOUD
 # [buildenv.cmd] script.
 
 if (!(Test-Path env:NC_ROOT))
@@ -56,7 +56,7 @@ if (!(Test-Path env:NC_ROOT))
     "*** ERROR: This script is intended for use by maintainers only:"
     "           [NC_ROOT] environment variable is not defined."
     ""
-    "           Maintainers should re-run the neonCLOUD [buildenv.cmd] script."
+    "           Maintainers should re-run the NEONCLOUD [buildenv.cmd] script."
 
     return 1
 }
@@ -112,9 +112,10 @@ try
 
     $config = "Release"
 
-    # Load the library and neonKUBE versions.
+    # Load the library and NEONKUBE versions.
 
     $msbuild        = $env:MSBUILDPATH
+    $neonBuild      = "$env:NF_ROOT\ToolBin\neon-build\neon-build.exe"
     $nfRoot         = "$env:NF_ROOT"
     $nfSolution     = "$nfRoot\neonSDK.sln"
     $nfBuild        = "$env:NF_BUILD"
@@ -146,21 +147,41 @@ try
     [System.IO.File]::WriteAllText("$nfRoot\build\nuget\version.txt", $neonSdkVersion)
 
     #------------------------------------------------------------------------------
-    # We need to do a release solution build to ensure that any tools or other
-    # dependencies are built before we build and publish the individual packages.
+    # Update the SDK version in [Directory.Build.props] and commit/push any change.
 
-    Write-Info ""
-    Write-Info "********************************************************************************"
-    Write-Info "***                           RESTORE PACKAGES                               ***"
-    Write-Info "********************************************************************************"
-    Write-Info ""
+    $buildPropsPath = "$nfRoot\Directory.Build.props"
+    $buildPropsOrg  = [System.IO.File]::ReadAllText($buildPropsPath);
 
-    & dotnet restore "$nfSolution"
+    $buildPropsOrg -match "(?<NeonSdkVersion>.*</NeonSdkVersion>)" | Out-Null
+    $buildPropsOrgVersion = $matches[0].Trim()
 
-    if (-not $?)
+    $buildPropsNewVersion = "<NeonSdkVersion>$neonSdkVersion</NeonSdkVersion>"
+    $buildPropsNew        = $buildPropsOrg.Replace($buildPropsOrgVersion, $buildPropsNewVersion)
+
+    if ($buildPropsOrg -ne $buildPropsNew)
     {
-        throw "ERROR: RESTORE FAILED"
+        $commitMessage = "Directory.Build.props: bump SDK version to: $neonSdkVersion"
+
+        Write-Info $commitMessage
+
+        [System.IO.File]::WriteAllText($buildPropsPath, $buildPropsNew)
+
+        Push-Location $nfRoot
+
+        git add .
+        ThrowOnExitCode
+
+        git commit -m $commitMessage
+        ThrowOnExitCode
+
+        git push
+        ThrowOnExitCode
+
+        Pop-Location
     }
+
+    #------------------------------------------------------------------------------
+    # Clean and build the solution.
 
     Write-Info ""
     Write-Info "********************************************************************************"
@@ -168,12 +189,7 @@ try
     Write-Info "********************************************************************************"
     Write-Info ""
 
-    & "$msbuild" "$nfSolution" -p:Configuration=$config -t:Clean -m -verbosity:quiet
-
-    if (-not $?)
-    {
-        throw "ERROR: CLEAN FAILED"
-    }
+    Invoke-Program "`"$neonBuild`" clean `"$nfRoot`""
 
     Write-Info  ""
     Write-Info  "*******************************************************************************"
@@ -181,7 +197,7 @@ try
     Write-Info  "*******************************************************************************"
     Write-Info  ""
 
-    & "$msbuild" "$nfSolution" -p:Configuration=$config -restore -m -verbosity:quiet
+    & "$msbuild" "$nfSolution" -p:Configuration=$config -t:restore,build -p:RestorePackagesConfig=true -m -verbosity:quiet
 
     if (-not $?)
     {
@@ -192,21 +208,24 @@ try
     # Build and publish the projects.
 
     Publish Neon.Blazor                 $neonSdkVersion
+    Publish Neon.Blazor.Analyzers       $neonSdkVersion
     Publish Neon.BuildInfo              $neonSdkVersion
     Publish Neon.Cassandra              $neonSdkVersion
     Publish Neon.Common                 $neonSdkVersion
+    Publish Neon.Common.Extensions      $neonSdkVersion
     Publish Neon.Cryptography           $neonSdkVersion
     Publish Neon.CSharp                 $neonSdkVersion
     Publish Neon.Deployment             $neonSdkVersion
     Publish Neon.Docker                 $neonSdkVersion
     Publish Neon.GitHub                 $neonSdkVersion
-    Publish Neon.JsonConverters         $neonSdkVersion
     Publish Neon.HyperV                 $neonSdkVersion
+    Publish Neon.JsonConverters         $neonSdkVersion
     Publish Neon.Service                $neonSdkVersion
     Publish Neon.ModelGen               $neonSdkVersion
     Publish Neon.ModelGenerator         $neonSdkVersion
     Publish Neon.Nats                   $neonSdkVersion
     Publish Neon.Postgres               $neonSdkVersion
+    Publish Neon.Roslyn                 $neonSdkVersion
     Publish Neon.SSH                    $neonSdkVersion
     Publish Neon.Tailwind               $neonSdkVersion
     Publish Neon.Web                    $neonSdkVersion

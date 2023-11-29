@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // FILE:        StaticDirectoryBase.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -212,7 +212,7 @@ namespace Neon.IO
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(path), nameof(path));
             Covenant.Requires<ArgumentException>(!path.Contains("/../"), $"{nameof(path)}: Relative path segments like \"/../\" are not supported.");
-            Covenant.Requires<ArgumentException>(!path.StartsWith("./"), $"{nameof(path)}: Relative path segments like \"./\" are not supported.");
+            Covenant.Requires<ArgumentException>(!path.StartsWith("./"), $"{nameof(path)}: Relative path segments like \"./\" are not supported."); ;
 
             // Special case the root directory.
 

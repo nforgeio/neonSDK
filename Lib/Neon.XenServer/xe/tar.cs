@@ -43,15 +43,15 @@ internal class HeaderChecksumFailed : ApplicationException {
     private uint expected;
     private uint received;
     public HeaderChecksumFailed(uint expected, uint received){
-	this.expected = expected;
-	this.received = received;
+    this.expected = expected;
+    this.received = received;
     }
  
     public override string ToString() { 
-	string expected = Convert.ToString(this.expected);
-	string received = Convert.ToString(this.received);
-					   
-	return "Failed to verify the tar header checksum: received = " + received + "; expected = " + expected;
+    string expected = Convert.ToString(this.expected);
+    string received = Convert.ToString(this.received);
+                       
+    return "Failed to verify the tar header checksum: received = " + received + "; expected = " + expected;
     } 
 }
 
@@ -60,7 +60,7 @@ internal class EndOfArchive : ApplicationException {
     public EndOfArchive(){ }
 
     public override string ToString(){
-	return "End of tar archive";
+    return "End of tar archive";
     }
 }
 
@@ -99,119 +99,119 @@ internal class Header{
     
     /* True if a buffer contains all zeroes */
     public static bool all_zeroes(byte[] buffer){
-	bool zeroes = true;
-	for (int i = 0; i < buffer.Length && zeroes; i++) {
-	    if (buffer[i] != 0) zeroes = false;
-	}
-	return zeroes;
+    bool zeroes = true;
+    for (int i = 0; i < buffer.Length && zeroes; i++) {
+        if (buffer[i] != 0) zeroes = false;
+    }
+    return zeroes;
     }
 
     /* Return a sub-array of bytes */
     private byte[] slice(byte[] input, int offset, int length){
-	byte[] result = new byte[length];
-	for (int i = 0; i < length; i++) {
-	    result[i] = input[offset + i];
-	}
-	return result;
+    byte[] result = new byte[length];
+    for (int i = 0; i < length; i++) {
+        result[i] = input[offset + i];
+    }
+    return result;
     }
     
     /* Remove NULLs and spaces from the end of a string */
     private string trim_trailing_stuff(string x){
-	char[] trimmed = { '\0', ' '};
-	return x.TrimEnd(trimmed);
+    char[] trimmed = { '\0', ' '};
+    return x.TrimEnd(trimmed);
     }
 
     /* Convert the byte array into a string (assume UTF8) */
     private string unmarshal_string(byte[] buffer){
-	Decoder decoder = Encoding.UTF8.GetDecoder();
-	char[] chars = new char[decoder.GetCharCount(buffer, 0, (int)buffer.Length)];
-	decoder.GetChars(buffer, 0, (int)buffer.Length, chars, 0);
-	return trim_trailing_stuff(new string(chars));
+    Decoder decoder = Encoding.UTF8.GetDecoder();
+    char[] chars = new char[decoder.GetCharCount(buffer, 0, (int)buffer.Length)];
+    decoder.GetChars(buffer, 0, (int)buffer.Length, chars, 0);
+    return trim_trailing_stuff(new string(chars));
     }
     
     /* Unmarshal an octal string into an int32 */
     private uint unmarshal_int32(byte[] buffer){
-	string octal = "0" + unmarshal_string(buffer);
-	return System.Convert.ToUInt32(octal, 8);
+    string octal = "0" + unmarshal_string(buffer);
+    return System.Convert.ToUInt32(octal, 8);
     }
     
     /* Unmarshal an octal string into an int */
     private int unmarshal_int(byte[] buffer){
-	string octal = "0" + unmarshal_string(buffer);
-	return System.Convert.ToInt32(octal, 8);
+    string octal = "0" + unmarshal_string(buffer);
+    return System.Convert.ToInt32(octal, 8);
     }
     
     /* Recompute the (weak) header checksum */
     private uint compute_checksum(byte[] buffer){
-	uint total = 0;
-	for(int i = 0; i < buffer.Length; i++){
-	    /* treat the checksum digits as ' ' */
-	    if ((i >= chksum_off) && (i < (chksum_off + chksum_len))){
-		total += 32; /* ' ' */
-	    } else {
-		total += buffer[i];
-	    }
-	}
-	return total;
+    uint total = 0;
+    for(int i = 0; i < buffer.Length; i++){
+        /* treat the checksum digits as ' ' */
+        if ((i >= chksum_off) && (i < (chksum_off + chksum_len))){
+        total += 32; /* ' ' */
+        } else {
+        total += buffer[i];
+        }
+    }
+    return total;
     }
 
     /* Compute the required length of padding data to follow the data payload */
     public uint paddingLength(){
-	/* round up to the next whole number of blocks */
-	uint next_block_length = (file_size + length - 1) / length * length;
-	return next_block_length - file_size;
+    /* round up to the next whole number of blocks */
+    uint next_block_length = (file_size + length - 1) / length * length;
+    return next_block_length - file_size;
     }
 
     /* pretty-print a header */
     public override string ToString(){
-	return String.Format("{0}/{1} {2:000000000000} {3:000000000000} {4}", 
-			     user_id, group_id, file_size, mod_time, file_name);
+    return String.Format("{0}/{1} {2:000000000000} {3:000000000000} {4}", 
+                 user_id, group_id, file_size, mod_time, file_name);
     }
 
     /* Unmarshal a header from a buffer, throw an exception if the checksum doesn't validate */
     public Header(byte[] buffer){
-	file_name = unmarshal_string(slice(buffer, file_name_off, file_name_len));
-	file_mode = unmarshal_int(slice(buffer, file_mode_off, file_mode_len));
-	user_id   = unmarshal_int(slice(buffer, user_id_off, user_id_len));
-	group_id  = unmarshal_int(slice(buffer, group_id_off, group_id_len));
-	file_size = unmarshal_int32(slice(buffer, file_size_off, file_size_len));
-	mod_time  = unmarshal_int32(slice(buffer, mod_time_off, mod_time_len));
-	link      = unmarshal_string(slice(buffer, link_off, link_len)) == "1";
-	link_name = unmarshal_int(slice(buffer, link_name_off, link_name_len));
+    file_name = unmarshal_string(slice(buffer, file_name_off, file_name_len));
+    file_mode = unmarshal_int(slice(buffer, file_mode_off, file_mode_len));
+    user_id   = unmarshal_int(slice(buffer, user_id_off, user_id_len));
+    group_id  = unmarshal_int(slice(buffer, group_id_off, group_id_len));
+    file_size = unmarshal_int32(slice(buffer, file_size_off, file_size_len));
+    mod_time  = unmarshal_int32(slice(buffer, mod_time_off, mod_time_len));
+    link      = unmarshal_string(slice(buffer, link_off, link_len)) == "1";
+    link_name = unmarshal_int(slice(buffer, link_name_off, link_name_len));
 
-	uint chksum = unmarshal_int32(slice(buffer, chksum_off, chksum_len));
-	uint recomputed = compute_checksum(buffer);
-	if (chksum != recomputed)
-	    throw new HeaderChecksumFailed(recomputed, chksum);
-	
+    uint chksum = unmarshal_int32(slice(buffer, chksum_off, chksum_len));
+    uint recomputed = compute_checksum(buffer);
+    if (chksum != recomputed)
+        throw new HeaderChecksumFailed(recomputed, chksum);
+    
     }       
     
     /* Read a tar header from a stream */
     public static Header fromStream(Stream input){
-	byte[] one = IO.unmarshal_n(input, length);
-	if (all_zeroes(one)){
-	    byte[] two = IO.unmarshal_n(input, length);
-	    if (all_zeroes(two))
-		throw new EndOfArchive();
-	    return new Header(two);
-	}
-	return new Header(one);
+    byte[] one = IO.unmarshal_n(input, length);
+    if (all_zeroes(one)){
+        byte[] two = IO.unmarshal_n(input, length);
+        if (all_zeroes(two))
+        throw new EndOfArchive();
+        return new Header(two);
+    }
+    return new Header(one);
     }
 }
 
 internal class Archive{
 
     public static void list(Stream stream){
-	try {
-	    while (true){
-		Header x = Header.fromStream(stream);
-		Console.WriteLine(x);
-		IO.skip(stream, x.file_size);
-		IO.skip(stream, x.paddingLength());
-	    }
-	    
-	}catch(EndOfArchive){
-	    Console.WriteLine("EOF");
-	}
+    try {
+        while (true){
+        Header x = Header.fromStream(stream);
+        Console.WriteLine(x);
+        IO.skip(stream, x.file_size);
+        IO.skip(stream, x.paddingLength());
+        }
+        
+    }catch(EndOfArchive){
+        Console.WriteLine("EOF");
+    }
     }
 }

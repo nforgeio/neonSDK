@@ -6,17 +6,17 @@ namespace Microsoft.Virtualization.Client.Management;
 
 internal interface ICimClass : IDisposable
 {
-	CimReadOnlyKeyedCollection<CimMethodDeclaration> CimClassMethods { get; }
+    CimReadOnlyKeyedCollection<CimMethodDeclaration> CimClassMethods { get; }
 
-	CimReadOnlyKeyedCollection<CimPropertyDeclaration> CimClassProperties { get; }
+    CimReadOnlyKeyedCollection<CimPropertyDeclaration> CimClassProperties { get; }
 
-	CimReadOnlyKeyedCollection<CimQualifier> CimClassQualifiers { get; }
+    CimReadOnlyKeyedCollection<CimQualifier> CimClassQualifiers { get; }
 
-	ICimClass CimSuperClass { get; }
+    ICimClass CimSuperClass { get; }
 
-	CimClass Class { get; }
+    CimClass Class { get; }
 
-	string CimSuperClassName { get; }
+    string CimSuperClassName { get; }
 
-	CimSystemProperties CimSystemProperties { get; }
+    CimSystemProperties CimSystemProperties { get; }
 }

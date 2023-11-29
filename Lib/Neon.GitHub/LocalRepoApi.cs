@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    LocalRepoApi.cs
+//-----------------------------------------------------------------------------
+// FILE:        LocalRepoApi.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -45,6 +45,7 @@ using GitHubSignature  = Octokit.Signature;
 using GitBranch     = LibGit2Sharp.Branch;
 using GitRepository = LibGit2Sharp.Repository;
 using GitSignature  = LibGit2Sharp.Signature;
+using GitCommit     = LibGit2Sharp.Commit;
 
 namespace Neon.GitHub
 {
@@ -109,6 +110,7 @@ namespace Neon.GitHub
         /// </summary>
         /// <returns>The new <see cref="PushOptions"/>.</returns>
         /// <exception cref="ObjectDisposedException">Thrown when the instance is disposed.</exception>
+        /// <exception cref="LibGit2SharpException">Thrown when the operation fails.</exception>
         public PushOptions CreatePushOptions()
         {
             root.EnsureNotDisposed();
@@ -116,7 +118,8 @@ namespace Neon.GitHub
 
             return new PushOptions()
             {
-                CredentialsProvider = root.CredentialsProvider
+                CredentialsProvider = root.CredentialsProvider,
+                OnPushStatusError   = errors => throw new LibGit2SharpException(errors.Message)
             };
         }
 
@@ -148,33 +151,69 @@ namespace Neon.GitHub
         }
 
         /// <summary>
-        /// Commits any staged and pending changes to the local git repository.
+        /// Commits any staged and non-staged changes to the local git repository by default.  You
+        /// can also just commit staged changes by passing <paramref name="autoStage"/><c>=false</c>.
         /// </summary>
         /// <param name="message">Optionally specifies the commit message.  This defaults to <b>unspecified changes"</b>.</param>
-        /// <returns><c>true</c> when changes were comitted, <c>false</c> when there were no pending changes.</returns>
+        /// <param name="autoStage">Optionally disable automatic staging of new and changed files.  This defaults to <c>true</c>.</param>
+        /// <returns>The new <see cref="GitCommit"/> when changes were committed, <c>null</c> when there were no pending changes.</returns>
         /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
-        public async Task<bool> CommitAsync(string message = null)
+        public async Task<GitCommit> CommitAsync(string message = null, bool autoStage = true)
         {
             await SyncContext.Clear;
             root.EnsureNotDisposed();
             root.EnsureLocalRepo();
 
-            message ??= "unspecified changes";
+            message ??= "[no message]";
 
             if (!IsDirty)
             {
-                return false;
+                return null;
             }
 
-            Commands.Stage(root.GitApi, "*");
+            if (autoStage)
+            {
+                var statusOptions = new StatusOptions
+                {
+                    DetectRenamesInIndex   = false,
+                    DetectRenamesInWorkDir = false
+                };
+
+                var changes = root.GitApi.RetrieveStatus(statusOptions)
+                    .Select(change => change.FilePath);
+
+                foreach (var change in changes)
+                {
+                    Commands.Stage(root.GitApi, change);
+                }
+            }
 
             var signature = CreateSignature();
+            var commit    = (GitCommit)null;
 
-            root.GitApi.Commit(message, signature, signature);
+            try
+            {
+                commit = root.GitApi.Commit(message, signature, signature);
+            }
+            catch (EmptyCommitException)
+            {
+                // $todo(jefflill):
+                // $hack(jefflill):
+                //
+                // I'm not entirely sure why we're seeing these exceptions when creating
+                // the [neonversion.go] source file while initializing a new [neon-kubernetes]
+                // branch via our [neon-kube] tool.
+                //
+                // In this case, the local repo branch reports being dirty and it the source
+                // file does end up being committed and pushed to GitHub.
+                //
+                // We're going to ignore this for the time being, but should have a look
+                // again sometime in the future.
+            }
 
-            return await Task.FromResult(true);
+            return await Task.FromResult(commit);
         }
 
         /// <summary>
@@ -257,26 +296,9 @@ namespace Neon.GitHub
             }
 
             root.GitApi.Network.Push(currentBranch, CreatePushOptions());
+            await root.WaitForGitHubAsync(async () => await root.Remote.Branch.FindAsync(currentBranch.FriendlyName) != null);
 
-            await root.WaitForGitHubAsync(
-                async () =>
-                {
-                    // It may take some time for the new branch to be created
-                    // on GitHub, so we're going to ignore [NotFoundException].
-
-                    try
-                    {
-                        var serverBranchUpdate = await root.Remote.Branch.GetAsync(currentBranch.FriendlyName);
-
-                        return serverBranchUpdate.Commit.Sha == currentBranch.Tip.Sha;
-                    }
-                    catch (Octokit.NotFoundException)
-                    {
-                        return false;
-                    }
-                });
-
-            return await Task.FromResult(true);
+            return true;
         }
 
         /// <summary>
@@ -326,12 +348,78 @@ namespace Neon.GitHub
         }
 
         /// <summary>
+        /// Wait for a local branch to exist or not.
+        /// </summary>
+        /// <param name="branchName">Specifies the branch name.</param>
+        /// <param name="exists">
+        /// Pass <c>true</c> to wait for the branch to appear or <c>false</c>
+        /// for it to disappers.
+        /// </param>
+        private void WaitForBranch(string branchName, bool exists)
+        {
+            NeonHelper.WaitFor(() => exists ? root.GitApi.Branches[branchName] != null : root.GitApi.Branches[branchName] == null,
+                timeout:      TimeSpan.FromSeconds(60),
+                pollInterval: TimeSpan.FromMilliseconds(250));
+        }
+
+        /// <summary>
+        /// Creates a local branch from a named GitHub repository origin branch and then checks 
+        /// out the branch.  By default, the local branch will have the same name as the origin, 
+        /// but this can be customized.
+        /// </summary>
+        /// <param name="originBranchName">Specifies the GitHub origin repository branch name.</param>
+        /// <param name="localBranchName">Optionally specifies the local branch name.  This defaults to <paramref name="originBranchName"/>.</param>
+        /// <param name="detached">
+        /// Optionally detach the local branch from the remote.  This means you won't be able to
+        /// push changes back to the remote but this is useful for situations where you just need
+        /// the current snapshot of a remote branch rather than the entire branch history (i.e.
+        /// for a build).
+        /// </param>
+        /// <returns><c>true</c> if the local branch didn't already exist and was created from the GitHub origin repository, <c>false</c> if it already existed.</returns>
+        /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
+        /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
+        public async Task<bool> CheckoutOriginAsync(string originBranchName, string localBranchName = null, bool detached = false)
+        {
+            await SyncContext.Clear;
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(originBranchName), nameof(originBranchName));
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
+
+            localBranchName ??= originBranchName;
+
+            var created = root.GitApi.Branches[localBranchName] == null;
+
+            if (created)
+            {
+                var branch = root.GitApi.CreateBranch(localBranchName, $"{root.Origin.Name}/{originBranchName}");
+
+                if (!detached)
+                {
+                    // Configure the new branch to track the remote.
+
+                    branch = root.GitApi.Branches.Update(branch,
+                        updater => updater.Remote = root.Origin.Name,
+                        updater => updater.UpstreamBranch = branch.CanonicalName);
+                }
+            }
+
+            await CheckoutAsync(localBranchName);
+
+            // Wait for the branch to appear.
+
+            WaitForBranch(localBranchName, exists: true);
+
+            return created;
+        }
+
+        /// <summary>
         /// Creates a new local branch from the tip of a source branch if the new branch
         /// doesn't already exist and then checks out the new branch.
         /// </summary>
         /// <param name="branchName">Identifies the branch to being created.</param>
         /// <param name="sourceBranchName">Identifies the source branch.</param>
-        /// <returns><c>true</c> if the branch didn't already exist and was created, <c>false</c> otherwise.</returns>
+        /// <returns><c>true</c> if the branch didn't already exist and was created, <c>false</c> if it already existed.</returns>
         /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
@@ -362,43 +450,16 @@ namespace Neon.GitHub
             root.GitApi.CreateBranch(branchName, sourceBranch.Tip);
             await CheckoutAsync(branchName);
 
+            // Wait for the branch to appear.
+
+            WaitForBranch(branchName, exists: true);
+
             return await Task.FromResult(true);
         }
 
-        /// <summary>
-        /// Creates a local branch from a named GitHub repository origin branch and then checks 
-        /// out the branch.  By default, the local branch will have the same name as the origin, 
-        /// but this can be customized.
-        /// </summary>
-        /// <param name="originBranchName">Specifies the GitHub origin repository branch name.</param>
-        /// <param name="branchName">Optionally specifies the local branch name.  This defaults to <paramref name="originBranchName"/>.</param>
-        /// <returns><c>true</c> if the local branch didn't already exist and was created from the GitHub origin repository, <c>false</c> otherwise.</returns>
-        /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
-        /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
-        /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
-        public async Task<bool> CheckoutOriginAsync(string originBranchName, string branchName = null)
-        {
-            await SyncContext.Clear;
-            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(originBranchName), nameof(originBranchName));
-            root.EnsureNotDisposed();
-            root.EnsureLocalRepo();
-
-            branchName ??= originBranchName;
-
-            var created = root.GitApi.Branches[branchName] == null;
-
-            if (created)
-            {
-                root.GitApi.CreateBranch(branchName, $"{root.Origin.Name}/{originBranchName}");
-            }
-
-            await CheckoutAsync(branchName);
-
-            return created;
-        }
 
         /// <summary>
-        /// Removes a branch from local repository as well as the from the GitHub origin repository, if they exist.
+        /// Removes a branch from the local repository if it exists.
         /// </summary>
         /// <param name="branchName">Specifies the branch to be removed.</param>
         /// <returns><c>true</c> if the branch existed and was removed, <c>false</c> otherwise.</returns>
@@ -412,13 +473,11 @@ namespace Neon.GitHub
             root.EnsureNotDisposed();
             root.EnsureLocalRepo();
 
-            // Remove the origin branch.
-
-            root.GitApi.Network.Push(root.Origin, $"+:refs/heads/{branchName}", CreatePushOptions());
-
-            // Remove the local branch.
-
             root.GitApi.Branches.Remove(branchName);
+
+            // Wait for the branch to show disappear.
+
+            WaitForBranch(branchName, exists: false);
 
             await Task.CompletedTask;
         }
@@ -480,7 +539,8 @@ namespace Neon.GitHub
         }
 
         /// <summary>
-        /// Reverts any uncommitted changes in the current local repository branch.
+        /// Reverts any uncommitted changes in the current local repository branch,
+        /// including untracked files.
         /// </summary>
         /// <returns>The tracking <see cref="Task"/>.</returns>
         /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
@@ -613,7 +673,7 @@ namespace Neon.GitHub
             await SyncContext.Clear;
 
             var localCommits  = await GetCommitsAsync();
-            var localTipSha   = localCommits.First().Id.Sha;
+            var localTipSha   = localCommits.First().Sha;
             var remoteCommits = await root.Remote.GetCommitsAsync(CurrentBranch.FriendlyName);
             var remoteTipSha  = remoteCommits.First().Sha;
 
@@ -625,7 +685,7 @@ namespace Neon.GitHub
             // We're behind when the local branch doesn't include the tip commit
             // of the remote branch.
 
-            return !localCommits.Any(localCommit => localCommit.Id.Sha == remoteTipSha);
+            return !localCommits.Any(localCommit => localCommit.Sha == remoteTipSha);
         }
 
         /// <summary>
@@ -637,7 +697,7 @@ namespace Neon.GitHub
             await SyncContext.Clear;
 
             var localCommits  = await GetCommitsAsync();
-            var localTipSha   = localCommits.First().Id.Sha;
+            var localTipSha   = localCommits.First().Sha;
             var remoteCommits = await root.Remote.GetCommitsAsync(CurrentBranch.FriendlyName);
             var remoteTipSha  = remoteCommits.First().Sha;
 
@@ -650,6 +710,673 @@ namespace Neon.GitHub
             // in the remote branch.
 
             return !remoteCommits.Any(remoteCommit => remoteCommit.Sha == localTipSha);
+        }
+
+        /// <summary>
+        /// Enumerates the friendly names of the local branches.
+        /// </summary>
+        /// <returns>The <see cref="GitBranch"/> instances.</returns>
+        public async Task<IEnumerable<GitBranch>> ListBranchesAsync()
+        {
+            await SyncContext.Clear;
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
+
+            return root.GitApi.Branches.ToArray();
+        }
+
+        /// <summary>
+        /// Determines whether a specific branch exists by friendly name.
+        /// </summary>
+        /// <param name="branchName">Specfies the friendly name of the target branch.</param>
+        /// <returns><c>true</c> when the branch exists.</returns>
+        public async Task<bool> BranchExistsAsync(string branchName)
+        {
+            await SyncContext.Clear;
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
+
+            return (await ListBranchesAsync()).Any(branch => branch.FriendlyName == branchName);
+        }
+
+        /// <summary>
+        /// Attempts to retrieve a branch by friendly name.
+        /// </summary>
+        /// <param name="branchName">Specifies the friendly name of the target branch.</param>
+        /// <returns>The <see cref="GitBranch"/> if it exists, <c>null</c> otherwise.</returns>
+        public async Task<GitBranch> FindBranchAsync(string branchName)
+        {
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
+
+            return await Task.FromResult(root.GitApi.Branches.SingleOrDefault(branch => branch.FriendlyName == branchName));
+        }
+
+        /// <summary>
+        /// Returns the branch by friendly name
+        /// </summary>
+        /// <param name="branchName">Specifies the friendly name of the target branch.</param>s
+        /// <returns>The <see cref="GitBranch"/>.</returns>
+        /// <exception cref="LibGit2Sharp.NotFoundException">Thrown if the branch doesn't exist.</exception>
+        public async Task<GitBranch> GetBranchAsync(string branchName)
+        {
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
+
+            var branch = await FindBranchAsync(branchName);
+
+            if (branch == null)
+            {
+                throw new LibGit2Sharp.NotFoundException($"Branch does not exist: {branchName}");
+            }
+
+            return branch;
+        }
+
+        /// <summary>
+        /// Returns the commits for a local branch by friendly name.
+        /// </summary>
+        /// <param name="branchName">Specifies the friendly name of the target branch.</param>
+        /// <returns>The commits.</returns>
+        /// <exception cref="LibGit2Sharp.NotFoundException">Thrown if the branch doesn't exist.</exception>
+        public async Task<IEnumerable<GitCommit>> GetBranchCommitsAsync(string branchName)
+        {
+            await SyncContext.Clear;
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
+
+            var branch = root.GitApi.Branches.SingleOrDefault(branch => branch.FriendlyName == branchName);
+
+            if (branch == null)
+            {
+                throw new LibGit2Sharp.NotFoundException($"Branch does not exist: {branchName}");
+            }
+
+            return branch.Commits.ToArray();
+        }
+
+        /// <summary>
+        /// Returns the status of a working file by comparing it against any staged file
+        /// and the current commit.
+        /// </summary>
+        /// <param name="path">Path to the working file.</param>
+        /// <returns>The <see cref="FileStatus"/>.</returns>
+        public async Task<FileStatus> RetrieveStatusAsync(string path)
+        {
+            await SyncContext.Clear;
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(path), nameof(path));
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
+
+            return await Task.FromResult(root.GitApi.RetrieveStatus(path));
+        }
+
+        /// <summary>
+        /// Returns the status of a working file by comparing it against any staged file
+        /// and the current commit.
+        /// </summary>
+        /// <param name="options">Optionally specifies status retrieval options.</param>
+        /// <returns>The <see cref="RepositoryStatus"/>.</returns>
+        public async Task<RepositoryStatus> RetrieveStatusAsync(StatusOptions options = null)
+        {
+            await SyncContext.Clear;
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
+
+            return await Task.FromResult(root.GitApi.RetrieveStatus(options ?? new StatusOptions()));
+        }
+
+        /// <summary>
+        /// Stages a file.
+        /// </summary>
+        /// <param name="path">
+        /// <para>
+        /// Path to the file.
+        /// </para>
+        /// <note>
+        /// You can pass <b>"*"</b> to stage all untracked files.
+        /// </note>
+        /// </param>
+        /// <returns>The tracking <see cref="Task"/>.</returns>
+        public async Task StageAsync(string path)
+        {
+            await SyncContext.Clear;
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(path), nameof(path));
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
+
+            Commands.Stage(root.GitApi, path);
+            await Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Unstages a file.
+        /// </summary>
+        /// <param name="path">Path to the file.</param>
+        /// <returns>The tracking <see cref="Task"/>.</returns>
+        public async Task UnstageAsync(string path)
+        {
+            await SyncContext.Clear;
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(path), nameof(path));
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
+
+            Commands.Unstage(root.GitApi, path);
+            await Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Cherry-picks commits from a target branch and adds them to the current branch.
+        /// </summary>
+        /// <param name="sourceBranchName">Specifies the friendly name of the local source branch.</param>
+        /// <param name="commits">
+        /// Specifies the commits to be cherry-picked from the source branch and added to the target.
+        /// The commits will be applied in the order they appear here.
+        /// </param>
+        /// <returns>The tracking <see cref="Task"/>.</returns>
+        /// <exception cref="LibGit2SharpException">
+        /// Thrown when the source branch doesn't include any of the commits, the target
+        /// branch already includes one or more, or when there was a conflict cherry-picking
+        /// a commit.
+        /// </exception>
+        /// <remarks>
+        /// <para>
+        /// Before applying the commits from the source branch, this method verifies that
+        /// the source branch actually includes all of the specifies commits and the current
+        /// branch includes none of these commits.
+        /// </para>
+        /// <para>
+        /// Cherry-picking will stop if one of the operations fails due to a conflict.
+        /// </para>
+        /// </remarks>
+        public async Task CherryPickAsync(string sourceBranchName, IEnumerable<GitCommit> commits)
+        {
+            await SyncContext.Clear;
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(sourceBranchName), nameof(sourceBranchName));
+            Covenant.Requires<ArgumentNullException>(commits != null, nameof(commits));
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
+
+            var sourceBranch      = await GetBranchAsync(sourceBranchName);
+            var idToPickCommit    = commits.ToDictionary(commit => commit.Sha);
+            var idToSourceCommit  = sourceBranch.Commits.ToDictionary(commit => commit.Sha);
+            var idToCurrentCommit = CurrentBranch.Commits.ToDictionary(commit => commit.Sha);
+
+            // Ensure that all of the requested commits exist in the source branch.
+
+            var sbError = new StringBuilder();
+
+            foreach (var commit in commits)
+            {
+                if (!idToSourceCommit.ContainsKey(commit.Sha))
+                {
+                    sbError.AppendWithSeparator(commit.Sha);
+                }
+            }
+
+            if (sbError.Length > 0)
+            {
+                throw new LibGit2SharpException($"Source branch [{sourceBranchName}] does not include these commits: {sbError}");
+            }
+
+            // Ensure that none of the commits already exist in the current branch.
+
+            sbError.Clear();
+
+            foreach (var commit in commits)
+            {
+                if (idToCurrentCommit.ContainsKey(commit.Sha))
+                {
+                    sbError.AppendWithSeparator(commit.Sha);
+                }
+            }
+
+            if (sbError.Length > 0)
+            {
+                throw new LibGit2SharpException($"Current branch [{CurrentBranch.FriendlyName}] already includes these commits: {sbError}");
+            }
+
+            // Cherry-pick the commits from the source branch.
+
+            var signature = CreateSignature();
+
+            foreach (var commit in commits)
+            {
+                // Merge commits have two parents and we need to configure the cherry-pick
+                // mainline option for these.  We're going to hardcode the first branch there.
+
+                var options = new CherryPickOptions()
+                {
+                    FileConflictStrategy = CheckoutFileConflictStrategy.Theirs,
+                    CommitOnSuccess      = true,
+                };
+
+                if (commit.Parents.Count() > 1)
+                {
+                    options.Mainline = 1;
+                }
+
+                try
+                {
+                    var result = root.GitApi.CherryPick(commit, signature, options);
+
+                    if (result.Status == CherryPickStatus.Conflicts)
+                    {
+                        throw new LibGit2SharpException($"Conflict cherry-picking: {commit.Sha}: {commit.Message}");
+                    }
+                }
+                catch (EmptyCommitException)
+                {
+                    // We're going to ignore these.
+                }
+            }
+        }
+
+        /// <summary>
+        /// Resets the current repo branch to match the HEAD commit using the <paramref name="resetMode"/>.
+        /// </summary>
+        /// <param name="resetMode">Specifies the reset mode</param>
+        /// <returns>The tracking <see cref="Task"/>.</returns>
+        /// <remarks>
+        /// <para>
+        /// This method is used to undo uncommitted changes to the local repository.
+        /// This may impact the repo's working directory and staging index, depending
+        /// on the <paramref name="resetMode"/> passed.
+        /// </para>
+        /// <list type="table">
+        /// <item>
+        ///     <term><see cref="ResetMode.Hard"/></term>
+        ///     <description>
+        ///     <para>
+        ///     Resets the working directory and staging index to match the current
+        ///     branch's HEAD commit.  This effectively undoes all repo changes with
+        ///     any pending changes being lost.
+        ///     </para>
+        ///     <note>
+        ///     Untracked files in the working directory are not impacted.
+        ///     </note>
+        ///     </description>
+        /// </item>
+        /// <item>
+        ///     <term><see cref="ResetMode.Mixed"/></term>
+        ///     <description>
+        ///     Unstages any changes by moving them back to the working directory
+        ///     with any other changes to the working directory being left alone.
+        ///     </description>
+        /// </item>
+        /// <item>
+        ///     <term><see cref="ResetMode.Soft"/></term>
+        ///     <description>
+        ///     This mode doesn't make sense when working with the HEAD commit
+        ///     and does nothing.
+        ///     </description>
+        /// </item>
+        /// </list>
+        /// <para>
+        /// See this for more details: <a href="https://www.atlassian.com/git/tutorials/undoing-changes/git-reset"/>
+        /// </para>
+        /// </remarks>
+        public async Task ResetAsync(ResetMode resetMode)
+        {
+            await SyncContext.Clear;
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
+
+            if (resetMode == ResetMode.Soft)
+            {
+                return;
+            }
+
+            root.GitApi.Reset(resetMode);
+        }
+
+        /// <summary>
+        /// Changes current branch HEAD commit to the specified commit and then applies
+        /// any changes from this commit as specified by <paramref name="resetMode"/>.
+        /// </summary>
+        /// <param name="resetMode">Specifies the reset mode</param>
+        /// <param name="commit">Specifies the target commit.</param>
+        /// <param name="options">Optionally specifies checkout options.</param>
+        /// <returns>The tracking <see cref="Task"/>.</returns>
+        /// <remarks>
+        /// <para>
+        /// This method is used to undo uncommitted changes to the local repository.
+        /// This may impact the repo's working directory and staging index, depending
+        /// on the <paramref name="resetMode"/> passed.
+        /// </para>
+        /// <list type="table">
+        /// <item>
+        ///     <term><see cref="ResetMode.Hard"/></term>
+        ///     <description>
+        ///     <para>
+        ///     Moves the current branch HEAD to the specified commit and resets
+        ///     the working directory and staging index to match this commit.
+        ///     This effectively undoes changes to staged and tracked files.
+        ///     </para>
+        ///     <note>
+        ///     Untracked files in the working directory are not impacted.
+        ///     </note>
+        ///     </description>
+        /// </item>
+        /// <item>
+        ///     <term><see cref="ResetMode.Mixed"/></term>
+        ///     <description>
+        ///     Moves the current branch HEAD to the specified commit, applying any
+        ///     staged changes back to the working directory.  No other modifications
+        ///     will be made to the working directory.
+        ///     </description>
+        /// </item>
+        /// <item>
+        ///     <term><see cref="ResetMode.Soft"/></term>
+        ///     <description>
+        ///     Moves the current branch HEAD to the specified commit.  The working
+        ///     directory and any staged files will remain unchanged.
+        ///     </description>
+        /// </item>
+        /// </list>
+        /// <para>
+        /// See this for more details: <a href="https://www.atlassian.com/git/tutorials/undoing-changes/git-reset"/>
+        /// </para>
+        /// </remarks>
+        public async Task ResetAsync(ResetMode resetMode, GitCommit commit, CheckoutOptions options = null)
+        {
+            await SyncContext.Clear;
+            Covenant.Requires<ArgumentNullException>(commit != null, nameof(commit));
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
+
+            root.GitApi.Reset(resetMode, commit, options ?? new CheckoutOptions());
+        }
+
+        /// <summary>
+        /// <para>
+        /// Lists all tags (lightweight and annotated) from the local repo.
+        /// </para>
+        /// <note>
+        /// You can use the <see cref="Tag.IsAnnotated"/> property to distinguish between
+        /// annotated and lightweight tags.
+        /// </note>
+        /// </summary>
+        /// <returns>The tags.</returns>
+        public async Task<IEnumerable<Tag>> ListAllTagsAsync()
+        {
+            await SyncContext.Clear;
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
+
+            return (await Task.FromResult(root.GitApi.Tags))
+                .ToArray();
+        }
+
+        /// <summary>
+        /// Lists the lightweight tags from the local repo.
+        /// </summary>
+        /// <returns>The tags.</returns>
+        public async Task<IEnumerable<Tag>> ListLightweightTagsAsync()
+        {
+            await SyncContext.Clear;
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
+
+            return (await Task.FromResult(root.GitApi.Tags))
+                .Where(tag => !tag.IsAnnotated)
+                .ToArray();
+        }
+
+        /// <summary>
+        /// Lists the annotated tags from the local repo.
+        /// </summary>
+        /// <returns>The annotated tag names.</returns>
+        public async Task<IEnumerable<Tag>> ListAnnotatedTagsAsync()
+        {
+            await SyncContext.Clear;
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
+
+            return (await Task.FromResult(root.GitApi.Tags))
+                .Where(tag => tag.IsAnnotated)
+                .ToArray();
+        }
+
+        /// <summary>
+        /// Determines whether a specific annotated tag exists.
+        /// </summary>
+        /// <param name="tagName">Specfies the target tag's friendly name.</param>
+        /// <returns><c>true</c> when the annotated tag exists.</returns>
+        public async Task<bool> AnnotatedTagExistsAsync(string tagName)
+        {
+            await SyncContext.Clear;
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(tagName), nameof(tagName));
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
+
+            return (await ListAnnotatedTagsAsync()).Any(tag => tag.FriendlyName == tagName);
+        }
+
+        /// <summary>
+        /// Attempts to retrieve an annotated tag by friendly name.
+        /// </summary>
+        /// <param name="tagName">Specifies target tag's friendly name.</param>
+        /// <returns>The annotated <see cref="Tag"/> if it exists, <c>null</c> otherwise.</returns>
+        public async Task<Tag> FindAnnotatedTagAsync(string tagName)
+        {
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(tagName), nameof(tagName));
+
+            return (await ListAnnotatedTagsAsync()).SingleOrDefault(tag => tag.FriendlyName == tagName);
+        }
+
+        /// <summary>
+        /// Returns an annotated tag by friendly name.
+        /// </summary>
+        /// <param name="tagName">Specifies target tag's friendly name.</param>s
+        /// <returns>The annotated <see cref="Tag"/>.</returns>
+        /// <exception cref="LibGit2Sharp.NotFoundException">Thrown if the annotated tag doesn't exist.</exception>
+        public async Task<Tag> GetAnnotatedTagAsync(string tagName)
+        {
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(tagName), nameof(tagName));
+
+            var tag = await FindAnnotatedTagAsync(tagName);
+
+            if (tag == null)
+            {
+                throw new LibGit2Sharp.NotFoundException($"Annotated tag does not exist: {tagName}");
+            }
+
+            return tag;
+        }
+
+        /// <summary>
+        /// Creates an annotated tag from the HEAD commit for the specified or
+        /// current local branch, optionally pushing the new tag to GitHub.
+        /// </summary>
+        /// <param name="tagName">The new tag name.</param>
+        /// <param name="branch">Optionally specifies the source branch, overriding the current branch default.</param>
+        /// <param name="message">Optional tag commit message.</param>
+        /// <param name="push">Optionally push the tag to GitHub.</param>
+        /// <returns>The new <see cref="Tag"/>.</returns>
+        public async Task<Tag> ApplyAnnotatedTagAsync(string tagName, GitBranch branch = null, string message = null, bool push = false)
+        {
+            await SyncContext.Clear;
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(tagName), nameof(tagName));
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
+
+            branch  ??= root.GitApi.CurrentBranch();
+            message ??= $"tag created: {tagName}";
+
+            var tag = root.GitApi.Tags.Add(tagName, branch.Tip.Id.Sha, CreateSignature(), message);
+
+            if (push)
+            {
+                await PushTagAsync(tag);
+            }
+
+            return tag;
+        }
+
+        /// <summary>
+        /// Pushes a local annotated tag to GitHub.
+        /// </summary>
+        /// <param name="tag">Specifies the tag being pushed.</param>
+        /// <returns>The tracking <see cref="Task"/>.</returns>
+        /// <exception cref="InvalidOperationException">Thrown for non-anotated tags.</exception>
+        public async Task PushTagAsync(Tag tag)
+        {
+            await SyncContext.Clear;
+            Covenant.Requires<ArgumentNullException>(tag != null, nameof(tag));
+            Covenant.Requires<InvalidOperationException>(tag.IsAnnotated, nameof(tag));
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
+
+            root.GitApi.Network.Push(root.GitApi.Network.Remotes["origin"], tag.CanonicalName, CreatePushOptions());
+
+            // It appears that it can take a moment or two for the new tag
+            // to show up on GitHub, so we'll wait for that to happen.
+
+            await root.WaitForGitHubAsync(async () => (await root.Remote.Tag.FindAsync(tag.FriendlyName)) != null);
+        }
+
+        /// <summary>
+        /// Determines whether the file system path will be ignored by Git due to
+        /// the repo's current <b>.gitignore</b> file state.  Note that the path
+        /// does not need to exist within the repo.
+        /// </summary>
+        /// <param name="path">
+        /// <para>
+        /// Specifies the relative file path (relative to the local repo root
+        /// directory) to be tested.
+        /// </para>
+        /// <note>
+        /// You may use either forward or back slashes in the path as directory
+        /// separators.
+        /// </note>
+        /// </param>
+        /// <returns><c>true</c> when the path will be ignored.</returns>
+        public async Task<bool> IsPathIgnoredAsync(string path)
+        {
+            await SyncContext.Clear;
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(path), nameof(path));
+            Covenant.Requires<ArgumentException>(!Path.IsPathRooted(path) && path[0] != '/' && path[0] != '\\', nameof(path), $"Path cannot be absolute or rooted: {path}");
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
+
+            // Normalize directory path separators to match the current platform character.
+
+            switch (Path.DirectorySeparatorChar)
+            {
+                case '/':
+
+                    path = path.Replace('\\', '/');
+                    break;
+
+                case '\\':
+
+                    path = path.Replace('/', '\\');
+                    break;
+
+                default:
+
+                    throw new NotSupportedException($"Unsupported platform directory separator: {Path.DirectorySeparatorChar}");
+            }
+
+            // Perform the test.
+
+            return await Task.FromResult(root.GitApi.Ignore.IsPathIgnored(path));
+        }
+
+        /// <summary>
+        /// Changes the upstream <b>origin</b> remote URL for the local repo.  This works
+        /// by editing the <b>~/.git/config</b> file within the local repo.
+        /// </summary>
+        /// <param name="url">Specifies the new remote URL.</param>
+        /// <returns>The tracking <see cref="Task"/>.</returns>
+        public async Task SetOriginUrlAsync(string url)
+        {
+            await SyncContext.Clear;
+            Covenant.Assert(Uri.IsWellFormedUriString(url, UriKind.Absolute), $"Invalid URL: {url}");
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
+
+            var configPath  = Path.Combine(Folder, ".git", "config");
+            var configLines = await File.ReadAllLinesAsync(configPath);
+
+            // The [config] file is going to look something like this:
+            //
+            //  [core]
+            //        bare = false
+            //        repositoryformatversion = 0
+            //        filemode = false
+            //        symlinks = false
+            //        ignorecase = true
+            //        logallrefupdates = true
+            //  [remote "origin"]
+            //        url = https://github.com/nforgeio/neon-kubernetes.git
+            //        fetch = +refs/heads/*:refs/remotes/origin/*
+            //  [branch "master"]
+            //        remote = origin
+            //        merge = refs/heads/master
+            //
+            // We're going to look for the [remote "origin"] section and then
+            // edit the [url = ...] entry beneath this.
+
+            // $todo(jefflill):
+            //
+            // This could be hardened better and eventually, we'll want to
+            // generalize this method to be able to change this for other
+            // remotes besides "origin".  We could also add other methods
+            // add/remove remotes as well.
+
+            // Scan for the [remote "origin"] section start line.
+
+            var originSectionIndex = -1;
+            var originUrlIndex     = -1;
+
+            for (int i = 0; i < configLines.Length; i++)
+            {
+                if (configLines[i].StartsWith("[remote \"origin\"]"))
+                {
+                    originSectionIndex = i;
+                    break;
+                }
+            }
+
+            if (originSectionIndex == -1)
+            {
+                throw new LibGit2SharpException("Cannot locate the [origin] remote config.");
+            }
+
+            // Scan forward for the [url = ...] line within the section.
+
+            for (int i = originSectionIndex + 1; i <= configLines.Length; i++)
+            {
+                var cleaned = configLines[i]
+                    .Trim()
+                    .Replace(" ", string.Empty)
+                    .Replace("\t", string.Empty);
+
+                if (cleaned.StartsWith("url="))
+                {
+                    originUrlIndex = i;
+                    break;
+                }
+                else if (cleaned.StartsWith("["))
+                {
+                    // We didn't find the URL before the next config section.
+
+                    break;
+                }
+            }
+
+            if (originUrlIndex == -1)
+            {
+                throw new LibGit2SharpException("Cannot locate the [origin] URL.");
+            }
+
+            // Replace the [origin] URL line with the new one.
+
+            configLines[originUrlIndex] = $"\turl = {url}";
+
+            await File.WriteAllLinesAsync(configPath, configLines);
         }
     }
 }

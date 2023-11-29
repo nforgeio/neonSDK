@@ -1,4 +1,4 @@
-﻿#Requires -Version 7.1.3 -RunAsAdministrator
+#Requires -Version 7.1.3 -RunAsAdministrator
 #------------------------------------------------------------------------------
 # FILE:         build.ps1
 # CONTRIBUTOR:  Jeff Lill
@@ -22,8 +22,9 @@
 
 param 
 (
-	[parameter(Mandatory=$True,Position=1)][string] $registry,
-	[parameter(Mandatory=$True,Position=2)][string] $tag
+	[parameter(Mandatory=$true, Position=1)][string] $registry,
+	[parameter(Mandatory=$true, Position=2)][string] $tag,
+	[parameter(Mandatory=$true, Position=3)][string] $config
 )
 
 $appname           = "test-api"
@@ -31,28 +32,33 @@ $organization      = SdkRegistryOrg
 $base_organization = KubeBaseRegistryOrg
 $branch            = GitBranch $env:NF_ROOT
 
-# Build and publish the app to a local [bin] folder.
+try
+{
+    # Build and publish the app to a local [bin] folder.
 
-DeleteFolder bin
+    DeleteFolder bin
 
-mkdir bin | Out-Null
-ThrowOnExitCode
+    mkdir bin | Out-Null
+    ThrowOnExitCode
 
-dotnet publish "$nfServices\$appname\$appname.csproj" -c Release -o "$pwd\bin" 
-ThrowOnExitCode
+    dotnet publish "$nfServices\$appname\$appname.csproj" -c $config -o "$pwd\bin" 
+    ThrowOnExitCode
 
-# Split the build binaries into [__app] (application) and [__dep] dependency subfolders
-# so we can tune the image layers.
+    # Split the build binaries into [__app] (application) and [__dep] dependency subfolders
+    # so we can tune the image layers.
 
-core-layers $appname "$pwd\bin" 
-ThrowOnExitCode
+    core-layers $appname "$pwd\bin" 
+    ThrowOnExitCode
 
-# Build the image.
+    # Build the image.
 
-$baseImage = Get-DotnetBaseImage "$nfRoot\global.json"
+    $baseImage = Get-DotnetBaseImage "$nfRoot\global.json"
 
-Invoke-CaptureStreams "docker build -t ${registry}:${tag} --build-arg `"APPNAME=$appname`" --build-arg `"ORGANIZATION=$organization`" --build-arg `"BASE_ORGANIZATION=$base_organization`" --build-arg `"CLUSTER_VERSION=neonsdk-$neonSDK_Version`" --build-arg `"BASE_IMAGE=$baseImage`" --build-arg `"BRANCH=$branch`" ." -interleave | Out-Null
+    Invoke-CaptureStreams "docker build -t ${registry}:${tag} --build-arg `"APPNAME=$appname`" --build-arg `"ORGANIZATION=$organization`" --build-arg `"BASE_ORGANIZATION=$base_organization`" --build-arg `"CLUSTER_VERSION=neonsdk-$neonSDK_Version`" --build-arg `"BASE_IMAGE=$baseImage`" --build-arg `"BRANCH=$branch`" ." -interleave | Out-Null
+}
+finally
+{
+    # Clean up
 
-# Clean up
-
-DeleteFolder bin
+    DeleteFolder bin
+}

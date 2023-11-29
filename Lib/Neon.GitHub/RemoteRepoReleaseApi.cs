@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    RemoteRepoReleaseApi.cs
+//-----------------------------------------------------------------------------
+// FILE:        RemoteRepoReleaseApi.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -243,7 +243,18 @@ namespace Neon.GitHub
             Covenant.Requires<ArgumentNullException>(releaseUpdate != null, nameof(releaseUpdate));
             root.EnsureNotDisposed();
 
-            return await root.GitHubApi.Repository.Release.Edit(root.Remote.Id, release.Id, releaseUpdate);
+            var updatedRelease = await root.GitHubApi.Repository.Release.Edit(root.Remote.Id, release.Id, releaseUpdate);
+
+            // $hack(jefflill):
+            //
+            // It appears that it can take some time for the release to actually
+            // be updated on GitHub.  I'm going to hardcode a brief delay here
+            // as a hack, but we should figure out a way to explicitly poll
+            // to verify that this has actually happened.
+
+            await Task.Delay(TimeSpan.FromSeconds(10));
+
+            return updatedRelease;
         }
 
         /// <summary>
@@ -329,15 +340,8 @@ namespace Neon.GitHub
             root.EnsureNotDisposed();
 
             var releaseName = release.Name;
-
-            var upload = new ReleaseAssetUpload()
-            {
-                FileName    = assetName,
-                ContentType = contentType,
-                RawData     = stream
-            };
-
-            var newAsset = await root.GitHubApi.Repository.Release.UploadAsset(release, upload);
+            var upload      = new ReleaseAssetUpload(assetName, contentType, stream, root.Remote.UploadTimeout);
+            var newAsset    = await root.GitHubApi.Repository.Release.UploadAsset(release, upload);
 
             // GitHub doesn't appear to upload assets synchronously, so we're going to wait for the new asset to show up.
 

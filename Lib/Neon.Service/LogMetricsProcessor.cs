@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    LogMetricsProcessor.cs
+//-----------------------------------------------------------------------------
+// FILE:        LogMetricsProcessor.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ namespace Neon.Service
 {
     /// <summary>
     /// <para>
-    /// This OpenTelemetry processor maintains the labeled <b>neon_log_events</b> metrics
+    /// This OpenTelemetry processor maintains the labeled <b>neonsdk_log_events_total</b> metrics
     /// counter by incrementing the counter whenever events are logged, using the event's 
     /// <see cref="LogLevel"/> as the counter label.
     /// </para>

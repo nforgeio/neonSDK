@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    Test_AppDomainExtensions.cs
+//-----------------------------------------------------------------------------
+// FILE:        Test_AppDomainExtensions.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -51,10 +51,7 @@ namespace TestCommon
             if (NeonHelper.Framework == NetFramework.Core)
             {
                 // Verify that we see no [System*] or [Microsoft*] related assemblies and
-                // also that we scan types from the assemblies that are returned, to verify
-                // that this method works around this issue:
-                //
-                //      https://github.com/nforgeio/neonKUBE/issues/531
+                // also that we scan types from the assemblies that are returned.
 
                 foreach (var assembly in AppDomain.CurrentDomain.GetUserAssemblies())
                 {

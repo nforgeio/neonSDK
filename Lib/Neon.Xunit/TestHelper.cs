@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    TestHelper.cs
+//-----------------------------------------------------------------------------
+// FILE:        TestHelper.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -45,13 +45,13 @@ namespace Neon.Xunit
     public static class TestHelper
     {
         /// <summary>
-        /// The presence of this environment variable indicates that neonKUBE cluster
+        /// The presence of this environment variable indicates that NEONKUBE cluster
         /// based unit tests should be enabled.
         /// </summary>
         public const string ClusterTestingVariable = "NEON_CLUSTER_TESTING";
 
         /// <summary>
-        /// Indicates whether neonKUBE cluster based testing is enabled by the presence 
+        /// Indicates whether NEONKUBE cluster based testing is enabled by the presence 
         /// of the <c>NEON_CLUSTER_TESTING</c> environment variable.
         /// </summary>
         public static bool IsClusterTestingEnabled = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable(TestHelper.ClusterTestingVariable));
@@ -374,7 +374,7 @@ namespace Neon.Xunit
         /// </summary>
         /// <param name="expected">The expected value.</param>
         /// <param name="actual">The actual valut.</param>
-        /// <exception cref="AssertException">Thrown on failure.</exception>
+        /// <exception cref="AssertException">Thrown when the strings are not equal after removing CR characters.</exception>
         public static void AssertEqualLines(string expected, string actual)
         {
             if (expected != null)
@@ -388,6 +388,32 @@ namespace Neon.Xunit
             }
 
             if (expected != actual)
+            {
+                throw new AssertException($"Expected: [{expected} != [{actual}].");
+            }
+        }
+
+        /// <summary>
+        /// Compares two strings such that platform line ending differences will be
+        /// ignored.  This works by removing any embedded carriage returns before
+        /// performing the comparision.
+        /// </summary>
+        /// <param name="expected">The expected value.</param>
+        /// <param name="actual">The actual valut.</param>
+        /// <exception cref="AssertException">Thrown when the strings are equal after removing CR characters.</exception>
+        public static void AssertNotEqualLines(string expected, string actual)
+        {
+            if (expected != null)
+            {
+                expected = expected.Replace("\r", string.Empty);
+            }
+
+            if (actual != null)
+            {
+                actual = actual.Replace("\r", string.Empty);
+            }
+
+            if (expected == actual)
             {
                 throw new AssertException($"Expected: [{expected} != [{actual}].");
             }
@@ -752,7 +778,7 @@ namespace Neon.Xunit
         /// </summary>
         /// <remarks>
         /// <para>
-        /// This is simply a copy of the base image used for constructing neonKUBE node images
+        /// This is simply a copy of the base image used for constructing NEONKUBE node images
         /// and is Ubuntu 22.04 with these key changes (amongst others):
         /// </para>
         /// <list type="bullet">

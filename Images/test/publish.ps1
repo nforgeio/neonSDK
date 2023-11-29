@@ -1,4 +1,4 @@
-﻿#Requires -Version 7.1.3 -RunAsAdministrator
+#Requires -Version 7.1.3 -RunAsAdministrator
 #------------------------------------------------------------------------------
 # FILE:         publish.ps1
 # CONTRIBUTOR:  Jeff Lill
@@ -19,13 +19,13 @@
 # Builds the Test images and pushes them to the container registry.
 #
 # NOTE: You must be already logged into the target container registry.
-#
-# USAGE: pwsh -f publish.ps1 [-all]
 
 param 
 (
-	[switch]$all = $false,
-    [switch]$nopush = $false
+	[parameter(Mandatory=$true, Position=1)]
+    [string]$config,
+	[switch]$allVersions = $false,
+    [switch]$nopush      = $false
 )
 
 #----------------------------------------------------------

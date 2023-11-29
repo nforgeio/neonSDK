@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    HttpException.cs
+//-----------------------------------------------------------------------------
+// FILE:        HttpException.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ namespace Neon.Net
                 return string.Empty;
             }
 
-            return $" status=[{(int)statusCode}]";
+            return $"status=[{(int)statusCode}]";
         }
 
         private static string GetMethodString(string method)
@@ -106,17 +106,17 @@ namespace Neon.Net
         /// <param name="requestMethod">Optionally specifies the request method.</param>
         /// <param name="statusCode">Optionally specifies the response status code.</param>
         public HttpException(string reasonPhrase = null, string requestUri = null, string requestMethod = null, HttpStatusCode statusCode = (HttpStatusCode)0)
-            : base(GetMessage(reasonPhrase, requestUri, requestMethod, statusCode))
+            : base(GetMessage(reasonPhrase, requestMethod, requestUri, statusCode))
         {
-            this.RequestUri    = requestUri;
             this.RequestMethod = requestMethod;
+            this.RequestUri    = requestUri;
             this.ReasonPhrase  = reasonPhrase ?? string.Empty;
             this.StatusCode    = statusCode;
         }
 
         /// <summary>
         /// <para>
-        /// Constructs an exception from a <see cref="HttpRequestException"/> and optional
+        /// Constructs an exception from a <see cref="HttpRequestException"/> and optionals
         /// request details.
         /// </para>
         /// <note>

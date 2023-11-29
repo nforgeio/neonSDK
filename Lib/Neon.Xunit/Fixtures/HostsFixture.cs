@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    HostsFixture.cs
+//-----------------------------------------------------------------------------
+// FILE:        HostsFixture.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -99,8 +99,6 @@ namespace Neon.Xunit
         // reading any changes.  We're going to mitigate this by retrying a few times.
         //
         // It can take a bit of time for the Windows DNS resolver to pick up the change.
-        //
-        //      https://github.com/nforgeio/neonKUBE/issues/244
         //
         // We're going to mitigate this by writing a [neon-GUID.nhive.io] record with the
         // [1.2.3.4] address and then wait the local DNS resolver to resolve or not

@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    NeonService.cs
+//-----------------------------------------------------------------------------
+// FILE:        NeonService.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -214,7 +214,7 @@ namespace Neon.Service
     /// The <see cref="NeonService"/> constructor initializes the OpenTelemetry logging pipeline
     /// by default, initializing the <see cref="Logger"/> property as well as initializing 
     /// <see cref="TelemetryHub.LoggerFactory"/> and adding the logger factor and logger to
-    /// <see cref="NeonHelper.ServiceContainer"/>, making them available to neonSDK libraries
+    /// <see cref="NeonHelper.ServiceContainer"/>, making them available to NEONSDK libraries
     /// so they may emit logs.  The logger created by <see cref="NeonService"/> in this case
     /// will be configured to write JSON formatted logs to the process standard output stream.
     /// </para>
@@ -295,7 +295,7 @@ namespace Neon.Service
     ///     When present and <see cref="NeonServiceOptions.TracerProvider"/> is <c>null</c>, then
     ///     this specifies the URI for the OpenTelemetry Collector where the traces will be sent.
     ///     If this environment variable is not present and the service is running in Kubernetes,
-    ///     then we're going to assume that you're running in a neonKUBE cluster and <see cref="NeonService"/>
+    ///     then we're going to assume that you're running in a NEONKUBE cluster and <see cref="NeonService"/>
     ///     will default to sending traces to the <see cref="NeonHelper.NeonKubeOtelCollectorUri"/>
     ///     (<b>http://grafana-agent-node.neon-monitor.svc.cluster.local</b>) service endpoint deployed to the same Kubernetes namespace.
     ///     </para>
@@ -441,6 +441,7 @@ namespace Neon.Service
     ///       labels:
     ///         operator: my-app
     ///     spec:
+    ///       enableServiceLinks: false
     ///       containers:
     ///       - name: my-app
     ///         image: docker.io/my-app:latest
@@ -502,7 +503,7 @@ namespace Neon.Service
     /// <note>
     /// Service dependencies are currently waited for when the service status is <see cref="NeonServiceStatus.Starting"/>,
     /// which means that they will need to complete before the startup or libeliness probes time out
-    /// resulting in service termination.  This behavior may change in the future: https://github.com/nforgeio/neonKUBE/issues/1361
+    /// resulting in service termination.  This behavior may change in the future.
     /// </note>
     /// <para><b>PROMETHEUS METRICS</b></para>
     /// <para>
@@ -553,10 +554,7 @@ namespace Neon.Service
     /// <see cref="NeonService"/>s that implement Kubernetes CRON jobs should consider setting 
     /// <see cref="AutoTerminateIstioSidecar"/><c>=true</c>.  This ensures that the pod scheduled
     /// for the job is terminated cleanly when it has Istio injected sidecars.  This is generally
-    /// safe to set when running in a Kubernetes cluster.  Additional information:
-    /// </para>
-    /// <para>
-    /// https://github.com/nforgeio/neonKUBE/issues/1233
+    /// safe to set when running in a Kubernetes cluster.
     /// </para>
     /// </remarks>
     public abstract class NeonService : IDisposable
@@ -608,7 +606,7 @@ namespace Neon.Service
         // WARNING:
         //
         // The code below should be manually synchronized with similar code in [KubeHelper]
-        // if neonKUBE related folder names ever change in the future.
+        // if NEONKUBE related folder names ever change in the future.
 
         private static string   testFolder;
         private static string   cachedNeonKubeUserFolder;
@@ -1010,7 +1008,7 @@ namespace Neon.Service
         /// <note>
         /// Service dependencies are currently waited for when the service status is <see cref="NeonServiceStatus.Starting"/>,
         /// which means that they will need to complete before the startup or liveliness probes time out
-        /// resulting in service termination.  This behavior may change in the future: https://github.com/nforgeio/neonKUBE/issues/1361
+        /// resulting in service termination.  This behavior may change in the future.
         /// </note>
         /// </summary>
         public ServiceDependencies Dependencies { get; set; } = new ServiceDependencies();
@@ -1332,7 +1330,6 @@ namespace Neon.Service
                 }
                 else
                 {
-
                     Logger.LogInformationEx(() => $"[{Name}] health status: [{newStatusString}]");
                 }
 
@@ -1340,7 +1337,7 @@ namespace Neon.Service
                 {
                     // We're going to use a retry policy to handle the rare situations
                     // where the [health-check] or [ready-check] binaries and this method
-                    // try to access this file at the exact same moment.
+                    // try to access the [health-status] file at the exact same moment.
 
                     healthRetryPolicy.Invoke(() => File.WriteAllText(healthStatusPath, newStatusString));
                 }
@@ -1388,7 +1385,7 @@ namespace Neon.Service
         }
 
         /// <summary>
-        /// Called by <see cref="OnRunAsync"/> implementation to indicate that the service
+        /// Called by your <see cref="OnRunAsync"/> implementation to indicate that the service
         /// is either <see cref="NeonServiceStatus.Running"/> (the default) or <see cref="NeonServiceStatus.NotReady"/>.
         /// </summary>
         /// <remarks>
@@ -1412,7 +1409,6 @@ namespace Neon.Service
             Covenant.Requires<ArgumentException>(status == NeonServiceStatus.Running || status == NeonServiceStatus.NotReady, nameof(status));
 
             startedEvent.Set();
-
             await SetStatusAsync(status);
         }
 
@@ -1935,9 +1931,6 @@ namespace Neon.Service
         /// to ensure that the sidecar containers are terminated.  This tolerates situations where no
         /// sidecars have been injected.
         /// </para>
-        /// <para>
-        /// https://github.com/nforgeio/neonKUBE/issues/1233
-        /// </para>
         /// </summary>
         private void TerminateAnySidecars()
         {
@@ -2071,9 +2064,9 @@ namespace Neon.Service
         /// <exception cref="FormatException">Thrown for file formatting problems.</exception>
         /// <remarks>
         /// <para>
-        /// The default password provider assumes that you have neonDESKTOP installed and may be
+        /// The default password provider assumes that you have NEONDESKTOP installed and may be
         /// specifying passwords in the <b>~/.neonkube/passwords</b> folder (relative to the current
-        /// user's home directory).  This will be harmless if you don't have neonDESKTOP installed;
+        /// user's home directory).  This will be harmless if you don't have NEONDESKTOP installed;
         /// it just probably won't find any passwords.
         /// </para>
         /// <para>
@@ -2241,9 +2234,9 @@ namespace Neon.Service
         /// <exception cref="FileNotFoundException">Thrown if there's no file at <paramref name="physicalPath"/>.</exception>
         /// <remarks>
         /// <para>
-        /// The default password provider assumes that you have neonDESKTOP installed and may be
+        /// The default password provider assumes that you have NEONDESKTOP installed and may be
         /// specifying passwords in the <b>~/.neonkube/passwords</b> folder (relative to the current
-        /// user's home directory).  This will be harmless if you don't have neonDESKTOP installed;
+        /// user's home directory).  This will be harmless if you don't have NEONDESKTOP installed;
         /// it just probably won't find any passwords.
         /// </para>
         /// <para>

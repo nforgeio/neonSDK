@@ -1,4 +1,4 @@
-﻿The [Neon.ModelGenerator] package includes the [neon-modelgen] command line
+The [Neon.ModelGenerator] package includes the [neon-modelgen] command line
 tool that can be used to convert simple class and struct definitions into 
 model classes that can be easily serialized and deserialized from JSON and/or
 implement INotifyPropertyChanged for UX integration.  [neon-modelgen] can
@@ -28,7 +28,7 @@ https://docs.microsoft.com/en-us/nuget/consume-packages/package-references-in-pr
 STEP 2: Add a pre-build target that uses [neon-modelgen] to generate your models:
 ---------------------------------------------------------------------------------
 
-  <Target Name="ModelGen" BeforeTargets="BeforeBuild">
+  <Target Name="ModelGen" BeforeTargets="CoreCompile">
     <!--- Generate the model source files -->
     <Exec Command="&quot;$(PkgNeon_ModelGenerator)\contentFiles\any\netstandard2.0\win-x64\neon-modelgen&quot; PATH-TO-MODEL-PROJECT/models.dll models/models.g.cs" />
     <ItemGroup>
@@ -121,5 +121,5 @@ This command is used to generate enhanced JSON based data models and
 REST API clients suitable for applications based on flexible noSQL
 style design conventions.  See this GitHub issue for more information:
 
-    https://github.com/nforgeio/neonKUBE/issues/463
+    https://github.com/nforgeio/neonkube/issues/463
 

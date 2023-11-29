@@ -5,71 +5,71 @@ namespace Microsoft.Virtualization.Client.Management;
 
 internal abstract class IEthernetConnectionResourcePoolContract : IEthernetConnectionResourcePool, IResourcePool, IVirtualizationManagementObject, IDeleteableAsync, IDeleteable, IMetricMeasurableElement
 {
-	public abstract string PoolId { get; }
+    public abstract string PoolId { get; }
 
-	public abstract VMDeviceSettingType DeviceSettingType { get; }
+    public abstract VMDeviceSettingType DeviceSettingType { get; }
 
-	public abstract bool Primordial { get; }
+    public abstract bool Primordial { get; }
 
-	public abstract IResourcePoolSetting Setting { get; }
+    public abstract IResourcePoolSetting Setting { get; }
 
-	public abstract IEnumerable<IVMDeviceSetting> AllCapabilities { get; }
+    public abstract IEnumerable<IVMDeviceSetting> AllCapabilities { get; }
 
-	public abstract IEnumerable<IVMDevice> PhysicalDevices { get; }
+    public abstract IEnumerable<IVMDevice> PhysicalDevices { get; }
 
-	public abstract IEnumerable<IResourcePool> ParentPools { get; }
+    public abstract IEnumerable<IResourcePool> ParentPools { get; }
 
-	public abstract IEnumerable<IResourcePool> ChildPools { get; }
+    public abstract IEnumerable<IResourcePool> ChildPools { get; }
 
-	public abstract IEnumerable<IResourcePoolAllocationSetting> AllocationSettings { get; }
+    public abstract IEnumerable<IResourcePoolAllocationSetting> AllocationSettings { get; }
 
-	public abstract Server Server { get; }
+    public abstract Server Server { get; }
 
-	public abstract WmiObjectPath ManagementPath { get; }
+    public abstract WmiObjectPath ManagementPath { get; }
 
-	public abstract MetricEnabledState AggregateMetricEnabledState { get; }
+    public abstract MetricEnabledState AggregateMetricEnabledState { get; }
 
-	public event EventHandler Deleted;
+    public event EventHandler Deleted;
 
-	public event EventHandler CacheUpdated;
+    public event EventHandler CacheUpdated;
 
-	public IEnumerable<IVirtualEthernetSwitch> GetSwitches()
-	{
-		return null;
-	}
+    public IEnumerable<IVirtualEthernetSwitch> GetSwitches()
+    {
+        return null;
+    }
 
-	public bool HasSwitch(IVirtualEthernetSwitch virtualSwitch)
-	{
-		return false;
-	}
+    public bool HasSwitch(IVirtualEthernetSwitch virtualSwitch)
+    {
+        return false;
+    }
 
-	public abstract IVMDeviceSetting GetCapabilities(SettingsDefineCapabilities capability);
+    public abstract IVMDeviceSetting GetCapabilities(SettingsDefineCapabilities capability);
 
-	public abstract IVMTask BeginDelete();
+    public abstract IVMTask BeginDelete();
 
-	public abstract void EndDelete(IVMTask deleteTask);
+    public abstract void EndDelete(IVMTask deleteTask);
 
-	public abstract void Delete();
+    public abstract void Delete();
 
-	public abstract void InvalidatePropertyCache();
+    public abstract void InvalidatePropertyCache();
 
-	public abstract void UpdatePropertyCache();
+    public abstract void UpdatePropertyCache();
 
-	public abstract void UpdatePropertyCache(TimeSpan threshold);
+    public abstract void UpdatePropertyCache(TimeSpan threshold);
 
-	public abstract void RegisterForInstanceModificationEvents(InstanceModificationEventStrategy strategy);
+    public abstract void RegisterForInstanceModificationEvents(InstanceModificationEventStrategy strategy);
 
-	public abstract void UnregisterForInstanceModificationEvents();
+    public abstract void UnregisterForInstanceModificationEvents();
 
-	public abstract void InvalidateAssociationCache();
+    public abstract void InvalidateAssociationCache();
 
-	public abstract void UpdateAssociationCache();
+    public abstract void UpdateAssociationCache();
 
-	public abstract void UpdateAssociationCache(TimeSpan threshold);
+    public abstract void UpdateAssociationCache(TimeSpan threshold);
 
-	public abstract string GetEmbeddedInstance();
+    public abstract string GetEmbeddedInstance();
 
-	public abstract void DiscardPendingPropertyChanges();
+    public abstract void DiscardPendingPropertyChanges();
 
-	public abstract IReadOnlyCollection<IMetricValue> GetMetricValues();
+    public abstract IReadOnlyCollection<IMetricValue> GetMetricValues();
 }

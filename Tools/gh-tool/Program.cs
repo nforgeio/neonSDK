@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    Program.cs
+//-----------------------------------------------------------------------------
+// FILE:        Program.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -93,10 +93,10 @@ COMMANDS:
 
                 validOptions.Add("--help");
 
-                if (CommandLine.Arguments.Length == 0)
+                if (CommandLine.HasHelpOption || CommandLine.Arguments.Length == 0)
                 {
                     Console.WriteLine(usage);
-                    Program.Exit(0);
+                    Program.Exit(CommandLine.HasHelpOption ? 0 : -1);
                 }
 
                 // Scan for enabled commands in the current assembly.
@@ -138,7 +138,7 @@ COMMANDS:
                     if (command == null)
                     {
                         Console.Error.WriteLine($"*** ERROR: Unexpected [{CommandLine.Arguments[0]}] command.");
-                        Program.Exit(1);
+                        Program.Exit(-1);
                     }
 
                     command.Help();
@@ -152,7 +152,7 @@ COMMANDS:
                 if (command == null)
                 {
                     Console.Error.WriteLine($"*** ERROR: Unexpected [{CommandLine.Arguments[0]}] command.");
-                    Program.Exit(1);
+                    Program.Exit(-1);
                 }
 
                 // Ensure that there are no unexpected command line options.
@@ -181,7 +181,7 @@ COMMANDS:
                             }
 
                             Console.Error.WriteLine($"*** ERROR: [{commandWords}] command does not support the [{option.Key}] option.");
-                            Program.Exit(1);
+                            Program.Exit(-1);
                         }
                     }
                 }

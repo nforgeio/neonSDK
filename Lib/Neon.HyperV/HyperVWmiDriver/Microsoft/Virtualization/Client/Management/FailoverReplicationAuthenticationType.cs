@@ -5,6 +5,6 @@ namespace Microsoft.Virtualization.Client.Management;
 [SuppressMessage("Microsoft.Design", "CA1008:EnumsShouldHaveZeroValue", Justification = "This is a mapping of a server defined enum which does not define a zero value.")]
 internal enum FailoverReplicationAuthenticationType
 {
-	Integrated = 1,
-	Mutual
+    Integrated = 1,
+    Mutual
 }

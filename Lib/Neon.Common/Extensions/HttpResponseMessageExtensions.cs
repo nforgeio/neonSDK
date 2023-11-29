@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    HttpResponseMessageExtensions.cs
+//-----------------------------------------------------------------------------
+// FILE:        HttpResponseMessageExtensions.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -28,12 +28,12 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Neon.BuildInfo;
 using Neon.Collections;
 using Neon.Common;
 using Neon.Diagnostics;
 using Neon.Net;
 using Neon.Tasks;
-using Neon.BuildInfo;
 
 namespace Neon.Common
 {

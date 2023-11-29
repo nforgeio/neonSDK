@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    RetryPolicy.cs
+//-----------------------------------------------------------------------------
+// FILE:        RetryPolicy.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.Logging;
@@ -86,16 +87,16 @@ namespace Neon.Retry
         public abstract IRetryPolicy Clone(Func<Exception, bool> transientDetector = null);
 
         /// <inheritdoc/>
-        public abstract Task InvokeAsync(Func<Task> action);
+        public abstract Task InvokeAsync(Func<Task> action, CancellationToken cancellationToken = default);
 
         /// <inheritdoc/>
-        public abstract Task<TResult> InvokeAsync<TResult>(Func<Task<TResult>> action);
+        public abstract Task<TResult> InvokeAsync<TResult>(Func<Task<TResult>> action, CancellationToken cancellationToken = default);
 
         /// <inheritdoc/>
-        public abstract void Invoke(Action action);
+        public abstract void Invoke(Action action, CancellationToken cancellationToken = default);
 
         /// <inheritdoc/>
-        public abstract TResult Invoke<TResult>(Func<TResult> action);
+        public abstract TResult Invoke<TResult>(Func<TResult> action, CancellationToken cancellationToken = default);
 
         /// <inheritdoc/>
         public event Action<RetryTransientArgs> OnTransient;

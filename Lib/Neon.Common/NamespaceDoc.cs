@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    NamespaceDoc.cs
+//-----------------------------------------------------------------------------
+// FILE:        NamespaceDoc.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ namespace Neon.Common
 {
     /// <summary>
     /// This namespace includes generally useful types that are consumed by
-    /// the remaining neonSDK libraries and can also be useful for
+    /// the remaining NEONSDK libraries and can also be useful for
     /// end-user applications.
     /// </summary>
     [System.Runtime.CompilerServices.CompilerGenerated]

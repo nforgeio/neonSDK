@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    Test_ProfileServer.cs
+//-----------------------------------------------------------------------------
+// FILE:        Test_ProfileServer.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -118,6 +118,12 @@ namespace TestDeployment
                     // We're just going to echo the value of the "command" argument.
 
                     return ProfileHandlerResult.Create(request.Args["command"]);
+                };
+
+            server.SignoutHandler =
+                request =>
+                {
+                    return ProfileHandlerResult.Create(string.Empty);
                 };
         }
 

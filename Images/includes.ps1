@@ -1,4 +1,4 @@
-﻿#Requires -Version 7.1.3 -RunAsAdministrator
+#Requires -Version 7.1.3 -RunAsAdministrator
 #------------------------------------------------------------------------------
 # FILE:         includes.ps1
 # CONTRIBUTOR:  Jeff Lill
@@ -17,7 +17,7 @@
 # limitations under the License.
 
 # This file includes common veriably definitions and functions used while
-# building and publishing neonSDK nuget packages.
+# building and publishing NEONSDK nuget packages.
 #
 # NOTE: This is script works only for maintainers with proper credentials.
 
@@ -49,7 +49,7 @@ $ncTools    = "$ncRoot\Tools"
 #------------------------------------------------------------------------------
 # Global constants.
 
-# neonSDK release Version.
+# NEONSDK release Version.
 
 $neonSDK_Version = $(& neon-build read-version "$nfRoot\Lib\Neon.Common\Build.cs" NeonSdkVersion)
 ThrowOnExitCode
@@ -134,7 +134,7 @@ function TagAsLatest
 }
 
 #------------------------------------------------------------------------------
-# Prefixes the image name passed with the target neonSDK GitHub container 
+# Prefixes the image name passed with the target NEONSDK GitHub container 
 # registry for the current git branch by default such that when the current branch
 # name starts with "release-" the image will be pushed to "ghcr.io/neonrelease/"
 # otherwise it will be pushed to "ghcr.io/neonrelease-dev/".
@@ -150,7 +150,7 @@ function GetSdkRegistry($image)
 }
 
 #------------------------------------------------------------------------------
-# Returns the neonSDK registry organization corresponding to the current git branch.
+# Returns the NEONSDK registry organization corresponding to the current git branch.
 
 function SdkRegistryOrg
 {
@@ -163,11 +163,11 @@ function SdkRegistryOrg
 }
 
 #------------------------------------------------------------------------------
-# Prefixes the image name passed with the target neonKUBE SETUP GitHub container 
+# Prefixes the image name passed with the target NEONKUBE SETUP GitHub container 
 # registry for the current git branch by default such that when the current branch
 # name starts with "release-" the image will be pushed to "ghcr.io/neonrelease/"
 # otherwise it will be pushed to "ghcr.io/neonrelease-dev/".  The MAIN registry
-# holds the neonKUBE images tagged by cluster version.
+# holds the NEONKUBE images tagged by cluster version.
 
 function GetKubeStageRegistry($image)
 {
@@ -177,7 +177,7 @@ function GetKubeStageRegistry($image)
 }
 
 #------------------------------------------------------------------------------
-# Returns the neonKUBE staging container image registy.
+# Returns the NEONKUBE staging container image registy.
 
 function KubeStageRegistryOrg
 {
@@ -185,11 +185,11 @@ function KubeStageRegistryOrg
 }
 
 #------------------------------------------------------------------------------
-# Prefixes the image name passed with the target neonKUBE BASE GitHub container 
+# Prefixes the image name passed with the target NEONKUBE BASE GitHub container 
 # registry for the current git branch by default such that when the current branch
 # name starts with "release-" the image will be pushed to "ghcr.io/neonrelease/"
 # otherwise it will be pushed to "ghcr.io/neonrelease-dev/".  The BASE registry
-# holds the neonKUBE base images tagged with the component version.
+# holds the NEONKUBE base images tagged with the component version.
 
 function GetKubeBaseRegistry($image)
 {
@@ -199,7 +199,7 @@ function GetKubeBaseRegistry($image)
 }
 
 #------------------------------------------------------------------------------
-# Returns the neonKUBE staging base container image registry.
+# Returns the NEONKUBE staging base container image registry.
 
 function KubeBaseRegistryOrg
 {
@@ -207,7 +207,7 @@ function KubeBaseRegistryOrg
 }
 
 #------------------------------------------------------------------------------
-# Prefixes the image name passed with the target neonCLOUD GitHub container 
+# Prefixes the image name passed with the target NEONCLOUD GitHub container 
 # registry for the current git branch by default such that when the current branch
 # name starts with "release-" the image will be pushed to "ghcr.io/neonrelease/"
 # otherwise it will be pushed to "ghcr.io/neonrelease-dev/".
@@ -220,7 +220,7 @@ function GetNeonCloudRegistry($image)
 }
 
 #------------------------------------------------------------------------------
-# Returns the neonCLOUD container image registry .
+# Returns the NEONCLOUD container image registry .
 
 function NeonCloudRegistryOrg
 {

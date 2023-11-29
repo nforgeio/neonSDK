@@ -5,7 +5,7 @@ namespace Microsoft.Virtualization.Client.Management;
 [WmiName("Msvm_VirtualFcSwitch")]
 internal interface IVirtualFcSwitch : IVirtualSwitch, IVirtualizationManagementObject, IPutable
 {
-	IEnumerable<IVirtualFcSwitchPort> SwitchPorts { get; }
+    IEnumerable<IVirtualFcSwitchPort> SwitchPorts { get; }
 
-	IExternalFcPort GetExternalFcPort();
+    IExternalFcPort GetExternalFcPort();
 }

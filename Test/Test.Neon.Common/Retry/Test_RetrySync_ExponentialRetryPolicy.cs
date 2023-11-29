@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    Test_RetrySync_ExponentialRetryPolicy.cs
+//-----------------------------------------------------------------------------
+// FILE:        Test_RetrySync_ExponentialRetryPolicy.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -475,10 +475,6 @@ namespace TestCommon
 
             Assert.Equal(3, times.Count);
 
-            // Additional test to verify this serious problem is fixed:
-            //
-            //      https://github.com/nforgeio/neonKUBE/issues/762
-            //
             // We'll wait a bit longer to enure that any (incorrect) deadline computed
             // by the policy when constructed above does not impact a subsequent run.
 
@@ -503,6 +499,30 @@ namespace TestCommon
                 });
 
             Assert.Equal(3, times.Count);
+        }
+
+        [Fact]
+        public void Cancel()
+        {
+            // Have test code throw TimeoutExceptions which will be considered to be transient and
+            // then in another task, have the cancellation token cancel itself and then verify that
+            // the policy invoke fails with a CancellationException.
+
+            var cts    = new CancellationTokenSource();
+            var policy = new ExponentialRetryPolicy(typeof(TransientException), maxAttempts: 6, initialRetryInterval: TimeSpan.FromSeconds(1), maxRetryInterval: TimeSpan.FromSeconds(1));
+
+            cts.CancelAfter(TimeSpan.FromSeconds(2));
+
+            Assert.ThrowsAny<OperationCanceledException>(
+                () =>
+                {
+                    policy.Invoke(
+                        () =>
+                        {
+                            throw new TransientException();
+                        },
+                        cts.Token);
+                });
         }
     }
 }

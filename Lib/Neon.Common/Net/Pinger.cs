@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    Pinger.cs
+//-----------------------------------------------------------------------------
+// FILE:        Pinger.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -133,11 +133,11 @@ namespace Neon.Net
         }
 
         /// <summary>
-        /// Pings a IP address.
+        /// Pings an IP address.
         /// </summary>
         /// <param name="address">The target address.</param>
         /// <param name="timeoutMilliseconds">Optional timeout in milliseconds (defaults to 2000).</param>
-        /// <returns>A <see cref="PingReply"/>.</returns>
+        /// <returns>A <see cref="PingReply"/> with the reply or an error indication.</returns>
         public async Task<PingReply> SendPingAsync(IPAddress address, int timeoutMilliseconds = 2000)
         {
             await SyncContext.Clear;
@@ -186,7 +186,7 @@ namespace Neon.Net
         /// </summary>
         /// <param name="address">The target address.</param>
         /// <param name="timeoutMilliseconds">Optional timeout in milliseconds (defaults to 2000).</param>
-        /// <returns>A <see cref="PingReply"/>.</returns>
+        /// <returns>A <see cref="PingReply"/> with the reply or an error indication.</returns>
         public async Task<PingReply> SendPingAsync(string address, int timeoutMilliseconds = 2000)
         {
             await SyncContext.Clear;

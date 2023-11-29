@@ -2,11 +2,11 @@ namespace Microsoft.HyperV.PowerShell;
 
 internal interface IHasAttachableComponent<TComponentSetting>
 {
-	string DescriptionForAttach { get; }
+    string DescriptionForAttach { get; }
 
-	bool HasComponent();
+    bool HasComponent();
 
-	TComponentSetting GetComponentSetting(UpdatePolicy policy);
+    TComponentSetting GetComponentSetting(UpdatePolicy policy);
 
-	void FinishAttachingComponentSetting(TComponentSetting componentSetting);
+    void FinishAttachingComponentSetting(TComponentSetting componentSetting);
 }

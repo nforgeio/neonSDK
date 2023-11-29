@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    Test_PreprocessReader.cs
+//-----------------------------------------------------------------------------
+// FILE:        Test_PreprocessReader.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -93,7 +93,7 @@ namespace TestCommon
 
             SetVariables(reader, variables);
 
-            Assert.Equal(output, reader.ReadToEnd());
+            TestHelper.AssertEqualLines(output, reader.ReadToEnd());
 
             reader = CreateReader(input);
             SetVariables(reader, variables);
@@ -110,7 +110,7 @@ namespace TestCommon
                 sb.AppendLine(line);
             }
 
-            Assert.Equal(output, sb.ToString());
+            TestHelper.AssertEqualLines(output, sb.ToString());
 
             reader = CreateReader(input);
             sb = new StringBuilder();
@@ -122,7 +122,7 @@ namespace TestCommon
                 sb.AppendLine(line);
             }
 
-            Assert.Equal(output, sb.ToString());
+            TestHelper.AssertEqualLines(output, sb.ToString());
 
             reader = CreateReader(input);
             sb = new StringBuilder();
@@ -134,7 +134,7 @@ namespace TestCommon
                 sb.AppendLine(line);
             }
 
-            Assert.Equal(output, sb.ToString());
+            TestHelper.AssertEqualLines(output, sb.ToString());
         }
 
         [Fact]
@@ -248,7 +248,7 @@ abc
 
                 var output = reader.ReadToEnd();
 
-                Assert.Equal(expected, output);
+                TestHelper.AssertEqualLines(expected, output);
             }
         }
 
@@ -294,7 +294,7 @@ abc
 
                 var output = reader.ReadToEnd();
 
-                Assert.Equal(expected, output);
+                TestHelper.AssertEqualLines(expected, output);
             }
         }
 
@@ -338,7 +338,7 @@ abc
 
                 var output = reader.ReadToEnd();
 
-                Assert.Equal(expected, output);
+                TestHelper.AssertEqualLines(expected, output);
             }
         }
 

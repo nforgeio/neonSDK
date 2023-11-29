@@ -2,5 +2,5 @@ namespace Microsoft.HyperV.PowerShell;
 
 internal enum VMSwitchTeamingMode
 {
-	SwitchIndependent = 1
+    SwitchIndependent = 1
 }

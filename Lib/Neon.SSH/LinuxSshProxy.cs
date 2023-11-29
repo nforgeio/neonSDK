@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    LinuxSshProxy.cs
+//-----------------------------------------------------------------------------
+// FILE:        LinuxSshProxy.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -210,7 +210,7 @@ namespace Neon.SSH
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(name), nameof(name));
             Covenant.Requires<ArgumentNullException>(credentials != null, nameof(credentials));
 
-            this.Name           = name;
+            this.Name          = name;
             this.Address        = address;
             this.credentials    = credentials;
             this.logWriter      = logWriter;
@@ -464,9 +464,6 @@ namespace Neon.SSH
             //
             // We sometimes see a deadlock when disposing SSH.NET clients.
             //
-            //      https://github.com/nforgeio/neonKUBE/issues/230
-            //      https://github.com/sshnet/SSH.NET/issues/355
-            //
             // I'm going to try to mitigate this by doing the dispose
             // on another thread and having that thread killed if it
             // it appears to be deadlocked.  Note that this will likely
@@ -555,13 +552,6 @@ namespace Neon.SSH
         /// <param name="timeout">The timeout.</param>
         private void DeadlockBreaker(string actionName, Action action, TimeSpan timeout)
         {
-            // $todo(jefflill): 
-            //
-            // This is part of the mitigation for:
-            //
-            //      https://github.com/nforgeio/neonKUBE/issues/230
-            //      https://github.com/sshnet/SSH.NET/issues/355
-
             //LogLine($"*** DEADLOCK EXECUTE: {actionName}");
 
             var thread = NeonHelper.StartThread(action);
@@ -600,7 +590,7 @@ namespace Neon.SSH
             Covenant.Requires<ArgumentNullException>(password != null, nameof(password));
 
             const string sshProxyInitPath = SshProxyInitPath;
-            
+
             var connectionInfo = GetConnectionInfo();
 
             if (!FileExists(sshProxyInitPath))
@@ -613,8 +603,6 @@ namespace Neon.SSH
                     // that sudo can execute commands without a password.  We have to do this using a 
                     // TTY shell because the CentOS distribution deployed by XenServer/XCP-ng requires
                     // a TTY by default; bless their hearts :)
-                    //
-                    //      https://github.com/nforgeio/neonKUBE/issues/926
                     //
                     // We're going to quickly do this here using a SSH.NET shell stream and then follow up
                     // with a more definitive config just below.
@@ -844,6 +832,31 @@ rm {HostFolders.Home(Username)}/askpass
         /// <returns><c>true</c> when a reboot is required.</returns>
         public bool UpgradeLinuxDistribution()
         {
+            // $hack(jefflill):
+            //
+            // We just started seeing trouble with upgrading Ubuntu on Azure.  Other people
+            // have been seeing the same thing for other environments and I'm not sure why
+            // were only seeing this on Azure.  Here's an issue with the fix:
+            //
+            //      https://github.com/orgs/community/discussions/47863#discussioncomment-5228032
+            //
+            // ...and here's our issue:
+            //
+            //      https://github.com/nforgeio/neonCLOUD/issues/415
+            //
+            // Note that the [grub-efi-amd64-signed] package is not always installed, it looks
+            // like it's present for standard cloud VM images but not for images created via
+            // installing Ubuntu Server directly as we do for Hyper-V and XenServer.
+            //
+            // In the latter case, the [apt-mark hold grub-efi-amd64-signed] command will fail.
+            // We're just going to ignore any errors from the first command and also skip the
+            // second command in that situation.
+
+            if (SudoCommand("apt-mark hold grub-efi-amd64-signed", RunOptions.Defaults).ExitCode == 0)
+            {
+                SudoCommand("safe-apt-get update --fix-missing", RunOptions.Defaults | RunOptions.FaultOnError);
+            }
+
             SudoCommand("safe-apt-get update -yq", RunOptions.Defaults | RunOptions.FaultOnError);
             SudoCommand("safe-apt-get dist-upgrade -yq", RunOptions.Defaults | RunOptions.FaultOnError);
 
@@ -1418,7 +1431,7 @@ rm {HostFolders.Home(Username)}/askpass
             // this host.  Note that you must be logged in using username/password 
             // authentication for this to work.
             //
-            // NOTE: neonKUBE cloud based images will already have SUDO prompting disabled
+            // NOTE: NEONKUBE cloud based images will already have SUDO prompting disabled
             //       as will VM based images for Hyper-V and XenServer and we initialize
             //       the VM images using password authentication, so this will work for
             //       creating the images as well.
@@ -2171,8 +2184,6 @@ echo $? > {cmdFolder}/exit
                         // We're also going to check to ensure that the [cmdFolder] still exists and
                         // fail the command and if it does not.  This will help mitigate situations 
                         // where the folder gets inadvertently deleted as happened with:
-                        //
-                        //      https://github.com/nforgeio/neonKUBE/issues/496
                         //
                         // We'll have the test command return 2 in this case to distinguish between
                         // the folder not being present from the exit file not being there.

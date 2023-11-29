@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    GitHubRepo.cs
+//-----------------------------------------------------------------------------
+// FILE:        GitHubRepo.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -99,6 +99,11 @@ namespace Neon.GitHub
     {
         //---------------------------------------------------------------------
         // Static members
+
+        /// <summary>
+        /// The default media type for GitHub API responses.
+        /// </summary>
+        internal const string AcceptMediaType = "application/vnd.github+json";
 
         /// <summary>
         /// Creates a <see cref="GitHubRepo"/> instance that's connected to GitHub account
@@ -559,6 +564,17 @@ namespace Neon.GitHub
                 Credentials = new Octokit.Credentials(Credentials.AccessToken)
             };
 
+            // $hack(jefflill):
+            // $todo(jefflill):
+            //
+            // UploadAsset() doesn't seem to honor the timeout, so we're going to set the
+            // underlying HttpClient timeout to 10 minutes instead.
+            //
+            // This may be fixed on future Octokit releases and we can remove this hack then.
+            // We should probably submit a pull request.
+
+            GitHubApi.Connection.SetRequestTimeout(TimeSpan.FromMinutes(10));
+
             LibGit2Sharp.Credentials libCredentials;
 
             // We're going to default to using [accesstoken] when [password]
@@ -642,7 +658,7 @@ namespace Neon.GitHub
             }
 
             HttpClient.DefaultRequestHeaders.Add("User-Agent", userAgent);
-            HttpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github+json"));
+            HttpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(GitHubRepo.AcceptMediaType));
         }
 
         /// <summary>

@@ -2,7 +2,9 @@
 
 <HtmlElement id="@Id"
              @ref="rootElement"
-             @onintersectionchanged=@OnIntersectionChangedInternal>
+             @onintersectionchanged=@OnIntersectionChangedInternal
+             class="@Class"
+            >
     <CascadingValue Value=this>
         @ChildContent?.Invoke(this.IntersectionObserverContext)
     </CascadingValue>

@@ -2,8 +2,8 @@ namespace Microsoft.HyperV.PowerShell;
 
 internal enum CacheAttributes
 {
-	Default,
-	WriteCacheEnabled,
-	WriteCacheAndFUAEnabled,
-	WriteCacheDisabled
+    Default,
+    WriteCacheEnabled,
+    WriteCacheAndFUAEnabled,
+    WriteCacheDisabled
 }

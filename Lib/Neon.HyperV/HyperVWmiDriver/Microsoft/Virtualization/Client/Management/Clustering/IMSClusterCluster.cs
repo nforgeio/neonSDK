@@ -5,17 +5,17 @@ namespace Microsoft.Virtualization.Client.Management.Clustering;
 [WmiName("MSCluster_Cluster")]
 internal interface IMSClusterCluster : IVirtualizationManagementObject
 {
-	string Name { get; }
+    string Name { get; }
 
-	string SharedVolumesRoot { get; }
+    string SharedVolumesRoot { get; }
 
-	bool EnableSharedVolumes { get; }
+    bool EnableSharedVolumes { get; }
 
-	IEnumerable<IMSClusterNode> GetClusterNodes();
+    IEnumerable<IMSClusterNode> GetClusterNodes();
 
-	IMSClusterReplicaBrokerResource GetReplicaBroker();
+    IMSClusterReplicaBrokerResource GetReplicaBroker();
 
-	IMSClusterVMResource GetVirtualMachineResource(string virtualMachineInstanceId);
+    IMSClusterVMResource GetVirtualMachineResource(string virtualMachineInstanceId);
 
-	ClusterVerifyPathResult VerifyPath(string path, string groupName);
+    ClusterVerifyPathResult VerifyPath(string path, string groupName);
 }

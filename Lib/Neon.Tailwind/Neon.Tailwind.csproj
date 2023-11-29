@@ -1,62 +1,62 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
-	<PropertyGroup>
-		<TargetFramework>net7.0</TargetFramework>
-		<OutputType>Library</OutputType>
-		<RootNamespace>Neon.Tailwind</RootNamespace>
-		<Version>$(NeonSdkVersion)</Version>
-		<PackageLicenseFile>LICENSE</PackageLicenseFile>
-		<PackageProjectUrl>http://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.Tailwind/README.md</PackageProjectUrl>
-		<PackageIcon>nuget-icon.png</PackageIcon>
-		<RepositoryUrl>https://github.com/nforgeio/neonSDK</RepositoryUrl>
-		<RepositoryType>git</RepositoryType>
-		<PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
-		<Configurations>Debug;Release</Configurations>
-		<Description>A Tailwind CSS library for Blazor. Includes Headless UI components.</Description>
-		<PackageTags>tailwind;tailwindcss;headless;headlessui;headless-ui;css;transitions</PackageTags>
-		<NoWarn>$(NoWarn);1591</NoWarn>
-	</PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+        <OutputType>Library</OutputType>
+        <RootNamespace>Neon.Tailwind</RootNamespace>
+        <Version>$(NeonSdkVersion)</Version>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <PackageProjectUrl>http://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.Tailwind/README.md</PackageProjectUrl>
+        <PackageIcon>nuget-icon.png</PackageIcon>
+        <RepositoryUrl>https://github.com/nforgeio/neonSDK</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
+        <Configurations>Debug;Release</Configurations>
+        <Description>A Tailwind CSS library for Blazor. Includes Headless UI components.</Description>
+        <PackageTags>tailwind;tailwindcss;headless;headlessui;headless-ui;css;transitions</PackageTags>
+        <NoWarn>$(NoWarn);1591</NoWarn>
+    </PropertyGroup>
 
-	<ItemGroup>
-		<Compile Include="..\Neon.BuildInfo\AssemblyAttributes.cs" Link="Properties\AssemblyAttributes.cs" />
-		<Compile Include="..\Neon.BuildInfo\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
-	</ItemGroup>
+    <ItemGroup>
+        <Compile Include="..\Neon.BuildInfo\AssemblyAttributes.cs" Link="Properties\AssemblyAttributes.cs" />
+        <Compile Include="..\Neon.BuildInfo\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
+    </ItemGroup>
 
-	<ItemGroup>
-		<None Remove="Resources\tailwind.css" />
-		<None Remove="Resources\tailwindconfig.js" />
-	</ItemGroup>
+    <ItemGroup>
+        <None Remove="Resources\tailwind.css" />
+        <None Remove="Resources\tailwindconfig.js" />
+    </ItemGroup>
 
-	<ItemGroup>
-		<EmbeddedResource Include="Resources\tailwind.css" />
-		<EmbeddedResource Include="Resources\tailwindconfig.js" />
-	</ItemGroup>
+    <ItemGroup>
+        <EmbeddedResource Include="Resources\tailwind.css" />
+        <EmbeddedResource Include="Resources\tailwindconfig.js" />
+    </ItemGroup>
 
-	<ItemGroup>
-		<None Include="..\nuget-icon.png" Pack="true" PackagePath="" />
-		<None Include="..\..\LICENSE" Pack="true" PackagePath="" />
-		<None Include="wwwroot\clickoffhandler.js" />
-		<None Include="wwwroot\common.js" />
-		<None Include="wwwroot\keydownhandler.js" />
-	</ItemGroup>
+    <ItemGroup>
+        <None Include="..\nuget-icon.png" Pack="true" PackagePath="" />
+        <None Include="..\..\LICENSE" Pack="true" PackagePath="" />
+        <None Include="wwwroot\clickoffhandler.js" />
+        <None Include="wwwroot\common.js" />
+        <None Include="wwwroot\keydownhandler.js" />
+    </ItemGroup>
 
-	<ItemGroup>
-		<SupportedPlatform Include="browser" />
-	</ItemGroup>
+    <ItemGroup>
+        <SupportedPlatform Include="browser" />
+    </ItemGroup>
 
-	<ItemGroup>
-		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="7.0.5" />
-		<PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="7.0.5" />
-	</ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="7.0.11" />
+        <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="7.0.11" />
+    </ItemGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\Neon.BuildInfo\Neon.BuildInfo.csproj" />
-		<ProjectReference Include="..\Neon.Blazor\Neon.Blazor.csproj" />
-		<ProjectReference Include="..\Neon.Common\Neon.Common.csproj" />
-	</ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\Neon.BuildInfo\Neon.BuildInfo.csproj" />
+        <ProjectReference Include="..\Neon.Blazor\Neon.Blazor.csproj" />
+        <ProjectReference Include="..\Neon.Common\Neon.Common.csproj" />
+    </ItemGroup>
 
-	<ItemGroup>
-	    <Folder Include="Properties\" />
-	</ItemGroup>
+    <ItemGroup>
+        <Folder Include="Properties\" />
+    </ItemGroup>
 
 </Project>

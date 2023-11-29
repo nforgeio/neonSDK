@@ -1,5 +1,5 @@
 @echo off
-REM Configures the environment variables required to build neonSDK projects.
+REM Configures the environment variables required to build NEONSDK projects.
 REM 
 REM 	buildenv [ <source folder> ]
 REM
@@ -9,7 +9,7 @@ REM
 REM This must be [RUN AS ADMINISTRATOR].
 
 echo ==========================================
-echo * neonSDK Build Environment Configurator *
+echo * NEONSDK Build Environment Configurator *
 echo ==========================================
 
 REM Default NF_ROOT to the folder holding this batch file after stripping
@@ -33,13 +33,17 @@ pushd "%NF_ROOT%\.."
 set NF_REPOS=%cd%
 popd 
 
-REM We need to capture the user's GitHub username and email address:
+REM We need to capture the developer's GitHub username, email address and
+REM Personal Access Token (PAT):
 
 echo.
 set /p GITHUB_USERNAME="Enter your GitHub username: "
 
 echo.
-set /p GITHUB_EMAIL="Enter the email to be included in GitHub commits: "
+set /p GITHUB_EMAIL="Enter the email to be referenced by GitHub commits: "
+
+echo.
+set /p GITHUB_PAT="Enter your GitHub Personal Access Token (PAT): "
 
 REM Ask the developer if they're a maintainer and set NF_MAINTAINER if they say yes.
 
@@ -67,7 +71,7 @@ REM Ask maintainers for their NEONFORGE Office 365 username.
 
 if "%NF_MAINTAINER%"=="1" (
     echo.
-    set /p NC_USER="Enter your NEONFORGE Office 365 username: "
+    set /p NC_USER="Enter your primary NEONFORGE Office 365 email: "
     setx NC_USER "%NC_USER%" /M > nul
 )
 
@@ -99,6 +103,33 @@ if "%IS_VS_PREVIEW%"=="1" (
     set VS_EDITION=Community
 )
 
+REM Ask the developer if they have Telerik JustMock installed and
+REM set the JUSTMOCK_ENABLED environment variable if they do.
+
+:justMockPrompt
+
+echo.
+set /P "HAS_JUSTMOCK=Do you have Telerik JustMock installed? (y/n): "
+
+if "%HAS_JUSTMOCK%"=="y" (
+    set HAS_JUSTMOCK=1
+) else if "%HAS_JUSTMOCK%"=="Y" (
+    set HAS_JUSTMOCK=1
+) else if "%HAS_JUSTMOCK%"=="n" (
+    set HAS_JUSTMOCK=0
+) else if "%HAS_JUSTMOCK%"=="N" (
+    set HAS_JUSTMOCK=0
+) else (
+    echo.
+    echo "*** ERROR: You must answer with: Y or N."
+    echo.
+    goto justMockPrompt
+)
+
+if "%HAS_JUSTMOCK%"=="1" (
+    setx JUSTMOCK_ENABLED "true" /M > nul
+)
+
 REM Get on with configuration.
 
 echo.
@@ -122,6 +153,7 @@ REM Persist the environment variables.
 
 setx GITHUB_USERNAME "%GITHUB_USERNAME%" /M       > nul
 setx GITHUB_EMAIL "%GITHUB_EMAIL%" /M             > nul
+setx GITHUB_PAT "%GITHUB_PAT%" /M                 > nul
 setx NF_MAINTAINER "%NF_MAINTAINER%" /M           > nul              
 setx NF_REPOS "%NF_REPOS%" /M                     > nul
 setx NF_ROOT "%NF_ROOT%" /M                       > nul
@@ -170,7 +202,12 @@ REM smart enough to only add directories that actually exist.
 %NF_TOOLBIN%\pathtool -dedup -system -add "%ProgramFiles%\WinSCP"
 %NF_TOOLBIN%\pathtool -dedup -system -add "%ProgramFiles(x86)%\WinSCP"
 
-REM Perform additional implementation via Powershell.
+REM Login Docker to GitHub Container Registry (GHCR).
+
+echo %GITHUB_PAT% | docker login ghcr.io -u %GITHUB_USERNAME% --password-stdin
+echo %GITHUB_PAT% | gh auth login --with-token
+
+REM Perform additional initialization via Powershell.
 
 pwsh -File "%NF_ROOT%\buildenv.ps1"
 
@@ -179,4 +216,3 @@ echo.
 echo ============================================================================================
 echo * Be sure to close and reopen Visual Studio and any command windows to pick up the changes *
 echo ============================================================================================
-pause

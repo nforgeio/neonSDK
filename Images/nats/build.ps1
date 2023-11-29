@@ -1,4 +1,4 @@
-﻿#Requires -Version 7.1.3 -RunAsAdministrator
+#Requires -Version 7.1.3 -RunAsAdministrator
 #------------------------------------------------------------------------------
 # FILE:         build.ps1
 # CONTRIBUTOR:  Jeff Lill
@@ -22,11 +22,10 @@
 
 param 
 (
-	[parameter(Mandatory=$true,Position=1)][string] $registry,
-	[parameter(Mandatory=$true,Position=2)][string] $version,
-	[parameter(Mandatory=$true,Position=3)][string] $tag
+	[parameter(Mandatory=$true, Position=1)][string] $registry,
+	[parameter(Mandatory=$true, Position=2)][string] $version,
+	[parameter(Mandatory=$true, Position=3)][string] $tag
 )
 
 Pull-DockerImage "nats:$version-linux"
 Invoke-CaptureStreams "docker build -t ${registry}:${tag} --build-arg VERSION=$version ." -interleave | Out-Null
-

@@ -5,9 +5,9 @@ namespace Microsoft.HyperV.PowerShell.Commands;
 
 internal interface IDestinationServerParameters
 {
-	CimSession DestinationCimSession { get; }
+    CimSession DestinationCimSession { get; }
 
-	string DestinationHost { get; }
+    string DestinationHost { get; }
 
-	PSCredential DestinationCredential { get; }
+    PSCredential DestinationCredential { get; }
 }

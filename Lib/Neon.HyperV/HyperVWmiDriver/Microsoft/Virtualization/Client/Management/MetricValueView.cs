@@ -5,26 +5,26 @@ namespace Microsoft.Virtualization.Client.Management;
 
 internal abstract class MetricValueView : View, IMetricValue, IVirtualizationManagementObject
 {
-	internal static class WmiMemberNames
-	{
-		public const string AggregationDuration = "AggregationDuration";
+    internal static class WmiMemberNames
+    {
+        public const string AggregationDuration = "AggregationDuration";
 
-		public const string Duration = "Duration";
+        public const string Duration = "Duration";
 
-		public const string MetricDefinitionId = "MetricDefinitionId";
+        public const string MetricDefinitionId = "MetricDefinitionId";
 
-		public const string MetricValue = "MetricValue";
+        public const string MetricValue = "MetricValue";
 
-		public const string BreakdownValue = "BreakdownValue";
-	}
+        public const string BreakdownValue = "BreakdownValue";
+    }
 
-	public abstract TimeSpan Duration { get; }
+    public abstract TimeSpan Duration { get; }
 
-	public ulong IntegerValue => ulong.Parse(RawValue, CultureInfo.InvariantCulture);
+    public ulong IntegerValue => ulong.Parse(RawValue, CultureInfo.InvariantCulture);
 
-	public string RawValue => GetProperty<string>("MetricValue");
+    public string RawValue => GetProperty<string>("MetricValue");
 
-	public string BreakdownValue => GetProperty<string>("BreakdownValue");
+    public string BreakdownValue => GetProperty<string>("BreakdownValue");
 
-	public MetricType MetricType => MetricDefinitionView.MapMetricIdToMetricType(GetProperty<string>("MetricDefinitionId"));
+    public MetricType MetricType => MetricDefinitionView.MapMetricIdToMetricType(GetProperty<string>("MetricDefinitionId"));
 }

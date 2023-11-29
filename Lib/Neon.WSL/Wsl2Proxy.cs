@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    Wsl2Proxy.cs
+//-----------------------------------------------------------------------------
+// FILE:        Wsl2Proxy.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,9 +38,7 @@ using Neon.Net;
 namespace Neon.WSL
 {
     /// <summary>
-    /// <b>INTERNAL USE ONLY:</b> Handles interactions with our neonKUBE WSL2 distribution
-    /// running on the local Windows workstation.  Note that this is not intended to be 
-    /// generally useful at this time.
+    /// <b>INTERNAL USE ONLY:</b> Used internally for building Linux components.
     /// </summary>
     /// <remarks>
     /// <para>
@@ -56,7 +54,7 @@ namespace Neon.WSL
     /// <para>
     /// The <see cref="Wsl2Proxy"/> class wraps the <b>wsl.exe</b> tool such
     /// that Linux commands can be be invoked via code running on Windows.  We
-    /// currently use this for managing WSL2 for a local neonDESKTOP cluster.
+    /// currently use this for managing WSL2 for a local NEONDESKTOP cluster.
     /// </para>
     /// <para><b>Managing WSL2 Distros</b></para>
     /// <para>
@@ -560,7 +558,7 @@ namespace Neon.WSL
                 {
                     "--distribution", this.Name,
                     "--user", this.User,
-                    "--",
+                    "--exec",
                     path,
                     args
                 },
@@ -584,7 +582,7 @@ namespace Neon.WSL
                 {
                     "--distribution", this.Name,
                     "--user", user,
-                    "--",
+                    "--exec",
                     path,
                     args
                 },
@@ -612,7 +610,7 @@ namespace Neon.WSL
                 {
                     "--distribution", this.Name,
                     "--user", this.User,
-                    "--",
+                    "--exec",
                     "sudo", path,
                     args
                 },
@@ -636,7 +634,7 @@ namespace Neon.WSL
                 {
                     "--distribution", this.Name,
                     "--user", user,
-                    "--",
+                    "--exec",
                     "sudo", path,
                     args
                 },

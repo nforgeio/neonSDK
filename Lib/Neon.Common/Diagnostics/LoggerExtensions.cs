@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    LoggerExtensions.cs
+//-----------------------------------------------------------------------------
+// FILE:        LoggerExtensions.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,9 +26,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.Logging;
+
 using Neon.Common;
+
 using OpenTelemetry.Trace;
-using YamlDotNet.Core.Tokens;
 
 namespace Neon.Diagnostics
 {
@@ -237,7 +238,7 @@ namespace Neon.Diagnostics
             // concept by persisting the user's message passed as an explicit [body] attribute and
             // then constructing a separate message used internally only for specifing attribute names.
 
-            var logAttributes = new LogAttributes();    // $todo(jefflill): It would be really nice to be able to pool these: https://github.com/nforgeio/neonKUBE/issues/1668#issuecomment-1235696464
+            var logAttributes = new LogAttributes();
 
             // Process the event message.
 

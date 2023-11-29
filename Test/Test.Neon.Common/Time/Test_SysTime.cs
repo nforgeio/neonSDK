@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    Test_SysTime.cs
+//-----------------------------------------------------------------------------
+// FILE:        Test_SysTime.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -36,9 +36,6 @@ namespace TestCommon
         // $todo(jeff.lill):
         //
         // I'm going to simplify this to just use UTC for now:
-        //
-        //      https://github.com/nforgeio/neonKUBE/issues/760
-        //      https://github.com/nforgeio/neonKUBE/issues/761
 #if TODO
         [Fact]
         [Trait(TestCategory.CategoryTrait, TestCategory.NeonCommon)]

@@ -1,25 +1,24 @@
 ﻿@using Neon.Blazor;
 
-<div class="@("w-96 inline-block p-8 rounded-lg text-center text-slate-200 text-2xl uppercase " + css)">
-    <p>@text</p>
-</div>
+<IntersectionObserver RootMargin="-0px" OnIntersectionChanged="OnIntersectionChanged">
+    <div class="@("w-96 inline-block p-8 rounded-lg text-center text-slate-200 text-2xl uppercase " + css)">
+        <p>@text</p>
+    </div>
+</IntersectionObserver>
 
-@code {
-    [CascadingParameter]
-    public IntersectionObserver IntersectionObserver { get; set; }
-
+@code
+{
     private string text = "";
     private string css = "";
 
     protected override void OnInitialized()
     {
-        IntersectionObserver.IntersectionChanged += OnIntersectionChanged;
         base.OnInitialized();
     }
 
-    public void OnIntersectionChanged()
+    public void OnIntersectionChanged(IntersectionChangedEventArgs args)
     {
-        if (IntersectionObserver.IsIntersecting)
+        if (args.IsIntersecting)
         {
             text = "visible";
             css = "bg-green-600";
@@ -34,6 +33,5 @@
 
     public void Dispose()
     {
-        IntersectionObserver.IntersectionChanged -= OnIntersectionChanged;
     }
 }

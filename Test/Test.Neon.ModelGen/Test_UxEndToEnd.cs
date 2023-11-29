@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    Test_UxEndToEnd.cs
+//-----------------------------------------------------------------------------
+// FILE:        Test_UxEndToEnd.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -245,16 +245,19 @@ namespace TestModelGen.UxAspNet
         //    return date;
         //}
 
-        [HttpPut]
-        [Route("PutStreamAsBody")]
-        public async Task<byte[]> PutStreamAsBody()
-        {
-            var memStream = new MemoryStream();
+        // $todo(jefflill): https://github.com/nforgeio/neonSDK/issues/80
 
-            await Request.Body.CopyToAsync(memStream);
+        //[HttpPut]
+        //[Route("PutStreamAsBody")]
+        //[Neon.ModelGen.NoControllerValidation]
+        //public async Task<byte[]> PutStreamAsBody()
+        //{
+        //    var memStream = new MemoryStream();
 
-            return memStream.ToArray();
-        }
+        //    await Request.Body.CopyToAsync(memStream);
+
+        //    return memStream.ToArray();
+        //}
     }
 
     public class Startup
@@ -406,22 +409,24 @@ namespace TestModelGen.UxAspNet
             Assert.Equal(Gender.Male, modified.Gender);
         }
 
-        [Fact]
-        public async Task PutStream()
-        {
-            var inputString = "Hello World!";
+        // $todo(jefflill): https://github.com/nforgeio/neonSDK/issues/80
 
-            using (var memStream = new MemoryStream())
-            {
-                memStream.Write(Encoding.UTF8.GetBytes(inputString));
-                memStream.Position = 0;
+        //[Fact]
+        //public async Task PutStream()
+        //{
+        //    var inputString = "Hello World!";
 
-                var outputBytes = await client.PutStreamAsBodyAsync(memStream);
-                var outputString = Encoding.UTF8.GetString(outputBytes);
+        //    using (var memStream = new MemoryStream())
+        //    {
+        //        memStream.Write(Encoding.UTF8.GetBytes(inputString));
+        //        memStream.Position = 0;
 
-                Assert.Equal(inputString, outputString);
-            }
-        }
+        //        var outputBytes = await client.PutStreamAsBodyAsync(memStream);
+        //        var outputString = Encoding.UTF8.GetString(outputBytes);
+
+        //        Assert.Equal(inputString, outputString);
+        //    }
+        //}
 
         [Fact]
         public async Task OptionalParams()

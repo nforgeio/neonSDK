@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    NetHelper.cs
+//-----------------------------------------------------------------------------
+// FILE:        NetHelper.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Neon.Common;
+using Neon.Diagnostics;
 using Neon.Retry;
 using Neon.Tasks;
 
@@ -223,7 +224,7 @@ namespace Neon.Net
             var     addressBytes = address.GetAddressBytes();
             uint    addressValue;
 
-            addressValue  = (uint)addressBytes[0] << 24;
+            addressValue = (uint)addressBytes[0] << 24;
             addressValue |= (uint)addressBytes[1] << 16;
             addressValue |= (uint)addressBytes[2] << 8;
             addressValue |= (uint)addressBytes[3];
@@ -248,7 +249,7 @@ namespace Neon.Net
             var     addressBytes = address.GetAddressBytes();
             uint    addressValue;
 
-            addressValue  = (uint)addressBytes[0] << 24;
+            addressValue = (uint)addressBytes[0] << 24;
             addressValue |= (uint)addressBytes[1] << 16;
             addressValue |= (uint)addressBytes[2] << 8;
             addressValue |= (uint)addressBytes[3];
@@ -415,21 +416,15 @@ namespace Neon.Net
             // READ/WRITE to prevent it from being modified while the resolver is reading any
             // changes.
             //
-            // We're going to mitigate this by retrying a few times.
-            //
-            // It can take a bit of time for the Windows DNS resolver to pick up the change.
-            //
-            //      https://github.com/nforgeio/neonKUBE/issues/244
+            // We're going to mitigate this by retrying a few times.  It can take a bit of tim
+            // for the Windows DNS resolver to pick up the change.
             //
             // We're going to mitigate this by writing a [neonkube.neonforge-marker] record with
             // a random IP address and then wait for for the DNS resolver to report the correct
             // address.
             //
             // Note that this only works on Windows and perhaps OSX.  This doesn't work on
-            // Linux because there's no central DNS resolver there.  See the issue below for
-            // more information:
-            //
-            //      https://github.com/nforgeio/neonKUBE/issues/271
+            // Linux because there's no central DNS resolver there.
 
             var updateHost    = section != null ? $"{section.ToLowerInvariant()}.neonforge-marker" : $"H-{Guid.NewGuid().ToString("d")}.neonforge-marker";
             var updateAddress = GetRandomAddress();
@@ -446,7 +441,7 @@ namespace Neon.Net
                     if (section != null)
                     {
                         beginMarker += section;
-                        endMarker   += section;
+                        endMarker += section;
                     }
 
                     var inputLines       = File.ReadAllLines(hostsPath);
@@ -561,7 +556,7 @@ namespace Neon.Net
                         lines.Add(endMarker);
                     }
 
-                    File.WriteAllLines(hostsPath, lines.ToArray());  
+                    File.WriteAllLines(hostsPath, lines.ToArray());
                 });
 
             if (!different)
@@ -728,8 +723,8 @@ namespace Neon.Net
                         }
 
                         withinSection = true;
-                        sectionName   = name;
-                        hostEntries   = new Dictionary<string, IPAddress>(StringComparer.InvariantCultureIgnoreCase);
+                        sectionName = name;
+                        hostEntries = new Dictionary<string, IPAddress>(StringComparer.InvariantCultureIgnoreCase);
                     }
                     else if (line.StartsWith(HostsSectionEndMarker))
                     {
@@ -1162,9 +1157,9 @@ namespace Neon.Net
 
                 return true;
             }
-            catch 
-            { 
-                return false; 
+            catch
+            {
+                return false;
             }
         }
 
@@ -1217,7 +1212,7 @@ namespace Neon.Net
 
                         // Filter out loopback interfaces, TAP interfaces and interfaces that aren't up.
 
-                        if (@interface.NetworkInterfaceType == NetworkInterfaceType.Loopback || 
+                        if (@interface.NetworkInterfaceType == NetworkInterfaceType.Loopback ||
                             @interface.Description.StartsWith("TAP-") ||
                             @interface.Description == "Hyper-V Virtual Ethernet Adapter" ||
                             @interface.OperationalStatus != OperationalStatus.Up)
@@ -1314,7 +1309,7 @@ namespace Neon.Net
 
                         // Filter out loopback interfaces, TAP interfaces and interfaces that aren't up.
 
-                        if (@interface.NetworkInterfaceType == NetworkInterfaceType.Loopback || 
+                        if (@interface.NetworkInterfaceType == NetworkInterfaceType.Loopback ||
                             @interface.Description.StartsWith("TAP-") ||
                             @interface.Description == "Hyper-V Virtual Ethernet Adapter" ||
                             @interface.OperationalStatus != OperationalStatus.Up)
@@ -1370,10 +1365,10 @@ namespace Neon.Net
                             return new NetworkConfiguration()
                             {
                                 InterfaceName = @interface.Name,
-                                Address       = routableIpAddress.ToString(),
-                                Subnet        = new NetworkCidr(routableIpAddress, unicastAddress.IPv4Mask).ToString(),
-                                Gateway       = ipProperties.GatewayAddresses.FirstOrDefault(gatewayAddr => gatewayAddr.Address.AddressFamily == AddressFamily.InterNetwork).Address.ToString(),
-                                NameServers   = ipProperties.DnsAddresses
+                                Address = routableIpAddress.ToString(),
+                                Subnet = new NetworkCidr(routableIpAddress, unicastAddress.IPv4Mask).ToString(),
+                                Gateway = ipProperties.GatewayAddresses.FirstOrDefault(gatewayAddr => gatewayAddr.Address.AddressFamily == AddressFamily.InterNetwork).Address.ToString(),
+                                NameServers = ipProperties.DnsAddresses
                                     .Where(address => address.AddressFamily == AddressFamily.InterNetwork)
                                     .Select(address => address.ToString())
                                     .ToArray()
@@ -1444,21 +1439,294 @@ namespace Neon.Net
         /// Ensures that the status code passed indicates an HTTP request completed successfully.
         /// </para>
         /// <note>
-        /// Status codes between 400-499 are considered to indicate success.
+        /// Status codes between 200-299 are considered to indicate success.
         /// </note>
         /// </summary>
         /// <param name="statusCode">Specifies the status code.</param>
         /// <param name="reasonPhrase">Optionally specifies the reason phrase to be included in any exception thrown.</param>
         /// <returns>The status code passed.</returns>
         /// <exception cref="HttpException">Thrown for non-success status codes.</exception>
-        public static HttpStatusCode EnsureSuccess(HttpStatusCode statusCode,string reasonPhrase = null)
+        public static HttpStatusCode EnsureSuccess(HttpStatusCode statusCode, string reasonPhrase = null)
         {
-            if (400 <= (int)statusCode && (int)statusCode <= 499)
+            if (200 <= (int)statusCode && (int)statusCode <= 299)
             {
                 return statusCode;
             }
 
             throw new HttpException(reasonPhrase: reasonPhrase, statusCode: statusCode);
+        }
+
+        /// <summary>
+        /// <para>
+        /// Attempts to fetch the MAC address associated with an IP address.
+        /// </para>
+        /// <note>
+        /// This is currently supported only for Windows.
+        /// </note>
+        /// </summary>
+        /// <param name="address">Specifies the IP address.</param>
+        /// <returns>The MAC address as a byte array or <c>null</c> when no MAC address could be located.</returns>
+        /// <exception cref="NotSupportedException">Thrown when the current platform is not supported.</exception>
+        /// <remarks>
+        /// <para>
+        /// This works by sending an ICMP ping to <paramref name="address"/> and then using
+        /// the <b>arp</b> command line tool to fetch the local ARP table in an attempt to
+        /// locate the MAC address.  The idea here is that the ping should cause the target's
+        /// MAC address to be added to the ARP table when the target is running and is on
+        /// the local network.
+        /// </para>
+        /// <note>
+        /// The first MAC address for the IP address found will be returned.
+        /// </note>
+        /// </remarks>
+        public static async Task<byte[]> GetMacAddressAsync(IPAddress address)
+        {
+            Covenant.Requires<ArgumentNullException>(address != null, nameof(address));
+
+            if (!NeonHelper.IsWindows)
+            {
+                throw new NotSupportedException($"[NetHelper.{nameof(GetMacAddressAsync)}()] is only supported on Windows.");
+            }
+
+            using (var pinger = new Pinger())
+            {
+                await pinger.SendPingAsync(address);
+            }
+
+            var arpTable = await GetArpTableAsync();
+
+            foreach (var @interface in arpTable.Values)
+            {
+                if (@interface.TryGetValue(address, out var macAddress))
+                {
+                    return macAddress;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// <para>
+        /// Returns the ARP table for the current machine.
+        /// </para>
+        /// <note>
+        /// This is currently supported only for Windows.
+        /// </note>
+        /// </summary>
+        /// <returns>
+        /// A dictionary of dictionaries, with the first level keyed by network interface
+        /// IP address, returning a dictionary relating IP addresses to MAC addresses for
+        /// that interface.
+        /// </returns>
+        /// <exception cref="NotSupportedException">Thrown when the current platform is not supported.</exception>
+        public static async Task<Dictionary<IPAddress, Dictionary<IPAddress, byte[]>>> GetArpTableAsync()
+        {
+            if (NeonHelper.IsWindows)
+            {
+                return await GetWindowsArpTableAsync();
+            }
+            else
+            {
+                throw new NotSupportedException($"[NetHelper.{nameof(GetArpTableAsync)}()] is only supported for Windows.");
+            }
+        }
+
+        /// <summary>
+        /// <para>
+        /// Returns a flattened ARP table for the current machine.  This is just a
+        /// dictionary keyed by IP addresses mapping to the cached MAC address.
+        /// </para>
+        /// <note>
+        /// This is currently supported only for Windows.
+        /// </note>
+        /// </summary>
+        /// <returns>The IP/MAC dictionary.</returns>
+        /// <exception cref="NotSupportedException">Thrown when the current platform is not supported.</exception>
+        public static async Task<Dictionary<IPAddress, byte[]>> GetArpFlatTableAsync()
+        {
+            if (!NeonHelper.IsWindows)
+            {
+                throw new NotSupportedException($"[NetHelper.{nameof(GetArpFlatTableAsync)}()] is only supported for Windows.");
+            }
+
+            var fullArpTable = await GetArpTableAsync();
+            var arpTable     = new Dictionary<IPAddress, byte[]>();
+
+            foreach (var @interfaceTable in fullArpTable.Values)
+            {
+                foreach (var item in interfaceTable)
+                {
+                    arpTable[item.Key] = item.Value;
+                }
+            }
+
+            return arpTable;
+        }
+
+        /// <summary>
+        /// <para>
+        /// Returns the ARP table for Windows.
+        /// </para>
+        /// <note>
+        /// This is currently supported only for Windows.
+        /// </note>
+        /// </summary>
+        /// <returns>The full ARP table.</returns>
+        private static async Task<Dictionary<IPAddress, Dictionary<IPAddress, byte[]>>> GetWindowsArpTableAsync()
+        {
+            Covenant.Assert(NeonHelper.IsWindows);
+
+            // We're going to use the [ar /a] command line utility to retrieve this table.
+            // The output will look something like:
+            //
+            // Interface: 10.100.254.3 --- 0xe                       
+            //   Internet Address      Physical Address      Type    
+            //   10.100.254.1          00-ff-93-e9-e6-e9     dynamic 
+            //   10.100.254.255        ff-ff-ff-ff-ff-ff     static  
+            //   224.0.0.2             01-00-5e-00-00-02     static  
+            //   224.0.0.22            01-00-5e-00-00-16     static  
+            //   224.0.0.250           01-00-5e-00-00-fa     static  
+            //   224.0.0.251           01-00-5e-00-00-fb     static  
+            //   224.0.0.252           01-00-5e-00-00-fc     static  
+            //   239.255.255.250       01-00-5e-7f-ff-fa     static  
+            //   239.255.255.251       01-00-5e-7f-ff-fb     static  
+            //   255.255.255.255       ff-ff-ff-ff-ff-ff     static  
+            //
+            // Interface: 172.18.80.1 --- 0x18                       
+            //   Internet Address      Physical Address      Type    
+            //   172.18.95.255         ff-ff-ff-ff-ff-ff     static  
+            //   224.0.0.2             01-00-5e-00-00-02     static  
+            //   224.0.0.22            01-00-5e-00-00-16     static  
+            //   224.0.0.250           01-00-5e-00-00-fa     static  
+            //   224.0.0.251           01-00-5e-00-00-fb     static  
+            //   239.255.255.250       01-00-5e-7f-ff-fa     static  
+            //   239.255.255.251       01-00-5e-7f-ff-fb     static  
+            //   239.255.255.253       01-00-5e-7f-ff-fd     static  
+            //   255.255.255.255       ff-ff-ff-ff-ff-ff     static  
+            //
+            // Interface: 10.0.0.2 --- 0x1a                          
+            //   Internet Address      Physical Address      Type    
+            //   10.0.0.1              00-cb-7a-ca-49-4b     dynamic 
+            //   10.0.0.5              f4-52-14-45-7a-d0     dynamic 
+            //   10.0.0.30             9e-02-07-37-94-f4     dynamic 
+            //   10.0.0.60             82-3f-88-3b-30-52     dynamic 
+            //   10.0.0.76             9c-b6-d0-e8-bf-37     dynamic 
+            //   10.0.0.77             24-4c-e3-30-00-82     dynamic 
+            //   10.0.0.131            f4-f5-d8-6b-87-dc     dynamic 
+            //   10.0.0.229            a4-77-33-71-0c-9a     dynamic 
+            //   10.0.1.10             00-15-5d-00-02-2c     dynamic 
+            //   10.0.1.20             00-15-5d-00-02-35     dynamic 
+            //   10.0.1.30             42-da-32-48-a3-88     dynamic 
+            //   10.0.1.100            d6-85-1d-00-61-cb     dynamic 
+            //   10.0.255.255          ff-ff-ff-ff-ff-ff     static  
+            //   224.0.0.2             01-00-5e-00-00-02     static  
+            //   224.0.0.22            01-00-5e-00-00-16     static  
+            //   224.0.0.250           01-00-5e-00-00-fa     static  
+            //   224.0.0.251           01-00-5e-00-00-fb     static  
+            //   224.0.0.252           01-00-5e-00-00-fc     static  
+            //   239.255.255.250       01-00-5e-7f-ff-fa     static  
+            //   239.255.255.251       01-00-5e-7f-ff-fb     static  
+            //   239.255.255.253       01-00-5e-7f-ff-fd     static  
+            //   255.255.255.255       ff-ff-ff-ff-ff-ff     static
+
+            var response = NeonHelper.ExecuteCapture("arp.exe", new object[] { "-a" })
+                .EnsureSuccess();
+
+            Dictionary<IPAddress, Dictionary<IPAddress, byte[]>>    arpTable       = new Dictionary<IPAddress, Dictionary<IPAddress, byte[]>>();
+            Dictionary<IPAddress, byte[]>                           interfaceTable = new Dictionary<IPAddress, byte[]>();
+
+            const string badArpOutput = "Unexpected [arp.exe] output.";
+
+            using (var reader = new StringReader(response.OutputText))
+            {
+                foreach (var line in reader.Lines())
+                {
+                    if (line.Trim() == string.Empty)
+                    {
+                        if (interfaceTable != null)
+                        {
+                            // Empty lines terminate interface tables.
+
+                            interfaceTable = null;
+                        }
+
+                        continue;
+                    }
+
+                    if (line[0] != ' ')
+                    {
+                        // Looks like this starts a new interface.  Extract the interface IP address.
+
+                        var colonPos = line.IndexOf(':');
+                        var dashPos  = line.IndexOf('-');
+
+                        if (colonPos == -1 || dashPos == -1 || dashPos < colonPos)
+                        {
+                            throw new InvalidDataException(badArpOutput);
+                        }
+
+                        var interfaceIPString = line.Substring(colonPos + 1, dashPos - colonPos - 1).Trim();
+                        var interfaceIP       = IPAddress.Parse(interfaceIPString);
+
+                        interfaceTable = new Dictionary<IPAddress, byte[]>();
+                        arpTable[interfaceIP] = interfaceTable;
+                    }
+                    else
+                    {
+                        // The line should hold a cached ARP record for the current interface.
+                        // The output format must be bad when there's no current interface.
+
+                        if (interfaceTable == null)
+                        {
+                            throw new InvalidDataException(badArpOutput);
+                        }
+
+                        // Trim the line and then ignore lines that don't start with a digit
+                        // because it looks like the table header.
+
+                        var trimmed = line.Trim();
+
+                        if (!char.IsDigit(trimmed[0]))
+                        {
+                            continue;
+                        }
+
+                        // Extract the IP and MAC addresses and the convert the MAC address into
+                        // a byte array.
+
+                        var fields  = trimmed.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                        var address = IPAddress.Parse(fields[0]);
+                        var macHex  = fields[1].Replace("-", string.Empty);
+
+                        interfaceTable[address] = NeonHelper.FromHex(macHex);
+                    }
+                }
+            }
+
+            return await Task.FromResult(arpTable);
+        }
+
+        /// <summary>
+        /// <para>
+        /// Removes the cached ARP entry for an IP address if it's present.
+        /// </para>
+        /// <note>
+        /// This is currently supported only for Windows.
+        /// </note>
+        /// </summary>
+        /// <param name="address">Specifies the IP address being removed from the ARP cache.</param>
+        /// <exception cref="NotSupportedException">Thrown when the current platform is not supported.</exception>
+        public static void DeleteArpEntry(IPAddress address)
+        {
+            Covenant.Requires<ArgumentNullException>(address != null, nameof(address));
+
+            if (!NeonHelper.IsWindows)
+            {
+                throw new NotSupportedException($"[NetHelper.{nameof(DeleteArpEntry)}()] is only supported for Windows.");
+            }
+
+            NeonHelper.ExecuteCapture("arp.exe", new object[] { "-d", address.ToString() });
         }
     }
 }

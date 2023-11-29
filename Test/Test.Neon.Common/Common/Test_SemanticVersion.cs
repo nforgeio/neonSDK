@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    Test_SemanticVersion.cs
+//-----------------------------------------------------------------------------
+// FILE:        Test_SemanticVersion.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -79,6 +79,7 @@ namespace TestCommon
             Assert.Equal(0, v.Minor);
             Assert.Equal(0, v.Patch);
             Assert.Null(v.Prerelease);
+            Assert.False(v.IsPrerelease);
             Assert.Null(v.Build);
 
             v = SemanticVersion.Parse("1.2");
@@ -87,6 +88,7 @@ namespace TestCommon
             Assert.Equal(2, v.Minor);
             Assert.Equal(0, v.Patch);
             Assert.Null(v.Prerelease);
+            Assert.False(v.IsPrerelease);
             Assert.Null(v.Build);
 
             v = SemanticVersion.Parse("1.2.3");
@@ -95,6 +97,7 @@ namespace TestCommon
             Assert.Equal(2, v.Minor);
             Assert.Equal(3, v.Patch);
             Assert.Null(v.Prerelease);
+            Assert.False(v.IsPrerelease);
             Assert.Null(v.Build);
 
             v = SemanticVersion.Parse("11.22.33");
@@ -103,6 +106,7 @@ namespace TestCommon
             Assert.Equal(22, v.Minor);
             Assert.Equal(33, v.Patch);
             Assert.Null(v.Prerelease);
+            Assert.False(v.IsPrerelease);
             Assert.Null(v.Build);
 
             v = SemanticVersion.Parse("1.2.3-alpha");
@@ -111,6 +115,7 @@ namespace TestCommon
             Assert.Equal(2, v.Minor);
             Assert.Equal(3, v.Patch);
             Assert.Equal("alpha", v.Prerelease);
+            Assert.True(v.IsPrerelease);
             Assert.Null(v.Build);
 
             v = SemanticVersion.Parse("1.2.3-alpha-0");
@@ -119,6 +124,7 @@ namespace TestCommon
             Assert.Equal(2, v.Minor);
             Assert.Equal(3, v.Patch);
             Assert.Equal("alpha-0", v.Prerelease);
+            Assert.True(v.IsPrerelease);
             Assert.Null(v.Build);
 
             v = SemanticVersion.Parse("1.2.3-alpha.0.1");
@@ -127,6 +133,7 @@ namespace TestCommon
             Assert.Equal(2, v.Minor);
             Assert.Equal(3, v.Patch);
             Assert.Equal("alpha.0.1", v.Prerelease);
+            Assert.True(v.IsPrerelease);
             Assert.Null(v.Build);
 
             v = SemanticVersion.Parse("1.2.3+build-27");
@@ -135,6 +142,7 @@ namespace TestCommon
             Assert.Equal(2, v.Minor);
             Assert.Equal(3, v.Patch);
             Assert.Null(v.Prerelease);
+            Assert.False(v.IsPrerelease);
             Assert.Equal("build-27", v.Build);
 
             v = SemanticVersion.Parse("1.2.3-alpha.0.1+build-27");
@@ -143,6 +151,7 @@ namespace TestCommon
             Assert.Equal(2, v.Minor);
             Assert.Equal(3, v.Patch);
             Assert.Equal("alpha.0.1", v.Prerelease);
+            Assert.True(v.IsPrerelease);
             Assert.Equal("build-27", v.Build);
         }
 
@@ -703,6 +712,26 @@ namespace TestCommon
             {
                 Assert.Equal($"{i + 1}.0.0", (string)list[i]);
             }
+        }
+
+        [Fact]
+        public void NumericPart()
+        {
+            Assert.Equal("1", SemanticVersion.Parse("1").Numeric);
+            Assert.Equal("1.2", SemanticVersion.Parse("1.2").Numeric);
+            Assert.Equal("1.2.3", SemanticVersion.Parse("1.2.3").Numeric);
+
+            Assert.Equal("1", SemanticVersion.Parse("1-alpha.1").Numeric);
+            Assert.Equal("1.2", SemanticVersion.Parse("1.2-alpha.1").Numeric);
+            Assert.Equal("1.2.3", SemanticVersion.Parse("1.2.3-alpha.1").Numeric);
+
+            Assert.Equal("1", SemanticVersion.Parse("1+build").Numeric);
+            Assert.Equal("1.2", SemanticVersion.Parse("1.2+build").Numeric);
+            Assert.Equal("1.2.3", SemanticVersion.Parse("1.2.3+build").Numeric);
+
+            Assert.Equal("1", SemanticVersion.Parse("1-alpha.1+build").Numeric);
+            Assert.Equal("1.2", SemanticVersion.Parse("1.2-alpha.1+build").Numeric);
+            Assert.Equal("1.2.3", SemanticVersion.Parse("1.2.3-alpha.1+build").Numeric);
         }
     }
 }

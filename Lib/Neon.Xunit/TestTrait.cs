@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    TestTrait.cs
+//-----------------------------------------------------------------------------
+// FILE:        TestTrait.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ namespace Neon.Xunit
         public const string Slow = "slow";
 
         /// <summary>
-        /// Set this as the category value for tests that require a neonKUBE cluster.
+        /// Set this as the category value for tests that require a NEONKUBE cluster.
         /// </summary>
         public const string NeonKube = "neon-kube";
 
@@ -68,5 +68,10 @@ namespace Neon.Xunit
         /// to enter a master password.
         /// </summary>
         public const string RequiresProfile = "requires-profile";
+
+        /// <summary>
+        /// Will incure cloud expenses when run.
+        /// </summary>
+        public const string CloudExpense = "cloud-expense";
     }
 }

@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    NeonHelper.Misc.cs
+//-----------------------------------------------------------------------------
+// FILE:        NeonHelper.Misc.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -132,8 +132,6 @@ namespace Neon.Common
             // Loopie encountered a strange situation where the inner exceptions apparently 
             // form a cycle which can result in a stack overflow if we keep drilling down.
             //
-            //      https://github.com/nforgeio/neonKUBE/issues/737
-            //
             // We're going to handle this by limiting the recursion depth.
 
             if (aggregate != null && depth < 4)
@@ -165,7 +163,7 @@ namespace Neon.Common
 
                 if (stackTrace)
                 {
-                    message += $" [stack:{new StackTrace(e, skipFrames: 0, fNeedFileInfo: true)}]";
+                    message += $" [stack:{Environment.NewLine}{new StackTrace(e, skipFrames: 0, fNeedFileInfo: true)}]";
                 }
             }
 
@@ -465,12 +463,13 @@ namespace Neon.Common
         /// <param name="timeout">Optionally specifies the maximum time to wait.</param>
         /// <param name="pollInterval">Optionally specifies time to wait between each predicate call or <c>null</c> for a reasonable default.</param>
         /// <param name="timeoutMessage">Optionally overrides the <see cref="TimeoutException"/> message.</param>
+        /// <param name="cancellationToken">Optionally specifies a cancellation token.</param>
         /// <exception cref="TimeoutException">Thrown if the never returned <c>true</c> before the timeout.</exception>
         /// <remarks>
         /// This method periodically calls <paramref name="predicate"/> until it
         /// returns <c>true</c> or <pararef name="timeout"/> exceeded.
         /// </remarks>
-        public static void WaitFor(Func<bool> predicate, TimeSpan timeout, TimeSpan? pollInterval = null, string timeoutMessage = null)
+        public static void WaitFor(Func<bool> predicate, TimeSpan timeout, TimeSpan? pollInterval = null, string timeoutMessage = null, CancellationToken cancellationToken = default)
         {
             var timeLimit = DateTimeOffset.UtcNow + timeout;
 
@@ -481,6 +480,8 @@ namespace Neon.Common
 
             while (true)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+                
                 if (predicate())
                 {
                     return;
@@ -2223,10 +2224,7 @@ namespace Neon.Common
                     {
                         var dockerPath = Path.Combine(folder.Trim(), "docker");
 
-                        if (File.Exists(dockerPath))
-                        {
-                            return dockerCliPath = "docker";
-                        }
+                        return dockerCliPath = "docker";
                     }
 
                     return null;

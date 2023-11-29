@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    DeploymentHelper.cs
+//-----------------------------------------------------------------------------
+// FILE:        DeploymentHelper.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -476,9 +476,21 @@ namespace Neon.Deployment
             {
                 var response = await httpClient.GetSafeAsync(uri);
 
+                // $hack(jefflill):
+                //
+                // We're having trouble setting the [Content-Type]header when publishing
+                // node images to S3.  As a workaround, I'm also going to check the
+                // [x-amz-meta-content-type] header.
+
                 if (!response.Content.Headers.ContentType.MediaType.Equals(DeploymentHelper.DownloadManifestContentType))
                 {
-                    throw new FormatException($"The content type for [{uri}] is [{response.Content.Headers.ContentType.MediaType}].  [{DeploymentHelper.DownloadManifestContentType}] was expected.");
+                    const string s3CustonContentType = "x-amz-meta-content-type";
+
+                    if (!response.Content.Headers.Contains(s3CustonContentType) ||
+                        response.Content.Headers.GetValues(s3CustonContentType).FirstOrDefault() != DeploymentHelper.DownloadManifestContentType)
+                    {
+                        throw new FormatException($"The content type for [{uri}] is [{response.Content.Headers.ContentType.MediaType}].  [{DeploymentHelper.DownloadManifestContentType}] was expected.");
+                    }
                 }
 
                 manifest = NeonHelper.JsonDeserialize<DownloadManifest>(await response.Content.ReadAsStringAsync());

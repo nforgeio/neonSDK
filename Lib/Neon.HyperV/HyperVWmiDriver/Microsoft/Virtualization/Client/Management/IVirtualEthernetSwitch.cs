@@ -5,15 +5,15 @@ namespace Microsoft.Virtualization.Client.Management;
 [WmiName("Msvm_VirtualEthernetSwitch")]
 internal interface IVirtualEthernetSwitch : IVirtualSwitch, IVirtualizationManagementObject, IPutable
 {
-	IVirtualEthernetSwitchSetting Setting { get; }
+    IVirtualEthernetSwitchSetting Setting { get; }
 
-	IEnumerable<IVirtualEthernetSwitchPort> SwitchPorts { get; }
+    IEnumerable<IVirtualEthernetSwitchPort> SwitchPorts { get; }
 
-	bool IsDefaultSwitch { get; }
+    bool IsDefaultSwitch { get; }
 
-	IEthernetSwitchOffloadStatus OffloadStatus { get; }
+    IEthernetSwitchOffloadStatus OffloadStatus { get; }
 
-	IEthernetSwitchBandwidthStatus BandwidthStatus { get; }
+    IEthernetSwitchBandwidthStatus BandwidthStatus { get; }
 
-	IEnumerable<IEthernetSwitchStatus> GetRuntimeStatuses();
+    IEnumerable<IEthernetSwitchStatus> GetRuntimeStatuses();
 }

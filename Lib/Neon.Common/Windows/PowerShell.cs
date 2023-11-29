@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    PowerShell.cs
+//-----------------------------------------------------------------------------
+// FILE:        PowerShell.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ namespace Neon.Windows
         // Static members
 
         private const int               PowershellBufferWidth = 16192;
-        private static readonly Regex   ttyColorRegex         = new Regex(@"\u001b\[.*?m", RegexOptions.ExplicitCapture);     // Matches TTY color commands
+        private static readonly Regex   ttyColorRegex         = new Regex("\u001b\\[.*?m", RegexOptions.ExplicitCapture);     // Matches TTY color commands
 
         /// <summary>
         /// Optional path to the Powershell Core <b>pwsh</b> executable.  The <b>PATH</b>
@@ -190,11 +190,6 @@ catch [Exception]
                 var result  = NeonHelper.ExecuteCapture(GetPwshPath(), $"-File \"{file.Path}\" -NonInteractive -NoProfile", outputAction: outputAction, errorAction: errorAction);
                 var allText = result.AllText;
 
-                // Powershell includes TTY color commands in its output and we need
-                // to strip these out of the the result:
-                //
-                //      https://github.com/nforgeio/neonKUBE/issues/1259
-
                 allText = ttyColorRegex.Replace(allText, string.Empty);
 
                 // $hack(jefflill):
@@ -207,11 +202,6 @@ catch [Exception]
                 {
                     throw new PowerShellException(allText);
                 }
-
-                // Powershell includes TTY color commands in its output and we need
-                // to strip these out of the the result:
-                //
-                //      https://github.com/nforgeio/neonKUBE/issues/1259
 
                 return allText;
             }

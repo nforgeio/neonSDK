@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    Test_RetryAsync_ExponentialRetryPolicy.cs
+//-----------------------------------------------------------------------------
+// FILE:        Test_RetryAsync_ExponentialRetryPolicy.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Neon.Common;
@@ -408,11 +409,11 @@ namespace TestCommon
         [Fact]
         public async Task SuccessCustom()
         {
-            var policy  = new ExponentialRetryPolicy(TransientDetector, maxAttempts: 6, initialRetryInterval: TimeSpan.FromSeconds(0.5), maxRetryInterval: TimeSpan.FromSeconds(4));
+            var policy  = new ExponentialRetryPolicy(TransientDetector, maxAttempts: 10, initialRetryInterval: TimeSpan.FromSeconds(0.5), maxRetryInterval: TimeSpan.FromSeconds(4));
             var times   = new List<DateTime>();
             var success = false;
 
-            Assert.Equal(6, policy.MaxAttempts);
+            Assert.Equal(10, policy.MaxAttempts);
             Assert.Equal(TimeSpan.FromSeconds(0.5), policy.InitialRetryInterval);
             Assert.Equal(TimeSpan.FromSeconds(4), policy.MaxRetryInterval);
 
@@ -438,10 +439,10 @@ namespace TestCommon
         [Fact]
         public async Task SuccessCustom_Result()
         {
-            var policy = new ExponentialRetryPolicy(TransientDetector, maxAttempts: 6, initialRetryInterval: TimeSpan.FromSeconds(0.5), maxRetryInterval: TimeSpan.FromSeconds(4));
+            var policy = new ExponentialRetryPolicy(TransientDetector, maxAttempts: 10, initialRetryInterval: TimeSpan.FromSeconds(0.5), maxRetryInterval: TimeSpan.FromSeconds(4));
             var times  = new List<DateTime>();
 
-            Assert.Equal(6, policy.MaxAttempts);
+            Assert.Equal(10, policy.MaxAttempts);
             Assert.Equal(TimeSpan.FromSeconds(0.5), policy.InitialRetryInterval);
             Assert.Equal(TimeSpan.FromSeconds(4), policy.MaxRetryInterval);
 
@@ -490,10 +491,6 @@ namespace TestCommon
 
             Assert.Equal(3, times.Count);
 
-            // Additional test to verify this serious problem is fixed:
-            //
-            //      https://github.com/nforgeio/neonKUBE/issues/762
-            //
             // We'll wait a bit longer to enure that any (incorrect) deadline computed
             // by the policy when constructed above does not impact a subsequent run.
 
@@ -519,6 +516,29 @@ namespace TestCommon
                 });
 
             Assert.True(times.Count >= 3);
+        }
+
+        [Fact]
+        public async Task Cancel()
+        {
+            // Use a cancellation token to cancel an operation.
+
+            var cts    = new CancellationTokenSource();
+            var policy = new ExponentialRetryPolicy(typeof(TransientException), maxAttempts: 10, initialRetryInterval: TimeSpan.FromSeconds(1), maxRetryInterval: TimeSpan.FromSeconds(1));
+
+            cts.CancelAfter(TimeSpan.FromSeconds(2));
+
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(
+                async () =>
+                {
+                    await policy.InvokeAsync(
+                        async () =>
+                        {
+                            await Task.CompletedTask;
+                            throw new TransientException();
+                        },
+                        cts.Token);
+                });
         }
     }
 }

@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    ExponentialRetryPolicy.cs
+//-----------------------------------------------------------------------------
+// FILE:        ExponentialRetryPolicy.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -62,14 +62,18 @@ namespace Neon.Retry
         /// </summary>
         /// <param name="transientDetector">
         /// Optionally specifies the function that determines whether an exception is transient 
-        /// (see <see cref="TransientDetector"/>).  You can pass <c>null</c>
-        /// if all exceptions are to be considered to be transient.
+        /// (see <see cref="TransientDetector"/>).  You can pass <c>null</c> when all exceptions
+        /// are to be considered to be transient.
         /// </param>
         /// <param name="maxAttempts">Optionally specifies the maximum number of times an action should be retried (defaults to <b>5</b>).</param>
         /// <param name="initialRetryInterval">Optionally specifies the initial retry interval between retry attempts (defaults to <b>1 second</b>).</param>
         /// <param name="maxRetryInterval">Optionally specifies the maximum retry interval (defaults to essentially unlimited: 24 hours).</param>
         /// <param name="timeout">Optionally specifies the maximum time the operation will be retried (defaults to unconstrained)</param>
-        /// <param name="categoryName">Optionally enables transient error logging by identifying the source category name (defaults to <c>null</c>).</param>
+        /// <param name="categoryName">
+        /// Optionally customizes the transient error logging source category name (defaults to <see cref="RetryPolicyBase.DefaultCategoryName"/>).
+        /// You can disable transient error logging by passing <c>null</c> or by adding an event handler to <see cref="IRetryPolicy.OnTransient"/>
+        /// that ignores the event and also indicates that the event was handled.
+        /// </param>
         /// <remarks>
         /// <para>
         /// The <paramref name="maxAttempts"/> parameter defaults to <b>-1</b> indicating that the
@@ -89,7 +93,7 @@ namespace Neon.Retry
             TimeSpan?               initialRetryInterval = null, 
             TimeSpan?               maxRetryInterval     = null, 
             TimeSpan?               timeout              = null, 
-            string                  categoryName         = null)
+            string                  categoryName         = DefaultCategoryName)
 
             : base(categoryName, timeout)
         {
@@ -117,7 +121,7 @@ namespace Neon.Retry
         /// <summary>
         /// Constructs the retry policy to handle a specific exception type as transient.
         /// </summary>
-        /// <param name="exceptionType">The exception type to be considered to be transient.</param>
+        /// <param name="exceptionType">Specifies the exception type to be considered to be transient.</param>
         /// <param name="maxAttempts">Optionally specifies the maximum number of times an action should be retried (defaults to <b>5</b>).</param>
         /// <param name="initialRetryInterval">Optionally specifies the initial retry interval between retry attempts (defaults to <b>1 second</b>).</param>
         /// <param name="maxRetryInterval">Optionally specifies the maximum retry interval (defaults to essentially unlimited: 24 hours).</param>
@@ -160,7 +164,7 @@ namespace Neon.Retry
         /// <summary>
         /// Constructs the retry policy to handle a multiple exception types as transient.
         /// </summary>
-        /// <param name="exceptionTypes">The exception type to be considered to be transient.</param>
+        /// <param name="exceptionTypes">Specifies the exception type to be considered to be transient.</param>
         /// <param name="maxAttempts">Optionally specifies the maximum number of times an action should be retried (defaults to <b>5</b>).</param>
         /// <param name="initialRetryInterval">Optionally specifies the initial retry interval between retry attempts (defaults to <b>1 second</b>).</param>
         /// <param name="maxRetryInterval">Optionally specifies the maximum retry interval (defaults to essentially unlimited: 24 hours).</param>
@@ -247,7 +251,7 @@ namespace Neon.Retry
         }
 
         /// <inheritdoc/>
-        public override async Task InvokeAsync(Func<Task> action)
+        public override async Task InvokeAsync(Func<Task> action, CancellationToken cancellationToken = default)
         {
             await SyncContext.Clear;
 
@@ -257,6 +261,8 @@ namespace Neon.Retry
 
             while (true)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 try
                 {
                     await action();
@@ -264,6 +270,8 @@ namespace Neon.Retry
                 }
                 catch (Exception e)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
+
                     var adjustedDelay = AdjustDelay(interval, sysDeadline);
 
                     if (++attempts >= MaxAttempts || adjustedDelay <= TimeSpan.Zero || !transientDetector(e))
@@ -272,7 +280,7 @@ namespace Neon.Retry
                     }
 
                     LogTransient(e);
-                    await Task.Delay(adjustedDelay);
+                    await Task.Delay(adjustedDelay, cancellationToken);
 
                     interval = TimeSpan.FromTicks(interval.Ticks * 2);
 
@@ -285,7 +293,7 @@ namespace Neon.Retry
         }
 
         /// <inheritdoc/>
-        public override async Task<TResult> InvokeAsync<TResult>(Func<Task<TResult>> action)
+        public override async Task<TResult> InvokeAsync<TResult>(Func<Task<TResult>> action, CancellationToken cancellationToken = default)
         {
             await SyncContext.Clear;
 
@@ -295,12 +303,16 @@ namespace Neon.Retry
 
             while (true)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 try
                 {
                     return await action();
                 }
                 catch (Exception e)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
+
                     var adjustedDelay = AdjustDelay(interval, sysDeadline);
 
                     if (++attempts >= MaxAttempts || adjustedDelay <= TimeSpan.Zero || !transientDetector(e))
@@ -309,7 +321,7 @@ namespace Neon.Retry
                     }
 
                     LogTransient(e);
-                    await Task.Delay(adjustedDelay);
+                    await Task.Delay(adjustedDelay, cancellationToken);
 
                     interval = TimeSpan.FromTicks(interval.Ticks * 2);
 
@@ -322,7 +334,7 @@ namespace Neon.Retry
         }
 
         /// <inheritdoc/>
-        public override void Invoke(Action action)
+        public override void Invoke(Action action, CancellationToken cancellationToken = default)
         {
             var attempts    = 0;
             var sysDeadline = base.SysDeadline();
@@ -330,6 +342,8 @@ namespace Neon.Retry
 
             while (true)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 try
                 {
                     action();
@@ -337,6 +351,8 @@ namespace Neon.Retry
                 }
                 catch (Exception e)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    
                     var adjustedDelay = AdjustDelay(interval, sysDeadline);
 
                     if (++attempts >= MaxAttempts || adjustedDelay <= TimeSpan.Zero || !transientDetector(e))
@@ -358,7 +374,7 @@ namespace Neon.Retry
         }
 
         /// <inheritdoc/>
-        public override TResult Invoke<TResult>(Func<TResult> action)
+        public override TResult Invoke<TResult>(Func<TResult> action, CancellationToken cancellationToken = default)
         {
             var attempts    = 0;
             var sysDeadline = base.SysDeadline();
@@ -366,12 +382,16 @@ namespace Neon.Retry
 
             while (true)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 try
                 {
                     return action();
                 }
                 catch (Exception e)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
+
                     var adjustedDelay = AdjustDelay(interval, sysDeadline);
 
                     if (++attempts >= MaxAttempts || adjustedDelay <= TimeSpan.Zero || !transientDetector(e))

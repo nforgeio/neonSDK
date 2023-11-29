@@ -4,8 +4,8 @@ namespace Microsoft.Virtualization.Client.Common;
 
 internal class PlannedFailoverFormTypeAttribute : TypeAttribute
 {
-	internal PlannedFailoverFormTypeAttribute(Type implementingType)
-		: base(implementingType)
-	{
-	}
+    internal PlannedFailoverFormTypeAttribute(Type implementingType)
+        : base(implementingType)
+    {
+    }
 }

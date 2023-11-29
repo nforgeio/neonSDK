@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    NeonHelper.Process.cs
+//-----------------------------------------------------------------------------
+// FILE:        NeonHelper.Process.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -310,6 +310,10 @@ namespace Neon.Common
         /// <param name="workingDirectory">
         /// Optionally specifies the working directory for executing the program.
         /// </param>
+        /// <param name="clearEnvironment">
+        /// Optionally clears all environment variables that would be passed to the program.
+        /// This happens before setting any environment variables passed as <paramref name="environmentVariables"/>.
+        /// </param>
         /// <param name="environmentVariables">
         /// Optionally specifies the environment variables to be passed into the process.
         /// The new process inherits the current processes variables when this is <c>null</c>.
@@ -339,11 +343,12 @@ namespace Neon.Common
             TimeSpan?                   timeout              = null, 
             Process                     process              = null, 
             string                      workingDirectory     = null, 
-            Dictionary<string, string>  environmentVariables = null, 
+            bool                        clearEnvironment     = false,
+            Dictionary<string, string>  environmentVariables = null,
             TextReader                  input                = null, 
             Action<Process>             processCallback      = null)
         {
-            return Execute(path, NormalizeExecArgs(args), timeout, process, workingDirectory, environmentVariables, input, processCallback: processCallback);
+            return Execute(path, NormalizeExecArgs(args), timeout, process, workingDirectory, clearEnvironment, environmentVariables, input, processCallback: processCallback);
         }
 
         /// <summary>
@@ -368,6 +373,10 @@ namespace Neon.Common
         /// </param>
         /// <param name="workingDirectory">
         /// Optionally specifies the working directory for executing the program.
+        /// </param>
+        /// <param name="clearEnvironment">
+        /// Optionally clears all environment variables that would be passed to the program.
+        /// This happens before setting any environment variables passed as <paramref name="environmentVariables"/>.
         /// </param>
         /// <param name="environmentVariables">
         /// Optionally specifies the environment variables to be passed into the process.
@@ -398,6 +407,7 @@ namespace Neon.Common
             TimeSpan?                   timeout              = null, 
             Process                     process              = null, 
             string                      workingDirectory     = null, 
+            bool                        clearEnvironment     = false,
             Dictionary<string, string>  environmentVariables = null,
             TextReader                  input                = null,
             Action<Process>             processCallback      = null)
@@ -419,13 +429,16 @@ namespace Neon.Common
                 processInfo.RedirectStandardOutput = true;
                 processInfo.WorkingDirectory       = !string.IsNullOrEmpty(workingDirectory) ? workingDirectory : Environment.CurrentDirectory;
 
-                if (environmentVariables != null)
+                if (clearEnvironment)
                 {
                     processInfo.EnvironmentVariables.Clear();
+                }
 
+                if (environmentVariables != null)
+                {
                     foreach (var variable in environmentVariables)
                     {
-                        processInfo.EnvironmentVariables.Add(variable.Key, variable.Value);
+                        processInfo.EnvironmentVariables[variable.Key] = variable.Value;
                     }
                 }
 
@@ -448,8 +461,6 @@ namespace Neon.Common
                 // sure whether the "line" was terminated by a CRLF or
                 // just a CR.  I'm not sure if there's a clean way to
                 // address this in .NET code.
-                //
-                //      https://github.com/nforgeio/neonKUBE/issues/461
 
                 var stdErrClosed = false;
                 var stdOutClosed = false;
@@ -558,6 +569,10 @@ namespace Neon.Common
         /// <param name="workingDirectory">
         /// Optionally specifies the working directory for executing the program.
         /// </param>
+        /// <param name="clearEnvironment">
+        /// Optionally clears all environment variables that would be passed to the program.
+        /// This happens before setting any environment variables passed as <paramref name="environmentVariables"/>.
+        /// </param>
         /// <param name="environmentVariables">
         /// Optionally specifies the environment variables to be passed into the process.
         /// The new process inherits the current processes variables when this is <c>null</c>.
@@ -586,14 +601,15 @@ namespace Neon.Common
             object[]                    args, 
             TimeSpan?                   timeout              = null, 
             Process                     process              = null, 
-            string                      workingDirectory     = null, 
+            string                      workingDirectory     = null,
+            bool                        clearEnvironment     = false,
             Dictionary<string, string>  environmentVariables = null, 
             TextReader                  input                = null, 
             Action<Process>             processCallback      = null)
         {
             await SyncContext.Clear;
 
-            return await ExecuteAsync(path, NormalizeExecArgs(args), timeout, process, workingDirectory, environmentVariables, input, processCallback: processCallback);
+            return await ExecuteAsync(path, NormalizeExecArgs(args), timeout, process, workingDirectory, clearEnvironment, environmentVariables, input, processCallback: processCallback);
         }
 
         /// <summary>
@@ -618,6 +634,10 @@ namespace Neon.Common
         /// </param>
         /// <param name="workingDirectory">
         /// Optionally specifies the working directory for executing the program.
+        /// </param>
+        /// <param name="clearEnvironment">
+        /// Optionally clears all environment variables that would be passed to the program.
+        /// This happens before setting any environment variables passed as <paramref name="environmentVariables"/>.
         /// </param>
         /// <param name="environmentVariables">
         /// Optionally specifies the environment variables to be passed into the process.
@@ -647,14 +667,15 @@ namespace Neon.Common
             string args, 
             TimeSpan?                   timeout              = null, 
             Process                     process              = null, 
-            string                      workingDirectory     = null, 
+            string                      workingDirectory     = null,
+            bool                        clearEnvironment     = false,
             Dictionary<string, string>  environmentVariables = null, 
             TextReader                  input                = null, 
             Action<Process>             processCallback      = null)
         {
             await SyncContext.Clear;
 
-            return await Task.Run(() => Execute(path, args, timeout, process, workingDirectory, environmentVariables, input, processCallback: processCallback));
+            return await Task.Run(() => Execute(path, args, timeout, process, workingDirectory, clearEnvironment, environmentVariables, input, processCallback: processCallback));
         }
 
         /// <summary>
@@ -748,6 +769,10 @@ namespace Neon.Common
         /// <param name="workingDirectory">
         /// Optionally specifies the working directory for executing the program.
         /// </param>
+        /// <param name="clearEnvironment">
+        /// Optionally clears all environment variables that would be passed to the program.
+        /// This happens before setting any environment variables passed as <paramref name="environmentVariables"/>.
+        /// </param>
         /// <param name="environmentVariables">
         /// Optionally specifies the environment variables to be passed into the process.
         /// The new process inherits the current processes variables when this is <c>null</c>.
@@ -792,6 +817,7 @@ namespace Neon.Common
             TimeSpan?                   timeout              = null,
             Process                     process              = null,
             string                      workingDirectory     = null,
+            bool                        clearEnvironment     = false,
             Dictionary<string, string>  environmentVariables = null,
             Action<string>              outputAction         = null,
             Action<string>              errorAction          = null,
@@ -799,7 +825,7 @@ namespace Neon.Common
             Encoding                    outputEncoding       = null,
             Action<Process>             processCallback      = null)
         {
-            return ExecuteCapture(path, NormalizeExecArgs(args), timeout, process, workingDirectory, environmentVariables, outputAction, errorAction, input, outputEncoding, processCallback: processCallback);
+            return ExecuteCapture(path, NormalizeExecArgs(args), timeout, process, workingDirectory, clearEnvironment, environmentVariables, outputAction, errorAction, input, outputEncoding, processCallback: processCallback);
         }
 
         /// <summary>
@@ -825,6 +851,10 @@ namespace Neon.Common
         /// </param>
         /// <param name="workingDirectory">
         /// Optionally specifies the working directory for executing the program.
+        /// </param>
+        /// <param name="clearEnvironment">
+        /// Optionally clears all environment variables that would be passed to the program.
+        /// This happens before setting any environment variables passed as <paramref name="environmentVariables"/>.
         /// </param>
         /// <param name="environmentVariables">
         /// Optionally specifies the environment variables to be passed into the process.
@@ -870,6 +900,7 @@ namespace Neon.Common
             TimeSpan?                   timeout              = null,
             Process                     process              = null,
             string                      workingDirectory     = null,
+            bool                        clearEnvironment     = false,
             Dictionary<string, string>  environmentVariables = null,
             Action<string>              outputAction         = null,
             Action<string>              errorAction          = null,
@@ -905,13 +936,16 @@ namespace Neon.Common
                     processInfo.StandardErrorEncoding  = outputEncoding;
                 }
 
-                if (environmentVariables != null)
+                if (clearEnvironment)
                 {
                     processInfo.EnvironmentVariables.Clear();
+                }
 
+                if (environmentVariables != null)
+                {
                     foreach (var variable in environmentVariables)
                     {
-                        processInfo.EnvironmentVariables.Add(variable.Key, variable.Value);
+                        processInfo.EnvironmentVariables[variable.Key] = variable.Value;
                     }
                 }
 
@@ -1007,6 +1041,10 @@ namespace Neon.Common
         /// <param name="workingDirectory">
         /// Optionally specifies the working directory for executing the program.
         /// </param>
+        /// <param name="clearEnvironment">
+        /// Optionally clears all environment variables that would be passed to the program.
+        /// This happens before setting any environment variables passed as <paramref name="environmentVariables"/>.
+        /// </param>
         /// <param name="environmentVariables">
         /// Optionally specifies the environment variables to be passed into the process.
         /// The new process inherits the current processes variables when this is <c>null</c>.
@@ -1041,6 +1079,7 @@ namespace Neon.Common
             string                      path, 
             object[]                    args,
             string                      workingDirectory     = null,
+            bool                        clearEnvironment     = false,
             Dictionary<string, string>  environmentVariables = null,
             TimeSpan?                   timeout              = null, 
             Process                     process              = null,
@@ -1050,7 +1089,7 @@ namespace Neon.Common
         {
             await SyncContext.Clear;
 
-            return await ExecuteCaptureAsync(path, NormalizeExecArgs(args), timeout, process, workingDirectory, environmentVariables, input, outputEncoding, processCallback: processCallback);
+            return await ExecuteCaptureAsync(path, NormalizeExecArgs(args), timeout, process, workingDirectory, clearEnvironment, environmentVariables, input, outputEncoding, processCallback: processCallback);
         }
 
         /// <summary>
@@ -1076,6 +1115,10 @@ namespace Neon.Common
         /// </param>
         /// <param name="workingDirectory">
         /// Optionally specifies the working directory for executing the program.
+        /// </param>
+        /// <param name="clearEnvironment">
+        /// Optionally clears all environment variables that would be passed to the program.
+        /// This happens before setting any environment variables passed as <paramref name="environmentVariables"/>.
         /// </param>
         /// <param name="environmentVariables">
         /// Optionally specifies the environment variables to be passed into the process.
@@ -1113,6 +1156,7 @@ namespace Neon.Common
             TimeSpan?                   timeout              = null, 
             Process                     process              = null, 
             string                      workingDirectory     = null,
+            bool                        clearEnvironment     = false,
             Dictionary<string, string>  environmentVariables = null,
             TextReader                  input                = null,
             Encoding                    outputEncoding       = null,
@@ -1120,7 +1164,7 @@ namespace Neon.Common
         {
             await SyncContext.Clear;
 
-            return await Task.Run(() => ExecuteCapture(path, args, timeout, process, workingDirectory, environmentVariables, input: input, outputEncoding: outputEncoding, processCallback: processCallback));
+            return await Task.Run(() => ExecuteCapture(path, args, timeout, process, workingDirectory, clearEnvironment, environmentVariables, input: input, outputEncoding: outputEncoding, processCallback: processCallback));
         }
 
         /// <summary>
@@ -1173,55 +1217,6 @@ namespace Neon.Common
             else if (IsLinux)
             {
                 Process.Start("xdg-open", uri);
-            }
-            else
-            {
-                throw new NotImplementedException("Browser support is not implemented on the current platform.");
-            }
-        }
-
-        /// <summary>
-        /// Launches the platform (i.e. Edge for Windows or Safari for OS/X) browser to display the specified URI,
-        /// optionally opening a new browser window.
-        /// </summary>
-        /// <param name="uri">The target URI.</param>
-        /// <param name="newWindow">
-        /// Optionally opens the URI in a new platform browser window.  By default,
-        /// this method will open the URI in as new browser tab.
-        /// </param>
-        public static void OpenPlatformBrowser(string uri, bool newWindow = false)
-        {
-            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(uri), nameof(uri));
-
-            if (IsWindows)
-            {
-                var args = string.Empty;
-
-                if (newWindow)
-                {
-                    args += "-new-window ";
-                }
-
-                args += uri;
-
-                var processStart = new ProcessStartInfo("msedge", args)
-                {
-                    UseShellExecute = true
-                };
-
-                Process.Start(processStart);
-            }
-            else if (IsOSX)
-            {
-                // $todo(jefflill): Actually implement this.
-
-                OpenBrowser(uri);
-            }
-            else if (IsLinux)
-            {
-                // $todo(jefflill): Actually implement this.
-
-                OpenBrowser(uri);
             }
             else
             {

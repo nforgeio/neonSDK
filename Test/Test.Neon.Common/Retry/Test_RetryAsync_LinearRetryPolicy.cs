@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    Test_RetryAsync_LinearRetryPolicy.cs
+//-----------------------------------------------------------------------------
+// FILE:        Test_RetryAsync_LinearRetryPolicy.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Neon.Common;
@@ -477,10 +478,6 @@ namespace TestCommon
 
             Assert.True(times.Count >= 4);
 
-            // Additional test to verify this serious problem is fixed:
-            //
-            //      https://github.com/nforgeio/neonKUBE/issues/762
-            //
             // We'll wait a bit longer to enure that any (incorrect) deadline computed
             // by the policy when constructed above does not impact a subsequent run.
 
@@ -505,6 +502,29 @@ namespace TestCommon
                 });
 
             Assert.True(4 <= times.Count && times.Count <= 6);
+        }
+
+        [Fact]
+        public async Task Cancel()
+        {
+            // Use a cancellation token to cancel an operation.
+
+            var cts    = new CancellationTokenSource();
+            var policy = new LinearRetryPolicy(typeof(TransientException), maxAttempts: 6, retryInterval: TimeSpan.FromSeconds(1));
+
+            cts.CancelAfter(TimeSpan.FromSeconds(2));
+
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(
+                async () =>
+                {
+                    await policy.InvokeAsync(
+                        async () =>
+                        {
+                            await Task.CompletedTask;
+                            throw new TransientException();
+                        },
+                        cts.Token);
+                });
         }
     }
 }

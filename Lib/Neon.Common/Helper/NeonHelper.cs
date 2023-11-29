@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    NeonHelper.cs
+//-----------------------------------------------------------------------------
+// FILE:        NeonHelper.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 
 using Neon.Diagnostics;
+using OpenTelemetry.Trace;
 
 namespace Neon.Common
 {
@@ -45,17 +46,17 @@ namespace Neon.Common
     public static partial class NeonHelper
     {
         /// <summary>
-        /// Identifies the production neonSDK container image registry.
+        /// Identifies the production NEONSDK container image registry.
         /// </summary>
         public const string NeonSdkProdRegistry = "ghcr.io/neonrelease";
 
         /// <summary>
-        /// Identifies the development neonSDK container image registry.
+        /// Identifies the development NEONSDK container image registry.
         /// </summary>
         public const string NeonSdkDevRegistry = "ghcr.io/neonrelease-dev";
 
         /// <summary>
-        /// Returns the appropriate public container neonSDK registry to be used for the git 
+        /// Returns the appropriate public container NEONSDK registry to be used for the git 
         /// branch the assembly was built from.  This returns <see cref="NeonSdkProdRegistry"/> for
         /// release branches and <see cref="NeonSdkDevRegistry"/> for all other branches.
         /// </summary>
@@ -184,6 +185,21 @@ namespace Neon.Common
         private static bool specialUtf8EncodingProvider = false;
 
         /// <summary>
+        /// Set to the user's NEONSDK folder.
+        /// </summary>
+        private static string cachedNeonSdkFolder = null;
+
+        /// <summary>
+        /// Set to the user's NEONSDK USB token code signing cache folder path.
+        /// </summary>
+        private static string cachedNeonSdkUsbCodeSigningFolder = null;
+
+        /// <summary>
+        /// Set to the user's NEONSDK Azure code signing cache folder path.
+        /// </summary>
+        private static string cachedNeonSdkAzureCodeSigningFolder = null;
+
+        /// <summary>
         /// The root dependency injection service container used by Neon class libraries. 
         /// and applications.
         /// </summary>
@@ -240,6 +256,69 @@ namespace Neon.Common
         }
 
         /// <summary>
+        /// Returns the path to the folder used by NEONSDK to persist and cache state, creating
+        /// the directory if it doesn't exist.  This folder is located at: <b>~/.neonsdk</b>
+        /// </summary>
+        public static string NeonSdkFolder
+        {
+            get
+            {
+                if (!string.IsNullOrEmpty(cachedNeonSdkFolder) && Directory.Exists(cachedNeonSdkFolder))
+                {
+                    return cachedNeonSdkFolder;
+                }
+
+                var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".neonsdk");
+
+                Directory.CreateDirectory(path);
+
+                return cachedNeonSdkFolder = path;
+            }
+        }
+
+        /// <summary>
+        /// Returns the path to the folder used by NEONSDK to cache download local USB token code signing code,
+        /// creating the directory if it doesn't exist.  This folder is located at: <b>~/.neonsdk/codesigning-usb</b>
+        /// </summary>
+        public static string NeonSdkUsbCodeSigningFolder
+        {
+            get
+            {
+                if (!string.IsNullOrEmpty(cachedNeonSdkUsbCodeSigningFolder) && Directory.Exists(cachedNeonSdkUsbCodeSigningFolder))
+                {
+                    return cachedNeonSdkUsbCodeSigningFolder;
+                }
+
+                var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".neonsdk", "codesigning-usb");
+
+                Directory.CreateDirectory(path);
+
+                return cachedNeonSdkUsbCodeSigningFolder = path;
+            }
+        }
+
+        /// <summary>
+        /// Returns the path to the folder used by NEONSDK to cache download Azure code signing code,
+        /// creating the directory if it doesn't exist.  This folder is located at: <b>~/.neonsdk/codesigning-azure</b>
+        /// </summary>
+        public static string NeonSdkAzureCodeSigningFolder
+        {
+            get
+            {
+                if (!string.IsNullOrEmpty(cachedNeonSdkAzureCodeSigningFolder) && Directory.Exists(cachedNeonSdkAzureCodeSigningFolder))
+                {
+                    return cachedNeonSdkAzureCodeSigningFolder;
+                }
+
+                var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".neonsdk", "codesigning-azure");
+
+                Directory.CreateDirectory(path);
+
+                return cachedNeonSdkAzureCodeSigningFolder = path;
+            }
+        }
+
+        /// <summary>
         /// Converts the number of nanoseconds from the Unix Epoch (1/1/1970 12:00:00am)
         /// into a UTC cref="DateTime"/> (UTC).
         /// </summary>
@@ -281,7 +360,7 @@ namespace Neon.Common
                 }
                 else
                 {
-                    throw new NotImplementedException();
+                    return string.Empty;
                 }
             }
         }

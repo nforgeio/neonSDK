@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    Program.ReadVersion.cs
+//-----------------------------------------------------------------------------
+// FILE:        Program.ReadVersion.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -40,13 +40,13 @@ namespace NeonBuild
             if (string.IsNullOrEmpty(csPath))
             {
                 Console.Error.WriteLine("*** ERROR: CSPROJ argument is required.");
-                Program.Exit(1);
+                Program.Exit(-1);
             }
 
             if (string.IsNullOrEmpty(constant))
             {
                 Console.Error.WriteLine("*** ERROR: NAME argument is required.");
-                Program.Exit(1);
+                Program.Exit(-1);
             }
 
             try

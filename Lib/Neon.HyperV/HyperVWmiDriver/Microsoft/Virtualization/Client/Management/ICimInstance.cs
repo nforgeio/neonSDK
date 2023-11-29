@@ -6,15 +6,15 @@ namespace Microsoft.Virtualization.Client.Management;
 
 internal interface ICimInstance : IDisposable
 {
-	ICimClass CimClass { get; }
+    ICimClass CimClass { get; }
 
-	CimInstance Instance { get; }
+    CimInstance Instance { get; }
 
-	CimKeyedCollection<CimProperty> CimInstanceProperties { get; }
+    CimKeyedCollection<CimProperty> CimInstanceProperties { get; }
 
-	CimSystemProperties CimSystemProperties { get; }
+    CimSystemProperties CimSystemProperties { get; }
 
-	Guid GetCimSessionInstanceId();
+    Guid GetCimSessionInstanceId();
 
-	string GetCimSessionComputerName();
+    string GetCimSessionComputerName();
 }

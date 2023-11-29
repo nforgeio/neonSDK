@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    Test_NetHelper.cs
+//-----------------------------------------------------------------------------
+// FILE:        Test_NetHelper.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
 
 using Neon.Common;
@@ -545,9 +546,9 @@ namespace TestCommon
             Assert.Equal("127.0.0.1", NetHelper.GetReachableHost(new string[] { "127.0.0.1", "127.0.0.2", "127.0.0.3" }).Address.ToString());
             Assert.Equal("127.0.0.1", NetHelper.GetReachableHost(new string[] { "127.0.0.1", "127.0.0.2", "127.0.0.3" }, ReachableHostMode.ReturnFirst).Host);
 
-            // The [100.64.0.0/20] subnet is never supposed to be routable although neonKUBE
-            // does use 100.64.0.0/24 for neonDESKTOP built-in (an other internal clusters)
-            // so we'll use some addresses at the upper end of 100.64.0.0/20.
+            // The [100.64.0.0/20] subnet is never supposed to be routable although NEONKUBE
+            // does use 100.64.0.0/24 for NEONDESKTOP (an other internal clusters) so we'll
+            // use some addresses at the upper end of 100.64.0.0/20.
 
             const string badIP0 = "100.64.15.252";
             const string badIP1 = "100.64.15.253";
@@ -607,9 +608,9 @@ namespace TestCommon
                 TestHelper.AssertEquivalent(new string[] { "127.0.0.1", "127.0.0.2", "127.0.0.3" }, NetHelper.GetReachableHosts(new string[] { "127.0.0.1", "127.0.0.2", "127.0.0.3" }).Select(rh => rh.Address.ToString()));
             }
 
-            // The [100.64.0.0/20] subnet is never supposed to be routable although neonKUBE
-            // does use 100.64.0.0/24 for neonDESKTOP built-in (an other internal clusters)
-            // so we'll use some addresses at the upper end of 100.64.0.0/20 instead.
+            // The [100.64.0.0/20] subnet is never supposed to be routable although NEONKUBE
+            // does use 100.64.0.0/24 for NEONDESKTOP (an other internal clusters) so we'll
+            // use some addresses at the upper end of 100.64.0.0/20 instead.
 
             const string badIP0 = "100.64.15.252";
             const string badIP1 = "100.64.15.253";
@@ -710,10 +711,10 @@ namespace TestCommon
             Assert.True(NetHelper.IsValidDnsHost("0.com"));
             Assert.True(NetHelper.IsValidDnsHost("test0.com"));
             Assert.True(NetHelper.IsValidDnsHost("test-0.com"));
-            Assert.True(NetHelper.IsValidDnsHost("test_0.com"));
             Assert.True(NetHelper.IsValidDnsHost($"{longestLabel}.com"));
 
             Assert.False(NetHelper.IsValidDnsHost("test..com"));
+            Assert.False(NetHelper.IsValidDnsHost("test_0.com"));
             Assert.False(NetHelper.IsValidDnsHost("/test.com"));
             Assert.False(NetHelper.IsValidDnsHost("{test}.com"));
 
@@ -825,6 +826,94 @@ namespace TestCommon
 
             Assert.False(NetHelper.IsValidDnsHost(new string('a', 64)));
             Assert.False(NetHelper.IsValidDnsHost(host256));
+        }
+
+        [Fact]
+        public void EnsureSuccess()
+        {
+            NetHelper.EnsureSuccess((HttpStatusCode)200);
+            NetHelper.EnsureSuccess((HttpStatusCode)250);
+            NetHelper.EnsureSuccess((HttpStatusCode)299);
+
+            Assert.Throws<HttpException>(() => NetHelper.EnsureSuccess((HttpStatusCode)0));
+            Assert.Throws<HttpException>(() => NetHelper.EnsureSuccess((HttpStatusCode)50));
+            Assert.Throws<HttpException>(() => NetHelper.EnsureSuccess((HttpStatusCode)99));
+
+            Assert.Throws<HttpException>(() => NetHelper.EnsureSuccess((HttpStatusCode)100));
+            Assert.Throws<HttpException>(() => NetHelper.EnsureSuccess((HttpStatusCode)150));
+            Assert.Throws<HttpException>(() => NetHelper.EnsureSuccess((HttpStatusCode)199));
+
+            Assert.Throws<HttpException>(() => NetHelper.EnsureSuccess((HttpStatusCode)300));
+            Assert.Throws<HttpException>(() => NetHelper.EnsureSuccess((HttpStatusCode)350));
+            Assert.Throws<HttpException>(() => NetHelper.EnsureSuccess((HttpStatusCode)399));
+
+            Assert.Throws<HttpException>(() => NetHelper.EnsureSuccess((HttpStatusCode)400));
+            Assert.Throws<HttpException>(() => NetHelper.EnsureSuccess((HttpStatusCode)459));
+            Assert.Throws<HttpException>(() => NetHelper.EnsureSuccess((HttpStatusCode)499));
+
+            Assert.Throws<HttpException>(() => NetHelper.EnsureSuccess((HttpStatusCode)500));
+            Assert.Throws<HttpException>(() => NetHelper.EnsureSuccess((HttpStatusCode)559));
+            Assert.Throws<HttpException>(() => NetHelper.EnsureSuccess((HttpStatusCode)599));
+        }
+
+        [Fact]
+        public async Task ArpTable()
+        {
+            // Fetch the local ARP table and that it looks reasonable (not a very
+            // thorough check).  The main thing we're verifying is that executing
+            // the ARP tool and then parsing its output doesn't barf.
+
+            var arpTable = await NetHelper.GetArpTableAsync();
+
+            Assert.NotEmpty(arpTable);
+
+            foreach (var item in arpTable)
+            {
+                Assert.NotNull(item.Key);
+                Assert.NotEmpty(item.Value);
+
+                foreach (var macAddress in item.Value.Values)
+                {
+                    Assert.Equal(6, macAddress.Length);
+                }
+            }
+        }
+
+        [Fact]
+        public async Task ArpFlatTable()
+        {
+            // Fetch the flasttened ARP table and make sure it looks reasonable.
+
+            var arpTable = await NetHelper.GetArpFlatTableAsync();
+
+            Assert.NotEmpty(arpTable);
+
+            foreach (var item in arpTable)
+            {
+                Assert.NotNull(item.Key);
+                Assert.NotEmpty(item.Value);
+                Assert.Equal(6, item.Value.Length);
+            }
+        }
+
+        [Fact]
+        public async Task GetMacAddress()
+        {
+            // Attempt to fetch the MAC address for the local gateway.
+
+            var gatewayAddress = NetHelper.GetConnectedGatewayAddress();
+
+            if (gatewayAddress == null)
+            {
+                // This workstation must be offline.
+
+                return;
+            }
+
+            var macAddress = await NetHelper.GetMacAddressAsync(gatewayAddress);
+
+            Assert.NotNull(macAddress);
+            Assert.Equal(6, macAddress.Length);
         }
     }
 }

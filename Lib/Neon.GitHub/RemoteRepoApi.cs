@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    RemoteRepoApi.cs
+//-----------------------------------------------------------------------------
+// FILE:        RemoteRepoApi.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -45,6 +45,7 @@ using GitHubSignature  = Octokit.Signature;
 using GitBranch     = LibGit2Sharp.Branch;
 using GitRepository = LibGit2Sharp.Repository;
 using GitSignature  = LibGit2Sharp.Signature;
+using Neon.Collections;
 
 namespace Neon.GitHub
 {
@@ -86,6 +87,7 @@ namespace Neon.GitHub
 
         private GitHubRepo  root;
         private string      cachedBaseUri;
+        private string      cachedApiBaseUri;
         private long        cachedId = -1;
 
         /// <summary>
@@ -143,8 +145,7 @@ namespace Neon.GitHub
                     return cachedBaseUri;
                 }
 
-                // We need to strip off the last segment of the URI
-                // (the "NAME-git" part).
+                // We need to strip off the last segment of the URI (the "NAME-git" part).
 
                 var uri          = $"https://{root.Remote.Path}";
                 var lastSlashPos = uri.LastIndexOf('/');
@@ -152,6 +153,60 @@ namespace Neon.GitHub
                 Covenant.Assert(lastSlashPos > 0);
 
                 return cachedBaseUri = uri.Substring(0, lastSlashPos + 1);
+            }
+        }
+
+        /// <summary>
+        /// <para>
+        /// Specifies the maximum time to wait while uploading files to GitHub, such
+        /// as GitHub release assets.  This defaults to <b>10 minutes</b>.
+        /// </para>
+        /// <note>
+        /// This doesn't work right now due to an Octokit bug.  We work around this
+        /// by initializing the underlying <see cref="HttpClient"/> timeout to 10
+        /// minutes.
+        /// </note>
+        /// </summary>
+        public TimeSpan UploadTimeout { get; set; } = TimeSpan.FromMinutes(10);
+
+        /// <summary>
+        /// Returns a URI for the GitHub API server by combining the GitHub API endpoint
+        /// with the relative path passed.
+        /// </summary>
+        /// <param name="path">
+        /// Specifies the relative path.  This may or may not include a leading forward
+        /// slash (/).
+        /// </param>
+        /// <returns>The API URI.</returns>
+        public string GetApiUri(string path)
+        {
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(path), nameof(path));
+
+            if (cachedApiBaseUri == null)
+            {
+                // $hack(jefflill):
+                //
+                // This code assumes that the server hostname should always start with "api.",
+                // which will be true for GitHub but perhaps not for privately hosted enterprise
+                // GitHub deployments.  We're not going to worry about that right now.
+
+                var serverPart = root.Remote.Path.Server;
+
+                if (!serverPart.StartsWith("api.", StringComparison.CurrentCultureIgnoreCase))
+                {
+                    serverPart = $"api.{serverPart}";
+                }
+
+                cachedApiBaseUri = $"https://{serverPart}";
+            }
+
+            if (path.StartsWith('/'))
+            {
+                return cachedApiBaseUri + path;
+            }
+            else
+            {
+                return cachedApiBaseUri + '/' + path;
             }
         }
 
@@ -218,6 +273,23 @@ namespace Neon.GitHub
                     Since = since,
                     Until = until
                 });
+        }
+
+        /// <summary>
+        /// Merges changes to the current forked repo from the upstream source repo.
+        /// </summary>
+        /// <param name="branch">Identifies the local branch to be merged.</param>
+        /// <returns>The tracking <see cref="Task"/>.</returns>
+        public async Task MergeUpstreamAsync(string branch)
+        {
+            await SyncContext.Clear;
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branch), nameof(branch));
+
+            var uri     = root.Remote.GetApiUri("/merge-upstream");
+            var content = new StringContent($"{{\"branch\":\"{branch}\"}}", Encoding.UTF8);
+            var headers = new ArgDictionary() { { "Accept", GitHubRepo.AcceptMediaType } };
+
+            await root.HttpClient.PostSafeAsync(uri, content, headers);
         }
     }
 }

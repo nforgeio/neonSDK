@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    VersionCommand.cs
+//-----------------------------------------------------------------------------
+// FILE:        VersionCommand.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -76,7 +76,7 @@ OPTIONS:
             if (commandLine.Arguments.Length > 0)
             {
                 Console.Error.WriteLine($"*** ERROR: Unexpected command line argument.");
-                Program.Exit(1);
+                Program.Exit(-1);
             }
 
             var minVersion = commandLine.GetOption("--minimum");
@@ -86,7 +86,7 @@ OPTIONS:
                 if (!SemanticVersion.TryParse(minVersion, out var minSemanticVersion))
                 {
                     Console.Error.WriteLine($"*** ERROR: [{minVersion}] is not a valid semantic version.");
-                    Program.Exit(1);
+                    Program.Exit(-1);
                 }
 
                 var toolSemanticVersion = SemanticVersion.Parse(Program.Version);

@@ -5,11 +5,11 @@ namespace Microsoft.Virtualization.Client.Management;
 [WmiName("Msvm_NumaNode")]
 internal interface IHostNumaNode : IVirtualizationManagementObject
 {
-	ulong CurrentlyConsumableMemoryBlocks { get; }
+    ulong CurrentlyConsumableMemoryBlocks { get; }
 
-	string NodeId { get; }
+    string NodeId { get; }
 
-	IVMMemory GetRelatedHostMemory();
+    IVMMemory GetRelatedHostMemory();
 
-	IEnumerable<IVMProcessor> GetRelatedHostProcessors();
+    IEnumerable<IVMProcessor> GetRelatedHostProcessors();
 }

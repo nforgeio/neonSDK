@@ -1,4 +1,4 @@
-﻿#Requires -Version 7.1.3 -RunAsAdministrator
+#Requires -Version 7.1.3 -RunAsAdministrator
 #------------------------------------------------------------------------------
 # FILE:         publish.ps1
 # CONTRIBUTOR:  Marcus Bowyer
@@ -19,13 +19,13 @@
 # Builds the test-api images and pushes them to the container registry.
 #
 # NOTE: You must be already logged into the target container registry.
-#
-# USAGE: pwsh -f publish.ps1 [-all]
 
 param 
 (
+	[parameter(Mandatory=$true, Position=1)]
+    [string]$config,
 	[switch]$allVersions = $false,
-    [switch]$nopush = $false
+    [switch]$nopush      = $false
 )
 
 #----------------------------------------------------------
@@ -50,7 +50,7 @@ function Build
 
 	# Build and publish the images.
 
-	. ./build.ps1 -registry $registry -tag $tag
+	. ./build.ps1 -registry $registry -tag $tag -config $config
     Push-DockerImage "${registry}:${tag}"
 
 	if ($latest -and $tagAsLatest)

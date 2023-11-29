@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    Program.Replace.cs
+//-----------------------------------------------------------------------------
+// FILE:        Program.Replace.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ namespace NeonBuild
             if (commandLine.Arguments.Length != 3)
             {
                 Console.WriteLine(usage);
-                Program.Exit(1);
+                Program.Exit(-1);
             }
 
             var path   = commandLine.Arguments[0];

@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    TestHelper.cs
+//-----------------------------------------------------------------------------
+// FILE:        TestHelper.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // The contents of this repository are for private use by NEONFORGE, LLC. and may not be
 // divulged or used for any purpose by other organizations or individuals without a
@@ -38,7 +38,7 @@ namespace TestWSL
         /// Reasonable base WSL2 image for testing.  This will need to be updated if/when the
         /// location for this changes.
         /// </summary>
-        public const string BaseImageUri = $"{NeonHelper.NeonPublicBucketUri}/download/neon-ubuntu-20.04.tar";
+        public const string BaseImageUri = $"{NeonHelper.NeonPublicBucketUri}/build-assets/wsl/neon-ubuntu-20.04.tar";
 
         /// <summary>
         /// Used to identify the WSL2 distribution we'll be using for testing.

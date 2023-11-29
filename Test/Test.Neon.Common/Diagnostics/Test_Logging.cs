@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    Test_Logging.cs
+//-----------------------------------------------------------------------------
+// FILE:        Test_Logging.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -313,7 +313,7 @@ namespace TestCommon
             }
             catch (Exception e)
             {
-                Assert.True(false, $"Expected an AggregateException, not a [{e.GetType().FullName}]");
+                Assert.Fail($"Expected an AggregateException, not a [{e.GetType().FullName}]");
             }
 
             //-----------------------------------------------------------------
@@ -647,7 +647,7 @@ namespace TestCommon
             }
             catch (Exception e)
             {
-                Assert.True(false, $"Expected an AggregateException, not a [{e.GetType().FullName}]");
+                Assert.Fail($"Expected an AggregateException, not a [{e.GetType().FullName}]");
             }
 
             //-----------------------------------------------------------------

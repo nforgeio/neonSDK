@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    AttributeLogger.cs
+//-----------------------------------------------------------------------------
+// FILE:        AttributeLogger.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -93,7 +93,7 @@ namespace Neon.Diagnostics
         public AttributeLogger(ILogger logger, LogAttributes attributes)
         {
             Covenant.Requires<ArgumentNullException>(logger != null, nameof(logger));
-            Covenant.Requires<ArgumentException>(!(logger is AttributeLogger), $"A [{nameof(AttributeLogger)}] cannot wrap another [{nameof(AttributeLogger)}] instance.", nameof(logger));
+            Covenant.Requires<ArgumentException>(!(logger is AttributeLogger), nameof(logger), $"An [{nameof(AttributeLogger)}] cannot wrap another [{nameof(AttributeLogger)}] instance.");
             Covenant.Requires<ArgumentNullException>(attributes != null, nameof(attributes));
 
             this.logger     = logger;

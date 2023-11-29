@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    Program.EmbedCheck.cs
+//-----------------------------------------------------------------------------
+// FILE:        Program.EmbedCheck.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -51,15 +51,15 @@ to all of the files within EMBED-FOLDER (recurively).  This is handy for
 ensuring that no files are present that aren't being embeded.
 ";
 
-            if (commandLine.Arguments.Count() == 0)
+            if (commandLine.HasHelpOption || commandLine.Arguments.Count() == 0)
             {
                 Console.Error.WriteLine(usage);
-                Program.Exit(0);
+                Program.Exit(commandLine.HasHelpOption ? 0 : -1);
             }
             else if (commandLine.Arguments.Count() != 3)
             {
                 Console.WriteLine(usage);
-                Program.Exit(1);
+                Program.Exit(-1);
             }
 
             Console.WriteLine(commandLine);

@@ -1,4 +1,4 @@
-﻿#Requires -Version 7.1.3 -RunAsAdministrator
+#Requires -Version 7.1.3 -RunAsAdministrator
 #------------------------------------------------------------------------------
 # FILE:         publish.ps1
 # CONTRIBUTOR:  Jeff Lill
@@ -17,15 +17,13 @@
 # limitations under the License.
 
 # Builds the Playground image and pushes it to the container registry.
-#
-# NOTE: You must be already logged into the target container registry.
-#
-# USAGE: pwsh -f publish.ps1 [-all]
 
 param 
 (
+	[parameter(Mandatory=$true, Position=1)]
+    [string]$config,
 	[switch]$allVersions = $false,
-    [switch]$nopush = $false
+    [switch]$nopush      = $false
 )
 
 #----------------------------------------------------------

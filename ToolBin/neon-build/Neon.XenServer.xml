@@ -44,6 +44,11 @@
             </remarks>
             <threadsafety instance="false"/>
         </member>
+        <member name="F:Neon.XenServer.XenClient.LocalStorageName">
+            <summary>
+            Identifies the local storage repository.
+            </summary>
+        </member>
         <member name="M:Neon.XenServer.XenClient.ParseValues(System.String)">
             <summary>
             Parses <b>xe</b> client properties formatted like <b>name1:value1; name2: value2;...</b>
@@ -172,7 +177,7 @@
         <member name="M:Neon.XenServer.XenClient.CreateTempIso(System.String,System.String)">
             <summary>
             Used for temporarily uploading an ISO disk to a XenServer such that it can be mounted
-            to a VM, typically for one-time initialization purposes.  neonKUBE uses this as a very
+            to a VM, typically for one-time initialization purposes.  NEONKUBE uses this as a very
             simple poor man's alternative to <b>cloud-init</b> for initializing a VM on first boot.
             </summary>
             <param name="isoPath">Path to the source ISO file on the local workstation.</param>
@@ -180,7 +185,7 @@
             <returns>A <see cref="T:Neon.XenServer.XenTempIso"/> with information about the new storage repository and its contents.</returns>
             <remarks>
             <para>
-            During cluster setup on virtualization platforms like XenServer and Hyper-V, neonKUBE need
+            During cluster setup on virtualization platforms like XenServer and Hyper-V, NEONKUBE need
             to configure new VMs with IP addresses, hostnames, etc.  Traditionally, we've relied on
             being able to SSH into the VM to perform all of these actions, but this relied on being
             VM being able to obtain an IP address via DHCP and for setup to be able to discover the
@@ -204,7 +209,7 @@
             via this ISO, but we decided not to go there, at least for now (we couldn't get that working).
             </note>
             <note>
-            neonKUBE doesn't use this technique for true cloud deployments (AWS, Azure, Google,...) because
+            NEONKUBE doesn't use this technique for true cloud deployments (AWS, Azure, Google,...) because
             we can configure VM networking directly via the cloud APIs.  
             </note>
             <para>
@@ -246,6 +251,22 @@
             Establishes an SSH connection to the assocated XenServer.
             </summary>
             <returns>The connected <see cref="T:Neon.SSH.LinuxSshProxy"/>.</returns>
+        </member>
+        <member name="M:Neon.XenServer.XenClient.CleanHost(System.Boolean,System.Func{Neon.XenServer.XenTemplate,System.Boolean})">
+            <summary>
+            <para>
+            Cleans the connected XenServer host by terminating and shutting down all virtual
+            machines by default and optionally, selected virtual machine templates.
+            </para>
+            <note>
+            **WARNING:** This is dangerous and should only be used when you are **VERY**
+            sure that important workloads are not being hosted on the XenServer.  We
+            generally use this for integration testing where XenServer hosts are dedicated
+            exclusively for specific test runners.
+            </note>
+            </summary>
+            <param name="deleteVMs">Optionally disable virtual machine removal by passing <c>false</c>.</param>
+            <param name="templateSelector">Optionally specifies a selector that chooses which templates are removed.</param>
         </member>
         <member name="T:Neon.XenServer.XenClient.MachineOperations">
             <summary>
@@ -645,7 +666,7 @@
         <member name="T:Neon.XenServer.XenTempIso">
             <summary>
             Holds information about a temporary ISO.  These are created temporarily and 
-            used during neonKUBE cluster setup to inject a configuration script into a new 
+            used during NEONKUBE cluster setup to inject a configuration script into a new 
             node VM during cluster setup.  See <see cref="M:Neon.XenServer.XenClient.CreateTempIso(System.String,System.String)"/>
             for more information.
             </summary>
@@ -732,8 +753,8 @@
         </member>
         <member name="P:Neon.XenServer.XenVirtualDisk.StorageRepository">
             <summary>
-            Identifies the storage repository where the disk will be
-            created.  This defaults to <b>"Local storage"</b> indicating
+            Identifies the storage repository where the disk will be created
+            This defaults to <see cref="F:Neon.XenServer.XenClient.LocalStorageName"/>, indicating
             that the disk will be created on the XenServer host's local 
             file system.
             </summary>

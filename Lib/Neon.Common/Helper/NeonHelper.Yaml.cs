@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    NeonHelper.Yaml.cs
+//-----------------------------------------------------------------------------
+// FILE:        NeonHelper.Yaml.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ using Newtonsoft.Json.Linq;
 using YamlDotNet.Core;
 using YamlDotNet.Core.Events;
 using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.EventEmitters;
 using YamlDotNet.Serialization.NamingConventions;
 
 namespace Neon.Common
@@ -88,6 +89,39 @@ namespace Neon.Common
             }
         }
 
+        /// <summary>
+        /// We're using this to prevent YamlDotNet from serializing mult-line strings
+        /// as double spaced: https://stackoverflow.com/questions/58431796/change-the-scalar-style-used-for-all-multi-line-strings-when-serialising-a-dynam
+        /// </summary>
+        private class MultilineScalarFlowStyleEmitter : ChainedEventEmitter
+        {
+            public MultilineScalarFlowStyleEmitter(IEventEmitter nextEmitter)
+                : base(nextEmitter) { }
+
+            public override void Emit(ScalarEventInfo eventInfo, IEmitter emitter)
+            {
+                if (typeof(string).IsAssignableFrom(eventInfo.Source.Type))
+                {
+                    var value = eventInfo.Source.Value as string;
+
+                    if (!string.IsNullOrEmpty(value))
+                    {
+                        bool isMultiLine = value.IndexOfAny(new char[] { '\r', '\n', '\x85', '\x2028', '\x2029' }) >= 0;
+
+                        if (isMultiLine)
+                        {
+                            eventInfo = new ScalarEventInfo(eventInfo.Source)
+                            {
+                                Style = ScalarStyle.Literal
+                            };
+                        }
+                    }
+                }
+
+                nextEmitter.Emit(eventInfo, emitter);
+            }
+        }
+
         //---------------------------------------------------------------------
         // Implementation
 
@@ -120,6 +154,13 @@ namespace Neon.Common
 
                         .ConfigureDefaultValuesHandling(DefaultValuesHandling.Preserve)
 
+                        // We need to disable aliases to prevent bogus values like
+                        // [&o1, &o0, *o1...] showing up in the output.
+                        //
+                        //      https://github.com/aaubry/YamlDotNet/issues/126
+
+                        .DisableAliases()
+
                         // We also need a custom type converter that honors [EnumMember]
                         // attributes on enumeration values.
                         //
@@ -127,8 +168,13 @@ namespace Neon.Common
                         //      https://www.cyotek.com/blog/using-custom-type-converters-with-csharp-and-yamldotnet-part-2
 
                         .WithTypeConverter(new YamlEnumTypeConverter())
-
                         .WithNamingConvention(new LowercaseYamlNamingConvention())
+
+                        // This prevents YamlDotNet from serializing multi-line string
+                        // values as double spaced.
+
+                        .WithEventEmitter(nextEmitter => new MultilineScalarFlowStyleEmitter(nextEmitter))
+
                         .Build();
                 });
 

@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    XenVirtualDisk.cs
+//-----------------------------------------------------------------------------
+// FILE:        XenVirtualDisk.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -49,11 +49,11 @@ namespace Neon.XenServer
         public decimal Size { get; set; }
 
         /// <summary>
-        /// Identifies the storage repository where the disk will be
-        /// created.  This defaults to <b>"Local storage"</b> indicating
+        /// Identifies the storage repository where the disk will be created
+        /// This defaults to <see cref="XenClient.LocalStorageName"/>, indicating
         /// that the disk will be created on the XenServer host's local 
         /// file system.
         /// </summary>
-        public string StorageRepository { get; set; } = "Local storage";
+        public string StorageRepository { get; set; } = XenClient.LocalStorageName;
     }
 }

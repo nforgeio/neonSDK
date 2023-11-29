@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    ModelGeneratorSettings.cs
+//-----------------------------------------------------------------------------
+// FILE:        ModelGeneratorSettings.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -135,8 +135,6 @@ namespace Neon.ModelGen
         /// New projects should leave this alone but existing 1.x based projects
         /// must set this to <c>true</c> or use the new <b>neon-modelgen --v1compatible</b> 
         /// option to avoid database corruption and/or data transmission issues. 
-        /// See <a href="https://github.com/nforgeio/neonKUBE/issues/776">#776</a>
-        /// for more information.
         /// </para>
         /// </summary>
         public bool V1Compatible { get; set; } = false;

@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    HyperVWmiDriver.cs
+//-----------------------------------------------------------------------------
+// FILE:        HyperVWmiDriver.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -159,7 +159,7 @@ namespace Neon.HyperV
         // Implementation
 
         private HyperVClient                client;
-		private ManagementScope             cim2Scope;
+        private ManagementScope             cim2Scope;
         private InitialSessionState         iss;
         private RunspacePool                rsp;
         private Dictionary<Type, string>    typeToCommand = new Dictionary<Type, string>();
@@ -200,7 +200,7 @@ namespace Neon.HyperV
             }
 
             this.client    = client;
-			this.cim2Scope = new ManagementScope(@"\\.\root\StandardCimv2");
+            this.cim2Scope = new ManagementScope(@"\\.\root\StandardCimv2");
 
             // Configure the initial session state for the PowerShell runspaces.
 
@@ -277,7 +277,7 @@ namespace Neon.HyperV
             rsp = null;
 
             client    = null;
-			cim2Scope = null;
+            cim2Scope = null;
             iss       = null;
 
             if (disposing)

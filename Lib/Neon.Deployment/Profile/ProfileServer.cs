@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    ProfileServer.cs
+//-----------------------------------------------------------------------------
+// FILE:        ProfileServer.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -252,7 +252,7 @@ namespace Neon.Deployment
         }
 
         /// <summary>
-        /// Starts the server.  You should call this after configuring the handler callbacks.
+        /// Starts the server.  You must call this after configuring the handler callbacks.
         /// </summary>
         /// <exception cref="InvalidOperationException">Thrown if any of the handlers are not initialized.</exception>
         public void Start()

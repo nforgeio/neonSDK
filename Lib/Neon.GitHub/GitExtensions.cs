@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    GitRepositoryExtensions.cs
+//-----------------------------------------------------------------------------
+// FILE:        GitExtensions.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -48,10 +48,13 @@ using GitSignature  = LibGit2Sharp.Signature;
 namespace Neon.GitHub
 {
     /// <summary>
-    /// Implements handy <see cref="GitRepository"/> extension methods.
+    /// Implements handy local git extension methods.
     /// </summary>
-    public static class GitRepositoryExtensions
+    public static class GitExtensions
     {
+        //---------------------------------------------------------------------
+        // GitRepository extensions
+
         /// <summary>
         /// Returns a local git repository is changes pending a commit.
         /// </summary>
@@ -70,6 +73,21 @@ namespace Neon.GitHub
         public static GitBranch CurrentBranch(this GitRepository localRepo)
         {
             return localRepo.Branches.SingleOrDefault(branch => branch.IsCurrentRepositoryHead);
+        }
+
+        //---------------------------------------------------------------------
+        // GitSignature extensions
+
+        /// <summary>
+        /// Converts a <see cref="LibGit2Sharp.Signature"/> into a <see cref="LibGit2Sharp.Identity"/>.
+        /// </summary>
+        /// <param name="signature">The signature being converted.</param>
+        /// <returns>The equivalent identity.</returns>
+        public static Identity ToIdentity(this LibGit2Sharp.Signature signature)
+        {
+            Covenant.Requires<ArgumentNullException>(signature != null, nameof(signature));
+
+            return new Identity(name: signature.Name, email: signature.Email);
         }
     }
 }

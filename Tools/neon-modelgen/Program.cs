@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    Program.cs
+//-----------------------------------------------------------------------------
+// FILE:        Program.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,8 +26,8 @@ using Microsoft.Extensions.DependencyInjection;
 
 using Neon;
 using Neon.Common;
-using Neon.Deployment;
 using Neon.ModelGen;
+using Neon.Retry;
 
 namespace NeonModelGen
 {
@@ -89,15 +89,13 @@ OPTIONS:
 
     --log=PATH                  - Optionally outputs any errors to the specified 
                                   log file and supresses potentially spurious
-                                  from the standard output and exit code.
+                                  errors from the standard output and exit code.
 
 REMARKS:
 
 This command is used to generate enhanced JSON based data models and
 REST API clients suitable for applications based on flexible noSQL
-style design conventions.  See this GitHub issue for more information:
-
-    https://github.com/nforgeio/neonKUBE/issues/463
+style design conventions.
 
 ";
         private static bool     suppressSpurious = false;
@@ -118,15 +116,6 @@ style design conventions.  See this GitHub issue for more information:
         /// <returns>The program exit code.</returns>
         public static async Task<int> Main(string[] args)
         {
-            // $hack(jefflill):
-            //
-            // We hardcoding our own profile client for the time being.  Eventually,
-            // we'll need to support custom or retail profile clients somehow.
-            //
-            // This is required by: CommandLine.Preprocess()
-
-            NeonHelper.ServiceContainer.AddSingleton<IProfileClient>(new MaintainerProfile());
-
             var commandLine = new CommandLine(args).Preprocess();
 
             if (commandLine.HasHelpOption)
@@ -151,7 +140,7 @@ style design conventions.  See this GitHub issue for more information:
             catch (Exception e)
             {
                 // Something must be wrong with the log path so explicitly
-                // return the error.
+                // output the error.
 
                 Console.Error.WriteLine(NeonHelper.ExceptionError(e));
                 Environment.Exit(1);
@@ -192,7 +181,7 @@ style design conventions.  See this GitHub issue for more information:
                 else
                 {
                     LogError($"*** ERROR: [--ux={ux}] does not specify one of the supported UX frameworks: XAML", critical: true);
-                    Program.Exit(1);
+                    Program.Exit(-1);
                 }
             }
 
@@ -222,7 +211,7 @@ style design conventions.  See this GitHub issue for more information:
             }
             catch (Exception e)
             {
-                LogError(NeonHelper.ExceptionError(e), critical: true);
+                LogError(NeonHelper.ExceptionError(e, stackTrace: true), critical: true);
                 Program.Exit(1);
             }
 
@@ -240,21 +229,31 @@ style design conventions.  See this GitHub issue for more information:
             {
                 if (!string.IsNullOrEmpty(outputPath))
                 {
-                    // Ensure that all of the parent folders exist.
+                    // It's possible for builds to try generating models for the same
+                    // project in parallel.  We're going to use a retry policy to handle
+                    // file conflict exceptions.
 
-                    var folderPath = Path.GetDirectoryName(outputPath);
+                    var retry = new LinearRetryPolicy(typeof(IOException), 25, retryInterval: TimeSpan.FromMilliseconds(10));
 
-                    Directory.CreateDirectory(folderPath);
+                    retry.Invoke(
+                        () =>
+                        {
+                            // Ensure that all of the parent folders exist.
 
-                    // Don't write the output file if its contents are already
-                    // the same as the generated output.  This will help reduce
-                    // wear on SSDs and also make things a tiny bit easier for
-                    // source control.
+                            var folderPath = Path.GetDirectoryName(outputPath);
 
-                    if (!File.Exists(outputPath) || File.ReadAllText(outputPath) != output.SourceCode)
-                    {
-                        File.WriteAllText(outputPath, output.SourceCode);
-                    }
+                            Directory.CreateDirectory(folderPath);
+
+                            // Don't write the output file if its contents are already
+                            // the same as the generated output.  This will help reduce
+                            // wear on SSDs and also make things a tiny bit easier for
+                            // source control.
+
+                            if (!File.Exists(outputPath) || File.ReadAllText(outputPath) != output.SourceCode)
+                            {
+                                File.WriteAllText(outputPath, output.SourceCode);
+                            }
+                        });
                 }
                 else
                 {
@@ -267,8 +266,7 @@ style design conventions.  See this GitHub issue for more information:
             }
             catch (Exception e)
             {
-                Console.Error.WriteLine($"*** ERROR: {NeonHelper.ExceptionError(e)}");
-                Console.Error.WriteLine(e.StackTrace);
+                Console.Error.WriteLine($"*** ERROR: {NeonHelper.ExceptionError(e, stackTrace: true)}");
                 Console.Error.WriteLine(string.Empty);
                 return 1;
             }

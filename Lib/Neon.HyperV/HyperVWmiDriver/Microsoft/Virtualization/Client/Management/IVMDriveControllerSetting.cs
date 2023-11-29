@@ -5,7 +5,7 @@ namespace Microsoft.Virtualization.Client.Management;
 [WmiName("Msvm_ResourceAllocationSettingData", PrimaryMapping = false)]
 internal interface IVMDriveControllerSetting : IVMDeviceSetting, IVirtualizationManagementObject, IPutableAsync, IPutable
 {
-	string Address { get; }
+    string Address { get; }
 
-	IEnumerable<IVMDriveSetting> GetDriveSettings();
+    IEnumerable<IVMDriveSetting> GetDriveSettings();
 }

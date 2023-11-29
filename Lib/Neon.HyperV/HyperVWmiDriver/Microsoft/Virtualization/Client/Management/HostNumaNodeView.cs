@@ -4,24 +4,24 @@ namespace Microsoft.Virtualization.Client.Management;
 
 internal class HostNumaNodeView : View, IHostNumaNode, IVirtualizationManagementObject
 {
-	private static class WmiMemberNames
-	{
-		internal const string CurrentlyConsumableMemoryBlocks = "CurrentlyConsumableMemoryBlocks";
+    private static class WmiMemberNames
+    {
+        internal const string CurrentlyConsumableMemoryBlocks = "CurrentlyConsumableMemoryBlocks";
 
-		internal const string NodeId = "NodeID";
-	}
+        internal const string NodeId = "NodeID";
+    }
 
-	public ulong CurrentlyConsumableMemoryBlocks => GetProperty<ulong>("CurrentlyConsumableMemoryBlocks");
+    public ulong CurrentlyConsumableMemoryBlocks => GetProperty<ulong>("CurrentlyConsumableMemoryBlocks");
 
-	public string NodeId => GetProperty<string>("NodeID");
+    public string NodeId => GetProperty<string>("NodeID");
 
-	public IVMMemory GetRelatedHostMemory()
-	{
-		return GetRelatedObject<IVMMemory>(base.Associations.NumaNodeToHostMemory);
-	}
+    public IVMMemory GetRelatedHostMemory()
+    {
+        return GetRelatedObject<IVMMemory>(base.Associations.NumaNodeToHostMemory);
+    }
 
-	public IEnumerable<IVMProcessor> GetRelatedHostProcessors()
-	{
-		return GetRelatedObjects<IVMProcessor>(base.Associations.NumaNodeToHostProcessor);
-	}
+    public IEnumerable<IVMProcessor> GetRelatedHostProcessors()
+    {
+        return GetRelatedObjects<IVMProcessor>(base.Associations.NumaNodeToHostProcessor);
+    }
 }

@@ -1,112 +1,128 @@
 <Project>
 
-		<!--
-	Default properties:
-	-->
+    <PropertyGroup>
+        <Product>NEONSDK</Product>
+        <Authors>NEONFORGE Team</Authors>
+        <Company>NEONFORGE LLC</Company>
+        <NeonSdkVersion>3.1.4</NeonSdkVersion>
+        <Copyright>Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.</Copyright>
+        <PackageReadmeFile Condition="Exists('README.md')">README.md</PackageReadmeFile>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <LangVersion>latest</LangVersion>
+        <Deterministic>true</Deterministic>
+        <DeterministicSourcePaths>false</DeterministicSourcePaths>
+        <Nullable>disable</Nullable>
+        <ImplicitUsings>disable</ImplicitUsings>
+        <EnableNETAnalyzers>true</EnableNETAnalyzers>
+        <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
+        <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+        <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+        <NoWarn>1701;1702;NETSDK1138;CS8892;ASP0014;IDE0063;IDE0090;IDE0017;IDE0079;IDE0066;NU1605;MSB3026;MSB3061</NoWarn>
 
-		<PropertyGroup>
-				<Product>neonSDK</Product>
-				<Authors>NEONFORGE Team</Authors>
-				<Company>NEONFORGE LLC</Company>
-        <NeonSdkVersion>3.0.2</NeonSdkVersion>
-				<Copyright>Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.</Copyright>
-				<PackageReadmeFile Condition="Exists('README.md')">README.md</PackageReadmeFile>
-				<GenerateDocumentationFile>true</GenerateDocumentationFile>
-				<LangVersion>latest</LangVersion>
-				<Deterministic>true</Deterministic>
-				<DeterministicSourcePaths>false</DeterministicSourcePaths>
-				<Nullable>disable</Nullable>
-				<ImplicitUsings>disable</ImplicitUsings>
-				<EnableNETAnalyzers>true</EnableNETAnalyzers>
-				<TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
-				<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-				<TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-				<NoWarn>1701;1702;NETSDK1138;CS8892;ASP0014;IDE0063;IDE0090;IDE0017;IDE0079;IDE0066</NoWarn>
+        <!-- Debugging -->
 
-				<!-- Debugging -->
+        <DebugType>embedded</DebugType>
+        <DebugSymbols>true</DebugSymbols>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
 
-				<DebugType>full</DebugType>
-				<DebugSymbols>true</DebugSymbols>
-				<PublishRepositoryUrl>true</PublishRepositoryUrl>
-				<EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <!-- 
+        Our nuget publication scripts will set the environment variable [NEON_PUBLIC_SOURCELINK=true]
+        when the source code has been or will be commited to GitHub with the expectation that we'll
+        enable sourcelink to reference source code from our GitHub repos.
+        -->
 
-				<!-- 
-		Our nuget publication scripts will set the environment variable [NEON_PUBLIC_SOURCELINK=true]
-		when the source code has been or will be commited to GitHub with the expectation that we'll
-		enable sourcelink to reference source code from our GitHub repos.
-		-->
+        <ContinuousIntegrationBuild Condition="'$(NEON_PUBLIC_SOURCELINK)' == 'true'">true</ContinuousIntegrationBuild>
 
-				<ContinuousIntegrationBuild  Condition="'$(NEON_PUBLIC_SOURCELINK)' == 'true'">true</ContinuousIntegrationBuild>
+        <!-- Publish defaults -->
 
-				<!-- Publish defaults -->
+        <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 
-				<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+        <!-- $hack(jefflill): Looks like the Operator SDK analyzers are holding DLLs open? -->
 
-		</PropertyGroup>
+        <CopyRetryCount>200</CopyRetryCount>
+        <CopyRetryDelayMilliseconds>10</CopyRetryDelayMilliseconds>
 
-		<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-				<DefineConstants>$(DefineConstants);TRACE;DEBUG</DefineConstants>
-				<Optimize>false</Optimize>
-		</PropertyGroup>
+    </PropertyGroup>
 
-		<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-				<Optimize>true</Optimize>
-		</PropertyGroup>
+    <!-- Build configuration related settings -->
 
-		<PropertyGroup Condition="'$(JUSTMOCK_ENABLED)' != ''">
-				<DefineConstants>$(DefineConstants);JUSTMOCK</DefineConstants>
-		</PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+        <DefineConstants>$(DefineConstants);TRACE;DEBUG</DefineConstants>
+        <Optimize>false</Optimize>
+    </PropertyGroup>
 
-		<ItemGroup Condition="Exists('README.md')">
-				<None Include="README.md" Pack="true" PackagePath="" />
-		</ItemGroup>
+    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+        <Optimize>true</Optimize>
+    </PropertyGroup>
 
-		<!-- 
-	$hack(jefflill):
-	
-	We've had a lot of trouble with auto generated source files generated for:
-	
-		* GitInfo
-		* AssemblyInfoAttribute
-		* TargetFrameworkAttribute
-		
-	The problem is that these are all generated in [obj/CONFIGURATION] or
-	[obj/CONFIGURATION/TARGETFRAMEWORK] but the build system compiles all
-	C# files it sees under the project directory, and it's very easy to 
-	end up with multiple source files defining the same classes.
-	
-	We tried precleaning these files early in the build, but that didn't 
-	work because we may end up building multiple build targets for the
-	same project in parallel and it also prevented us from publishing
-	nuget packages via scripts because we're typically running Visual
-	Studio in the DEBUG build configuration but publishing as RELEASE.
-	
-	We also tried messing with the source input globbing rules, but
-	that didn't work either.
-	
-	So here's what we're going to do:
-	
-		* Create a local [BuildInfo] library that has only one
-			build configuration and target framework.
-			
-		* Have [BuildInfo] reference the GitInfo nuget package
-			and then write a drop-in replacement for the [ThisAssembly]
-			class that returns the values from the local GitInfo generated
-			class.
-			
-		* Disable generation of the [AssemblyInfoAttribute] and 
-			[TargetFrameworkAttribute] classes for all projects.
-			
-		* Manually add [AssemblyInfo.cs] and [AssemblyAttributes.cs]
-			classes to [BuildInfo] and reference these from other projects as
-			shared links.  This code will include #IFDEFs to compile the correct
-			code for the the current target framework, etc.
-	-->
+    <!-- Telerik JustMock settings -->
 
-		<PropertyGroup>
-				<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-				<GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
-		</PropertyGroup>
+    <PropertyGroup Condition="'$(JUSTMOCK_ENABLED)' == 'true'">
+        <DefineConstants>$(DefineConstants);JUSTMOCK</DefineConstants>
+    </PropertyGroup>
+
+    <ItemGroup Condition="Exists('README.md')">
+        <None Include="README.md" Pack="true" PackagePath="" />
+    </ItemGroup>
+
+    <!--
+    These constants are used to control the retry behavior of the MSBUILD
+    <Copy.../> tasks.  This helps mitigate transient issues when files may
+    be locked during Visual background operations.
+    -->
+
+    <PropertyGroup>
+        <CopyRetries>10</CopyRetries>
+        <CopyRetryDelayMilliseconds>50</CopyRetryDelayMilliseconds>
+    </PropertyGroup>
+
+    <!-- 
+    $hack(jefflill):
+    
+    We've had a lot of trouble with auto generated source files generated for:
+    
+        * GitInfo
+        * AssemblyInfoAttribute
+        * TargetFrameworkAttribute
+        
+    The problem is that these are all generated in [obj/CONFIGURATION] or
+    [obj/CONFIGURATION/TARGETFRAMEWORK] but the build system compiles all
+    C# files it sees under the project directory, and it's very easy to 
+    end up with multiple source files defining the same classes.
+    
+    We tried precleaning these files early in the build, but that didn't 
+    work because we may end up building multiple build targets for the
+    same project in parallel and it also prevented us from publishing
+    nuget packages via scripts because we're typically running Visual
+    Studio in the DEBUG build configuration but publishing as RELEASE.
+    
+    We also tried messing with the source input globbing rules, but
+    that didn't work either.
+    
+    So here's what we're going to do:
+    
+        * Create a local [BuildInfo] library that has only one
+          build configuration and target framework.
+            
+        * Have [BuildInfo] reference the GitInfo nuget package
+          and then write a drop-in replacement for the [ThisAssembly]
+          class that returns the values from the local GitInfo generated
+          class.
+            
+        * Disable generation of the [AssemblyInfoAttribute] and 
+          [TargetFrameworkAttribute] classes for all projects.
+            
+        * Manually add [AssemblyInfo.cs] and [AssemblyAttributes.cs]
+          classes to [BuildInfo] and reference these from other projects as
+          shared links.  This code will include #IFDEFs to compile the correct
+          code for the the current target framework, etc.
+    -->
+
+    <PropertyGroup>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+    </PropertyGroup>
 
     <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
         <RuntimePath>win-x64</RuntimePath>
@@ -119,5 +135,20 @@
     <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
         <RuntimePath>linux-x64</RuntimePath>
     </PropertyGroup>
+
+    <!-- Figure out where the [neon-modelgen] tool is located -->
+
+    <Choose>
+        <When Condition="'$(NeonBuildUseNugets)' == 'true'">
+            <PropertyGroup>
+                <ModelGeneratorPath>$(PkgNeon_ModelGenerator)\contentFiles\any\netstandard2.0\$(RuntimePath)\neon-modelgen</ModelGeneratorPath>
+            </PropertyGroup>
+        </When>
+        <Otherwise>
+            <PropertyGroup>
+                <ModelGeneratorPath>$(NF_ROOT)\Tools\neon-modelgen\bin\$(Configuration)\net7.0\$(RuntimePath)\neon-modelgen</ModelGeneratorPath>
+            </PropertyGroup>
+        </Otherwise>
+    </Choose>
 
 </Project>

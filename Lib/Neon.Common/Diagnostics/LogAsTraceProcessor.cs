@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    LogAsTraceProcessor.cs
+//-----------------------------------------------------------------------------
+// FILE:        LogAsTraceProcessor.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -138,7 +138,7 @@ namespace Neon.Diagnostics
                     spanTagCount++;
                 }
 
-                var tags      = new KeyValuePair<string, object>[spanTagCount + (logRecord.StateValues?.Count ?? 0)];
+                var tags      = new KeyValuePair<string, object>[spanTagCount + (logRecord.Attributes?.Count ?? 0)];
                 var nextIndex = 0;
 
                 // Add the required attributes.
@@ -161,19 +161,19 @@ namespace Neon.Diagnostics
 
                 // Add the the log record attributes.
 
-                if (logRecord.StateValues != null)
+                if (logRecord.Attributes != null)
                 {
-                    foreach (var item in logRecord.StateValues)
+                    foreach (var item in logRecord.Attributes)
                     {
                         tags[nextIndex++] = item;
                     }
                 }
 
-                if (logRecord.StateValues != null && logRecord.StateValues.Count > 0)
+                if (logRecord.Attributes != null && logRecord.Attributes.Count > 0)
                 {
-                    var activityTags = new ActivityTagsCollection();    // $todo(jefflill): It would be really nice to be able to pool these: https://github.com/nforgeio/neonKUBE/issues/1668#issuecomment-1235696464
+                    var activityTags = new ActivityTagsCollection();
 
-                    foreach (var attribute in logRecord.StateValues)
+                    foreach (var attribute in logRecord.Attributes)
                     {
                         activityTags.Add(attribute);
                     }

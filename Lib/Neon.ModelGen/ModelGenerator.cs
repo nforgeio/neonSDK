@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    ModelGenerator.cs
+//-----------------------------------------------------------------------------
+// FILE:        ModelGenerator.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -34,14 +34,6 @@ using Microsoft.CodeAnalysis;
 using Newtonsoft.Json;
 
 using Neon.Common;
-
-// $todo(jefflill):
-//
-// At some point in the future it would be nice to read any
-// XML code documentation and include this in the generated
-// source code as well.
-//
-//      https://github.com/nforgeio/neonKUBE/issues/594
 
 namespace Neon.ModelGen
 {
@@ -417,7 +409,7 @@ namespace Neon.ModelGen
                         var methodRouteParameterNames = new List<string>();
                         var methodParameterNames      = new HashSet<string>();
 
-                        ExtractRouteParameterNames(methodRouteParameterNames, serviceRouteAttribute.Template);
+                        ExtractRouteParameterNames(methodRouteParameterNames, methodRouteAttribute.Template ?? methodInfo.Name);
 
                         foreach (var parameter in methodInfo.GetParameters())
                         {
@@ -2315,13 +2307,12 @@ namespace Neon.ModelGen
                     writer.WriteLine($"        public {virtualModifier} async Task WriteJsonToAsync(Stream stream)");
                     writer.WriteLine($"        {{");
                     writer.WriteLine($"            await SyncContext.Clear;");
+                    writer.WriteLine();
                     writer.WriteLine($"            __Save();");
                     writer.WriteLine();
 
                     // ASP.NET copmplains about this being a synchronous operation???  We'll revert
                     // back to the inefficient ToString() method and revisit this later.
-                    //
-                    //      https://github.com/nforgeio/neonKUBE/issues/485
 
                     //writer.WriteLine($"            using (var writer = new JsonTextWriter(new StreamWriter(stream)))");
                     //writer.WriteLine($"            {{");
@@ -3145,6 +3136,7 @@ namespace Neon.ModelGen
             writer.WriteLine($"{indent}        public async {methodReturnType} {methodName}({sbParameters})");
             writer.WriteLine($"{indent}        {{");
             writer.WriteLine($"{indent}            await SyncContext.Clear;");
+            writer.WriteLine();
 
             if (bodyStreamAttribute != null)
             {
@@ -3187,6 +3179,7 @@ namespace Neon.ModelGen
             writer.WriteLine($"{indent}        public async Task<JsonResponse> Unsafe{methodName}({sbParameters})");
             writer.WriteLine($"{indent}        {{");
             writer.WriteLine($"{indent}            await SyncContext.Clear;");
+            writer.WriteLine();
 
             if (bodyStreamAttribute != null)
             {

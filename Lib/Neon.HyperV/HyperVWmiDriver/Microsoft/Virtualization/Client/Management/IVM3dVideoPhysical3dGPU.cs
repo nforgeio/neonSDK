@@ -5,39 +5,39 @@ namespace Microsoft.Virtualization.Client.Management;
 [WmiName("Msvm_Physical3dGraphicsProcessor")]
 internal interface IVM3dVideoPhysical3dGPU : IVMDevice, IVirtualizationManagementObject
 {
-	string Name { get; }
+    string Name { get; }
 
-	bool EnabledForVirtualization { get; }
+    bool EnabledForVirtualization { get; }
 
-	bool CompatibleForVirtualization { get; }
+    bool CompatibleForVirtualization { get; }
 
-	string GPUID { get; }
+    string GPUID { get; }
 
-	string InstanceID { get; }
+    string InstanceID { get; }
 
-	long AdapterIndexID { get; }
+    long AdapterIndexID { get; }
 
-	string DirectXVersion { get; }
+    string DirectXVersion { get; }
 
-	string PixelShaderVersion { get; }
+    string PixelShaderVersion { get; }
 
-	long DedicatedVideoMemory { get; }
+    long DedicatedVideoMemory { get; }
 
-	long DedicatedSystemMemory { get; }
+    long DedicatedSystemMemory { get; }
 
-	long SharedSystemMemory { get; }
+    long SharedSystemMemory { get; }
 
-	long AvailableVideoMemory { get; }
+    long AvailableVideoMemory { get; }
 
-	long TotalVideoMemory { get; }
+    long TotalVideoMemory { get; }
 
-	string DriverProvider { get; }
+    string DriverProvider { get; }
 
-	DateTime DriverDate { get; }
+    DateTime DriverDate { get; }
 
-	DateTime DriverInstalled { get; }
+    DateTime DriverInstalled { get; }
 
-	string DriverVersion { get; }
+    string DriverVersion { get; }
 
-	string DriverModelVersion { get; }
+    string DriverModelVersion { get; }
 }

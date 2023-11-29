@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
-// FILE:	    SessionTransformer.cs
+// FILE:        SessionTransformer.cs
 // CONTRIBUTOR: Marcus Bowyer
-// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright Â© 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 using System;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -35,7 +36,6 @@ using DnsClient;
 
 using Yarp.ReverseProxy.Forwarder;
 using Yarp.ReverseProxy.Transforms;
-using System.Threading;
 
 namespace NeonSignalRProxy
 {

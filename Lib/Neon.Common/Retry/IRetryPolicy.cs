@@ -1,7 +1,7 @@
-﻿//-----------------------------------------------------------------------------
-// FILE:	    IRetryPolicy.cs
+//-----------------------------------------------------------------------------
+// FILE:        IRetryPolicy.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:	Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Neon.Retry
@@ -57,7 +58,8 @@ namespace Neon.Retry
         /// determined by the policy implementation.
         /// </summary>
         /// <param name="action">The asynchronous action to be performed.</param>
-        Task InvokeAsync(Func<Task> action);
+        /// <param name="cancellationToken">Optionally specifies a cancellation token.</param>
+        Task InvokeAsync(Func<Task> action, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Retries an asynchronous action that returns <typeparamref name="TResult"/> when it throws exceptions
@@ -67,8 +69,9 @@ namespace Neon.Retry
         /// </summary>
         /// <typeparam name="TResult">The action result type.</typeparam>
         /// <param name="action">The asynchronous action to be performed.</param>
+        /// <param name="cancellationToken">Optionally specifies a cancellation token.</param>
         /// <returns>The action result.</returns>
-        Task<TResult> InvokeAsync<TResult>(Func<Task<TResult>> action);
+        Task<TResult> InvokeAsync<TResult>(Func<Task<TResult>> action, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Retries a synchronous action that returns no result when it throws exceptions due to 
@@ -77,7 +80,8 @@ namespace Neon.Retry
         /// determined by the policy implementation.
         /// </summary>
         /// <param name="action">The synchronous action to be performed.</param>
-        void Invoke(Action action);
+        /// <param name="cancellationToken">Optionally specifies a cancellation token.</param>
+        void Invoke(Action action, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Retries a synchronous action that returns a result when it throws exceptions due to 
@@ -87,14 +91,21 @@ namespace Neon.Retry
         /// </summary>
         /// <typeparam name="TResult">The action result type.</typeparam>
         /// <param name="action">The synchronous action to be performed.</param>
+        /// <param name="cancellationToken">Optionally specifies a cancellation token.</param>
         /// <returns>The action result.</returns>
-        TResult Invoke<TResult>(Func<TResult> action);
+        TResult Invoke<TResult>(Func<TResult> action, CancellationToken cancellationToken = default);
 
         /// <summary>
+        /// <para>
         /// Used to intercept and handle logging for transient exceptions detected by
         /// a retry policy.  Handlers can set <see cref="RetryTransientArgs.Handled"/>
         /// in the argument passed to prevent subsequent handlers from being invoked
         /// and also prevent the transient exception from being logged.
+        /// </para>
+        /// <para>
+        /// When no handlers are added to this event, the default behavior is to log
+        /// all transient failures.
+        /// </para>
         /// </summary>
         event Action<RetryTransientArgs> OnTransient;
     }
@@ -109,26 +120,26 @@ namespace Neon.Retry
             return null;
         }
 
-        public Task InvokeAsync(Func<Task> action)
+        public Task InvokeAsync(Func<Task> action, CancellationToken cancellationToken = default)
         {
             Covenant.Requires<ArgumentNullException>(action != null, nameof(action));
 
             return null;
         }
 
-        public Task<TResult> InvokeAsync<TResult>(Func<Task<TResult>> action)
+        public Task<TResult> InvokeAsync<TResult>(Func<Task<TResult>> action, CancellationToken cancellationToken = default)
         {
             Covenant.Requires<ArgumentNullException>(action != null, nameof(action));
 
             return null;
         }
 
-        public void Invoke(Action action)
+        public void Invoke(Action action, CancellationToken cancellationToken = default)
         {
             Covenant.Requires<ArgumentNullException>(action != null, nameof(action));
         }
 
-        public TResult Invoke<TResult>(Func<TResult> action)
+        public TResult Invoke<TResult>(Func<TResult> action, CancellationToken cancellationToken = default)
         {
             Covenant.Requires<ArgumentNullException>(action != null, nameof(action));
 
