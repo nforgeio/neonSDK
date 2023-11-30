@@ -100,7 +100,7 @@ ARGUMENTS:
     PROJECT-PATH        - Path to the [.csproj] file
     CONFIG              - Build configuration (like: Debug or Release)
     OUTPUT-DIR          - Path to the output directory
-    [RUNTIME]           - Optionally specifies the target dotnet runtime, like: win10-x64.
+    [RUNTIME]           - Optionally specifies the target dotnet runtime, like: win-x64.
                           This is obtained from the [.csproj] file when not specified.
 
 OPTIONS:
@@ -116,7 +116,7 @@ REMARKS:
 
 This utility is designed to be called from within a .NET Core project's
 POST-BUILD event using Visual Studio post-build event macros.  Here's
-an example that publishes a standalone [win10-x64] app to: %NF_BUILD%\neon
+an example that publishes a standalone [win-x64] app to: %NF_BUILD%\neon
 
     pubcore ""$(ProjectPath)"" ""$(ConfigurationName)"" ""%NF_BUILD%\neon""
 
@@ -124,8 +124,8 @@ Note that you MUST ADD something like the following to a <PropertyGroup> section
 your project CSPROJ file for this to work:
 
     <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
-        <RuntimeIdentifier>win10-x64</RuntimeIdentifier>
+        <TargetFramework>net8.0</TargetFramework>
+        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     </PropertyGroup>
 
 This command publishes the executable files to a new PUBLISH-DIR/TARGET-FRAMEWORK directory

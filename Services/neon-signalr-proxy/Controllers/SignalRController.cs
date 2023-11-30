@@ -166,6 +166,8 @@ namespace NeonSignalRProxy.Controllers
 
                 Logger.LogDebugEx(() => $"Session closed: [{NeonHelper.JsonSerializeToBytes(session)}]");
 
+                signalrProxyService.CurrentConnections.RemoveWhere(x => x == session.ConnectionId);
+
                 if (error != ForwarderError.None)
                 {
                     var errorFeature = HttpContext.GetForwarderErrorFeature();

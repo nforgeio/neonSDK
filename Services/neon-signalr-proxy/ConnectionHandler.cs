@@ -108,7 +108,7 @@ namespace NeonSignalRProxy
                         }
                     }
 
-                    service.CurrentConnections.Remove(context.Connection.Id);
+                    service.CurrentConnections.RemoveWhere(x => x == context.Connection.Id);
                 }
 
                 logger.LogDebugEx(() => "Connection handler complete");

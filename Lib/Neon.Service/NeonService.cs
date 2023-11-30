@@ -718,7 +718,7 @@ namespace Neon.Service
         private string                          readyCheckPath;
         private IRetryPolicy                    healthRetryPolicy = new LinearRetryPolicy(e => e is IOException, maxAttempts: 10, retryInterval: TimeSpan.FromMilliseconds(100));
         private Uri                             traceCollectorUri;
-#if NET6_0_OR_GREATER
+#if NET6_0
         private KestrelMetricServer             metricServer;
 #else
         private MetricServer                    metricServer;
@@ -1607,7 +1607,7 @@ namespace Neon.Service
 
                     case MetricsMode.Scrape:
                     case MetricsMode.ScrapeIgnoreErrors:
-#if NET6_0_OR_GREATER
+#if NET6_0
                         metricServer = new KestrelMetricServer(MetricsOptions.Port, MetricsOptions.Path);
 #else
                         metricServer = new MetricServer(MetricsOptions.Port, MetricsOptions.Path);
