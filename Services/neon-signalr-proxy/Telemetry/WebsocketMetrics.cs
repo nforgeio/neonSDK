@@ -26,18 +26,22 @@ namespace NeonSignalRProxy
     /// </summary>
     public class WebsocketMetrics
     {
+        private static readonly string[] LabelNames = { "host", "upstream_host" };
+
         /// <summary>
         /// The total number of websocket connections established.
         /// </summary>
         public static readonly Counter ConnectionsEstablished = Metrics.CreateCounter(
             "neonsignalrproxy_websockets_connections_established_total",
-            "Number of websocket requests inititated.");
+            "Number of websocket requests inititated.",
+            labelNames: LabelNames);
 
         /// <summary>
         /// The current number of open websocket connections.
         /// </summary>
         public static readonly Gauge CurrentConnections = Metrics.CreateGauge(
             "neonsignalrproxy_websockets_current_connections",
-            "Number of active websocket connections that have are connected.");
+            "Number of active websocket connections that have are connected.",
+            labelNames: LabelNames);
     }
 }

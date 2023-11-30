@@ -86,29 +86,35 @@ namespace NeonSignalRProxy
 
                 logger.LogDebugEx(() => "_next complete");
 
-
-                if (service.CurrentConnections.Contains(context.Connection.Id))
+                try
                 {
-                    logger.LogDebugEx(() => $"{context.Connection.Id} in CurrentConnections");
-
-                    var session = sessionHelper.GetSession(context);
-
-                    if (proxyConfig.SessionStore == SessionStoreType.Cache)
+                    if (service.CurrentConnections.Contains(context.Connection.Id))
                     {
-                        session = await cache.GetAsync<Session>(session.Id);
-                    }
+                        logger.LogDebugEx(() => $"{context.Connection.Id} in CurrentConnections");
 
-                    if (session.ConnectionId == context.Connection.Id)
-                    {
-                        logger.LogDebugEx(() => $"{context.Connection.Id} is session connection ID");
+                        var session = sessionHelper.GetSession(context);
 
                         if (proxyConfig.SessionStore == SessionStoreType.Cache)
                         {
-                            await cache.SetAsync(session.Id, session, cacheOptions);
+                            session = await cache.GetAsync<Session>(session.Id);
                         }
-                    }
 
-                    service.CurrentConnections.RemoveWhere(x => x == context.Connection.Id);
+                        if (session.ConnectionId == context.Connection.Id)
+                        {
+                            logger.LogDebugEx(() => $"{context.Connection.Id} is session connection ID");
+
+                            if (proxyConfig.SessionStore == SessionStoreType.Cache)
+                            {
+                                await cache.SetAsync(session.Id, session, cacheOptions);
+                            }
+                        }
+
+                        service.CurrentConnections.RemoveWhere(x => x == context.Connection.Id);
+                    }
+                }
+                catch (Exception e)
+                {
+                    logger?.LogErrorEx(e, "Error in ConnectionHandler.");
                 }
 
                 logger.LogDebugEx(() => "Connection handler complete");

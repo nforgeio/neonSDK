@@ -13,6 +13,11 @@ namespace NeonSignalRProxy
     /// </summary>
     public class SessionHelper
     {
+        /// <summary>
+        /// The header name for storing the upstream host.
+        /// </summary>
+        public static string UpstreamHostHeaderName = "X-SignalR-Upstream-Host";
+
         private AesCipher              cipher;
         private ILogger<SessionHelper> logger;
 

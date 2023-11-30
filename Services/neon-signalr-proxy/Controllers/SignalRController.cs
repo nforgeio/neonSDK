@@ -118,7 +118,6 @@ namespace NeonSignalRProxy.Controllers
                 isWebsocket = true;
                 WebsocketMetrics.ConnectionsEstablished.Inc();
             }
-            using var gauge    = isWebsocket ? WebsocketMetrics.CurrentConnections.TrackInProgress() : new Disposable();
 
             backend = config.Backends.Where(b => b.Hosts.Contains(HttpContext.Request.Host.Host)).Single();
 
@@ -145,6 +144,10 @@ namespace NeonSignalRProxy.Controllers
             {
                 var host = await GetHostAsync();
 
+                using var validGauge = isWebsocket ? WebsocketMetrics.CurrentConnections.WithLabels(HttpContext.Request.Host.Value, host).TrackInProgress() : new Disposable();
+
+                HttpContext.Request.Headers.Append(SessionHelper.UpstreamHostHeaderName, host);
+
                 error    = await forwarder.SendAsync(HttpContext, $"{backend.Scheme}://{host}:{backend.Port}", httpClient, forwarderRequestConfig, transformer);
 
                 if (error != ForwarderError.None)
@@ -154,9 +157,12 @@ namespace NeonSignalRProxy.Controllers
 
                     Logger.LogErrorEx(exception, "CatchAll");
                 }
-
                 return;
             }
+
+            using var gauge = isWebsocket ? WebsocketMetrics.CurrentConnections.WithLabels(HttpContext.Request.Host.Value, session.UpstreamHost).TrackInProgress() : new Disposable();
+
+            HttpContext.Request.Headers.Append(SessionHelper.UpstreamHostHeaderName, session.UpstreamHost);
 
             Logger.LogDebugEx(() => NeonHelper.JsonSerialize(session));
 
@@ -170,8 +176,8 @@ namespace NeonSignalRProxy.Controllers
             signalrProxyService.CurrentConnections.Add(session.ConnectionId);
 
             Logger.LogDebugEx(() => $"Forwarding connection: [{NeonHelper.JsonSerializeToBytes(session)}]");
-                
-            error = await forwarder.SendAsync(HttpContext, $"{backend.Scheme}://{session.UpstreamHost}", httpClient, forwarderRequestConfig, transformer);
+
+            error = await forwarder.SendAsync(HttpContext, $"{backend.Scheme}://{session.UpstreamHost}:{backend.Port}", httpClient, forwarderRequestConfig, transformer);
 
             Logger.LogDebugEx(() => $"Session closed: [{NeonHelper.JsonSerializeToBytes(session)}]");
 
@@ -227,6 +233,18 @@ namespace NeonSignalRProxy.Controllers
 
         private async Task<bool> IsValidTargetAsync(string target)
         {
+            await SyncContext.Clear;
+
+            if (string.IsNullOrEmpty(target))
+            {
+                return false;
+            }
+
+            if (NeonHelper.IsDevWorkstation)
+            {
+                return true;
+            }
+
             var dns = await dnsClient.QueryAsync(backend.Destination, QueryType.SRV);
 
             if (dns.HasError || dns.Answers.IsEmpty())

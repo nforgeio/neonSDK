@@ -161,6 +161,11 @@ namespace NeonSignalRProxy
 
             Config = await ProxyConfig.FromFileAsync(GetConfigFilePath(ConfigFile));
 
+            if (!string.IsNullOrEmpty(GetEnvironmentVariable("DEBUG")))
+            {
+                Config.Debug = true;
+            }
+
             DnsClient = new LookupClient(new LookupClientOptions()
             {
                 UseCache            = Config.Dns.UseCache,

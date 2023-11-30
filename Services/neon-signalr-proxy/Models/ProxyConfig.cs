@@ -81,6 +81,14 @@ namespace NeonSignalRProxy
         public DnsConfig Dns { get; set; } = new DnsConfig();
 
         /// <summary>
+        /// Optionaly enable debug mode.
+        /// </summary>
+        [JsonProperty(PropertyName = "Debug", Required = Required.Default, DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
+        [YamlMember(Alias = "debug", ApplyNamingConventions = false)]
+        [DefaultValue(false)]
+        public bool Debug { get; set; } = false;
+
+        /// <summary>
         /// <para>
         /// Helper to read a <see cref="ProxyConfig"/> from a file. It also validates the config.
         /// </para>
