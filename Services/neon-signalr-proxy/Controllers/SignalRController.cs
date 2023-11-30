@@ -131,23 +131,25 @@ namespace NeonSignalRProxy.Controllers
 
                 if (!upstreamIsvalid)
                 {
-                    using (WebsocketMetrics.CurrentConnections.TrackInProgress());
-
-                    var host = await GetHostAsync();
-                    error    = await forwarder.SendAsync(HttpContext, $"{backend.Scheme}://{host}:{backend.Port}", httpClient, forwarderRequestConfig, transformer);
-
-                    if (error != ForwarderError.None)
+                    using (WebsocketMetrics.CurrentConnections.TrackInProgress())
                     {
-                        var errorFeature = HttpContext.GetForwarderErrorFeature();
-                        var exception = errorFeature.Exception;
+                        var host = await GetHostAsync();
 
-                        Logger.LogErrorEx(exception, "CatchAll");
+                        error = await forwarder.SendAsync(HttpContext, $"{backend.Scheme}://{host}:{backend.Port}", httpClient, forwarderRequestConfig, transformer);
+
+                        if (error != ForwarderError.None)
+                        {
+                            var errorFeature = HttpContext.GetForwarderErrorFeature();
+                            var exception = errorFeature.Exception;
+
+                            Logger.LogErrorEx(exception, "CatchAll");
+                        }
+
+                        return;
+                    }
                     }
 
-                    return;
-                }
-
-                Logger.LogDebugEx(() => NeonHelper.JsonSerialize(session));
+                    Logger.LogDebugEx(() => NeonHelper.JsonSerialize(session));
 
                 session.ConnectionId = HttpContext.Connection.Id;
 
@@ -156,24 +158,26 @@ namespace NeonSignalRProxy.Controllers
                     await cache.SetAsync(session.Id, session);
                 }
 
-                using (WebsocketMetrics.CurrentConnections.TrackInProgress());
-                WebsocketMetrics.ConnectionsEstablished.Inc();
-                signalrProxyService.CurrentConnections.Add(session.ConnectionId);
-
-                Logger.LogDebugEx(() => $"Forwarding connection: [{NeonHelper.JsonSerializeToBytes(session)}]");
-                
-                error = await forwarder.SendAsync(HttpContext, $"{backend.Scheme}://{session.UpstreamHost}", httpClient, forwarderRequestConfig, transformer);
-
-                Logger.LogDebugEx(() => $"Session closed: [{NeonHelper.JsonSerializeToBytes(session)}]");
-
-                if (error != ForwarderError.None)
+                using (WebsocketMetrics.CurrentConnections.TrackInProgress())
                 {
-                    var errorFeature = HttpContext.GetForwarderErrorFeature();
-                    var exception    = errorFeature.Exception;
+                    WebsocketMetrics.ConnectionsEstablished.Inc();
+                    signalrProxyService.CurrentConnections.Add(session.ConnectionId);
 
-                    if (exception.GetType() != typeof(TaskCanceledException) && exception.GetType() != typeof(OperationCanceledException))
+                    Logger.LogDebugEx(() => $"Forwarding connection: [{NeonHelper.JsonSerializeToBytes(session)}]");
+
+                    error = await forwarder.SendAsync(HttpContext, $"{backend.Scheme}://{session.UpstreamHost}", httpClient, forwarderRequestConfig, transformer);
+
+                    Logger.LogDebugEx(() => $"Session closed: [{NeonHelper.JsonSerializeToBytes(session)}]");
+
+                    if (error != ForwarderError.None)
                     {
-                        Logger.LogErrorEx(exception);
+                        var errorFeature = HttpContext.GetForwarderErrorFeature();
+                        var exception    = errorFeature.Exception;
+
+                        if (exception.GetType() != typeof(TaskCanceledException) && exception.GetType() != typeof(OperationCanceledException))
+                        {
+                            Logger.LogErrorEx(exception);
+                        }
                     }
                 }
             }
