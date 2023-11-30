@@ -106,77 +106,85 @@ namespace NeonSignalRProxy.Controllers
         {
             await SyncContext.Clear;
 
-            using (var activity = TelemetryHub.ActivitySource.StartActivity())
+            using var activity = TelemetryHub.ActivitySource.StartActivity();
+
+            var isWebsocket = false;
+            if (HttpContext.Request.Headers.SecWebSocketAccept.Count > 0
+                || HttpContext.Request.Headers.SecWebSocketExtensions.Count > 0
+                || HttpContext.Request.Headers.SecWebSocketKey.Count > 0
+                || HttpContext.Request.Headers.SecWebSocketProtocol.Count > 0
+                || HttpContext.Request.Headers.SecWebSocketVersion.Count > 0)
             {
-                backend = config.Backends.Where(b => b.Hosts.Contains(HttpContext.Request.Host.Host)).Single();
+                isWebsocket = true;
+                WebsocketMetrics.ConnectionsEstablished.Inc();
+            }
+            using var gauge    = isWebsocket ? WebsocketMetrics.CurrentConnections.TrackInProgress() : new Disposable();
 
-                ForwarderError error;
-                bool           upstreamIsvalid = false;
+            backend = config.Backends.Where(b => b.Hosts.Contains(HttpContext.Request.Host.Host)).Single();
 
-                var session = sessionHelper.GetSession(HttpContext);
+            ForwarderError error;
+            bool           upstreamIsvalid = false;
 
-                if (session != null)
-                {
-                    if (config.SessionStore == SessionStoreType.Cache)
-                    {
-                        session = await cache.GetAsync<Session>(session.Id);
-                    }
+            var session = sessionHelper.GetSession(HttpContext);
 
-                    upstreamIsvalid = await IsValidTargetAsync(session.UpstreamHost);
-                }
-                else
-                {
-                    session = new Session();
-                }
-
-                if (!upstreamIsvalid)
-                {
-                    using (WebsocketMetrics.CurrentConnections.TrackInProgress());
-
-                    var host = await GetHostAsync();
-                    error    = await forwarder.SendAsync(HttpContext, $"{backend.Scheme}://{host}:{backend.Port}", httpClient, forwarderRequestConfig, transformer);
-
-                    if (error != ForwarderError.None)
-                    {
-                        var errorFeature = HttpContext.GetForwarderErrorFeature();
-                        var exception = errorFeature.Exception;
-
-                        Logger.LogErrorEx(exception, "CatchAll");
-                    }
-
-                    return;
-                }
-
-                Logger.LogDebugEx(() => NeonHelper.JsonSerialize(session));
-
-                session.ConnectionId = HttpContext.Connection.Id;
-
+            if (session != null)
+            {
                 if (config.SessionStore == SessionStoreType.Cache)
                 {
-                    await cache.SetAsync(session.Id, session);
+                    session = await cache.GetAsync<Session>(session.Id);
                 }
 
-                using (WebsocketMetrics.CurrentConnections.TrackInProgress());
-                WebsocketMetrics.ConnectionsEstablished.Inc();
-                signalrProxyService.CurrentConnections.Add(session.ConnectionId);
+                upstreamIsvalid = await IsValidTargetAsync(session.UpstreamHost);
+            }
+            else
+            {
+                session = new Session();
+            }
 
-                Logger.LogDebugEx(() => $"Forwarding connection: [{NeonHelper.JsonSerializeToBytes(session)}]");
-                
-                error = await forwarder.SendAsync(HttpContext, $"{backend.Scheme}://{session.UpstreamHost}", httpClient, forwarderRequestConfig, transformer);
+            if (!upstreamIsvalid)
+            {
+                var host = await GetHostAsync();
 
-                Logger.LogDebugEx(() => $"Session closed: [{NeonHelper.JsonSerializeToBytes(session)}]");
-
-                signalrProxyService.CurrentConnections.RemoveWhere(x => x == session.ConnectionId);
+                error    = await forwarder.SendAsync(HttpContext, $"{backend.Scheme}://{host}:{backend.Port}", httpClient, forwarderRequestConfig, transformer);
 
                 if (error != ForwarderError.None)
                 {
                     var errorFeature = HttpContext.GetForwarderErrorFeature();
                     var exception    = errorFeature.Exception;
 
-                    if (exception.GetType() != typeof(TaskCanceledException) && exception.GetType() != typeof(OperationCanceledException))
-                    {
-                        Logger.LogErrorEx(exception);
-                    }
+                    Logger.LogErrorEx(exception, "CatchAll");
+                }
+
+                return;
+            }
+
+            Logger.LogDebugEx(() => NeonHelper.JsonSerialize(session));
+
+            session.ConnectionId = HttpContext.Connection.Id;
+
+            if (config.SessionStore == SessionStoreType.Cache)
+            {
+                await cache.SetAsync(session.Id, session);
+            }
+
+            signalrProxyService.CurrentConnections.Add(session.ConnectionId);
+
+            Logger.LogDebugEx(() => $"Forwarding connection: [{NeonHelper.JsonSerializeToBytes(session)}]");
+                
+            error = await forwarder.SendAsync(HttpContext, $"{backend.Scheme}://{session.UpstreamHost}", httpClient, forwarderRequestConfig, transformer);
+
+            Logger.LogDebugEx(() => $"Session closed: [{NeonHelper.JsonSerializeToBytes(session)}]");
+
+            signalrProxyService.CurrentConnections.RemoveWhere(x => x == session.ConnectionId);
+
+            if (error != ForwarderError.None)
+            {
+                var errorFeature = HttpContext.GetForwarderErrorFeature();
+                var exception    = errorFeature.Exception;
+
+                if (exception.GetType() != typeof(TaskCanceledException) && exception.GetType() != typeof(OperationCanceledException))
+                {
+                    Logger.LogErrorEx(exception);
                 }
             }
         }
@@ -232,5 +240,10 @@ namespace NeonSignalRProxy.Controllers
 
             return isValid;
         }
+    }
+
+    internal class Disposable : IDisposable
+    {
+        public void Dispose() { }
     }
 }

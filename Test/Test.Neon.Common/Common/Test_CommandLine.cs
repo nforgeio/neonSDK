@@ -57,7 +57,7 @@ namespace TestCommon
         {
             var commandLine = new CommandLine(new string[] { "one", "two", "three" });
 
-            Assert.Equal<string>(commandLine.Arguments, new string[] { "one", "two", "three" });
+            Assert.Equal(commandLine.Arguments, new string[] { "one", "two", "three" });
             Assert.True(!commandLine.HasHelpOption);
         }
 
@@ -100,7 +100,7 @@ namespace TestCommon
         {
             var commandLine = new CommandLine(new string[] { "one", "-a=1", "two", "-b=2" });
 
-            Assert.Equal<string>(new string[] { "one", "two" }, commandLine.Arguments);
+            Assert.Equal(new string[] { "one", "two" }, commandLine.Arguments);
             Assert.Equal("1", commandLine.GetOption("-a"));
             Assert.Equal("2", commandLine.GetOption("-b"));
             Assert.Equal("3", commandLine.GetOption("-c", "3"));

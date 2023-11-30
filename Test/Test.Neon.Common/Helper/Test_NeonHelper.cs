@@ -90,43 +90,43 @@ namespace TestCommon
             string[] fields;
 
             fields = NeonHelper.ParseCsv("");
-            Assert.Equal<string>(new string[] { "" }, fields);
+            Assert.Equal(new string[] { "" }, fields);
 
             fields = NeonHelper.ParseCsv("1");
-            Assert.Equal<string>(new string[] { "1" }, fields);
+            Assert.Equal(new string[] { "1" }, fields);
 
             fields = NeonHelper.ParseCsv("1,2,3,4");
-            Assert.Equal<string>(new string[] { "1", "2", "3", "4" }, fields);
+            Assert.Equal(new string[] { "1", "2", "3", "4" }, fields);
 
             fields = NeonHelper.ParseCsv("abc,def");
-            Assert.Equal<string>(new string[] { "abc", "def" }, fields);
+            Assert.Equal(new string[] { "abc", "def" }, fields);
 
             fields = NeonHelper.ParseCsv("abc,def,");
-            Assert.Equal<string>(new string[] { "abc", "def", "" }, fields);
+            Assert.Equal(new string[] { "abc", "def", "" }, fields);
 
             fields = NeonHelper.ParseCsv("\"\"");
-            Assert.Equal<string>(new string[] { "" }, fields);
+            Assert.Equal(new string[] { "" }, fields);
 
             fields = NeonHelper.ParseCsv("\"abc\"");
-            Assert.Equal<string>(new string[] { "abc" }, fields);
+            Assert.Equal(new string[] { "abc" }, fields);
 
             fields = NeonHelper.ParseCsv("\"abc,def\"");
-            Assert.Equal<string>(new string[] { "abc,def" }, fields);
+            Assert.Equal(new string[] { "abc,def" }, fields);
 
             fields = NeonHelper.ParseCsv("\"a,b\",\"c,d\"");
-            Assert.Equal<string>(new string[] { "a,b", "c,d" }, fields);
+            Assert.Equal(new string[] { "a,b", "c,d" }, fields);
 
             fields = NeonHelper.ParseCsv("\"a,b\",\"c,d\",e");
-            Assert.Equal<string>(new string[] { "a,b", "c,d", "e" }, fields);
+            Assert.Equal(new string[] { "a,b", "c,d", "e" }, fields);
 
             fields = NeonHelper.ParseCsv("\"abc\r\ndef\"");
-            Assert.Equal<string>(new string[] { "abc\r\ndef" }, fields);
+            Assert.Equal(new string[] { "abc\r\ndef" }, fields);
 
             fields = NeonHelper.ParseCsv("0,1,,,4");
-            Assert.Equal<string>(new string[] { "0", "1", "", "", "4" }, fields);
+            Assert.Equal(new string[] { "0", "1", "", "", "4" }, fields);
 
             fields = NeonHelper.ParseCsv(",,,,");
-            Assert.Equal<string>(new string[] { "", "", "", "", "" }, fields);
+            Assert.Equal(new string[] { "", "", "", "", "" }, fields);
 
             Assert.Throws<FormatException>(() => NeonHelper.ParseCsv("\"abc"));
         }
