@@ -476,6 +476,8 @@ namespace TestCommon
             Assert.Equal(TimeSpan.FromSeconds(4), policy.MaxRetryInterval);
             Assert.Equal(TimeSpan.FromSeconds(1.5), policy.Timeout);
 
+            times.Clear();
+
             await Assert.ThrowsAsync<TransientException>(
                 async () =>
                 {
