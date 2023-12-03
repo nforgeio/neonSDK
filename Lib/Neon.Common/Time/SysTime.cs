@@ -157,9 +157,13 @@ namespace Neon.Time
         /// <exception cref="InvalidOperationException">Thrown if there's a problem with the system timer.</exception>
         public static TimeSpan Infinite => DateTime.MaxValue - SysTime.Now - TimeSpan.FromDays(365);
 
-#if TODO // $todo(jefflill): Look into bringing this back if we go back to a counter based implementation
         /// <summary>
+        /// <para>
         /// Tracks an external time source.
+        /// </para>
+        /// <note>
+        /// This currently throws a <see cref="NotImplementedException"/>.
+        /// </note>
         /// </summary>
         /// <remarks>
         /// <para>
@@ -183,12 +187,11 @@ namespace Neon.Time
         /// bias between the local and external clocks are adjusted.
         /// </note>
         /// </remarks>
-        public static DateTime ExternalNow
+        public static DateTime ExternalNow  // $todo(jefflill): Implement this if/when we revert back to using time-since-boot counters.
         {
             get { throw new NotImplementedException(); }
             set { throw new NotImplementedException(); }
         }
-#endif
 
         /// <summary>
         /// Used by Unit tests to reset the timer class to its initial value.
