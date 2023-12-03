@@ -125,19 +125,13 @@ namespace Neon.Time
         /// <summary>
         /// Returns the current time relative to time the system started.
         /// </summary>
-        private static DateTime GetTime()
-        {
-            return DateTime.UtcNow;
-        }
+        private static DateTime GetTime() => DateTime.UtcNow;
 
         /// <summary>
         /// Returns the current time relative to time the system started.
         /// </summary>
         /// <exception cref="InvalidOperationException">Thrown if there's a problem with the system timer.</exception>
-        public static DateTime Now
-        {
-            get => DateTime.UtcNow;
-        }
+        public static DateTime Now => DateTime.UtcNow;
 
         /// <summary>
         /// Returns the resolution of the underlying system timer.
@@ -163,6 +157,7 @@ namespace Neon.Time
         /// <exception cref="InvalidOperationException">Thrown if there's a problem with the system timer.</exception>
         public static TimeSpan Infinite => DateTime.MaxValue - SysTime.Now - TimeSpan.FromDays(365);
 
+#if TODO // $todo(jefflill): Look into bringing this back if we go back to a counter based implementation
         /// <summary>
         /// Tracks an external time source.
         /// </summary>
@@ -193,6 +188,7 @@ namespace Neon.Time
             get { throw new NotImplementedException(); }
             set { throw new NotImplementedException(); }
         }
+#endif
 
         /// <summary>
         /// Used by Unit tests to reset the timer class to its initial value.
