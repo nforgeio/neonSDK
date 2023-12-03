@@ -23,7 +23,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Npgsql" Version="7.0.6" />
+        <PackageReference Include="Npgsql" Version="8.0.0" />
         <PackageReference Include="xunit.extensibility.core" Version="2.5.0" />
         <PackageReference Include="YugaByteCassandraCSharpDriver" Version="3.16.3" />
     </ItemGroup>
