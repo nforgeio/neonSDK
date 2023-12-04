@@ -15,12 +15,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
 using System.Net.Http;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web;
 
 using Microsoft.AspNetCore.Http;
 
@@ -32,10 +29,7 @@ using Neon.Cryptography;
 using Neon.Diagnostics;
 using Neon.Tasks;
 
-using DnsClient;
-
 using Yarp.ReverseProxy.Forwarder;
-using Yarp.ReverseProxy.Transforms;
 
 namespace NeonSignalRProxy
 {
@@ -118,23 +112,28 @@ namespace NeonSignalRProxy
             {
                 await base.TransformResponseAsync(httpContext, proxyResponse, cancellationToken);
 
+                var mediaType = proxyResponse?.Content?.Headers?.ContentType?.MediaType ?? "";
+
                 var session = new Session()
                 {
                     Id           = NeonHelper.CreateBase36Uuid(),
-                    UpstreamHost = proxyResponse.RequestMessage.RequestUri.Authority
+                    UpstreamHost = httpContext.Request.Headers[SessionHelper.UpstreamHostHeaderName]
                 };
 
-                var headers = proxyResponse.Content.Headers;
-                var mediaType = headers.ContentType?.MediaType ?? "";
+                if (proxyConfig.Debug == true)
+                {
+                    httpContext.Response.Headers.Append(SessionHelper.UpstreamHostHeaderName, session.UpstreamHost);
+                }
 
                 if (proxyConfig.SessionStore == SessionStoreType.Cache)
                 {
                     await cache.SetAsync(session.Id, session);
                 }
 
-                if (!httpContext.Request.Cookies.ContainsKey(sessionHelper.GetCookieName(httpContext)) || (mediaType == "text/html" && httpContext.Response.StatusCode == 200))
+                if (httpContext.Request.Cookies == null
+                    || !httpContext.Request.Cookies.ContainsKey(sessionHelper.GetCookieName(httpContext)) || (mediaType == "text/html" && httpContext.Response.StatusCode == 200))
                 {
-                    if (proxyConfig.SessionStore != SessionStoreType.Cookie)
+                    if (proxyConfig.SessionStore == SessionStoreType.Cache)
                     {
                         session.ConnectionId = null;
                         session.UpstreamHost = null;

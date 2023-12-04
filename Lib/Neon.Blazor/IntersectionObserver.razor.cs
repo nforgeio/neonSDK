@@ -1,14 +1,11 @@
+using System;
+using System.Threading.Tasks;
+
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 using Neon.Diagnostics;
 
 namespace Neon.Blazor
@@ -40,9 +37,6 @@ namespace Neon.Blazor
         public IJSRuntime JS { get; set; }
 
         [Inject]
-        public IHttpContextAccessor HttpContextAccessor { get; set; }
-
-        [Inject]
         public IServiceProvider ServiceProvider { get; set; }
 
         public event Action IntersectionChanged;
@@ -57,7 +51,6 @@ namespace Neon.Blazor
         private IJSObjectReference intersectionObserver;
 
         private ILogger<IntersectionObserver> logger;
-
         protected HtmlElement rootElement { get; set; }
         private IntersectionObserverContext IntersectionObserverContext { get; set; } = new IntersectionObserverContext();
         private ElementReference elementReference;
@@ -71,11 +64,6 @@ namespace Neon.Blazor
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            if (HttpContextAccessor.HttpContext != null && !HttpContextAccessor.HttpContext.WebSockets.IsWebSocketRequest)
-            {
-                return;
-            }
-
             if (jsModule == null)
             {
                 jsModule = await JS.InvokeAsync<IJSObjectReference>("import", "./_content/Neon.Blazor/interop.js");

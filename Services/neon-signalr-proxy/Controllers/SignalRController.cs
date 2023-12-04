@@ -106,79 +106,91 @@ namespace NeonSignalRProxy.Controllers
         {
             await SyncContext.Clear;
 
-            using (var activity = TelemetryHub.ActivitySource.StartActivity())
+            using var activity = TelemetryHub.ActivitySource.StartActivity();
+
+            var isWebsocket = false;
+            if (HttpContext.Request.Headers.SecWebSocketAccept.Count > 0
+                || HttpContext.Request.Headers.SecWebSocketExtensions.Count > 0
+                || HttpContext.Request.Headers.SecWebSocketKey.Count > 0
+                || HttpContext.Request.Headers.SecWebSocketProtocol.Count > 0
+                || HttpContext.Request.Headers.SecWebSocketVersion.Count > 0)
             {
-                backend = config.Backends.Where(b => b.Hosts.Contains(HttpContext.Request.Host.Host)).Single();
+                isWebsocket = true;
+                WebsocketMetrics.ConnectionsEstablished.Inc();
+            }
 
-                ForwarderError error;
-                bool           upstreamIsvalid = false;
+            backend = config.Backends.Where(b => b.Hosts.Contains(HttpContext.Request.Host.Host)).Single();
 
-                var session = sessionHelper.GetSession(HttpContext);
+            ForwarderError error;
+            bool           upstreamIsvalid = false;
 
-                if (session != null)
-                {
-                    if (config.SessionStore == SessionStoreType.Cache)
-                    {
-                        session = await cache.GetAsync<Session>(session.Id);
-                    }
+            var session = sessionHelper.GetSession(HttpContext);
 
-                    upstreamIsvalid = await IsValidTargetAsync(session.UpstreamHost);
-                }
-                else
-                {
-                    session = new Session();
-                }
-
-                if (!upstreamIsvalid)
-                {
-                    using (WebsocketMetrics.CurrentConnections.TrackInProgress())
-                    {
-                        var host = await GetHostAsync();
-
-                        error = await forwarder.SendAsync(HttpContext, $"{backend.Scheme}://{host}:{backend.Port}", httpClient, forwarderRequestConfig, transformer);
-
-                        if (error != ForwarderError.None)
-                        {
-                            var errorFeature = HttpContext.GetForwarderErrorFeature();
-                            var exception = errorFeature.Exception;
-
-                            Logger.LogErrorEx(exception, "CatchAll");
-                        }
-
-                        return;
-                    }
-                    }
-
-                    Logger.LogDebugEx(() => NeonHelper.JsonSerialize(session));
-
-                session.ConnectionId = HttpContext.Connection.Id;
-
+            if (session != null)
+            {
                 if (config.SessionStore == SessionStoreType.Cache)
                 {
-                    await cache.SetAsync(session.Id, session);
+                    session = await cache.GetAsync<Session>(session.Id);
                 }
 
-                using (WebsocketMetrics.CurrentConnections.TrackInProgress())
+                upstreamIsvalid = await IsValidTargetAsync(session.UpstreamHost);
+            }
+            else
+            {
+                session = new Session();
+            }
+
+            if (!upstreamIsvalid)
+            {
+                var host = await GetHostAsync();
+
+                using var validGauge = isWebsocket ? WebsocketMetrics.CurrentConnections.WithLabels(HttpContext.Request.Host.Value, host).TrackInProgress() : new Disposable();
+
+                HttpContext.Request.Headers.Append(SessionHelper.UpstreamHostHeaderName, host);
+
+                error    = await forwarder.SendAsync(HttpContext, $"{backend.Scheme}://{host}:{backend.Port}", httpClient, forwarderRequestConfig, transformer);
+
+                if (error != ForwarderError.None)
                 {
-                    WebsocketMetrics.ConnectionsEstablished.Inc();
-                    signalrProxyService.CurrentConnections.Add(session.ConnectionId);
+                    var errorFeature = HttpContext.GetForwarderErrorFeature();
+                    var exception    = errorFeature.Exception;
 
-                    Logger.LogDebugEx(() => $"Forwarding connection: [{NeonHelper.JsonSerializeToBytes(session)}]");
+                    Logger.LogErrorEx(exception, "CatchAll");
+                }
+                return;
+            }
 
-                    error = await forwarder.SendAsync(HttpContext, $"{backend.Scheme}://{session.UpstreamHost}", httpClient, forwarderRequestConfig, transformer);
+            using var gauge = isWebsocket ? WebsocketMetrics.CurrentConnections.WithLabels(HttpContext.Request.Host.Value, session.UpstreamHost).TrackInProgress() : new Disposable();
 
-                    Logger.LogDebugEx(() => $"Session closed: [{NeonHelper.JsonSerializeToBytes(session)}]");
+            HttpContext.Request.Headers.Append(SessionHelper.UpstreamHostHeaderName, session.UpstreamHost);
 
-                    if (error != ForwarderError.None)
-                    {
-                        var errorFeature = HttpContext.GetForwarderErrorFeature();
-                        var exception    = errorFeature.Exception;
+            Logger.LogDebugEx(() => NeonHelper.JsonSerialize(session));
 
-                        if (exception.GetType() != typeof(TaskCanceledException) && exception.GetType() != typeof(OperationCanceledException))
-                        {
-                            Logger.LogErrorEx(exception);
-                        }
-                    }
+            session.ConnectionId = HttpContext.Connection.Id;
+
+            if (config.SessionStore == SessionStoreType.Cache)
+            {
+                await cache.SetAsync(session.Id, session);
+            }
+
+            signalrProxyService.CurrentConnections.Add(session.ConnectionId);
+
+            Logger.LogDebugEx(() => $"Forwarding connection: [{NeonHelper.JsonSerializeToBytes(session)}]");
+
+            error = await forwarder.SendAsync(HttpContext, $"{backend.Scheme}://{session.UpstreamHost}:{backend.Port}", httpClient, forwarderRequestConfig, transformer);
+
+            Logger.LogDebugEx(() => $"Session closed: [{NeonHelper.JsonSerializeToBytes(session)}]");
+
+            signalrProxyService.CurrentConnections.RemoveWhere(x => x == session.ConnectionId);
+
+            if (error != ForwarderError.None)
+            {
+                var errorFeature = HttpContext.GetForwarderErrorFeature();
+                var exception    = errorFeature.Exception;
+
+                if (exception.GetType() != typeof(TaskCanceledException) && exception.GetType() != typeof(OperationCanceledException))
+                {
+                    Logger.LogErrorEx(exception);
                 }
             }
         }
@@ -221,6 +233,18 @@ namespace NeonSignalRProxy.Controllers
 
         private async Task<bool> IsValidTargetAsync(string target)
         {
+            await SyncContext.Clear;
+
+            if (string.IsNullOrEmpty(target))
+            {
+                return false;
+            }
+
+            if (NeonHelper.IsDevWorkstation)
+            {
+                return true;
+            }
+
             var dns = await dnsClient.QueryAsync(backend.Destination, QueryType.SRV);
 
             if (dns.HasError || dns.Answers.IsEmpty())
@@ -234,5 +258,10 @@ namespace NeonSignalRProxy.Controllers
 
             return isValid;
         }
+    }
+
+    internal class Disposable : IDisposable
+    {
+        public void Dispose() { }
     }
 }
