@@ -137,7 +137,9 @@ namespace TestCommon
             // that it caught the [ObjectDisposedException].
 
             mutex.Dispose();
+#pragma warning disable xUnit1031 // Do not use blocking task operations in test method
             task.Wait(defaultTimeout);
+#pragma warning restore xUnit1031 // Do not use blocking task operations in test method
 
             Assert.False(acquired);
             Assert.True(disposed);
