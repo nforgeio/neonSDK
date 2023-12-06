@@ -48,8 +48,8 @@ namespace Test.Neon.Postgres
         {
             TestHelper.ResetDocker(this.GetType());
 
-            // We're not going to initialize the Postgres once and then have
-            // all of the tests workagainst that, rather than recreating the
+            // We're going to initialize the Postgres once and then have
+            // all of the tests work against that, rather than recreating the
             // database every time (which would be slow).
 
             var status = fixture.Start();
