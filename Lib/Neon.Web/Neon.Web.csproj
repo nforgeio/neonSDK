@@ -57,7 +57,6 @@
         <ProjectReference Include="..\..\Lib\Neon.BuildInfo\Neon.BuildInfo.csproj" />
         <ProjectReference Include="..\Neon.Common\Neon.Common.csproj" />
         <ProjectReference Include="..\Neon.Nats\Neon.Nats.csproj" />
-        <ProjectReference Include="..\Neon.WinTTY\Neon.WinTTY.csproj" />
     </ItemGroup>
 
     <ItemGroup>
