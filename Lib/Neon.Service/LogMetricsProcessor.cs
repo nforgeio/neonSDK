@@ -108,7 +108,7 @@ namespace Neon.Service
         /// <param name="logRecord">The log record.</param>
         public override void OnEnd(LogRecord logRecord)
         {
-            logCounter.WithLabels(levelToSeverityName[(int)logRecord.LogLevel]).Inc();
+            logCounter.WithLabels(levelToSeverityName[(int)logRecord.Severity]).Inc();
         }
     }
 }

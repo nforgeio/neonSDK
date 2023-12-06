@@ -36,9 +36,7 @@
         <ProjectReference Include="..\..\Lib\Neon.BuildInfo\Neon.BuildInfo.csproj" />
         <ProjectReference Include="..\..\Lib\Neon.Common\Neon.Common.csproj" />
         <ProjectReference Include="..\..\Lib\Neon.Deployment\Neon.Deployment.csproj" />
-        <ProjectReference Include="..\..\Lib\Neon.Postgres\Neon.Postgres.csproj" />
         <ProjectReference Include="..\..\Lib\Neon.XenServer\Neon.XenServer.csproj" />
-        <ProjectReference Include="..\..\Lib\Neon.Xunit.YugaByte\Neon.Xunit.YugaByte.csproj" />
         <ProjectReference Include="..\..\Lib\Neon.Xunit\Neon.Xunit.csproj" />
     </ItemGroup>
 

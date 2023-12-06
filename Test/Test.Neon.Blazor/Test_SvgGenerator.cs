@@ -79,12 +79,17 @@ using System.Linq;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
 
+#pragma warning disable CS1591 // Disable warnings for missing comments.
+
 namespace Neon.Blazor.Svg
 {
     public partial class Foo : ComponentBase
     {
+        /// <summary>
+        /// Catch all for additional attributes.
+        /// </summary>
         [Parameter(CaptureUnmatchedValues = true)]
-        public IReadOnlyDictionary<string, object> AdditionalAttributes { get; set; }
+        public IReadOnlyDictionary<string, object> AdditionalAttributes { get; set; } = new Dictionary<string, object>();
 
         private Dictionary<string, object> Attributes { get; set; }
 
@@ -96,23 +101,21 @@ namespace Neon.Blazor.Svg
         {
             Attributes = GetDefaultAttributes();
 
-            if (AdditionalAttributes == null)
-            {
-                StateHasChanged();
+            var classes = new List<string>();
 
-                return;
+            if (!string.IsNullOrEmpty(baseClass))
+            {
+                classes = baseClass.Split(null).ToList();
             }
 
-            AdditionalAttributes.TryGetValue(""class"", out var _class);
-
-            var classes = baseClass.Split(' ').ToList();
-            classes.AddRange(((string)_class).Split(' '));
-
-            var svgClass = string.Join("" "", classes.ToHashSet());
-
-            if (!string.IsNullOrEmpty(svgClass))
+            if (AdditionalAttributes.TryGetValue(""class"", out var additionalClasses))
             {
-                Attributes[""class""] = svgClass;
+                classes.AddRange(((string)additionalClasses).Split(null));
+            }
+
+            if (classes.Count > 0)
+            {
+                Attributes[""class""] = string.Join("" "", classes.ToHashSet());
             }
 
             if (AdditionalAttributes.TryGetValue(""fill"", out var _fill))
@@ -159,7 +162,8 @@ namespace Neon.Blazor.Svg
             return attributes;
         }
     }
-}");
+}
+#pragma warning restore CS1591 // Restore warnings for missing comments.");
         }
 
         private static Compilation CreateCompilation(string source, OutputKind outputKind = OutputKind.ConsoleApplication)
