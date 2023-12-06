@@ -29,7 +29,7 @@ namespace Neon.WinTTY
     /// TTY implementation for .NET Console applications.  See <see cref="ConsoleTTY"/> for  morem infoormation.
     /// </para>
     /// <note>
-    /// This requires Windows 10 1809 (build 10.0.17763) and Windows Server 2019.
+    /// This requires Windows 10 1809 (build 10.0.18362) and Windows Server 2019.
     /// </note>
     /// <note>
     /// This code was adapted from: <a href="https://github.com/microsoft/terminal/tree/main/samples/ConPTY/MiniTerm/MiniTerm">MiniTerm</a>
