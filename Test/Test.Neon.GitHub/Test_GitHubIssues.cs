@@ -147,6 +147,7 @@ namespace TestGitHub
                         var found = await repo.Remote.Issue.SearchAsync(searchRequest);
 
                         Assert.Contains(found.Items, issue => issue.Id == newIssue1.Id && newIssue1.Title == title1);
+                        Assert.Contains(found.Items, issue => issue.Id == newIssue2.Id && newIssue2.Title == title2);
 
                         //-----------------------------------------------------
                         // Verify that SearchAllAsync() works.
