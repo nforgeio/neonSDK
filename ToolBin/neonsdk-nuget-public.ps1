@@ -45,7 +45,7 @@ param
 # build configuration conflicts because this script builds the
 # RELEASE configuration and we normally have VS in DEBUG mode.
 
-#Ensure-VisualStudioNotRunning
+Ensure-VisualStudioNotRunning
 
 # Verify that the user has the required environment variables.  These will
 # be available only for maintainers and are intialized by the NEONCLOUD
