@@ -1607,11 +1607,8 @@ namespace Neon.Service
 
                     case MetricsMode.Scrape:
                     case MetricsMode.ScrapeIgnoreErrors:
-#if NET6_0_OR_GREATER
+
                         metricServer = new KestrelMetricServer(MetricsOptions.Port, MetricsOptions.Path);
-#else
-                        metricServer = new MetricServer(MetricsOptions.Port, MetricsOptions.Path);
-#endif
                         metricServer.Start();
                         break;
 
