@@ -31,6 +31,10 @@
         <SupportedPlatform Include="browser" />
     </ItemGroup>
 
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="8.0.0" />
+    </ItemGroup>
+
     <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
         <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="7.0.14" />
     </ItemGroup>
