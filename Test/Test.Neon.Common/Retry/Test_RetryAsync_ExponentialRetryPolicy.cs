@@ -28,14 +28,28 @@ using Neon.Retry;
 using Neon.Xunit;
 
 using Xunit;
+using Xunit.Abstractions;
 
 namespace TestCommon
 {
     [Trait(TestTrait.Category, TestArea.NeonCommon)]
     public class Test_RetryAsync_ExponentialRetryPolicy
     {
+        //---------------------------------------------------------------------
+        // Local types
+
         private class TransientException : Exception
         {
+        }
+
+        //---------------------------------------------------------------------
+        // Implementation
+
+        private ITestOutputHelper testOutputHelper;
+
+        public Test_RetryAsync_ExponentialRetryPolicy(ITestOutputHelper testOutputHelper)
+        {
+            this.testOutputHelper = testOutputHelper;
         }
 
         private bool TransientDetector(Exception e)
@@ -468,8 +482,10 @@ namespace TestCommon
         [Fact]
         public async Task Timeout()
         {
-            var policy = new ExponentialRetryPolicy(TransientDetector, initialRetryInterval: TimeSpan.FromSeconds(0.5), maxRetryInterval: TimeSpan.FromSeconds(4), timeout: TimeSpan.FromSeconds(1.5));
-            var times  = new List<DateTime>();
+            var timeout = TimeSpan.FromSeconds(1.5);
+            var policy  = new ExponentialRetryPolicy(TransientDetector, initialRetryInterval: TimeSpan.FromSeconds(0.5), maxRetryInterval: TimeSpan.FromSeconds(4), timeout: timeout);
+            var times   = new List<DateTime>();
+            var utcNow  = DateTime.UtcNow;
 
             Assert.Equal(int.MaxValue, policy.MaxAttempts);
             Assert.Equal(TimeSpan.FromSeconds(0.5), policy.InitialRetryInterval);
@@ -477,6 +493,8 @@ namespace TestCommon
             Assert.Equal(TimeSpan.FromSeconds(1.5), policy.Timeout);
 
             times.Clear();
+
+            utcNow = DateTime.UtcNow;
 
             await Assert.ThrowsAsync<TransientException>(
                 async () =>
@@ -491,6 +509,16 @@ namespace TestCommon
                         });
                 });
 
+            testOutputHelper.WriteLine($"start-time-utc: {utcNow}");
+            testOutputHelper.WriteLine($"time-limit-utc: {utcNow}");
+            testOutputHelper.WriteLine($"retry-times-utc: {utcNow + timeout}");
+            testOutputHelper.WriteLine($"----------------");
+
+            foreach (var time in times)
+            {
+                testOutputHelper.WriteLine($"{time}");
+            }
+
             Assert.Equal(3, times.Count);
 
             // We'll wait a bit longer to enure that any (incorrect) deadline computed
@@ -499,6 +527,8 @@ namespace TestCommon
             await Task.Delay(TimeSpan.FromSeconds(4));
 
             times.Clear();
+
+            utcNow = DateTime.UtcNow;
 
             Assert.Equal(TimeSpan.FromSeconds(0.5), policy.InitialRetryInterval);
             Assert.Equal(TimeSpan.FromSeconds(4), policy.MaxRetryInterval);
