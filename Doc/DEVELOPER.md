@@ -114,10 +114,8 @@ Follow the steps below to configure a development or test workstation:
 13. Install some SDKs:
 
    * Install **.NET Framework 4.8 Developer Pack** from [here](https://dotnet.microsoft.com/download/thank-you/net48-developer-pack)
-   * Install **.NET 5.0 SDK 5.0.408** from [here](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-5.0.403-windows-x64-installer) (.NET SDK x64 installer)
-   * Install **.NET 6.0 SDK 6.0.301** from [here](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-6.0.301-windows-x64-installer) (.NET SDK x64 installer)
-   * Install **.NET 6.0 SDK 6.0.402 x64** from [here](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-6.0.402-windows-x64-installer) (.NET SDK x64 installer)
-   * Install **.NET 7.0.200 SDK 7.0.2 x64** from [here](https://dotnet.microsoft.com/en-us/download/dotnet/7.0) (.NET SDK x64 installer)
+   * Install **.NET 6.0 SDK 6.0.417 x64** from [here](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-6.0.417-windows-x64-installer) (.NET SDK x64 installer)
+   * Install **.NET 7.0 SDK 7.0.404** from [here](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-7.0.404-windows-x64-installer) (.NET SDK x64 installer)
    
 14. **Visual Studio:** Enable preview .NET SDKs:
     * Open Visual Studio
