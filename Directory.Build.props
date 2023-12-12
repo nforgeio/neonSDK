@@ -77,8 +77,9 @@
         <CopyRetryDelayMilliseconds>50</CopyRetryDelayMilliseconds>
     </PropertyGroup>
 
-    <!--
-    Projects targeting .NET 7.0 and earlier need these packages.
+    <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+        <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="6.0.0" />
+    </ItemGroup>
 
     WARNING: Do not reference this when targeting .NET 8.0+ unless you
              want to debug strange "GenerateDepsFile" build problems.

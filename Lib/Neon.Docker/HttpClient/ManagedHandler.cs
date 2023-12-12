@@ -322,34 +322,37 @@ namespace Microsoft.Net.Http.Client
         private static async Task<Socket> TCPSocketOpenerAsync(string host, int port, CancellationToken cancellationToken)
         {
             var addresses = await Dns.GetHostAddressesAsync(host).ConfigureAwait(false);
+
             if (addresses.Length == 0)
             {
                 throw new Exception($"could not resolve address for {host}");
             }
 
-            Socket connectedSocket = null;
-            Exception lastException = null;
+            Socket      connectedSocket = null;
+            Exception   lastException   = null;
+
             foreach (var address in addresses)
             {
-                var s = new Socket(SocketType.Stream, ProtocolType.Tcp);
+                var socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
+
                 try
                 {
 #if (NETSTANDARD1_3 || NETSTANDARD1_6)
                     await s.ConnectAsync(address, port).ConfigureAwait(false);
 #else
                     await Task.Factory.FromAsync(
-                        s.BeginConnect,
-                        s.EndConnect,
+                        socket.BeginConnect,
+                        socket.EndConnect,
                         new IPEndPoint(address, port),
                         null
                     ).ConfigureAwait(false);
 #endif
-                    connectedSocket = s;
+                    connectedSocket = socket;
                     break;
                 }
                 catch (Exception e)
                 {
-                    s.Dispose();
+                    socket.Dispose();
                     lastException = e;
                 }
             }
