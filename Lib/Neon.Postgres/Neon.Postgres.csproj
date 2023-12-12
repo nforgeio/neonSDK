@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.0; net8.0</TargetFrameworks>
+        <TargetFrameworks>net6.0; net7.0; net8.0</TargetFrameworks>
         <OutputType>Library</OutputType>
         <RootNamespace>Neon.Postgres</RootNamespace>
         <Version>$(NeonSdkVersion)</Version>
@@ -21,7 +21,11 @@
         <Compile Include="..\Neon.BuildInfo\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
     </ItemGroup>
 
-    <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+        <PackageReference Include="Npgsql" Version="7.0.6" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
         <PackageReference Include="Npgsql" Version="7.0.6" />
     </ItemGroup>
 
