@@ -69,33 +69,14 @@ namespace Neon.Service
         {
             // $hack(jefflill): This is a bit of a hack to improve performance.
 
-            levelToSeverityName = new string[(int)LogRecordSeverity.Fatal4 + 1];
-
-            levelToSeverityName[(int)LogRecordSeverity.Unspecified] = "None";
-            levelToSeverityName[(int)LogRecordSeverity.Trace]       = "Trace";
-            levelToSeverityName[(int)LogRecordSeverity.Trace2]      = "Trace";
-            levelToSeverityName[(int)LogRecordSeverity.Trace3]      = "Trace";
-            levelToSeverityName[(int)LogRecordSeverity.Trace4]      = "Trace";
-            levelToSeverityName[(int)LogRecordSeverity.Debug]       = "Debug";
-            levelToSeverityName[(int)LogRecordSeverity.Debug2]      = "Debug";
-            levelToSeverityName[(int)LogRecordSeverity.Debug3]      = "Debug";
-            levelToSeverityName[(int)LogRecordSeverity.Debug4]      = "Debug";
-            levelToSeverityName[(int)LogRecordSeverity.Info]        = "Info";
-            levelToSeverityName[(int)LogRecordSeverity.Info2]       = "Info";
-            levelToSeverityName[(int)LogRecordSeverity.Info3]       = "Info";
-            levelToSeverityName[(int)LogRecordSeverity.Info4]       = "Info";
-            levelToSeverityName[(int)LogRecordSeverity.Warn]        = "Warn";
-            levelToSeverityName[(int)LogRecordSeverity.Warn2]       = "Warn";
-            levelToSeverityName[(int)LogRecordSeverity.Warn3]       = "Warn";
-            levelToSeverityName[(int)LogRecordSeverity.Warn4]       = "Warn";
-            levelToSeverityName[(int)LogRecordSeverity.Error]       = "Error";
-            levelToSeverityName[(int)LogRecordSeverity.Error2]      = "Error";
-            levelToSeverityName[(int)LogRecordSeverity.Error3]      = "Error";
-            levelToSeverityName[(int)LogRecordSeverity.Error4]      = "Error";
-            levelToSeverityName[(int)LogRecordSeverity.Fatal]       = "Fatal";
-            levelToSeverityName[(int)LogRecordSeverity.Fatal2]      = "Fatal";
-            levelToSeverityName[(int)LogRecordSeverity.Fatal3]      = "Fatal";
-            levelToSeverityName[(int)LogRecordSeverity.Fatal4]      = "Fatal";
+            levelToSeverityName                            = new string[(int)LogLevel.None + 1];
+            levelToSeverityName[(int)LogLevel.Trace]       = "Trace";
+            levelToSeverityName[(int)LogLevel.Debug]       = "Debug";
+            levelToSeverityName[(int)LogLevel.Information] = "Information";
+            levelToSeverityName[(int)LogLevel.Warning]     = "Warning";
+            levelToSeverityName[(int)LogLevel.Error]       = "Error";
+            levelToSeverityName[(int)LogLevel.Critical]    = "Critical";
+            levelToSeverityName[(int)LogLevel.None]        = "None";
         }
 
         //---------------------------------------------------------------------
@@ -127,7 +108,7 @@ namespace Neon.Service
         /// <param name="logRecord">The log record.</param>
         public override void OnEnd(LogRecord logRecord)
         {
-            logCounter.WithLabels(levelToSeverityName[(int)logRecord.Severity]).Inc();
+            logCounter.WithLabels(levelToSeverityName[(int)logRecord.LogLevel]).Inc();
         }
     }
 }
