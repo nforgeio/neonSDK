@@ -77,20 +77,6 @@
         <CopyRetryDelayMilliseconds>50</CopyRetryDelayMilliseconds>
     </PropertyGroup>
 
-    <!-- $hack(jefflill): We started needing these references after upgrading to .NET 8.0 for some reason. -->
-
-    <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
-        <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="6.0.0" />
-    </ItemGroup>
-
-    <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
-        <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="7.0.0" />
-    </ItemGroup>
-
-    <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
-        <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="8.0.0" />
-    </ItemGroup>
-
     <!-- $hack(jefflill):
     
     We've had a lot of trouble with auto generated source files for:
