@@ -2,12 +2,12 @@
 
     <PropertyGroup>
         <TargetFrameworks>net7.0; net8.0</TargetFrameworks>
+        <OutputType>Library</OutputType>
         <IsPackable>false</IsPackable>
         <IsTestProject>true</IsTestProject>
         <PlatformTarget>x64</PlatformTarget>
         <Configurations>Debug;Release</Configurations>
         <GenerateDocumentationFile>false</GenerateDocumentationFile>
-        <OutputType>Library</OutputType>
     </PropertyGroup>
 
     <ItemGroup>
