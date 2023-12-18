@@ -109,7 +109,7 @@ namespace NeonSignalRProxy
                             }
                         }
 
-                        service.CurrentConnections.RemoveWhere(x => x == context.Connection.Id);
+                        service.CurrentConnections.RemoveWhere(connectionId => connectionId == context.Connection.Id);
                     }
                 }
                 catch (Exception e)

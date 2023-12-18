@@ -109,11 +109,11 @@ namespace NeonSignalRProxy.Controllers
             using var activity = TelemetryHub.ActivitySource.StartActivity();
 
             var isWebsocket = false;
-            if (HttpContext.Request.Headers.SecWebSocketAccept.Count > 0
-                || HttpContext.Request.Headers.SecWebSocketExtensions.Count > 0
-                || HttpContext.Request.Headers.SecWebSocketKey.Count > 0
-                || HttpContext.Request.Headers.SecWebSocketProtocol.Count > 0
-                || HttpContext.Request.Headers.SecWebSocketVersion.Count > 0)
+            if (HttpContext.Request.Headers.SecWebSocketAccept.Count > 0 ||
+                HttpContext.Request.Headers.SecWebSocketExtensions.Count > 0 ||
+                HttpContext.Request.Headers.SecWebSocketKey.Count > 0 ||
+                HttpContext.Request.Headers.SecWebSocketProtocol.Count > 0 ||
+                HttpContext.Request.Headers.SecWebSocketVersion.Count > 0)
             {
                 isWebsocket = true;
                 WebsocketMetrics.ConnectionsEstablished.Inc();
@@ -163,7 +163,6 @@ namespace NeonSignalRProxy.Controllers
             using var gauge = isWebsocket ? WebsocketMetrics.CurrentConnections.WithLabels(HttpContext.Request.Host.Value, session.UpstreamHost).TrackInProgress() : new Disposable();
 
             HttpContext.Request.Headers.Append(SessionHelper.UpstreamHostHeaderName, session.UpstreamHost);
-
             Logger.LogDebugEx(() => NeonHelper.JsonSerialize(session));
 
             session.ConnectionId = HttpContext.Connection.Id;
@@ -174,14 +173,12 @@ namespace NeonSignalRProxy.Controllers
             }
 
             signalrProxyService.CurrentConnections.Add(session.ConnectionId);
-
             Logger.LogDebugEx(() => $"Forwarding connection: [{NeonHelper.JsonSerializeToBytes(session)}]");
 
             error = await forwarder.SendAsync(HttpContext, $"{backend.Scheme}://{session.UpstreamHost}:{backend.Port}", httpClient, forwarderRequestConfig, transformer);
 
             Logger.LogDebugEx(() => $"Session closed: [{NeonHelper.JsonSerializeToBytes(session)}]");
-
-            signalrProxyService.CurrentConnections.RemoveWhere(x => x == session.ConnectionId);
+            signalrProxyService.CurrentConnections.RemoveWhere(connectionId => connectionId == session.ConnectionId);
 
             if (error != ForwarderError.None)
             {
