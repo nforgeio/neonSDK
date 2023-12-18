@@ -938,7 +938,9 @@ namespace Neon.GitHub
 
             // Cherry-pick the commits from the source branch.
 
-            var signature = CreateSignature();
+            var signature         = CreateSignature();
+            var successfulCommits = new List<string>();
+            var failedCommits     = commits.Select(commit => commit.Sha).ToList();
 
             foreach (var commit in commits)
             {
@@ -962,8 +964,16 @@ namespace Neon.GitHub
 
                     if (result.Status == CherryPickStatus.Conflicts)
                     {
-                        throw new LibGit2SharpException($"Conflict cherry-picking: {commit.Sha}: {commit.Message}");
+                        var mergeException = new LibGit2SharpException($"Conflict cherry-picking: {commit.Sha}: {commit.Message}");
+
+                        mergeException.Data.Add("commits.success", successfulCommits);
+                        mergeException.Data.Add("commits.failed", failedCommits);
+
+                        throw mergeException;
                     }
+
+                    successfulCommits.Add(commit.Sha);
+                    failedCommits.Remove(commit.Sha);
                 }
                 catch (EmptyCommitException)
                 {
