@@ -105,7 +105,7 @@ namespace Neon.Common
                 }
                 else
                 {
-                    throw new ExecuteException(this, OutputText);
+                    throw new ExecuteException(this, AllText);
                 }
             }
 

@@ -148,7 +148,7 @@ namespace NeonSignalRProxy.Controllers
 
                 HttpContext.Request.Headers.Append(SessionHelper.UpstreamHostHeaderName, host);
 
-                error    = await forwarder.SendAsync(HttpContext, $"{backend.Scheme}://{host}:{backend.Port}", httpClient, forwarderRequestConfig, transformer);
+                error = await forwarder.SendAsync(HttpContext, $"{backend.Scheme}://{host}:{backend.Port}", httpClient, forwarderRequestConfig, transformer);
 
                 if (error != ForwarderError.None)
                 {
@@ -157,6 +157,7 @@ namespace NeonSignalRProxy.Controllers
 
                     Logger.LogErrorEx(exception, "CatchAll");
                 }
+
                 return;
             }
 

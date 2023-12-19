@@ -373,7 +373,7 @@ namespace TestCommon
             // List from a subdirectory.
 
             var directory = fs.GetDirectory("/TestCommon/IORes/Resources/Folder1");
-            
+
             files = directory.GetFiles(options: SearchOption.AllDirectories);
 
             Assert.Equal(3, files.Count());
@@ -384,7 +384,7 @@ namespace TestCommon
             // Ensure that a trailing "/" in a directory path is ignored.
 
             directory = fs.GetDirectory("/TestCommon/IORes/Resources/Folder1/");
-            
+
             files = directory.GetFiles(options: SearchOption.AllDirectories);
 
             Assert.Equal(3, files.Count());
@@ -754,7 +754,7 @@ namespace TestCommon
             // List from a subdirectory.
 
             var directory = fs.GetDirectory("/Folder1");
-            
+
             files = directory.GetFiles(options: SearchOption.AllDirectories);
 
             Assert.Equal(3, files.Count());
@@ -765,7 +765,7 @@ namespace TestCommon
             // Extra test to ensure that an extra trailing "/" in a directory path is ignored.
 
             directory = fs.GetDirectory("/Folder1/");
-            
+
             files = directory.GetFiles(options: SearchOption.AllDirectories);
 
             Assert.Equal(3, files.Count());
@@ -837,7 +837,7 @@ namespace TestCommon
             // List from a subdirectory.
 
             var directory = fs.GetDirectory("/Folder1");
-            
+
             files = directory.GetFiles(options: SearchOption.AllDirectories);
 
             Assert.Equal(3, files.Count());
@@ -848,7 +848,7 @@ namespace TestCommon
             // Extra test to ensure that an extra trailing "/" in a directory path is ignored.
 
             directory = fs.GetDirectory("/Folder1/");
-            
+
             files = directory.GetFiles(options: SearchOption.AllDirectories);
 
             Assert.Equal(3, files.Count());
@@ -937,7 +937,7 @@ namespace TestCommon
         }
 
         [Fact]
-        public void ZipToStream()
+        public async Task ZipToStream()
         {
             var fs = Assembly.GetExecutingAssembly().GetResourceFileSystem("TestCommon.IORes.Resources");
 
@@ -945,7 +945,7 @@ namespace TestCommon
 
             using (var stream = new MemoryStream())
             {
-                fs.Zip(stream, searchOptions: SearchOption.AllDirectories);
+                await fs.ZipAsync(stream, searchOptions: SearchOption.AllDirectories);
 
                 Assert.True(stream.Length > 0);
 
@@ -977,7 +977,7 @@ namespace TestCommon
 
             using (var stream = new MemoryStream())
             {
-                fs.Zip(stream, "TextFile1.txt", searchOptions: SearchOption.TopDirectoryOnly);
+                await fs.ZipAsync(stream, "TextFile1.txt", searchOptions: SearchOption.TopDirectoryOnly);
 
                 Assert.True(stream.Length > 0);
 
@@ -1005,7 +1005,7 @@ namespace TestCommon
         }
 
         [Fact]
-        public void ZipToFile()
+        public async Task ZipToFile()
         {
             var fs = Assembly.GetExecutingAssembly().GetResourceFileSystem("TestCommon.IORes.Resources");
 
@@ -1017,7 +1017,7 @@ namespace TestCommon
                 var zipPath     = Path.Combine(tempFolder.Path, "test.zip");
                 var unzipFolder = Path.Combine(tempFolder.Path, "unzipped");
 
-                fs.Zip(zipPath, searchOptions: SearchOption.AllDirectories);
+                await fs.ZipAsync(zipPath, searchOptions: SearchOption.AllDirectories);
                 fastZip.ExtractZip(zipPath, unzipFolder, null);
 
                 Assert.True(File.Exists(Path.Combine(unzipFolder, "TextFile1.txt")));
@@ -1042,7 +1042,7 @@ namespace TestCommon
                 var zipPath     = Path.Combine(tempFolder.Path, "test.zip");
                 var unzipFolder = Path.Combine(tempFolder.Path, "unzipped");
 
-                fs.Zip(zipPath, searchPattern: "TextFile1.txt", searchOptions: SearchOption.TopDirectoryOnly);
+                await fs.ZipAsync(zipPath, searchPattern: "TextFile1.txt", searchOptions: SearchOption.TopDirectoryOnly);
                 fastZip.ExtractZip(zipPath, unzipFolder, null);
 
                 Assert.True(File.Exists(Path.Combine(unzipFolder, "TextFile1.txt")));
@@ -1061,7 +1061,7 @@ namespace TestCommon
         }
 
         [Fact]
-        public void ZipToFile_WithLinuxLineEndings()
+        public async Task ZipToFile_WithLinuxLineEndings()
         {
             var fs = Assembly.GetExecutingAssembly().GetResourceFileSystem("TestCommon.IORes.Resources");
 
@@ -1074,7 +1074,7 @@ namespace TestCommon
                 var zipPath     = Path.Combine(tempFolder.Path, "test.zip");
                 var unzipFolder = Path.Combine(tempFolder.Path, "unzipped");
 
-                fs.Zip(zipPath, searchOptions: SearchOption.AllDirectories, zipOptions: StaticZipOptions.LinuxLineEndings);
+                await fs.ZipAsync(zipPath, searchOptions: SearchOption.AllDirectories, zipOptions: StaticZipOptions.LinuxLineEndings);
                 fastZip.ExtractZip(zipPath, unzipFolder, null);
 
                 Assert.True(!File.ReadAllText(Path.Combine(unzipFolder, "TextFile1.txt")).Contains("\r\n"));
@@ -1089,6 +1089,85 @@ namespace TestCommon
                 Assert.True(!File.ReadAllText(Path.Combine(unzipFolder, "Folder2", "Folder4", "TextFile8.txt")).Contains("\r\n"));
 
                 Assert.True(!File.ReadAllText(Path.Combine(unzipFolder, "Folder8", "Test")).Contains("\r\n"));
+            }
+        }
+
+        [Fact]
+        public async Task ZipToStream_Preprocessed()
+        {
+            var fs = Assembly.GetExecutingAssembly().GetResourceFileSystem("TestCommon.IORes.Resources");
+
+            // Verify that we can zip a single preprocessed file from the root directory.
+
+            using (var stream = new MemoryStream())
+            {
+                var preprocessor = new ZipPreprocessor(
+                    async (path, input) =>
+                    {
+                        Assert.EndsWith(path, "TextFile1.txt");
+                        Assert.NotNull(input);
+                        Assert.NotEmpty(await input.ReadToEndAsync());
+
+                        var output = new MemoryStream();
+
+                        output.Write(Encoding.UTF8.GetBytes("PREPROCESSED TEXT!"));
+                        output.Position = 0;
+
+                        return output;
+                    });
+
+                await fs.ZipAsync(stream, "TextFile1.txt", searchOptions: SearchOption.TopDirectoryOnly, preprocessor: preprocessor);
+
+                Assert.True(stream.Length > 0);
+
+                using (var tempFolder = new TempFolder())
+                {
+                    var fastZip     = new FastZip();
+                    var zipPath     = Path.Combine(tempFolder.Path, "test.zip");
+                    var unzipFolder = Path.Combine(tempFolder.Path, "unzipped");
+
+                    File.WriteAllBytes(zipPath, stream.ToArray());
+                    fastZip.ExtractZip(zipPath, unzipFolder, null);
+
+                    Assert.True(File.Exists(Path.Combine(unzipFolder, "TextFile1.txt")));
+                    Assert.Equal("PREPROCESSED TEXT!", File.ReadAllText(Path.Combine(unzipFolder, "TextFile1.txt")));
+                }
+            }
+        }
+
+        [Fact]
+        public async Task ZipToFile_Preprocessed()
+        {
+            var fs = Assembly.GetExecutingAssembly().GetResourceFileSystem("TestCommon.IORes.Resources");
+
+            // Verify that we can zip a single preprocessed file from the root directory.
+
+            using (var tempFolder = new TempFolder())
+            {
+                var preprocessor = new ZipPreprocessor(
+                    async (path, input) =>
+                    {
+                        Assert.EndsWith(path, "TextFile1.txt");
+                        Assert.NotNull(input);
+                        Assert.NotEmpty(await input.ReadToEndAsync());
+
+                        var output = new MemoryStream();
+
+                        output.Write(Encoding.UTF8.GetBytes("PREPROCESSED TEXT!"));
+                        output.Position = 0;
+
+                        return output;
+                    });
+
+                var fastZip     = new FastZip();
+                var zipPath     = Path.Combine(tempFolder.Path, "test.zip");
+                var unzipFolder = Path.Combine(tempFolder.Path, "unzipped");
+
+                await fs.ZipAsync(zipPath, searchPattern: "TextFile1.txt", searchOptions: SearchOption.TopDirectoryOnly, preprocessor: preprocessor);
+                fastZip.ExtractZip(zipPath, unzipFolder, null);
+
+                Assert.True(File.Exists(Path.Combine(unzipFolder, "TextFile1.txt")));
+                Assert.Equal("PREPROCESSED TEXT!", File.ReadAllText(Path.Combine(unzipFolder, "TextFile1.txt")));
             }
         }
 
@@ -1199,7 +1278,7 @@ Line 7
 Line 8
 Line 9
 ",
-                reader.ReadToEnd());                
+                reader.ReadToEnd());
             }
         }
 
@@ -1384,7 +1463,7 @@ Line 7
 Line 8
 Line 9
 ",
-                reader.ReadToEnd());                
+                reader.ReadToEnd());
             }
         }
 

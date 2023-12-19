@@ -96,6 +96,7 @@ RUN apt-get update \
     && apt-get install -yq iputils-ping \
     && apt-get install -yq mtr \
     && apt-get install -yq nano \
+    && apt-get install -yq vim \
     && apt-get install -yq netcat \
     && apt-get install -yq net-tools \
     && apt-get install -yq traceroute \

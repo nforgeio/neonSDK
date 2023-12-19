@@ -18,6 +18,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Diagnostics.Contracts;
 using System.IO;
 using System.Reflection;
@@ -33,8 +34,8 @@ using Neon.IO;
 namespace Neon.Common
 {
     /// <summary>
-    /// Enumerates the ZIP options for <see cref="IStaticDirectoryExtensions.Zip(IStaticDirectory, Stream, string, SearchOption, StaticZipOptions)"/> and
-    /// <see cref="IStaticDirectoryExtensions.Zip(IStaticDirectory, string, string, SearchOption, StaticZipOptions)"/>.  These may be bitwise ORed togther
+    /// Enumerates the ZIP options for <see cref="IStaticDirectoryExtensions.ZipAsync(IStaticDirectory, Stream, string, SearchOption, StaticZipOptions, ZipPreprocessor)"/> and
+    /// <see cref="IStaticDirectoryExtensions.ZipAsync(IStaticDirectory, string, string, SearchOption, StaticZipOptions, ZipPreprocessor)"/>.  These may be bitwise ORed togther
     /// in various combinations.
     /// </summary>
     [Flags]
@@ -46,10 +47,29 @@ namespace Neon.Common
         None = 0x00000000,
 
         /// <summary>
+        /// <para>
         /// Convert any Windows CRLF line endings into Linux compatiable LF endings.
+        /// </para>
+        /// <note>
+        /// Any line endings are converted <b>before</b> the preprocessor is called, when a
+        /// preprocessor is specified.
+        /// </note>
         /// </summary>
         LinuxLineEndings = 0x00000001
     }
+
+    /// <summary>
+    /// Specifies a preprocessor that can be used to preprocess files before they
+    /// are added to a ZIP archive.
+    /// </summary>
+    /// <param name="path">
+    /// Specifies the relative path of the file being preprocessed.  Your implementation
+    /// may decide whether or how to preprocess the file based on this path, often using
+    /// file exenstion.
+    /// </param>
+    /// <param name="input">Specifies a stream holding the file data being preprocessed.</param>
+    /// <returns>As the preprocessed stream.</returns>
+    public delegate Task<Stream> ZipPreprocessor(string path, Stream input);
 
     /// <summary>
     /// Extension methods for <see cref="IStaticDirectory"/>.
@@ -75,18 +95,30 @@ namespace Neon.Common
         /// endings.  You can combine options by bitwise ORing them.  This defaults to
         /// <see cref="StaticZipOptions.None"/>.
         /// </param>
-        public static void Zip(
+        /// <param name="preprocessor">
+        /// Optionally specifies a preprocessor that can modify files before they are
+        /// added to the ZIP archive.
+        /// </param>
+        /// <returns>The tracking <see cref="Task"/>.</returns>
+        /// <remarks>
+        /// <note>
+        /// The current implementation loads the files into memory so this isn't really suitable
+        /// for zipping very large files.
+        /// </note>
+        /// </remarks>
+        public static async Task ZipAsync(
             this IStaticDirectory   directory, 
             string                  zipPath, 
             string                  searchPattern = null, 
             SearchOption            searchOptions = SearchOption.TopDirectoryOnly,
-            StaticZipOptions        zipOptions    = StaticZipOptions.None)
+            StaticZipOptions        zipOptions    = StaticZipOptions.None,
+            ZipPreprocessor         preprocessor  = null)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(zipPath), nameof(zipPath));
 
             using (var stream = new FileStream(zipPath, FileMode.CreateNew, FileAccess.ReadWrite))
             {
-                Zip(directory, stream, searchPattern, searchOptions, zipOptions);
+                await ZipAsync(directory, stream, searchPattern, searchOptions, zipOptions, preprocessor);
             }
         }
 
@@ -109,18 +141,24 @@ namespace Neon.Common
         /// endings.  You can combine options by bitwise ORing them.  This defaults to
         /// <see cref="StaticZipOptions.None"/>.
         /// </param>
+        /// <param name="preprocessor">
+        /// Optionally specifies a preprocessor that can modify files before they are
+        /// added to the ZIP archive.
+        /// </param>
+        /// <returns>The tracking <see cref="Task"/>.</returns>
         /// <remarks>
         /// <note>
         /// The current implementation loads the files into memory so this isn't really suitable
         /// for zipping very large files.
         /// </note>
         /// </remarks>
-        public static void Zip(
+        public static async Task ZipAsync(
             this IStaticDirectory   directory, 
             Stream                  zipStream, 
             string                  searchPattern = null,
             SearchOption            searchOptions = SearchOption.TopDirectoryOnly,
-            StaticZipOptions        zipOptions    = StaticZipOptions.None)
+            StaticZipOptions        zipOptions    = StaticZipOptions.None,
+            ZipPreprocessor         preprocessor  = null)
         {
             Covenant.Requires<ArgumentNullException>(zipStream != null, nameof(zipStream));
 
@@ -138,11 +176,43 @@ namespace Neon.Common
 
                         text = NeonHelper.ToLinuxLineEndings(text);
 
-                        zip.Add(new StaticBytesDataSource(Encoding.UTF8.GetBytes(text)), relativePath);
+                        if (preprocessor != null)
+                        {
+                            using (var input = new MemoryStream(Encoding.UTF8.GetBytes(text)))
+                            {
+                                using (var output = await preprocessor(relativePath, input))
+                                {
+                                    Covenant.Assert(output != null, "Preprocessor returned a NULL stream.");
+
+                                    output.Position = 0;
+                                    zip.Add(new StaticBytesDataSource(output.ReadToEnd()), relativePath);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            zip.Add(new StaticBytesDataSource(Encoding.UTF8.GetBytes(text)), relativePath);
+                        }
                     }
                     else
                     {
-                        zip.Add(new StaticBytesDataSource(file.ReadAllBytes()), relativePath);
+                        if (preprocessor != null)
+                        {
+                            using (var input = File.OpenRead(file.Path) )
+                            {
+                                using (var output = await preprocessor(relativePath, input))
+                                {
+                                    Covenant.Assert(output != null, "Preprocessor returned a NULL stream.");
+
+                                    output.Position = 0;
+                                    zip.Add(new StaticBytesDataSource(output.ReadToEnd()), relativePath);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            zip.Add(new StaticBytesDataSource(file.ReadAllBytes()), relativePath);
+                        }
                     }
                 }
 
