@@ -833,18 +833,6 @@ namespace Neon.SSH
         CommandResponse SudoCommand(CommandBundle bundle, RunOptions runOptions = RunOptions.Defaults);
 
         /// <summary>
-        /// Creates an interactive shell.
-        /// </summary>
-        /// <returns>A <see cref="ShellStream"/>.</returns>
-        ShellStream CreateShell();
-
-        /// <summary>
-        /// Creates an interactive shell for running with <b>sudo</b> permissions. 
-        /// </summary>
-        /// <returns>A <see cref="ShellStream"/>.</returns>
-        ShellStream CreateSudoShell();
-
-        /// <summary>
         /// Returns the name of the network interface assigned to a specific IP address.
         /// </summary>
         /// <param name="address">The target IP address.</param>

@@ -2629,24 +2629,6 @@ echo $? > {cmdFolder}/exit
         }
 
         /// <inheritdoc/>
-        public ShellStream CreateShell()
-        {
-            EnsureSshConnection();
-
-            return sshClient.CreateShellStream("dumb", 80, 24, 800, 600, 1024);
-        }
-
-        /// <inheritdoc/>
-        public ShellStream CreateSudoShell()
-        {
-            var shell = CreateShell();
-
-            shell.WriteLine("sudo");
-
-            return shell;
-        }
-
-        /// <inheritdoc/>
         public string GetNetworkInterface(IPAddress address)
         {
             Covenant.Requires<ArgumentNullException>(address != null, nameof(address));
