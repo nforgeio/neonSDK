@@ -809,6 +809,24 @@ namespace Neon.Service
 
                 LoadEnvironmentVariables();
 
+                // Determine whether we're running in DEBUG mode.
+
+                if (NeonHelper.IsDevWorkstation && string.IsNullOrEmpty(Environment.Get("DEBUG", string.Empty)))
+                {
+                    DebugMode = true;
+                }
+                else if (Environment.Get("DEBUG", string.Empty).Equals("DEBUG", StringComparison.InvariantCultureIgnoreCase) ||
+                         Environment.Get("DEBUG", false))
+                {
+                    // $note(jefflill): We check the "DEBUG" value for backwards compatibility.
+
+                    DebugMode = true;
+                }
+                else
+                {
+                    DebugMode = false;
+                }
+
                 // This environment variable disables the ASPNETCORE startup prompt
                 // so that won't pollute console logs.
 
@@ -1092,6 +1110,23 @@ namespace Neon.Service
         /// parsed and validated.
         /// </summary>
         public EnvironmentParser Environment { get; private set; }
+
+        /// <summary>
+        /// Returns <c>true</c> when the service is running in <b>debug mode</b>.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Services use the presence of the <b>DEV_WORKSTATION</b> environment variable
+        /// or a <b>DEBUG</b> environment set to one of <b>DEBUG</b>, <b>true</b>, <b>yes</b>,
+        /// <b>on</b>, or <b>1</b>.
+        /// </para>
+        /// <para>
+        /// If the <b>DEBUG</b> environment variable isn't present then debug mode will
+        /// be set when <b>DEV_WORKSTATION</b> exists, otherwise the <b>DEBUG</b> variable
+        /// value determines the mode.
+        /// </para>
+        /// </remarks>
+        public bool DebugMode { get; private set; }
 
         /// <summary>
         /// Returns the service map (if any).
