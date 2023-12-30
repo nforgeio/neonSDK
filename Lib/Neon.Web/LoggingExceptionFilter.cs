@@ -54,6 +54,11 @@ namespace Neon.Web
             var log            = TelemetryHub.CreateLogger("Web-" + controllerName);
 
             log.LogErrorEx(context.Exception);
+
+            // Ensure that any remaining exception filters are invoked.
+
+            context.ExceptionHandled = false;
+            context.Result           = null;
         }
     }
 }

@@ -191,11 +191,22 @@ namespace Neon.Common
         /// <param name="value">Returns as the parsed value.</param>
         /// <param name="error">Returns as the error message on failure.</param>
         /// <returns>Returns <c>true</c> if the input value is valid.</returns>
+        /// <remarks>
+        /// <para>
+        /// Valid <c>true</c> values: <b>true</b>, <b>yes</b>, <b>on</b>, or <b>1</b>.
+        /// </para>
+        /// <para>
+        /// Valid <c>false</c> values: <b>false</b>, <b>no</b>, <b>off</b>, or <b>0</b>.
+        /// </para>
+        /// <note>
+        /// These strings are case insensitive.
+        /// </note>
+        /// </remarks>
         private static bool BoolParser(string input, out bool value, out string error)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(input), nameof(input));
 
-            input = input.ToLowerInvariant();
+            input = input.Trim().ToLowerInvariant();
             value = false;
             error = null;
 
