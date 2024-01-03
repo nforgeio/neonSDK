@@ -792,7 +792,14 @@ rm {HostFolders.Home(Username)}/askpass
         /// <summary>
         /// Checks for and installs any new root certificates.
         /// </summary>
-        public void UpdateRootCertificates()
+        /// <param name="aptGetTool">Optionally specifies a custom <b>apt-get</b> tool or script.</param>
+        /// <remarks>
+        /// <note>
+        /// NEONKUBE deploys a <b>safe-apt-get</b> script that handles situations where
+        /// a package operation is already in progress (such as checking for daily updates).
+        /// </note>
+        /// </remarks>
+        public void UpdateRootCertificates(string aptGetTool = "apt-get")
         {
             // We're going to use [rootCertsUpdated] instance variable to avoid the overhead
             // of checking for and updating root certificates multiple times for cluster nodes.
@@ -807,8 +814,10 @@ rm {HostFolders.Home(Username)}/askpass
             // cluster install because the our node images will be archived for some time
             // after we create them.
 
-            SudoCommand("safe-apt-get update");
-            SudoCommand("safe-apt-get install ca-certificates -yq");
+            SudoCommand($"{aptGetTool} update")
+                .EnsureSuccess();
+            SudoCommand($"{aptGetTool} install ca-certificates -yq")
+                .EnsureSuccess();
 
             rootCertsUpdated = true;
         }
@@ -817,11 +826,20 @@ rm {HostFolders.Home(Username)}/askpass
         /// Patches Linux on the node applying all outstanding security patches but without 
         /// upgrading the Linux distribution.
         /// </summary>
+        /// <param name="aptGetTool">Optionally specifies a custom <b>apt-get</b> tool or script.</param>
         /// <returns><c>true</c> when a reboot is required.</returns>
-        public bool PatchLinux()
+        /// <remarks>
+        /// <note>
+        /// NEONKUBE deploys a <b>safe-apt-get</b> script that handles situations where
+        /// a package operation is already in progress (such as checking for daily updates).
+        /// </note>
+        /// </remarks>
+        public bool PatchLinux(string aptGetTool = "apt-get")
         {
-            SudoCommand("safe-apt-get update", RunOptions.Defaults | RunOptions.FaultOnError);
-            SudoCommand("safe-apt-get upgrade -yq", RunOptions.Defaults | RunOptions.FaultOnError);
+            SudoCommand($"{aptGetTool} update", RunOptions.Defaults | RunOptions.FaultOnError)
+                .EnsureSuccess();
+            SudoCommand($"{aptGetTool} upgrade -yq", RunOptions.Defaults | RunOptions.FaultOnError)
+                .EnsureSuccess();
 
             return FileExists("/var/run/reboot-required");
         }
@@ -829,8 +847,15 @@ rm {HostFolders.Home(Username)}/askpass
         /// <summary>
         /// Upgrades the Linux distribution on the node.
         /// </summary>
+        /// <param name="aptGetTool">Optionally specifies a custom <b>apt-get</b> tool or script.</param>
         /// <returns><c>true</c> when a reboot is required.</returns>
-        public bool UpgradeLinuxDistribution()
+        /// <remarks>
+        /// <note>
+        /// NEONKUBE deploys a <b>safe-apt-get</b> script that handles situations where
+        /// a package operation is already in progress (such as checking for daily updates).
+        /// </note>
+        /// </remarks>
+        public bool UpgradeLinuxDistribution(string aptGetTool = "apt-get")
         {
             // $hack(jefflill):
             //
@@ -854,11 +879,14 @@ rm {HostFolders.Home(Username)}/askpass
 
             if (SudoCommand("apt-mark hold grub-efi-amd64-signed", RunOptions.Defaults).ExitCode == 0)
             {
-                SudoCommand("safe-apt-get update --fix-missing", RunOptions.Defaults | RunOptions.FaultOnError);
+                SudoCommand($"{aptGetTool} update --fix-missing")
+                    .EnsureSuccess();
             }
 
-            SudoCommand("safe-apt-get update -yq", RunOptions.Defaults | RunOptions.FaultOnError);
-            SudoCommand("safe-apt-get dist-upgrade -yq", RunOptions.Defaults | RunOptions.FaultOnError);
+            SudoCommand($"{aptGetTool} update -yq")
+                .EnsureSuccess();
+            SudoCommand($"{aptGetTool} dist-upgrade -yq")
+                .EnsureSuccess();
 
             return FileExists("/var/run/reboot-required");
         }
@@ -2692,7 +2720,14 @@ echo $? > {cmdFolder}/exit
         /// </summary>
         /// <param name="trim">Optionally trims the file system.</param>
         /// <param name="zero">Optionally zeros unreferenced file system blocks.</param>
-        public void Clean(bool trim = false, bool zero = false)
+        /// <param name="aptGetTool">Optionally specifies a custom <b>apt-get</b> tool or script.</param>
+        /// <remarks>
+        /// <note>
+        /// NEONKUBE deploys a <b>safe-apt-get</b> script that handles situations where
+        /// a package operation is already in progress (such as checking for daily updates).
+        /// </note>
+        /// </remarks>
+        public void Clean(bool trim = false, bool zero = false, string aptGetTool = "apt-get")
         {
             var fstrim = string.Empty;
             var fsZero = string.Empty;
@@ -2723,7 +2758,7 @@ find -type f -exec rm {{}} +
 
 # Misc cleaning
 
-safe-apt-get clean
+{aptGetTool} clean
 rm -rf /var/lib/apt/lists
 rm -rf /var/lib/dhcp/*
 
@@ -2732,7 +2767,8 @@ rm -rf /var/lib/dhcp/*
 {fsZero}
 {fstrim}
 ";
-            SudoCommand(CommandBundle.FromScript(cleanScript), RunOptions.FaultOnError);
+            SudoCommand(CommandBundle.FromScript(cleanScript))
+                .EnsureSuccess();
         }
 
         /// <inheritdoc/>

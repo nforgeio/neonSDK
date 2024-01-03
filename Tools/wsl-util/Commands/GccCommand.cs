@@ -174,7 +174,7 @@ chmod 754 {linuxSafeAptGetPath}
 $@"
 set -euo pipefail
 
-safe-apt-get install -yq gcc
+apt-get install -yq gcc
 
 cd {linuxBuildFolder}
 gcc *.c -o {linuxOutputPath} {sbGccArgs}
