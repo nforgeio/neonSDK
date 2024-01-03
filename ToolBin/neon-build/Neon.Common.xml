@@ -1539,6 +1539,17 @@
             <param name="value">Returns as the parsed value.</param>
             <param name="error">Returns as the error message on failure.</param>
             <returns>Returns <c>true</c> if the input value is valid.</returns>
+            <remarks>
+            <para>
+            Valid <c>true</c> values: <b>true</b>, <b>yes</b>, <b>on</b>, or <b>1</b>.
+            </para>
+            <para>
+            Valid <c>false</c> values: <b>false</b>, <b>no</b>, <b>off</b>, or <b>0</b>.
+            </para>
+            <note>
+            These strings are case insensitive.
+            </note>
+            </remarks>
         </member>
         <member name="M:Neon.Common.EnvironmentParser.TimeSpanParser(System.String,System.TimeSpan@,System.String@)">
             <summary>
@@ -2589,14 +2600,35 @@
             The patch version number.
             </summary>
         </member>
+        <member name="P:Neon.Common.SemanticVersion.Numeric">
+            <summary>
+            Returns only the numeric part of the semantic version, excluding
+            any prerelase or build parts.
+            </summary>
+        </member>
         <member name="P:Neon.Common.SemanticVersion.Prerelease">
             <summary>
+            <para>
             The prerelease identifer or <c>null</c>.
+            </para>
+            <note>
+            Prerelease identifiers <b>do not</b> include the prefix dash <b>(-)</b>.
+            </note>
+            </summary>
+        </member>
+        <member name="P:Neon.Common.SemanticVersion.IsPrerelease">
+            <summary>
+            Indicates whether the version specifies a prerelease.
             </summary>
         </member>
         <member name="P:Neon.Common.SemanticVersion.Build">
             <summary>
+            <para>
             The build information or <c>null</c>.
+            </para>
+            <note>
+            Build information does not include the prefix plus <b>(+)</b> sign.
+            </note>
             </summary>
         </member>
         <member name="M:Neon.Common.SemanticVersion.ToString">
@@ -3699,8 +3731,8 @@
         </member>
         <member name="T:Neon.Common.StaticZipOptions">
             <summary>
-            Enumerates the ZIP options for <see cref="M:Neon.Common.IStaticDirectoryExtensions.Zip(Neon.IO.IStaticDirectory,System.IO.Stream,System.String,System.IO.SearchOption,Neon.Common.StaticZipOptions)"/> and
-            <see cref="M:Neon.Common.IStaticDirectoryExtensions.Zip(Neon.IO.IStaticDirectory,System.String,System.String,System.IO.SearchOption,Neon.Common.StaticZipOptions)"/>.  These may be bitwise ORed togther
+            Enumerates the ZIP options for <see cref="M:Neon.Common.IStaticDirectoryExtensions.ZipAsync(Neon.IO.IStaticDirectory,System.IO.Stream,System.String,System.IO.SearchOption,Neon.Common.StaticZipOptions,Neon.Common.ZipPreprocessor)"/> and
+            <see cref="M:Neon.Common.IStaticDirectoryExtensions.ZipAsync(Neon.IO.IStaticDirectory,System.String,System.String,System.IO.SearchOption,Neon.Common.StaticZipOptions,Neon.Common.ZipPreprocessor)"/>.  These may be bitwise ORed togther
             in various combinations.
             </summary>
         </member>
@@ -3711,15 +3743,34 @@
         </member>
         <member name="F:Neon.Common.StaticZipOptions.LinuxLineEndings">
             <summary>
+            <para>
             Convert any Windows CRLF line endings into Linux compatiable LF endings.
+            </para>
+            <note>
+            Any line endings are converted <b>before</b> the preprocessor is called, when a
+            preprocessor is specified.
+            </note>
             </summary>
+        </member>
+        <member name="T:Neon.Common.ZipPreprocessor">
+            <summary>
+            Specifies a preprocessor that can be used to preprocess files before they
+            are added to a ZIP archive.
+            </summary>
+            <param name="path">
+            Specifies the relative path of the file being preprocessed.  Your implementation
+            may decide whether or how to preprocess the file based on this path, often using
+            file exenstion.
+            </param>
+            <param name="input">Specifies a stream holding the file data being preprocessed.</param>
+            <returns>As the preprocessed stream.</returns>
         </member>
         <member name="T:Neon.Common.IStaticDirectoryExtensions">
             <summary>
             Extension methods for <see cref="T:Neon.IO.IStaticDirectory"/>.
             </summary>
         </member>
-        <member name="M:Neon.Common.IStaticDirectoryExtensions.Zip(Neon.IO.IStaticDirectory,System.String,System.String,System.IO.SearchOption,Neon.Common.StaticZipOptions)">
+        <member name="M:Neon.Common.IStaticDirectoryExtensions.ZipAsync(Neon.IO.IStaticDirectory,System.String,System.String,System.IO.SearchOption,Neon.Common.StaticZipOptions,Neon.Common.ZipPreprocessor)">
             <summary>
             Creates a ZIP file, including the selected files from the static directory.
             </summary>
@@ -3739,8 +3790,19 @@
             endings.  You can combine options by bitwise ORing them.  This defaults to
             <see cref="F:Neon.Common.StaticZipOptions.None"/>.
             </param>
+            <param name="preprocessor">
+            Optionally specifies a preprocessor that can modify files before they are
+            added to the ZIP archive.
+            </param>
+            <returns>The tracking <see cref="T:System.Threading.Tasks.Task"/>.</returns>
+            <remarks>
+            <note>
+            The current implementation loads the files into memory so this isn't really suitable
+            for zipping very large files.
+            </note>
+            </remarks>
         </member>
-        <member name="M:Neon.Common.IStaticDirectoryExtensions.Zip(Neon.IO.IStaticDirectory,System.IO.Stream,System.String,System.IO.SearchOption,Neon.Common.StaticZipOptions)">
+        <member name="M:Neon.Common.IStaticDirectoryExtensions.ZipAsync(Neon.IO.IStaticDirectory,System.IO.Stream,System.String,System.IO.SearchOption,Neon.Common.StaticZipOptions,Neon.Common.ZipPreprocessor)">
             <summary>
             Writes a ZIP file to a stream, including the selected files from the static directory.
             </summary>
@@ -3760,6 +3822,11 @@
             endings.  You can combine options by bitwise ORing them.  This defaults to
             <see cref="F:Neon.Common.StaticZipOptions.None"/>.
             </param>
+            <param name="preprocessor">
+            Optionally specifies a preprocessor that can modify files before they are
+            added to the ZIP archive.
+            </param>
+            <returns>The tracking <see cref="T:System.Threading.Tasks.Task"/>.</returns>
             <remarks>
             <note>
             The current implementation loads the files into memory so this isn't really suitable
@@ -4038,7 +4105,8 @@
             <summary>
             Signals the process to be killed and then waits for it to exit.
             Note that <see cref="M:System.Diagnostics.Process.Kill"/> only initiates process
-            termination but that the process actually dies asynchronously.
+            termination but that the process actually dies asynchronously,
+            whereas the method actually waits for the process to terminate.
             </summary>
             <param name="process">The target process.</param>
         </member>
@@ -4367,7 +4435,7 @@
         </member>
         <member name="T:Neon.Common.ExecuteException">
             <summary>
-            Thrown by <see cref="M:Neon.Common.ExecuteResponse.EnsureSuccess"/> if the executed command
+            Thrown by <see cref="M:Neon.Common.ExecuteResponse.EnsureSuccess(System.Boolean)"/> if the executed command
             did not return a <b>zero</b> exit code.
             </summary>
         </member>
@@ -4405,7 +4473,7 @@
         <member name="T:Neon.Common.ExecuteResponse">
             <summary>
             Holds the process exit code and captured standard output from a process launched by any of the
-            <see cref="M:Neon.Common.NeonHelper.ExecuteCapture(System.String,System.Object[],System.Nullable{System.TimeSpan},System.Diagnostics.Process,System.String,System.Collections.Generic.Dictionary{System.String,System.String},System.Action{System.String},System.Action{System.String},System.IO.TextReader,System.Text.Encoding,System.Action{System.Diagnostics.Process})"/>
+            <see cref="M:Neon.Common.NeonHelper.ExecuteCapture(System.String,System.Object[],System.Nullable{System.TimeSpan},System.Diagnostics.Process,System.String,System.Boolean,System.Collections.Generic.Dictionary{System.String,System.String},System.Action{System.String},System.Action{System.String},System.IO.TextReader,System.Text.Encoding,System.Action{System.Diagnostics.Process})"/>
             related methods.
             </summary>
         </member>
@@ -4442,10 +4510,15 @@
             Returns the captured standard output and error stream text from the process.
             </summary>
         </member>
-        <member name="M:Neon.Common.ExecuteResponse.EnsureSuccess">
+        <member name="M:Neon.Common.ExecuteResponse.EnsureSuccess(System.Boolean)">
             <summary>
             Ensure that the command returned a zero exit code.
             </summary>
+            <param name="errorOnly">
+            Optionally return only the text written to STDERR in the exception
+            for errors when something besides whitespace was written to STDERR,
+            otherwise include all text written to the output streams.
+            </param>
             <returns>The response for fluent-style chaining.</returns>
             <exception cref="T:Neon.Common.ExecuteException">Thrown if the exit code isn't zero.</exception>
         </member>
@@ -4679,6 +4752,21 @@
             <see cref="M:Neon.Common.NeonHelper.RegisterMisspelledUtf8Provider"/> for more information.
             </summary>
         </member>
+        <member name="F:Neon.Common.NeonHelper.cachedNeonSdkFolder">
+            <summary>
+            Set to the user's NEONSDK folder.
+            </summary>
+        </member>
+        <member name="F:Neon.Common.NeonHelper.cachedNeonSdkUsbCodeSigningFolder">
+            <summary>
+            Set to the user's NEONSDK USB token code signing cache folder path.
+            </summary>
+        </member>
+        <member name="F:Neon.Common.NeonHelper.cachedNeonSdkAzureCodeSigningFolder">
+            <summary>
+            Set to the user's NEONSDK Azure code signing cache folder path.
+            </summary>
+        </member>
         <member name="P:Neon.Common.NeonHelper.ServiceContainer">
             <summary>
             The root dependency injection service container used by Neon class libraries. 
@@ -4705,6 +4793,24 @@
             Ensures that a special UTF-8 text encoding provider misnamed as <b>utf8</b>
             (without the dash) is registered.  This is required sometimes because
             certain REST APIs may return incorrect <b>charset</b> values.
+            </summary>
+        </member>
+        <member name="P:Neon.Common.NeonHelper.NeonSdkFolder">
+            <summary>
+            Returns the path to the folder used by NEONSDK to persist and cache state, creating
+            the directory if it doesn't exist.  This folder is located at: <b>~/.neonsdk</b>
+            </summary>
+        </member>
+        <member name="P:Neon.Common.NeonHelper.NeonSdkUsbCodeSigningFolder">
+            <summary>
+            Returns the path to the folder used by NEONSDK to cache download local USB token code signing code,
+            creating the directory if it doesn't exist.  This folder is located at: <b>~/.neonsdk/codesigning-usb</b>
+            </summary>
+        </member>
+        <member name="P:Neon.Common.NeonHelper.NeonSdkAzureCodeSigningFolder">
+            <summary>
+            Returns the path to the folder used by NEONSDK to cache download Azure code signing code,
+            creating the directory if it doesn't exist.  This folder is located at: <b>~/.neonsdk/codesigning-azure</b>
             </summary>
         </member>
         <member name="M:Neon.Common.NeonHelper.UnixEpochNanosecondsToDateTimeUtc(System.Int64)">
@@ -5388,7 +5494,7 @@
             </para>
             </remarks>
         </member>
-        <member name="M:Neon.Common.NeonHelper.WaitFor(System.Func{System.Boolean},System.TimeSpan,System.Nullable{System.TimeSpan},System.String)">
+        <member name="M:Neon.Common.NeonHelper.WaitFor(System.Func{System.Boolean},System.TimeSpan,System.Nullable{System.TimeSpan},System.String,System.Threading.CancellationToken)">
             <summary>
             Waits for a boolean function to return <c>true</c>.
             </summary>
@@ -5396,6 +5502,7 @@
             <param name="timeout">Optionally specifies the maximum time to wait.</param>
             <param name="pollInterval">Optionally specifies time to wait between each predicate call or <c>null</c> for a reasonable default.</param>
             <param name="timeoutMessage">Optionally overrides the <see cref="T:System.TimeoutException"/> message.</param>
+            <param name="cancellationToken">Optionally specifies a cancellation token.</param>
             <exception cref="T:System.TimeoutException">Thrown if the never returned <c>true</c> before the timeout.</exception>
             <remarks>
             This method periodically calls <paramref name="predicate"/> until it
@@ -6284,7 +6391,7 @@
             <param name="args">Optional command arguments.</param>
             <returns>The actual command line to be executed.</returns>
         </member>
-        <member name="M:Neon.Common.NeonHelper.Execute(System.String,System.Object[],System.Nullable{System.TimeSpan},System.Diagnostics.Process,System.String,System.Collections.Generic.Dictionary{System.String,System.String},System.IO.TextReader,System.Action{System.Diagnostics.Process})">
+        <member name="M:Neon.Common.NeonHelper.Execute(System.String,System.Object[],System.Nullable{System.TimeSpan},System.Diagnostics.Process,System.String,System.Boolean,System.Collections.Generic.Dictionary{System.String,System.String},System.IO.TextReader,System.Action{System.Diagnostics.Process})">
             <summary>
             Starts a process with an array of arguments to run an executable file and
             then waits for the process to terminate.
@@ -6308,6 +6415,10 @@
             </param>
             <param name="workingDirectory">
             Optionally specifies the working directory for executing the program.
+            </param>
+            <param name="clearEnvironment">
+            Optionally clears all environment variables that would be passed to the program.
+            This happens before setting any environment variables passed as <paramref name="environmentVariables"/>.
             </param>
             <param name="environmentVariables">
             Optionally specifies the environment variables to be passed into the process.
@@ -6333,7 +6444,7 @@
             </note>
             </remarks>
         </member>
-        <member name="M:Neon.Common.NeonHelper.Execute(System.String,System.String,System.Nullable{System.TimeSpan},System.Diagnostics.Process,System.String,System.Collections.Generic.Dictionary{System.String,System.String},System.IO.TextReader,System.Action{System.Diagnostics.Process})">
+        <member name="M:Neon.Common.NeonHelper.Execute(System.String,System.String,System.Nullable{System.TimeSpan},System.Diagnostics.Process,System.String,System.Boolean,System.Collections.Generic.Dictionary{System.String,System.String},System.IO.TextReader,System.Action{System.Diagnostics.Process})">
             <summary>
             Starts a process to run an executable file and then waits for the process to terminate.
             </summary>
@@ -6356,6 +6467,10 @@
             </param>
             <param name="workingDirectory">
             Optionally specifies the working directory for executing the program.
+            </param>
+            <param name="clearEnvironment">
+            Optionally clears all environment variables that would be passed to the program.
+            This happens before setting any environment variables passed as <paramref name="environmentVariables"/>.
             </param>
             <param name="environmentVariables">
             Optionally specifies the environment variables to be passed into the process.
@@ -6381,7 +6496,7 @@
             </note>
             </remarks>
         </member>
-        <member name="M:Neon.Common.NeonHelper.ExecuteAsync(System.String,System.Object[],System.Nullable{System.TimeSpan},System.Diagnostics.Process,System.String,System.Collections.Generic.Dictionary{System.String,System.String},System.IO.TextReader,System.Action{System.Diagnostics.Process})">
+        <member name="M:Neon.Common.NeonHelper.ExecuteAsync(System.String,System.Object[],System.Nullable{System.TimeSpan},System.Diagnostics.Process,System.String,System.Boolean,System.Collections.Generic.Dictionary{System.String,System.String},System.IO.TextReader,System.Action{System.Diagnostics.Process})">
             <summary>
             Asynchronously starts a process to run an executable file with an array of
             arguments and then and waits for the process to terminate.
@@ -6406,6 +6521,10 @@
             <param name="workingDirectory">
             Optionally specifies the working directory for executing the program.
             </param>
+            <param name="clearEnvironment">
+            Optionally clears all environment variables that would be passed to the program.
+            This happens before setting any environment variables passed as <paramref name="environmentVariables"/>.
+            </param>
             <param name="environmentVariables">
             Optionally specifies the environment variables to be passed into the process.
             The new process inherits the current processes variables when this is <c>null</c>.
@@ -6430,7 +6549,7 @@
             </note>
             </remarks>
         </member>
-        <member name="M:Neon.Common.NeonHelper.ExecuteAsync(System.String,System.String,System.Nullable{System.TimeSpan},System.Diagnostics.Process,System.String,System.Collections.Generic.Dictionary{System.String,System.String},System.IO.TextReader,System.Action{System.Diagnostics.Process})">
+        <member name="M:Neon.Common.NeonHelper.ExecuteAsync(System.String,System.String,System.Nullable{System.TimeSpan},System.Diagnostics.Process,System.String,System.Boolean,System.Collections.Generic.Dictionary{System.String,System.String},System.IO.TextReader,System.Action{System.Diagnostics.Process})">
             <summary>
             Asynchronously starts a process to run an executable file and then waits for the process to terminate.
             </summary>
@@ -6453,6 +6572,10 @@
             </param>
             <param name="workingDirectory">
             Optionally specifies the working directory for executing the program.
+            </param>
+            <param name="clearEnvironment">
+            Optionally clears all environment variables that would be passed to the program.
+            This happens before setting any environment variables passed as <paramref name="environmentVariables"/>.
             </param>
             <param name="environmentVariables">
             Optionally specifies the environment variables to be passed into the process.
@@ -6483,7 +6606,7 @@
             Used to redirect process output streams.
             </summary>
         </member>
-        <member name="M:Neon.Common.NeonHelper.ExecuteCapture(System.String,System.Object[],System.Nullable{System.TimeSpan},System.Diagnostics.Process,System.String,System.Collections.Generic.Dictionary{System.String,System.String},System.Action{System.String},System.Action{System.String},System.IO.TextReader,System.Text.Encoding,System.Action{System.Diagnostics.Process})">
+        <member name="M:Neon.Common.NeonHelper.ExecuteCapture(System.String,System.Object[],System.Nullable{System.TimeSpan},System.Diagnostics.Process,System.String,System.Boolean,System.Collections.Generic.Dictionary{System.String,System.String},System.Action{System.String},System.Action{System.String},System.IO.TextReader,System.Text.Encoding,System.Action{System.Diagnostics.Process})">
             <summary>
             Starts a process to run an executable file and then waits for the process to terminate
             while capturing any output written to the standard output and error streams.
@@ -6507,6 +6630,10 @@
             </param>
             <param name="workingDirectory">
             Optionally specifies the working directory for executing the program.
+            </param>
+            <param name="clearEnvironment">
+            Optionally clears all environment variables that would be passed to the program.
+            This happens before setting any environment variables passed as <paramref name="environmentVariables"/>.
             </param>
             <param name="environmentVariables">
             Optionally specifies the environment variables to be passed into the process.
@@ -6547,7 +6674,7 @@
             </para>
             </remarks>
         </member>
-        <member name="M:Neon.Common.NeonHelper.ExecuteCapture(System.String,System.String,System.Nullable{System.TimeSpan},System.Diagnostics.Process,System.String,System.Collections.Generic.Dictionary{System.String,System.String},System.Action{System.String},System.Action{System.String},System.IO.TextReader,System.Text.Encoding,System.Action{System.Diagnostics.Process})">
+        <member name="M:Neon.Common.NeonHelper.ExecuteCapture(System.String,System.String,System.Nullable{System.TimeSpan},System.Diagnostics.Process,System.String,System.Boolean,System.Collections.Generic.Dictionary{System.String,System.String},System.Action{System.String},System.Action{System.String},System.IO.TextReader,System.Text.Encoding,System.Action{System.Diagnostics.Process})">
             <summary>
             Starts a process to run an executable file and then waits for the process to terminate
             while capturing any output written to the standard output and error streams.
@@ -6571,6 +6698,10 @@
             </param>
             <param name="workingDirectory">
             Optionally specifies the working directory for executing the program.
+            </param>
+            <param name="clearEnvironment">
+            Optionally clears all environment variables that would be passed to the program.
+            This happens before setting any environment variables passed as <paramref name="environmentVariables"/>.
             </param>
             <param name="environmentVariables">
             Optionally specifies the environment variables to be passed into the process.
@@ -6611,7 +6742,7 @@
             </para>
             </remarks>
         </member>
-        <member name="M:Neon.Common.NeonHelper.ExecuteCaptureAsync(System.String,System.Object[],System.String,System.Collections.Generic.Dictionary{System.String,System.String},System.Nullable{System.TimeSpan},System.Diagnostics.Process,System.IO.TextReader,System.Text.Encoding,System.Action{System.Diagnostics.Process})">
+        <member name="M:Neon.Common.NeonHelper.ExecuteCaptureAsync(System.String,System.Object[],System.String,System.Boolean,System.Collections.Generic.Dictionary{System.String,System.String},System.Nullable{System.TimeSpan},System.Diagnostics.Process,System.IO.TextReader,System.Text.Encoding,System.Action{System.Diagnostics.Process})">
             <summary>
             Asynchronously starts a process to run an executable file and then waits for the process to terminate
             while capturing any output written to the standard output and error streams.
@@ -6635,6 +6766,10 @@
             </param>
             <param name="workingDirectory">
             Optionally specifies the working directory for executing the program.
+            </param>
+            <param name="clearEnvironment">
+            Optionally clears all environment variables that would be passed to the program.
+            This happens before setting any environment variables passed as <paramref name="environmentVariables"/>.
             </param>
             <param name="environmentVariables">
             Optionally specifies the environment variables to be passed into the process.
@@ -6667,7 +6802,7 @@
             </note>
             </remarks>
         </member>
-        <member name="M:Neon.Common.NeonHelper.ExecuteCaptureAsync(System.String,System.String,System.Nullable{System.TimeSpan},System.Diagnostics.Process,System.String,System.Collections.Generic.Dictionary{System.String,System.String},System.IO.TextReader,System.Text.Encoding,System.Action{System.Diagnostics.Process})">
+        <member name="M:Neon.Common.NeonHelper.ExecuteCaptureAsync(System.String,System.String,System.Nullable{System.TimeSpan},System.Diagnostics.Process,System.String,System.Boolean,System.Collections.Generic.Dictionary{System.String,System.String},System.IO.TextReader,System.Text.Encoding,System.Action{System.Diagnostics.Process})">
             <summary>
             Asynchronously starts a process to run an executable file and then waits for the process to terminate
             while capturing any output written to the standard output and error streams.
@@ -6691,6 +6826,10 @@
             </param>
             <param name="workingDirectory">
             Optionally specifies the working directory for executing the program.
+            </param>
+            <param name="clearEnvironment">
+            Optionally clears all environment variables that would be passed to the program.
+            This happens before setting any environment variables passed as <paramref name="environmentVariables"/>.
             </param>
             <param name="environmentVariables">
             Optionally specifies the environment variables to be passed into the process.
@@ -6744,17 +6883,6 @@
             Launches the default browser to display the specified URI.
             </summary>
             <param name="uri">The target URI.</param>
-        </member>
-        <member name="M:Neon.Common.NeonHelper.OpenPlatformBrowser(System.String,System.Boolean)">
-            <summary>
-            Launches the platform (i.e. Edge for Windows or Safari for OS/X) browser to display the specified URI,
-            optionally opening a new browser window.
-            </summary>
-            <param name="uri">The target URI.</param>
-            <param name="newWindow">
-            Optionally opens the URI in a new platform browser window.  By default,
-            this method will open the URI in as new browser tab.
-            </param>
         </member>
         <member name="M:Neon.Common.NeonHelper.ExecuteShell(System.String)">
             <summary>
@@ -8975,12 +9103,18 @@
             <summary>
             <para>
             Used to disable writing events to the output stream.  This can be useful for
-            unit testing.
+            unit testing.  This is enabled by default.
             </para>
             <note>
             Any configured <see cref="P:Neon.Diagnostics.ConsoleJsonLogExporterOptions.LogEventInterceptor"/> actions will still be called
             event when <see cref="P:Neon.Diagnostics.ConsoleJsonLogExporterOptions.Emit"/> is configured as <c>false</c>.
             </note>
+            </summary>
+        </member>
+        <member name="P:Neon.Diagnostics.ConsoleJsonLogExporterOptions.EmitToAttachedDebugger">
+            <summary>
+            Used to disable writing logs to an attached debugger's output window.  This
+            is enabled by default.
             </summary>
         </member>
         <member name="P:Neon.Diagnostics.ConsoleJsonLogExporterOptions.StandardErrorLevel">
@@ -9075,12 +9209,18 @@
             <summary>
             <para>
             Used to disable writing events to the output stream.  This can be useful for
-            unit testing.
+            unit testing.  This is enabled by default.
             </para>
             <note>
             Any configured <see cref="P:Neon.Diagnostics.ConsoleTextLogExporterOptions.LogEventInterceptor"/> actions will still be called
             event when <see cref="P:Neon.Diagnostics.ConsoleTextLogExporterOptions.Emit"/> is configured as <c>false</c>.
             </note>
+            </summary>
+        </member>
+        <member name="P:Neon.Diagnostics.ConsoleTextLogExporterOptions.EmitToAttachedDebugger">
+            <summary>
+            Used to disable writing logs to an attached debugger's output window.  This
+            is enabled by default.
             </summary>
         </member>
         <member name="P:Neon.Diagnostics.ConsoleTextLogExporterOptions.StandardErrorLevel">
@@ -12306,11 +12446,16 @@
             </summary>
             <param name="folder">Optionally overrides <see cref="P:Neon.IO.TempFolder.Root"/> as the parent folder for this instance.</param>
             <param name="prefix">Optionally specifies a prefix to be added to the temporary directory name.</param>
-            <param name="create">Optionally controls whether the temporary folder should actuall be created.  This defaults to <c>true</c>.</param>
+            <param name="create">Optionally controls whether the temporary folder should actually be created.  This defaults to <c>true</c>.</param>
         </member>
         <member name="P:Neon.IO.TempFolder.Path">
             <summary>
             Returns the fully qualifed path to the temporary folder.
+            </summary>
+        </member>
+        <member name="P:Neon.IO.TempFolder.DisableDelete">
+            <summary>
+            Optionally used to disable folder deletion when the temporary folder is disposed.
             </summary>
         </member>
         <member name="M:Neon.IO.TempFolder.Dispose">
@@ -13232,7 +13377,7 @@
         <member name="M:Neon.Net.HttpException.#ctor(System.Net.Http.HttpRequestException,System.String,System.String)">
             <summary>
             <para>
-            Constructs an exception from a <see cref="T:System.Net.Http.HttpRequestException"/> and optional
+            Constructs an exception from a <see cref="T:System.Net.Http.HttpRequestException"/> and optionals
             request details.
             </para>
             <note>
@@ -14737,7 +14882,7 @@
             This is currently supported only for Windows.
             </note>
             </summary>
-            <param name="address"></param>
+            <param name="address">Specifies the IP address being removed from the ARP cache.</param>
             <exception cref="T:System.NotSupportedException">Thrown when the current platform is not supported.</exception>
         </member>
         <member name="T:Neon.Net.NetworkCidr">
@@ -15501,14 +15646,18 @@
             </summary>
             <param name="transientDetector">
             Optionally specifies the function that determines whether an exception is transient 
-            (see <see cref="T:Neon.Retry.TransientDetector"/>).  You can pass <c>null</c>
-            if all exceptions are to be considered to be transient.
+            (see <see cref="T:Neon.Retry.TransientDetector"/>).  You can pass <c>null</c> when all exceptions
+            are to be considered to be transient.
             </param>
             <param name="maxAttempts">Optionally specifies the maximum number of times an action should be retried (defaults to <b>5</b>).</param>
             <param name="initialRetryInterval">Optionally specifies the initial retry interval between retry attempts (defaults to <b>1 second</b>).</param>
             <param name="maxRetryInterval">Optionally specifies the maximum retry interval (defaults to essentially unlimited: 24 hours).</param>
             <param name="timeout">Optionally specifies the maximum time the operation will be retried (defaults to unconstrained)</param>
-            <param name="categoryName">Optionally enables transient error logging by identifying the source category name (defaults to <c>null</c>).</param>
+            <param name="categoryName">
+            Optionally customizes the transient error logging source category name (defaults to <see cref="F:Neon.Retry.RetryPolicyBase.DefaultCategoryName"/>).
+            You can disable transient error logging by passing <c>null</c> or by adding an event handler to <see cref="E:Neon.Retry.IRetryPolicy.OnTransient"/>
+            that ignores the event and also indicates that the event was handled.
+            </param>
             <remarks>
             <para>
             The <paramref name="maxAttempts"/> parameter defaults to <b>-1</b> indicating that the
@@ -15527,7 +15676,7 @@
             <summary>
             Constructs the retry policy to handle a specific exception type as transient.
             </summary>
-            <param name="exceptionType">The exception type to be considered to be transient.</param>
+            <param name="exceptionType">Specifies the exception type to be considered to be transient.</param>
             <param name="maxAttempts">Optionally specifies the maximum number of times an action should be retried (defaults to <b>5</b>).</param>
             <param name="initialRetryInterval">Optionally specifies the initial retry interval between retry attempts (defaults to <b>1 second</b>).</param>
             <param name="maxRetryInterval">Optionally specifies the maximum retry interval (defaults to essentially unlimited: 24 hours).</param>
@@ -15551,7 +15700,7 @@
             <summary>
             Constructs the retry policy to handle a multiple exception types as transient.
             </summary>
-            <param name="exceptionTypes">The exception type to be considered to be transient.</param>
+            <param name="exceptionTypes">Specifies the exception type to be considered to be transient.</param>
             <param name="maxAttempts">Optionally specifies the maximum number of times an action should be retried (defaults to <b>5</b>).</param>
             <param name="initialRetryInterval">Optionally specifies the initial retry interval between retry attempts (defaults to <b>1 second</b>).</param>
             <param name="maxRetryInterval">Optionally specifies the maximum retry interval (defaults to essentially unlimited: 24 hours).</param>
@@ -15589,16 +15738,16 @@
         <member name="M:Neon.Retry.ExponentialRetryPolicy.Clone(System.Func{System.Exception,System.Boolean})">
             <inheritdoc/>
         </member>
-        <member name="M:Neon.Retry.ExponentialRetryPolicy.InvokeAsync(System.Func{System.Threading.Tasks.Task})">
+        <member name="M:Neon.Retry.ExponentialRetryPolicy.InvokeAsync(System.Func{System.Threading.Tasks.Task},System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:Neon.Retry.ExponentialRetryPolicy.InvokeAsync``1(System.Func{System.Threading.Tasks.Task{``0}})">
+        <member name="M:Neon.Retry.ExponentialRetryPolicy.InvokeAsync``1(System.Func{System.Threading.Tasks.Task{``0}},System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:Neon.Retry.ExponentialRetryPolicy.Invoke(System.Action)">
+        <member name="M:Neon.Retry.ExponentialRetryPolicy.Invoke(System.Action,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:Neon.Retry.ExponentialRetryPolicy.Invoke``1(System.Func{``0})">
+        <member name="M:Neon.Retry.ExponentialRetryPolicy.Invoke``1(System.Func{``0},System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
         <member name="T:Neon.Retry.IRetryPolicy">
@@ -15623,7 +15772,7 @@
             </param>
             <returns>The policy copy.</returns>
         </member>
-        <member name="M:Neon.Retry.IRetryPolicy.InvokeAsync(System.Func{System.Threading.Tasks.Task})">
+        <member name="M:Neon.Retry.IRetryPolicy.InvokeAsync(System.Func{System.Threading.Tasks.Task},System.Threading.CancellationToken)">
             <summary>
             Retries an asynchronous action that returns no result when it throws exceptions due to 
             transient errors.  The classification of what is a transient error, the interval
@@ -15631,8 +15780,9 @@
             determined by the policy implementation.
             </summary>
             <param name="action">The asynchronous action to be performed.</param>
+            <param name="cancellationToken">Optionally specifies a cancellation token.</param>
         </member>
-        <member name="M:Neon.Retry.IRetryPolicy.InvokeAsync``1(System.Func{System.Threading.Tasks.Task{``0}})">
+        <member name="M:Neon.Retry.IRetryPolicy.InvokeAsync``1(System.Func{System.Threading.Tasks.Task{``0}},System.Threading.CancellationToken)">
             <summary>
             Retries an asynchronous action that returns <typeparamref name="TResult"/> when it throws exceptions
             due to transient errors.  he classification of what is a transient error, the interval 
@@ -15641,9 +15791,10 @@
             </summary>
             <typeparam name="TResult">The action result type.</typeparam>
             <param name="action">The asynchronous action to be performed.</param>
+            <param name="cancellationToken">Optionally specifies a cancellation token.</param>
             <returns>The action result.</returns>
         </member>
-        <member name="M:Neon.Retry.IRetryPolicy.Invoke(System.Action)">
+        <member name="M:Neon.Retry.IRetryPolicy.Invoke(System.Action,System.Threading.CancellationToken)">
             <summary>
             Retries a synchronous action that returns no result when it throws exceptions due to 
             transient errors.  The classification of what is a transient error, the interval
@@ -15651,8 +15802,9 @@
             determined by the policy implementation.
             </summary>
             <param name="action">The synchronous action to be performed.</param>
+            <param name="cancellationToken">Optionally specifies a cancellation token.</param>
         </member>
-        <member name="M:Neon.Retry.IRetryPolicy.Invoke``1(System.Func{``0})">
+        <member name="M:Neon.Retry.IRetryPolicy.Invoke``1(System.Func{``0},System.Threading.CancellationToken)">
             <summary>
             Retries a synchronous action that returns a result when it throws exceptions due to 
             transient errors.  The classification of what is a transient error, the interval
@@ -15661,14 +15813,21 @@
             </summary>
             <typeparam name="TResult">The action result type.</typeparam>
             <param name="action">The synchronous action to be performed.</param>
+            <param name="cancellationToken">Optionally specifies a cancellation token.</param>
             <returns>The action result.</returns>
         </member>
         <member name="E:Neon.Retry.IRetryPolicy.OnTransient">
             <summary>
+            <para>
             Used to intercept and handle logging for transient exceptions detected by
             a retry policy.  Handlers can set <see cref="P:Neon.Retry.RetryTransientArgs.Handled"/>
             in the argument passed to prevent subsequent handlers from being invoked
             and also prevent the transient exception from being logged.
+            </para>
+            <para>
+            When no handlers are added to this event, the default behavior is to log
+            all transient failures.
+            </para>
             </summary>
         </member>
         <member name="T:Neon.Retry.LinearRetryPolicy">
@@ -15701,13 +15860,17 @@
             </summary>
             <param name="transientDetector">
             Optionally specifies the function that determines whether an exception is transient 
-            (see <see cref="T:Neon.Retry.TransientDetector"/>).  You can pass <c>null</c>
-            if all exceptions are to be considered to be transient.
+            (see <see cref="T:Neon.Retry.TransientDetector"/>).  You can pass <c>null</c> when all exceptions
+            are to be considered to be transient.
             </param>
             <param name="maxAttempts">Optionally specifies the maximum number of times an action should be retried (defaults to <b>5</b>).</param>
             <param name="retryInterval">Optionally specifies time interval between retry attempts (defaults to <b>1 second</b>).</param>
             <param name="timeout">Optionally specifies the maximum time the operation will be retried (defaults to unconstrained)</param>
-            <param name="categoryName">Optionally enables transient error logging by identifying the source category name (defaults to <c>null</c>).</param>
+            <param name="categoryName">
+            Optionally customizes the transient error logging source category name (defaults to <see cref="F:Neon.Retry.RetryPolicyBase.DefaultCategoryName"/>).
+            You can disable transient error logging by passing <c>null</c> or by adding an event handler to <see cref="E:Neon.Retry.IRetryPolicy.OnTransient"/>
+            that ignores the event and also indicates that the event was handled.
+            </param>
             <remarks>
             <para>
             The <paramref name="maxAttempts"/> parameter defaults to <b>-1</b> indicating that the
@@ -15726,7 +15889,7 @@
             <summary>
             Constructs the retry policy to handle a specific exception type as transient.
             </summary>
-            <param name="exceptionType">The exception type to be considered to be transient.</param>
+            <param name="exceptionType">Specifies the exception type to be considered to be transient.</param>
             <param name="maxAttempts">Optionally specifies the maximum number of times an action should be retried (defaults to <b>5</b>).</param>
             <param name="retryInterval">Optionally specifies the time interval between retry attempts (defaults to <b>1 second</b>).</param>
             <param name="categoryName">Optionally enables transient error logging by identifying the source category name (defaults to <c>null</c>).</param>
@@ -15749,7 +15912,7 @@
             <summary>
             Constructs the retry policy to handle a multiple exception types as transient.
             </summary>
-            <param name="exceptionTypes">The exception type to be considered to be transient.</param>
+            <param name="exceptionTypes">Specifies the exception types to be considered to be transient.</param>
             <param name="maxAttempts">Optionally specifies the maximum number of times an action should be retried (defaults to <b>5</b>).</param>
             <param name="retryInterval">Optionally specifies the time interval between retry attempts (defaults to <b>1 second</b>).</param>
             <param name="timeout">Optionally specifies the maximum time the operation will be retried (defaults to unconstrained)</param>
@@ -15781,16 +15944,16 @@
         <member name="M:Neon.Retry.LinearRetryPolicy.Clone(System.Func{System.Exception,System.Boolean})">
             <inheritdoc/>
         </member>
-        <member name="M:Neon.Retry.LinearRetryPolicy.InvokeAsync(System.Func{System.Threading.Tasks.Task})">
+        <member name="M:Neon.Retry.LinearRetryPolicy.InvokeAsync(System.Func{System.Threading.Tasks.Task},System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:Neon.Retry.LinearRetryPolicy.InvokeAsync``1(System.Func{System.Threading.Tasks.Task{``0}})">
+        <member name="M:Neon.Retry.LinearRetryPolicy.InvokeAsync``1(System.Func{System.Threading.Tasks.Task{``0}},System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:Neon.Retry.LinearRetryPolicy.Invoke(System.Action)">
+        <member name="M:Neon.Retry.LinearRetryPolicy.Invoke(System.Action,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:Neon.Retry.LinearRetryPolicy.Invoke``1(System.Func{``0})">
+        <member name="M:Neon.Retry.LinearRetryPolicy.Invoke``1(System.Func{``0},System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
         <member name="T:Neon.Retry.NamespaceDoc">
@@ -15822,16 +15985,16 @@
         <member name="M:Neon.Retry.NoRetryPolicy.Clone(System.Func{System.Exception,System.Boolean})">
             <inheritdoc/>
         </member>
-        <member name="M:Neon.Retry.NoRetryPolicy.InvokeAsync(System.Func{System.Threading.Tasks.Task})">
+        <member name="M:Neon.Retry.NoRetryPolicy.InvokeAsync(System.Func{System.Threading.Tasks.Task},System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:Neon.Retry.NoRetryPolicy.InvokeAsync``1(System.Func{System.Threading.Tasks.Task{``0}})">
+        <member name="M:Neon.Retry.NoRetryPolicy.InvokeAsync``1(System.Func{System.Threading.Tasks.Task{``0}},System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:Neon.Retry.NoRetryPolicy.Invoke(System.Action)">
+        <member name="M:Neon.Retry.NoRetryPolicy.Invoke(System.Action,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:Neon.Retry.NoRetryPolicy.Invoke``1(System.Func{``0})">
+        <member name="M:Neon.Retry.NoRetryPolicy.Invoke``1(System.Func{``0},System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
         <member name="T:Neon.Retry.RetryPolicy">
@@ -15857,16 +16020,16 @@
         <member name="M:Neon.Retry.RetryPolicy.Clone(System.Func{System.Exception,System.Boolean})">
             <inheritdoc/>
         </member>
-        <member name="M:Neon.Retry.RetryPolicy.InvokeAsync(System.Func{System.Threading.Tasks.Task})">
+        <member name="M:Neon.Retry.RetryPolicy.InvokeAsync(System.Func{System.Threading.Tasks.Task},System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:Neon.Retry.RetryPolicy.InvokeAsync``1(System.Func{System.Threading.Tasks.Task{``0}})">
+        <member name="M:Neon.Retry.RetryPolicy.InvokeAsync``1(System.Func{System.Threading.Tasks.Task{``0}},System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:Neon.Retry.RetryPolicy.Invoke(System.Action)">
+        <member name="M:Neon.Retry.RetryPolicy.Invoke(System.Action,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:Neon.Retry.RetryPolicy.Invoke``1(System.Func{``0})">
+        <member name="M:Neon.Retry.RetryPolicy.Invoke``1(System.Func{``0},System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
         <member name="E:Neon.Retry.RetryPolicy.OnTransient">
@@ -15900,12 +16063,21 @@
             Base class for used to help implement a <see cref="T:Neon.Retry.IRetryPolicy"/>.
             </summary>
         </member>
+        <member name="F:Neon.Retry.RetryPolicyBase.DefaultCategoryName">
+            <summary>
+            Specifies the default default category name for logging transient exceptions.
+            </summary>
+        </member>
         <member name="M:Neon.Retry.RetryPolicyBase.#ctor(System.String,System.Nullable{System.TimeSpan})">
             <summary>
             Constructor.
             </summary>
-            <param name="categoryName">Optionally enables transient error logging by identifying the source category name (defaults to <c>null</c>).</param>
-            <param name="timeout">Optionally specifies the maximum time the operation will be retried (defaults to unconstrained)</param>
+            <param name="categoryName">
+            Optionally customizes the transient error logging source category name (defaults to <see cref="F:Neon.Retry.RetryPolicyBase.DefaultCategoryName"/>).
+            You can disable transient error logging by passing <c>null</c> or by adding an event handler to <see cref="E:Neon.Retry.IRetryPolicy.OnTransient"/>
+            that ignores the event and also indicates that the event was handled.
+            </param>
+            <param name="timeout">Optionally specifies the maximum time the operation will be retried (defaults to unconstrained).</param>
         </member>
         <member name="P:Neon.Retry.RetryPolicyBase.Timeout">
             <inheritdoc/>
@@ -15916,16 +16088,16 @@
         <member name="M:Neon.Retry.RetryPolicyBase.Clone(System.Func{System.Exception,System.Boolean})">
             <inheritdoc/>
         </member>
-        <member name="M:Neon.Retry.RetryPolicyBase.InvokeAsync(System.Func{System.Threading.Tasks.Task})">
+        <member name="M:Neon.Retry.RetryPolicyBase.InvokeAsync(System.Func{System.Threading.Tasks.Task},System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:Neon.Retry.RetryPolicyBase.InvokeAsync``1(System.Func{System.Threading.Tasks.Task{``0}})">
+        <member name="M:Neon.Retry.RetryPolicyBase.InvokeAsync``1(System.Func{System.Threading.Tasks.Task{``0}},System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:Neon.Retry.RetryPolicyBase.Invoke(System.Action)">
+        <member name="M:Neon.Retry.RetryPolicyBase.Invoke(System.Action,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:Neon.Retry.RetryPolicyBase.Invoke``1(System.Func{``0})">
+        <member name="M:Neon.Retry.RetryPolicyBase.Invoke``1(System.Func{``0},System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
         <member name="P:Neon.Retry.RetryPolicyBase.CategoryName">
@@ -15937,7 +16109,7 @@
             <summary>
             Handles logging of transient exceptions by invoking any <see cref="E:Neon.Retry.RetryPolicyBase.OnTransient"/>
             event handlers and then logging the transient exception when none of the handlers
-            indicated that they handled the event.
+            indicated that they handled the event (or there were no handlers).
             </summary>
             <param name="e">The transient exception.</param>
         </member>
@@ -18482,7 +18654,12 @@
         </member>
         <member name="P:Neon.Time.SysTime.ExternalNow">
             <summary>
+            <para>
             Tracks an external time source.
+            </para>
+            <note>
+            This currently throws a <see cref="T:System.NotImplementedException"/>.
+            </note>
             </summary>
             <remarks>
             <para>
@@ -18786,6 +18963,13 @@
             <param name="lpBuffer">Returns as a <see cref="T:Neon.Windows.MEMORYSTATUSEX"/> with the infirmation.</param>
             <returns><c>true</c> on success.</returns>
         </member>
+        <member name="M:Neon.Windows.Win32.MakeWindowTopmost(System.IntPtr)">
+            <summary>
+            Relocates a window to be topmost in the z-order such that it will be
+            above all other windows on the desktop.
+            </summary>
+            <param name="hWnd">Specifies the low-level handle for the target window.</param>
+        </member>
         <member name="T:System.Diagnostics.Contracts.Covenant">
             <summary>
             A simple, lightweight, and inspired by the <see cref="T:System.Diagnostics.Contracts.Contract"/> class.
@@ -18870,7 +19054,7 @@
         </member>
         <member name="M:ICSharpCode.SharpZipLib.Zip.StaticBytesDataSource.#ctor(System.String)">
             <summary>
-            Constructs a source from a UTG-8 encopded string.
+            Constructs a source from a UTG-8 encoded string.
             </summary>
             <param name="data">The data string</param>
         </member>

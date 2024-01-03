@@ -71,7 +71,9 @@ ARGUMENTS:
 
 OPTIONS:
 
-    --all           - Clears the [Build-cache] folder too.
+    --build-cache   - Clears the [Build-cache] folder too.
+    --version       - Clears the Docker image [.version] files
+    --all           - Implies [--build-cache] and [--version]
 
 ---------------------------------------------------------------------
 neon-build clean-generated-cs TARGET-FOLDER
@@ -401,7 +403,7 @@ ARGUMENTS:
                             NeonHelper.DeleteFolderContents(buildFolder);
                         }
 
-                        if (commandLine.HasOption("--all"))
+                        if (commandLine.HasOption("--build-cache") || commandLine.HasOption("--all"))
                         {
                             var buildCacheFolder = Path.Combine(repoRoot, "Build-cache");
 
@@ -446,6 +448,7 @@ ARGUMENTS:
                             if (parentDir.ToString().Contains(repoRoot))
                             {
                                 var packageLock = Path.Combine(parentDir.ToString(), "package-lock.json");
+
                                 if (File.Exists(packageLock))
                                 {
                                     NeonHelper.DeleteFile(packageLock);
@@ -462,15 +465,18 @@ ARGUMENTS:
                         // This is a bit of a hack since only the NEONCLOUD repo currently generates these files,
                         // but this is somewhat carefully coded to not cause problems for the other repos.  Just
                         // be sure that those repos don't include a root [$/Images] folder that has [.version]
-                        // files used for other purposes.
+                        // files beneath it used for purposes other than building Docker images.
 
-                        var imageFolder = Path.Combine(repoRoot, "Images");
-
-                        if (Directory.Exists(imageFolder))
+                        if (commandLine.HasOption("--version") || commandLine.HasOption("--all"))
                         {
-                            foreach (var file in Directory.GetFiles(imageFolder, ".version", SearchOption.AllDirectories))
+                            var imageFolder = Path.Combine(repoRoot, "Images");
+
+                            if (Directory.Exists(imageFolder))
                             {
-                                NeonHelper.DeleteFile(file);
+                                foreach (var file in Directory.GetFiles(imageFolder, ".version", SearchOption.AllDirectories))
+                                {
+                                    NeonHelper.DeleteFile(file);
+                                }
                             }
                         }
                         break;
