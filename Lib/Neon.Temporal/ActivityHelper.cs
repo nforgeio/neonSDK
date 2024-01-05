@@ -16,6 +16,7 @@
 // limitations under the License.
 
 using System;
+using System.Threading.Tasks;
 
 using Neon.Tasks;
 
@@ -55,6 +56,11 @@ namespace Neon.Temporal
                 if (ActivityExecutionContext.HasCurrent)
                 {
                     ActivityExecutionContext.Current.Heartbeat();
+
+                    if (ActivityExecutionContext.Current.CancellationToken.IsCancellationRequested)
+                    {
+                        throw new TaskCanceledException("Activity cancelled.");
+                    }
                 }
             });
 
