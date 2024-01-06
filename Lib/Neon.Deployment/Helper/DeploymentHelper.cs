@@ -151,7 +151,7 @@ namespace Neon.Deployment
             DownloadProgressDelegate    progressAction = null,
             IRetryPolicy                retry          = null,
             TimeSpan                    partTimeout    = default,
-            bool                        strictCheck    = true)
+            bool                        strictCheck    = false)
         {
             DownloadMultiPartAsync(uri, targetPath, progressAction, partTimeout, retry, strictCheck).WaitWithoutAggregate();
         }
@@ -200,7 +200,7 @@ namespace Neon.Deployment
         /// Nothing will be downloaded when the existing file is fully formed.
         /// </para>
         /// <note>
-        /// The target files (output and MD5) will be deleted when download appears to be corrupt.
+        /// The target files (download and MD5) will be deleted when download appears to be corrupt.
         /// </note>
         /// </remarks>
         public static async Task<string> DownloadMultiPartAsync(
@@ -456,7 +456,7 @@ namespace Neon.Deployment
         /// Nothing will be downloaded when the existing file is fully formed.
         /// </para>
         /// <note>
-        /// The target files (output and MD5) will be deleted when download appears to be corrupt.
+        /// The target files (download and MD5) will be deleted when download appears to be corrupt.
         /// </note>
         /// </remarks>
         public static async Task<string> DownloadMultiPartAsync(
