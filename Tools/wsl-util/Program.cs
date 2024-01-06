@@ -54,7 +54,7 @@ namespace WslUtil
         /// <param name="args">Command line arguments.</param>
         public static async Task<int> Main(string[] args)
         {
-            string usage = $@"
+            const string usage = $@"
 wsl-util [v{Program.Version}]
 {Build.Copyright}
 
