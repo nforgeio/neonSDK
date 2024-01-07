@@ -27,5 +27,5 @@ param
 	[parameter(Mandatory=$true, Position=3)][string] $tag
 )
 
-Pull-DockerImage "nats-streaming:$version-linux"
+Pull-ContainerImage "nats-streaming:$version-linux"
 Invoke-CaptureStreams "docker build -t ${registry}:${tag} --build-arg VERSION=$version ." -interleave | Out-Null

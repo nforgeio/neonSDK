@@ -27,7 +27,7 @@ param
 	[parameter(Mandatory=$true, Position=3)][string] $tag
 )
 
-Pull-DockerImage "yugabytedb/yugabyte:$yugabyteVersion"
+Pull-ContainerImage "yugabytedb/yugabyte:$yugabyteVersion"
 
 # Build the image.
 

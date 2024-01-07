@@ -2,7 +2,7 @@
 #------------------------------------------------------------------------------
 # FILE:         utility.ps1
 # CONTRIBUTOR:  Jeff Lill
-# COPYRIGHT:    Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
+# COPYRIGHT:    Copyright Â© 2005-2024 by NEONFORGE LLC.  All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -520,11 +520,12 @@ function DeleteFolder
 }
 
 #------------------------------------------------------------------------------
-# Pushes a Docker image to the public registry with retry as an attempt to handle
-# transient registry issues.
+# Pushes a Docker image to a public registry with retry, handling any transient
+# registry issues.
 #
-# Note that you may set [$noImagePush=$true] to disable image pushing for debugging
-# purposes.  The [publish.ps1] scripts accept the [--nopush] switchto control this.
+# Note that you may set the global [$noImagePush=$true] to disable image pushing
+# for debugging  purposes.  The [publish.ps1] scripts accept the [--nopush] switch
+# to control this.
 #
 # ARGUMENTS:
 #
@@ -550,7 +551,7 @@ function DeleteFolder
 
 $noImagePush = $false
 
-function Push-DockerImage
+function Push-ContainerImage
 {
     [CmdletBinding()]
     param (
@@ -651,7 +652,7 @@ function Push-DockerImage
 }
 
 #------------------------------------------------------------------------------
-# Pulls a Docker image.
+# Pulls a container image from the a public registry.
 #
 # ARGUMENTS:
 #
@@ -661,7 +662,7 @@ function Push-DockerImage
 #
 # NOTE: This function attempts to workaround what appears to be transient issues.
 
-function Pull-DockerImage
+function Pull-ContainerImage
 {
     [CmdletBinding()]
     param (

@@ -27,5 +27,5 @@ param
 	[parameter(Mandatory=$true, Position=3)][string] $tag
 )
 
-Pull-DockerImage "alpine:latest"
+Pull-ContainerImage "alpine:latest"
 Invoke-CaptureStreams "docker build -t ${registry}:${tag} --build-arg VERSION=$version ." -interleave | Out-Null
