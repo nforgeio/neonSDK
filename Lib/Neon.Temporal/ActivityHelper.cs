@@ -18,6 +18,9 @@
 using System;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Logging;
+
+using Neon.Diagnostics;
 using Neon.Tasks;
 
 using Temporalio.Activities;
@@ -29,6 +32,32 @@ namespace Neon.Temporal
     /// </summary>
     public static class ActivityHelper
     {
+        /// <summary>
+        /// Adds activity context attributes to the <see cref="ILogger"/>
+        /// </summary>
+        /// <param name="logger"></param>
+        /// <returns></returns>
+        public static ILogger AddActivityAttributes(this ILogger logger)
+        {
+            if (ActivityExecutionContext.HasCurrent)
+            {
+                return logger.AddAttributes(attributes =>
+                {
+                    attributes.Add("activity_id", ActivityExecutionContext.Current.Info.ActivityId);
+                    attributes.Add("activity_type", ActivityExecutionContext.Current.Info.ActivityType);
+                    attributes.Add("workflow_id", ActivityExecutionContext.Current.Info.WorkflowId);
+                    attributes.Add("workflow_run_id", ActivityExecutionContext.Current.Info.WorkflowRunId);
+                    attributes.Add("workflow_namespace", ActivityExecutionContext.Current.Info.WorkflowNamespace);
+                    attributes.Add("workflow_type", ActivityExecutionContext.Current.Info.WorkflowType);
+                    attributes.Add("attempt", ActivityExecutionContext.Current.Info.Attempt);
+                    attributes.Add("is_local", ActivityExecutionContext.Current.Info.IsLocal);
+                    attributes.Add("task_queue", ActivityExecutionContext.Current.Info.TaskQueue);
+                });
+            }
+
+            return logger;
+        }
+
         /// <summary>
         /// Automatically heartbeats the current activity context.
         /// </summary>
