@@ -39,8 +39,8 @@ namespace WslUtil
     public class GccCommand : CommandBase
     {
         private const string usage = @"
-Compiles a C program for Linux within the current WSL2 distribution.  Note that
-the current distribution must be Debian or Ubuntu based.
+Compiles a C program for Linux within the current WSL2 distribution,
+using the WSL [neon-ubuntu-20.04] distro.
 
 USAGE:
 
@@ -54,7 +54,7 @@ ARGUMENTS:
 
 REMARKS:
 
-This command requires that the [neon-ubuntu-20.04] WSL distribution is already installed
+This command requires that the [neon-ubuntu-20.04] WSL distribution be already installed
 as described in the developer setup instructions.
 
 ";
@@ -93,7 +93,7 @@ as described in the developer setup instructions.
 
             if (distroName == null)
             {
-                Console.Error.WriteLine("*** ERROR: WSL distro [neon-ubuntu-20.04] does not exist.");
+                Console.Error.WriteLine("*** ERROR: WSL [neon-ubuntu-20.04] distro does not exist or Docker/WSL isn't running.");
                 Console.Error.WriteLine("           Install this as described in the developer setup instructions.");
                 Program.Exit(1);
             }
@@ -112,9 +112,9 @@ as described in the developer setup instructions.
             // running GCC to build the thing, passing [*.c] to include all of the C
             // source files and generating the binary as [output.bin] with the folder.
             //
-            // We're also going to clear the [/tmp/wsl-util] folder first to ensure that we don't
-            // accumulate any old build files over time and we'll also ensure that
-            // [gcc] is installed.
+            // We're also going to clear the [/tmp/wsl-util] folder first to ensure
+            // that we don't accumulate any old build files over time and we'll also
+            // ensure that [gcc] is installed.
 
             var sbGccArgs = new StringBuilder();
 
@@ -174,7 +174,17 @@ chmod 754 {linuxSafeAptGetPath}
 $@"
 set -euo pipefail
 
-apt-get install -yq gcc
+# We're not currently doing anything fancy in our Linux tools, so we're
+# not going to ensure that we have the latest [gcc] compiler release,
+# to avoid the overhead of having the package manager install updates.
+#
+# An alternative to this simple [gcc] check, would be to check for updated
+# versions once a day or something.
+
+if [ ! -file /usr/bin/gcc ]; then
+    apt-get update -q
+    apt-get install -yq gcc
+fi
 
 cd {linuxBuildFolder}
 gcc *.c -o {linuxOutputPath} {sbGccArgs}
@@ -183,7 +193,9 @@ gcc *.c -o {linuxOutputPath} {sbGccArgs}
 
                 // Copy the build output to the Windows output path.
 
-                Directory.CreateDirectory(Path.GetDirectoryName(outputPath));
+                var outputFolder = Path.GetDirectoryName(outputPath);
+
+                Directory.CreateDirectory(outputFolder);
                 NeonHelper.DeleteFile(outputPath);
                 File.Copy(distro.ToWindowsPath(linuxOutputPath), outputPath);
             }

@@ -77,6 +77,8 @@ COMMANDS:
 
                 CommandLine = new CommandLine(args);
 
+                Console.WriteLine(CommandLine.ToFormatted(Program.Name, withBars: true));
+
                 if (CommandLine.HasHelpOption || CommandLine.Arguments.Length == 0)
                 {
                     Console.WriteLine(usage);

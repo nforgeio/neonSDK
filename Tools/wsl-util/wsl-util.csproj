@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net48</TargetFramework>
         <OutputType>Exe</OutputType>
         <RootNamespace>WslUtil</RootNamespace>
         <DebugType>embedded</DebugType>
@@ -27,10 +27,6 @@
         <ProjectReference Include="..\..\Lib\Neon.BuildInfo\Neon.BuildInfo.csproj" />
         <ProjectReference Include="..\..\Lib\Neon.Common\Neon.Common.csproj" />
         <ProjectReference Include="..\..\Lib\Neon.WSL\Neon.WSL.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <Folder Include="Properties\PublishProfiles\" />
     </ItemGroup>
 
 </Project>

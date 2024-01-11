@@ -52,8 +52,8 @@
     
     We used to build the Linux health probe executables here via WSL, and that worked
     fine until we added a second target framework.  After that, we started seeing random
-    failures building these programs.  After thinking about it this is due to Visual Studio
-    building the project for target frameworks in parallel.
+    failures building these programs.  After thinking about it, I this is due to
+    Visual Studio building the project for target frameworks in parallel.
     
     The workaround is to build these manually and commit the binaries to GitHub.  These
     executables are very simple and will rarely need to be updated if ever.  If you do 

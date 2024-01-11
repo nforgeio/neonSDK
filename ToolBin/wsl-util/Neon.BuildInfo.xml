@@ -153,28 +153,28 @@
             <summary>Branch: jeff</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.Commit">
-            <summary>Commit: a1651d2</summary>
+            <summary>Commit: 79690360</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.Sha">
-            <summary>Sha: a1651d21564ad6910f53467db1b8627c7f5e842f</summary>
+            <summary>Sha: 79690360c8ec23b2cdb25af810ec7a40c013fb75</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.CommitDate">
-            <summary>Commit date: 2023-04-06T19:37:37-07:00</summary>
+            <summary>Commit date: 2024-01-07T10:08:37-08:00</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.Commits">
-            <summary>Commits on top of base version: 80</summary>
+            <summary>Commits on top of base version: 19</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.Tag">
-            <summary>Tag: release-v3.0.0-80-ga1651d2</summary>
+            <summary>Tag: neonkube-v0.10.0-beta.5-19-g79690360</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.BaseTag">
-            <summary>Base tag: release-v3.0.0</summary>
+            <summary>Base tag: neonkube-v0.10.0-beta.5</summary>
         </member>
         <member name="T:Internal.ThisAssembly.Git.BaseVersion">
             <summary>Provides access to the base version information used to determine the <see cref="T:Internal.ThisAssembly.Git.SemVer" />.</summary>      
         </member>
         <member name="F:Internal.ThisAssembly.Git.BaseVersion.Major">
-            <summary>Major: 3</summary>
+            <summary>Major: 10</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.BaseVersion.Minor">
             <summary>Minor: 0</summary>
@@ -186,19 +186,19 @@
             <summary>Provides access to SemVer information for the current assembly.</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.SemVer.Major">
-            <summary>Major: 3</summary>
+            <summary>Major: 10</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.SemVer.Minor">
             <summary>Minor: 0</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.SemVer.Patch">
-            <summary>Patch: 80</summary>
+            <summary>Patch: 19</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.SemVer.Label">
-            <summary>Label: release</summary>
+            <summary>Label: beta.5</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.SemVer.DashLabel">
-            <summary>Label with dash prefix: -release</summary>
+            <summary>Label with dash prefix: -beta.5</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.SemVer.Source">
             <summary>Source: Tag</summary>
