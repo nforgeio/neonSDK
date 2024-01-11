@@ -31,15 +31,20 @@ namespace Neon.Temporal
         {
             if (ActivityExecutionContext.HasCurrent)
             {
-                collector.Add("activity_id", ActivityExecutionContext.Current.Info.ActivityId);
-                collector.Add("activity_type", ActivityExecutionContext.Current.Info.ActivityType);
-                collector.Add("workflow_id", ActivityExecutionContext.Current.Info.WorkflowId);
-                collector.Add("workflow_run_id", ActivityExecutionContext.Current.Info.WorkflowRunId);
-                collector.Add("workflow_namespace", ActivityExecutionContext.Current.Info.WorkflowNamespace);
-                collector.Add("workflow_type", ActivityExecutionContext.Current.Info.WorkflowType);
-                collector.Add("attempt", ActivityExecutionContext.Current.Info.Attempt);
-                collector.Add("is_local", ActivityExecutionContext.Current.Info.IsLocal);
-                collector.Add("task_queue", ActivityExecutionContext.Current.Info.TaskQueue);
+                collector.Add(TemporalEnricherTagNames.WorkflowNamespace, ActivityExecutionContext.Current.Info.WorkflowNamespace);
+                collector.Add(TemporalEnricherTagNames.TaskQueue,         ActivityExecutionContext.Current.Info.TaskQueue);
+                collector.Add(TemporalEnricherTagNames.ActivityAttempt,   ActivityExecutionContext.Current.Info.Attempt);
+                collector.Add(TemporalEnricherTagNames.ActivityId,        ActivityExecutionContext.Current.Info.ActivityId);
+                collector.Add(TemporalEnricherTagNames.ActivityIsLocal,   ActivityExecutionContext.Current.Info.IsLocal);
+                collector.Add(TemporalEnricherTagNames.ActivityType,      ActivityExecutionContext.Current.Info.ActivityType);
+                collector.Add(TemporalEnricherTagNames.WorkflowId,        ActivityExecutionContext.Current.Info.WorkflowId);
+                collector.Add(TemporalEnricherTagNames.WorkflowRunId,     ActivityExecutionContext.Current.Info.WorkflowRunId);
+                collector.Add(TemporalEnricherTagNames.WorkflowType,      ActivityExecutionContext.Current.Info.WorkflowType);
+
+                if (ActivityExecutionContext.Current.CancellationToken.IsCancellationRequested)
+                {
+                    collector.Add(TemporalEnricherTagNames.ActivityCancelReason, ActivityExecutionContext.Current.CancelReason);
+                }
             }
         }
     }

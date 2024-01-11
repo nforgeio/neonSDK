@@ -31,16 +31,16 @@ namespace Neon.Temporal
         {
             if (Workflow.InWorkflow)
             {
-                collector.Add("namespace", Workflow.Info.Namespace);
-                collector.Add("run_id", Workflow.Info.RunId);
-                collector.Add("workflow_id", Workflow.Info.WorkflowId);
-                collector.Add("workflow_type", Workflow.Info.WorkflowType);
-                collector.Add("task_queue", Workflow.Info.TaskQueue);
-                collector.Add("attempt", Workflow.Info.Attempt);
+                collector.Add(TemporalEnricherTagNames.WorkflowNamespace, Workflow.Info.Namespace);
+                collector.Add(TemporalEnricherTagNames.TaskQueue,         Workflow.Info.TaskQueue);
+                collector.Add(TemporalEnricherTagNames.WorkflowAttempt,   Workflow.Info.Attempt);
+                collector.Add(TemporalEnricherTagNames.WorkflowId,        Workflow.Info.WorkflowId);
+                collector.Add(TemporalEnricherTagNames.WorkflowRunId,     Workflow.Info.RunId);
+                collector.Add(TemporalEnricherTagNames.WorkflowType,      Workflow.Info.WorkflowType);
 
                 if (!string.IsNullOrEmpty(Workflow.Info.ContinuedRunId))
                 {
-                    collector.Add("continued_run_id", Workflow.Info.ContinuedRunId);
+                    collector.Add(TemporalEnricherTagNames.WorkflowContinuedRunId, Workflow.Info.ContinuedRunId);
                 }
             }
         }
