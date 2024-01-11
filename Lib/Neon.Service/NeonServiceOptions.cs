@@ -16,8 +16,11 @@
 // limitations under the License.
 
 using System;
+using System.Collections.Generic;
 
+using Microsoft.Extensions.Diagnostics.Enrichment;
 using Microsoft.Extensions.Logging;
+
 using OpenTelemetry.Trace;
 
 namespace Neon.Service
@@ -129,5 +132,10 @@ namespace Neon.Service
         /// <see cref="ProcessTerminator"/> for more information.
         /// </summary>
         public TimeSpan MinShutdownTime { get; set; } = default;
+
+        /// <summary>
+        /// Optionally specifies log enrichers to add to the Logging pipeline.
+        /// </summary>
+        public IEnumerable<ILogEnricher> LogEnrichers { get; set; } = null;
     }
 }
