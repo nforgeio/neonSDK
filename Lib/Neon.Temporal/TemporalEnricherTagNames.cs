@@ -25,57 +25,57 @@ namespace Neon.Temporal
         /// <summary>
         /// The Temporal task queue name.
         /// </summary>
-        public const string TaskQueue              = "temporal.task_queue";
+        public const string TaskQueue = "temporal.task_queue";
 
         /// <summary>
         /// The Temporal activity attempt number.
         /// </summary>
-        public const string ActivityAttempt        = "temporal.activity.attempt";
+        public const string ActivityAttempt = "temporal.activity.attempt";
 
         /// <summary>
         /// The Temporal activity ID.
         /// </summary>
-        public const string ActivityId             = "temporal.activity.id";
+        public const string ActivityId = "temporal.activity.id";
 
         /// <summary>
         /// The Temporal activity is local flag.
         /// </summary>
-        public const string ActivityIsLocal        = "temporal.activity.is_local";
+        public const string ActivityIsLocal = "temporal.activity.is_local";
 
         /// <summary>
         /// The Temporal activity type.
         /// </summary>
-        public const string ActivityType           = "temporal.activity.type";
+        public const string ActivityType = "temporal.activity.type";
 
         /// <summary>
         /// The Temporal activity cancel reason.
         /// </summary>
-        public const string ActivityCancelReason   = "temporal.activity.cancel_reason";
+        public const string ActivityCancelReason = "temporal.activity.cancel_reason";
 
         /// <summary>
         /// The Temporal workflow attempt number.
         /// </summary>
-        public const string WorkflowAttempt        = "temporal.workflow.attempt";
+        public const string WorkflowAttempt = "temporal.workflow.attempt";
 
         /// <summary>
         /// The Temporal workflow ID.
         /// </summary>
-        public const string WorkflowId             = "temporal.workflow.id";
+        public const string WorkflowId = "temporal.workflow.id";
 
         /// <summary>
         /// The Temporal workflow namespace.
         /// </summary>
-        public const string WorkflowNamespace      = "temporal.workflow.namespace";
+        public const string WorkflowNamespace = "temporal.workflow.namespace";
 
         /// <summary>
         /// The Temporal workflow run ID.
         /// </summary>
-        public const string WorkflowRunId          = "temporal.workflow.run_id";
+        public const string WorkflowRunId = "temporal.workflow.run_id";
 
         /// <summary>
         /// The Temporal workflow type.
         /// </summary>
-        public const string WorkflowType           = "temporal.workflow.type";
+        public const string WorkflowType = "temporal.workflow.type";
 
         /// <summary>
         /// The Temporal workflow continued run ID.

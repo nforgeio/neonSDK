@@ -48,7 +48,7 @@ namespace Neon.Temporal
                 }
                 else
                 {
-                    interval = TimeSpan.MaxValue;
+                    interval = TimeSpan.FromMilliseconds(System.Int32.MaxValue);
                 }
             }
 
@@ -62,7 +62,7 @@ namespace Neon.Temporal
 
                     if (ActivityExecutionContext.Current.CancellationToken.IsCancellationRequested)
                     {
-                        throw new TaskCanceledException("Activity cancelled.");
+                        throw new TaskCanceledException($"Activity cancelled. Reason: {ActivityExecutionContext.Current.CancelReason}");
                     }
                 }
             });
