@@ -1,5 +1,5 @@
-﻿This folder contains the C source code for the health probe executables deployed by
-NeonService when running on Linux.  These binaries are build using the **wsl-util**
+This folder contains the C source code for the health probe executables deployed by
+NeonService when running on Linux.  These binaries are built using the **wsl-util**
 tool before compiling the **Neon.Service** library so they can be included as
 embedded resources.
 
