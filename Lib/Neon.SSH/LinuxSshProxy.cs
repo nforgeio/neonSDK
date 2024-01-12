@@ -847,7 +847,11 @@ rm {HostFolders.Home(Username)}/askpass
         /// <summary>
         /// Upgrades the Linux distribution on the node.
         /// </summary>
-        /// <param name="aptGetTool">Optionally specifies a custom <b>apt-get</b> tool or script.</param>
+        /// <param name="aptGetTool">
+        /// Optionally specifies a custom <b>apt-get</b> tool or compatible
+        /// script to be used for performing the upgrade.
+        /// </param>
+        /// <param name="upgradeKernel">Optionally upgrade to the latest stable kernel.</param>
         /// <returns><c>true</c> when a reboot is required.</returns>
         /// <remarks>
         /// <note>
@@ -855,8 +859,10 @@ rm {HostFolders.Home(Username)}/askpass
         /// a package operation is already in progress (such as checking for daily updates).
         /// </note>
         /// </remarks>
-        public bool UpgradeLinuxDistribution(string aptGetTool = "apt-get")
+        public bool UpgradeLinuxDistribution(string aptGetTool = "apt-get", bool upgradeKernel = false)
         {
+            var reboot = false;
+
             // $hack(jefflill):
             //
             // We just started seeing trouble with upgrading Ubuntu on Azure.  Other people
@@ -885,10 +891,19 @@ rm {HostFolders.Home(Username)}/askpass
 
             SudoCommand($"{aptGetTool} update -yq")
                 .EnsureSuccess();
+
+            if (upgradeKernel)
+            {
+                SudoCommand($"{aptGetTool} install -yq --install-recommends linux-image-generic-hwe-22.04")
+                    .EnsureSuccess();
+
+                reboot = true;
+            }
+
             SudoCommand($"{aptGetTool} dist-upgrade -yq")
                 .EnsureSuccess();
 
-            return FileExists("/var/run/reboot-required");
+            return reboot || FileExists("/var/run/reboot-required");
         }
 
         /// <inheritdoc/>
@@ -2714,9 +2729,15 @@ echo $? > {cmdFolder}/exit
         }
 
         /// <summary>
+        /// <para>
         /// Cleans a node by removing unnecessary package manager metadata, cached DHCP information, journald
         /// logs... and then fills unreferenced file system blocks with zeros so the disk image will or
         /// trims the file system (when possible) so the image will compress better.
+        /// </para>
+        /// <para>
+        /// This also clears log files, apt package info, cached DHCP addresses, as well as the last
+        /// login info and Bash command history.
+        /// </para>
         /// </summary>
         /// <param name="trim">Optionally trims the file system.</param>
         /// <param name="zero">Optionally zeros unreferenced file system blocks.</param>
@@ -2755,6 +2776,20 @@ set -euo pipefail
 # Remove all log files (but retain the directories).
 
 find -type f -exec rm {{}} +
+
+# Clear the last login time for all users.
+
+awk -F':' '{{ print $1}}' /etc/passwd > /tmp/users.tmp
+
+for user in `cat /tmp/users.tmp`; do
+    lastlog --clear --user $user
+done
+
+rm /tmp/users.tmp
+
+# Clear the Bash command history (current user only).
+
+history -c
 
 # Misc cleaning
 
