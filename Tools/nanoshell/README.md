@@ -18,5 +18,5 @@ See `nanoshell.c` for more information about the supported commands.
 You'll need to build and publish any changes to **nanoshell** manually by running this script:
 
 ```
-wsl-util gcc "%NF_ROOT%\Tools\nanoshell\source" "%NF_ROOT%\ToolBin\linux\amd64\nanoshell"
+wsl-util gcc --static "%NF_ROOT%\Tools\nanoshell\source" "%NF_ROOT%\ToolBin\linux\amd64\nanoshell"
 ```

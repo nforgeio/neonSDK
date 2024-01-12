@@ -44,13 +44,16 @@ using the WSL [neon-ubuntu-20.04] distro.
 
 USAGE:
 
-    wsl-util gcc SOURCE-FOLDER OUTPUT-FILE [GCC-OPTIONS...]
+    wsl-util gcc [OPTIONS] SOURCE-FOLDER OUTPUT-FILE
 
 ARGUMENTS:
 
     SOURCE-FOLDER       - Path to the Windows folder holding the source files
     OUTPUT-PATH         - Path to the Windows file where the binary output will be written
-    GCC-OPTIONS         - Optional arguments and/or options to be passed to [gcc]
+
+OPTIONS:
+
+    --static            - Statically link
 
 REMARKS:
 
@@ -60,6 +63,9 @@ as described in the developer setup instructions.
 ";
         /// <inheritdoc/>
         public override string[] Words => new string[] { "gcc" };
+
+        /// <inheritdoc/>
+        public override string[] ExtendedOptions => new string[] { "--static" };
 
         /// <inheritdoc/>
         public override void Help()
@@ -78,6 +84,7 @@ as described in the developer setup instructions.
 
             var sourceFolder = commandLine.Arguments.ElementAtOrDefault(0);
             var outputPath   = commandLine.Arguments.ElementAtOrDefault(1);
+            var staticLink   = commandLine.HasOption("--static");
 
             if (string.IsNullOrEmpty(sourceFolder) || string.IsNullOrEmpty(outputPath))
             {
@@ -170,6 +177,13 @@ chmod 754 {linuxSafeAptGetPath}
 
                 // Perform the build.
 
+                var sbOptions = new StringBuilder();
+
+                if (staticLink)
+                {
+                    sbOptions.AppendWithSeparator("-static");
+                }
+
                 var buildScript =
 $@"
 set -euo pipefail
@@ -187,7 +201,7 @@ if [ ! -file /usr/bin/gcc ]; then
 fi
 
 cd {linuxBuildFolder}
-gcc *.c -o {linuxOutputPath} {sbGccArgs}
+gcc *.c {sbOptions} -o {linuxOutputPath} {sbGccArgs}
 ";
                 distro.SudoExecuteScript(buildScript).EnsureSuccess();
 

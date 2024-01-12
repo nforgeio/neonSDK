@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
     char* usage =
         "\n"
         "nanoshell: An extremely lightweight shell used for working with\n"
-        "scratch Docker container images\n"
+        "           scratch Docker container images\n"
         "\n"
         "LIMITATIONS:\n"
         "\n"
