@@ -845,20 +845,25 @@ rm {HostFolders.Home(Username)}/askpass
         }
 
         /// <summary>
-        /// Upgrades the Linux distribution on the node.
+        /// Upgrades to the latest Linux kernel.
         /// </summary>
         /// <param name="aptGetTool">
+        /// <para>
         /// Optionally specifies a custom <b>apt-get</b> tool or compatible
         /// script to be used for performing the upgrade.
-        /// </param>
-        /// <param name="upgradeKernel">Optionally upgrade to the latest stable kernel.</param>
-        /// <returns><c>true</c> when a reboot is required.</returns>
-        /// <remarks>
+        /// </para>
         /// <note>
         /// NEONKUBE deploys a <b>safe-apt-get</b> script that handles situations where
         /// a package operation is already in progress (such as checking for daily updates).
+        /// We use this parameter to use this script.
         /// </note>
-        /// </remarks>
+        /// </param>
+        /// <param name="upgradeKernel">
+        /// <para>
+        /// Optionally upgrade to the latest stable kernel.
+        /// </para>
+        /// </param>
+        /// <returns><c>true</c> when a reboot is required.</returns>
         public bool UpgradeLinuxDistribution(string aptGetTool = "apt-get", bool upgradeKernel = false)
         {
             var reboot = false;
@@ -895,6 +900,9 @@ rm {HostFolders.Home(Username)}/askpass
             if (upgradeKernel)
             {
                 SudoCommand($"{aptGetTool} install -yq --install-recommends linux-image-generic-hwe-22.04")
+                    .EnsureSuccess();
+
+                SudoCommand($"{aptGetTool} update -yq")
                     .EnsureSuccess();
 
                 reboot = true;
