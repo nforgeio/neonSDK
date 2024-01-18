@@ -871,6 +871,7 @@ namespace Neon.Service
                         {
                             builder
                                 .SetMinimumLevel(logLevel)
+                                .EnableEnrichment()
                                 .AddOpenTelemetry(
                                     options =>
                                     {
@@ -908,6 +909,14 @@ namespace Neon.Service
                                             options.AddConsoleJsonExporter();
                                         }
                                     });
+
+                            if (options.LogEnrichers != null)
+                            {
+                                foreach (var enricher in options.LogEnrichers)
+                                {
+                                    builder.Services.AddLogEnricher(enricher);
+                                }
+                            }
                         });
 
                     NeonHelper.ServiceContainer.Add(new ServiceDescriptor(typeof(ILoggerFactory), loggerFactory));
