@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFrameworks>net6.0; net7.0; net8.0</TargetFrameworks>
         <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
         <IsPackable>false</IsPackable>
         <RootNamespace>TestXunit</RootNamespace>
@@ -23,15 +23,6 @@
         <NoWarn></NoWarn>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)' == 'Debug|netcoreapp3.1|AnyCPU'">
-        <PlatformTarget>x64</PlatformTarget>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)' == 'Release|netcoreapp3.1|AnyCPU'">
-        <PlatformTarget>x64</PlatformTarget>
-        <DefineConstants />
-    </PropertyGroup>
-
     <ItemGroup>
         <None Remove="xunit.runner.json" />
     </ItemGroup>
@@ -42,6 +33,24 @@
         </Content>
     </ItemGroup>
 
+    <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.25" />
+        <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="6.0.25" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="7.0.14" />
+        <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="7.0.14" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="8.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+    </ItemGroup>
+
     <ItemGroup>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
         <PackageReference Include="Microsoft.TestPlatform.TestHost" Version="17.8.0" />
@@ -50,9 +59,6 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="LiquidTestReports.Markdown" Version="1.1.1-beta" />
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.0" />
-        <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="8.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
         <PackageReference Include="xunit" Version="2.6.2" />
         <PackageReference Include="xunit.runner.visualstudio" Version="2.5.4">
             <PrivateAssets>all</PrivateAssets>

@@ -42,7 +42,7 @@ namespace pubcore
         /// <summary>
         /// Tool version number.
         /// </summary>
-        public const string Version = "3.2";
+        public const string Version = "3.3";
 
         /// <summary>
         /// Program entry point.
@@ -198,6 +198,13 @@ scripts or MSBUILD/CSPROJ files to quickly disable publication.
                 var stopwatch = new Stopwatch();
 
                 stopwatch.Start();
+
+                // Delete the output direrctory if it exists.
+
+                if (Directory.Exists(outputDir))
+                {
+                    Directory.Delete(outputDir, recursive: true);
+                }
 
                 // It appears that [dotnet publish] is sometimes unable to write
                 // output files due to locks being held by somebody else (I'm guessing

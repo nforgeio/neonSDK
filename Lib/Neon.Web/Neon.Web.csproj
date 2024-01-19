@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFrameworks>net6.0; net7.0; net8.0</TargetFrameworks>
         <OutputType>Library</OutputType>
         <RootNamespace>Neon.Web</RootNamespace>
         <Version>$(NeonSdkVersion)</Version>
@@ -22,11 +22,23 @@
         <Compile Include="..\Neon.BuildInfo\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
     </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="AsyncKeyedLock" Version="6.2.2" />
-        <PackageReference Include="Microsoft.Net.Http.Headers" Version="2.2.8" />
-        <PackageReference Include="MessagePack" Version="2.5.124" />
-        <PackageReference Include="NATS.Client" Version="1.0.8" />
+    <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.25" />
+        <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="6.0.25" />
+        <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="6.0.25" />
+        <PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="6.0.25" />
+        <PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.NewtonsoftJson" Version="6.0.25" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="7.0.14" />
+        <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="7.0.14" />
+        <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="7.0.14" />
+        <PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="7.0.14" />
+        <PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.NewtonsoftJson" Version="7.0.14" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
         <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.0" />
         <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="8.0.0" />
         <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.0" />
@@ -35,10 +47,16 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="AsyncKeyedLock" Version="6.2.2" />
+        <PackageReference Include="Microsoft.Net.Http.Headers" Version="2.2.8" />
+        <PackageReference Include="MessagePack" Version="2.5.124" />
+        <PackageReference Include="NATS.Client" Version="1.0.8" />
+    </ItemGroup>
+
+    <ItemGroup>
         <ProjectReference Include="..\..\Lib\Neon.BuildInfo\Neon.BuildInfo.csproj" />
         <ProjectReference Include="..\Neon.Common\Neon.Common.csproj" />
         <ProjectReference Include="..\Neon.Nats\Neon.Nats.csproj" />
-        <ProjectReference Include="..\Neon.WinTTY\Neon.WinTTY.csproj" />
     </ItemGroup>
 
     <ItemGroup>

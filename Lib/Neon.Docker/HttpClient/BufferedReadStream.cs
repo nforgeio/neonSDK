@@ -227,10 +227,11 @@ namespace Microsoft.Net.Http.Client
                 return;
             }
 
-            var s = _inner as WriteClosableStream;
-            if (s != null)
+            var stream = _inner as WriteClosableStream;
+
+            if (stream != null)
             {
-                s.CloseWrite();
+                stream.CloseWrite();
                 return;
             }
 

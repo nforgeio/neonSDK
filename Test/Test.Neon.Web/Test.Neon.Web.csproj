@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFrameworks>net6.0; net7.0; net8.0</TargetFrameworks>
         <OutputType>Library</OutputType>
         <RootNamespace>Test.Neon.Web</RootNamespace>
         <IsPackable>false</IsPackable>
@@ -25,6 +25,21 @@
         </Content>
     </ItemGroup>
 
+    <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.25" />
+        <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="6.0.25" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="7.0.14" />
+        <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="7.0.14" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="8.0.0" />
+    </ItemGroup>
+
     <ItemGroup>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
         <PackageReference Include="Microsoft.TestPlatform.TestHost" Version="17.8.0" />
@@ -39,8 +54,6 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.0" />
-        <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="8.0.0" />
     </ItemGroup>
 
     <ItemGroup>

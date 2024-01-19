@@ -168,6 +168,7 @@ namespace Neon.Web.SignalR
                     tokenRegistration = token.UnsafeRegister(static o =>
                     {
                         var tcs = (TaskCompletionSourceWithCancellation<T>)o!;
+
                         tcs.SetCanceled();
                     }, this);
                 }

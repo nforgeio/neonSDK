@@ -121,6 +121,11 @@ namespace Neon.Common
         {
             lock (debugLogSyncRoot)
             {
+                if (debugLogStopwatch == null)
+                {
+                    StartDebugLogStopwatch(restart: false);
+                }
+
                 var folder = Path.GetDirectoryName(DebugLogPath);
 
                 line  = line ?? string.Empty;
@@ -142,6 +147,11 @@ namespace Neon.Common
 
             lock (debugLogSyncRoot)
             {
+                if (debugLogStopwatch == null)
+                {
+                    StartDebugLogStopwatch(restart: false);
+                }
+
                 var folder = Path.GetDirectoryName(DebugLogPath);
 
                 LogDebug();

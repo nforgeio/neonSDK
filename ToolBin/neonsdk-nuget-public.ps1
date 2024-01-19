@@ -220,14 +220,15 @@ try
     Publish Neon.GitHub                 $neonSdkVersion
     Publish Neon.HyperV                 $neonSdkVersion
     Publish Neon.JsonConverters         $neonSdkVersion
-    Publish Neon.Service                $neonSdkVersion
     Publish Neon.ModelGen               $neonSdkVersion
     Publish Neon.ModelGenerator         $neonSdkVersion
     Publish Neon.Nats                   $neonSdkVersion
     Publish Neon.Postgres               $neonSdkVersion
     Publish Neon.Roslyn                 $neonSdkVersion
+    Publish Neon.Service                $neonSdkVersion
     Publish Neon.SSH                    $neonSdkVersion
     Publish Neon.Tailwind               $neonSdkVersion
+    Publish Neon.Temporal               $neonSdkVersion
     Publish Neon.Web                    $neonSdkVersion
     Publish Neon.WinTTY                 $neonSdkVersion
     Publish Neon.WSL                    $neonSdkVersion

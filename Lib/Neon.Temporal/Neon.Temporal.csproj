@@ -3,17 +3,18 @@
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
         <OutputType>Library</OutputType>
-        <RootNamespace>Neon.YugaByte</RootNamespace>
+        <RootNamespace>Neon.Temporal</RootNamespace>
         <Version>$(NeonSdkVersion)</Version>
-        <Description>YugaByteDB related utilities and extensions</Description>
-        <PackageLicenseFile>LICENSE</PackageLicenseFile>
-        <PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.YugaByte/README.md</PackageProjectUrl>
-        <PackageIcon>nuget-icon.png</PackageIcon>
-        <RepositoryUrl>https://github.com/nforgeio/neonSDK</RepositoryUrl>
-        <RepositoryType>git</RepositoryType>
-        <PackageTags>yugabyte yugabytedb</PackageTags>
+        <Description>Useful classes and extensions for Temporal</Description>
         <PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
+        <IsPackable>true</IsPackable>
+        <PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.Temporal/README.md</PackageProjectUrl>
+        <RepositoryType>git</RepositoryType>
+        <RepositoryUrl>https://github.com/nforgeio/neonSDK</RepositoryUrl>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
         <Configurations>Debug;Release</Configurations>
+        <PackageIcon>nuget-icon.png</PackageIcon>
+        <PackageTags>temporal temporalio</PackageTags>
     </PropertyGroup>
 
     <ItemGroup>
@@ -21,10 +22,10 @@
         <Compile Include="..\Neon.BuildInfo\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
     </ItemGroup>
 
+
     <ItemGroup>
-        <PackageReference Include="Npgsql" Version="8.0.1" />
-        <PackageReference Include="System.Security.AccessControl" Version="6.0.0" />
-        <PackageReference Include="YugaByteCassandraCSharpDriver" Version="3.16.3" />
+        <PackageReference Include="Microsoft.Extensions.Telemetry" Version="8.0.0" />
+        <PackageReference Include="Temporalio" Version="1.0.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -35,10 +36,6 @@
     <ItemGroup>
         <None Include="..\nuget-icon.png" Pack="true" PackagePath="" />
         <None Include="..\..\LICENSE" Pack="true" PackagePath="" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <Folder Include="Properties\" />
     </ItemGroup>
 
 </Project>

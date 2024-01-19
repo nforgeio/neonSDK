@@ -4,7 +4,7 @@
         <Product>NEONSDK</Product>
         <Authors>NEONFORGE Team</Authors>
         <Company>NEONFORGE LLC</Company>
-        <NeonSdkVersion>3.1.4</NeonSdkVersion>
+        <NeonSdkVersion>4.0.0-rc.7</NeonSdkVersion>
         <Copyright>Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.</Copyright>
         <PackageReadmeFile Condition="Exists('README.md')">README.md</PackageReadmeFile>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -77,10 +77,9 @@
         <CopyRetryDelayMilliseconds>50</CopyRetryDelayMilliseconds>
     </PropertyGroup>
 
-    <!-- 
-    $hack(jefflill):
+    <!-- $hack(jefflill):
     
-    We've had a lot of trouble with auto generated source files generated for:
+    We've had a lot of trouble with auto generated source files for:
     
         * GitInfo
         * AssemblyInfoAttribute
@@ -124,18 +123,6 @@
         <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
     </PropertyGroup>
 
-    <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
-        <RuntimePath>win-x64</RuntimePath>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('OSX'))">
-        <RuntimePath>osx-x64</RuntimePath>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
-        <RuntimePath>linux-x64</RuntimePath>
-    </PropertyGroup>
-
     <!-- Figure out where the [neon-modelgen] tool is located -->
 
     <Choose>
@@ -146,9 +133,23 @@
         </When>
         <Otherwise>
             <PropertyGroup>
-                <ModelGeneratorPath>$(NF_ROOT)\Tools\neon-modelgen\bin\$(Configuration)\net8.0\$(RuntimePath)\neon-modelgen</ModelGeneratorPath>
+                <ModelGeneratorPath>$(NF_ROOT)\Tools\neon-modelgen\bin\$(Configuration)\net8.0\win-x64\neon-modelgen</ModelGeneratorPath>
             </PropertyGroup>
         </Otherwise>
     </Choose>
+
+    <!-- Build breaks for some reason without this, since the .NET 8.0 upgrade -->
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+        <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="6.0.0" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
+        <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="7.0.0" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+        <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="8.0.0" />
+    </ItemGroup>
 
 </Project>

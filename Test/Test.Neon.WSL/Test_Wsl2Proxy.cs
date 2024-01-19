@@ -223,12 +223,8 @@ namespace TestWSL
                     Wsl2Proxy.Import(TestHelper.TestDistroName, imagePath, tempFolder.Path);
 
                     var distro = new Wsl2Proxy(TestHelper.TestDistroName);
-                    var text   =
-@"Line 1
-Line 2
-Line 3
-Line 4
-";
+                    var text   = "Line 1\r\nLine 2\r\nLine 3\r\nLine 4\r\n";
+
                     // Write a file using the defaults to convert CRLF-->LF with 
                     // no special permissions.
 

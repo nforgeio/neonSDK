@@ -83,6 +83,7 @@ namespace Neon.Web
         /// where this function returns <c>true</c> will be handled by the custom formatters.
         /// Other types will be passed on to the remaining formatters.
         /// </param>
+        /// <param name="disableExceptionFilter">Optionally disables the addition of the built-in exception filter middleware (see remarks).</param>
         /// <returns>The <paramref name="builder"/>.</returns>
         /// <remarks>
         /// <para>
@@ -90,6 +91,13 @@ namespace Neon.Web
         /// side by retaining object properties that one side or the other doesn't know about.  This enables
         /// scenarios where new properties are added to a data object but the solution components aren't
         /// all upgraded at the same time as a monolithic app.
+        /// </para>
+        /// <para>
+        /// By default, this method adds a an exception filter to the MVC middleware pipeline.  This
+        /// filter handles <see cref="ArgumentException"/>, <see cref="ArgumentNullException"/>, and
+        /// <see cref="HttpApiException"/> exceptions by having ASP.NET return a <see cref="HttpStatusCode.BadRequest"/>
+        /// for the argument exceptions and the status code and error code (reason phrase) from the
+        /// <see cref="HttpApiException"/>.
         /// </para>
         /// <para>
         /// This combined with the <see cref="NeonController.Requires(bool, string, string, HttpStatusCode)"/>,
@@ -103,7 +111,8 @@ namespace Neon.Web
         public static IMvcBuilder AddNeon(
             this IMvcBuilder    builder, 
             bool                disableRoundTripFormatters = false, 
-            Func<Type, bool>    allowRoundtripFormatter    = null)
+            Func<Type, bool>    allowRoundtripFormatter    = null,
+            bool                disableExceptionFilter     = false)
         {
             if (!disableRoundTripFormatters)
             {
@@ -112,6 +121,11 @@ namespace Neon.Web
                     {
                         options.InputFormatters.Insert(0, new RoundTripJsonInputFormatter(allowRoundtripFormatter));
                         options.OutputFormatters.Insert(0, new RoundTripJsonOutputFormatter(allowRoundtripFormatter));
+
+                        if (!disableExceptionFilter)
+                        {
+                            options.Filters.Add<LoggingExceptionFilter>();
+                        }
                     });
             }
 

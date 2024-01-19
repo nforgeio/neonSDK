@@ -48,10 +48,10 @@ namespace Neon.Web.SignalR
             signalrBuilder.Services.AddSingleton<IConnection>(_ => new ConnectionFactory().CreateConnection(opts));
 
             signalrBuilder.AddMessagePackProtocol()
-               .Services.AddSingleton(new AsyncKeyedLocker<string>(o =>
+               .Services.AddSingleton(new AsyncKeyedLocker<string>(options =>
                {
-                   o.PoolSize = 20;
-                   o.PoolInitialFill = 1;
+                   options.PoolSize = 20;
+                   options.PoolInitialFill = 1;
                }))
                .AddResponseCompression(opts =>
                {

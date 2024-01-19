@@ -125,19 +125,13 @@ namespace Neon.Time
         /// <summary>
         /// Returns the current time relative to time the system started.
         /// </summary>
-        private static DateTime GetTime()
-        {
-            return DateTime.UtcNow;
-        }
+        private static DateTime GetTime() => DateTime.UtcNow;
 
         /// <summary>
         /// Returns the current time relative to time the system started.
         /// </summary>
         /// <exception cref="InvalidOperationException">Thrown if there's a problem with the system timer.</exception>
-        public static DateTime Now
-        {
-            get => DateTime.UtcNow;
-        }
+        public static DateTime Now => DateTime.UtcNow;
 
         /// <summary>
         /// Returns the resolution of the underlying system timer.
@@ -164,7 +158,12 @@ namespace Neon.Time
         public static TimeSpan Infinite => DateTime.MaxValue - SysTime.Now - TimeSpan.FromDays(365);
 
         /// <summary>
+        /// <para>
         /// Tracks an external time source.
+        /// </para>
+        /// <note>
+        /// This currently throws a <see cref="NotImplementedException"/>.
+        /// </note>
         /// </summary>
         /// <remarks>
         /// <para>
@@ -188,7 +187,7 @@ namespace Neon.Time
         /// bias between the local and external clocks are adjusted.
         /// </note>
         /// </remarks>
-        public static DateTime ExternalNow
+        public static DateTime ExternalNow  // $todo(jefflill): Implement this if/when we revert back to using time-since-boot counters.
         {
             get { throw new NotImplementedException(); }
             set { throw new NotImplementedException(); }

@@ -134,7 +134,9 @@ namespace TestDeployment
                 Assert.False(fetchedRelease.Draft);
 
                 var assertUri = GitHub.Releases.GetAssetUri(release, asset);
+#pragma warning disable xUnit1031 // Do not use blocking task operations in test method
                 var assetText = httpClient.GetAsync(assertUri).Result.Content.ReadAsStringAsync().Result;
+#pragma warning restore xUnit1031 // Do not use blocking task operations in test method
 
                 Assert.Equal("test asset contents", assetText);
 
@@ -232,7 +234,9 @@ namespace TestDeployment
                 Assert.False(fetchedRelease.Draft);
 
                 var assertUri = GitHub.Releases.GetAssetUri(release, asset);
+#pragma warning disable xUnit1031 // Do not use blocking task operations in test method
                 var assetText = httpClient.GetAsync(assertUri).Result.Content.ReadAsStringAsync().Result;
+#pragma warning restore xUnit1031 // Do not use blocking task operations in test method
 
                 Assert.Equal("test asset contents", assetText);
 
