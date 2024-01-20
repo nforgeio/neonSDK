@@ -18,16 +18,16 @@
 using System;
 using System.Linq;
 
+using AsyncKeyedLock;
+
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 
-using AsyncKeyedLock;
-
 using NATS.Client;
 
-namespace Neon.Web.SignalR
+namespace Neon.SignalR
 {
     /// <summary>
     /// Helpers for adding Neon NATS backplane via dependency injection.

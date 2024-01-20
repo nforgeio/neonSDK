@@ -15,14 +15,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using System.Net.Http;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
 using Neon.Diagnostics;
+using Neon.SignalR.Proxy;
 
 using Yarp.ReverseProxy.Forwarder;
 
@@ -49,25 +53,62 @@ namespace Neon.SignalR
         /// <summary>
         /// Invokes the middleware.
         /// </summary>
-        /// <param name="context"></param>
-        /// <param name="config"></param>
-        /// <param name="forwarder"></param>
-        /// <param name="httpClient"></param>
-        /// <param name="forwarderRequestConfig"></param>
-        /// <param name="logger"></param>
+        /// <param name="context">The current http context.</param>
+        /// <param name="config">The proxy configuration.</param>
+        /// <param name="dnsCache">The DNS cache.</param>
+        /// <param name="forwarder">The forwarder used to forward requests upstream.</param>
+        /// <param name="httpClient">The http client.</param>
+        /// <param name="forwarderRequestConfig">The http forwarding configuration.</param>
+        /// <param name="dataProtectionProvider">An optional data protection provider.</param>
+        /// <param name="logger">An optional logger.</param>
         /// <returns></returns>
         public async Task InvokeAsync(
             HttpContext                     context,
             ProxyConfig                     config,
+            IDnsCache                       dnsCache,
             IHttpForwarder                  forwarder,
             HttpMessageInvoker              httpClient,
             ForwarderRequestConfig          forwarderRequestConfig,
+            IDataProtectionProvider         dataProtectionProvider = null,
             ILogger<SignalrProxyMiddleware> logger = null)
         {
             using var activity = TraceContext.ActivitySource?.StartActivity();
 
+            var dataProtector = dataProtectionProvider?.CreateProtector(TraceContext.ActivitySourceName);
+
             if (context.Request.Cookies.TryGetValue(cookieKey, out var upstream))
             {
+                try
+                {
+                    upstream = dataProtector?.Unprotect(upstream) ?? upstream;
+
+                    if (!dnsCache.ContainsKey(upstream))
+                    {
+                        throw new InvalidDnsException($"Upstream {upstream} not found in DNS cache");
+                    }
+
+                    if (upstream == dnsCache.GetSelfAddress())
+                    {
+                        await next(context);
+                        return;
+                    }
+                }
+                catch (Exception e) when (e is CryptographicException)
+                {
+                    logger?.LogErrorEx(e, "Error decrypting cookie");
+                    context.Response.Cookies.Delete(cookieKey);
+                    upstream = null;
+                }
+                catch (Exception e) when (e is InvalidDnsException)
+                {
+                    logger?.LogErrorEx(e, "Upstream no longer available");
+                    context.Response.Cookies.Delete(cookieKey);
+                    upstream = null;
+                }
+            }
+
+            if (!string.IsNullOrEmpty(upstream))
+            { 
                 logger?.LogDebugEx(() => $"Forwarding to existing upstream: {upstream}");
 
                 var error = await forwarder.SendAsync(context, $"{context.Request.Scheme}://{upstream}:{config.Port}", httpClient, forwarderRequestConfig);
@@ -80,15 +121,17 @@ namespace Neon.SignalR
 
                     logger?.LogErrorEx(exception);
                 }
-            }
-            else
-            {
-                logger?.LogDebugEx(() => $"Handling request locally: {config.SelfAddress}");
 
-                context.Response.Cookies.Append(cookieKey, config.SelfAddress);
-
-                await next(context);
+                return;
             }
+
+            logger?.LogDebugEx(() => $"Handling request locally: {dnsCache.GetSelfAddress()}");
+
+            var cookieContent = dataProtector?.Protect(dnsCache.GetSelfAddress()) ?? dnsCache.GetSelfAddress();
+
+            context.Response.Cookies.Append(cookieKey, cookieContent);
+
+            await next(context);
         }
     }
 

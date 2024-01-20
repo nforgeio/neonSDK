@@ -23,6 +23,8 @@ using System.Net.Http;
 using DnsClient;
 
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+
 using Yarp.ReverseProxy.Forwarder;
 
 namespace Neon.SignalR
@@ -39,17 +41,19 @@ namespace Neon.SignalR
         /// <returns></returns>
         public static IServiceCollection AddSignalrProxy(this IServiceCollection services)
         {
-            services
-                .AddSingleton<ILookupClient>(new LookupClient())
-                .AddSingleton<DnsCache>()
-                .AddSingleton<ForwarderRequestConfig>(
+            services.TryAddSingleton<ILookupClient>(new LookupClient());
+            services.TryAddSingleton<IDnsCache, DnsCache>();
+
+            services.TryAddSingleton<ForwarderRequestConfig>(
                     serviceProvider =>
                     {
                         return new ForwarderRequestConfig()
                         {
                             ActivityTimeout = TimeSpan.FromSeconds(100)
                         };
-                    })
+                    });
+
+            services
                 .AddHttpForwarder()
                 .AddSingleton<HttpMessageInvoker>(
                     serviceProvider =>
@@ -73,11 +77,17 @@ namespace Neon.SignalR
         /// Adds SignalR proxy services.
         /// </summary>
         /// <param name="services"></param>
+        /// <param name="options"></param>
         /// <returns></returns>
         public static IServiceCollection AddSignalrProxy(this IServiceCollection services, Action<ProxyConfig> options = null)
         {
             var config = new ProxyConfig();
             options?.Invoke(config);
+
+            if (string.IsNullOrEmpty(config.Hostname))
+            {
+                config.Hostname = Dns.GetHostName();
+            }
 
             services.AddSingleton(config)
                 .AddSignalrProxy();

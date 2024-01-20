@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------
-// FILE:        DependencyInjectionExtensions.cs
+// FILE:        TraceContext.cs
 // CONTRIBUTOR: Marcus Bowyer
 // COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
@@ -16,16 +16,8 @@
 // limitations under the License.
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-
-using Neon.Diagnostics;
-
-using OpenTelemetry.Trace;
 
 namespace Neon.SignalR
 {

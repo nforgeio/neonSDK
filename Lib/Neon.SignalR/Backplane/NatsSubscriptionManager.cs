@@ -16,27 +16,20 @@
 // limitations under the License.
 
 using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 using System.Collections.Concurrent;
+using System.Threading.Tasks;
 
-using Microsoft.AspNetCore.Http.Features;
+using AsyncKeyedLock;
+
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.AspNetCore.SignalR.Protocol;
-using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
+
+using NATS.Client;
 
 using Neon.Diagnostics;
 using Neon.Tasks;
 
-using AsyncKeyedLock;
-
-using NATS;
-using NATS.Client;
-
-namespace Neon.Web.SignalR
+namespace Neon.SignalR
 {
     internal sealed class NatsSubscriptionManager
     {

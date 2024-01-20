@@ -15,22 +15,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Microsoft.AspNetCore.SignalR.Protocol;
-
-using Neon.Common;
 
 using MessagePack;
 
-using Newtonsoft.Json;
-
-namespace Neon.Web.SignalR
+namespace Neon.SignalR
 {
     /// <summary>
     /// Represents a method invokation.

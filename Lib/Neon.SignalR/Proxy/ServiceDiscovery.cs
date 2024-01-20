@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------------
-// FILE:	    ServiceDiscovery.cs.cs
+// FILE:	    ServiceDiscovery.cs
 // CONTRIBUTOR: NEONFORGE Team
 // COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
@@ -28,6 +28,7 @@ using Microsoft.Extensions.Logging;
 
 using Neon.Common;
 using Neon.Diagnostics;
+using Neon.Tasks;
 
 namespace Neon.SignalR
 {
@@ -37,7 +38,7 @@ namespace Neon.SignalR
     public class ServiceDiscovey : BackgroundService
     {
         private readonly ILogger<ServiceDiscovey> logger;
-        private readonly DnsCache                 dnsCache;
+        private readonly IDnsCache                dnsCache;
         private readonly ProxyConfig              config;
         private readonly ILookupClient            lookupClient;
 
@@ -50,7 +51,7 @@ namespace Neon.SignalR
         /// <param name="logger"></param>
         public ServiceDiscovey(
             ProxyConfig config,
-            DnsCache dnsCache,
+            IDnsCache dnsCache,
             ILookupClient lookupClient,
             ILogger<ServiceDiscovey> logger = null)
         {
@@ -69,48 +70,84 @@ namespace Neon.SignalR
         {
             logger?.LogInformation("Timed Hosted Service running.");
 
-            using PeriodicTimer timer = new(TimeSpan.FromSeconds(30));
+            using PeriodicTimer timer = new PeriodicTimer(config.DnsProbeInterval);
+
+            await QueryAsync();
 
             try
             {
                 while (await timer.WaitForNextTickAsync(stoppingToken))
                 {
-                    var dns  = await lookupClient.QueryAsync(config.PeerAddress, QueryType.SRV);
-
-                    if (dns.HasError || dns.Answers.IsEmpty())
-                    {
-                        logger?.LogDebugEx(() => $"DNS error: [{NeonHelper.JsonSerialize(dns)}]");
-                    }
-
-                    var srv = dns.Answers.SrvRecords().Where(r => r.Port == config.Port).ToList();
-
-                    logger?.LogDebugEx(() => $"SRV: [{NeonHelper.JsonSerialize(srv)}]");
-
-                    foreach (var address in srv)
-                    {
-                        dnsCache.Hosts.Add(address.Target.Value);
-
-                        if (address.Target.Value.Contains(Dns.GetHostName()))
-                        {
-                            config.SelfAddress = address.Target.Value;
-                            continue;
-                        }
-
-                        string hostName = Dns.GetHostName();
-                        string ip       = (await Dns.GetHostEntryAsync(hostName)).AddressList[0].ToString();
-
-                        if (address.Target.Value.Replace('-', '.')
-                            .Contains(ip))
-                        {
-                            config.SelfAddress = address.Target.Value;
-                            continue;
-                        }
-                    }
+                    await QueryAsync();
                 }
             }
             catch (OperationCanceledException)
             {
                 logger?.LogInformation("Timed Hosted Service is stopping.");
+            }
+        }
+
+        private async Task QueryAsync()
+        {
+            await SyncContext.Clear;
+
+            try
+            {
+                var dns  = await lookupClient.QueryAsync(config.PeerAddress, QueryType.SRV);
+
+                if (dns.HasError || dns.Answers.IsEmpty())
+                {
+                    logger?.LogDebugEx(() => $"DNS error: [{NeonHelper.JsonSerialize(dns)}]");
+                }
+
+                var srv = dns.Answers.SrvRecords().Where(r => r.Port == config.Port).ToList();
+
+                dnsCache.Hosts = srv.Select(s => s.Target.Value.Trim('.')).ToHashSet();
+
+                foreach (var address in srv)
+                {
+                    try
+                    {
+                        if (address.DomainName.Value.Contains(config.Hostname)
+                            || address.Target.Value.Contains(config.Hostname))
+                        {
+                            var self = address.Target.Value.TrimEnd('.');
+
+                            dnsCache.SetSelfAddress(self);
+
+                            continue;
+                        }
+
+                        var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+
+                        var hostEntry   = await Dns.GetHostEntryAsync(
+                            hostNameOrAddress: config.Hostname,
+                            family:            System.Net.Sockets.AddressFamily.InterNetwork,
+                            cancellationToken: cts.Token);
+
+                        var ipString = address.Target.Value.Split('.').FirstOrDefault()?.Replace("-", ".").Trim();
+
+                        if (hostEntry.AddressList.Any(a => a.Equals(IPAddress.Parse(ipString))))
+                        {
+                            var self = address.Target.Value.TrimEnd('.');
+
+                            dnsCache.SetSelfAddress(self);
+
+                            continue;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        if (!NeonHelper.IsDevWorkstation)
+                        {
+                            logger?.LogErrorEx(e, () => "Error processing record.");
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                logger?.LogErrorEx(e, () => "Error during service discovery");
             }
         }
     }

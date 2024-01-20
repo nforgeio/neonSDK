@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------------
-// FILE:	    ProxyConfig.cs
+// FILE:	    Exceptions.cs
 // CONTRIBUTOR: NEONFORGE Team
 // COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
@@ -15,26 +15,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Neon.SignalR
+using System;
+
+namespace Neon.SignalR.Proxy
 {
-    /// <summary>
-    /// SignalR proxy configuration.
-    /// </summary>
-    public class ProxyConfig
+    internal class InvalidDnsException : Exception
     {
-        /// <summary>
-        /// The address of this service. Must have valid SRV records.
-        /// </summary>
-        public string PeerAddress { get; set; }
+        public InvalidDnsException(string message) : base(message) { }
 
-        /// <summary>
-        /// The service port.
-        /// </summary>
-        public int Port { get; set; }
-
-        /// <summary>
-        /// The current address of this server.
-        /// </summary>
-        public string SelfAddress { get; set; }
     }
 }
