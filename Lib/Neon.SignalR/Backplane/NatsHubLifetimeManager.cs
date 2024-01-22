@@ -29,7 +29,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SignalR.Protocol;
 using Microsoft.Extensions.Logging;
 
-using NATS.Client;
+using NATS.Client.Core;
 
 using Neon.Common;
 using Neon.Diagnostics;
@@ -41,9 +41,8 @@ namespace Neon.SignalR
     /// The NATS scaleout provider for multi-server support.
     /// </summary>
     /// <typeparam name="THub">The type of <see cref="Hub"/> to manage connections for.</typeparam>
-    public class NatsHubLifetimeManager<THub> : HubLifetimeManager<THub>, IDisposable where THub : Hub
+    public class NatsHubLifetimeManager<THub> : HubLifetimeManager<THub>, IAsyncDisposable where THub : Hub
     {
-        private readonly ConnectionFactory                     natsConnectionFactory = new ConnectionFactory();
         private readonly HubConnectionStore                    hubConnections        = new HubConnectionStore();
         private readonly ClientResultsManager                  clientResultsManager  = new();
         private readonly AsyncKeyedLocker<string>              lockProvider;
@@ -51,7 +50,7 @@ namespace Neon.SignalR
         private readonly NatsSubscriptionManager               groups;
         private readonly NatsSubscriptionManager               users;
         private readonly ILogger<NatsHubLifetimeManager<THub>> logger;
-        private readonly IConnection                           nats;
+        private readonly NatsConnection                        nats;
         private readonly NatsSubjects                          subjects;
         private readonly string                                serverName;
 
@@ -60,11 +59,11 @@ namespace Neon.SignalR
         /// <summary>
         /// Constructs the <see cref="NatsHubLifetimeManager{THub}"/> with types from Dependency Injection.
         /// </summary>
-        /// <param name="connection">The NATS <see cref="IConnection"/>.</param>
+        /// <param name="connection">The NATS <see cref="NatsConnection"/>.</param>
         /// <param name="lockProvider">Async lock provider.</param>
         public NatsHubLifetimeManager(
-            IConnection connection,
-            AsyncKeyedLocker<string> lockProvider) 
+            NatsConnection           connection,
+            AsyncKeyedLocker<string> lockProvider)
             => new NatsHubLifetimeManager<THub>(connection, lockProvider, loggerFactory: null);
 
         /// <summary>
@@ -72,11 +71,11 @@ namespace Neon.SignalR
         /// </summary>
         /// <param name="loggerFactory">The logger factory.</param>
         /// <param name="lockProvider">Async lock provider.</param>
-        /// <param name="connection">The NATS <see cref="IConnection"/>.</param>
+        /// <param name="connection">The NATS <see cref="NatsConnection"/>.</param>
         public NatsHubLifetimeManager(
-            IConnection connection,
+            NatsConnection           connection,
             AsyncKeyedLocker<string> lockProvider,
-            ILoggerFactory loggerFactory = null)
+            ILoggerFactory           loggerFactory = null)
         {
             this.serverName   = GenerateServerName();
             this.nats         = connection;
@@ -91,21 +90,24 @@ namespace Neon.SignalR
             _ = SubscribeToGroupManagementSubjectAsync();
         }
 
-        /// <inheritdoc/>
-        public void Dispose()
-        {
-            nats?.Dispose();
-        }
-
         private async Task EnsureNatsServerConnection()
         {
             await SyncContext.Clear;
 
             using var activity = TraceContext.ActivitySource?.StartActivity();
 
-            if (nats.IsClosed() && !nats.IsReconnecting())
+            if (nats.ConnectionState == NatsConnectionState.Open)
             {
-                throw new NATSConnectionException("The connection to NATS is closed");
+                return;
+            }
+
+            logger?.LogDebugEx(() => $"Nats connection is {nats.ConnectionState.ToMemberString}, connecting.");
+
+            await nats.PingAsync();
+
+            if (nats.ConnectionState == NatsConnectionState.Closed)
+            {
+                throw new NatsException("The connection to NATS is closed");
             }
 
             using (await lockProvider.LockAsync(typeof(THub).FullName))
@@ -115,14 +117,12 @@ namespace Neon.SignalR
                     {
                         await SyncContext.Clear;
 
-                        return !nats.IsReconnecting();
+                        return !(nats.ConnectionState == NatsConnectionState.Reconnecting);
                     },
                 timeout: TimeSpan.FromSeconds(60),
                 pollInterval: TimeSpan.FromMilliseconds(250));
 
-                nats.Flush();
-
-                logger?.LogDebugEx("Connected to NATS.");
+                logger?.LogDebugEx(() => $"Connected to NATS.");
             }
         }
 
@@ -132,6 +132,8 @@ namespace Neon.SignalR
             await SyncContext.Clear;
 
             using var activity = TraceContext.ActivitySource?.StartActivity();
+
+            logger?.LogDebugEx(() => $"Connection [{connection.ConnectionId}] connected.");
 
             await EnsureNatsServerConnection();
 
@@ -160,6 +162,8 @@ namespace Neon.SignalR
 
             using var activity = TraceContext.ActivitySource?.StartActivity();
 
+            logger?.LogDebugEx(() => $"Connection [{connection.ConnectionId}] disconnected, removing hub.");
+
             hubConnections.Remove(connection);
 
             // If the nats is null then the connection failed to be established and none of the other connection setup ran.
@@ -174,7 +178,7 @@ namespace Neon.SignalR
             var tasks = new List<Task>();
 
             tasks.Add(RemoveConnectionSubscriptionAsync(connection));
-            tasks.Add(groups.RemoveSubscriptionAsync(connectionSubject, connection, this));
+            tasks.Add(groups.RemoveSubscriptionAsync(connectionSubject, connection));
 
             var feature    = connection.Features.Get<INatsFeature>();
             var groupNames = feature.Groups;
@@ -218,6 +222,8 @@ namespace Neon.SignalR
                 // Short circuit if connection is on this server.
 
                 await AddGroupAsyncCore(connection, groupName);
+
+                return;
             }
 
             await SendGroupActionAndWaitForAckAsync(connectionId, groupName, GroupAction.Add);
@@ -240,6 +246,8 @@ namespace Neon.SignalR
                 // Short circuit if connection is on this server.
 
                 await RemoveGroupAsyncCore(connection, groupName);
+
+                return;
             }
 
             await SendGroupActionAndWaitForAckAsync(connectionId, groupName, GroupAction.Remove);
@@ -412,7 +420,7 @@ namespace Neon.SignalR
 
             logger?.LogDebugEx($"Publishing message to NATS subject: [Subject={subject}].");
 
-            nats.Publish(subject, payload);
+            await nats.PublishAsync(subject, payload);
         }
 
         private async Task RemoveUserAsync(HubConnectionContext connection)
@@ -423,7 +431,7 @@ namespace Neon.SignalR
 
             var userSubject = subjects.User(connection.UserIdentifier!);
 
-            await users.RemoveSubscriptionAsync(userSubject, connection, this);
+            await users.RemoveSubscriptionAsync(userSubject, connection);
         }
 
         private async Task SubscribeToConnectionAsync(HubConnectionContext connection)
@@ -434,21 +442,31 @@ namespace Neon.SignalR
 
             var connectionSubject = subjects.Connection(connection.ConnectionId);
 
-            await connections.AddSubscriptionAsync(connectionSubject, connection, async (subjectName, subscriptions) =>
-            {
-                await SyncContext.Clear;
+            var cts = new CancellationTokenSource();
+            await connections.AddSubscriptionAsync(connectionSubject, connection, cts);
 
-                EventHandler<MsgHandlerEventArgs> handler = async (sender, args) =>
+            _ = SubscribeToConnectionCoreAsync(connection, connectionSubject, cts.Token);
+        }
+
+        private async Task SubscribeToConnectionCoreAsync(
+            HubConnectionContext connection,
+            string               connectionSubject,
+            CancellationToken    cancellationToken)
+        {
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                await foreach (var msg in nats.SubscribeAsync<byte[]>(connectionSubject).WithCancellation(cancellationToken))
                 {
                     await SyncContext.Clear;
 
-                    using var activity = TraceContext.ActivitySource?.StartActivity("message-event-handler");
+
+                    using var _activity = TraceContext.ActivitySource?.StartActivity("message-event-handler");
 
                     logger?.LogDebugEx($"Received message from NATS subject: [Subject={connectionSubject}].");
 
                     try
                     {
-                        var invocation = Invocation.Read(args.Message.Data);
+                        var invocation = Invocation.Read(msg.Data);
                         var message    = new InvocationMessage(invocation.MethodName, invocation.Args);
 
                         await connection.WriteAsync(message).AsTask();
@@ -458,15 +476,9 @@ namespace Neon.SignalR
                         logger?.LogErrorEx(e);
                         logger?.LogDebugEx($"Failed writing message: [Subject={connectionSubject}] [Connection{connection.ConnectionId}]");
                     }
+
                 };
-
-                var sAsync = nats.SubscribeAsync(connectionSubject);
-
-                sAsync.MessageHandler += handler;
-
-                sAsync.Start();
-                return sAsync;
-            });
+            }
         }
 
         private async Task RemoveConnectionSubscriptionAsync(HubConnectionContext connection)
@@ -477,7 +489,7 @@ namespace Neon.SignalR
 
             var connectionSubject = subjects.Connection(connection.ConnectionId);
 
-            await connections.RemoveSubscriptionAsync(connectionSubject, connection, this);
+            await connections.RemoveSubscriptionAsync(connectionSubject, connection);
         }
 
         private async Task SubscribeToUserAsync(HubConnectionContext connection)
@@ -488,21 +500,31 @@ namespace Neon.SignalR
 
             var userSubject = subjects.User(connection.UserIdentifier!);
 
-            await users.AddSubscriptionAsync(userSubject, connection, async (subjectName, subscriptions) =>
-            {
-                await SyncContext.Clear;
+            var cts = new CancellationTokenSource();
+            var subscriptions = await users.AddSubscriptionAsync(userSubject, connection, cts);
 
-                EventHandler<MsgHandlerEventArgs> handler = async (sender, args) =>
+            _ = SubscribeToUserCoreAsync(connection, subscriptions, userSubject, cts.Token);
+        }
+
+        private async Task SubscribeToUserCoreAsync(
+            HubConnectionContext connection,
+            HubConnectionStore   subscriptions,
+            string               userSubject,
+            CancellationToken    cancellationToken)
+        {
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                await foreach (var msg in nats.SubscribeAsync<byte[]>(userSubject).WithCancellation(cancellationToken))
                 {
                     await SyncContext.Clear;
 
-                    using var activity = TraceContext.ActivitySource?.StartActivity("user-event");
+                    using var _activity = TraceContext.ActivitySource?.StartActivity("user-event");
 
                     logger?.LogDebugEx($"Received message from NATS subject: [Subject={userSubject}].");
 
                     try
                     {
-                        var invocation = Invocation.Read(args.Message.Data);
+                        var invocation = Invocation.Read(msg.Data);
                         var tasks      = new List<Task>(subscriptions.Count);
                         var message    = new InvocationMessage(invocation.MethodName, invocation.Args);
 
@@ -519,55 +541,49 @@ namespace Neon.SignalR
                         logger?.LogDebugEx($"Failed writing message: [Subject={userSubject}].");
                     }
                 };
+            }
 
-                var sAsync = nats.SubscribeAsync(subjectName);
-
-                sAsync.MessageHandler += handler;
-
-                return sAsync;
-            });
         }
-
-        private async Task<IAsyncSubscription> SubscribeToGroupAsync(string groupSubject, HubConnectionStore groupConnections)
+        private async Task SubscribeToGroupAsync(
+            string             groupSubject,
+            HubConnectionStore groupConnections,
+            CancellationToken  cancellationToken)
         {
             await SyncContext.Clear;
 
-            EventHandler<MsgHandlerEventArgs> handler = async (sender, args) =>
+            while (!cancellationToken.IsCancellationRequested)
             {
-                await SyncContext.Clear;
-
-                logger?.LogDebugEx($"Received message from NATS subject: [Subject={groupSubject}].");
-
-                try
+                await foreach (var msg in nats.SubscribeAsync<byte[]>(groupSubject).WithCancellation(cancellationToken))
                 {
-                    var invocation = Invocation.Read(args.Message.Data);
-                    var tasks      = new List<Task>(groupConnections.Count);
-                    var message    = new InvocationMessage(invocation.MethodName, invocation.Args);
+                    await SyncContext.Clear;
 
-                    foreach (var groupConnection in groupConnections)
+                    logger?.LogDebugEx($"Received message from NATS subject: [Subject={groupSubject}].");
+
+                    try
                     {
-                        if (invocation.ExcludedConnectionIds?.Contains(groupConnection.ConnectionId) == true)
+                        var invocation = Invocation.Read(msg.Data);
+                        var tasks      = new List<Task>(groupConnections.Count);
+                        var message    = new InvocationMessage(invocation.MethodName, invocation.Args);
+
+                        foreach (var groupConnection in groupConnections)
                         {
-                            continue;
+                            if (invocation.ExcludedConnectionIds?.Contains(groupConnection.ConnectionId) == true)
+                            {
+                                continue;
+                            }
+
+                            tasks.Add(groupConnection.WriteAsync(message).AsTask());
                         }
 
-                        tasks.Add(groupConnection.WriteAsync(message).AsTask());
+                        await Task.WhenAll(tasks);
                     }
-
-                    await Task.WhenAll(tasks);
-                }
-                catch (Exception e)
-                {
-                    logger?.LogErrorEx(e);
-                    logger?.LogDebugEx($"Failed writing message: [Subject={groupSubject}].");
-                }
-            };
-
-            var sAsync = nats.SubscribeAsync(groupSubject);
-
-            sAsync.MessageHandler += handler;
-
-            return sAsync;
+                    catch (Exception e)
+                    {
+                        logger?.LogErrorEx(e);
+                        logger?.LogDebugEx($"Failed writing message: [Subject={groupSubject}].");
+                    }
+                };
+            }
         }
 
         private async Task AddGroupAsyncCore(HubConnectionContext connection, string groupName)
@@ -588,7 +604,11 @@ namespace Neon.SignalR
 
             var groupSubject = subjects.Group(groupName);
 
-            await groups.AddSubscriptionAsync(groupSubject, connection, SubscribeToGroupAsync);
+            var cts = new CancellationTokenSource();
+
+            var subscriptions = await groups.AddSubscriptionAsync(groupSubject, connection, cts);
+
+            _ = SubscribeToGroupAsync(groupSubject, subscriptions, cts.Token);
         }
 
         /// <summary>
@@ -601,7 +621,7 @@ namespace Neon.SignalR
 
             var groupSubject = subjects.Group(groupName);
 
-            await groups.RemoveSubscriptionAsync(groupSubject, connection, this);
+            await groups.RemoveSubscriptionAsync(groupSubject, connection);
 
             var feature    = connection.Features.Get<INatsFeature>();
             var groupNames = feature.Groups;
@@ -629,7 +649,10 @@ namespace Neon.SignalR
 
                 var message = GroupCommand.Write(id, serverName, action, groupName, connectionId);
 
-                await nats.RequestAsync(subjects.GroupManagement, message, timeout: 10000);
+                logger?.LogDebugEx($"Sending group command [ID={id}] [ServerName={serverName}] [Action={action}] [GroupName={groupName}] [ConnId={connectionId}] [Subject={subjects.GroupManagement}].");
+
+                var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+                await nats.RequestAsync<byte[], byte[]>(subjects.GroupManagement, message);
             }
             catch (Exception e)
             {
@@ -646,41 +669,40 @@ namespace Neon.SignalR
 
             logger?.LogDebugEx($"Subscribing to subject: [Subject={subjects.All}].");
 
-            EventHandler<MsgHandlerEventArgs> handler = async (sender, args) =>
+            var cts = new CancellationTokenSource();
+
+            while (!cts.Token.IsCancellationRequested)
             {
-                await SyncContext.Clear;
-
-                logger?.LogDebugEx($"Received message from NATS subject: [Subject={subjects.All}].");
-
-                try
+                await foreach (var msg in nats.SubscribeAsync<byte[]>(subjects.All).WithCancellation(cts.Token))
                 {
-                    var invocation = Invocation.Read(args.Message.Data);
-                    var tasks      = new List<Task>(hubConnections.Count);
-                    var message    = new InvocationMessage(invocation.MethodName, invocation.Args);
+                    await SyncContext.Clear;
 
-                    foreach (var connection in hubConnections)
+                    logger?.LogDebugEx($"Received message from NATS subject: [Subject={subjects.All}].");
+
+                    try
                     {
-                        if (invocation.ExcludedConnectionIds == null || !invocation.ExcludedConnectionIds.Contains(connection.ConnectionId))
+                        var invocation = Invocation.Read(msg.Data);
+                        var tasks      = new List<Task>(hubConnections.Count);
+                        var message    = new InvocationMessage(invocation.MethodName, invocation.Args);
+
+                        foreach (var connection in hubConnections)
                         {
-                            
-                            tasks.Add(connection.WriteAsync(message).AsTask());
+                            if (invocation.ExcludedConnectionIds == null || !invocation.ExcludedConnectionIds.Contains(connection.ConnectionId))
+                            {
+
+                                tasks.Add(connection.WriteAsync(message).AsTask());
+                            }
                         }
+
+                        await Task.WhenAll(tasks);
                     }
-
-                    await Task.WhenAll(tasks);
-                }
-                catch (Exception e)
-                {
-                    logger?.LogErrorEx(e);
-                    logger?.LogDebugEx($"Failed writing message: [Subject={subjects.All}].");
-                }
-            };
-
-            var sAsync = nats.SubscribeAsync(subjects.All);
-
-            sAsync.MessageHandler += handler;
-
-            sAsync.Start();
+                    catch (Exception e)
+                    {
+                        logger?.LogErrorEx(e);
+                        logger?.LogDebugEx($"Failed writing message: [Subject={subjects.All}].");
+                    }
+                };
+            }
         }
 
         private async Task SubscribeToGroupManagementSubjectAsync()
@@ -691,51 +713,65 @@ namespace Neon.SignalR
 
             logger?.LogDebug($"Subscribing to subject: [Subject={subjects.GroupManagement}].");
 
-            EventHandler<MsgHandlerEventArgs> handler = async (sender, args) =>
+            var cts = new CancellationTokenSource();
+
+            while (!cts.Token.IsCancellationRequested)
             {
-                await SyncContext.Clear;
 
-                logger?.LogDebugEx($"Received message from NATS subject: [Subject={subjects.GroupManagement}].");
-
-                try
+                await foreach (var msg in nats.SubscribeAsync<byte[]>(subjects.GroupManagement).WithCancellation(cts.Token))
                 {
-                    var groupMessage = GroupCommand.Read(args.Message.Data);
-                    var connection   = hubConnections[groupMessage.ConnectionId];
+                    await SyncContext.Clear;
 
-                    if (connection == null)
+                    logger?.LogDebugEx($"Received group management message from NATS subject: [Subject={subjects.GroupManagement}].");
+
+                    try
                     {
-                        // user not on this server
-                        return;
-                    }
+                        var groupMessage = GroupCommand.Read(msg.Data);
+                        var connection   = hubConnections[groupMessage.ConnectionId];
 
-                    if (groupMessage.Action == GroupAction.Remove)
+                        if (connection == null)
+                        {
+                            // user not on this server
+                            logger?.LogDebugEx($"Connection [{groupMessage.ConnectionId}] not on this server.");
+
+                            return;
+                        }
+
+                        if (groupMessage.Action == GroupAction.Remove)
+                        {
+                            logger?.LogDebugEx($"Removing connection [{groupMessage.ConnectionId}] to group [{groupMessage.GroupName}].");
+
+                            await RemoveGroupAsyncCore(connection, groupMessage.GroupName);
+                        }
+
+                        if (groupMessage.Action == GroupAction.Add)
+                        {
+                            logger?.LogDebugEx($"Adding connection [{groupMessage.ConnectionId}] to group [{groupMessage.GroupName}].");
+
+                            await AddGroupAsyncCore(connection, groupMessage.GroupName);
+                        }
+
+                        logger?.LogDebug($"Publishing message to NATS subject: [Subject={subjects.GroupManagement}].");
+                        logger?.LogDebug($"ReplyTo: [Subject={msg.ReplyTo}].");
+
+                        // Send an ack to the server that sent the original command.
+
+                        await msg.ReplyAsync(Encoding.UTF8.GetBytes($"{groupMessage.Id}"), replyTo: msg.ReplyTo);
+                    }
+                    catch (Exception e)
                     {
-                        await RemoveGroupAsyncCore(connection, groupMessage.GroupName);
+                        logger?.LogErrorEx(e);
+                        logger?.LogDebugEx($"Error processing message for internal server message: [Subject={subjects.GroupManagement}]");
                     }
+                };
+            }
+        }
 
-                    if (groupMessage.Action == GroupAction.Add)
-                    {
-                        await AddGroupAsyncCore(connection, groupMessage.GroupName);
-                    }
+        public ValueTask DisposeAsync()
+        {
+            nats?.DisposeAsync();
 
-                    logger?.LogDebug($"Publishing message to NATS subject: [Subject={subjects.GroupManagement}].");
-
-                    // Send an ack to the server that sent the original command.
-
-                    nats.Publish(args.Message.Reply, Encoding.UTF8.GetBytes($"{groupMessage.Id}"));
-                }
-                catch (Exception e)
-                {
-                    logger?.LogErrorEx(e);
-                    logger?.LogDebugEx($"Error processing message for internal server message: [Subject={subjects.GroupManagement}]");
-                }
-            };
-
-            var sAsync = nats.SubscribeAsync(subjects.GroupManagement);
-
-            sAsync.MessageHandler += handler;
-
-            sAsync.Start();
+            return ValueTask.CompletedTask;
         }
 
         private interface INatsFeature

@@ -26,7 +26,7 @@
         <PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="8.0.0" />
         <PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.NewtonsoftJson" Version="8.0.0" />
         <PackageReference Include="Microsoft.Net.Http.Headers" Version="2.2.8" />
-        <PackageReference Include="NATS.Client" Version="1.0.8" />
+        <PackageReference Include="NATS.Net" Version="2.0.3" />
         <PackageReference Include="SlimCluster" Version="0.9.0" />
         <PackageReference Include="SlimCluster.Host" Version="0.9.0" />
         <PackageReference Include="SlimCluster.Serialization" Version="0.9.0" />
@@ -44,7 +44,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Neon.Common\Neon.Common.csproj" />
-        <ProjectReference Include="..\Neon.Nats\Neon.Nats.csproj" />
     </ItemGroup>
 
     <PropertyGroup>
