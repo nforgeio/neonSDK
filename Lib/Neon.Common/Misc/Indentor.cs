@@ -31,67 +31,113 @@ namespace Neon.Common
     {
         private StringBuilder   sb;
         private TextWriter      writer;
-        private string          indentSpaces;
-        private int             indent;
+        private string          indentString;
+        private int             indentLevel;
+        private bool            emptyLine = true;
 
         /// <summary>
         /// Constructs and instance that outputs to a <see cref="StringBuilder"/>.
         /// </summary>
         /// <param name="builder">Specifies the target <see cref="StringBuilder"/>.</param>
-        /// <param name="indentSpaces">Optionally specifies the number of spaces to indent for each indentation level.  This defaults to <b>4</b>.</param>
-        /// <param name="indent">Optionally specifies the initial indent level.  This defaults to <b>0</b>.</param>
-        public Indentor(StringBuilder builder, int indentSpaces = 4, int indent = 0)
+        /// <param name="indentWidth">Optionally specifies the number of spaces to indent for each indentation level.  This defaults to <b>4</b>.</param>
+        /// <param name="indentChar">Optionally specifies the indent character (defaults to a space).</param>
+        /// <param name="indentLevel">Optionally specifies the initial indent level.  This defaults to <b>0</b>.</param>
+        public Indentor(StringBuilder builder, int indentWidth = 4, char indentChar = ' ', int indentLevel = 0)
         {
             Covenant.Requires<ArgumentNullException>(builder != null, nameof(builder));
-            Covenant.Requires<ArgumentException>(indentSpaces > 0, nameof(indentSpaces));
-            Covenant.Requires<ArgumentException>(indent >= 0, nameof(indent));
+            Covenant.Requires<ArgumentException>(indentWidth > 0, nameof(indentWidth));
+            Covenant.Requires<ArgumentException>(indentLevel >= 0, nameof(indentLevel));
 
             this.sb           = builder;
-            this.indentSpaces = new string(' ', indentSpaces);
-            this.indent       = indent;
+            this.indentString = new string(indentChar, indentWidth);
+            this.indentLevel  = indentLevel;
         }
 
         /// <summary>
         /// Constructs and instance that outputs to a <see cref="TextWriter"/>.
         /// </summary>
         /// <param name="writer">Specifies the target <see cref="TextWriter"/>.</param>
-        /// <param name="indentSpaces">Optionally specifies the number of spaces to indent for each indentation level.  This defaults to <b>4</b>.</param>
-        /// <param name="indent">Optionally specifies the initial indent level.  This defaults to <b>0</b>.</param>
-        public Indentor(TextWriter writer, int indentSpaces = 4, int indent = 0)
+        /// <param name="indentWidth">Optionally specifies the number of spaces to indent for each indentation level.  This defaults to <b>4</b>.</param>
+        /// <param name="indentChar">Optionally specifies the indent character (defaults to a space).</param>
+        /// <param name="indentLevel">Optionally specifies the initial indent level.  This defaults to <b>0</b>.</param>
+        public Indentor(TextWriter writer, int indentWidth = 4, char indentChar = ' ', int indentLevel = 0)
         {
             Covenant.Requires<ArgumentNullException>(writer != null, nameof(writer));
-            Covenant.Requires<ArgumentException>(indentSpaces > 0, nameof(indentSpaces));
-            Covenant.Requires<ArgumentException>(indent >= 0, nameof(indent));
+            Covenant.Requires<ArgumentException>(indentWidth > 0, nameof(indentWidth));
+            Covenant.Requires<ArgumentException>(indentLevel >= 0, nameof(indentLevel));
 
             this.writer       = writer;
-            this.indentSpaces = new string(' ', indentSpaces);
-            this.indent       = indent;
+            this.indentString = new string(indentChar, indentWidth);
+            this.indentLevel  = indentLevel;
+        }
+
+        /// <summary>
+        /// Used internally to append text to the the output.
+        /// </summary>
+        /// <param name="text">Specifies the text to be appended.</param>
+        private void InternalAppend(string text)
+        {
+            if (sb != null)
+            {
+                sb.Append(text);
+            }
+            else
+            {
+                writer.Write(text);
+            }
+        }
+
+        /// <summary>
+        /// Appends the indentation for the the current level when the
+        /// text passed is not <c>null</c> or empty and the current
+        /// line is empty.
+        /// </summary>
+        /// <param name="text">Specifies the text that will (eventually) be written ort <c>null</c>.</param>
+        private void InternalAppendIndent(string text)
+        {
+            if (!string.IsNullOrEmpty(text) && emptyLine)
+            {
+                for (int i = 0; i < indentLevel; i++)
+                {
+                    InternalAppend(indentString);
+                }
+
+                emptyLine = false;
+            }
+        }
+
+        /// <summary>
+        /// Appends text to the the output, writing the current indent if this
+        /// is the first text being written to the current line.
+        /// </summary>
+        /// <param name="text">Specifies the text to be written.</param>
+        public void Append(string text)
+        {
+            Covenant.Requires<ArgumentNullException>(text != null, nameof(text));
+
+            InternalAppendIndent(text);
+            InternalAppend(text ?? string.Empty);
         }
 
         /// <summary>
         /// Writes a line of text to the target prefixed by the indentation.
         /// </summary>
-        /// <param name="text">Optionally specifies the text line.</param>
-        public void WriteLine(string text = null)
+        /// <param name="text">Optionally specifies the text to be written.</param>
+        public void AppendLine(string text = null)
         {
-            if (sb != null)
-            {
-                for (int i = 0; i < indent; i++)
-                {
-                    sb.Append(indentSpaces);
-                }
+            InternalAppendIndent(text);
+            InternalAppend(text);
+            InternalAppend(Environment.NewLine);
 
-                sb.AppendLine(text);
-            }
-            else
-            {
-                for (int i = 0; i < indent; i++)
-                {
-                    writer.Write(indentSpaces);
-                }
+            emptyLine = true;
+        }
 
-                writer.WriteLine(text);
-            }
+        /// <summary>
+        /// Resets the current indentation level zero.
+        /// </summary>
+        public void Reset()
+        {
+            indentLevel = 0;
         }
 
         /// <summary>
@@ -99,7 +145,7 @@ namespace Neon.Common
         /// </summary>
         public void Indent()
         {
-            indent++;
+            indentLevel++;
         }
 
         /// <summary>
@@ -108,12 +154,12 @@ namespace Neon.Common
         /// <exception cref="InvalidOperationException">Thrown when the indentation level is already at zero.</exception>
         public void UnIndent()
         {
-            if (indent <= 0)
+            if (indentLevel <= 0)
             {
                 throw new InvalidOperationException("Indentation level is already at zero.");
             }
 
-            indent--;
+            indentLevel--;
         }
     }
 }

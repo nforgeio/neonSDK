@@ -42,7 +42,8 @@ namespace TestCommon
 
             var indentor = new Indentor(sb);
             var expected =
-@"line:0
+@"
+line:0
     line:1
         line:2
     line:3
@@ -50,24 +51,26 @@ line:4
 ";
 
             sb.Clear();
-            indentor.WriteLine("line:0");
+            indentor.AppendLine();
+            indentor.AppendLine("line:0");
             indentor.Indent();
-            indentor.WriteLine("line:1");
+            indentor.AppendLine("line:1");
             indentor.Indent();
-            indentor.WriteLine("line:2");
+            indentor.AppendLine("line:2");
             indentor.UnIndent();
-            indentor.WriteLine("line:3");
+            indentor.AppendLine("line:3");
             indentor.UnIndent();
-            indentor.WriteLine("line:4");
+            indentor.AppendLine("line:4");
 
             Assert.Equal(expected, sb.ToString());
 
             //---------------------------------------------
             // Test different indent spaces.
 
-            indentor = new Indentor(sb, indentSpaces: 1);
+            indentor = new Indentor(sb, indentWidth: 1);
             expected =
-@"line:0
+@"
+line:0
  line:1
   line:2
  line:3
@@ -75,24 +78,26 @@ line:4
 ";
 
             sb.Clear();
-            indentor.WriteLine("line:0");
+            indentor.AppendLine();
+            indentor.AppendLine("line:0");
             indentor.Indent();
-            indentor.WriteLine("line:1");
+            indentor.AppendLine("line:1");
             indentor.Indent();
-            indentor.WriteLine("line:2");
+            indentor.AppendLine("line:2");
             indentor.UnIndent();
-            indentor.WriteLine("line:3");
+            indentor.AppendLine("line:3");
             indentor.UnIndent();
-            indentor.WriteLine("line:4");
+            indentor.AppendLine("line:4");
 
             Assert.Equal(expected, sb.ToString());
 
             //---------------------------------------------
             // Test with an initial indentation level.
 
-            indentor = new Indentor(sb, indent: 1);
+            indentor = new Indentor(sb, indentLevel: 1);
             expected =
-@"    line:0
+@"
+    line:0
         line:1
             line:2
         line:3
@@ -100,15 +105,88 @@ line:4
 ";
 
             sb.Clear();
-            indentor.WriteLine("line:0");
+            indentor.AppendLine();
+            indentor.AppendLine("line:0");
             indentor.Indent();
-            indentor.WriteLine("line:1");
+            indentor.AppendLine("line:1");
             indentor.Indent();
-            indentor.WriteLine("line:2");
+            indentor.AppendLine("line:2");
             indentor.UnIndent();
-            indentor.WriteLine("line:3");
+            indentor.AppendLine("line:3");
             indentor.UnIndent();
-            indentor.WriteLine("line:4");
+            indentor.AppendLine("line:4");
+
+            Assert.Equal(expected, sb.ToString());
+
+            //---------------------------------------------
+            // Test with TABs.
+
+            indentor = new Indentor(sb, indentWidth: 1, indentChar: '\t');
+            expected =
+$@"
+line:0
+{(char)NeonHelper.TAB}line:1
+{(char)NeonHelper.TAB}{(char)NeonHelper.TAB}line:2
+{(char)NeonHelper.TAB}line:3
+line:4
+";
+
+            sb.Clear();
+            indentor.AppendLine();
+            indentor.AppendLine("line:0");
+            indentor.Indent();
+            indentor.AppendLine("line:1");
+            indentor.Indent();
+            indentor.AppendLine("line:2");
+            indentor.UnIndent();
+            indentor.AppendLine("line:3");
+            indentor.UnIndent();
+            indentor.AppendLine("line:4");
+
+            Assert.Equal(expected, sb.ToString());
+
+            //---------------------------------------------
+            // Verify indentation behavior.
+
+            indentor = new Indentor(sb, indentWidth: 4);
+            expected =
+$@"
+
+    HELLO WORLD!
+";
+
+            sb.Clear();
+            indentor.AppendLine();
+            indentor.Indent();
+            indentor.AppendLine();
+            indentor.Append("HELLO");
+            indentor.Append(" WORLD!");
+            indentor.AppendLine();
+
+            Assert.Equal(expected, sb.ToString());
+
+            //---------------------------------------------
+            // Verify Reset().
+
+            indentor = new Indentor(sb, indentWidth: 4);
+            expected =
+$@"
+    line: 0
+        line: 1
+            line: 2
+line: 3
+";
+
+            sb.Clear();
+            indentor.AppendLine();
+            indentor.Indent();
+            indentor.AppendLine("line: 0");
+            indentor.Indent();
+            indentor.AppendLine("line: 1");
+            indentor.Indent();
+            indentor.AppendLine("line: 2");
+            indentor.Reset();
+            indentor.AppendLine("line: 3");
 
             Assert.Equal(expected, sb.ToString());
         }
@@ -122,23 +200,24 @@ line:4
             var writer   = new StringWriter();
             var indentor = new Indentor(writer);
             var expected =
-@"line:0
+@"
+line:0
     line:1
         line:2
     line:3
 line:4
 ";
 
-
-            indentor.WriteLine("line:0");
+            indentor.AppendLine();
+            indentor.AppendLine("line:0");
             indentor.Indent();
-            indentor.WriteLine("line:1");
+            indentor.AppendLine("line:1");
             indentor.Indent();
-            indentor.WriteLine("line:2");
+            indentor.AppendLine("line:2");
             indentor.UnIndent();
-            indentor.WriteLine("line:3");
+            indentor.AppendLine("line:3");
             indentor.UnIndent();
-            indentor.WriteLine("line:4");
+            indentor.AppendLine("line:4");
 
             Assert.Equal(expected, writer.ToString());
 
@@ -146,24 +225,26 @@ line:4
             // Test different indent spaces.
 
             writer   = new StringWriter();
-            indentor = new Indentor(writer, indentSpaces: 1);
+            indentor = new Indentor(writer, indentWidth: 1);
             expected =
-@"line:0
+@"
+line:0
  line:1
   line:2
  line:3
 line:4
 ";
 
-            indentor.WriteLine("line:0");
+            indentor.AppendLine();
+            indentor.AppendLine("line:0");
             indentor.Indent();
-            indentor.WriteLine("line:1");
+            indentor.AppendLine("line:1");
             indentor.Indent();
-            indentor.WriteLine("line:2");
+            indentor.AppendLine("line:2");
             indentor.UnIndent();
-            indentor.WriteLine("line:3");
+            indentor.AppendLine("line:3");
             indentor.UnIndent();
-            indentor.WriteLine("line:4");
+            indentor.AppendLine("line:4");
 
             Assert.Equal(expected, writer.ToString());
 
@@ -171,24 +252,98 @@ line:4
             // Test with an initial indentation level.
 
             writer   = new StringWriter();
-            indentor = new Indentor(writer, indent: 1);
+            indentor = new Indentor(writer, indentLevel: 1);
             expected =
-@"    line:0
+@"
+    line:0
         line:1
             line:2
         line:3
     line:4
 ";
 
-            indentor.WriteLine("line:0");
+            indentor.AppendLine();
+            indentor.AppendLine("line:0");
             indentor.Indent();
-            indentor.WriteLine("line:1");
+            indentor.AppendLine("line:1");
             indentor.Indent();
-            indentor.WriteLine("line:2");
+            indentor.AppendLine("line:2");
             indentor.UnIndent();
-            indentor.WriteLine("line:3");
+            indentor.AppendLine("line:3");
             indentor.UnIndent();
-            indentor.WriteLine("line:4");
+            indentor.AppendLine("line:4");
+
+            Assert.Equal(expected, writer.ToString());
+
+            //---------------------------------------------
+            // Test with TABs.
+
+            writer   = new StringWriter();
+            indentor = new Indentor(writer, indentWidth: 1, indentChar: '\t');
+            expected =
+$@"
+line:0
+{(char)NeonHelper.TAB}line:1
+{(char)NeonHelper.TAB}{(char)NeonHelper.TAB}line:2
+{(char)NeonHelper.TAB}line:3
+line:4
+";
+
+            indentor.AppendLine();
+            indentor.AppendLine("line:0");
+            indentor.Indent();
+            indentor.AppendLine("line:1");
+            indentor.Indent();
+            indentor.AppendLine("line:2");
+            indentor.UnIndent();
+            indentor.AppendLine("line:3");
+            indentor.UnIndent();
+            indentor.AppendLine("line:4");
+
+            Assert.Equal(expected, writer.ToString());
+
+            //---------------------------------------------
+            // Verify indentation behavior.
+
+            writer   = new StringWriter();
+            indentor = new Indentor(writer, indentWidth: 4);
+            expected =
+$@"
+
+    HELLO WORLD!
+";
+
+            indentor.AppendLine();
+            indentor.Indent();
+            indentor.AppendLine();
+            indentor.Append("HELLO");
+            indentor.Append(" WORLD!");
+            indentor.AppendLine();
+
+            Assert.Equal(expected, writer.ToString());
+
+            //---------------------------------------------
+            // Verify Reset().
+
+            writer   = new StringWriter();
+            indentor = new Indentor(writer, indentWidth: 4);
+            expected =
+$@"
+    line: 0
+        line: 1
+            line: 2
+line: 3
+";
+
+            indentor.AppendLine();
+            indentor.Indent();
+            indentor.AppendLine("line: 0");
+            indentor.Indent();
+            indentor.AppendLine("line: 1");
+            indentor.Indent();
+            indentor.AppendLine("line: 2");
+            indentor.Reset();
+            indentor.AppendLine("line: 3");
 
             Assert.Equal(expected, writer.ToString());
         }
@@ -197,12 +352,12 @@ line:4
         public void Errors()
         {
             Assert.Throws<ArgumentNullException>(() => new Indentor((StringBuilder)null));
-            Assert.Throws<ArgumentException>(() => new Indentor(new StringBuilder(), indentSpaces: 0));
-            Assert.Throws<ArgumentException>(() => new Indentor(new StringBuilder(), indent: -1));
+            Assert.Throws<ArgumentException>(() => new Indentor(new StringBuilder(), indentWidth: 0));
+            Assert.Throws<ArgumentException>(() => new Indentor(new StringBuilder(), indentLevel: -1));
 
             Assert.Throws<ArgumentNullException>(() => new Indentor((TextWriter)null));
-            Assert.Throws<ArgumentException>(() => new Indentor(new StringWriter(), indentSpaces: 0));
-            Assert.Throws<ArgumentException>(() => new Indentor(new StringWriter(), indent: -1));
+            Assert.Throws<ArgumentException>(() => new Indentor(new StringWriter(), indentWidth: 0));
+            Assert.Throws<ArgumentException>(() => new Indentor(new StringWriter(), indentLevel: -1));
 
             var indentor = new Indentor(new StringBuilder());
 
@@ -212,7 +367,7 @@ line:4
             indentor.UnIndent();
             indentor.UnIndent();
 
-            Assert.Throws<InvalidOperationException>(() => indentor.UnIndent());
+            Assert.Throws<InvalidOperationException>(() => indentor.UnIndent());    // Indent underflow
         }
     }
 }
