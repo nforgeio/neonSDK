@@ -242,8 +242,9 @@ namespace Test.Neon.SignalR
 
             await CheckConnectionsAsync();
             await connection.InvokeAsync("AddSelfToGroup", groupName);
-            await Task.Delay(100);
             await secondConnection.InvokeAsync("AddSelfToGroup", groupName);
+
+            await Task.Delay(100);
 
             await connection.InvokeAsync("EchoGroup", groupName, "Hello, World!");
 

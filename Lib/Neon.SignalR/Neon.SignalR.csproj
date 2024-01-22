@@ -40,9 +40,6 @@
     </ItemGroup>
 
     <ItemGroup>
-    </ItemGroup>
-
-    <ItemGroup>
         <ProjectReference Include="..\Neon.Common\Neon.Common.csproj" />
     </ItemGroup>
 
