@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------------
-// FILE:	    Test_Indentor.cs
+// FILE:	    Test_TextIndentor.cs
 // CONTRIBUTOR: NEONFORGE Team
 // COPYRIGHT:   Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 //
@@ -30,7 +30,7 @@ using Xunit;
 namespace TestCommon
 {
     [Trait(TestTrait.Category, TestArea.NeonCommon)]
-    public class Test_Indentor
+    public class Test_TextIndentor
     {
         [Fact]
         public void StringBuilder()
@@ -40,7 +40,7 @@ namespace TestCommon
             //---------------------------------------------
             // Test defaults.
 
-            var indentor = new Indentor(sb);
+            var indentor = new TextIndentor(sb);
             var expected =
 @"
 line:0
@@ -67,7 +67,7 @@ line:4
             //---------------------------------------------
             // Test different indent spaces.
 
-            indentor = new Indentor(sb, indentWidth: 1);
+            indentor = new TextIndentor(sb, indentWidth: 1);
             expected =
 @"
 line:0
@@ -94,7 +94,7 @@ line:4
             //---------------------------------------------
             // Test with an initial indentation level.
 
-            indentor = new Indentor(sb, indentLevel: 1);
+            indentor = new TextIndentor(sb, indentLevel: 1);
             expected =
 @"
     line:0
@@ -121,7 +121,7 @@ line:4
             //---------------------------------------------
             // Test with TABs.
 
-            indentor = new Indentor(sb, indentWidth: 1, indentChar: '\t');
+            indentor = new TextIndentor(sb, indentWidth: 1, indentChar: '\t');
             expected =
 $@"
 line:0
@@ -148,7 +148,7 @@ line:4
             //---------------------------------------------
             // Verify indentation behavior.
 
-            indentor = new Indentor(sb, indentWidth: 4);
+            indentor = new TextIndentor(sb, indentWidth: 4);
             expected =
 $@"
 
@@ -168,7 +168,7 @@ $@"
             //---------------------------------------------
             // Verify Reset().
 
-            indentor = new Indentor(sb, indentWidth: 4);
+            indentor = new TextIndentor(sb, indentWidth: 4);
             expected =
 $@"
     line: 0
@@ -198,7 +198,7 @@ line: 3
             // Test defaults.
 
             var writer   = new StringWriter();
-            var indentor = new Indentor(writer);
+            var indentor = new TextIndentor(writer);
             var expected =
 @"
 line:0
@@ -225,7 +225,7 @@ line:4
             // Test different indent spaces.
 
             writer   = new StringWriter();
-            indentor = new Indentor(writer, indentWidth: 1);
+            indentor = new TextIndentor(writer, indentWidth: 1);
             expected =
 @"
 line:0
@@ -252,7 +252,7 @@ line:4
             // Test with an initial indentation level.
 
             writer   = new StringWriter();
-            indentor = new Indentor(writer, indentLevel: 1);
+            indentor = new TextIndentor(writer, indentLevel: 1);
             expected =
 @"
     line:0
@@ -279,7 +279,7 @@ line:4
             // Test with TABs.
 
             writer   = new StringWriter();
-            indentor = new Indentor(writer, indentWidth: 1, indentChar: '\t');
+            indentor = new TextIndentor(writer, indentWidth: 1, indentChar: '\t');
             expected =
 $@"
 line:0
@@ -306,7 +306,7 @@ line:4
             // Verify indentation behavior.
 
             writer   = new StringWriter();
-            indentor = new Indentor(writer, indentWidth: 4);
+            indentor = new TextIndentor(writer, indentWidth: 4);
             expected =
 $@"
 
@@ -326,7 +326,7 @@ $@"
             // Verify Reset().
 
             writer   = new StringWriter();
-            indentor = new Indentor(writer, indentWidth: 4);
+            indentor = new TextIndentor(writer, indentWidth: 4);
             expected =
 $@"
     line: 0
@@ -351,15 +351,15 @@ line: 3
         [Fact]
         public void Errors()
         {
-            Assert.Throws<ArgumentNullException>(() => new Indentor((StringBuilder)null));
-            Assert.Throws<ArgumentException>(() => new Indentor(new StringBuilder(), indentWidth: 0));
-            Assert.Throws<ArgumentException>(() => new Indentor(new StringBuilder(), indentLevel: -1));
+            Assert.Throws<ArgumentNullException>(() => new TextIndentor((StringBuilder)null));
+            Assert.Throws<ArgumentException>(() => new TextIndentor(new StringBuilder(), indentWidth: 0));
+            Assert.Throws<ArgumentException>(() => new TextIndentor(new StringBuilder(), indentLevel: -1));
 
-            Assert.Throws<ArgumentNullException>(() => new Indentor((TextWriter)null));
-            Assert.Throws<ArgumentException>(() => new Indentor(new StringWriter(), indentWidth: 0));
-            Assert.Throws<ArgumentException>(() => new Indentor(new StringWriter(), indentLevel: -1));
+            Assert.Throws<ArgumentNullException>(() => new TextIndentor((TextWriter)null));
+            Assert.Throws<ArgumentException>(() => new TextIndentor(new StringWriter(), indentWidth: 0));
+            Assert.Throws<ArgumentException>(() => new TextIndentor(new StringWriter(), indentLevel: -1));
 
-            var indentor = new Indentor(new StringBuilder());
+            var indentor = new TextIndentor(new StringBuilder());
 
             indentor.Indent();
             indentor.Indent();

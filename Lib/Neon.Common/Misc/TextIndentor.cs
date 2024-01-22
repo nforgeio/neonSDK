@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------------
-// FILE:	    Indentor.cs
+// FILE:	    TextIndentor.cs
 // CONTRIBUTOR: NEONFORGE Team
 // COPYRIGHT:   Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 //
@@ -27,7 +27,7 @@ namespace Neon.Common
     /// Implements a simple scheme for managing line indentation when writing
     /// to a <see cref="StringBuilder"/> or <see cref="TextWriter"/>.
     /// </summary>
-    public class Indentor
+    public class TextIndentor
     {
         private StringBuilder   sb;
         private TextWriter      writer;
@@ -42,7 +42,7 @@ namespace Neon.Common
         /// <param name="indentWidth">Optionally specifies the number of spaces to indent for each indentation level.  This defaults to <b>4</b>.</param>
         /// <param name="indentChar">Optionally specifies the indent character (defaults to a space).</param>
         /// <param name="indentLevel">Optionally specifies the initial indent level.  This defaults to <b>0</b>.</param>
-        public Indentor(StringBuilder builder, int indentWidth = 4, char indentChar = ' ', int indentLevel = 0)
+        public TextIndentor(StringBuilder builder, int indentWidth = 4, char indentChar = ' ', int indentLevel = 0)
         {
             Covenant.Requires<ArgumentNullException>(builder != null, nameof(builder));
             Covenant.Requires<ArgumentException>(indentWidth > 0, nameof(indentWidth));
@@ -60,7 +60,7 @@ namespace Neon.Common
         /// <param name="indentWidth">Optionally specifies the number of spaces to indent for each indentation level.  This defaults to <b>4</b>.</param>
         /// <param name="indentChar">Optionally specifies the indent character (defaults to a space).</param>
         /// <param name="indentLevel">Optionally specifies the initial indent level.  This defaults to <b>0</b>.</param>
-        public Indentor(TextWriter writer, int indentWidth = 4, char indentChar = ' ', int indentLevel = 0)
+        public TextIndentor(TextWriter writer, int indentWidth = 4, char indentChar = ' ', int indentLevel = 0)
         {
             Covenant.Requires<ArgumentNullException>(writer != null, nameof(writer));
             Covenant.Requires<ArgumentException>(indentWidth > 0, nameof(indentWidth));
