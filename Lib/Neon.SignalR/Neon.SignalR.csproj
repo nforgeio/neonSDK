@@ -18,7 +18,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="AsyncKeyedLock" Version="6.2.2" />
+        <PackageReference Include="AsyncKeyedLock" Version="6.3.3" />
         <PackageReference Include="DnsClient" Version="1.7.0" />
         <PackageReference Include="MessagePack" Version="2.5.124" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.0" />
