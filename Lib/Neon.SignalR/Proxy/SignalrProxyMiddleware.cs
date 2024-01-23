@@ -25,6 +25,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
+using Neon.Common;
 using Neon.Diagnostics;
 using Neon.SignalR.Proxy;
 
@@ -138,7 +139,7 @@ namespace Neon.SignalR
     /// <summary>
     /// Extension methods for the <see cref="SignalrProxyMiddleware"/>.
     /// </summary>
-    public static class RequestCultureMiddlewareExtensions
+    public static class SignalrProxyMiddlewareExtensions
     {
         /// <summary>
         /// Extension method to add the <see cref="SignalrProxyMiddleware"/> to the pipeline.
