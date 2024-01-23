@@ -47,7 +47,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="AsyncKeyedLock" Version="6.2.2" />
+        <PackageReference Include="AsyncKeyedLock" Version="6.3.4" />
         <PackageReference Include="Microsoft.Net.Http.Headers" Version="2.2.8" />
         <PackageReference Include="MessagePack" Version="2.5.124" />
         <PackageReference Include="NATS.Client" Version="1.0.8" />
@@ -56,6 +56,7 @@
     <ItemGroup>
         <ProjectReference Include="..\..\Lib\Neon.BuildInfo\Neon.BuildInfo.csproj" />
         <ProjectReference Include="..\Neon.Common\Neon.Common.csproj" />
+        <ProjectReference Include="..\Neon.Cryptography\Neon.Cryptography.csproj" />
         <ProjectReference Include="..\Neon.Nats\Neon.Nats.csproj" />
     </ItemGroup>
 

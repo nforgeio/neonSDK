@@ -23,22 +23,19 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Microsoft.AspNetCore.Http.Features;
-using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Logging;
+using AsyncKeyedLock;
+
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SignalR.Protocol;
+using Microsoft.Extensions.Logging;
+
+using NATS.Client;
 
 using Neon.Common;
 using Neon.Diagnostics;
 using Neon.Tasks;
 
-using AsyncKeyedLock;
-
-using NATS;
-using NATS.Client;
-
-namespace Neon.Web.SignalR
+namespace Neon.SignalR
 {
     /// <summary>
     /// The NATS scaleout provider for multi-server support.
