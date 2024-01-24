@@ -868,6 +868,8 @@ namespace Neon.Service
 
                     var logLevel = TelemetryHub.ParseLogLevel(System.Environment.GetEnvironmentVariable("LOG_LEVEL") ?? LogLevel.Information.ToMemberString());
 
+                    System.Environment.SetEnvironmentVariable("Logging__LogLevel__Default", logLevel.ToString());
+
                     var loggingConfig = new ConfigurationBuilder()
                         .AddEnvironmentVariables()
                         .Build();
