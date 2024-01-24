@@ -871,7 +871,9 @@ namespace Neon.Service
                     System.Environment.SetEnvironmentVariable("Logging__LogLevel__Default", logLevel.ToString());
 
                     var loggingConfig = new ConfigurationBuilder()
-                        .AddEnvironmentVariables()
+                        .AddCustomEnvironmentVariables(
+                        prefix:         options.EnvironmentVariablePrefix,
+                        dotReplacement: options.EnvironmentVariableDotReplacement)
                         .Build();
                    
                     var loggerFactory = Microsoft.Extensions.Logging.LoggerFactory.Create(
