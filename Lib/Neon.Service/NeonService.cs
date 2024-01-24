@@ -50,6 +50,8 @@ using OpenTelemetry;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using Microsoft.Extensions.Configuration.EnvironmentVariables;
+using Microsoft.Extensions.Configuration;
 
 namespace Neon.Service
 {
@@ -870,6 +872,9 @@ namespace Neon.Service
                         builder =>
                         {
                             builder
+                                .AddConfiguration(new ConfigurationBuilder()
+                                                        .Add(new EnvironmentVariablesConfigurationSource())
+                                                        .Build())
                                 .SetMinimumLevel(logLevel)
                                 .EnableEnrichment()
                                 .AddOpenTelemetry(
