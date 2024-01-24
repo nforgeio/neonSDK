@@ -868,13 +868,18 @@ namespace Neon.Service
 
                     var logLevel = TelemetryHub.ParseLogLevel(System.Environment.GetEnvironmentVariable("LOG_LEVEL") ?? LogLevel.Information.ToMemberString());
 
+                    var loggingConfig = new ConfigurationBuilder()
+                        .Add(new EnvironmentVariablesConfigurationSource()
+                        {
+                            Prefix = options.EnvironmentVariablePrefix
+                        })
+                        .Build();
+
                     var loggerFactory = Microsoft.Extensions.Logging.LoggerFactory.Create(
                         builder =>
                         {
                             builder
-                                .AddConfiguration(new ConfigurationBuilder()
-                                                        .Add(new EnvironmentVariablesConfigurationSource())
-                                                        .Build())
+                                .AddConfiguration(loggingConfig)
                                 .SetMinimumLevel(logLevel)
                                 .EnableEnrichment()
                                 .AddOpenTelemetry(
