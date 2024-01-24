@@ -917,6 +917,14 @@ namespace Neon.Service
                                         }
                                     });
 
+                            var levels = new Dictionary<string, string>();
+                            loggingConfig.GetSection("Logging:LogLevel").Bind(levels);
+
+                            foreach (var level in levels)
+                            {
+                                builder.AddFilter(level.Key, TelemetryHub.ParseLogLevel(level.Value));
+                            }
+
                             if (options.LogEnrichers != null)
                             {
                                 foreach (var enricher in options.LogEnrichers)
