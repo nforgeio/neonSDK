@@ -36,6 +36,11 @@ namespace Neon.Blazor
         {
             var route = typeof(T).GetCustomAttribute<RouteAttribute>();
 
+            if (route == null)
+            {
+                throw new ArgumentException($"{nameof(T)} does not have a {nameof(RouteAttribute)}")
+            }
+
             var sb = new StringBuilder();
             sb.Append("/");
 
