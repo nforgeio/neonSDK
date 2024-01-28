@@ -176,6 +176,13 @@ namespace Neon.Windows
                 File.WriteAllText(file.Path, 
 $@"
 try {{
+
+    # Disable ANSI terminal formatting.
+
+    $env:TERM = 'PlainText'
+
+    # Execute the command.
+
     {command} | Out-String -Width {PowershellBufferWidth}
 }}
 catch [Exception]
