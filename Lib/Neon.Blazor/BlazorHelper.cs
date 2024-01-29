@@ -38,7 +38,7 @@ namespace Neon.Blazor
 
             if (route == null)
             {
-                throw new ArgumentException($"{nameof(T)} does not have a {nameof(RouteAttribute)}")
+                throw new ArgumentException($"{nameof(T)} does not have a {nameof(RouteAttribute)}");
             }
 
             var sb = new StringBuilder();
