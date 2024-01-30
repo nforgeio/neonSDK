@@ -30,9 +30,6 @@ namespace Neon.Common
     /// </summary>
     public static class StringBuilderExtensions
     {
-        //---------------------------------------------------------------------
-        // StringBuilder extensions
-
         /// <summary>
         /// Appends a line of text using a Linux-style (LF) line ending.
         /// </summary>
@@ -77,6 +74,30 @@ namespace Neon.Common
             }
 
             sb.Append(text);
+        }
+
+        /// <summary>
+        /// Converts the <see cref="StringBuilder"/> passed into a string without
+        /// the last new line character sequence if there is one).
+        /// </summary>
+        /// <param name="sb">The <see cref="StringBuilder"/>.</param>
+        /// <returns>The string builder as a string without the last new line.</returns>
+        public static string ToStringWithoutLastNewLine(this StringBuilder sb)
+        {
+            var value = sb.ToString();
+            var pos   = value.LastIndexOf('\n');
+
+            if (pos < 0)
+            {
+                return value;
+            }
+
+            if (pos > 0 && value[pos - 1] == '\r')
+            {
+                pos--;
+            }
+
+            return value.Substring(0, pos);
         }
     }
 }

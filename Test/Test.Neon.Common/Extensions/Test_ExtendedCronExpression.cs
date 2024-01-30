@@ -31,6 +31,7 @@ using Xunit;
 
 namespace TestCommon.Extensions
 {
+    [Trait(TestTrait.Category, TestArea.NeonCommon)]
     public class Test_ExtendedCronExpression
     {
         /// <summary>
