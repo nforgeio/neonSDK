@@ -31,6 +31,7 @@ using Microsoft.Extensions.Hosting;
 
 using Moq;
 
+using Neon.Blazor;
 using Neon.Cryptography;
 using Neon.SignalR;
 using Neon.Web;
@@ -112,10 +113,13 @@ namespace TestBlazor
                 dnsMock.SetupGet(dns => dns.Hosts).Returns(new HashSet<string>());
 
                 builder.Services.AddSingleton<IDnsCache>(dnsMock.Object);
+                builder.Services.AddMemoryCache();
 
                 // Add services to the container.
                 builder.Services.AddRazorComponents()
                     .AddInteractiveServerComponents();
+
+                builder.Services.AddNeonBlazor();
 
                 builder.Services.AddDataProtection().UseAesDataProtectionProvider(cipherKey);
 
