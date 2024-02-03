@@ -16,6 +16,7 @@
 // limitations under the License.
 
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 
 using Microsoft.Extensions.DependencyInjection;
 
@@ -33,18 +34,34 @@ namespace Neon.Blazor
         /// <returns></returns>
         public static IServiceCollection AddNeonBlazor(this IServiceCollection services)
         {
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Create("Browser")))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Create("Browser")))
             {
-                services.AddHttpContextAccessor();
+                services.AddBrowserComponents();
+            }
+            else
+            {
+                services.AddServerComponents();
             }
 
             services
-                .AddScoped<RenderingContext>()
                 .AddScoped<BodyOutlet>()
                 .AddScoped<MobileDetector>()
                 .AddScoped<FileDownloader>();
 
             return services;
+        }
+
+        private static IServiceCollection AddBrowserComponents(this IServiceCollection services)
+        {
+            return services.AddScoped<IRenderContext, ClientRenderContext>();
+        }
+
+        [UnsupportedOSPlatform("browser")]
+        private static IServiceCollection AddServerComponents(this IServiceCollection services)
+        {
+            return services
+                .AddHttpContextAccessor()
+                .AddScoped<IRenderContext, ServerRenderContext>();
         }
     }
 }

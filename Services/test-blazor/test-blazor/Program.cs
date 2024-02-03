@@ -116,8 +116,10 @@ namespace TestBlazor
                 builder.Services.AddMemoryCache();
 
                 // Add services to the container.
-                builder.Services.AddRazorComponents()
-                    .AddInteractiveServerComponents();
+                builder.Services
+                    .AddRazorComponents()
+                    .AddInteractiveServerComponents()
+                    .AddInteractiveWebAssemblyComponents();
 
                 builder.Services.AddNeonBlazor();
 
@@ -145,15 +147,22 @@ namespace TestBlazor
                 if (!app.Environment.IsDevelopment())
                 {
                     app.UseExceptionHandler("/Error");
+                    app.UseWebAssemblyDebugging();
                 }
 
                 app.UseSignalrProxy();
 
                 app.UseStaticFiles();
+                app.UseRouting();
                 app.UseAntiforgery();
 
-                app.MapRazorComponents<App>()
-                    .AddInteractiveServerRenderMode();
+                app.UseEndpoints(endpoints =>
+                {
+                    endpoints.MapRazorComponents<App>()
+                        .AddInteractiveServerRenderMode()
+                        .AddInteractiveWebAssemblyRenderMode()
+                        .AddAdditionalAssemblies(typeof(Client.Program).Assembly);
+                });
 
                 tasks.Add(app.RunAsync());
 

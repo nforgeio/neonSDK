@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------------
-// FILE:	    RenderingContext.cs
+// FILE:	    RenderContext.cs
 // CONTRIBUTOR: NEONFORGE Team
 // COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
@@ -15,45 +15,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Microsoft.AspNetCore.Http;
-
-using System;
-using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 
 namespace Neon.Blazor
 {
     /// <summary>
-    /// Provides information about the rendering context. This depends on an <see cref="IHttpContextAccessor"/>
-    /// being registered in the service collection.
+    /// Provides information about the rendering context.
     /// </summary>
-    public class RenderingContext
+    public interface IRenderContext
     {
-        private static OSPlatform browserPlatform = OSPlatform.Create("Browser");
-
-        private IHttpContextAccessor httpContextAccessor;
-
-        /// <summary>
-        /// Constructor.
-        /// </summary>
-        /// <param name="httpContextAccessor"></param>
-        public RenderingContext(IHttpContextAccessor httpContextAccessor = null)
-        {
-            this.httpContextAccessor = httpContextAccessor;
-        }
-
         /// <summary>
         /// Whether the code is running on the server.
         /// </summary>
-        public bool IsServer => !RuntimeInformation.IsOSPlatform(browserPlatform);
+        public bool IsServer { get; }
 
         /// <summary>
         /// Whether the code is running on the client.
         /// </summary>
-        public bool IsClient => RuntimeInformation.IsOSPlatform(browserPlatform);
+        public bool IsClient { get; }
 
         /// <summary>
         /// Whether the current request is prerendering.
         /// </summary>
-        public bool IsPrerendering => !httpContextAccessor?.HttpContext?.Response.HasStarted ?? false;
+        public bool IsPrerendering { get; }
+
     }
 }

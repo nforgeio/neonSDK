@@ -41,7 +41,7 @@ else
 
 @code {
     [Inject]
-    public RenderingContext RenderingContext { get; set; }
+    public IRenderContext RenderContext { get; set; }
 
     [Inject]
     public IMemoryCache Cache { get; set; }
@@ -50,7 +50,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        if (!RenderingContext.IsPrerendering)
+        if (!RenderContext.IsPrerendering)
         {
             forecasts = Cache.Get<WeatherForecast[]>("WeatherForecast");
             return;
