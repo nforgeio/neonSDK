@@ -49,7 +49,7 @@ namespace Neon.SignalR
                     {
                         return new ForwarderRequestConfig()
                         {
-                            ActivityTimeout = TimeSpan.FromSeconds(100)
+                            ActivityTimeout = TimeSpan.MaxValue,
                         };
                     });
 
