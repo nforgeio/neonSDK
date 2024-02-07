@@ -171,6 +171,15 @@ namespace Neon.Roslyn
             return sb.ToString();
         }
 
+        public static string GetFullMetadataName(this ClassDeclarationSyntax s)
+        {
+            var sb = new StringBuilder(s.GetNamespace());
+            sb.Append(".");
+            sb.Append(s.Identifier.ValueText);
+
+            return sb.ToString();
+        }
+
         private static bool IsRootNamespace(ISymbol symbol)
         {
             INamespaceSymbol s = null;
