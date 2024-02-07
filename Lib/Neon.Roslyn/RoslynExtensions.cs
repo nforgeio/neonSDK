@@ -19,8 +19,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Neon.Roslyn
 {
@@ -129,6 +131,50 @@ namespace Neon.Roslyn
                     }
                 }
             }
+        }
+        public static string GetNamespace(this SyntaxNode s) =>
+            s.Parent switch
+            {
+                NamespaceDeclarationSyntax namespaceDeclarationSyntax => namespaceDeclarationSyntax.Name.ToString(),
+                null => string.Empty, // or whatever you want to do
+                _ => GetNamespace(s.Parent)
+            };
+
+        public static string GetFullMetadataName(this ISymbol s)
+        {
+            if (s == null || IsRootNamespace(s))
+            {
+                return string.Empty;
+            }
+
+            var sb = new StringBuilder(s.MetadataName);
+            var last = s;
+
+            s = s.ContainingSymbol;
+
+            while (!IsRootNamespace(s))
+            {
+                if (s is ITypeSymbol && last is ITypeSymbol)
+                {
+                    sb.Insert(0, '+');
+                }
+                else
+                {
+                    sb.Insert(0, '.');
+                }
+
+                sb.Insert(0, s.OriginalDefinition.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat));
+                //sb.Insert(0, s.MetadataName);
+                s = s.ContainingSymbol;
+            }
+
+            return sb.ToString();
+        }
+
+        private static bool IsRootNamespace(ISymbol symbol)
+        {
+            INamespaceSymbol s = null;
+            return ((s = symbol as INamespaceSymbol) != null) && s.IsGlobalNamespace;
         }
     }
     internal static class RoslynInternalExtensions

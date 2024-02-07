@@ -45,7 +45,9 @@ namespace Neon.Roslyn
 
         public Type ResolveType(ISymbol symbol)
         {
-            return compilation.GetTypeByMetadataName(symbol.ToDisplayString(DisplayFormat.NameAndContainingTypesAndNamespaces))?.AsType(this);
+            var result = compilation.GetTypeByMetadataName(symbol.GetFullMetadataName());
+
+            return result?.AsType(this);
         }
 
         public Type ResolveType<T>() => ResolveType(typeof(T));
