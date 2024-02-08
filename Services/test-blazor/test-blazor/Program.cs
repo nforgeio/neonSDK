@@ -136,9 +136,10 @@ namespace TestBlazor
 
                 builder.Services.AddSignalrProxy(options =>
                 {
-                    options.PeerAddress = "test";
-                    options.Port        = PORT;
-                    options.Hostname    = hostname;
+                    options.PeerAddress     = "test";
+                    options.Port            = PORT;
+                    options.Hostname        = hostname;
+                    options.ActivityTimeout = TimeSpan.FromMilliseconds(int.MaxValue);
                 });
 
                 var app = builder.Build();

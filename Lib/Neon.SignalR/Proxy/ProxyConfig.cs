@@ -43,5 +43,11 @@ namespace Neon.SignalR
         /// The interval to probe DNS for changes.
         /// </summary>
         public TimeSpan DnsProbeInterval { get; set; } = TimeSpan.FromSeconds(10);
+
+        /// <summary>
+        /// The activity timeout for a connection. Default is 100 seconds.
+        /// The max value is TimeSpan.FromMilliseconds(int.MaxValue).
+        /// </summary>
+        public TimeSpan ActivityTimeout { get; set; } = TimeSpan.FromSeconds(100);
     }
 }

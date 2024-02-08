@@ -47,9 +47,10 @@ namespace Neon.SignalR
             services.TryAddSingleton<ForwarderRequestConfig>(
                     serviceProvider =>
                     {
+                        var config = serviceProvider.GetRequiredService<ProxyConfig>();
                         return new ForwarderRequestConfig()
                         {
-                            ActivityTimeout = TimeSpan.MaxValue,
+                            ActivityTimeout = config.ActivityTimeout,
                         };
                     });
 
