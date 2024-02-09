@@ -620,9 +620,14 @@ namespace Neon.SSH
         /// </exception>
         /// <remarks>
         /// <note>
+        /// <para>
         /// <paramref name="command"/> may not include single quotes or redirect
         /// angle brackets such as <b>&lt;</b> or <b>>&gt;</b>.  For more complex
         /// command, try uploading and executing a <see cref="CommandBundle"/> instead.
+        /// </para>
+        /// <para>
+        /// Commands may not longer than 1024 characters.
+        /// </para>
         /// </note>
         /// <note>
         /// Any <c>null</c> arguments will be ignored.
@@ -649,11 +654,6 @@ namespace Neon.SSH
         /// <param name="runOptions">The execution options (defaults to <see cref="RunOptions.Defaults"/>).</param>
         /// <returns>The <see cref="CommandResponse"/>.</returns>
         /// <remarks>
-        /// <note>
-        /// <paramref name="bundle"/> may not include single quotes or redirect
-        /// angle brackets such as <b>&lt;</b> or <b>>&gt;</b>.  For more complex
-        /// command, try uploading and executing a <see cref="CommandBundle"/> instead.
-        /// </note>
         /// <para>
         /// This method is intended for situations where one or more files need to be uploaded to a cluster node 
         /// and then be used when a command is executed.
@@ -689,9 +689,14 @@ namespace Neon.SSH
         /// <returns>The <see cref="CommandResponse"/>.</returns>
         /// <remarks>
         /// <note>
+        /// <para>
         /// <paramref name="command"/> may not include single quotes or redirect
         /// angle brackets such as <b>&lt;</b> or <b>>&gt;</b>.  For more complex
         /// command, try uploading and executing a <see cref="CommandBundle"/> instead.
+        /// </para>
+        /// <para>
+        /// Commands may not longer than 1024 characters.
+        /// </para>
         /// </note>
         /// <para>
         /// This method uses the <see cref="DefaultRunOptions"/> when executing the command.
@@ -715,9 +720,14 @@ namespace Neon.SSH
         /// <returns>The <see cref="CommandResponse"/>.</returns>
         /// <remarks>
         /// <note>
+        /// <para>
         /// <paramref name="command"/> may not include single quotes or redirect
         /// angle brackets such as <b>&lt;</b> or <b>>&gt;</b>.  For more complex
         /// command, try uploading and executing a <see cref="CommandBundle"/> instead.
+        /// </para>
+        /// <para>
+        /// Commands may not longer than 1024 characters.
+        /// </para>
         /// </note>
         /// <para>
         /// The <paramref name="runOptions"/> flags control how this command functions.
@@ -747,9 +757,14 @@ namespace Neon.SSH
         /// <returns>The <see cref="CommandResponse"/>.</returns>
         /// <remarks>
         /// <note>
+        /// <para>
         /// <paramref name="command"/> may not include single quotes or redirect
         /// angle brackets such as <b>&lt;</b> or <b>>&gt;</b>.  For more complex
         /// command, try uploading and executing a <see cref="CommandBundle"/> instead.
+        /// </para>
+        /// <para>
+        /// Commands may not longer than 1024 characters.
+        /// </para>
         /// </note>
         /// <para>
         /// This method uses the <see cref="DefaultRunOptions"/> when executing the command.
@@ -775,9 +790,14 @@ namespace Neon.SSH
         /// <returns>The <see cref="CommandResponse"/>.</returns>
         /// <remarks>
         /// <note>
+        /// <para>
         /// <paramref name="command"/> may not include single quotes or redirect
         /// angle brackets such as <b>&lt;</b> or <b>>&gt;</b>.  For more complex
         /// command, try uploading and executing a <see cref="CommandBundle"/> instead.
+        /// </para>
+        /// <para>
+        /// Commands may not longer than 1024 characters.
+        /// </para>
         /// </note>
         /// <para>
         /// The <paramref name="runOptions"/> flags control how this command functions.

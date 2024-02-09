@@ -2313,6 +2313,11 @@ echo $? > {cmdFolder}/exit
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(command), nameof(command));
 
+            if (command.Length > 1024)
+            {
+                throw new ArgumentException($"[{nameof(SudoCommand)}(command,...)] command length is greater than 1024.  Upload and run a [{nameof(CommandBundle)}] instead.");
+            }
+
             if (command.Contains('<') || command.Contains('>'))
             {
                 throw new ArgumentException($"[{nameof(SudoCommand)}(command,...)] does not support angle brackets (<) or (>).  Upload and run a [{nameof(CommandBundle)}] instead.");
