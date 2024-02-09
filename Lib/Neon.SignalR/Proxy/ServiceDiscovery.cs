@@ -115,6 +115,8 @@ namespace Neon.SignalR
 
                             dnsCache.SetSelfAddress(self);
 
+                            logger?.LogDebugEx(() => $"Service discovery complete.");
+
                             continue;
                         }
 
@@ -132,6 +134,8 @@ namespace Neon.SignalR
                             var self = address.Target.Value.TrimEnd('.');
 
                             dnsCache.SetSelfAddress(self);
+
+                            logger?.LogDebugEx(() => $"Service discovery complete.");
 
                             continue;
                         }

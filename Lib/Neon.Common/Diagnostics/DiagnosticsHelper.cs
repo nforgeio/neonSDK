@@ -247,12 +247,12 @@ namespace Neon.Diagnostics
 
                 if (record.Exception != null)
                 {
-                    tags.Add("exception.type", exceptionInfo.Type);
-                    tags.Add("exception.message", exceptionInfo.Message);
+                    tags["exception.type"] = exceptionInfo.Type;
+                    tags["exception.message"] = exceptionInfo.Message;
 
                     if (includeStackTrace)
                     {
-                        tags.Add("exception.stacktrace", exceptionInfo.Stack);
+                        tags["exception.stacktrace"] = exceptionInfo.Stack;
                     }
                 }
 

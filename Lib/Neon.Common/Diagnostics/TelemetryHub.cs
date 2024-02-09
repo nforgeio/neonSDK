@@ -161,9 +161,7 @@ namespace Neon.Diagnostics
         }
 
         /// <summary>
-        /// Parses a <see cref="LogLevel"/> from a string and also sets the 
-        /// <c>Logging__LogLevel__Microsoft</c> environment variable which
-        /// is honored by any created <see cref="ILogger"/> instances.
+        /// Parses a <see cref="LogLevel"/> from a string.
         /// </summary>
         /// <param name="input">The input string.</param>
         /// <param name="default">The default value to return when <paramref name="input"/> is <c>null</c> or invalid.</param>
@@ -221,8 +219,6 @@ namespace Neon.Diagnostics
                         break;
                 }
             }
-
-            Environment.SetEnvironmentVariable("Logging__LogLevel__Microsoft", logLevel.ToString());
 
             return logLevel;
         }

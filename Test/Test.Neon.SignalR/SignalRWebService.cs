@@ -16,12 +16,8 @@
 // limitations under the License.
 
 using System;
-using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Builder;
@@ -32,18 +28,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 
-using Neon.Common;
-using Neon.Cryptography;
+using NATS.Client.Core;
+using NATS.Client.Hosting;
+
 using Neon.Diagnostics;
-using Neon.IO;
 using Neon.Service;
 using Neon.SignalR;
-using Neon.Web;
-using Neon.Xunit;
-
-using NATS.Client;
-
-using Xunit;
 
 namespace Test.Neon.SignalR
 {
@@ -51,7 +41,6 @@ namespace Test.Neon.SignalR
     {
         private WebService      service;
         private IConfiguration  configuration;
-
         public Startup(IConfiguration configuration, WebService service)
         {
             this.configuration = configuration;
@@ -68,9 +57,9 @@ namespace Test.Neon.SignalR
                 .AddSingleton<IUserIdProvider, UserNameIdProvider>()
                 .AddSingleton<ILogger>(logger)
                 .AddSignalR()
-                .AddNats(options =>
+                .AddNats(configureOpts: opts => new NatsOpts()
                 {
-                    options.Servers = new string[] { natsServerUri };
+                    Url = natsServerUri
                 });
         }
 

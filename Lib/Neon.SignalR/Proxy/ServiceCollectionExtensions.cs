@@ -47,9 +47,16 @@ namespace Neon.SignalR
             services.TryAddSingleton<ForwarderRequestConfig>(
                     serviceProvider =>
                     {
+                        var config = serviceProvider.GetRequiredService<ProxyConfig>();
+
+                        if (config.ActivityTimeout > TimeSpan.FromMilliseconds(int.MaxValue))
+                        {
+                            throw new ArgumentException("ActivityTimeout must be less than or equal to int.MaxValue milliseconds.");
+                        }
+
                         return new ForwarderRequestConfig()
                         {
-                            ActivityTimeout = TimeSpan.FromSeconds(100)
+                            ActivityTimeout = config.ActivityTimeout,
                         };
                     });
 

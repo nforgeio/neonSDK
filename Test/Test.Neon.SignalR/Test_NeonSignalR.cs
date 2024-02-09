@@ -64,7 +64,6 @@ namespace Test.Neon.SignalR
         private HubConnection secondConnection;
         private HubConnection thirdConnection;
         private HubConnection fourthConnection;
-
         public TestSignalR(ComposedFixture fixture)
         {
             TestHelper.ResetDocker(this.GetType());
@@ -77,7 +76,7 @@ namespace Test.Neon.SignalR
                     composedFixture.AddFixture("nats", new NatsFixture(),
                         natsFixture =>
                         {
-                            natsFixture.StartAsComposed();
+                            natsFixture.StartAsComposed("nats", args: ["-DVV"]);
                         });
 
                     composedFixture.AddServiceFixture("web-0", new NeonServiceFixture<WebService>(), () => CreateService("web-0"));
@@ -244,6 +243,8 @@ namespace Test.Neon.SignalR
             await CheckConnectionsAsync();
             await connection.InvokeAsync("AddSelfToGroup", groupName);
             await secondConnection.InvokeAsync("AddSelfToGroup", groupName);
+
+            await Task.Delay(100);
 
             await connection.InvokeAsync("EchoGroup", groupName, "Hello, World!");
 

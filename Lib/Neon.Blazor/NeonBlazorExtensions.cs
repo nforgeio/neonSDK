@@ -15,21 +15,53 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Neon.Blazor
 {
+    /// <summary>
+    /// A set of extension methods for Neon Blazor.
+    /// </summary>
     public static class NeonBlazorExtensions
     {
-        public static IServiceCollection AddNeonBlazor(
-            this IServiceCollection builder)
+        /// <summary>
+        /// Adds Neon Blazor services to the service collection.
+        /// </summary>
+        /// <param name="services">The service collection.</param>
+        /// <returns></returns>
+        public static IServiceCollection AddNeonBlazor(this IServiceCollection services)
         {
-            builder
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Create("Browser")))
+            {
+                services.AddBrowserComponents();
+            }
+            else
+            {
+                services.AddServerComponents();
+            }
+
+            services
                 .AddScoped<BodyOutlet>()
                 .AddScoped<MobileDetector>()
                 .AddScoped<FileDownloader>();
 
-            return builder;
+            return services;
+        }
+
+        private static IServiceCollection AddBrowserComponents(this IServiceCollection services)
+        {
+            return services.AddScoped<IRenderContext, ClientRenderContext>();
+        }
+
+        [UnsupportedOSPlatform("browser")]
+        private static IServiceCollection AddServerComponents(this IServiceCollection services)
+        {
+            return services
+                .AddHttpContextAccessor()
+                .AddScoped<IRenderContext, ServerRenderContext>();
         }
     }
 }

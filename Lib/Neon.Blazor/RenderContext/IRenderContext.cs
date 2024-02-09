@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------------
-// FILE:	    ProxyConfig.cs
+// FILE:	    RenderContext.cs
 // CONTRIBUTOR: NEONFORGE Team
 // COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
@@ -15,39 +15,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
+using System.Runtime.Versioning;
 
-namespace Neon.SignalR
+namespace Neon.Blazor
 {
     /// <summary>
-    /// SignalR proxy configuration.
+    /// Provides information about the rendering context.
     /// </summary>
-    public class ProxyConfig
+    public interface IRenderContext
     {
         /// <summary>
-        /// The address of this service. Must have valid SRV records.
+        /// Whether the code is running on the server.
         /// </summary>
-        public string PeerAddress { get; set; }
+        public bool IsServer { get; }
 
         /// <summary>
-        /// The service port.
+        /// Whether the code is running on the client.
         /// </summary>
-        public int Port { get; set; }
+        public bool IsClient { get; }
 
         /// <summary>
-        /// The hostname of the 
+        /// Whether the current request is prerendering.
         /// </summary>
-        public string Hostname { get; set; }
+        public bool IsPrerendering { get; }
 
-        /// <summary>
-        /// The interval to probe DNS for changes.
-        /// </summary>
-        public TimeSpan DnsProbeInterval { get; set; } = TimeSpan.FromSeconds(10);
-
-        /// <summary>
-        /// The activity timeout for a connection. Default is 100 seconds.
-        /// The max value is TimeSpan.FromMilliseconds(int.MaxValue).
-        /// </summary>
-        public TimeSpan ActivityTimeout { get; set; } = TimeSpan.FromSeconds(100);
     }
 }

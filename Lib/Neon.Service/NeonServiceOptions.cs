@@ -137,5 +137,15 @@ namespace Neon.Service
         /// Optionally specifies log enrichers to add to the Logging pipeline.
         /// </summary>
         public IEnumerable<ILogEnricher> LogEnrichers { get; set; } = null;
+
+        /// <summary>
+        /// Optionally specifies the prefix to use for environment variables that will be loaded into configuration.
+        /// </summary>
+        public string EnvironmentVariablePrefix { get; set; } = null;
+
+        /// <summary>
+        /// Optionally specifies the character to use to replace dots (<b>.</b>) in environment variable names.
+        /// </summary>
+        public string EnvironmentVariableDotReplacement { get; set; } = null;
     }
 }

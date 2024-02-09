@@ -50,6 +50,8 @@ using OpenTelemetry;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using Microsoft.Extensions.Configuration.EnvironmentVariables;
+using Microsoft.Extensions.Configuration;
 
 namespace Neon.Service
 {
@@ -866,10 +868,19 @@ namespace Neon.Service
 
                     var logLevel = TelemetryHub.ParseLogLevel(System.Environment.GetEnvironmentVariable("LOG_LEVEL") ?? LogLevel.Information.ToMemberString());
 
+                    System.Environment.SetEnvironmentVariable("Logging__LogLevel__Default", logLevel.ToString());
+
+                    var loggingConfig = new ConfigurationBuilder()
+                        .AddCustomEnvironmentVariables(
+                        prefix:         options.EnvironmentVariablePrefix,
+                        dotReplacement: options.EnvironmentVariableDotReplacement)
+                        .Build();
+                   
                     var loggerFactory = Microsoft.Extensions.Logging.LoggerFactory.Create(
                         builder =>
                         {
                             builder
+                                .AddConfiguration(loggingConfig)
                                 .SetMinimumLevel(logLevel)
                                 .EnableEnrichment()
                                 .AddOpenTelemetry(
@@ -909,6 +920,14 @@ namespace Neon.Service
                                             options.AddConsoleJsonExporter();
                                         }
                                     });
+
+                            var levels = new Dictionary<string, string>();
+                            loggingConfig.GetSection("Logging:LogLevel").Bind(levels);
+
+                            foreach (var level in levels)
+                            {
+                                builder.AddFilter(level.Key, TelemetryHub.ParseLogLevel(level.Value));
+                            }
 
                             if (options.LogEnrichers != null)
                             {

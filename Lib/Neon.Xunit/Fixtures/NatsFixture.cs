@@ -158,7 +158,7 @@ namespace Neon.Xunit
                     "--detach",
                     "-p", $"{GetHostInterface(hostInterface)}:4222:4222",
                     "-p", $"{GetHostInterface(hostInterface)}:8222:8222",
-                    "-p", $"{GetHostInterface(hostInterface)}:6222:6222"
+                    "-p", $"{GetHostInterface(hostInterface)}:6222:6222",
                 };
 
             if (!IsRunning)

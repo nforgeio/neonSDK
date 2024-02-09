@@ -25,7 +25,8 @@ using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 
-using NATS.Client;
+using NATS.Client.Core;
+using NATS.Client.Hosting;
 
 namespace Neon.SignalR
 {
@@ -38,19 +39,24 @@ namespace Neon.SignalR
         /// Adds scale-out to a <see cref="ISignalRServerBuilder"/>, using a shared Nats server.
         /// </summary>
         /// <param name="signalrBuilder">The <see cref="ISignalRServerBuilder"/>.</param>
-        /// <param name="options">An optional <see cref="Action{T}" /> to configure the provided <see cref="Options" />.</param>
+        /// <param name="poolSize"></param>
+        /// <param name="configureOpts"></param>
+        /// <param name="configureConnection"></param>
         /// <returns>The same instance of the <see cref="IServiceCollection"/> for chaining.</returns>
-        public static IServiceCollection AddNats(this ISignalRServerBuilder signalrBuilder, Action<Options> options = null)
+        public static IServiceCollection AddNats(this ISignalRServerBuilder signalrBuilder,
+            int                      poolSize            = 1,
+            Func<NatsOpts, NatsOpts> configureOpts       = null,
+            Action<NatsConnection>   configureConnection = null)
         {
-            var opts = ConnectionFactory.GetDefaultOptions();
-            options?.Invoke(opts);
-
-            signalrBuilder.Services.AddSingleton<IConnection>(_ => new ConnectionFactory().CreateConnection(opts));
+            signalrBuilder.Services.AddNats(
+                poolSize:            poolSize,
+                configureOpts:       configureOpts,
+                configureConnection: configureConnection);
 
             signalrBuilder.AddMessagePackProtocol()
                .Services.AddSingleton(new AsyncKeyedLocker<string>(options =>
                {
-                   options.PoolSize = 20;
+                   options.PoolSize        = 20;
                    options.PoolInitialFill = 1;
                }))
                .AddResponseCompression(opts =>

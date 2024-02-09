@@ -31,6 +31,7 @@ using Microsoft.Extensions.Hosting;
 
 using Moq;
 
+using Neon.Blazor;
 using Neon.Cryptography;
 using Neon.SignalR;
 using Neon.Web;
@@ -112,10 +113,15 @@ namespace TestBlazor
                 dnsMock.SetupGet(dns => dns.Hosts).Returns(new HashSet<string>());
 
                 builder.Services.AddSingleton<IDnsCache>(dnsMock.Object);
+                builder.Services.AddMemoryCache();
 
                 // Add services to the container.
-                builder.Services.AddRazorComponents()
-                    .AddInteractiveServerComponents();
+                builder.Services
+                    .AddRazorComponents()
+                    .AddInteractiveServerComponents()
+                    .AddInteractiveWebAssemblyComponents();
+
+                builder.Services.AddNeonBlazor();
 
                 builder.Services.AddDataProtection().UseAesDataProtectionProvider(cipherKey);
 
@@ -130,9 +136,10 @@ namespace TestBlazor
 
                 builder.Services.AddSignalrProxy(options =>
                 {
-                    options.PeerAddress = "test";
-                    options.Port        = PORT;
-                    options.Hostname    = hostname;
+                    options.PeerAddress     = "test";
+                    options.Port            = PORT;
+                    options.Hostname        = hostname;
+                    options.ActivityTimeout = TimeSpan.FromMilliseconds(int.MaxValue);
                 });
 
                 var app = builder.Build();
@@ -141,15 +148,22 @@ namespace TestBlazor
                 if (!app.Environment.IsDevelopment())
                 {
                     app.UseExceptionHandler("/Error");
+                    app.UseWebAssemblyDebugging();
                 }
 
                 app.UseSignalrProxy();
 
                 app.UseStaticFiles();
+                app.UseRouting();
                 app.UseAntiforgery();
 
-                app.MapRazorComponents<App>()
-                    .AddInteractiveServerRenderMode();
+                app.UseEndpoints(endpoints =>
+                {
+                    endpoints.MapRazorComponents<App>()
+                        .AddInteractiveServerRenderMode()
+                        .AddInteractiveWebAssemblyRenderMode()
+                        .AddAdditionalAssemblies(typeof(Client.Program).Assembly);
+                });
 
                 tasks.Add(app.RunAsync());
 
