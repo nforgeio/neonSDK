@@ -16,9 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Builds the test container image.
-#
-# USAGE: pwsh -f build.ps1 REGISTRY VERSION TAG
+# Builds the container image.
 
 param 
 (
