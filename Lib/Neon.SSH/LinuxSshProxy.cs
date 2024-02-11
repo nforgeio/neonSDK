@@ -87,6 +87,18 @@ namespace Neon.SSH
         private static Dictionary<string, object> connectLocks = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
 
         /// <summary>
+        /// <para>
+        /// Specifies the maximum length of command strings passed to the non-bundle
+        /// </para>
+        /// <note>
+        /// Note that the command length includes the user's string passed as well as
+        /// an additional internal command configuring the PATH.
+        /// </note>
+        /// <c>RunCommand()</c> and <c>SudoCommand()</c> methods.
+        /// </summary>
+        public const int MaxCommandLength = 2048;
+
+        /// <summary>
         /// Returns the object to be used to when establishing connections to
         /// a target server.
         /// </summary>
@@ -2313,9 +2325,9 @@ echo $? > {cmdFolder}/exit
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(command), nameof(command));
 
-            if (command.Length > 1024)
+            if (command.Length > MaxCommandLength)
             {
-                throw new ArgumentException($"[{nameof(SudoCommand)}(command,...)] command length is greater than 1024.  Upload and run a [{nameof(CommandBundle)}] instead.");
+                throw new ArgumentException($"[{nameof(SudoCommand)}(command,...)] command length is greater than [{MaxCommandLength}].  Upload and run a [{nameof(CommandBundle)}] instead.");
             }
 
             if (command.Contains('<') || command.Contains('>'))

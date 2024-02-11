@@ -626,11 +626,14 @@ namespace Neon.SSH
         /// command, try uploading and executing a <see cref="CommandBundle"/> instead.
         /// </para>
         /// <para>
-        /// Commands may not longer than 1024 characters.
+        /// Commands may not longer than <see cref="LinuxSshProxy.MaxCommandLength"/> characters.
+        /// Commands may not longer than <see cref="LinuxSshProxy.MaxCommandLength"/> characters.
+        /// Note that the command length includes the string passed as well as an additional
+        /// internal command configuring the PATH.
         /// </para>
         /// </note>
         /// <note>
-        /// Any <c>null</c> arguments will be ignored.
+        /// Any <c>null</c> arguments will be ignore
         /// </note>
         /// <para>
         /// The <paramref name="runOptions"/> flags control how this command functions.
@@ -695,7 +698,9 @@ namespace Neon.SSH
         /// command, try uploading and executing a <see cref="CommandBundle"/> instead.
         /// </para>
         /// <para>
-        /// Commands may not longer than 1024 characters.
+        /// Commands may not longer than <see cref="LinuxSshProxy.MaxCommandLength"/> characters.
+        /// Note that the command length includes the string passed as well as an additional
+        /// internal command configuring the PATH.
         /// </para>
         /// </note>
         /// <para>
@@ -726,7 +731,9 @@ namespace Neon.SSH
         /// command, try uploading and executing a <see cref="CommandBundle"/> instead.
         /// </para>
         /// <para>
-        /// Commands may not longer than 1024 characters.
+        /// Commands may not longer than <see cref="LinuxSshProxy.MaxCommandLength"/> characters.
+        /// Note that the command length includes the string passed as well as an additional
+        /// internal command configuring the PATH.
         /// </para>
         /// </note>
         /// <para>
@@ -763,7 +770,9 @@ namespace Neon.SSH
         /// command, try uploading and executing a <see cref="CommandBundle"/> instead.
         /// </para>
         /// <para>
-        /// Commands may not longer than 1024 characters.
+        /// Commands may not longer than <see cref="LinuxSshProxy.MaxCommandLength"/> characters.
+        /// Note that the command length includes the string passed as well as an additional
+        /// internal command configuring the PATH.
         /// </para>
         /// </note>
         /// <para>
@@ -796,7 +805,9 @@ namespace Neon.SSH
         /// command, try uploading and executing a <see cref="CommandBundle"/> instead.
         /// </para>
         /// <para>
-        /// Commands may not longer than 1024 characters.
+        /// Commands may not longer than <see cref="LinuxSshProxy.MaxCommandLength"/> characters.
+        /// Note that the command length includes the string passed as well as an additional
+        /// internal command configuring the PATH.
         /// </para>
         /// </note>
         /// <para>
