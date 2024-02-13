@@ -225,6 +225,7 @@ try
     Publish Neon.Nats                   $neonSdkVersion
     Publish Neon.Postgres               $neonSdkVersion
     Publish Neon.Roslyn                 $neonSdkVersion
+    Publish Neon.Roslyn.Xunit           $neonSdkVersion
     Publish Neon.Service                $neonSdkVersion
     Publish Neon.SignalR                $neonSdkVersion
     Publish Neon.SSH                    $neonSdkVersion
