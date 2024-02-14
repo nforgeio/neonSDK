@@ -18,6 +18,16 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <Compile Include="..\Neon.BuildInfo\AssemblyAttributes.cs" Link="Properties\AssemblyAttributes.cs" />
+        <Compile Include="..\Neon.BuildInfo\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="..\nuget-icon.png" Pack="true" PackagePath="" />
+        <None Include="..\..\LICENSE" Pack="true" PackagePath="" />
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.8.0" PrivateAssets="all" />
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" PrivateAssets="all" />
     </ItemGroup>
