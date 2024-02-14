@@ -40,6 +40,19 @@ namespace Neon.Roslyn.Xunit
         }
 
         /// <summary>
+        /// Adds an assembly to the compilation.
+        /// </summary>
+        /// <param name="compilation"></param>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public static TestCompilationBuilder AddAssembly(this TestCompilationBuilder compilation, string path)
+        {
+            compilation.AssemblyPaths.Add(path);
+
+            return compilation;
+        }
+
+        /// <summary>
         /// Adds assemblies to the compilation.
         /// </summary>
         /// <param name="compilation"></param>
@@ -48,6 +61,19 @@ namespace Neon.Roslyn.Xunit
         public static TestCompilationBuilder AddAssemblies(this TestCompilationBuilder compilation, params Assembly[] assemblies)
         {
             compilation.Assemblies.AddRange(assemblies);
+
+            return compilation;
+        }
+
+        /// <summary>
+        /// Adds assemblies to the compilation.
+        /// </summary>
+        /// <param name="compilation"></param>
+        /// <param name="paths"></param>
+        /// <returns></returns>
+        public static TestCompilationBuilder AddAssemblies(this TestCompilationBuilder compilation, params string[] paths)
+        {
+            compilation.AssemblyPaths.AddRange(paths);
 
             return compilation;
         }
@@ -146,6 +172,48 @@ namespace Neon.Roslyn.Xunit
             where T : ISourceGenerator, new()
         {
             compilation.Generators.Add(new T());
+            return compilation;
+        }
+
+        /// <summary>
+        /// Adds a build option to the compilation.
+        /// </summary>
+        /// <param name="compilation"></param>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static TestCompilationBuilder AddOption(this TestCompilationBuilder compilation, string key, string value)
+        {
+            compilation.Options.Add(key, value);
+            return compilation;
+        }
+
+        /// <summary>
+        /// Adds a build option to the compilation.
+        /// </summary>
+        /// <param name="compilation"></param>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static TestCompilationBuilder AddOption(this TestCompilationBuilder compilation, string key, object value)
+        {
+            compilation.Options.Add(key, value.ToString());
+            return compilation;
+        }
+
+        /// <summary>
+        /// Adds a collection of build options to the compilation.
+        /// </summary>
+        /// <param name="compilation">The compilation.</param>
+        /// <param name="options">A dictionary of options.</param>
+        /// <returns></returns>
+        public static TestCompilationBuilder AddOptions(this TestCompilationBuilder compilation, Dictionary<string, string> options)
+        {
+            foreach (var opt in options)
+            {
+                compilation.Options.Add(opt.Key, opt.Value);
+            }
+
             return compilation;
         }
     }

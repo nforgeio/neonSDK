@@ -17,14 +17,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using Microsoft.CodeAnalysis.CSharp;
 
 using Microsoft.CodeAnalysis;
-using System.Collections.Immutable;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace Neon.Roslyn.Xunit
 {
@@ -32,6 +29,7 @@ namespace Neon.Roslyn.Xunit
     {
         public bool Executable { get; set; }
         internal List<Assembly> Assemblies { get; set; } = new List<Assembly>();
+        internal List<string> AssemblyPaths { get; set; } = new List<string>();
 
         internal List<string> Sources { get; set; } = new List<string>();
         internal List<string> AdditionalFilePaths { get; set; } = new List<string>();
@@ -39,6 +37,8 @@ namespace Neon.Roslyn.Xunit
         internal List<ISourceGenerator> Generators { get; set; } = new List<ISourceGenerator>();
 
         internal CompilationOptionsProvider CompilationOptionsProvider { get; set; }
+
+        internal Dictionary<string, string> Options { get; set; } = new Dictionary<string, string>();
 
         public Compilation Compilation { get; set; }
         public List<Diagnostic> Diagnostics { get; set; }
@@ -49,6 +49,12 @@ namespace Neon.Roslyn.Xunit
 
         public TestCompilation Build()
         {
+            CompilationOptionsProvider = new CompilationOptionsProvider();
+            CompilationOptionsProvider.SetOptions(new CompilationOptions()
+            {
+                Options = Options
+            });
+
             var syntaxTree = CSharpSyntaxTree.ParseText(string.Join(Environment.NewLine, Sources));
 
             var references = new List<MetadataReference>();
@@ -58,6 +64,10 @@ namespace Neon.Roslyn.Xunit
                 {
                     references.Add(MetadataReference.CreateFromFile(assembly.Location));
                 }
+                else
+                {
+                    Console.Write("foo");
+                }
             }
 
             foreach (var assembly in Assemblies)
@@ -65,7 +75,6 @@ namespace Neon.Roslyn.Xunit
                 if (!assembly.IsDynamic && !string.IsNullOrWhiteSpace(assembly.Location))
                 {
                     references.Add(MetadataReference.CreateFromFile(assembly.Location));
-
                 }
             }
 
