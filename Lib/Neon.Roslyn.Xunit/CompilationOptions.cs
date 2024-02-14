@@ -22,9 +22,22 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Neon.Roslyn.Xunit
 {
+    /// <summary>
+    /// Compilation options.
+    /// </summary>
     public class CompilationOptions : AnalyzerConfigOptions
     {
+        /// <summary>
+        /// The options.
+        /// </summary>
         public Dictionary<string, string> Options { get; set; } = new Dictionary<string, string>();
+
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public override bool TryGetValue(string key, [NotNullWhen(true)] out string value)
         {
             return Options.TryGetValue(key, out value);

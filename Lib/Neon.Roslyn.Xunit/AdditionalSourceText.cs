@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------------
-// FILE:	    AdditionalText.cs
+// FILE:	    AdditionalSourceText.cs
 // CONTRIBUTOR: NEONFORGE Team
 // COPYRIGHT:   Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 //
@@ -15,48 +15,72 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.Text;
 
 using Microsoft.CodeAnalysis;
-using System.Collections.Immutable;
-using System.IO;
-
-
-using System.Diagnostics;
-using Roslyn.Utilities;
+using Microsoft.CodeAnalysis.Text;
 
 namespace Neon.Roslyn.Xunit
 {
+    /// <summary>
+    /// Represents an additional source text to be used in a test.
+    /// </summary>
     public class AdditionalSourceText : AdditionalText
     {
         private readonly SourceText text;
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="text"></param>
         public AdditionalSourceText(string path, SourceText? text)
         {
             Path = path;
             this.text = text;
         }
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="encoding"></param>
+        /// <param name="path"></param>
+        /// <param name="checksumAlgorithm"></param>
         public AdditionalSourceText(string text = "", Encoding encoding = null, string path = "dummy", SourceHashAlgorithm checksumAlgorithm = SourceHashAlgorithm.Sha1)
             : this(path, SourceText.From(text, encoding, checksumAlgorithm: checksumAlgorithm))
         {
         }
 
+        /// <summary>
+        /// The path to the source text.
+        /// </summary>
         public override string Path { get; }
 
+        /// <summary>
+        /// Returns the source text.
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public override SourceText GetText(CancellationToken cancellationToken = default) => text;
 
+        /// <summary>
+        /// Helper method to get the source text from a file.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
         public static AdditionalSourceText FromFile(string path)
         {
             return new AdditionalSourceText(File.ReadAllText(path));
         }
 
+        /// <summary>
+        /// Helper method to get the source text from a string.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
         public static AdditionalSourceText FromString(string text)
         {
             return new AdditionalSourceText(text);

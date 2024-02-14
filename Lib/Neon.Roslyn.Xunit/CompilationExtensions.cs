@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------------
-// FILE:	    CompilationExtensions.cs
+// FILE:	    TestCompilationBuilderExtensions.cs
 // CONTRIBUTOR: NEONFORGE Team
 // COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
@@ -24,6 +24,9 @@ using Microsoft.CodeAnalysis;
 
 namespace Neon.Roslyn.Xunit
 {
+    /// <summary>
+    /// Extensions for building <see cref="TestCompilation"/> instances.
+    /// </summary>
     public static class TestCompilationBuilderExtensions
     {
         /// <summary>

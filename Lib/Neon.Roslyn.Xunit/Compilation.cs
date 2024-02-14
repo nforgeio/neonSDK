@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------------
-// FILE:	    Compilation.cs
+// FILE:	    TestCompilation.cs
 // CONTRIBUTOR: NEONFORGE Team
 // COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
@@ -22,11 +22,26 @@ using Microsoft.CodeAnalysis;
 
 namespace Neon.Roslyn.Xunit
 {
+    /// <summary>
+    /// Helper class for working with Roslyn <see cref="Compilation"/> instances.
+    /// </summary>
     public class TestCompilation
     {
+        /// <summary>
+        /// The Compilation instance.
+        /// </summary>
         public Compilation Compilation { get; set; }
+
+        /// <summary>
+        /// Diagnostic messages.
+        /// </summary>
         public List<Diagnostic> Diagnostics { get; set; }
 
+        /// <summary>
+        /// Helper method to check if the compilation has a specific output syntax.
+        /// </summary>
+        /// <param name="expectedSyntax"></param>
+        /// <returns></returns>
         public bool HasOutputSyntax(string expectedSyntax)
         {
             return Compilation.SyntaxTrees.Any(st => st.ToString().Trim() == expectedSyntax.Trim());

@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------------
-// FILE:	    Compilation.cs
+// FILE:	    TestCompilationBuilder.cs
 // CONTRIBUTOR: NEONFORGE Team
 // COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
@@ -25,9 +25,12 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace Neon.Roslyn.Xunit
 {
+    /// <summary>
+    /// Builder for creating <see cref="TestCompilation"/> instances.
+    /// </summary>
     public class TestCompilationBuilder
     {
-        public bool Executable { get; set; }
+        internal bool Executable { get; set; }
         internal List<Assembly> Assemblies { get; set; } = new List<Assembly>();
         internal List<string> AssemblyPaths { get; set; } = new List<string>();
 
@@ -40,13 +43,19 @@ namespace Neon.Roslyn.Xunit
 
         internal Dictionary<string, string> Options { get; set; } = new Dictionary<string, string>();
 
-        public Compilation Compilation { get; set; }
-        public List<Diagnostic> Diagnostics { get; set; }
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="executable"></param>
         public TestCompilationBuilder(bool executable = false)
         {
-
+            this.Executable = executable;
         }
 
+        /// <summary>
+        /// Builds the <see cref="TestCompilation"/> instance.
+        /// </summary>
+        /// <returns></returns>
         public TestCompilation Build()
         {
             CompilationOptionsProvider = new CompilationOptionsProvider();

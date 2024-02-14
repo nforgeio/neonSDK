@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------------
-// FILE:	    CompilationOptions.cs
+// FILE:	    CompilationOptionsProvider.cs
 // CONTRIBUTOR: NEONFORGE Team
 // COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
@@ -20,21 +20,42 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Neon.Roslyn.Xunit
 {
+    /// <summary>
+    /// The compilation options provider.
+    /// </summary>
     public class CompilationOptionsProvider : AnalyzerConfigOptionsProvider
     {
         private AnalyzerConfigOptions _options;
+
+        /// <summary>
+        /// The global options.
+        /// </summary>
         public override AnalyzerConfigOptions GlobalOptions => _options;
 
+        /// <summary>
+        /// Sets the options.
+        /// </summary>
+        /// <param name="options"></param>
         public void SetOptions(AnalyzerConfigOptions options)
         {
             _options = options;
         }
 
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        /// <param name="tree"></param>
+        /// <returns></returns>
         public override AnalyzerConfigOptions GetOptions(SyntaxTree tree)
         {
             return GlobalOptions;
         }
 
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        /// <param name="textFile"></param>
+        /// <returns></returns>
         public override AnalyzerConfigOptions GetOptions(AdditionalText textFile)
         {
             return GlobalOptions;
