@@ -2,6 +2,19 @@
 
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
+        <OutputType>Library</OutputType>
+        <RootNamespace>Neon.Roslyn.Xunit</RootNamespace>
+        <Version>$(NeonSdkVersion)</Version>
+        <Description>Roslyn related utilities and extensions for testing with XUnit</Description>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.Roslyn.Xunit/README.md</PackageProjectUrl>
+        <PackageIcon>nuget-icon.png</PackageIcon>
+        <RepositoryUrl>https://github.com/nforgeio/neonSDK</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageTags>roslyn reflection source generators xunit</PackageTags>
+        <PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
+        <Configurations>Debug;Release</Configurations>
+        <NoWarn>$(NoWarn);1591</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
