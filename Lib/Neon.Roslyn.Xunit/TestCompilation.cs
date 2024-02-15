@@ -17,6 +17,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 using Microsoft.CodeAnalysis;
 
@@ -39,13 +40,29 @@ namespace Neon.Roslyn.Xunit
 
         /// <summary>
         /// Helper method to check if the compilation has a specific output syntax.
+        /// The comparison is done by normalizing the syntax trees to a common format,
+        /// by replacing \r\n with \n and trimming the result.
         /// </summary>
         /// <param name="expectedSyntax"></param>
         /// <returns></returns>
         public bool HasOutputSyntax(string expectedSyntax)
         {
-            return Compilation.SyntaxTrees.Any(st => st.ToString().Trim() == expectedSyntax.Trim());
+            return Compilation.SyntaxTrees.Any(st => st.ToString().Normalize() == expectedSyntax.Normalize());
         }
+    }
 
+    public static class StringExtensions
+    {
+        public static string Normalize(this string value)
+        {
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return value.Replace("\r\n", "\n").Trim();
+            }
+            else
+            {
+                return value.Trim();
+            }
+        }
     }
 }
