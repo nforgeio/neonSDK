@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------------
-// FILE:	    TestCompilation.cs
+// FILE:	    FlueentAssertionsExtensions.cs
 // CONTRIBUTOR: NEONFORGE Team
 // COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
@@ -15,30 +15,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Collections.Generic;
-
-using Microsoft.CodeAnalysis;
-
 namespace Neon.Roslyn.Xunit
 {
     /// <summary>
-    /// Helper class for working with Roslyn <see cref="Compilation"/> instances.
+    /// Extensions for <see cref="TestCompilation"/>.
     /// </summary>
-    public class TestCompilation
+    public static class TestCompilationExtensions
     {
         /// <summary>
-        /// The Compilation instance.
+        /// Returns a <see cref="TestCompilationAssertions"/> instance for the given <see cref="TestCompilation"/>.
         /// </summary>
-        public Compilation Compilation { get; set; }
-
-        /// <summary>
-        /// Diagnostic messages.
-        /// </summary>
-        public List<Diagnostic> Diagnostics { get; set; }
-
-        /// <summary>
-        /// The hash codes of output syntax.
-        /// </summary>
-        public List<int> HashCodes { get; set; }
+        /// <param name="instance"></param>
+        /// <returns></returns>
+        public static TestCompilationAssertions Should(this TestCompilation instance)
+        {
+            return new TestCompilationAssertions(instance);
+        }
     }
 }

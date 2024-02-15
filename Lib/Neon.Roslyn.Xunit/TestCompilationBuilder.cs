@@ -23,6 +23,8 @@ using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
+using Neon.Common;
+
 namespace Neon.Roslyn.Xunit
 {
     /// <summary>
@@ -73,10 +75,6 @@ namespace Neon.Roslyn.Xunit
                 {
                     references.Add(MetadataReference.CreateFromFile(assembly.Location));
                 }
-                else
-                {
-                    Console.Write("foo");
-                }
             }
 
             foreach (var assembly in Assemblies)
@@ -109,7 +107,8 @@ namespace Neon.Roslyn.Xunit
             return new TestCompilation()
             {
                 Compilation = outputCompilation,
-                Diagnostics = generateDiagnostics.ToList()
+                Diagnostics = generateDiagnostics.ToList(),
+                HashCodes   = outputCompilation.SyntaxTrees.Select(s => s.ToString().GetHashCodeIgnoringWhitespace(ignoreCase: false)).ToList()
             };
         }
     }

@@ -77,5 +77,38 @@ namespace Neon.Common
                 return list;
             }
         }
+
+        /// <summary>
+        /// Gets the hash code for a string, optionally ignoring case.
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="ignoreCase"></param>
+        /// <returns></returns>
+        public static int GetHashCodeIgnoringWhitespace(this string obj, bool ignoreCase = false)
+        {
+            if (obj == null)
+            {
+                return 0;
+            }
+
+            int hash = 17;
+            unchecked
+            {
+                for (int i = 0; i < obj.Length; i++)
+                {
+                    char ch = obj[i];
+                    if (!char.IsWhiteSpace(ch))
+                    {
+                        if (ignoreCase == true)
+                        {
+                            ch = char.ToLowerInvariant(ch);
+                        }
+
+                        hash = hash * 23 + ch.GetHashCode();
+                    }
+                }
+            }
+            return hash;
+        }
     }
 }
