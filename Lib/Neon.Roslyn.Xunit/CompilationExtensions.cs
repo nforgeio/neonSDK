@@ -15,12 +15,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
-
 using Microsoft.CodeAnalysis;
+
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 
 namespace Neon.Roslyn.Xunit
 {
@@ -94,6 +94,18 @@ namespace Neon.Roslyn.Xunit
         }
 
         /// <summary>
+        /// Adds source file to the compilation.
+        /// </summary>
+        /// <param name="compilation"></param>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public static TestCompilationBuilder AddSourceFile(this TestCompilationBuilder compilation, string path)
+        {
+            compilation.Sources.Add(File.ReadAllText(path));
+            return compilation;
+        }
+
+        /// <summary>
         /// Adds source texts to the compilation.
         /// </summary>
         /// <param name="compilation"></param>
@@ -102,6 +114,18 @@ namespace Neon.Roslyn.Xunit
         public static TestCompilationBuilder AddSources(this TestCompilationBuilder compilation, params string[] sources)
         {
             compilation.Sources.AddRange(sources);
+            return compilation;
+        }
+
+        /// <summary>
+        /// Adds source files to the compilation.
+        /// </summary>
+        /// <param name="compilation"></param>
+        /// <param name="paths"></param>
+        /// <returns></returns>
+        public static TestCompilationBuilder AddSourceFiles(this TestCompilationBuilder compilation, params string[] paths)
+        {
+            compilation.Sources.AddRange(paths.Select(File.ReadAllText));
             return compilation;
         }
 

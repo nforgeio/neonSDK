@@ -88,5 +88,17 @@ namespace Neon.Roslyn.Xunit
 
             return new AndConstraint<TestCompilationAssertions>(this);
         }
+        public AndConstraint<TestCompilationAssertions> HaveCount(
+            int count, string because = "", params object[] becauseArgs)
+        {
+            Execute.Assertion
+                .BecauseOf(because, becauseArgs)
+                .Given(() => Subject.HashCodes)
+                .ForCondition(hc => hc.Count == count)
+                .FailWith("Expected compilation to have {0} sources, but {1} were found.",
+                    _ => count, s => s.Count);
+
+            return new AndConstraint<TestCompilationAssertions>(this);
+        }
     }
 }

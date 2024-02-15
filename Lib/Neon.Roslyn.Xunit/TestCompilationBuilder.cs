@@ -104,11 +104,27 @@ namespace Neon.Roslyn.Xunit
 
             driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out var generateDiagnostics);
 
+            var sources = new Dictionary<string, string>();
+
+            foreach (var s in outputCompilation.SyntaxTrees)
+            {
+                if (!string.IsNullOrWhiteSpace(s.ToString()))
+                {
+                    sources.Add(
+                        key:   s.FilePath?.Split("\\", StringSplitOptions.RemoveEmptyEntries).LastOrDefault() ?? string.Empty,
+                        value: s.ToString());
+                }
+            }
+
             return new TestCompilation()
             {
                 Compilation = outputCompilation,
                 Diagnostics = generateDiagnostics.ToList(),
-                HashCodes   = outputCompilation.SyntaxTrees.Select(s => s.ToString().GetHashCodeIgnoringWhitespace(ignoreCase: false)).ToList()
+                HashCodes   = outputCompilation.SyntaxTrees
+                .Where(s => !string.IsNullOrWhiteSpace(s.ToString()))
+                .Select(s => s.ToString().GetHashCodeIgnoringWhitespace(ignoreCase: false))
+                .ToList(),
+                Sources = sources
             };
         }
     }

@@ -40,5 +40,10 @@ namespace Neon.Roslyn.Xunit
         /// The hash codes of output syntax.
         /// </summary>
         public List<int> HashCodes { get; set; }
+
+        /// <summary>
+        /// The output source files.
+        /// </summary>
+        public Dictionary<string, string> Sources { get; set; }
     }
 }
