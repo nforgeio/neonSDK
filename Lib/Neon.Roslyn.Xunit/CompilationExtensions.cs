@@ -192,8 +192,8 @@ namespace Neon.Roslyn.Xunit
         /// <summary>
         /// Adds an <see cref="ISourceGenerator"/> to the compilation.
         /// </summary>
+        /// <typeparam name="T"></typeparam>
         /// <param name="compilation"></param>
-        /// <param name="sourceGenerator"></param>
         /// <returns></returns>
         public static TestCompilationBuilder AddSourceGenerator<T>(this TestCompilationBuilder compilation)
             where T : ISourceGenerator, new()
