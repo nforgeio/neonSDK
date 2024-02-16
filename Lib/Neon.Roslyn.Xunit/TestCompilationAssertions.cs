@@ -15,9 +15,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System.Linq;
+
 using FluentAssertions;
 using FluentAssertions.Execution;
 using FluentAssertions.Primitives;
+
+using Microsoft.CodeAnalysis;
 
 using Neon.Common;
 
@@ -88,15 +92,86 @@ namespace Neon.Roslyn.Xunit
 
             return new AndConstraint<TestCompilationAssertions>(this);
         }
-        public AndConstraint<TestCompilationAssertions> HaveCount(
-            int count, string because = "", params object[] becauseArgs)
+
+        /// <summary>
+        /// Asserts that a <see cref="Diagnostic"/> with the given Id is present in the TestCompilation.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="because"></param>
+        /// <param name="becauseArgs"></param>
+        /// <returns></returns>
+        public AndConstraint<TestCompilationAssertions> HaveDiagnostic(
+            string id, string because = "", params object[] becauseArgs)
         {
             Execute.Assertion
                 .BecauseOf(because, becauseArgs)
-                .Given(() => Subject.HashCodes)
-                .ForCondition(hc => hc.Count == count)
-                .FailWith("Expected compilation to have {0} sources, but {1} were found.",
-                    _ => count, s => s.Count);
+                .ForCondition(!string.IsNullOrEmpty(id))
+                .FailWith("Input id cannot be null or empty.")
+                .Then
+                .Given(() => Subject.Diagnostics)
+                .ForCondition(d => d.Any(d => d.Id == id))
+                .FailWith("Expected compilation to have diagnostic with Id: {0}, but it was not found.",
+                    _ => id);
+
+            return new AndConstraint<TestCompilationAssertions>(this);
+        }
+
+        /// <summary>
+        /// Asserts that a <see cref="Diagnostic"/> with the given Ids are present in the TestCompilation.
+        /// </summary>
+        /// <param name="ids"></param>
+        /// <param name="because"></param>
+        /// <param name="becauseArgs"></param>
+        /// <returns></returns>
+        public AndConstraint<TestCompilationAssertions> HaveDiagnostics(
+            string[] ids, string because = "", params object[] becauseArgs)
+        {
+            Execute.Assertion
+                .BecauseOf(because, becauseArgs)
+                .Given(() => Subject.Diagnostics)
+                .ForCondition(d => ids.All(id => d.Any(d => d.Id == id)))
+                .FailWith("Expected compilation to have diagnostic Ids: [{0}], but [{1}] were present.",
+                    _ => string.Join(",", ids), diags => string.Join(",", diags.Select(d => d.Id)));
+
+            return new AndConstraint<TestCompilationAssertions>(this);
+        }
+
+        /// <summary>
+        /// Assedrts that a diagnostic is present in the TestCompilation.
+        /// </summary>
+        /// <param name="diagnostic"></param>
+        /// <param name="because"></param>
+        /// <param name="becauseArgs"></param>
+        /// <returns></returns>
+        public AndConstraint<TestCompilationAssertions> HaveDiagnostic(
+            Diagnostic diagnostic, string because = "", params object[] becauseArgs)
+        {
+            Execute.Assertion
+                .BecauseOf(because, becauseArgs)
+                .ForCondition(diagnostic != null)
+                .FailWith("Input diagnostic cannot be null.")
+                .Then
+                .Given(() => Subject.Diagnostics)
+                .ForCondition(d => d.Any(d => d.Location.Equals(diagnostic.Location)
+                    && d.Properties.SequenceEqual(diagnostic.Properties)
+                    && d.AdditionalLocations.SequenceEqual(diagnostic.AdditionalLocations)
+                    && d.WarningLevel                  == diagnostic.WarningLevel
+                    && d.DefaultSeverity               == diagnostic.DefaultSeverity
+                    && d.Id                            == diagnostic.Id
+                    && d.IsSuppressed                  == diagnostic.IsSuppressed
+                    && d.IsWarningAsError              == diagnostic.IsWarningAsError
+                    && d.Severity                      == diagnostic.Severity
+                    && d.Descriptor.Id                 == diagnostic.Descriptor.Id
+                    && d.Descriptor.Category           == diagnostic.Descriptor.Category
+                    && d.Descriptor.CustomTags         == diagnostic.Descriptor.CustomTags
+                    && d.Descriptor.DefaultSeverity    == diagnostic.Descriptor.DefaultSeverity
+                    && d.Descriptor.Description        == diagnostic.Descriptor.Description
+                    && d.Descriptor.HelpLinkUri        == diagnostic.Descriptor.HelpLinkUri
+                    && d.Descriptor.IsEnabledByDefault == diagnostic.Descriptor.IsEnabledByDefault
+                    && d.Descriptor.MessageFormat      == diagnostic.Descriptor.MessageFormat
+                    && d.Descriptor.Title              == diagnostic.Descriptor.Title))
+                .FailWith("Expected compilation to have diagnostic with Id: {0}, but it was not found.",
+                    _ => diagnostic.Id);
 
             return new AndConstraint<TestCompilationAssertions>(this);
         }

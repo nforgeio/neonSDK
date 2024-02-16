@@ -108,10 +108,11 @@ namespace Neon.Roslyn.Xunit
 
             foreach (var s in outputCompilation.SyntaxTrees)
             {
-                if (!string.IsNullOrWhiteSpace(s.ToString()))
+                if (!string.IsNullOrWhiteSpace(s.ToString())
+                    && !string.IsNullOrEmpty(s.FilePath))
                 {
                     sources.Add(
-                        key:   s.FilePath?.Split("\\", StringSplitOptions.RemoveEmptyEntries).LastOrDefault() ?? string.Empty,
+                        key:   s.FilePath.Split("\\", StringSplitOptions.RemoveEmptyEntries).LastOrDefault() ?? string.Empty,
                         value: s.ToString());
                 }
             }

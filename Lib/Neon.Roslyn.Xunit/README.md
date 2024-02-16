@@ -1,15 +1,15 @@
 # Neon.Roslyn.Xunit
 
-This package provides some utilities to test Roslyn analyzers, code fix providers, and source generators.
+This package provides some utilities to test Roslyn analyzers, code fix providers, and source generators using FluentAssertions.
 
 ## Install
 ```sh
 dotnet add package Neon.Roslyn.Xunit
 ```
 
-## Usage
+## Testing an analyzer
 
-Testing an analyzer
+### Verify generated source code
 ```csharp
 var inputSource = @"
 namespace MyNamespace
@@ -40,11 +40,36 @@ var testCompilation = new TestCompilationBuilder()
     .AddSource(source)
     .Build();
 
+// verify that the expected source code was generated
 testCompilation.Should().ContainSource(expectedSource);
-testCompilation.Should().HaveCount(1);
+
+// verify the number of generated source files
+testCompilation.Sources.Should().HaveCount(1);
 ```
 
-Adding assemblies to the compilation
+### Verify diagnostics
+```csharp
+var testCompilation = new TestCompilationBuilder()
+    .AddSourceGenerator<MySourceGenerator>()
+    .AddSource(mySource)
+    .Build();
+
+// verify the number of diagnostics
+testCompilation.Diagnostics.Should().HaveCount(2);
+
+// verify the specific diagnostics using the diagnostic code
+testCompilation.Should().HaveDiagnostics(["D1001", "D1002"]);
+
+// verify the specific diagnostics using the diagnostic descriptor
+testCompilation.Should().HaveDiagnostic(
+    diagnostic: Diagnostic.Create(
+        descriptor:  MyDiagnosticDescriptor,
+        location:    Location.None,
+        messageArgs: ["foo", 123]));
+
+```
+
+### Adding assemblies to the compilation
 ```csharp
 var testCompilation = new TestCompilationBuilder()
     .AddSourceGenerator<MySourceGenerator>()
@@ -52,7 +77,7 @@ var testCompilation = new TestCompilationBuilder()
     .Build();
 ```
 
-Adding MSBuild options to the compilation
+### Adding MSBuild options to the compilation
 ```csharp
 var testCompilation = new TestCompilationBuilder()
     .AddSourceGenerator<MySourceGenerator>()
