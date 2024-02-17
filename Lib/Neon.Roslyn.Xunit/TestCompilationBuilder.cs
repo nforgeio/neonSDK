@@ -66,9 +66,8 @@ namespace Neon.Roslyn.Xunit
                 Options = Options
             });
 
-            var syntaxTree = CSharpSyntaxTree.ParseText(string.Join(Environment.NewLine, Sources));
-
             var references = new List<MetadataReference>();
+
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
                 if (!assembly.IsDynamic && !string.IsNullOrWhiteSpace(assembly.Location))
@@ -85,10 +84,13 @@ namespace Neon.Roslyn.Xunit
                 }
             }
 
-            var compilation = CSharpCompilation.Create("Foo",
-                                new SyntaxTree[] { syntaxTree },
-                                references,
-                                new CSharpCompilationOptions(Executable ? OutputKind.ConsoleApplication : OutputKind.DynamicallyLinkedLibrary));
+            var compilation = CSharpCompilation.Create(
+                assemblyName: "Foo",
+                syntaxTrees:  Sources.Select(s => CSharpSyntaxTree.ParseText(s)),
+                references:   references,
+                options: new  CSharpCompilationOptions(
+                    outputKind: Executable ? OutputKind.ConsoleApplication : OutputKind.DynamicallyLinkedLibrary)
+                );
 
 
             var additionalFiles = new List<AdditionalSourceText>();
