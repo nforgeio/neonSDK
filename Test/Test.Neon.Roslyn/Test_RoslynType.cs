@@ -84,6 +84,13 @@ public class Baz : Bar
             attr = bar.GetCustomAttributes(typeof(MyTestAttr), true);
             attr.Should().HaveCount(1);
 
+            var typedAttrs = bar.GetCustomAttributes<MyTestAttr>();
+            typedAttrs.Should().HaveCount(0);
+
+            typedAttrs = bar.GetCustomAttributes<MyTestAttr>(true);
+            typedAttrs.Should().HaveCount(1);
+
+
         }
     }
 }

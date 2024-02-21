@@ -179,7 +179,11 @@ namespace Neon.Roslyn
                                 result.Add(attr);
                             }
                         }
-
+                        else
+                        {
+                            // default is true
+                            result.Add(attr);
+                        }
                     }
                     
                 }
@@ -220,7 +224,11 @@ namespace Neon.Roslyn
                                 result.Add(attr);
                             }
                         }
-
+                        else
+                        {
+                            // default is true
+                            result.Add(attr);
+                        }
                     }
 
                 }
