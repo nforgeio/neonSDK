@@ -150,12 +150,84 @@ namespace Neon.Roslyn
 
         public override object[] GetCustomAttributes(bool inherit)
         {
-            throw new NotSupportedException();
+            var result = new List<object>();
+
+            if (CustomAttributes != null)
+            {
+                result.AddRange(CustomAttributes);
+            }
+
+            if (!inherit)
+            {
+                return result.ToArray();
+            }
+
+            var type = BaseType;
+            while (type != null)
+            {
+                if (type.CustomAttributes != null)
+                {
+                    foreach (var attr in type.CustomAttributes)
+                    {
+                        var usage = attr.AttributeType.CustomAttributes.Where(ca => ca.AttributeType.Equals(typeof(AttributeUsageAttribute))).FirstOrDefault();
+
+                        if (usage.NamedArguments.Any(na => na.MemberName == nameof(AttributeUsageAttribute.Inherited)))
+                        {
+                            var inherited = usage.NamedArguments.Where(na => na.MemberName == nameof(AttributeUsageAttribute.Inherited)).FirstOrDefault();
+                            if ((bool)inherited.TypedValue.Value == true)
+                            {
+                                result.Add(attr);
+                            }
+                        }
+
+                    }
+                    
+                }
+                type = type.BaseType;
+            }
+
+            return result.ToArray();
         }
 
         public override object[] GetCustomAttributes(Type attributeType, bool inherit)
         {
-            throw new NotSupportedException();
+            var result = new List<object>();
+
+            if (CustomAttributes != null)
+            {
+                result.AddRange(CustomAttributes.Where(c => c.AttributeType == attributeType));
+            }
+
+            if (!inherit)
+            {
+                return result.ToArray();
+            }
+
+            var type = BaseType;
+            while (type != null)
+            {
+                if (type.CustomAttributes != null)
+                {
+                    foreach (var attr in type.CustomAttributes.Where(c => c.AttributeType.Equals(attributeType)))
+                    {
+                        var usage = attr.AttributeType.CustomAttributes.Where(ca => ca.AttributeType.Equals(typeof(AttributeUsageAttribute))).FirstOrDefault();
+
+                        if (usage.NamedArguments.Any(na => na.MemberName == nameof(AttributeUsageAttribute.Inherited)))
+                        {
+                            var inherited = usage.NamedArguments.Where(na => na.MemberName == nameof(AttributeUsageAttribute.Inherited)).FirstOrDefault();
+                            if ((bool)inherited.TypedValue.Value == true)
+                            {
+                                result.Add(attr);
+                            }
+                        }
+
+                    }
+
+                }
+                type = type.BaseType;
+            }
+
+            return result.ToArray();
         }
 
         public override Type MakeArrayType()

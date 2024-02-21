@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 using System.Reflection;
@@ -34,7 +35,15 @@ namespace Neon.Roslyn
             foreach (var a in symbol.GetAttributes())
             {
                 attributes ??= new();
-                attributes.Add(new RoslynCustomAttributeData(a, metadataLoadContext));
+
+                try
+                {
+                    attributes.Add(new RoslynCustomAttributeData(a, metadataLoadContext));
+                }
+                catch
+                {
+                    // ignore
+                }
             }
 
             return (IList<System.Reflection.CustomAttributeData>)attributes ?? Array.Empty<System.Reflection.CustomAttributeData>();

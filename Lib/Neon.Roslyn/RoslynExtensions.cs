@@ -65,11 +65,11 @@ namespace Neon.Roslyn
             return attributeData.GetCustomAttribute<T>();
         }
 
-        public static IEnumerable<T> GetCustomAttributes<T>(this Type type, bool inherited = false)
+        public static IEnumerable<T> GetCustomAttributes<T>(this RoslynType type, bool inherited = false)
         {
-            return type.CustomAttributes
-                .Where(ca => ca.AttributeType.FullName == typeof(T).FullName)
-                .Select(attr => attr.GetCustomAttribute<T>());
+            return type.GetCustomAttributes(attributeType: typeof(T), inherit: inherited)
+                .Select(x => (T)x)
+                .ToArray();
         }
 
         public static T GetCustomAttribute<T>(this CustomAttributeData attributeData)

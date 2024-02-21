@@ -17,10 +17,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Xml.Linq;
 
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace Neon.Roslyn
 {
@@ -78,5 +81,8 @@ namespace Neon.Roslyn
         public override IList<CustomAttributeNamedArgument> NamedArguments { get; }
 
         public override IList<CustomAttributeTypedArgument> ConstructorArguments { get; }
+
+        internal bool Inherited { get; set; }
+        internal bool AllowMultiple { get; set; }
     }
 }
