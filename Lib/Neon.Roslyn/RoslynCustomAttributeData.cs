@@ -81,8 +81,5 @@ namespace Neon.Roslyn
         public override IList<CustomAttributeNamedArgument> NamedArguments { get; }
 
         public override IList<CustomAttributeTypedArgument> ConstructorArguments { get; }
-
-        internal bool Inherited { get; set; }
-        internal bool AllowMultiple { get; set; }
     }
 }

@@ -4,7 +4,6 @@
         <TargetFramework>netstandard2.0</TargetFramework>
         <OutputType>Library</OutputType>
         <RootNamespace>Neon.Cassandra</RootNamespace>
-        <Version>$(NeonSdkVersion)</Version>
         <Description>Yugabyte Cassandra .NET client related utilities and extensions</Description>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
         <PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.Cassandra/README.md</PackageProjectUrl>

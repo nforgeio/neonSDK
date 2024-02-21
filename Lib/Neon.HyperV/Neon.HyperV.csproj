@@ -4,7 +4,6 @@
         <TargetFrameworks>net7.0; net8.0</TargetFrameworks>
         <OutputType>Library</OutputType>
         <RootNamespace>Neon.HyperV</RootNamespace>
-        <Version>$(NeonSdkVersion)</Version>
         <Description>INTERNAL USE ONLY: Windows Hyper-V extensions</Description>
         <PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
         <PackageId>Neon.HyperV</PackageId>

@@ -4,7 +4,6 @@
         <TargetFramework>netstandard2.0</TargetFramework>
         <OutputType>Library</OutputType>
         <RootNamespace>Neon.Roslyn</RootNamespace>
-        <Version>$(NeonSdkVersion)</Version>
         <Description>Roslyn related utilities and extensions</Description>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
         <PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.Roslyn/README.md</PackageProjectUrl>

@@ -84,25 +84,10 @@ function Publish
     #
     # dotnet pack $projectPath -c $config -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg -o "$env:NF_BUILD\nuget"
 
-    dotnet pack $projectPath -c $config -o "$env:NF_BUILD\nuget"
+    dotnet pack $projectPath -c $config -p:Version=$neonSdkVersion -o "$env:NF_BUILD\nuget"
     ThrowOnExitCode
 
-    if (Test-Path "$env:NF_ROOT\Lib\$project\prerelease.txt")
-    {
-        $prerelease = Get-Content "$env:NF_ROOT\Lib\$project\prerelease.txt" -First 1
-        $prerelease = $prerelease.Trim()
-
-        if ($prerelease -ne "")
-        {
-            $prerelease = "-" + $prerelease
-        }
-    }
-    else
-    {
-        $prerelease = ""
-    }
-
-	nuget push -Source nuget.org -ApiKey $nugetApiKey "$env:NF_BUILD\nuget\$project.$neonSdkVersion$prerelease.nupkg" -SkipDuplicate -Timeout 600
+	nuget push -Source nuget.org -ApiKey $nugetApiKey "$env:NF_BUILD\nuget\$project.$neonSdkVersion.nupkg" -SkipDuplicate -Timeout 600
     ThrowOnExitCode
 }
 
@@ -145,40 +130,6 @@ try
 
     [System.IO.Directory]::CreateDirectory("$nfRoot\build\nuget") | Out-Null
     [System.IO.File]::WriteAllText("$nfRoot\build\nuget\version.txt", $neonSdkVersion)
-
-    #------------------------------------------------------------------------------
-    # Update the SDK version in [Directory.Build.props] and commit/push any change.
-
-    $buildPropsPath = "$nfRoot\Directory.Build.props"
-    $buildPropsOrg  = [System.IO.File]::ReadAllText($buildPropsPath);
-
-    $buildPropsOrg -match "(?<NeonSdkVersion>.*</NeonSdkVersion>)" | Out-Null
-    $buildPropsOrgVersion = $matches[0].Trim()
-
-    $buildPropsNewVersion = "<NeonSdkVersion>$neonSdkVersion</NeonSdkVersion>"
-    $buildPropsNew        = $buildPropsOrg.Replace($buildPropsOrgVersion, $buildPropsNewVersion)
-
-    if ($buildPropsOrg -ne $buildPropsNew)
-    {
-        $commitMessage = "Directory.Build.props: bump SDK version to: $neonSdkVersion"
-
-        Write-Info $commitMessage
-
-        [System.IO.File]::WriteAllText($buildPropsPath, $buildPropsNew)
-
-        Push-Location $nfRoot
-
-        git add .
-        ThrowOnExitCode
-
-        git commit -m $commitMessage
-        ThrowOnExitCode
-
-        git push
-        ThrowOnExitCode
-
-        Pop-Location
-    }
 
     #------------------------------------------------------------------------------
     # Clean and build the solution.

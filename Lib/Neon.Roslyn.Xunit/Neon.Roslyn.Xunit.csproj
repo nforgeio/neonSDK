@@ -4,7 +4,6 @@
         <TargetFramework>net8.0</TargetFramework>
         <OutputType>Library</OutputType>
         <RootNamespace>Neon.Roslyn.Xunit</RootNamespace>
-        <Version>$(NeonSdkVersion)</Version>
         <Description>Roslyn related utilities and extensions for testing with XUnit</Description>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
         <PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.Roslyn.Xunit/README.md</PackageProjectUrl>
