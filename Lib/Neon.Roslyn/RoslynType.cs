@@ -199,7 +199,7 @@ namespace Neon.Roslyn
 
             if (CustomAttributes != null)
             {
-                result.AddRange(CustomAttributes.Where(c => c.AttributeType == attributeType));
+                result.AddRange(CustomAttributes.Where(c => c.AttributeType.Equals(attributeType)));
             }
 
             if (!inherit)
