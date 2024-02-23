@@ -17,13 +17,20 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Dynamic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 using FluentAssertions;
+
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 using Neon.Roslyn;
 using Neon.Roslyn.Xunit;
@@ -92,5 +99,52 @@ public class Baz : Bar
 
 
         }
+
+        [Fact]
+        public void Test_GetDefault()
+        {
+
+            var testCompilation = new TestCompilationBuilder()
+                .AddAssembly(typeof(DefaultValueAttribute).Assembly)
+                .AddSource($@"
+using System;
+using System.ComponentModel;
+
+namespace TestNamespace;
+
+public class Foo
+{{
+    [DefaultValue(""foo"")]
+    public string Name {{ get; set; }}
+
+    public Bar Bar {{ get; set; }} = new Bar();
+
+    public Baz Baz {{ get; set; }} = new Baz();
+}}
+
+public class Bar
+{{
+    public string BarName {{ get; set; }}
+}}
+
+public class Baz
+{{
+    [DefaultValue(""baz"")]
+    public string BazName {{ get; set; }}
+}}
+")
+                .Build();
+
+            var context = new MetadataLoadContext(testCompilation.Compilation);
+
+            var foo = context.ResolveType("TestNamespace.Foo");
+
+            string s = JsonSerializer.Serialize(foo.GetDefault());
+
+            s.Should().Be($@"{{""Name"":""foo"",""Baz"":{{""BazName"":""baz""}}}}");
+        }
     }
+
+    
+    
 }

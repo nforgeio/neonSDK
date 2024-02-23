@@ -17,6 +17,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Dynamic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -52,6 +54,13 @@ namespace Neon.Roslyn
         }
 
         public static T GetCustomAttribute<T>(this Type type)
+        {
+            var attributeData = type.CustomAttributes.Where(ca => ca.AttributeType.FullName == typeof(T).FullName).FirstOrDefault();
+
+            return attributeData.GetCustomAttribute<T>();
+        }
+
+        public static T GetCustomAttribute<T>(this MemberInfo type)
         {
             var attributeData = type.CustomAttributes.Where(ca => ca.AttributeType.FullName == typeof(T).FullName).FirstOrDefault();
 
@@ -191,6 +200,46 @@ namespace Neon.Roslyn
         {
             INamespaceSymbol s = null;
             return ((s = symbol as INamespaceSymbol) != null) && s.IsGlobalNamespace;
+        }
+
+        public static dynamic GetDefault(this Type type)
+        {
+            var o = new ExpandoObject() as IDictionary<string, Object>;
+
+            foreach (var p in type.GetMembers())
+            {
+                var defaultValue = p.GetCustomAttribute<DefaultValueAttribute>();
+
+                if (defaultValue != null)
+                {
+                    o.Add(p.Name, defaultValue.Value);
+                    continue;
+                }
+
+                if (p is RoslynPropertyInfo)
+                {
+                    var roslynP = (RoslynPropertyInfo)p;
+
+                    if (!roslynP.PropertyType.IsPrimitive)
+                    {
+                        var value = roslynP.PropertyType.GetDefault();
+
+                        if (value != null)
+                        {
+                            o.Add(p.Name, value);
+                        }
+
+                        continue;
+                    }
+                }
+            }
+
+            if (o.Keys.Count == 0)
+            {
+                return null;
+            }
+
+            return (ExpandoObject)o;
         }
     }
     internal static class RoslynInternalExtensions
