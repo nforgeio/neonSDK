@@ -60,7 +60,14 @@ namespace Neon.Roslyn
             return attributeData.GetCustomAttribute<T>();
         }
 
-        public static T GetCustomAttribute<T>(this MemberInfo type)
+        public static T GetCustomAttribute<T>(this RoslynFieldInfo type)
+        {
+            var attributeData = type.CustomAttributes.Where(ca => ca.AttributeType.FullName == typeof(T).FullName).FirstOrDefault();
+
+            return attributeData.GetCustomAttribute<T>();
+        }
+
+        public static T GetCustomAttribute<T>(this RoslynPropertyInfo type)
         {
             var attributeData = type.CustomAttributes.Where(ca => ca.AttributeType.FullName == typeof(T).FullName).FirstOrDefault();
 
@@ -208,29 +215,37 @@ namespace Neon.Roslyn
 
             foreach (var p in type.GetMembers())
             {
-                var defaultValue = p.GetCustomAttribute<DefaultValueAttribute>();
-
-                if (defaultValue != null)
+                if (!(p is RoslynPropertyInfo))
                 {
-                    o.Add(p.Name, defaultValue.Value);
                     continue;
                 }
 
-                if (p is RoslynPropertyInfo)
+                var roslynP = (RoslynPropertyInfo)p;
+
+                var defaultValue = roslynP.GetCustomAttribute<DefaultValueAttribute>();
+
+                if (defaultValue != null)
                 {
-                    var roslynP = (RoslynPropertyInfo)p;
+                    o.Add(roslynP.Name, defaultValue.Value);
+                    continue;
+                }
 
-                    if (!roslynP.PropertyType.IsPrimitive)
+                if (!roslynP.PropertyType.IsPrimitive)
+                {
+                    if (roslynP.PropertyType.Namespace == nameof(System))
                     {
-                        var value = roslynP.PropertyType.GetDefault();
-
-                        if (value != null)
-                        {
-                            o.Add(p.Name, value);
-                        }
-
                         continue;
                     }
+
+                    var pType = roslynP.PropertyType;
+                    var value = roslynP.PropertyType.GetDefault();
+
+                    if (value != null)
+                    {
+                        o.Add(roslynP.Name, value);
+                    }
+
+                    continue;
                 }
             }
 

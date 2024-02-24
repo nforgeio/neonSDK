@@ -114,12 +114,17 @@ namespace TestNamespace;
 
 public class Foo
 {{
+
+    public Foo() {{}}
+
     [DefaultValue(""foo"")]
     public string Name {{ get; set; }}
 
     public Bar Bar {{ get; set; }} = new Bar();
 
     public Baz Baz {{ get; set; }} = new Baz();
+
+    public DateTime Date {{ get; set; }}
 }}
 
 public class Bar
@@ -139,7 +144,9 @@ public class Baz
 
             var foo = context.ResolveType("TestNamespace.Foo");
 
-            string s = JsonSerializer.Serialize(foo.GetDefault());
+            var _default = foo.GetDefault();
+
+            string s = JsonSerializer.Serialize(_default);
 
             s.Should().Be($@"{{""Name"":""foo"",""Baz"":{{""BazName"":""baz""}}}}");
         }

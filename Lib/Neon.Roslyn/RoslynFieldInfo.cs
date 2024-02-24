@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
 
 using Microsoft.CodeAnalysis;
@@ -86,12 +87,14 @@ namespace Neon.Roslyn
 
         public override object[] GetCustomAttributes(bool inherit)
         {
-            throw new NotSupportedException();
+            return CustomAttributes.ToArray();
         }
 
         public override object[] GetCustomAttributes(Type attributeType, bool inherit)
         {
-            throw new NotSupportedException();
+            return CustomAttributes
+                .Where(c => c.AttributeType.Equals(attributeType))
+                .ToArray();
         }
 
         public override object GetValue(object obj)
