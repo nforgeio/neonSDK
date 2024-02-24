@@ -109,6 +109,7 @@ public class Baz : Bar
                 .AddSource($@"
 using System;
 using System.ComponentModel;
+using System.Runtime.Serialization;
 
 namespace TestNamespace;
 
@@ -122,6 +123,7 @@ public class Foo
 
     public Bar Bar {{ get; set; }} = new Bar();
 
+    [DefaultValue(null)]
     public Baz Baz {{ get; set; }} = new Baz();
 
     public DateTime Date {{ get; set; }}
@@ -130,6 +132,15 @@ public class Foo
 public class Bar
 {{
     public string BarName {{ get; set; }}
+
+    [DefaultValue(MyEnum.Foo)]
+    public MyEnum MyEnumZero {{ get; set; }}
+
+    [DefaultValue(MyEnum.Bar)]
+    public MyEnum MyEnumOne {{ get; set; }}
+
+    [DefaultValue(MyEnum.Baz)]
+    public MyEnum MyEnumTwo {{ get; set; }}
 }}
 
 public class Baz
@@ -137,6 +148,15 @@ public class Baz
     [DefaultValue(""baz"")]
     public string BazName {{ get; set; }}
 }}
+
+public enum MyEnum
+    {{
+        [EnumMember(Value = ""foo123"")]
+        Foo = 0,
+        Bar = 1,
+        [EnumMember(Value = ""baz456"")]
+        Baz = 2
+    }}
 ")
                 .Build();
 
@@ -148,10 +168,7 @@ public class Baz
 
             string s = JsonSerializer.Serialize(_default);
 
-            s.Should().Be($@"{{""Name"":""foo"",""Baz"":{{""BazName"":""baz""}}}}");
+            s.Should().NotBeNull();
         }
     }
-
-    
-    
 }

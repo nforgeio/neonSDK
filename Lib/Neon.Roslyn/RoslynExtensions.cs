@@ -21,6 +21,7 @@ using System.ComponentModel;
 using System.Dynamic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
 using System.Text;
 
 using Microsoft.CodeAnalysis;
@@ -222,11 +223,34 @@ namespace Neon.Roslyn
 
                 var roslynP = (RoslynPropertyInfo)p;
 
-                var defaultValue = roslynP.GetCustomAttribute<DefaultValueAttribute>();
+                var attributeData = roslynP
+                    .CustomAttributes
+                    .Where(ca => ca.AttributeType.FullName == typeof(DefaultValueAttribute).FullName)
+                    .FirstOrDefault();
 
-                if (defaultValue != null)
+                if (attributeData != null)
                 {
-                    o.Add(roslynP.Name, defaultValue.Value);
+                    var defaultValue = attributeData.GetActualConstuctorParams().FirstOrDefault();
+                    var argType = attributeData.ConstructorArguments.FirstOrDefault().ArgumentType;
+                    if (argType.IsEnum)
+                    {
+                        var i = 0;
+                        var found = false;
+                        var fields = argType.GetFields();
+
+                        while (i < fields.Length && !found)
+                        {
+                            if (fields[i].GetFieldSymbol().ConstantValue == defaultValue)
+                            {
+                                var enumAttr = ((RoslynFieldInfo)fields[i]).GetCustomAttribute<EnumMemberAttribute>();
+                                defaultValue = enumAttr?.Value ?? fields[i].Name;
+                                found = true;
+                            }
+                            i++;
+                        }
+                    }
+
+                    o.Add(roslynP.Name, defaultValue);
                     continue;
                 }
 
