@@ -63,12 +63,12 @@ namespace Neon.Common
     /// are added to a ZIP archive.
     /// </summary>
     /// <param name="path">
-    /// Specifies the relative path of the file being preprocessed.  Your implementation
-    /// may decide whether or how to preprocess the file based on this path, often using
-    /// file exenstion.
+    /// Specifies the path of the file being preprocessed relative to the folder being zipped.
+    /// Your delegate implementation may decide whether and/or how to preprocess the file based
+    /// on this path, often using file name or extension.
     /// </param>
     /// <param name="input">Specifies a stream holding the file data being preprocessed.</param>
-    /// <returns>As the preprocessed stream.</returns>
+    /// <returns>As the processed stream.</returns>
     public delegate Task<Stream> ZipPreprocessor(string path, Stream input);
 
     /// <summary>
