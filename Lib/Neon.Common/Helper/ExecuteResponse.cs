@@ -57,6 +57,11 @@ namespace Neon.Common
         public int ExitCode { get; internal set; }
 
         /// <summary>
+        /// Returns <c>true</c> zero exit codes.
+        /// </summary>
+        public bool Success => ExitCode == 0;
+
+        /// <summary>
         /// Returns the captured standard output stream text from the process.
         /// </summary>
         public string OutputText { get; internal set; }
