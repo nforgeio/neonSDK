@@ -2526,6 +2526,8 @@ echo $? > {cmdFolder}/exit
                     LogLine($"END [ERROR={response.ExitCode}]");
                 }
 
+                LogFlush();
+
                 if (response.ExitCode != 0)
                 {
                     if (faultOnError)
@@ -2685,6 +2687,7 @@ echo $? > {cmdFolder}/exit
 
                 LogLine($"END-BUNDLE");
                 LogLine("----------------------------------------");
+                LogFlush();
 
                 return response;
             }
