@@ -36,7 +36,7 @@ namespace Neon.Roslyn.Xunit
         /// </summary>
         /// <param name="path"></param>
         /// <param name="text"></param>
-        public AdditionalSourceText(string path, SourceText? text)
+        public AdditionalSourceText(string path, SourceText text)
         {
             Path = path;
             this.text = text;
