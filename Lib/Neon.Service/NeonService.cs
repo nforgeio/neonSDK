@@ -813,15 +813,8 @@ namespace Neon.Service
 
                 // Determine whether we're running in DEBUG mode.
 
-                if (NeonHelper.IsDevWorkstation && string.IsNullOrEmpty(Environment.Get("DEBUG", string.Empty)))
+                if (NeonHelper.IsDevWorkstation || !string.IsNullOrEmpty(Environment.Get("DEBUG", string.Empty)))
                 {
-                    DebugMode = true;
-                }
-                else if (Environment.Get("DEBUG", string.Empty).Equals("DEBUG", StringComparison.InvariantCultureIgnoreCase) ||
-                         Environment.Get("DEBUG", false))
-                {
-                    // $note(jefflill): We check the "DEBUG" value for backwards compatibility.
-
                     DebugMode = true;
                 }
                 else
