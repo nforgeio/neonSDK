@@ -63,7 +63,7 @@ if (!(Test-Path env:NC_ROOT))
 
 # Retrieve any necessary credentials.
 
-$nugetApiKey = Get-SecretPassword "NUGET_PUBLIC_KEY"
+$nugetApiKey = Get-SecretPassword "GITHUB_PAT"
 
 #------------------------------------------------------------------------------
 # Builds and publishes the project packages.
@@ -87,7 +87,7 @@ function Publish
     dotnet pack $projectPath -c $config -p:Version=$neonSdkVersion -o "$env:NF_BUILD\nuget"
     ThrowOnExitCode
 
-	nuget push -Source nuget.org -ApiKey $nugetApiKey "$env:NF_BUILD\nuget\$project.$neonSdkVersion.nupkg" -SkipDuplicate -Timeout 600
+	dotnet nuget push "$env:NF_BUILD\nuget\$project.$neonSdkVersion.nupkg" --api-key $nugetApiKey --source https://nuget.pkg.github.com/nforgeio/index.json --skip-duplicate
     ThrowOnExitCode
 }
 
@@ -172,7 +172,6 @@ try
     Publish Neon.HyperV                 $neonSdkVersion
     Publish Neon.JsonConverters         $neonSdkVersion
     Publish Neon.ModelGen               $neonSdkVersion
-    Publish Neon.ModelGenerator         $neonSdkVersion
     Publish Neon.Nats                   $neonSdkVersion
     Publish Neon.Postgres               $neonSdkVersion
     Publish Neon.Roslyn                 $neonSdkVersion

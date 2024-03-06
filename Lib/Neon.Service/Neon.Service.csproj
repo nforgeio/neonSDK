@@ -4,7 +4,6 @@
         <TargetFrameworks>net6.0; net7.0; net8.0</TargetFrameworks>
         <OutputType>Library</OutputType>
         <RootNamespace>Neon.Service</RootNamespace>
-        <Version>$(NeonSdkVersion)</Version>
         <Description>Service library supporting application deployment as containers as well as in-process for testing</Description>
         <PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
         <IsPackable>true</IsPackable>

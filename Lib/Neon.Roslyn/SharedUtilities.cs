@@ -17,9 +17,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 using System.Reflection;
+using System.Reflection.Metadata;
 
 using Microsoft.CodeAnalysis;
 
@@ -27,6 +29,99 @@ namespace Neon.Roslyn
 {
     public static class SharedUtilities
     {
+        public static object[] GetCustomAttributes(Type type, bool inherit)
+        {
+            var result = new List<object>();
+
+            if (type.CustomAttributes != null)
+            {
+                result.AddRange(type.CustomAttributes);
+            }
+
+            if (!inherit)
+            {
+                return result.ToArray();
+            }
+
+            type = type.BaseType;
+            while (type != null)
+            {
+                if (type.CustomAttributes != null)
+                {
+                    foreach (var attr in type.CustomAttributes)
+                    {
+                        var usage = attr.AttributeType.CustomAttributes.Where(ca => ca.AttributeType.Equals(typeof(AttributeUsageAttribute))).FirstOrDefault();
+
+                        if (usage.NamedArguments.Any(na => na.MemberName == nameof(AttributeUsageAttribute.Inherited)))
+                        {
+                            var inherited = usage.NamedArguments.Where(na => na.MemberName == nameof(AttributeUsageAttribute.Inherited)).FirstOrDefault();
+                            if ((bool)inherited.TypedValue.Value == true)
+                            {
+                                result.Add(attr);
+                            }
+                        }
+                        else
+                        {
+                            // default is true
+                            result.Add(attr);
+                        }
+                    }
+
+                }
+                type = type.BaseType;
+            }
+
+            return result.ToArray();
+        }
+
+        public static object[] GetCustomAttributes(Type attributeType, Type type, bool inherit)
+        {
+            var result = new List<object>();
+
+            if (type.CustomAttributes != null)
+            {
+                result.AddRange(
+                    type
+                    .CustomAttributes
+                    .Where(c => c.AttributeType.Equals(attributeType)));
+            }
+
+            if (!inherit)
+            {
+                return result.ToArray();
+            }
+
+            type = type.BaseType;
+            while (type != null)
+            {
+                if (type.CustomAttributes != null)
+                {
+                    foreach (var attr in type.CustomAttributes.Where(c => c.AttributeType.Equals(attributeType)))
+                    {
+                        var usage = attr.AttributeType.CustomAttributes.Where(ca => ca.AttributeType.Equals(typeof(AttributeUsageAttribute))).FirstOrDefault();
+
+                        if (usage.NamedArguments.Any(na => na.MemberName == nameof(AttributeUsageAttribute.Inherited)))
+                        {
+                            var inherited = usage.NamedArguments.Where(na => na.MemberName == nameof(AttributeUsageAttribute.Inherited)).FirstOrDefault();
+                            if ((bool)inherited.TypedValue.Value == true)
+                            {
+                                result.Add(attr);
+                            }
+                        }
+                        else
+                        {
+                            // default is true
+                            result.Add(attr);
+                        }
+                    }
+
+                }
+                type = type.BaseType;
+            }
+
+            return result.ToArray();
+        }
+
         public static IList<System.Reflection.CustomAttributeData> GetCustomAttributesData(ISymbol symbol, MetadataLoadContext metadataLoadContext)
         {
             List<System.Reflection.CustomAttributeData> attributes = default;
@@ -34,7 +129,15 @@ namespace Neon.Roslyn
             foreach (var a in symbol.GetAttributes())
             {
                 attributes ??= new();
-                attributes.Add(new RoslynCustomAttributeData(a, metadataLoadContext));
+
+                try
+                {
+                    attributes.Add(new RoslynCustomAttributeData(a, metadataLoadContext));
+                }
+                catch
+                {
+                    // ignore
+                }
             }
 
             return (IList<System.Reflection.CustomAttributeData>)attributes ?? Array.Empty<System.Reflection.CustomAttributeData>();

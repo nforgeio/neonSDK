@@ -17,8 +17,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Dynamic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
 using System.Text;
 
 using Microsoft.CodeAnalysis;
@@ -58,11 +61,32 @@ namespace Neon.Roslyn
             return attributeData.GetCustomAttribute<T>();
         }
 
+        public static T GetCustomAttribute<T>(this RoslynFieldInfo type)
+        {
+            var attributeData = type.CustomAttributes.Where(ca => ca.AttributeType.FullName == typeof(T).FullName).FirstOrDefault();
+
+            return attributeData.GetCustomAttribute<T>();
+        }
+
+        public static T GetCustomAttribute<T>(this RoslynPropertyInfo type)
+        {
+            var attributeData = type.CustomAttributes.Where(ca => ca.AttributeType.FullName == typeof(T).FullName).FirstOrDefault();
+
+            return attributeData.GetCustomAttribute<T>();
+        }
+
+        public static T GetCustomAttribute<T>(this RoslynType type)
+        {
+            var attributeData = type.GetCustomAttributesData().Where(ca => ca.AttributeType.FullName == typeof(T).FullName).FirstOrDefault();
+
+            return attributeData.GetCustomAttribute<T>();
+        }
+
         public static IEnumerable<T> GetCustomAttributes<T>(this Type type, bool inherited = false)
         {
-            return type.CustomAttributes
-                .Where(ca => ca.AttributeType.FullName == typeof(T).FullName)
-                .Select(attr => attr.GetCustomAttribute<T>());
+            return type.GetCustomAttributes(attributeType: typeof(T), inherit: inherited)
+                .Select(x => ((CustomAttributeData)x).GetCustomAttribute<T>())
+                .ToArray();
         }
 
         public static T GetCustomAttribute<T>(this CustomAttributeData attributeData)
@@ -184,6 +208,77 @@ namespace Neon.Roslyn
         {
             INamespaceSymbol s = null;
             return ((s = symbol as INamespaceSymbol) != null) && s.IsGlobalNamespace;
+        }
+
+        public static dynamic GetDefault(this Type type)
+        {
+            var o = new ExpandoObject() as IDictionary<string, Object>;
+
+            foreach (var p in type.GetMembers())
+            {
+                if (!(p is RoslynPropertyInfo))
+                {
+                    continue;
+                }
+
+                var roslynP = (RoslynPropertyInfo)p;
+
+                var attributeData = roslynP
+                    .CustomAttributes
+                    .Where(ca => ca.AttributeType.FullName == typeof(DefaultValueAttribute).FullName)
+                    .FirstOrDefault();
+
+                if (attributeData != null)
+                {
+                    var defaultValue = attributeData.GetActualConstuctorParams().FirstOrDefault();
+                    var argType = attributeData.ConstructorArguments.FirstOrDefault().ArgumentType;
+                    if (argType.IsEnum)
+                    {
+                        var i = 0;
+                        var found = false;
+                        var fields = argType.GetFields();
+
+                        while (i < fields.Length && !found)
+                        {
+                            if (fields[i].GetFieldSymbol().ConstantValue == defaultValue)
+                            {
+                                var enumAttr = ((RoslynFieldInfo)fields[i]).GetCustomAttribute<EnumMemberAttribute>();
+                                defaultValue = enumAttr?.Value ?? fields[i].Name;
+                                found = true;
+                            }
+                            i++;
+                        }
+                    }
+
+                    o.Add(roslynP.Name, defaultValue);
+                    continue;
+                }
+
+                if (!roslynP.PropertyType.IsPrimitive)
+                {
+                    if (roslynP.PropertyType.Namespace == nameof(System))
+                    {
+                        continue;
+                    }
+
+                    var pType = roslynP.PropertyType;
+                    var value = roslynP.PropertyType.GetDefault();
+
+                    if (value != null)
+                    {
+                        o.Add(roslynP.Name, value);
+                    }
+
+                    continue;
+                }
+            }
+
+            if (o.Keys.Count == 0)
+            {
+                return null;
+            }
+
+            return (ExpandoObject)o;
         }
     }
     internal static class RoslynInternalExtensions

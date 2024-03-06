@@ -150,12 +150,12 @@ namespace Neon.Roslyn
 
         public override object[] GetCustomAttributes(bool inherit)
         {
-            throw new NotSupportedException();
+            return SharedUtilities.GetCustomAttributes(UnderlyingSystemType, inherit);
         }
 
         public override object[] GetCustomAttributes(Type attributeType, bool inherit)
         {
-            throw new NotSupportedException();
+            return SharedUtilities.GetCustomAttributes(attributeType, UnderlyingSystemType, inherit);
         }
 
         public override Type MakeArrayType()

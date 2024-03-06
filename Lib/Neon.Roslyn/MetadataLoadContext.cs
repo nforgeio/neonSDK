@@ -21,6 +21,7 @@ using System.Linq;
 using System.Reflection;
 
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Neon.Roslyn
 {
@@ -37,6 +38,12 @@ namespace Neon.Roslyn
         public Assembly Assembly => compilation.Assembly.AsAssembly(this);
 
         internal Compilation Compilation => compilation;
+
+        public Type ResolveType(TypeSyntax node)
+        {
+            var semanticModel = compilation.GetSemanticModel(node.SyntaxTree);
+            return ResolveType(semanticModel.GetTypeInfo(node).Type);
+        }
 
         public Type ResolveType(string fullyQualifiedMetadataName)
         {

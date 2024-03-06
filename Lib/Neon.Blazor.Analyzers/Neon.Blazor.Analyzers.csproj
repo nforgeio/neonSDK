@@ -6,7 +6,6 @@
         <IsRoslynComponent>true</IsRoslynComponent>
         <OutputType>Library</OutputType>
         <RootNamespace>Neon.Blazor.Analyzers</RootNamespace>
-        <Version>$(NeonSdkVersion)</Version>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
         <PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.Blazor.Analyzers/README.md</PackageProjectUrl>
         <PackageIcon>nuget-icon.png</PackageIcon>

@@ -4,7 +4,6 @@
         <TargetFramework>netstandard2.0</TargetFramework>
         <OutputType>Library</OutputType>
         <RootNamespace>Neon.Roslyn</RootNamespace>
-        <Version>$(NeonSdkVersion)</Version>
         <Description>Roslyn related utilities and extensions</Description>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
         <PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.Roslyn/README.md</PackageProjectUrl>
@@ -30,6 +29,8 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.8.0" PrivateAssets="all" />
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" PrivateAssets="all" />
+        <PackageReference Include="Microsoft.CSharp" Version="4.7.0" PrivateAssets="all" />
+        <PackageReference Include="System.Text.Json" Version="8.0.2" PrivateAssets="all" />
     </ItemGroup>
 
 </Project>
