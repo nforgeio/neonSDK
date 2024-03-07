@@ -110,5 +110,25 @@ namespace Neon.Common
             }
             return hash;
         }
+
+        /// <summary>
+        /// Extension method for checking if a string is null or empty.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static bool IsNullOrEmpty(this string value)
+        {
+            return string.IsNullOrEmpty(value);
+        }
+
+        /// <summary>
+        /// Extension method for checking if a string is null or whitespace.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static bool IsNullOrWhiteSpace(this string value)
+        {
+            return string.IsNullOrWhiteSpace(value);
+        }
     }
 }
