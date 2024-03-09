@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------------
-// FILE:	    Program.cs
+// FILE:	    CompilationOptions.cs
 // CONTRIBUTOR: NEONFORGE Team
 // COPYRIGHT:   Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 //
@@ -15,24 +15,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
-using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.CodeAnalysis.Diagnostics;
 
-using Neon.Blazor;
-
-namespace TestBlazor.Client
+namespace Neon.Roslyn.Xunit
 {
     /// <summary>
-    /// Main entry point for the application.
+    /// Compilation options.
     /// </summary>
-    public class Program
+    public class CompilationOptions : AnalyzerConfigOptions
     {
-        static async Task Main(string[] args)
+        /// <summary>
+        /// The options.
+        /// </summary>
+        public Dictionary<string, string> Options { get; set; } = new Dictionary<string, string>();
+
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public override bool TryGetValue(string key, [NotNullWhen(true)] out string value)
         {
-            var builder = WebAssemblyHostBuilder.CreateDefault(args);
-            builder.Services.AddNeonBlazor();
-            await builder.Build().RunAsync();
+            return Options.TryGetValue(key, out value);
         }
     }
 }

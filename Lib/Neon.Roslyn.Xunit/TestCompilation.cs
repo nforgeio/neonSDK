@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------------
-// FILE:	    Program.cs
+// FILE:	    TestCompilation.cs
 // CONTRIBUTOR: NEONFORGE Team
 // COPYRIGHT:   Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 //
@@ -15,24 +15,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Threading.Tasks;
+using System.Collections.Generic;
 
-using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.CodeAnalysis;
 
-using Neon.Blazor;
-
-namespace TestBlazor.Client
+namespace Neon.Roslyn.Xunit
 {
     /// <summary>
-    /// Main entry point for the application.
+    /// Helper class for working with Roslyn <see cref="Compilation"/> instances.
     /// </summary>
-    public class Program
+    public class TestCompilation
     {
-        static async Task Main(string[] args)
-        {
-            var builder = WebAssemblyHostBuilder.CreateDefault(args);
-            builder.Services.AddNeonBlazor();
-            await builder.Build().RunAsync();
-        }
+        /// <summary>
+        /// The Compilation instance.
+        /// </summary>
+        public Compilation Compilation { get; set; }
+
+        /// <summary>
+        /// Diagnostic messages.
+        /// </summary>
+        public List<Diagnostic> Diagnostics { get; set; }
+
+        /// <summary>
+        /// The hash codes of output syntax.
+        /// </summary>
+        public List<int> HashCodes { get; set; }
+
+        /// <summary>
+        /// The output source files.
+        /// </summary>
+        public Dictionary<string, string> Sources { get; set; }
     }
 }

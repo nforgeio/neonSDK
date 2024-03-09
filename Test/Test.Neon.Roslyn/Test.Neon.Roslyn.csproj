@@ -15,6 +15,8 @@
 
     <ItemGroup>
         <PackageReference Include="FluentAssertions" Version="6.12.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.8.0" PrivateAssets="all" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" PrivateAssets="all" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.0" />
         <PackageReference Include="xunit" Version="2.4.2" />
         <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
@@ -28,6 +30,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\Lib\Neon.Roslyn.Xunit\Neon.Roslyn.Xunit.csproj" />
         <ProjectReference Include="..\..\Lib\Neon.Roslyn\Neon.Roslyn.csproj" />
     </ItemGroup>
 

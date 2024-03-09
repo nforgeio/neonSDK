@@ -4,7 +4,6 @@
         <TargetFramework>net8.0</TargetFramework>
         <OutputType>Library</OutputType>
         <RootNamespace>Neon.SignalR</RootNamespace>
-        <Version>$(NeonSdkVersion)</Version>
         <Description>SignalR helpers and utilities. Includes NATS backplane and a smart load balancer.</Description>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
         <PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.SignalR/README.md</PackageProjectUrl>

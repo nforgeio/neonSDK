@@ -4,7 +4,6 @@
         <TargetFrameworks>net6.0; net7.0; net8.0</TargetFrameworks>
         <OutputType>Library</OutputType>
         <RootNamespace>Neon.GitHub</RootNamespace>
-        <Version>$(NeonSdkVersion)</Version>
         <Description>Combines GitHub and local git repository functionality into the GitHubRepo class.</Description>
         <PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
         <IsPackable>true</IsPackable>

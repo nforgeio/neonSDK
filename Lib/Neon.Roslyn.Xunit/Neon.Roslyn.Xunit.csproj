@@ -1,18 +1,18 @@
-<Project Sdk="Microsoft.NET.Sdk.Razor">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net8.0</TargetFrameworks>
+        <TargetFramework>net8.0</TargetFramework>
         <OutputType>Library</OutputType>
-        <RootNamespace>Neon.Blazor</RootNamespace>
+        <RootNamespace>Neon.Roslyn.Xunit</RootNamespace>
+        <Description>Roslyn related utilities and extensions for testing with XUnit</Description>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
-        <PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.Blazor/README.md</PackageProjectUrl>
+        <PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.Roslyn.Xunit/README.md</PackageProjectUrl>
         <PackageIcon>nuget-icon.png</PackageIcon>
         <RepositoryUrl>https://github.com/nforgeio/neonSDK</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
+        <PackageTags>roslyn reflection source generators xunit</PackageTags>
         <PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
         <Configurations>Debug;Release</Configurations>
-        <Description>A Blazor Component Library.</Description>
-        <PackageTags>blazor aspnetcore</PackageTags>
         <NoWarn>$(NoWarn);1591</NoWarn>
     </PropertyGroup>
 
@@ -27,22 +27,14 @@
     </ItemGroup>
 
     <ItemGroup>
-        <SupportedPlatform Include="browser" />
+        <PackageReference Include="FluentAssertions" Version="6.12.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.8.0" PrivateAssets="all" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" PrivateAssets="all" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Neon.BuildInfo\Neon.BuildInfo.csproj" />
         <ProjectReference Include="..\Neon.Common\Neon.Common.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Components" Version="8.0.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.0" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <Folder Include="Properties\" />
+        <ProjectReference Include="..\Neon.Roslyn\Neon.Roslyn.csproj" />
     </ItemGroup>
 
 </Project>

@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------------
-// FILE:	    Program.cs
+// FILE:	    FlueentAssertionsExtensions.cs
 // CONTRIBUTOR: NEONFORGE Team
 // COPYRIGHT:   Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 //
@@ -15,24 +15,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Threading.Tasks;
-
-using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-
-using Neon.Blazor;
-
-namespace TestBlazor.Client
+namespace Neon.Roslyn.Xunit
 {
     /// <summary>
-    /// Main entry point for the application.
+    /// Extensions for <see cref="TestCompilation"/>.
     /// </summary>
-    public class Program
+    public static class TestCompilationExtensions
     {
-        static async Task Main(string[] args)
+        /// <summary>
+        /// Returns a <see cref="TestCompilationAssertions"/> instance for the given <see cref="TestCompilation"/>.
+        /// </summary>
+        /// <param name="instance"></param>
+        /// <returns></returns>
+        public static TestCompilationAssertions Should(this TestCompilation instance)
         {
-            var builder = WebAssemblyHostBuilder.CreateDefault(args);
-            builder.Services.AddNeonBlazor();
-            await builder.Build().RunAsync();
+            return new TestCompilationAssertions(instance);
         }
     }
 }

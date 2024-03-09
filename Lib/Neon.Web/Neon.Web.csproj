@@ -4,7 +4,6 @@
         <TargetFrameworks>net6.0; net7.0; net8.0</TargetFrameworks>
         <OutputType>Library</OutputType>
         <RootNamespace>Neon.Web</RootNamespace>
-        <Version>$(NeonSdkVersion)</Version>
         <PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
         <AssemblyVersion>0.0.0.0</AssemblyVersion>
         <IsPackable>true</IsPackable>
