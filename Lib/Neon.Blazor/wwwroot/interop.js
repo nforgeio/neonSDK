@@ -16,6 +16,21 @@ export function isMobile() {
 export function blazorDispatchEvent(eventName) {
     dataLayer.push({ 'event': eventName })
 };
+export function checkIntegrityAsync(url, hash) {
+  try {
+    const request = new Request(url, {
+      integrity: hash,
+    });
+    const response = await fetch(request);
+    return true;
+
+  } catch (e)
+  {
+
+    return false;
+  }
+  
+}
 
 export function triggerFileDownload(url, fileName) {
     const anchorElement = document.createElement('a');
