@@ -30,8 +30,17 @@ namespace Neon.Blazor
 {
     public static class JsExtensions
     {
-        private static IJSObjectReference jsModule;
-
+        /// <summary>
+        /// It checks the integrity of the module and imports it.
+        /// Optionally, it can import a fallback module if the integrity check fails.
+        /// </summary>
+        /// <param name="JS"></param>
+        /// <param name="src"></param>
+        /// <param name="hashMethod"></param>
+        /// <param name="hash"></param>
+        /// <param name="fallback"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
 
         public static async Task ImportModuleAsync(
             this IJSRuntime JS,
@@ -40,10 +49,10 @@ namespace Neon.Blazor
             string hash,
             string fallback = null)
         {
-            if (jsModule == null)
-            {
-                jsModule = await JS.InvokeAsync<IJSObjectReference>("import", "./_content/Neon.Blazor/interop.js");
-            }
+            
+            
+           var  jsModule = await JS.InvokeAsync<IJSObjectReference>("import", "./_content/Neon.Blazor/interop.js");
+            
 
            var checkedIntegrity = await jsModule.InvokeAsync<bool>("checkIntegrityAsync",src,$"{hashMethod}-{hash}");
 

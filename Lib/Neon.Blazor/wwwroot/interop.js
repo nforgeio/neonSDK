@@ -16,12 +16,12 @@ export function isMobile() {
 export function blazorDispatchEvent(eventName) {
     dataLayer.push({ 'event': eventName })
 };
-export function checkIntegrityAsync(url, hash) {
+export async function checkIntegrityAsync(url, hash) {
   try {
-    const request = new Request(url, {
+    let request = new Request(url, {
       integrity: hash,
     });
-    const response = await fetch(request);
+    let response = await fetch(request);
     return true;
 
   } catch (e)
