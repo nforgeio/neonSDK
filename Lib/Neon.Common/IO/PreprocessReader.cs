@@ -474,12 +474,12 @@ namespace Neon.IO
         }
 
         /// <summary>
-        /// Configures the reader for parsing YAML by setting the <see cref="StatementMarker"/> to <b>"@"</b>
+        /// Configures the reader for parsing YAML by setting the <see cref="StatementMarker"/> to <b>"~"</b>
         /// and the comment marker to <b>"#"</b>.
         /// </summary>
         public void SetYamlMode()
         {
-            StatementMarker = '@';
+            StatementMarker = '~';
             
             ClearCommentMarkers();
             AddCommentMarker("#");
