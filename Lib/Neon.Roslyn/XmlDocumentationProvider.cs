@@ -34,17 +34,23 @@ namespace Neon.Roslyn
     /// </summary>
     public class XmlDocumentationProvider
     {
-        private readonly NonReentrantLock _gate = new();
-        private Dictionary<string, Dictionary<string, string>> _docComments = new Dictionary<string, Dictionary<string, string>>();
+        private Dictionary<string, Dictionary<string, string>> docComments = new Dictionary<string, Dictionary<string, string>>();
         private List<string> docFiles = new List<string>();
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="XmlDocumentationProvider"/> class.
+        /// Constructor.
         /// </summary>
-        /// <param name="compilation">The compilation to provide documentation for.</param>
-        public XmlDocumentationProvider(Compilation compilation)
+        public XmlDocumentationProvider()
         {
-            foreach (var extRef in compilation.ExternalReferences)
+        }
+
+        /// <summary>
+        /// Adds a compilation to the provider.
+        /// </summary>
+        /// <param name="references">The external references to add.</param>
+        public void AddMetadataReferences(IEnumerable<MetadataReference> references)
+        {
+            foreach (var extRef in references)
             {
                 AddFile(extRef.Display);
             }
@@ -66,9 +72,9 @@ namespace Neon.Roslyn
         /// <param name="stream">The stream containing the XDocument.</param>
         public void AddXDocument(string assemblyName, Stream stream)
         {
-            if (!_docComments.ContainsKey(assemblyName))
+            if (!docComments.ContainsKey(assemblyName))
             {
-                _docComments[assemblyName] = new Dictionary<string, string>();
+                docComments[assemblyName] = new Dictionary<string, string>();
             }
 
             try
@@ -78,7 +84,9 @@ namespace Neon.Roslyn
                 foreach (var e in doc.Descendants("member"))
                 {
                     if (e.Attribute("name") != null)
-                        _docComments[assemblyName][e.Attribute("name").Value] = e.ToString();
+                    {
+                        docComments[assemblyName][e.Attribute("name").Value] = e.ToString();
+                    }
                 }
             }
             catch
@@ -107,7 +115,7 @@ namespace Neon.Roslyn
 
             var documentationMemberID = symbol.GetDocumentationCommentId();
 
-            if (!_docComments.TryGetValue(symbol.ContainingModule.Name, out var assemblyDocComments))
+            if (!docComments.TryGetValue(symbol.ContainingModule.Name, out var assemblyDocComments))
             {
                 var xmlPath = GetXmlFilePath(symbol.ContainingModule.Name);
 
@@ -121,7 +129,7 @@ namespace Neon.Roslyn
                 using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
                 AddXDocument(symbol.ContainingModule.Name, stream);
 
-                assemblyDocComments = _docComments[symbol.ContainingModule.Name];
+                assemblyDocComments = docComments[symbol.ContainingModule.Name];
             }
 
             return assemblyDocComments.TryGetValue(documentationMemberID, out var docComment) ? docComment : string.Empty;
