@@ -106,7 +106,7 @@ namespace Neon.Deployment.CodeSigning
             // code signing so we don't have to download this for every signing operation.
             // 
             // This will be downloaded to the [~/.neonsdk/codesigning-azure] folder, which
-            // will be created if it doen't already exist.  We're also going to write a
+            // will be created if it doesn't already exist.  We're also going to write a
             // [README.md] file explaining what this folder is for and we're also going to
             // write a [version.txt] file we'll use to detect when we need to clear the
             // cache folder to download more recent versions of these tools.

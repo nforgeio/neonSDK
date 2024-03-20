@@ -728,7 +728,7 @@ namespace Neon.GitHub
         /// <summary>
         /// Determines whether a specific branch exists by friendly name.
         /// </summary>
-        /// <param name="branchName">Specfies the friendly name of the target branch.</param>
+        /// <param name="branchName">Specifies the friendly name of the target branch.</param>
         /// <returns><c>true</c> when the branch exists.</returns>
         public async Task<bool> BranchExistsAsync(string branchName)
         {
@@ -1151,7 +1151,7 @@ namespace Neon.GitHub
         /// <summary>
         /// Determines whether a specific annotated tag exists.
         /// </summary>
-        /// <param name="tagName">Specfies the target tag's friendly name.</param>
+        /// <param name="tagName">Specifies the target tag's friendly name.</param>
         /// <returns><c>true</c> when the annotated tag exists.</returns>
         public async Task<bool> AnnotatedTagExistsAsync(string tagName)
         {

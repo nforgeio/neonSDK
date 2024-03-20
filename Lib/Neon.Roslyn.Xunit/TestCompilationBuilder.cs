@@ -66,6 +66,11 @@ namespace Neon.Roslyn.Xunit
                 Options = Options
             });
 
+            foreach (var path in AssemblyPaths)
+            {
+                Assemblies.Add(Assembly.LoadFile(path));
+            }
+
             var references = new List<MetadataReference>();
 
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
@@ -91,7 +96,6 @@ namespace Neon.Roslyn.Xunit
                 options: new  CSharpCompilationOptions(
                     outputKind: Executable ? OutputKind.ConsoleApplication : OutputKind.DynamicallyLinkedLibrary)
                 );
-
 
             var additionalFiles = new List<AdditionalSourceText>();
 
