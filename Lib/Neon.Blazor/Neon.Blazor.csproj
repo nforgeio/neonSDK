@@ -33,6 +33,7 @@
     <ItemGroup>
         <ProjectReference Include="..\Neon.BuildInfo\Neon.BuildInfo.csproj" />
         <ProjectReference Include="..\Neon.Common\Neon.Common.csproj" />
+        <ProjectReference Include="..\Neon.Cryptography\Neon.Cryptography.csproj" />
     </ItemGroup>
 
     <ItemGroup>
