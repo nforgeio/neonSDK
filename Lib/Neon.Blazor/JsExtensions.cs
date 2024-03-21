@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------------
-// FILE:	    JSHelper.cs
+// FILE:	    JsExtensions.cs
 // CONTRIBUTOR: NEONFORGE Team
 // COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
 //
@@ -28,6 +28,9 @@ using Neon.Cryptography;
 
 namespace Neon.Blazor
 {
+    /// <summary>
+    /// <see cref="IJSRuntime"/> extension methods.
+    /// </summary>
     public static class JsExtensions
     {
         /// <summary>

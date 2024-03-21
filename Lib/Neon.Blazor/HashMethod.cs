@@ -24,12 +24,27 @@ using System.Threading.Tasks;
 
 namespace Neon.Blazor
 {
+
+    /// <summary>
+    /// Represents the hash method used for encryption.
+    /// </summary>
     public enum HashMethod
     {
+        /// <summary>
+        /// The SHA256 hash method.
+        /// </summary>
         [EnumMember(Value ="sha256")]
         SHA256,
+
+        /// <summary>
+        /// The SHA384 hash method.
+        /// </summary>
         [EnumMember(Value ="sha384")]
         SHA384,
+
+        /// <summary>
+        /// The SHA512 hash method.
+        /// </summary>
         [EnumMember(Value ="sha512")]
         SHA512
     }
