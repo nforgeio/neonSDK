@@ -633,7 +633,7 @@ namespace Neon.HyperV
             var connectedAdapter = (NetworkInterface)null;
 
             foreach (var nic in NetworkInterface.GetAllNetworkInterfaces()
-                .Where(n => n.OperationalStatus == OperationalStatus.Up && n.NetworkInterfaceType != NetworkInterfaceType.Loopback))
+                .Where(nic => nic.OperationalStatus == OperationalStatus.Up && nic.NetworkInterfaceType != NetworkInterfaceType.Loopback))
             {
                 var nicProperties = nic.GetIPProperties();
 
