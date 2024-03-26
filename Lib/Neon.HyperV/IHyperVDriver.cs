@@ -64,6 +64,7 @@ namespace Neon.HyperV
         /// <param name="drivePath">Optionally specifies the path to an existing boot drive.</param>
         /// <param name="switchName">Optionally specifies the name of the switch to which the VM should be connected.</param>
         /// <param name="checkpointDrives">Optionally specifies that drive checkpointing is enabled.</param>
+        /// <param name="notes">Optionally specifies any notes to persist with the VM.</param>
         /// <exception cref="HyperVException">Thrown for errors.</exception>
         void NewVM(
             string      machineName,
@@ -72,7 +73,8 @@ namespace Neon.HyperV
             int         generation       = 1,
             string      drivePath        = null,
             string      switchName       = null,
-            bool        checkpointDrives = false);
+            bool        checkpointDrives = false,
+            string      notes            = null);
 
         /// <summary>
         /// Sets virtual machine properties.
@@ -81,12 +83,14 @@ namespace Neon.HyperV
         /// <param name="processorCount">Optionally specifies the number of processors.</param>
         /// <param name="startupMemoryBytes">Optionally specifies the machine RAM in bytes.</param>
         /// <param name="checkpointDrives">Optionally specifies whether drive checking pointing is enabled.</param>
+        /// <param name="notes">Optionally specifies any notes to persist with the VM.</param>
         /// <exception cref="HyperVException">Thrown for errors.</exception>
         void SetVm(
             string      machineName,
             int?        processorCount     = null,
             long?       startupMemoryBytes = null,
-            bool?       checkpointDrives   = null);
+            bool?       checkpointDrives   = null,
+            string      notes              = null);
 
         /// <summary>
         /// Adds a virtual drive to a virtual machine.
