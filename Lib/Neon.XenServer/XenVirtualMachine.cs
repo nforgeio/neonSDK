@@ -27,6 +27,8 @@ namespace Neon.XenServer
     /// </summary>
     public class XenVirtualMachine : XenObject
     {
+        private List<string>    tags = new List<string>();
+
         /// <summary>
         /// Constructs an instance from raw property values returned by the <b>xe client</b>.
         /// </summary>
@@ -55,6 +57,20 @@ namespace Neon.XenServer
             if (rawProperties.TryGetValue("name-description", out var description))
             {
                 this.Description = description;
+            }
+
+            if (rawProperties.TryGetValue("tags", out var rawTags) &&
+                !string.IsNullOrWhiteSpace(rawTags))
+            {
+                foreach (var rawTag in rawTags.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    var tag = rawTag.Trim();
+
+                    if (!string.IsNullOrEmpty(tag))
+                    {
+                        tags.Add(tag);
+                    }
+                }
             }
 
             // We're only going to explicitly support one network interface,
@@ -109,9 +125,14 @@ namespace Neon.XenServer
         public string Address { get; private set; }
 
         /// <summary>
-        /// Returns VM description
+        /// Returns the virtual machine description
         /// </summary>
         public string Description { get; private set; }
+
+        /// <summary>
+        /// Returns the virtual machine tags.
+        /// </summary>
+        public IEnumerable<string> Tags => tags;
 
         /// <summary>
         /// Indicates whether the virtual machine is running.

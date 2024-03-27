@@ -144,12 +144,13 @@ namespace Neon.XenServer
             /// </param>
             /// <param name="description">
             /// <para>
-            /// Optionally specifies the dwscription to be assigned to the virtual machine.
+            /// Optionally specifies the description to be assigned to the virtual machine.
             /// </para>
             /// <note>
             /// This may not include CR or LF characters.
             /// </note>
             /// </param>
+            /// <param name="tags">Optionally specifies any tags to be added to the virtual machine.</param>
             /// <returns>The new <see cref="XenVirtualMachine"/>.</returns>
             /// <exception cref="XenException">Thrown if the operation failed.</exception>
             /// <remarks>
@@ -168,7 +169,8 @@ namespace Neon.XenServer
                 IEnumerable<XenVirtualDisk>     extraDisks               = null,
                 string                          primaryStorageRepository = XenClient.LocalStorageName,
                 string                          extraStorageRespository  = XenClient.LocalStorageName,
-                string                          description              = null)
+                string                          description              = null,
+                IEnumerable<string>             tags                     = null)
             {
                 Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(templateName), nameof(templateName));
                 Covenant.Requires<ArgumentException>(vcpus > 0, nameof(vcpus));
@@ -177,6 +179,8 @@ namespace Neon.XenServer
                 Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(primaryStorageRepository), nameof(primaryStorageRepository));
                 Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(extraStorageRespository), nameof(extraStorageRespository));
                 Covenant.Requires<ArgumentException>(description != null && description.IndexOfAny(new char[] { '\r', '\n' }) < 0, nameof(description), "VM description must not include line endings.");
+
+                tags ??= Array.Empty<string>();
 
                 // Ensure that the requested template exists.
 
@@ -234,6 +238,11 @@ namespace Neon.XenServer
                 if (!string.IsNullOrWhiteSpace(description))
                 {
                     client.SafeInvoke("vm-param-set", $"uuid={vmUuid}", $"name-description={description}");
+                }
+
+                foreach (var tag in tags.Where(tag => !string.IsNullOrWhiteSpace(tag)))
+                {
+                    client.SafeInvoke("vm-param-add", $"uuid={vmUuid}", $"param-name=tags", $"param-key={tag}");
                 }
 
                 // Configure the processors.
