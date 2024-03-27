@@ -52,6 +52,11 @@ namespace Neon.XenServer
                 }
             }
 
+            if (rawProperties.TryGetValue("name-description", out var description))
+            {
+                this.Description = description;
+            }
+
             // We're only going to explicitly support one network interface,
             // interface 0.  We're going to attempt extracting the IP address
             // from the [networks] property which will probably look something
@@ -102,6 +107,11 @@ namespace Neon.XenServer
         /// if the VM is not running or hasn't obtained an address yet.
         /// </summary>
         public string Address { get; private set; }
+
+        /// <summary>
+        /// Returns VM description
+        /// </summary>
+        public string Description { get; private set; }
 
         /// <summary>
         /// Indicates whether the virtual machine is running.
