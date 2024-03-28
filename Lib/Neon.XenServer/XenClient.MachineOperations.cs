@@ -178,7 +178,6 @@ namespace Neon.XenServer
                 Covenant.Requires<ArgumentException>(diskBytes >= 0, nameof(diskBytes));
                 Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(primaryStorageRepository), nameof(primaryStorageRepository));
                 Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(extraStorageRespository), nameof(extraStorageRespository));
-                Covenant.Requires<ArgumentException>(description != null && description.IndexOfAny(new char[] { '\r', '\n' }) < 0, nameof(description), "VM description must not include line endings.");
 
                 tags ??= Array.Empty<string>();
 
