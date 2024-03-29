@@ -142,6 +142,15 @@ namespace Neon.XenServer
             /// not sure what problems having autostart VMs in a HA pool cause.
             /// </note>
             /// </param>
+            /// <param name="description">
+            /// <para>
+            /// Optionally specifies the description to be assigned to the virtual machine.
+            /// </para>
+            /// <note>
+            /// This may not include CR or LF characters.
+            /// </note>
+            /// </param>
+            /// <param name="tags">Optionally specifies any tags to be added to the virtual machine.</param>
             /// <returns>The new <see cref="XenVirtualMachine"/>.</returns>
             /// <exception cref="XenException">Thrown if the operation failed.</exception>
             /// <remarks>
@@ -159,7 +168,9 @@ namespace Neon.XenServer
                 bool                            snapshot                 = false,
                 IEnumerable<XenVirtualDisk>     extraDisks               = null,
                 string                          primaryStorageRepository = XenClient.LocalStorageName,
-                string                          extraStorageRespository  = XenClient.LocalStorageName)
+                string                          extraStorageRespository  = XenClient.LocalStorageName,
+                string                          description              = null,
+                IEnumerable<string>             tags                     = null)
             {
                 Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(templateName), nameof(templateName));
                 Covenant.Requires<ArgumentException>(vcpus > 0, nameof(vcpus));
@@ -167,6 +178,10 @@ namespace Neon.XenServer
                 Covenant.Requires<ArgumentException>(diskBytes >= 0, nameof(diskBytes));
                 Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(primaryStorageRepository), nameof(primaryStorageRepository));
                 Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(extraStorageRespository), nameof(extraStorageRespository));
+
+                tags ??= Array.Empty<string>();
+
+                // Ensure that the requested template exists.
 
                 if (client.Template.Find(templateName) == null)
                 {
@@ -218,6 +233,16 @@ namespace Neon.XenServer
 
                 var vmInstallResponse = client.SafeInvoke("vm-install", $"template={templateName}", $"new-name-label={name}", srUuidArg);
                 var vmUuid            = vmInstallResponse.OutputText.Trim();
+
+                if (!string.IsNullOrWhiteSpace(description))
+                {
+                    client.SafeInvoke("vm-param-set", $"uuid={vmUuid}", $"name-description={description}");
+                }
+
+                foreach (var tag in tags.Where(tag => !string.IsNullOrWhiteSpace(tag)))
+                {
+                    client.SafeInvoke("vm-param-add", $"uuid={vmUuid}", $"param-name=tags", $"param-key={tag}");
+                }
 
                 // Configure the processors.
 

@@ -34,22 +34,27 @@ namespace Neon.HyperV
     public class VirtualMachine
     {
         /// <summary>
-        /// The machine name.
+        /// Specifies the machine name.
         /// </summary>
         public string Name { get; set; }
 
         /// <summary>
-        /// The number of virtual processors.
+        /// Specifies the machine notes.
+        /// </summary>
+        public string Notes { get; set; }
+
+        /// <summary>
+        /// Specifies the number of virtual processors.
         /// </summary>
         public int ProcessorCount { get; set; }
 
         /// <summary>
-        /// The memory size in bytes.
+        /// Specifies the memory size in bytes.
         /// </summary>
         public long MemorySizeBytes { get; set; }
 
         /// <summary>
-        /// The current machine state.
+        /// Specifies the current machine state.
         /// </summary>
         public VirtualMachineState State { get; set; }
 
