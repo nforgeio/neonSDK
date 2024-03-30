@@ -1062,6 +1062,11 @@ namespace Neon.HyperV
             CheckDisposed();
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(switchName), nameof(switchName));
 
+            if (ListSwitches().Any(@switch => @switch.Name.Equals(switchName, StringComparison.InvariantCultureIgnoreCase)))
+            {
+                return; // Looks like the switch already exists.
+            }
+
             var args = new CmdletArgs();
 
             args.Add("Name", switchName);
