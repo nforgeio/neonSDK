@@ -504,7 +504,8 @@ namespace Neon.HyperV
             int         generation       = 1,
             string      drivePath        = null,
             string      switchName       = null,
-            bool        checkPointDrives = false)
+            bool        checkPointDrives = false,
+            string      notes            = null)
         {
             CheckDisposed();
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
@@ -532,7 +533,7 @@ namespace Neon.HyperV
 
             // Set the processor count and disable drive checkpointing.
 
-            SetVm(machineName, processorCount: processorCount, checkpointDrives: false);
+            SetVm(machineName, processorCount: processorCount, checkpointDrives: false, notes: notes);
         }
 
         /// <inheritdoc/>
@@ -840,6 +841,7 @@ namespace Neon.HyperV
                 var operationalStatus = (VMOperationalStatus[])rawMachine.Members["OperationalStatus"].Value;
 
                 vm.Name            = (string)rawMachine.Members["Name"].Value;
+                vm.Notes           = (string)rawMachine.Members["Notes"].Value;
                 vm.ProcessorCount  = (int)(long)rawMachine.Members["ProcessorCount"].Value;
                 vm.MemorySizeBytes = (long)rawMachine.Members["MemoryStartup"].Value;
                 vm.Ready           = operationalStatus[0] == VMOperationalStatus.Ok;
@@ -1060,6 +1062,11 @@ namespace Neon.HyperV
             CheckDisposed();
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(switchName), nameof(switchName));
 
+            if (ListSwitches().Any(@switch => @switch.Name.Equals(switchName, StringComparison.InvariantCultureIgnoreCase)))
+            {
+                return; // Looks like the switch already exists.
+            }
+
             var args = new CmdletArgs();
 
             args.Add("Name", switchName);
@@ -1169,7 +1176,7 @@ namespace Neon.HyperV
         }
 
         /// <inheritdoc/>
-        public void SetVm(string machineName, int? processorCount = null, long? startupMemoryBytes = null, bool? checkpointDrives = null)
+        public void SetVm(string machineName, int? processorCount = null, long? startupMemoryBytes = null, bool? checkpointDrives = null, string notes = null)
         {
             CheckDisposed();
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
@@ -1201,6 +1208,11 @@ namespace Neon.HyperV
                 {
                     args.Add("CheckpointType", "Disabled");
                 }
+            }
+
+            if (!string.IsNullOrEmpty(notes))
+            {
+                args.Add("Notes", notes);
             }
 
             Invoke<SetVM>(args,

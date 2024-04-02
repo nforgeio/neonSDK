@@ -149,9 +149,10 @@ namespace Neon.HyperV
 
             var vm = new VirtualMachine();
 
-            // Extract the VM name.
+            // Extract the VM name and notes.
 
-            vm.Name = (string)rawMachine.Property("VMName");
+            vm.Name  = (string)rawMachine.Property("VMName");
+            vm.Notes = (string)rawMachine.Property("Notes");
 
             // Extract the processor count and memory size.
 
@@ -228,7 +229,8 @@ namespace Neon.HyperV
             int         generation       = 1,
             string      drivePath        = null,
             string      switchName       = null,
-            bool        checkPointDrives = false)
+            bool        checkPointDrives = false,
+            string      notes            = null)
         {
             CheckDisposed();
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
@@ -246,6 +248,11 @@ namespace Neon.HyperV
             if (!string.IsNullOrEmpty(switchName))
             {
                 command += $" -SwitchName '{switchName}'";
+            }
+
+            if (!string.IsNullOrWhiteSpace(notes))
+            {
+                command += $" -Notes '{notes}'";
             }
 
             try
@@ -798,7 +805,7 @@ namespace Neon.HyperV
         }
 
         /// <inheritdoc/>
-        public void SetVm(string machineName, int? processorCount = null, long? startupMemoryBytes = null, bool? checkpointDrives = null)
+        public void SetVm(string machineName, int? processorCount = null, long? startupMemoryBytes = null, bool? checkpointDrives = null, string notes = null)
         {
             CheckDisposed();
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
@@ -829,6 +836,11 @@ namespace Neon.HyperV
                     {
                         sbCommand.AppendWithSeparator($"-CheckpointType Disabled");
                     }
+                }
+
+                if (!string.IsNullOrEmpty(notes))
+                {
+                    sbCommand.AppendWithSeparator($"-Notes {notes}");
                 }
 
                 powershell.Execute(sbCommand.ToString());

@@ -134,5 +134,10 @@ namespace Neon.Xunit
         /// Identifies the <b>Neon.Git</b> unit tests.
         /// </summary>
         public const string NeonGit = "Neon.Git";
+
+        /// <summary>
+        /// Identifies the <b>Neon.Operator</b> unit tests.
+        /// </summary>
+        public const string NeonOperator = "Neon.Operator";
     }
 }

@@ -26,6 +26,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
+using System.Text;
 using System.Threading;
 
 namespace Neon.HyperV
@@ -176,6 +177,7 @@ namespace Neon.HyperV
         /// Optionally specifies any additional virtual drives to be created and 
         /// then attached to the new virtual machine.
         /// </param>
+        /// <param name="notes">Optionally specifies any notes to persist with the VM.</param>
         /// <exception cref="HyperVException">Thrown for errors.</exception>
         /// <remarks>
         /// <note>
@@ -195,7 +197,8 @@ namespace Neon.HyperV
             bool                        checkpointDrives  = false,
             string                      templateDrivePath = null, 
             string                      switchName        = null,
-            IEnumerable<VirtualDrive>   extraDrives       = null)
+            IEnumerable<VirtualDrive>   extraDrives       = null,
+            string                      notes             = null)
         {
             CheckDisposed();
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(machineName), nameof(machineName));
@@ -258,7 +261,8 @@ namespace Neon.HyperV
                 generation:         1, 
                 drivePath:          drivePath,
                 switchName:         switchName, 
-                checkpointDrives:   checkpointDrives);
+                checkpointDrives:   checkpointDrives,
+                notes:              notes);
 
             // We need to do some extra configuration for nested virtual machines:
             //
