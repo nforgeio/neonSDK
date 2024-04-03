@@ -225,14 +225,14 @@ namespace Neon.Tasks
                     // We're restarting the timer so signal any existing timer task to
                     // exit and set the new interval (if any).
 
-                    if (IsRunning)
+                    if (IsRunning && timerTask.Status == TaskStatus.Running)
                     {
                         Covenant.Assert(cts != null);
 
                         cts.Cancel();
                         timerTask.WaitWithoutAggregate();
 
-                        cts = null;
+                        cts       = null;
                         timerTask = null;
                     }
 
