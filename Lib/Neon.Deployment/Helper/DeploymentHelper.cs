@@ -478,20 +478,22 @@ namespace Neon.Deployment
 
                 // $hack(jefflill):
                 //
-                // We're having trouble setting the [Content-Type]header when publishing
-                // node images to S3.  As a workaround, I'm also going to check the
-                // [x-amz-meta-content-type] header.
+                // We're having trouble setting the [Content-Type] header when publishing
+                // node images to S3.  I'm going to disable this check since it's not really
+                // that important since deserialization will fail if the file is bad.
+                //
+                //      https://github.com/nforgeio/neonCLOUD/issues/421
 
-                if (!response.Content.Headers.ContentType.MediaType.Equals(DeploymentHelper.DownloadManifestContentType))
-                {
-                    const string s3CustonContentType = "x-amz-meta-content-type";
+                //if (!response.Content.Headers.ContentType.MediaType.Equals(DeploymentHelper.DownloadManifestContentType))
+                //{
+                //    const string s3CustonContentType = "x-amz-meta-content-type";
 
-                    if (!response.Content.Headers.Contains(s3CustonContentType) ||
-                        response.Content.Headers.GetValues(s3CustonContentType).FirstOrDefault() != DeploymentHelper.DownloadManifestContentType)
-                    {
-                        throw new FormatException($"The content type for [{uri}] is [{response.Content.Headers.ContentType.MediaType}].  [{DeploymentHelper.DownloadManifestContentType}] was expected.");
-                    }
-                }
+                //    if (!response.Content.Headers.Contains(s3CustonContentType) ||
+                //        response.Content.Headers.GetValues(s3CustonContentType).FirstOrDefault() != DeploymentHelper.DownloadManifestContentType)
+                //    {
+                //        throw new FormatException($"The content type for [{uri}] is [{response.Content.Headers.ContentType.MediaType}].  [{DeploymentHelper.DownloadManifestContentType}] was expected.");
+                //    }
+                //}
 
                 manifest = NeonHelper.JsonDeserialize<DownloadManifest>(await response.Content.ReadAsStringAsync());
             }
