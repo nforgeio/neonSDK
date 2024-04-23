@@ -1489,6 +1489,13 @@ namespace Neon.Service
         /// </remarks>
         public void Started(NeonServiceStatus status = NeonServiceStatus.Running)
         {
+            // $note(jefflill):
+            //
+            // We're going to do and async fire-and-forget call here on the off chance
+            // that the NeonService is being hosted and initialized in a UI app on a
+            // UI thread.  The fact that we're not waiting on the task to complete
+            // shouldn't be a problem.
+
             _ = SetStatusAsync(status);
         }
 
