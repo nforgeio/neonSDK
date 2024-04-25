@@ -24,6 +24,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Primitives;
 
 using Neon.Common;
 using Neon.Diagnostics;
@@ -38,7 +39,8 @@ namespace Neon.SignalR
     /// </summary>
     public class SignalrProxyMiddleware
     {
-        private const string cookieKey = "signalr-upstream";
+        private const string cookieKey        = "signalr-upstream";
+        private const string originHostHeader = "x-signalr-originhost";
 
         private readonly RequestDelegate next;
 
@@ -77,6 +79,8 @@ namespace Neon.SignalR
 
             var dataProtector = dataProtectionProvider?.CreateProtector(TraceContext.ActivitySourceName);
 
+            StringValues originHost;
+
             if (context.Request.Cookies.TryGetValue(cookieKey, out var upstream))
             {
                 try
@@ -90,6 +94,11 @@ namespace Neon.SignalR
 
                     if (upstream == dnsCache.GetSelfAddress())
                     {
+                        if (context.Request.Headers.TryGetValue(originHostHeader, out originHost))
+                        {
+                            context.Request.Host = new HostString(originHost);
+                        }
+
                         await next(context);
                         return;
                     }
@@ -109,7 +118,9 @@ namespace Neon.SignalR
             }
 
             if (!string.IsNullOrEmpty(upstream))
-            { 
+            {
+                context.Request.Headers[originHostHeader] = context.Request.Host.Value;
+
                 logger?.LogDebugEx(() => $"Forwarding to existing upstream: {upstream}");
 
                 var error = await forwarder.SendAsync(context, $"{context.Request.Scheme}://{upstream}:{config.Port}", httpClient, forwarderRequestConfig);
@@ -127,6 +138,11 @@ namespace Neon.SignalR
             }
 
             logger?.LogDebugEx(() => $"Handling request locally: {dnsCache.GetSelfAddress()}");
+
+            if (context.Request.Headers.TryGetValue(originHostHeader, out originHost))
+            {
+                context.Request.Host = new HostString(originHost);
+            }
 
             var cookieContent = dataProtector?.Protect(dnsCache.GetSelfAddress()) ?? dnsCache.GetSelfAddress();
 
