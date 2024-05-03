@@ -809,8 +809,6 @@ namespace Neon.Collections
         {
             get
             {
-                //$todo(jefflill): Should do int operations when possible to improve performance.
-
                 for (int i = 0; i < this.length; i++)
                 {
                     if (this[i])
@@ -830,8 +828,6 @@ namespace Neon.Collections
         {
             get
             {
-                //$todo(jefflill): Should do int operations when possible to improve performance.
-
                 for (int i = 0; i < this.length; i++)
                 {
                     if (!this[i])
@@ -857,8 +853,6 @@ namespace Neon.Collections
             {
                 return false;
             }
-
-            // $todo(jefflill): Should do int operations when possible to improve performance.
 
             if (this.length != bits.length)
             {
