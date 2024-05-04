@@ -30,6 +30,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+using DnsClient;
+
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -43,15 +46,12 @@ using Neon.Retry;
 using Neon.Tasks;
 using Neon.Time;
 
-using DnsClient;
-using Prometheus;
-
 using OpenTelemetry;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
-using Microsoft.Extensions.Configuration.EnvironmentVariables;
-using Microsoft.Extensions.Configuration;
+
+using Prometheus;
 
 namespace Neon.Service
 {
@@ -1265,6 +1265,11 @@ namespace Neon.Service
         public ILogger Logger { get; set; }
 
         /// <summary>
+        /// Returns the current service status.
+        /// </summary>
+        public NeonServiceStatus Status { get; private set; }
+
+        /// <summary>
         /// <para>
         /// Configured as the activity source used by the service for recording traces.
         /// </para>
@@ -1286,12 +1291,6 @@ namespace Neon.Service
         /// defaults to an empty list.
         /// </summary>
         public List<string> Arguments { get; private set; } = new List<string>();
-
-        /// <summary>
-        /// Returns the service current running status.  Use <see cref="SetStatusAsync(NeonServiceStatus)"/>
-        /// to update the service status.
-        /// </summary>
-        public NeonServiceStatus Status { get; private set; }
 
         /// <summary>
         /// <para>
@@ -1855,6 +1854,7 @@ namespace Neon.Service
 
             try
             {
+                await SetStatusAsync(NeonServiceStatus.Starting);
                 await OnRunAsync();
 
                 ExitCode = 0;
