@@ -233,8 +233,8 @@ namespace Neon.GitHub
             var remoteRepoUri = $"https://{remoteRepoPath}";
             var options       = new CloneOptions() 
             { 
-                BranchName          = branchName,
-                CredentialsProvider = repo.credentialsProvider
+                BranchName   = branchName,
+                FetchOptions = { CredentialsProvider = repo.credentialsProvider }
             };
 
             if (!remoteRepoUri.EndsWith(".git"))

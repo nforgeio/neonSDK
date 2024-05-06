@@ -157,8 +157,6 @@ namespace NeonSignalRProxy
         /// <inheritdoc/>
         protected async override Task<int> OnRunAsync()
         {
-            await SetStatusAsync(NeonServiceStatus.Starting);
-
             Config = await ProxyConfig.FromFileAsync(GetConfigFilePath(ConfigFile));
 
             if (!string.IsNullOrEmpty(GetEnvironmentVariable("DEBUG")))

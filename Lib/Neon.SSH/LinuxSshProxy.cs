@@ -2162,7 +2162,7 @@ if [ -f ""{path}"" ] ; then rm ""{path}""; fi
                 }
             }
 
-            // Reestablish the connection (if necessary) and attempt to execute
+            // Re-establish the connection (if necessary) and attempt to execute
             // the command up to [RetryCount+1] times.
             //
             // We're going to be tricky here and try to execute the command remotely
@@ -2350,6 +2350,7 @@ echo $? > {cmdFolder}/exit
             }
 
             var runWhenFaulted = (runOptions & RunOptions.RunWhenFaulted) != 0;
+            var logOutput      = (runOptions & RunOptions.LogOutput) != 0;
             var logOnErrorOnly = (runOptions & RunOptions.LogOnErrorOnly) != 0 && (runOptions & RunOptions.LogOutput) == 0;
             var faultOnError   = (runOptions & RunOptions.FaultOnError) != 0;
             var binaryOutput   = (runOptions & RunOptions.BinaryOutput) != 0;
@@ -2456,14 +2457,14 @@ echo $? > {cmdFolder}/exit
 
             var logEnabled = response.ExitCode != 0 || !logOnErrorOnly;
 
-            if ((response.ExitCode != 0 && logOnErrorOnly) || (runOptions & RunOptions.LogOutput) != 0)
+            if (response.ExitCode == 0)
             {
                 if (!startLogged)
                 {
                     LogLine($"START: {commandToLog}");
                 }
 
-                if ((runOptions & RunOptions.LogOutput) != 0)
+                if (logOutput)
                 {
                     if (binaryOutput)
                     {
@@ -2489,42 +2490,27 @@ echo $? > {cmdFolder}/exit
                         }
                     }
                 }
-            }
 
-            if (response.ExitCode != 0 || !logOnErrorOnly || (runOptions & RunOptions.LogOutput) != 0)
+                LogLine("END [OK]");
+            }
+            else
             {
                 if (redact)
                 {
-                    LogLine("STDERR");
                     LogLine("    " + Redacted);
                 }
                 else
                 {
-                    using (var reader = new StringReader(response.ErrorText))
+                    using (var reader = new StringReader(response.AllText))
                     {
-                        var extendedWritten = false;
-
                         foreach (var line in reader.Lines())
                         {
-                            if (!extendedWritten)
-                            {
-                                LogLine("STDERR");
-                                extendedWritten = true;
-                            }
-
                             LogLine("    " + line);
                         }
                     }
                 }
 
-                if (response.ExitCode == 0)
-                {
-                    LogLine("END [OK]");
-                }
-                else
-                {
-                    LogLine($"END [ERROR={response.ExitCode}]");
-                }
+                LogLine($"END [EXITCODE={response.ExitCode}]");
 
                 LogFlush();
 
@@ -2539,7 +2525,7 @@ echo $? > {cmdFolder}/exit
 
                         if (!redact)
                         {
-                            message = $"{message}\r\n{response.AllText}";
+                            message = $"{message}{Environment.NewLine}{response.AllText}";
                         }
 
                         throw new RemoteCommandException($"[exitcode={response.ExitCode}]: {message}");

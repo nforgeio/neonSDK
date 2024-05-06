@@ -30,6 +30,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+using DnsClient;
+
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -43,15 +46,12 @@ using Neon.Retry;
 using Neon.Tasks;
 using Neon.Time;
 
-using DnsClient;
-using Prometheus;
-
 using OpenTelemetry;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
-using Microsoft.Extensions.Configuration.EnvironmentVariables;
-using Microsoft.Extensions.Configuration;
+
+using Prometheus;
 
 namespace Neon.Service
 {
@@ -72,21 +72,21 @@ namespace Neon.Service
     /// This class is pretty easy to use.  Simply derive your service class from <see cref="NeonService"/>
     /// and implement the <see cref="OnRunAsync"/> method.  <see cref="OnRunAsync"/> will be called when 
     /// your service is started.  This is where you'll implement your service.  You should perform any
-    /// initialization and then call <see cref="StartedAsync"/> to indicate that the service is ready for
-    /// business.
+    /// initialization and then call <see cref="Started(NeonServiceStatus)"/> or <see cref="StartedAsync(NeonServiceStatus)"/>
+    /// to indicate that the service is ready for business.
     /// </para>
     /// <note>
     /// We recommend that your service constructor be limited to configuring base service properties
     /// and that you perform the bulk of your service initialization in <see cref="OnRunAsync"/> before
-    /// you call <see cref="StartedAsync(NeonServiceStatus)"/>.  Any logging performed in the constructor
-    /// will be handled by a default console logger because the regular logger isn't initialized until
-    /// <see cref="RunAsync(bool)"/> is called to start the service.  We recommend that you avoid any
-    /// logging from within your constructor.
+    /// you call  <see cref="Started(NeonServiceStatus)"/> or <see cref="StartedAsync(NeonServiceStatus)"/>.
+    /// Any logging performed in the constructor will be handled by a default console logger because the
+    /// regular logger isn't initialized until <see cref="RunAsync(bool)"/> is called to start the service.
+    /// We recommend that you avoid any logging from within your constructor.
     /// </note>
     /// <note>
-    /// Note that calling <see cref="StartedAsync(NeonServiceStatus)"/> after your service has initialized is important
-    /// because the <b>NeonServiceFixture</b> won't allow tests to proceed until the service
-    /// indicates that it's ready.  This is necessary to avoid unit test race conditions.
+    /// Note that calling <see cref="Started(NeonServiceStatus)"/> or <see cref="StartedAsync(NeonServiceStatus)"/>
+    /// after your service has initialized is important because the <b>NeonServiceFixture</b> won't allow tests
+    /// to proceed until the service indicates that it's ready.  This is necessary to avoid unit test race conditions.
     /// </note>
     /// <para>
     /// Note that your <see cref="OnRunAsync"/> method should generally not return until the 
@@ -1265,6 +1265,12 @@ namespace Neon.Service
         public ILogger Logger { get; set; }
 
         /// <summary>
+        /// Returns the service current running status.  Use <see cref="SetStatusAsync(NeonServiceStatus)"/>
+        /// to update the service status.
+        /// </summary>
+        public NeonServiceStatus Status { get; private set; }
+
+        /// <summary>
         /// <para>
         /// Configured as the activity source used by the service for recording traces.
         /// </para>
@@ -1286,12 +1292,6 @@ namespace Neon.Service
         /// defaults to an empty list.
         /// </summary>
         public List<string> Arguments { get; private set; } = new List<string>();
-
-        /// <summary>
-        /// Returns the service current running status.  Use <see cref="SetStatusAsync(NeonServiceStatus)"/>
-        /// to update the service status.
-        /// </summary>
-        public NeonServiceStatus Status { get; private set; }
 
         /// <summary>
         /// <para>
@@ -1466,6 +1466,37 @@ namespace Neon.Service
 
             startedEvent.Set();
             await SetStatusAsync(status);
+        }
+
+        /// <summary>
+        /// Called by your <see cref="OnRunAsync"/> implementation to indicate that the service
+        /// is either <see cref="NeonServiceStatus.Running"/> (the default) or <see cref="NeonServiceStatus.NotReady"/>.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// For most situations, the default <see cref="NeonServiceStatus.Running"/> argument is
+        /// appropriate.  This indicates that the service will satisfy all of the probes: startup,
+        /// liveliness, and readiness.
+        /// </para>
+        /// <para>
+        /// Advanced services that may take some time to perform additional initialization 
+        /// before being ready to service requests may pass <see cref="NeonServiceStatus.NotReady"/>.
+        /// This means that the startup and liveliness probes will pass, preventing Kubernetes
+        /// from terminating the container but that the readiness probe will fail, preventing
+        /// Kubernetes from forwarding traffic to the container until <see cref="NeonServiceStatus.Running"/>
+        /// is passed to <see cref="SetStatusAsync(NeonServiceStatus)"/>.
+        /// </para>
+        /// </remarks>
+        public void Started(NeonServiceStatus status = NeonServiceStatus.Running)
+        {
+            // $note(jefflill):
+            //
+            // We're going to do and async fire-and-forget call here on the off chance
+            // that the NeonService is being hosted and initialized in a UI app on a
+            // UI thread.  The fact that we're not waiting on the task to complete
+            // shouldn't be a problem.
+
+            _ = SetStatusAsync(status);
         }
 
         /// <summary>
@@ -1824,6 +1855,7 @@ namespace Neon.Service
 
             try
             {
+                await SetStatusAsync(NeonServiceStatus.Starting);
                 await OnRunAsync();
 
                 ExitCode = 0;

@@ -33,8 +33,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="LibGit2Sharp" Version="0.27.2" />
-        <PackageReference Include="Neon.Octokit" Version="6.0.2" />
+        <PackageReference Include="LibGit2Sharp" Version="0.30.0" />
+        <PackageReference Include="Octokit" Version="11.0.0" />
     </ItemGroup>
 
 </Project>
