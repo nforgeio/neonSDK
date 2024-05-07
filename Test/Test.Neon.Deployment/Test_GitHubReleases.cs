@@ -358,7 +358,7 @@ namespace TestDeployment
         }
 
         [Fact]
-        public async void Delete_Draft()
+        public async Task Delete_Draft()
         {
             // Verify that we can list and delete draft releases.
 
@@ -429,7 +429,7 @@ namespace TestDeployment
         }
 
         [Fact]
-        public async void Find()
+        public async Task Find()
         {
             // Create a couple releases one draft and the other published and then
             // verify that Find() works with different predicates.
