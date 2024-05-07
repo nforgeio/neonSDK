@@ -61,7 +61,7 @@ namespace Neon.Xunit
         public const string NeonCli = "neon-cli";
 
         /// <summary>
-        /// Identifies <b>neon-desktop</b> tests.
+        /// Identifies <b>NeonDESKTOP</b> tests.
         /// </summary>
         public const string NeonDesktop = "neon-desktop";
 

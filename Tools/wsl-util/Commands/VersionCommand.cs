@@ -36,7 +36,7 @@ namespace WslUtil
     public class VersionCommand : CommandBase
     {
         private const string usage = @"
-Prints the [neon-cli] version.
+Prints the NeonCLIENT version.
 
 USAGE:
 
