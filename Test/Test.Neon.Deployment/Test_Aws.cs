@@ -364,7 +364,7 @@ namespace TestDeployment
                 {
                     // Verify that [DownloadMultiPartAsync()] checks the [Content-Type] header.
 
-                    await Assert.ThrowsAsync<FormatException>(async () => await DeploymentHelper.DownloadMultiPartAsync("https://www.google.com", Path.Combine(tempFolder.Path, "test1.dat")));
+                    await Assert.ThrowsAsync<JsonReaderException>(async () => await DeploymentHelper.DownloadMultiPartAsync("https://www.google.com", Path.Combine(tempFolder.Path, "test1.dat")));
 
                     // Verify that [DownloadMultiPartAsync()] actually works.
 

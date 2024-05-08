@@ -302,13 +302,13 @@ namespace TestNeonService
 
                     // Verify Neon logging counters.
 
-                    Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Fatal""}"));
+                    Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Critical""}"));
                     Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Debug""}"));
                     Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Error""}"));
-                    Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Info""}"));
+                    Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Information""}"));
                     Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""None""}"));
                     Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Trace""}"));
-                    Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Warn""}"));
+                    Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Warning""}"));
                 }
             }
             finally
@@ -352,13 +352,13 @@ namespace TestNeonService
 
                     // Verify Neon logging counters.
 
-                    Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Fatal""}"));
+                    Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Critical""}"));
                     Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Debug""}"));
                     Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Error""}"));
-                    Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Info""}"));
+                    Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Information""}"));
                     Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""None""}"));
                     Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Trace""}"));
-                    Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Warn""}"));
+                    Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Warning""}"));
                 }
             }
             finally
@@ -402,13 +402,13 @@ namespace TestNeonService
 
                     // Verify Neon logging counters.
 
-                    Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Fatal""}"));
+                    Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Critical""}"));
                     Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Debug""}"));
                     Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Error""}"));
-                    Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Info""}"));
+                    Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Information""}"));
                     Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""None""}"));
                     Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Trace""}"));
-                    Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Warn""}"));
+                    Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Warning""}"));
                 }
             }
             finally
@@ -454,13 +454,13 @@ namespace TestNeonService
 
                     // Verify Neon logging counters.
 
-                    Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Fatal""}"));
+                    Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Critical""}"));
                     Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Debug""}"));
                     Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Error""}"));
-                    Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Info""}"));
+                    Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Information""}"));
                     Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""None""}"));
                     Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Trace""}"));
-                    Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Warn""}"));
+                    Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Warning""}"));
                 }
             }
             finally
@@ -551,13 +551,13 @@ namespace TestNeonService
 
             // Verify Neon logging counters.
 
-            Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Fatal""}"));
+            Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Critical""}"));
             Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Debug""}"));
             Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Error""}"));
-            Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Info""}"));
+            Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Information""}"));
             Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""None""}"));
             Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Trace""}"));
-            Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Warn""}"));
+            Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Warning""}"));
         }
 
         [Fact]
@@ -595,13 +595,13 @@ namespace TestNeonService
 
                     // Verify Neon logging counters.
 
-                    Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Fatal""}"));
+                    Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Critical""}"));
                     Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Debug""}"));
                     Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Error""}"));
-                    Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Info""}"));
+                    Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Information""}"));
                     Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""None""}"));
                     Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Trace""}"));
-                    Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Warn""}"));
+                    Assert.True(metrics.ContainsKey(@"neonsdk_log_events_total{level=""Warning""}"));
 
                     // Verify some .NET Runtime metrics
 

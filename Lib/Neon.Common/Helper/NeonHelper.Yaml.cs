@@ -51,6 +51,11 @@ namespace Neon.Common
             {
                 return value.ToLowerInvariant();
             }
+
+            public string Reverse(string value)
+            {
+                return value;
+            }
         }
 
         /// <summary>

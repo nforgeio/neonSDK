@@ -865,8 +865,8 @@ namespace Neon.Service
 
                     var loggingConfig = new ConfigurationBuilder()
                         .AddCustomEnvironmentVariables(
-                        prefix:         options.EnvironmentVariablePrefix,
-                        dotReplacement: options.EnvironmentVariableDotReplacement)
+                            prefix:         options.EnvironmentVariablePrefix,
+                            dotReplacement: options.EnvironmentVariableDotReplacement)
                         .Build();
                    
                     var loggerFactory = Microsoft.Extensions.Logging.LoggerFactory.Create(
@@ -973,9 +973,10 @@ namespace Neon.Service
 
                     // Give the derived service a chance to customize the trace pipeline.
 
-                    if (!OnTracerConfig(tracerProviderBuilder))
+                    if (!OnTracerConfig(tracerProviderBuilder) && traceCollectorUri != null)
                     {
-                        // Built-in configuration when the the derived class allows it.
+                        // Use a built-in configuration when the the derived class allows it
+                        // and we have a target collection URI.
 #if NET6_0_OR_GREATER
                         tracerProviderBuilder.AddOtlpExporter(
                             options =>
