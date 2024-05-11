@@ -128,7 +128,7 @@ namespace Neon.Deployment.CodeSigning
                 if (!string.IsNullOrEmpty(profile.CorrelationId))
                 {
                     File.WriteAllText(tempMetadataFile.Path,
-    $@"{{
+$@"{{
 ""Endpoint"": ""{profile.CodeSigningAccountEndpoint}"",
 ""CodeSigningAccountName"": ""{profile.CodeSigningAccountName}"",
 ""CertificateProfileName"": ""{profile.CertificateProfileName}"",
@@ -139,7 +139,7 @@ namespace Neon.Deployment.CodeSigning
                 else
                 {
                     File.WriteAllText(tempMetadataFile.Path,
-    $@"{{
+$@"{{
 ""Endpoint"": ""{profile.CodeSigningAccountEndpoint}"",
 ""CodeSigningAccountName"": ""{profile.CodeSigningAccountName}"",
 ""CertificateProfileName"": ""{profile.CertificateProfileName}""
