@@ -297,7 +297,7 @@ namespace Neon.Service
     ///     When present and <see cref="NeonServiceOptions.TracerProvider"/> is <c>null</c>, then
     ///     this specifies the URI for the OpenTelemetry Collector where the traces will be sent.
     ///     If this environment variable is not present and the service is running in Kubernetes,
-    ///     then we're going to assume that you're running in a NEONKUBE cluster and <see cref="NeonService"/>
+    ///     then we're going to assume that you're running in a NeonKUBE cluster and <see cref="NeonService"/>
     ///     will default to sending traces to the <see cref="NeonHelper.NeonKubeOtelCollectorUri"/>
     ///     (<b>http://grafana-agent-node.neon-monitor.svc.cluster.local</b>) service endpoint deployed to the same Kubernetes namespace.
     ///     </para>
@@ -608,7 +608,7 @@ namespace Neon.Service
         // WARNING:
         //
         // The code below should be manually synchronized with similar code in [KubeHelper]
-        // if NEONKUBE related folder names ever change in the future.
+        // if NeonKUBE related folder names ever change in the future.
 
         private static string   testFolder;
         private static string   cachedNeonKubeUserFolder;

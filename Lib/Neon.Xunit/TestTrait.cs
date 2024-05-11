@@ -39,7 +39,7 @@ namespace Neon.Xunit
         public const string Slow = "slow";
 
         /// <summary>
-        /// Set this as the category value for tests that require a NEONKUBE cluster.
+        /// Set this as the category value for tests that require a NeonKUBE cluster.
         /// </summary>
         public const string NeonKube = "neon-kube";
 

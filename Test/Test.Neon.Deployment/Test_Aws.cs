@@ -70,7 +70,7 @@ namespace TestDeployment
 
         /// <summary>
         /// Checks the AWS credentials for the non-CI environments.  This works because
-        /// NEONKUBE developers generally have their AWS credentials persisted as environment
+        /// NeonKUBE developers generally have their AWS credentials persisted as environment
         /// variables.  For CI environments, this is a NOP and we'll rely on fetching credentials
         /// from 1Password.
         /// </summary>

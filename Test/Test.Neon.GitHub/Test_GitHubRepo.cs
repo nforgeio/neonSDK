@@ -690,7 +690,7 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task Local_Open_NeonKube()
         {
-            // Verify that we can open the NEONKUBE repo when present
+            // Verify that we can open the NeonKUBE repo when present
             // at the standard location.
 
             var repoPath = Environment.GetEnvironmentVariable("NK_ROOT");

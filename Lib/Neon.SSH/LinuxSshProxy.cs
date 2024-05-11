@@ -807,7 +807,7 @@ rm {HostFolders.Home(Username)}/askpass
         /// <param name="aptGetTool">Optionally specifies a custom <b>apt-get</b> tool or script.</param>
         /// <remarks>
         /// <note>
-        /// NEONKUBE deploys a <b>safe-apt-get</b> script that handles situations where
+        /// NeonKUBE deploys a <b>safe-apt-get</b> script that handles situations where
         /// a package operation is already in progress (such as checking for daily updates).
         /// </note>
         /// </remarks>
@@ -842,7 +842,7 @@ rm {HostFolders.Home(Username)}/askpass
         /// <returns><c>true</c> when a reboot is required.</returns>
         /// <remarks>
         /// <note>
-        /// NEONKUBE deploys a <b>safe-apt-get</b> script that handles situations where
+        /// NeonKUBE deploys a <b>safe-apt-get</b> script that handles situations where
         /// a package operation is already in progress (such as checking for daily updates).
         /// </note>
         /// </remarks>
@@ -865,7 +865,7 @@ rm {HostFolders.Home(Username)}/askpass
         /// script to be used for performing the upgrade.
         /// </para>
         /// <note>
-        /// NEONKUBE deploys a <b>safe-apt-get</b> script that handles situations where
+        /// NeonKUBE deploys a <b>safe-apt-get</b> script that handles situations where
         /// a package operation is already in progress (such as checking for daily updates).
         /// We use this parameter to use this script.
         /// </note>
@@ -1494,7 +1494,7 @@ rm {HostFolders.Home(Username)}/askpass
             // this host.  Note that you must be logged in using username/password 
             // authentication for this to work.
             //
-            // NOTE: NEONKUBE cloud based images will already have SUDO prompting disabled
+            // NOTE: NeonKUBE cloud based images will already have SUDO prompting disabled
             //       as will VM based images for Hyper-V and XenServer and we initialize
             //       the VM images using password authentication, so this will work for
             //       creating the images as well.
@@ -2758,7 +2758,7 @@ echo $? > {cmdFolder}/exit
         /// <param name="aptGetTool">Optionally specifies a custom <b>apt-get</b> tool or script.</param>
         /// <remarks>
         /// <note>
-        /// NEONKUBE deploys a <b>safe-apt-get</b> script that handles situations where
+        /// NeonKUBE deploys a <b>safe-apt-get</b> script that handles situations where
         /// a package operation is already in progress (such as checking for daily updates).
         /// </note>
         /// </remarks>

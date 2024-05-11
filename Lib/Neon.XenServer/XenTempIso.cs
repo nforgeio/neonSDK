@@ -36,7 +36,7 @@ namespace Neon.XenServer
 {
     /// <summary>
     /// Holds information about a temporary ISO.  These are created temporarily and 
-    /// used during NEONKUBE cluster setup to inject a configuration script into a new 
+    /// used during NeonKUBE cluster setup to inject a configuration script into a new 
     /// node VM during cluster setup.  See <see cref="XenClient.CreateTempIso(string, string)"/>
     /// for more information.
     /// </summary>

@@ -97,7 +97,7 @@ try
 
     $config = "Release"
 
-    # Load the library and NEONKUBE versions.
+    # Load the library and NeonKUBE versions.
 
     $msbuild        = $env:MSBUILDPATH
     $neonBuild      = "$env:NF_ROOT\ToolBin\neon-build\neon-build.exe"

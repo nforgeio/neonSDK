@@ -546,7 +546,7 @@ namespace TestCommon
             Assert.Equal("127.0.0.1", NetHelper.GetReachableHost(new string[] { "127.0.0.1", "127.0.0.2", "127.0.0.3" }).Address.ToString());
             Assert.Equal("127.0.0.1", NetHelper.GetReachableHost(new string[] { "127.0.0.1", "127.0.0.2", "127.0.0.3" }, ReachableHostMode.ReturnFirst).Host);
 
-            // The [100.64.0.0/20] subnet is never supposed to be routable although NEONKUBE
+            // The [100.64.0.0/20] subnet is never supposed to be routable although NeonKUBE
             // does use 100.64.0.0/24 for NEONDESKTOP (an other internal clusters) so we'll
             // use some addresses at the upper end of 100.64.0.0/20.
 
@@ -608,7 +608,7 @@ namespace TestCommon
                 TestHelper.AssertEquivalent(new string[] { "127.0.0.1", "127.0.0.2", "127.0.0.3" }, NetHelper.GetReachableHosts(new string[] { "127.0.0.1", "127.0.0.2", "127.0.0.3" }).Select(rh => rh.Address.ToString()));
             }
 
-            // The [100.64.0.0/20] subnet is never supposed to be routable although NEONKUBE
+            // The [100.64.0.0/20] subnet is never supposed to be routable although NeonKUBE
             // does use 100.64.0.0/24 for NEONDESKTOP (an other internal clusters) so we'll
             // use some addresses at the upper end of 100.64.0.0/20 instead.
 
