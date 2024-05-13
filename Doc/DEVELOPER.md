@@ -236,6 +236,10 @@ Follow the steps below to configure a development or test workstation:
 
 29. *Optional:* Create the **EDITOR** environment variable and point it to `C:\Program Files\Notepad++\notepad++.exe` or your favorite text editor executable.
 
-30: *Optional:* Maintainers will need to install **AWS client version 2** from: [here](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2-windows.html)
+30. *Optional:* Potentially useful Visual Studio extensions
 
-31: *Optional:* Maintainers authorized to perform releases will need to follow the README.md instructions in the NeonCLOUD repo to configure credentials for the GitHub Releases and the Container Registry.
+    * **Disasmo:** Displays various levels of assembly code (IL, JIT,...) for methods within your project.
+
+31: *Optional:* Maintainers will need to install **AWS client version 2** from: [here](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2-windows.html)
+
+32: *Optional:* Maintainers authorized to perform releases will need to follow the README.md instructions in the NeonCLOUD repo to configure credentials for the GitHub Releases and the Container Registry.
