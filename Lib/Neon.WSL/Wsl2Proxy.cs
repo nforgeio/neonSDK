@@ -54,7 +54,7 @@ namespace Neon.WSL
     /// <para>
     /// The <see cref="Wsl2Proxy"/> class wraps the <b>wsl.exe</b> tool such
     /// that Linux commands can be be invoked via code running on Windows.  We
-    /// currently use this for managing WSL2 for a local NEONDESKTOP cluster.
+    /// currently use this for managing WSL2 for a local NeonDESKTOP cluster.
     /// </para>
     /// <para><b>Managing WSL2 Distros</b></para>
     /// <para>

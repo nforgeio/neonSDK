@@ -4,7 +4,7 @@
         <TargetFramework>netstandard2.0</TargetFramework>
         <OutputType>Library</OutputType>
         <RootNamespace>Neon.BuildInfo</RootNamespace>
-        <Description>INTERNAL USE ONLY: NEONSDK build information</Description>
+        <Description>INTERNAL USE ONLY: NeonSDK build information</Description>
         <IsPackable>true</IsPackable>
         <PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.BuildInfo/README.md</PackageProjectUrl>
         <RepositoryType>git</RepositoryType>

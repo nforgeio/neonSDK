@@ -35,7 +35,7 @@ using Xunit;
 namespace Neon.Xunit
 {
     /// <summary>
-    /// Enumerates the NEONSDK related xUnit test collections.
+    /// Enumerates the NeonSDK related xUnit test collections.
     /// </summary>
     public static class TestCollection
     {

@@ -16,7 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Creates a ZIP archive that includes all of the NEONSDK source files.
+# Creates a ZIP archive that includes all of the NeonSDK source files.
 # This deletes all build binary files as well as all other files 
 # (e.g. Go vendor files) that are not part of the source tree before
 # generating the archive.
@@ -28,11 +28,11 @@
 #       -target PATH    - optionally specifies where the archive file
 #                         should be written.  This defaults to:
 #                       
-#                           C:\NEONSDK.zip
+#                           C:\NeonSDK.zip
 
 param 
 (
-	$target = "C:\NEONSDK.zip"
+	$target = "C:\NeonSDK.zip"
 )
 
 # Import the global solution include file.

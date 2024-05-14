@@ -216,7 +216,7 @@ namespace Neon.Service
     /// The <see cref="NeonService"/> constructor initializes the OpenTelemetry logging pipeline
     /// by default, initializing the <see cref="Logger"/> property as well as initializing 
     /// <see cref="TelemetryHub.LoggerFactory"/> and adding the logger factor and logger to
-    /// <see cref="NeonHelper.ServiceContainer"/>, making them available to NEONSDK libraries
+    /// <see cref="NeonHelper.ServiceContainer"/>, making them available to NeonSDK libraries
     /// so they may emit logs.  The logger created by <see cref="NeonService"/> in this case
     /// will be configured to write JSON formatted logs to the process standard output stream.
     /// </para>
@@ -2150,9 +2150,9 @@ namespace Neon.Service
         /// <exception cref="FormatException">Thrown for file formatting problems.</exception>
         /// <remarks>
         /// <para>
-        /// The default password provider assumes that you have NEONDESKTOP installed and may be
+        /// The default password provider assumes that you have NeonDESKTOP installed and may be
         /// specifying passwords in the <b>~/.neonkube/passwords</b> folder (relative to the current
-        /// user's home directory).  This will be harmless if you don't have NEONDESKTOP installed;
+        /// user's home directory).  This will be harmless if you don't have NeonDESKTOP installed;
         /// it just probably won't find any passwords.
         /// </para>
         /// <para>
@@ -2320,9 +2320,9 @@ namespace Neon.Service
         /// <exception cref="FileNotFoundException">Thrown if there's no file at <paramref name="physicalPath"/>.</exception>
         /// <remarks>
         /// <para>
-        /// The default password provider assumes that you have NEONDESKTOP installed and may be
+        /// The default password provider assumes that you have NeonDESKTOP installed and may be
         /// specifying passwords in the <b>~/.neonkube/passwords</b> folder (relative to the current
-        /// user's home directory).  This will be harmless if you don't have NEONDESKTOP installed;
+        /// user's home directory).  This will be harmless if you don't have NeonDESKTOP installed;
         /// it just probably won't find any passwords.
         /// </para>
         /// <para>

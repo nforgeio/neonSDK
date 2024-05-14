@@ -16,7 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Performs a clean build of the NEONSDK solution and publishes binaries
+# Performs a clean build of the NeonSDK solution and publishes binaries
 # to the [$/build] folder.
 #
 # USAGE: pwsh -f neonsdk-builder.ps1 [OPTIONS]

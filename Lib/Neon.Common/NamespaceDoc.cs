@@ -27,7 +27,7 @@ namespace Neon.Common
 {
     /// <summary>
     /// This namespace includes generally useful types that are consumed by
-    /// the remaining NEONSDK libraries and can also be useful for
+    /// the remaining NeonSDK libraries and can also be useful for
     /// end-user applications.
     /// </summary>
     [System.Runtime.CompilerServices.CompilerGenerated]

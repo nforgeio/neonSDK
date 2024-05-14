@@ -38,7 +38,7 @@ namespace NeonBuild
 
         private static readonly string usage =
 $@"
-Internal NEONSDK project build related utilities: v{version}
+Internal NeonSDK project build related utilities: v{version}
 
 NOTE: Command line arguments and options may include references to 
       profile values, secrets and environment variables, like:
@@ -351,7 +351,7 @@ ARGUMENTS:
 
                 if (string.IsNullOrEmpty(Program.NeonSdkRepoPath) || !Directory.Exists(Program.NeonSdkRepoPath))
                 {
-                    Console.Error.WriteLine("*** ERROR: NF_ROOT environment variable does not reference the local NEONSDK repostory.");
+                    Console.Error.WriteLine("*** ERROR: NF_ROOT environment variable does not reference the local NeonSDK repostory.");
                     Program.Exit(1);
                 }
 
@@ -516,7 +516,7 @@ ARGUMENTS:
 
                             // Note that the glob pattern will match files named like:
                             //
-                            //      C:/src/NEONSDK/Lib/Neon.Common/Collections/ObjectDictionary.cs
+                            //      C:/src/NeonSDK/Lib/Neon.Common/Collections/ObjectDictionary.cs
                             //
                             // which we don't want to remove.  We're going to mitigate this by 
                             // ensuring that the file name includes an "/obj/" directory in
@@ -699,7 +699,7 @@ ARGUMENTS:
         }
 
         /// <summary>
-        /// Returns the path to the NEONSDK local repository root folder.
+        /// Returns the path to the NeonSDK local repository root folder.
         /// </summary>
         public static string NeonSdkRepoPath { get; private set; }
 

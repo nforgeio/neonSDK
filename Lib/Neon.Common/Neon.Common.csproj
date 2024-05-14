@@ -4,7 +4,7 @@
         <TargetFramework>netstandard2.0</TargetFramework>
         <OutputType>Library</OutputType>
         <RootNamespace>Neon.Common</RootNamespace>
-        <Description>Useful classes used by other NEONSDK packages as well as NEONFORGE applications</Description>
+        <Description>Useful classes used by other NeonSDK packages as well as NEONFORGE applications</Description>
         <PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
         <IsPackable>true</IsPackable>
         <PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.Common/README.md</PackageProjectUrl>
