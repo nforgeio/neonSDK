@@ -1,7 +1,7 @@
 #!/bin/sh
 #------------------------------------------------------------------------------
 # FILE:         docker-entrypoint.sh
-# CONTRIBUTOR:  Jeff Lill
+# CONTRIBUTOR:  NEONFORGE Team
 # COPYRIGHT:    Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 
 # Add the root directory to the PATH.

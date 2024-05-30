@@ -1,6 +1,6 @@
 #------------------------------------------------------------------------------
 # FILE:         Dockerfile
-# CONTRIBUTOR:  Jeff Lill
+# CONTRIBUTOR:  NEONFORGE Team
 # COPYRIGHT:    Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,7 +26,7 @@
 ARG         ORGANIZATION
 ARG         BRANCH
 FROM        alpine:latest
-MAINTAINER  jeff@lill.io
+MAINTAINER  devops@neonforge.com
 STOPSIGNAL  SIGTERM
 
 # Environment

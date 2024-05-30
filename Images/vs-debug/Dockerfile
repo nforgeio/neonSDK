@@ -1,6 +1,6 @@
 #------------------------------------------------------------------------------
 # FILE:         Dockerfile
-# CONTRIBUTOR:  Jeff Lill
+# CONTRIBUTOR:  NEONFORGE Team
 # COPYRIGHT:    Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,7 @@
 # limitations under the License.
 
 FROM        mcr.microsoft.com/dotnet/sdk:7.0
-MAINTAINER  jeff@lill.io
+MAINTAINER  devops@neonforge.com
 STOPSIGNAL  SIGTERM
 
 #------------------------------------------------------------------------------

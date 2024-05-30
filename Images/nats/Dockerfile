@@ -1,6 +1,6 @@
 #------------------------------------------------------------------------------
 # FILE:         Dockerfile
-# CONTRIBUTOR:  Jeff Lill
+# CONTRIBUTOR:  NEONFORGE Team
 # COPYRIGHT:    Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,7 +23,7 @@
 
 ARG         VERSION
 FROM        nats:${VERSION}-linux
-MAINTAINER  jeff@lill.io
+MAINTAINER  devops@neonforge.com
 STOPSIGNAL  SIGTERM
 
 # Expose client, management, and cluster ports
