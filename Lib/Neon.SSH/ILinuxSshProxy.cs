@@ -627,7 +627,6 @@ namespace Neon.SSH
         /// </para>
         /// <para>
         /// Commands may not longer than <see cref="LinuxSshProxy.MaxCommandLength"/> characters.
-        /// Commands may not longer than <see cref="LinuxSshProxy.MaxCommandLength"/> characters.
         /// Note that the command length includes the string passed as well as an additional
         /// internal command configuring the PATH.
         /// </para>
