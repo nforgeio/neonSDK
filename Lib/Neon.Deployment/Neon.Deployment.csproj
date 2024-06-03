@@ -17,18 +17,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <None Remove="Resources\Windows\signee.exe" />
-    </ItemGroup>
-
-    <ItemGroup>
         <Compile Include="..\Neon.BuildInfo\AssemblyAttributes.cs" Link="Properties\AssemblyAttributes.cs" />
         <Compile Include="..\Neon.BuildInfo\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <EmbeddedResource Include="Resources\Windows\signee.exe">
-        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-      </EmbeddedResource>
     </ItemGroup>
 
     <ItemGroup>

@@ -42,8 +42,11 @@ namespace Neon.Deployment.CodeSigning
     /// </summary>
     public static class CodeSigner
     {
+        private const string WindowsBuildToolsVersion   = "10.0.26100.1";
+        private const string AzureCodeSigningDllVersion = "1.0.60";
+
         /// <summary>
-        /// Verifies that the current machine is ready for code signing using a USB code signing certificate and the Microsoft Built Tools <b>signtool</b> program.
+        /// Verifies that the current machine is ready for code signing using a USB code signing token and the Microsoft Built Tools <b>signtool</b> program.
         /// </summary>
         /// <param name="profile">Specifies a <see cref="UsbTokenProfile"/> with the required signing prarameters.</param>
         /// <returns><c>true</c> when the signing token is available and the profile ius correct.</returns>
@@ -81,6 +84,74 @@ namespace Neon.Deployment.CodeSigning
         }
 
         /// <summary>
+        /// Returns the path to the <b>SignTool</b> located within the specified installation folder.
+        /// </summary>
+        /// <param name="installFolder">Specifies the installation folder.</param>
+        /// <returns>Tha path.</returns>
+        private static string GetSignToolPath(string installFolder)
+        {
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(installFolder), nameof(installFolder));
+
+            var version = Version.Parse(WindowsBuildToolsVersion);
+
+            return Path.Combine(installFolder, $"Microsoft.Windows.SDK.BuildTools.{WindowsBuildToolsVersion}", "bin", $"{version.Major}.{version.Minor}.{version.Build}.0", "x64", "signtool.exe");
+        }
+
+        /// <summary>
+        /// Returns the path to the <b>Azure signing DLL</b> located within the specified installation folder.
+        /// </summary>
+        /// <param name="installFolder">Specifies the installation folder.</param>
+        /// <returns>Tha path.</returns>
+        private static string GetAzureCodeSignDllPath(string installFolder)
+        {
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(installFolder), nameof(installFolder));
+
+            return Path.Combine(installFolder, "AzureCodeSigning", "bin", "x64", "Azure.CodeSigning.Dlib.dll");
+        }
+
+        /// <summary>
+        /// Checks the NeonSDK Azure code signing tool cache folder to see if it's up-to-date,
+        /// returning <c>true</c> when it is current otherwise this method clears
+        /// the folder and returns, <c>false</c>, indicating that the signing client
+        /// binaries need to be installed.
+        /// </summary>
+        /// <returns><c>true</c> when the cache folder is up-to-date.</returns>
+        private static bool CheckAzureSignToolCache()
+        {
+            // We're going to use the [NeonGelper.NeonSdkCodeSigningFolder] folder
+            // to download and cache the client-side tools and DLLs required for Azure
+            // code signing so we don't have to download this for every signing operation.
+            // 
+            // This will be downloaded to the [~/.neonsdk/codesigning] folder, which
+            // will be created if it doen't already exist.  We're also going to write a
+            // [README.md] file explaining what this folder is for and we're also going to
+            // write a [version.txt] file we'll use to detect when we need to clear the
+            // cache folder to download more recent versions of these tools.
+
+            if (File.Exists(GetSignToolPath(NeonHelper.NeonSdkAzureCodeSigningFolder)) &&
+                File.Exists(GetAzureCodeSignDllPath(NeonHelper.NeonSdkAzureCodeSigningFolder)))
+            {
+                return true;
+            }
+            else
+            {
+                // Clear the install folder and write the README.md readying the
+                // folder for a subsequent installation.
+
+                if (Directory.Exists(NeonHelper.NeonSdkAzureCodeSigningFolder))
+                {
+                    Directory.CreateDirectory(NeonHelper.NeonSdkAzureCodeSigningFolder);
+                }
+
+                File.WriteAllText(Path.Combine(NeonHelper.NeonSdkAzureCodeSigningFolder, "README.md"),
+@"This folder is used by NeonSDK to cache client code required to use Azure Code Signing
+to sign application binaries.
+");
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Signs an EXE, DLL or MSI file using Azure Code Signing using the <b>AzureSignTool</b>.
         /// </summary>
         /// <param name="profile">Specifies a <see cref="UsbTokenProfile"/> with the required signing prarameters.</param>
@@ -91,14 +162,14 @@ namespace Neon.Deployment.CodeSigning
             Covenant.Requires<ArgumentNullException>(profile != null, nameof(profile));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(targetPath), nameof(targetPath));
 
-            // Verify that a .NET CORE 6.x runtime is installed.
+            // Verify that a .NET CORE 8.x runtime is installed.
 
             var response = NeonHelper.ExecuteCapture("dotnet", new object[] { "--list-runtimes" })
                 .EnsureSuccess();
 
-            if (!response.OutputText.ToLines().Any(line => line.StartsWith("Microsoft.NETCore.App 6.")))
+            if (!response.OutputText.ToLines().Any(line => line.StartsWith("Microsoft.NETCore.App 8.")))
             {
-                throw new NotSupportedException(".NET 6.x runtime is required to use Azure Code Signing.");
+                throw new NotSupportedException(".NET 8.x runtime is required to use Azure Code Signing.");
             }
 
             // We're going to use the [NeonGelper.NeonSdkAzureCodeSigningFolder] folder
@@ -107,17 +178,14 @@ namespace Neon.Deployment.CodeSigning
             // 
             // This will be downloaded to the [~/.neonsdk/codesigning-azure] folder, which
             // will be created if it doesn't already exist.  We're also going to write a
-            // [README.md] file explaining what this folder is for and we're also going to
-            // write a [version.txt] file we'll use to detect when we need to clear the
-            // cache folder to download more recent versions of these tools.
+            // [README.md] file explaining what this folder is for.
 
-            var signingCacheFolder = NeonHelper.NeonSdkAzureCodeSigningFolder;
             var toolsAlreadyCached = CheckAzureSignToolCache();
 
-            // Install the SignTool and the signing DLL to the temp folder.
+            // Install the SignTool and the signing DLL to the cache folder.
 
-            var signToolPath = InstallSignTool(signingCacheFolder, toolsAlreadyCached);
-            var signDllPath  = InstallSigningDll(signingCacheFolder, toolsAlreadyCached);
+            var signToolPath = InstallSignTool(NeonHelper.NeonSdkAzureCodeSigningFolder, toolsAlreadyCached);
+            var signDllPath  = InstallSigningDll(NeonHelper.NeonSdkAzureCodeSigningFolder, toolsAlreadyCached);
 
             // Create the metadata file.
 
@@ -186,6 +254,44 @@ $@"{{
         }
 
         /// <summary>
+        /// Checks the NeonSDK USB Token signing tool cache folder to see if it's up-to-date,
+        /// returning <c>true</c> when it is current otherwise this method clears
+        /// the folder and returns, <c>false</c>, indicating that the signing client
+        /// binaries need to be installed.
+        /// </summary>
+        /// <returns><c>true</c> when the cache folder is up-to-date.</returns>
+        private static bool CheckUsbSignToolCache()
+        {
+            // We're going to use the [NeonHGelper.NeonSdkUsbCodeSigningFolder] folder
+            // to download and cache the client-side tools required for USB Token code
+            // signing so we don't have to download this for every signing operation.
+            // 
+            // This will be downloaded to the [~/.neonsdk/codesigning] folder, which
+            // will be created if it doesn't already exist.  We're also going to write a
+            // [README.md] file explaining what this folder is for.
+
+            if (File.Exists(GetSignToolPath(NeonHelper.NeonSdkUsbCodeSigningFolder)))
+            {
+                return true;
+            }
+            else
+            {
+                // Clear the install folder and write the README.md readying the
+                // folder for installation.
+
+                if (Directory.Exists(NeonHelper.NeonSdkUsbCodeSigningFolder))
+                {
+                    Directory.CreateDirectory(NeonHelper.NeonSdkUsbCodeSigningFolder);
+                }
+
+                File.WriteAllText(Path.Combine(NeonHelper.NeonSdkUsbCodeSigningFolder, "README.md"),
+@"This folder is used by NeonSDK to cache client code required to use USB Code Signing
+to sign application binaries.
+");
+                return false;
+            }
+        }
+        /// <summary>
         /// Signs an EXE, DLL or MSI file using a USB code signing certificate and the <b>SignTool</b> from the Microsoft Built Tools.
         /// </summary>
         /// <param name="profile">Specifies a <see cref="UsbTokenProfile"/> with the required signing prarameters.</param>
@@ -222,13 +328,12 @@ $@"{{
             // write a [version.txt] file we'll use to detect when we need to clear the
             // cache folder to download more recent versions of these tools.
 
-            var signingCacheFolder = NeonHelper.NeonSdkUsbCodeSigningFolder;
             var toolsAlreadyCached = CheckUsbSignToolCache();
 
             using (var tempCertFile = new TempFile(suffix: ".cer"))
             {
                 var tempCertPath = tempCertFile.Path;
-                var signToolPath = InstallSignTool(signingCacheFolder, toolsAlreadyCached);
+                var signToolPath = InstallSignTool(NeonHelper.NeonSdkAzureCodeSigningFolder, toolsAlreadyCached);
 
                 File.WriteAllBytes(tempCertPath, Convert.FromBase64String(certBase64));
 
@@ -249,86 +354,6 @@ $@"{{
         }
 
         /// <summary>
-        /// Checks the NeonSDK USB signing tool cache folder to see if it's up-to-date,
-        /// returning <c>true</c> when it is current otherwise this method clears
-        /// the folder and returns, <c>false</c>, indicating that the signing client
-        /// binaries need to be installed.
-        /// </summary>
-        /// <returns><c>true</c> when the cache folder is up-to-date.</returns>
-        private static bool CheckAzureSignToolCache()
-        {
-            // We're going to use the [NeonGelper.NeonSdkCodeSigningFolder] folder
-            // to download and cache the client-side tools and DLLs required for Azure
-            // code signing so we don't have to download this for every signing operation.
-            // 
-            // This will be downloaded to the [~/.neonsdk/codesigning] folder, which
-            // will be created if it doen't already exist.  We're also going to write a
-            // [README.md] file explaining what this folder is for and we're also going to
-            // write a [version.txt] file we'll use to detect when we need to clear the
-            // cache folder to download more recent versions of these tools.
-
-            const string cachedToolsVersion = "azure-1";
-
-            var signingCacheFolder = NeonHelper.NeonSdkAzureCodeSigningFolder;
-            var versionPath        = Path.Combine(signingCacheFolder, "version.txt");
-
-            if (!File.Exists(versionPath) || File.ReadAllText(versionPath).Trim() != cachedToolsVersion)
-            {
-                NeonHelper.DeleteFolderContents(versionPath);
-                File.WriteAllLines(versionPath, new string[] { cachedToolsVersion });
-                File.WriteAllText(Path.Combine(signingCacheFolder, "README.md"),
-@"This folder is used by NeonSDK to cache client code required to use Azure Code Signing
-to sign application binaries.
-");
-                return false;
-            }
-            else
-            {
-                return true;
-            }
-        }
-
-        /// <summary>
-        /// Checks the NeonSDK Azure signing tool cache folder to see if it's up-to-date,
-        /// returning <c>true</c> when it is current otherwise this method clears
-        /// the folder and returns, <c>false</c>, indicating that the signing client
-        /// binaries need to be installed.
-        /// </summary>
-        /// <returns><c>true</c> when the cache folder is up-to-date.</returns>
-        private static bool CheckUsbSignToolCache()
-        {
-            const string cachedToolsVersion = "usb-1";
-
-            // We're going to use the [NeonGelper.NeonSdkCodeSigningFolder] folder
-            // to download and cache the client-side tools and DLLs required for Azure
-            // code signing so we don't have to download this for every signing operation.
-            // 
-            // This will be downloaded to the [~/.neonsdk/codesigning] folder, which
-            // will be created if it doen't already exist.  We're also going to write a
-            // [README.md] file explaining what this folder is for and we're also going to
-            // write a [version.txt] file we'll use to detect when we need to clear the
-            // cache folder to download more recent versions of these tools.
-
-            var signingCacheFolder = NeonHelper.NeonSdkUsbCodeSigningFolder;
-            var versionPath        = Path.Combine(signingCacheFolder, "version.txt");
-
-            if (!File.Exists(versionPath) || File.ReadAllText(versionPath).Trim() != cachedToolsVersion)
-            {
-                NeonHelper.DeleteFolderContents(versionPath);
-                File.WriteAllLines(versionPath, new string[] { cachedToolsVersion });
-                File.WriteAllText(Path.Combine(signingCacheFolder, "README.md"),
-@"This folder is used by NeonSDK to cache client code required to use USB Code Signing
-to sign application binaries.
-");
-                return false;
-            }
-            else
-            {
-                return true;
-            }
-        }
-
-        /// <summary>
         /// Downloads and installs the <b>SignTool</b> binary.
         /// </summary>
         /// <param name="installFolder">The folder where the tool will be installed.</param>
@@ -344,8 +369,6 @@ to sign application binaries.
             // within the folder specified which creates some subfolders.  The method
             // returns the path to the Windows x64 version of the SignTool binary.
 
-            const string buildToolsVersion = "10.0.20348.19";
-
             if (!toolsAlreadyCached)
             {
                 NeonHelper.ExecuteCapture("nuget",
@@ -353,18 +376,17 @@ to sign application binaries.
                     {
                         "install",
                         "Microsoft.Windows.SDK.BuildTools",
-                        "-Version", buildToolsVersion,
+                        "-Version", WindowsBuildToolsVersion,
                         "-o", installFolder
                     })
                     .EnsureSuccess();
             }
 
-            var version      = Version.Parse(buildToolsVersion);
-            var signToolPath = Path.Combine(installFolder, $"Microsoft.Windows.SDK.BuildTools.{buildToolsVersion}", "bin", $"{version.Major}.{version.Minor}.{version.Build}.0", "x64", "signtool.exe");
+            var signToolPath = GetSignToolPath(installFolder);
 
             if (!File.Exists(signToolPath))
             {
-                throw new FileNotFoundException($"SignTool not found: {signToolPath}");
+                throw new FileNotFoundException($"SignTool not found at: {signToolPath}");
             }
 
             return signToolPath;
@@ -389,9 +411,8 @@ to sign application binaries.
 
             // Download the [Azure.CodeSigning.Dlib] ZIP file to the install folder. 
 
-            const string version = "1.0.28";
-            const string zipFile = $"Azure.CodeSigning.Dlib.{version}.zip";
-            const string zipUri  = $"https://neon-public.s3.us-west-2.amazonaws.com/build-assets/{zipFile}";
+            const string zipFile = $"Azure.CodeSigning.Dlib.{AzureCodeSigningDllVersion}.zip";
+            const string zipUri  = $"https://www.nuget.org/api/v2/package/Microsoft.Trusted.Signing.Client/{AzureCodeSigningDllVersion}";
 
             if (!toolsAlreadyCached)
             {
@@ -420,14 +441,14 @@ to sign application binaries.
 
             if (!File.Exists(dllPath))
             {
-                throw new FileNotFoundException($"Signing DLL not found: {dllPath}");
+                throw new FileNotFoundException($"Signing DLL not found at: {dllPath}");
             }
 
             return dllPath;
         }
 
         /// <summary>
-        /// Extracts the <b>signee.exe</b> binary from the embedded resource
+        /// Extracts the <b>SignTool.exe</b> binary from the embedded resource
         /// to the specified path.
         /// </summary>
         /// <param name="targetPath">The target path for the binary.</param>
@@ -437,7 +458,7 @@ to sign application binaries.
 
             var assembly = Assembly.GetExecutingAssembly();
 
-            using (var toolStream = assembly.GetManifestResourceStream("Neon.Deployment.Resources.Windows.signee.exe"))
+            using (var toolStream = assembly.GetManifestResourceStream("Neon.Deployment.Resources.Windows.SignTool.exe"))
             {
                 using (var output = File.Create(targetPath))
                 {
