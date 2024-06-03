@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 // FILE:        Program.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ namespace WslUtil
         /// <param name="args">Command line arguments.</param>
         public static async Task<int> Main(string[] args)
         {
-            string usage = $@"
+            const string usage = $@"
 wsl-util [v{Program.Version}]
 {Build.Copyright}
 
@@ -76,6 +76,8 @@ COMMANDS:
                 ICommand command;
 
                 CommandLine = new CommandLine(args);
+
+                Console.WriteLine(CommandLine.ToFormatted(Program.Name, withBars: true));
 
                 if (CommandLine.HasHelpOption || CommandLine.Arguments.Length == 0)
                 {

@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 // FILE:        TailwindExtensions.cs
 // CONTRIBUTOR: Marcus Bowyer
-// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -50,10 +50,10 @@ namespace Neon.Tailwind
 
             var enviromentPath = System.Environment.GetEnvironmentVariable("PATH");
             var paths          = enviromentPath.Split(';');
-            var executablePath = paths.Where(x => File.Exists(Path.Combine(x, "npx.exe"))
-                                                    || File.Exists(Path.Combine(x, "npx.cmd"))
-                                                    || File.Exists(Path.Combine(x, "npx")))
-                                            .FirstOrDefault();
+            var executablePath = paths.Where(path => File.Exists(Path.Combine(path, "npx.exe")) ||
+                                                     File.Exists(Path.Combine(path, "npx.cmd")) ||
+                                                     File.Exists(Path.Combine(path, "npx")))
+                                    .FirstOrDefault();
             Regex reg          = new Regex(@"([\/\\](\w+\.\w+)?)*(npx.?(exe|cmd|))$");
             var executable     = Directory.GetFiles(executablePath, "npx.cmd").Where(path => reg.IsMatch(path)).FirstOrDefault();
 
@@ -86,10 +86,10 @@ namespace Neon.Tailwind
 
             var enviromentPath = System.Environment.GetEnvironmentVariable("PATH");
             var paths          = enviromentPath.Split(';');
-            var executablePath = paths.Where(x => File.Exists(Path.Combine(x, "npm.exe"))
-                                                    || File.Exists(Path.Combine(x, "npm.cmd"))
-                                                    || File.Exists(Path.Combine(x, "npm")))
-                                            .FirstOrDefault();
+            var executablePath = paths.Where(path => File.Exists(Path.Combine(path, "npm.exe")) ||
+                                                     File.Exists(Path.Combine(path, "npm.cmd")) ||
+                                                     File.Exists(Path.Combine(path, "npm")))
+                                    .FirstOrDefault();
             Regex reg          = new Regex(@"([\/\\](\w+\.\w+)?)*(npm.?(exe|cmd|))$");
             var executable     = Directory.GetFiles(executablePath, "npm.cmd").Where(path => reg.IsMatch(path)).FirstOrDefault();
 

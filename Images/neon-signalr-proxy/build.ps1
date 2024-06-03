@@ -1,12 +1,10 @@
 #Requires -Version 7.1.3 -RunAsAdministrator
 #------------------------------------------------------------------------------
 # FILE:         build.ps1
-# CONTRIBUTOR:  Marcus Bowyer
-# COPYRIGHT:    Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
-#
-# Builds the Neon [neon-signalr-proxy] image.
-#
-# USAGE: pwsh -f build.ps1 REGISTRY VERSION TAG
+# CONTRIBUTOR:  NEONFORGE Team
+# COPYRIGHT:    Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
+
+# Builds the container image.
 
 param 
 (

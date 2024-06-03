@@ -1,7 +1,7 @@
 // -----------------------------------------------------------------------------
 // FILE:	    NeonExtendedHelper.cs
 // CONTRIBUTOR: NEONFORGE Team
-// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License").
 // You may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ namespace Neon.Common
             // nuget package is over 300K and I didn't want to incur the that much overhead
             // for something that will be rarely used.
             //
-            // Perhaps we should add a [Neon.Common.Extensions] library to NEONSDK.
+            // Perhaps we should add a [Neon.Common.Extensions] library to NeonSDK.
 
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(socketPath), nameof(socketPath));
 

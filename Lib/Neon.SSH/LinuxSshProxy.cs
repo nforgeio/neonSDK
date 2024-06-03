@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 // FILE:        LinuxSshProxy.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -85,6 +85,18 @@ namespace Neon.SSH
         /// at the same time to the same target computer.
         /// </summary>
         private static Dictionary<string, object> connectLocks = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
+
+        /// <summary>
+        /// <para>
+        /// Specifies the maximum length of command strings passed to the non-bundle
+        /// </para>
+        /// <note>
+        /// Note that the command length includes the user's string passed as well as
+        /// an additional internal command configuring the PATH.
+        /// </note>
+        /// <c>RunCommand()</c> and <c>SudoCommand()</c> methods.
+        /// </summary>
+        public const int MaxCommandLength = 2048;
 
         /// <summary>
         /// Returns the object to be used to when establishing connections to
@@ -792,7 +804,14 @@ rm {HostFolders.Home(Username)}/askpass
         /// <summary>
         /// Checks for and installs any new root certificates.
         /// </summary>
-        public void UpdateRootCertificates()
+        /// <param name="aptGetTool">Optionally specifies a custom <b>apt-get</b> tool or script.</param>
+        /// <remarks>
+        /// <note>
+        /// NeonKUBE deploys a <b>safe-apt-get</b> script that handles situations where
+        /// a package operation is already in progress (such as checking for daily updates).
+        /// </note>
+        /// </remarks>
+        public void UpdateRootCertificates(string aptGetTool = "apt-get")
         {
             // We're going to use [rootCertsUpdated] instance variable to avoid the overhead
             // of checking for and updating root certificates multiple times for cluster nodes.
@@ -807,8 +826,10 @@ rm {HostFolders.Home(Username)}/askpass
             // cluster install because the our node images will be archived for some time
             // after we create them.
 
-            SudoCommand("safe-apt-get update");
-            SudoCommand("safe-apt-get install ca-certificates -yq");
+            SudoCommand($"{aptGetTool} update")
+                .EnsureSuccess();
+            SudoCommand($"{aptGetTool} install ca-certificates -yq")
+                .EnsureSuccess();
 
             rootCertsUpdated = true;
         }
@@ -817,21 +838,48 @@ rm {HostFolders.Home(Username)}/askpass
         /// Patches Linux on the node applying all outstanding security patches but without 
         /// upgrading the Linux distribution.
         /// </summary>
+        /// <param name="aptGetTool">Optionally specifies a custom <b>apt-get</b> tool or script.</param>
         /// <returns><c>true</c> when a reboot is required.</returns>
-        public bool PatchLinux()
+        /// <remarks>
+        /// <note>
+        /// NeonKUBE deploys a <b>safe-apt-get</b> script that handles situations where
+        /// a package operation is already in progress (such as checking for daily updates).
+        /// </note>
+        /// </remarks>
+        public bool PatchLinux(string aptGetTool = "apt-get")
         {
-            SudoCommand("safe-apt-get update", RunOptions.Defaults | RunOptions.FaultOnError);
-            SudoCommand("safe-apt-get upgrade -yq", RunOptions.Defaults | RunOptions.FaultOnError);
+            SudoCommand($"{aptGetTool} update", RunOptions.Defaults | RunOptions.FaultOnError)
+                .EnsureSuccess();
+            SudoCommand($"{aptGetTool} upgrade -yq", RunOptions.Defaults | RunOptions.FaultOnError)
+                .EnsureSuccess();
 
             return FileExists("/var/run/reboot-required");
         }
 
         /// <summary>
-        /// Upgrades the Linux distribution on the node.
+        /// Upgrades to the latest Linux kernel.
         /// </summary>
+        /// <param name="aptGetTool">
+        /// <para>
+        /// Optionally specifies a custom <b>apt-get</b> tool or compatible
+        /// script to be used for performing the upgrade.
+        /// </para>
+        /// <note>
+        /// NeonKUBE deploys a <b>safe-apt-get</b> script that handles situations where
+        /// a package operation is already in progress (such as checking for daily updates).
+        /// We use this parameter to use this script.
+        /// </note>
+        /// </param>
+        /// <param name="upgradeKernel">
+        /// <para>
+        /// Optionally upgrade to the latest stable kernel.
+        /// </para>
+        /// </param>
         /// <returns><c>true</c> when a reboot is required.</returns>
-        public bool UpgradeLinuxDistribution()
+        public bool UpgradeLinuxDistribution(string aptGetTool = "apt-get", bool upgradeKernel = false)
         {
+            var reboot = false;
+
             // $hack(jefflill):
             //
             // We just started seeing trouble with upgrading Ubuntu on Azure.  Other people
@@ -854,13 +902,28 @@ rm {HostFolders.Home(Username)}/askpass
 
             if (SudoCommand("apt-mark hold grub-efi-amd64-signed", RunOptions.Defaults).ExitCode == 0)
             {
-                SudoCommand("safe-apt-get update --fix-missing", RunOptions.Defaults | RunOptions.FaultOnError);
+                SudoCommand($"{aptGetTool} update --fix-missing")
+                    .EnsureSuccess();
             }
 
-            SudoCommand("safe-apt-get update -yq", RunOptions.Defaults | RunOptions.FaultOnError);
-            SudoCommand("safe-apt-get dist-upgrade -yq", RunOptions.Defaults | RunOptions.FaultOnError);
+            SudoCommand($"{aptGetTool} update -yq")
+                .EnsureSuccess();
 
-            return FileExists("/var/run/reboot-required");
+            if (upgradeKernel)
+            {
+                SudoCommand($"{aptGetTool} install -yq --install-recommends linux-image-generic-hwe-22.04")
+                    .EnsureSuccess();
+
+                SudoCommand($"{aptGetTool} update -yq")
+                    .EnsureSuccess();
+
+                reboot = true;
+            }
+
+            SudoCommand($"{aptGetTool} dist-upgrade -yq")
+                .EnsureSuccess();
+
+            return reboot || FileExists("/var/run/reboot-required");
         }
 
         /// <inheritdoc/>
@@ -1431,7 +1494,7 @@ rm {HostFolders.Home(Username)}/askpass
             // this host.  Note that you must be logged in using username/password 
             // authentication for this to work.
             //
-            // NOTE: NEONKUBE cloud based images will already have SUDO prompting disabled
+            // NOTE: NeonKUBE cloud based images will already have SUDO prompting disabled
             //       as will VM based images for Hyper-V and XenServer and we initialize
             //       the VM images using password authentication, so this will work for
             //       creating the images as well.
@@ -2262,6 +2325,11 @@ echo $? > {cmdFolder}/exit
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(command), nameof(command));
 
+            if (command.Length > MaxCommandLength)
+            {
+                throw new ArgumentException($"[{nameof(SudoCommand)}(command,...)] command length is greater than [{MaxCommandLength}].  Upload and run a [{nameof(CommandBundle)}] instead.");
+            }
+
             if (command.Contains('<') || command.Contains('>'))
             {
                 throw new ArgumentException($"[{nameof(SudoCommand)}(command,...)] does not support angle brackets (<) or (>).  Upload and run a [{nameof(CommandBundle)}] instead.");
@@ -2444,6 +2512,8 @@ echo $? > {cmdFolder}/exit
 
                 LogLine($"END [EXITCODE={response.ExitCode}]");
 
+                LogFlush();
+
                 if (response.ExitCode != 0)
                 {
                     if (faultOnError)
@@ -2603,6 +2673,7 @@ echo $? > {cmdFolder}/exit
 
                 LogLine($"END-BUNDLE");
                 LogLine("----------------------------------------");
+                LogFlush();
 
                 return response;
             }
@@ -2612,24 +2683,6 @@ echo $? > {cmdFolder}/exit
 
                 SudoCommand($"rm -rf {bundleFolder}", runOptions);
             }
-        }
-
-        /// <inheritdoc/>
-        public ShellStream CreateShell()
-        {
-            EnsureSshConnection();
-
-            return sshClient.CreateShellStream("dumb", 80, 24, 800, 600, 1024);
-        }
-
-        /// <inheritdoc/>
-        public ShellStream CreateSudoShell()
-        {
-            var shell = CreateShell();
-
-            shell.WriteLine("sudo");
-
-            return shell;
         }
 
         /// <inheritdoc/>
@@ -2690,13 +2743,26 @@ echo $? > {cmdFolder}/exit
         }
 
         /// <summary>
+        /// <para>
         /// Cleans a node by removing unnecessary package manager metadata, cached DHCP information, journald
         /// logs... and then fills unreferenced file system blocks with zeros so the disk image will or
         /// trims the file system (when possible) so the image will compress better.
+        /// </para>
+        /// <para>
+        /// This also clears log files, apt package info, cached DHCP addresses, as well as the last
+        /// login info and Bash command history.
+        /// </para>
         /// </summary>
         /// <param name="trim">Optionally trims the file system.</param>
         /// <param name="zero">Optionally zeros unreferenced file system blocks.</param>
-        public void Clean(bool trim = false, bool zero = false)
+        /// <param name="aptGetTool">Optionally specifies a custom <b>apt-get</b> tool or script.</param>
+        /// <remarks>
+        /// <note>
+        /// NeonKUBE deploys a <b>safe-apt-get</b> script that handles situations where
+        /// a package operation is already in progress (such as checking for daily updates).
+        /// </note>
+        /// </remarks>
+        public void Clean(bool trim = false, bool zero = false, string aptGetTool = "apt-get")
         {
             var fstrim = string.Empty;
             var fsZero = string.Empty;
@@ -2725,9 +2791,23 @@ set -euo pipefail
 
 find -type f -exec rm {{}} +
 
+# Clear the last login time for all users.
+
+awk -F':' '{{ print $1}}' /etc/passwd > /tmp/users.tmp
+
+for user in `cat /tmp/users.tmp`; do
+    lastlog --clear --user $user
+done
+
+rm /tmp/users.tmp
+
+# Clear the Bash command history (current user only).
+
+history -c
+
 # Misc cleaning
 
-safe-apt-get clean
+{aptGetTool} clean
 rm -rf /var/lib/apt/lists
 rm -rf /var/lib/dhcp/*
 
@@ -2736,7 +2816,8 @@ rm -rf /var/lib/dhcp/*
 {fsZero}
 {fstrim}
 ";
-            SudoCommand(CommandBundle.FromScript(cleanScript), RunOptions.FaultOnError);
+            SudoCommand(CommandBundle.FromScript(cleanScript))
+                .EnsureSuccess();
         }
 
         /// <inheritdoc/>

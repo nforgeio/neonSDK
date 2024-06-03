@@ -1,6 +1,6 @@
-# NEONSDK Developer Setup
+# NeonSDK Developer Setup
 
-This page describes how to get started with NEONSDK development.
+This page describes how to get started with NeonSDK development.
 
 ## Workstation Requirements
 
@@ -9,7 +9,7 @@ This page describes how to get started with NEONSDK development.
 * Visual Studio 2019 Edition (or better)
 * Visual Studio Code
 
-Note that the build environment currently assumes that only one Windows user will be acting as a developer on any given workstation.  Developers cannot share a machine and NEONSDK only builds on Windows at this time.
+Note that the build environment currently assumes that only one Windows user will be acting as a developer on any given workstation.  Developers cannot share a machine and NeonSDK only builds on Windows at this time.
 
 ## Workstation Configuration
 
@@ -107,7 +107,7 @@ Follow the steps below to configure a development or test workstation:
    * **Close** Visual Studio to install any updates
    * **NOTE:** You need sign into Visual Studio using a Windows account (like **sally@neonforge.com** for internal developers)
 
-11. Create a **shortcut** for Visual Studio and configure it to run as **administrator**.  To build and run NEONSDK applications and services, **Visual Studio must have with elevated privileges**.
+11. Create a **shortcut** for Visual Studio and configure it to run as **administrator**.  To build and run NeonSDK applications and services, **Visual Studio must have with elevated privileges**.
 
 12. Download the **SysInternals utiliies** from [here](https://download.sysinternals.com/files/SysinternalsSuite.zip) and extract them to a folder on your PATH, like: **C:\Tools**.
 
@@ -123,7 +123,7 @@ Follow the steps below to configure a development or test workstation:
     * Check: **Use previews of the .NET SDK (requires restart)
     * Restart all Visual Studio instances
 
-15. **Clone** the related NEONSDK repos to the same parent directory as **NEONSDK** using the repo names for the folders:
+15. **Clone** the related NeonSDK repos to the same parent directory as **NeonSDK** using the repo names for the folders:
 
     * https://github.com/nforgeio/neonSDK.git
     * https://github.com/nforgeio/documentation.git
@@ -236,6 +236,10 @@ Follow the steps below to configure a development or test workstation:
 
 29. *Optional:* Create the **EDITOR** environment variable and point it to `C:\Program Files\Notepad++\notepad++.exe` or your favorite text editor executable.
 
-30: *Optional:* Maintainers will need to install **AWS client version 2** from: [here](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2-windows.html)
+30. *Optional:* Potentially useful Visual Studio extensions
 
-31: *Optional:* Maintainers authorized to perform releases will need to follow the README.md instructions in the NEONCLOUD repo to configure credentials for the GitHub Releases and the Container Registry.
+    * **Disasmo:** Displays various levels of assembly code (IL, JIT,...) for methods within your project.
+
+31: *Optional:* Maintainers will need to install **AWS client version 2** from: [here](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2-windows.html)
+
+32: *Optional:* Maintainers authorized to perform releases will need to follow the README.md instructions in the NeonCLOUD repo to configure credentials for the GitHub Releases and the Container Registry.

@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 // FILE:        ContainerLimits.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ namespace Neon.Xunit
     /// Byte size properties like <see cref="Memory"/> are strings including the
     /// size (a <c>double</c>) along with an optional unit designation from
     /// <see cref="ByteUnits"/> like <b>KiB</b>, <b>MiB</b>, and <b>GiB</b> rather 
-    /// than using the Docker unit conventions for consistency with NEONKUBE
+    /// than using the Docker unit conventions for consistency with NeonKUBE
     /// cluster definitions, etc.  These values will be converted to a simple 
     /// byte count before passing them on to Docker.
     /// </note>

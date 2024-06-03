@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 // FILE:        HostFolders.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ namespace Neon.SSH
     /// replace whenever you change any of these values.
     /// </note>
     /// <note>
-    /// Changing any of these will likely break [neon-cli] interactions
+    /// Changing any of these will likely break [NeonCLIENT] interactions
     /// with existing clusters that use the previous folder path.  Be
     /// ver sure you know what you're doing when you make changes.
     /// </note>

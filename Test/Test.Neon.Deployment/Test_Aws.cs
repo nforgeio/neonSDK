@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 // FILE:        Test_Aws.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -70,7 +70,7 @@ namespace TestDeployment
 
         /// <summary>
         /// Checks the AWS credentials for the non-CI environments.  This works because
-        /// NEONKUBE developers generally have their AWS credentials persisted as environment
+        /// NeonKUBE developers generally have their AWS credentials persisted as environment
         /// variables.  For CI environments, this is a NOP and we'll rely on fetching credentials
         /// from 1Password.
         /// </summary>
@@ -364,7 +364,7 @@ namespace TestDeployment
                 {
                     // Verify that [DownloadMultiPartAsync()] checks the [Content-Type] header.
 
-                    await Assert.ThrowsAsync<FormatException>(async () => await DeploymentHelper.DownloadMultiPartAsync("https://www.google.com", Path.Combine(tempFolder.Path, "test1.dat")));
+                    await Assert.ThrowsAsync<JsonReaderException>(async () => await DeploymentHelper.DownloadMultiPartAsync("https://www.google.com", Path.Combine(tempFolder.Path, "test1.dat")));
 
                     // Verify that [DownloadMultiPartAsync()] actually works.
 

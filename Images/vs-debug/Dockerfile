@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # FILE:         Dockerfile
-# CONTRIBUTOR:  Jeff Lill
-# COPYRIGHT:    Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+# CONTRIBUTOR:  NEONFORGE Team
+# COPYRIGHT:    Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 # limitations under the License.
 
 FROM        mcr.microsoft.com/dotnet/sdk:7.0
-MAINTAINER  jeff@lill.io
+MAINTAINER  devops@neonforge.com
 STOPSIGNAL  SIGTERM
 
 #------------------------------------------------------------------------------
@@ -96,6 +96,7 @@ RUN apt-get update \
     && apt-get install -yq iputils-ping \
     && apt-get install -yq mtr \
     && apt-get install -yq nano \
+    && apt-get install -yq vim \
     && apt-get install -yq netcat \
     && apt-get install -yq net-tools \
     && apt-get install -yq traceroute \

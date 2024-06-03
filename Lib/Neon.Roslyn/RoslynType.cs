@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 // FILE:        RoslynType.cs
 // CONTRIBUTOR: NEONFORGE Team
-// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -313,11 +313,11 @@ namespace Neon.Roslyn
         {
             List<MethodInfo> methods = null;
 
-            foreach (var t in typeSymbol.BaseTypes())
+            foreach (var type in typeSymbol.BaseTypes())
             {
-                foreach (var m in t.GetMembers())
+                foreach (var member in type.GetMembers())
                 {
-                    if (m is not IMethodSymbol method || method.MethodKind == MethodKind.Constructor)
+                    if (member is not IMethodSymbol method || method.MethodKind == MethodKind.Constructor)
                     {
                         continue;
                     }
@@ -452,19 +452,20 @@ namespace Neon.Roslyn
         protected override ConstructorInfo GetConstructorImpl(BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
         {
             // TODO: Use callConvention and modifiers
-            StringComparison comparison = (bindingAttr & BindingFlags.IgnoreCase) == BindingFlags.IgnoreCase
-                ? StringComparison.OrdinalIgnoreCase
-                : StringComparison.Ordinal;
 
-            foreach (var m in typeSymbol.GetMembers())
+            //var comparison = (bindingAttr & BindingFlags.IgnoreCase) == BindingFlags.IgnoreCase
+            //    ? StringComparison.OrdinalIgnoreCase
+            //    : StringComparison.Ordinal;
+
+            foreach (var member in typeSymbol.GetMembers())
             {
-                if (m is not IMethodSymbol method || method.MethodKind != MethodKind.Constructor)
+                if (member is not IMethodSymbol method || method.MethodKind != MethodKind.Constructor)
                 {
                     // Only methods that are constructors
                     continue;
                 }
 
-                if (!SharedUtilities.MatchBindingFlags(bindingAttr, typeSymbol, m))
+                if (!SharedUtilities.MatchBindingFlags(bindingAttr, typeSymbol, member))
                 {
                     continue;
                 }
@@ -512,19 +513,20 @@ namespace Neon.Roslyn
         protected override MethodInfo GetMethodImpl(string name, BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
         {
             // TODO: Use callConvention and modifiers
-            StringComparison comparison = (bindingAttr & BindingFlags.IgnoreCase) == BindingFlags.IgnoreCase
+
+            var comparison = (bindingAttr & BindingFlags.IgnoreCase) == BindingFlags.IgnoreCase
                 ? StringComparison.OrdinalIgnoreCase
                 : StringComparison.Ordinal;
 
-            foreach (var m in typeSymbol.GetMembers())
+            foreach (var member in typeSymbol.GetMembers())
             {
-                if (m is not IMethodSymbol method || method.MethodKind == MethodKind.Constructor)
+                if (member is not IMethodSymbol method || method.MethodKind == MethodKind.Constructor)
                 {
                     // Only methods that are not constructors
                     continue;
                 }
 
-                if (!SharedUtilities.MatchBindingFlags(bindingAttr, typeSymbol, m))
+                if (!SharedUtilities.MatchBindingFlags(bindingAttr, typeSymbol, member))
                 {
                     continue;
                 }

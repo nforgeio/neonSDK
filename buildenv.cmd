@@ -1,5 +1,5 @@
 @echo off
-REM Configures the environment variables required to build NEONSDK projects.
+REM Configures the environment variables required to build NeonSDK projects.
 REM 
 REM 	buildenv [ <source folder> ]
 REM
@@ -9,7 +9,7 @@ REM
 REM This must be [RUN AS ADMINISTRATOR].
 
 echo ==========================================
-echo * NEONSDK Build Environment Configurator *
+echo * NeonSDK Build Environment Configurator *
 echo ==========================================
 
 REM Default NF_ROOT to the folder holding this batch file after stripping
@@ -22,7 +22,7 @@ if not [%1]==[] set NF_ROOT=%1
 
 if exist %NF_ROOT%\neonSDK.sln goto goodPath
 echo The [%NF_ROOT%\neonSDK.sln] file does not exist.  Please pass the path
-echo to the NEONSDK solution folder.
+echo to the NeonSDK solution folder.
 goto done
 
 :goodPath 

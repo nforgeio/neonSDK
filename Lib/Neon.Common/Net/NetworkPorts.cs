@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 // FILE:        NetworkPorts.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -284,6 +284,11 @@ namespace Neon.Net
         public const int KubernetesApiServer = 6443;
 
         /// <summary>
+        /// Hubble (Cilium) relay service port.
+        /// </summary>
+        public const int HubbleRelay = 4245;
+
+        /// <summary>
         /// The Cassnadra database port.
         /// </summary>
         public const int Cassandra = 9042;
@@ -424,6 +429,7 @@ namespace Neon.Net
                 new Map("cadence", Cadence),
                 new Map("temporal", Temporal),
                 new Map("kubernetes-api", KubernetesApiServer),
+                new Map("hubble-relay", HubbleRelay),
                 new Map("cassandra", Cassandra),
                 new Map("postgres", Postgres),
                 new Map("neon-prometheusscrape", PrometheusMetrics),

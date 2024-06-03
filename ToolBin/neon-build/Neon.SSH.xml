@@ -1179,18 +1179,6 @@
             </note>
             </remarks>
         </member>
-        <member name="M:Neon.SSH.ILinuxSshProxy.CreateShell">
-            <summary>
-            Creates an interactive shell.
-            </summary>
-            <returns>A <see cref="T:Renci.SshNet.ShellStream"/>.</returns>
-        </member>
-        <member name="M:Neon.SSH.ILinuxSshProxy.CreateSudoShell">
-            <summary>
-            Creates an interactive shell for running with <b>sudo</b> permissions. 
-            </summary>
-            <returns>A <see cref="T:Renci.SshNet.ShellStream"/>.</returns>
-        </member>
         <member name="M:Neon.SSH.ILinuxSshProxy.GetNetworkInterface(System.Net.IPAddress)">
             <summary>
             Returns the name of the network interface assigned to a specific IP address.
@@ -1583,23 +1571,44 @@
         <member name="M:Neon.SSH.LinuxSshProxy.Reboot(System.Boolean)">
             <inheritdoc/>
         </member>
-        <member name="M:Neon.SSH.LinuxSshProxy.UpdateRootCertificates">
+        <member name="M:Neon.SSH.LinuxSshProxy.UpdateRootCertificates(System.String)">
             <summary>
             Checks for and installs any new root certificates.
             </summary>
+            <param name="aptGetTool">Optionally specifies a custom <b>apt-get</b> tool or script.</param>
+            <remarks>
+            <note>
+            NEONKUBE deploys a <b>safe-apt-get</b> script that handles situations where
+            a package operation is already in progress (such as checking for daily updates).
+            </note>
+            </remarks>
         </member>
-        <member name="M:Neon.SSH.LinuxSshProxy.PatchLinux">
+        <member name="M:Neon.SSH.LinuxSshProxy.PatchLinux(System.String)">
             <summary>
             Patches Linux on the node applying all outstanding security patches but without 
             upgrading the Linux distribution.
             </summary>
+            <param name="aptGetTool">Optionally specifies a custom <b>apt-get</b> tool or script.</param>
             <returns><c>true</c> when a reboot is required.</returns>
+            <remarks>
+            <note>
+            NEONKUBE deploys a <b>safe-apt-get</b> script that handles situations where
+            a package operation is already in progress (such as checking for daily updates).
+            </note>
+            </remarks>
         </member>
-        <member name="M:Neon.SSH.LinuxSshProxy.UpgradeLinuxDistribution">
+        <member name="M:Neon.SSH.LinuxSshProxy.UpgradeLinuxDistribution(System.String)">
             <summary>
             Upgrades the Linux distribution on the node.
             </summary>
+            <param name="aptGetTool">Optionally specifies a custom <b>apt-get</b> tool or script.</param>
             <returns><c>true</c> when a reboot is required.</returns>
+            <remarks>
+            <note>
+            NEONKUBE deploys a <b>safe-apt-get</b> script that handles situations where
+            a package operation is already in progress (such as checking for daily updates).
+            </note>
+            </remarks>
         </member>
         <member name="M:Neon.SSH.LinuxSshProxy.Log(System.String)">
             <inheritdoc/>
@@ -1838,19 +1847,13 @@
         <member name="M:Neon.SSH.LinuxSshProxy.SudoCommand(Neon.SSH.CommandBundle,Neon.SSH.RunOptions)">
             <inheritdoc/>
         </member>
-        <member name="M:Neon.SSH.LinuxSshProxy.CreateShell">
-            <inheritdoc/>
-        </member>
-        <member name="M:Neon.SSH.LinuxSshProxy.CreateSudoShell">
-            <inheritdoc/>
-        </member>
         <member name="M:Neon.SSH.LinuxSshProxy.GetNetworkInterface(System.Net.IPAddress)">
             <inheritdoc/>
         </member>
         <member name="M:Neon.SSH.LinuxSshProxy.GetTimeUtc">
             <inheritdoc/>
         </member>
-        <member name="M:Neon.SSH.LinuxSshProxy.Clean(System.Boolean,System.Boolean)">
+        <member name="M:Neon.SSH.LinuxSshProxy.Clean(System.Boolean,System.Boolean,System.String)">
             <summary>
             Cleans a node by removing unnecessary package manager metadata, cached DHCP information, journald
             logs... and then fills unreferenced file system blocks with zeros so the disk image will or
@@ -1858,6 +1861,13 @@
             </summary>
             <param name="trim">Optionally trims the file system.</param>
             <param name="zero">Optionally zeros unreferenced file system blocks.</param>
+            <param name="aptGetTool">Optionally specifies a custom <b>apt-get</b> tool or script.</param>
+            <remarks>
+            <note>
+            NEONKUBE deploys a <b>safe-apt-get</b> script that handles situations where
+            a package operation is already in progress (such as checking for daily updates).
+            </note>
+            </remarks>
         </member>
         <member name="M:Neon.SSH.LinuxSshProxy.ListDisks(System.Boolean)">
             <inheritdoc/>

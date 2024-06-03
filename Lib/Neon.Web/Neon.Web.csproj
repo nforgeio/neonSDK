@@ -46,10 +46,9 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="AsyncKeyedLock" Version="6.3.4" />
+        <PackageReference Include="AsyncKeyedLock" Version="6.4.2" />
         <PackageReference Include="Microsoft.Net.Http.Headers" Version="2.2.8" />
-        <PackageReference Include="MessagePack" Version="2.5.124" />
-        <PackageReference Include="NATS.Client" Version="1.0.8" />
+        <PackageReference Include="MessagePack" Version="2.5.140" />
     </ItemGroup>
 
     <ItemGroup>

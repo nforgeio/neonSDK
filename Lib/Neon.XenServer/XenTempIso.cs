@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 // FILE:        XenTempIso.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ namespace Neon.XenServer
 {
     /// <summary>
     /// Holds information about a temporary ISO.  These are created temporarily and 
-    /// used during NEONKUBE cluster setup to inject a configuration script into a new 
+    /// used during NeonKUBE cluster setup to inject a configuration script into a new 
     /// node VM during cluster setup.  See <see cref="XenClient.CreateTempIso(string, string)"/>
     /// for more information.
     /// </summary>

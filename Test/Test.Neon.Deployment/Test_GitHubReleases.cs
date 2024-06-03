@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 // FILE:        Test_GitHubReleases.cs
 // CONTRIBUTOR: Marcus Bowyer
-// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -358,7 +358,7 @@ namespace TestDeployment
         }
 
         [Fact]
-        public async void Delete_Draft()
+        public async Task Delete_Draft()
         {
             // Verify that we can list and delete draft releases.
 
@@ -429,7 +429,7 @@ namespace TestDeployment
         }
 
         [Fact]
-        public async void Find()
+        public async Task Find()
         {
             // Create a couple releases one draft and the other published and then
             // verify that Find() works with different predicates.

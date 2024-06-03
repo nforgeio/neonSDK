@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 // FILE:        TestHelper.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -45,13 +45,13 @@ namespace Neon.Xunit
     public static class TestHelper
     {
         /// <summary>
-        /// The presence of this environment variable indicates that NEONKUBE cluster
+        /// The presence of this environment variable indicates that NeonKUBE cluster
         /// based unit tests should be enabled.
         /// </summary>
         public const string ClusterTestingVariable = "NEON_CLUSTER_TESTING";
 
         /// <summary>
-        /// Indicates whether NEONKUBE cluster based testing is enabled by the presence 
+        /// Indicates whether NeonKUBE cluster based testing is enabled by the presence 
         /// of the <c>NEON_CLUSTER_TESTING</c> environment variable.
         /// </summary>
         public static bool IsClusterTestingEnabled = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable(TestHelper.ClusterTestingVariable));
@@ -778,7 +778,7 @@ namespace Neon.Xunit
         /// </summary>
         /// <remarks>
         /// <para>
-        /// This is simply a copy of the base image used for constructing NEONKUBE node images
+        /// This is simply a copy of the base image used for constructing NeonKUBE node images
         /// and is Ubuntu 22.04 with these key changes (amongst others):
         /// </para>
         /// <list type="bullet">

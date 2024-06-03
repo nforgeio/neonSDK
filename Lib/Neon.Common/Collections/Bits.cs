@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 // FILE:        Bits.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -809,8 +809,6 @@ namespace Neon.Collections
         {
             get
             {
-                //$todo(jefflill): Should do int operations when possible to improve performance.
-
                 for (int i = 0; i < this.length; i++)
                 {
                     if (this[i])
@@ -830,8 +828,6 @@ namespace Neon.Collections
         {
             get
             {
-                //$todo(jefflill): Should do int operations when possible to improve performance.
-
                 for (int i = 0; i < this.length; i++)
                 {
                     if (!this[i])
@@ -857,8 +853,6 @@ namespace Neon.Collections
             {
                 return false;
             }
-
-            // $todo(jefflill): Should do int operations when possible to improve performance.
 
             if (this.length != bits.length)
             {

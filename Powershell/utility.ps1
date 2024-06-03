@@ -2,7 +2,7 @@
 #------------------------------------------------------------------------------
 # FILE:         utility.ps1
 # CONTRIBUTOR:  Jeff Lill
-# COPYRIGHT:    Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+# COPYRIGHT:    Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -231,9 +231,10 @@ function Invoke-Program
 #
 #   command     - program to run with any arguments
 #   noCheck     - optionally disable non-zero exit code checks
-#   interleave  - optionally combines the STDERR into STDOUT
-#   noOutput    - optionally disables writing STDOUT and STDERR
-#                 to the output
+#   interleave  - optionally combines STDERR into STDOUT
+#   noOutput    - STDOUT/STDERR are written to the host process's
+#                 standard streams by default.  Pass this is TRUE
+#                 to disable this behavior.
 #
 # RETURNS:
 #
@@ -250,20 +251,23 @@ function Invoke-Program
 #
 # It's insane that Powershell doesn't have this capability built-in.  
 # It looks likes Invoke-Expression may have implemented this in the past,
-# but recent versions seem to have deprecated this.  stdout can be captured
-# easily from command executions but not stderr.  Powershell seems to handle
-# stderr specially and it returns as a PSObject rather a string and I 
-# couldn't find what looked like a reasonable way to convert that into agreed
-# string.
+# but recent versions seem to have deprecated this.  STDOUT can be captured
+# easily from command executions but not STDERR.  Powershell seems to handle
+# STDERR specially and it returns as a PSObject rather a string and I
+# couldn't find what looked like a reasonable way to convert that into
+# a string.
 #
 # I did run across a MSFT proposal to make this possible, but they're still
 # debating the details.  This seems like such a basic scripting feature that
 # I'm amazed that this senerio isn't covered cleanly.
 #
-# The solution here is to run the command in CMD.EXE for now (and perhaps
-# Bash for eveything else) while piping stdout/stderr to temporary files
-# and then read and delete those files so the streams can be returned as
-# variables.
+# In addition, PowerShell isn't really setup to handle async process stream
+# callbacks, so we've gone ahead and implemented the [dtee] (double-tee)
+# tool in NeonSDK which was inspired by Linux [tee] but which can handle
+# both the STDOUT and STDERR streams.
+#
+# The [dtee] executable will need to be on the PATH for this to work,
+# which should be the case for maintainers.
 
 function Invoke-CaptureStreams
 {
@@ -284,108 +288,42 @@ function Invoke-CaptureStreams
         throw "Empty command."
     }
 
-    $guid       = [System.Guid]::NewGuid().ToString("d")
-    $stdoutPath = [System.IO.Path]::Combine($env:TMP, "$guid.stdout")
-    $stderrPath = [System.IO.Path]::Combine($env:TMP, "$guid.stderr")
+    $outputGuid = New-Guid
+    $outPath    = [System.IO.Path]::Combine($env:TEMP, "$outputGuid.out")
+    $errPath    = [System.IO.Path]::Combine($env:TEMP, "$outputGuid.err")
+    $bothPath   = [System.IO.Path]::Combine($env:TEMP, "$outputGuid.both")
 
-    try
+    if ($noOutput)
     {
-        if (!$noOutput)
-        {
-            Write-Info
-            Write-Info "RUN: $command"
-            Write-Info
-        }
-
-        if ($interleave)
-        {
-            & cmd /c "$command > `"$stdoutPath`" 2>&1"
-        }
-        else
-        {
-            & cmd /c "$command > `"$stdoutPath`" 2> `"$stderrPath`""
-        }
-
-        $exitCode = $LastExitCode
-
-        $stdout = ""
-        $stderr = ""
-
-        try
-        {
-            # Read the output files.
-
-            if ([System.IO.File]::Exists($stdoutPath))
-            {
-                $stdout = [System.IO.File]::ReadAllText($stdoutPath)
-            }
-
-            if (!$interleave)
-            {
-                if ([System.IO.File]::Exists($stderrPath))
-                {
-                    $stderr = [System.IO.File]::ReadAllText($stderrPath)
-                }
-            }
-        }
-        catch
-        {
-            # It appears that something might be holding these files open.
-            # We're going to workaround this by delaying a bit and trying
-            # again.
-
-            [System.Threading.Thread]::Sleep(1000)
-
-            if ([System.IO.File]::Exists($stdoutPath))
-            {
-                $stdout = [System.IO.File]::ReadAllText($stdoutPath)
-            }
-
-            if (!$interleave)
-            {
-                if ([System.IO.File]::Exists($stderrPath))
-                {
-                    $stderr = [System.IO.File]::ReadAllText($stderrPath)
-                }
-            }
-        }
-
-        $result          = @{}
-        $result.exitcode = $exitCode
-        $result.stdout   = $stdout
-        $result.stderr   = $stderr
-        $result.alltext  = "$stdout`r`n$stderr"
-
-        if (!$noOutput)
-        {
-            if ($interleave)
-            {
-                Write-Info $result.stdout
-            }
-            else
-            {
-                Write-Info $result.alltext
-            }
-        }
-
-        if (!$noCheck -and $exitCode -ne 0)
-        {
-            $exitcode = $result.exitcode
-            $stdout   = $result.stdout
-            $stderr   = $result.stderr
-
-            throw "FAILED: $command`r`n[exitcode=$exitCode]`r`nSTDERR:`n$stderr`r`nSTDOUT:`r`n$stdout"
-        }
+        $quietOption = "--quiet"
     }
-    finally
+
+    $pInfo = [Diagnostics.ProcessStartInfo]::new()
+    $pInfo = @{
+        FileName        = 'dtee.exe'
+        Arguments       = "$quietOption `"--out=$outPath`" `"--err=$errPath`" `"--both=$bothPath`" -- `"$command`""
+        UseShellExecute = $false
+    }
+
+    $process = [Diagnostics.Process]::new()
+    $process.StartInfo = $pInfo
+    $process.Start()
+    $process.WaitForExit()
+
+    $result          = @{}
+    $result.exitcode = $process.ExitCode
+    $result.stdout   = [System.IO.File]::ReadAllText($outPath)
+    $result.stderr   = [System.IO.File]::ReadAllText($errPath)
+    $result.alltext  = [System.IO.File]::ReadAllText($bothPath)
+
+    if ($interleave)
     {
-        [System.Threading.Thread]::Sleep(250)
-
-        # Delete the temporary output files
-
-        Delete-File($stdoutPath)
-        Delete-File($stderrPath)
+        $result.stdout = $result.alltext
     }
+
+    Delete-File $outPath
+    Delete-File $errPath
+    Delete-File $bothPath
 
     return $result
 }
@@ -521,11 +459,29 @@ function ConvertTo-Yaml
 }
 
 #------------------------------------------------------------------------------
-# Pushes a Docker image to the public registry with retry as an attempt to handle
-# transient registry issues.
+# Deletes a folder if it exists.
+
+function DeleteFolder
+{
+    [CmdletBinding()]
+    param (
+		[Parameter(Position=0, Mandatory=$true)]
+		[string]$Path
+    )
+
+	if (Test-Path $Path) 
+	{ 
+		Remove-Item -Recurse $Path | Out-Null
+	} 
+}
+
+#------------------------------------------------------------------------------
+# Pushes a Docker container image to a container registry, retrying in the face
+# of transient registry issues.
 #
-# Note that you may set [$noImagePush=$true] to disable image pushing for debugging
-# purposes.  The [publish.ps1] scripts accept the [--nopush] switchto control this.
+# Note that you may set the global [$noImagePush=$true] to disable image pushing
+# for debugging  purposes.  The [publish.ps1] scripts accept the [--nopush] switch
+# to control this.
 #
 # ARGUMENTS:
 #
@@ -551,7 +507,7 @@ function ConvertTo-Yaml
 
 $noImagePush = $false
 
-function Push-DockerImage
+function Push-ContainerImage
 {
     [CmdletBinding()]
     param (
@@ -652,7 +608,7 @@ function Push-DockerImage
 }
 
 #------------------------------------------------------------------------------
-# Pulls a Docker image.
+# Pulls a container image from the a public registry.
 #
 # ARGUMENTS:
 #
@@ -662,7 +618,7 @@ function Push-DockerImage
 #
 # NOTE: This function attempts to workaround what appears to be transient issues.
 
-function Pull-DockerImage
+function Pull-ContainerImage
 {
     [CmdletBinding()]
     param (
@@ -809,4 +765,62 @@ function Pop-Cwd
 {
     Pop-Location | Out-Null
     [System.Environment]::CurrentDirectory = Get-Location
+}
+
+#------------------------------------------------------------------------------
+# Returns the path to the [helm-munger] tool in the NeonKUBE solution, throwing
+# an exception tool binary does not exist.
+
+function Get-HelmMungerPath
+{
+    $nkRoot = $env:NK_ROOT
+
+    if ([String]::IsNullOrEmpty($nkRoot))
+    {
+        throw "[NK_ROOT] environment variable does not exist.  NeonKUBE git repo must be cloned locally."
+    }
+
+    $helmMungerPath = [System.IO.Path]::Combine($nkRoot, "Tools", "helm-munger", "bin", "Debug", "net8.0", "win-x64", "helm-munger.exe")
+
+    if (-not [System.IO.File]::Exists($helmMungerPath))
+    {
+        throw "Cannot locate the [helm-munger] tool at [$helmMungerPath].  Rebuild it and try again."
+    }
+
+    return $helmMungerPath
+}
+
+#------------------------------------------------------------------------------
+# Executes the [helm-munger dependency remove-repositories CHART-FOLDER] command
+# to recursively remove [dependency.repository] properties from [v2] [Chart.yaml]
+# files.
+
+function Remove-HelmRepositories
+{
+    [CmdletBinding()]
+    param (
+        [Parameter(Position=0, Mandatory=$true)]
+        [string]$chartFolder
+    )
+
+    $helmMungerPath = Get-HelmMungerPath
+    Invoke-Program "`"$helmMungerPath`" dependency remove-repositories `"$chartFolder`""
+}
+
+#------------------------------------------------------------------------------
+# Executes the [helm-munger dependency dependency remove CHART-FOLDER DEPENDENCY]
+# command to remove a specific chart dependency.
+
+function Remove-HelmDependency
+{
+    [CmdletBinding()]
+    param (
+        [Parameter(Position=0, Mandatory=$true)]
+        [string]$chartFolder,
+        [Parameter(Position=1, Mandatory=$true)]
+        [string]$dependencyName
+    )
+
+    $helmMungerPath = Get-HelmMungerPath
+    Invoke-Program "`"$helmMungerPath`" dependency remove `"$chartFolder`" $dependencyName"
 }

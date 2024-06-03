@@ -1,8 +1,8 @@
 #Requires -Version 7.1.3 -RunAsAdministrator
 #------------------------------------------------------------------------------
 # FILE:         publish.ps1
-# CONTRIBUTOR:  Marcus Bowyer
-# COPYRIGHT:    Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+# CONTRIBUTOR:  NEONFORGE Team
+# COPYRIGHT:    Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -51,12 +51,12 @@ function Build
 	# Build and publish the images.
 
 	. ./build.ps1 -registry $registry -version $version -tag $tag
-    Push-DockerImage "${registry}:${tag}"
+    Push-ContainerImage "${registry}:${tag}"
 
 	if ($latest -and $tagAsLatest)
 	{
 		Invoke-CaptureStreams "docker tag ${registry}:${tag} ${registry}:latest" -interleave | Out-Null 
-		Push-DockerImage "${registry}:latest"
+		Push-ContainerImage "${registry}:latest"
 	}
 }
 

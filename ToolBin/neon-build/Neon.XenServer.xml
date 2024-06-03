@@ -252,10 +252,10 @@
             </summary>
             <returns>The connected <see cref="T:Neon.SSH.LinuxSshProxy"/>.</returns>
         </member>
-        <member name="M:Neon.XenServer.XenClient.CleanHost(System.Boolean,System.Func{Neon.XenServer.XenTemplate,System.Boolean})">
+        <member name="M:Neon.XenServer.XenClient.WipeHost(System.Boolean,System.Func{Neon.XenServer.XenTemplate,System.Boolean})">
             <summary>
             <para>
-            Cleans the connected XenServer host by terminating and shutting down all virtual
+            Wipes the connected XenServer host by terminating and shutting down all virtual
             machines by default and optionally, selected virtual machine templates.
             </para>
             <note>
@@ -319,7 +319,7 @@
             </summary>
             <param name="name">Name for the new virtual machine.</param>
             <param name="templateName">Identifies the template.</param>
-            <param name="cores">Optionally specifies the number of CPU cores to be assigned.  This defaults to <b>2</b>.</param>
+            <param name="vcpus">Optionally specifies the number of CPU cores to be assigned.  This defaults to <b>2</b>.</param>
             <param name="memoryBytes">Optionally specifies the memory assigned to the machine (overriding the template).</param>
             <param name="diskBytes">Optionally specifies the primary disk size (overriding the template).</param>
             <param name="snapshot">Optionally specifies that the virtual machine should snapshot the template.  This defaults to <c>false</c>.</param>

@@ -1,8 +1,8 @@
 #Requires -Version 7.1.3 -RunAsAdministrator
 #------------------------------------------------------------------------------
 # FILE:         build.ps1
-# CONTRIBUTOR:  Jeff Lill
-# COPYRIGHT:    Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+# CONTRIBUTOR:  NEONFORGE Team
+# COPYRIGHT:    Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ param
 	[parameter(Mandatory=$true, Position=3)][string] $tag
 )
 
-Pull-DockerImage "yugabytedb/yugabyte:$yugabyteVersion"
+Pull-ContainerImage "yugabytedb/yugabyte:$yugabyteVersion"
 
 # Build the image.
 

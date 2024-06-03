@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 // FILE:        ICommand.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -79,7 +79,7 @@ namespace WslUtil
 
         /// <summary>
         /// Returns the item used to split a command line into two parts with
-        /// the left part having standard <b>neon-cli</b> options and the right
+        /// the left part having standard <b>NeonCLIENT</b> options and the right
         /// part being a command that will be executed remotely.  This returns as
         /// <c>null</c> for commands that don't split.
         /// </summary>

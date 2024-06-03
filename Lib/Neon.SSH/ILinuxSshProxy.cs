@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 // FILE:        ILinuxSshProxy.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -192,19 +192,19 @@ namespace Neon.SSH
 
         /// <summary>
         /// Used to indicate that the remote machine will be involved in a configuration step.  
-        /// This property is a bit of a hack used when displaying the status of a NEONKUBE cluster setup.
+        /// This property is a bit of a hack used when displaying the status of a NeonKUBE cluster setup.
         /// </summary>
         bool IsInvolved { get; set; }
 
         /// <summary>
         /// Used to indicate that the remote machine is actively being being configured.  This property is 
-        /// a bit of a hack used when displaying the status of a NEONKUBE cluster setup.
+        /// a bit of a hack used when displaying the status of a NeonKUBE cluster setup.
         /// </summary>
         bool IsConfiguring { get; set; }
 
         /// <summary>
         /// Indicates that the remote machine has completed or has failed the current set of operations.  
-        /// This property is a bit of a hack used when displaying the status of a NEONKUBE cluster setup.
+        /// This property is a bit of a hack used when displaying the status of a NeonKUBE cluster setup.
         /// </summary>
         /// <remarks>
         /// <note>
@@ -215,7 +215,7 @@ namespace Neon.SSH
 
         /// <summary>
         /// Indicates that the remote machine is in a faulted state because one or more operations
-        /// have failed.  This property is a bit of a hack used when displaying the status of a NEONKUBE
+        /// have failed.  This property is a bit of a hack used when displaying the status of a NeonKUBE
         /// cluster setup.
         /// </summary>
         bool IsFaulted { get; set; }
@@ -620,12 +620,19 @@ namespace Neon.SSH
         /// </exception>
         /// <remarks>
         /// <note>
+        /// <para>
         /// <paramref name="command"/> may not include single quotes or redirect
         /// angle brackets such as <b>&lt;</b> or <b>>&gt;</b>.  For more complex
         /// command, try uploading and executing a <see cref="CommandBundle"/> instead.
+        /// </para>
+        /// <para>
+        /// Commands may not longer than <see cref="LinuxSshProxy.MaxCommandLength"/> characters.
+        /// Note that the command length includes the string passed as well as an additional
+        /// internal command configuring the PATH.
+        /// </para>
         /// </note>
         /// <note>
-        /// Any <c>null</c> arguments will be ignored.
+        /// Any <c>null</c> arguments will be ignore
         /// </note>
         /// <para>
         /// The <paramref name="runOptions"/> flags control how this command functions.
@@ -649,11 +656,6 @@ namespace Neon.SSH
         /// <param name="runOptions">The execution options (defaults to <see cref="RunOptions.Defaults"/>).</param>
         /// <returns>The <see cref="CommandResponse"/>.</returns>
         /// <remarks>
-        /// <note>
-        /// <paramref name="bundle"/> may not include single quotes or redirect
-        /// angle brackets such as <b>&lt;</b> or <b>>&gt;</b>.  For more complex
-        /// command, try uploading and executing a <see cref="CommandBundle"/> instead.
-        /// </note>
         /// <para>
         /// This method is intended for situations where one or more files need to be uploaded to a cluster node 
         /// and then be used when a command is executed.
@@ -689,9 +691,16 @@ namespace Neon.SSH
         /// <returns>The <see cref="CommandResponse"/>.</returns>
         /// <remarks>
         /// <note>
+        /// <para>
         /// <paramref name="command"/> may not include single quotes or redirect
         /// angle brackets such as <b>&lt;</b> or <b>>&gt;</b>.  For more complex
         /// command, try uploading and executing a <see cref="CommandBundle"/> instead.
+        /// </para>
+        /// <para>
+        /// Commands may not longer than <see cref="LinuxSshProxy.MaxCommandLength"/> characters.
+        /// Note that the command length includes the string passed as well as an additional
+        /// internal command configuring the PATH.
+        /// </para>
         /// </note>
         /// <para>
         /// This method uses the <see cref="DefaultRunOptions"/> when executing the command.
@@ -715,9 +724,16 @@ namespace Neon.SSH
         /// <returns>The <see cref="CommandResponse"/>.</returns>
         /// <remarks>
         /// <note>
+        /// <para>
         /// <paramref name="command"/> may not include single quotes or redirect
         /// angle brackets such as <b>&lt;</b> or <b>>&gt;</b>.  For more complex
         /// command, try uploading and executing a <see cref="CommandBundle"/> instead.
+        /// </para>
+        /// <para>
+        /// Commands may not longer than <see cref="LinuxSshProxy.MaxCommandLength"/> characters.
+        /// Note that the command length includes the string passed as well as an additional
+        /// internal command configuring the PATH.
+        /// </para>
         /// </note>
         /// <para>
         /// The <paramref name="runOptions"/> flags control how this command functions.
@@ -747,9 +763,16 @@ namespace Neon.SSH
         /// <returns>The <see cref="CommandResponse"/>.</returns>
         /// <remarks>
         /// <note>
+        /// <para>
         /// <paramref name="command"/> may not include single quotes or redirect
         /// angle brackets such as <b>&lt;</b> or <b>>&gt;</b>.  For more complex
         /// command, try uploading and executing a <see cref="CommandBundle"/> instead.
+        /// </para>
+        /// <para>
+        /// Commands may not longer than <see cref="LinuxSshProxy.MaxCommandLength"/> characters.
+        /// Note that the command length includes the string passed as well as an additional
+        /// internal command configuring the PATH.
+        /// </para>
         /// </note>
         /// <para>
         /// This method uses the <see cref="DefaultRunOptions"/> when executing the command.
@@ -775,9 +798,16 @@ namespace Neon.SSH
         /// <returns>The <see cref="CommandResponse"/>.</returns>
         /// <remarks>
         /// <note>
+        /// <para>
         /// <paramref name="command"/> may not include single quotes or redirect
         /// angle brackets such as <b>&lt;</b> or <b>>&gt;</b>.  For more complex
         /// command, try uploading and executing a <see cref="CommandBundle"/> instead.
+        /// </para>
+        /// <para>
+        /// Commands may not longer than <see cref="LinuxSshProxy.MaxCommandLength"/> characters.
+        /// Note that the command length includes the string passed as well as an additional
+        /// internal command configuring the PATH.
+        /// </para>
         /// </note>
         /// <para>
         /// The <paramref name="runOptions"/> flags control how this command functions.
@@ -831,18 +861,6 @@ namespace Neon.SSH
         /// </note>
         /// </remarks>
         CommandResponse SudoCommand(CommandBundle bundle, RunOptions runOptions = RunOptions.Defaults);
-
-        /// <summary>
-        /// Creates an interactive shell.
-        /// </summary>
-        /// <returns>A <see cref="ShellStream"/>.</returns>
-        ShellStream CreateShell();
-
-        /// <summary>
-        /// Creates an interactive shell for running with <b>sudo</b> permissions. 
-        /// </summary>
-        /// <returns>A <see cref="ShellStream"/>.</returns>
-        ShellStream CreateSudoShell();
 
         /// <summary>
         /// Returns the name of the network interface assigned to a specific IP address.
@@ -921,7 +939,7 @@ namespace Neon.SSH
         /// <summary>
         /// <para>
         /// Returns an indication of whether the <b>neon-init</b> service has been executed
-        /// on the remote machine.  This service is deployed to NEONKUBE cluster nodes to
+        /// on the remote machine.  This service is deployed to NeonKUBE cluster nodes to
         /// act as a poor-man's <b>cloud-init</b> used to configure the network and credentials 
         /// by mounting a virual ISO drive with a configuration script for non-cloud environments.
         /// </para>
@@ -939,7 +957,7 @@ namespace Neon.SSH
         /// Manually sets the <b>neon-init</b> service execution status. 
         /// </para>
         /// <para>
-        /// The <b>neon-init</b> service is deployed to NEONKUBE cluster nodes to act
+        /// The <b>neon-init</b> service is deployed to NeonKUBE cluster nodes to act
         /// as a poor-man's <b>cloud-init</b> to configure the network and credentials 
         /// by mounting a virual ISO drive with a configuration script for non-cloud 
         /// environments.

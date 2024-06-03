@@ -2,7 +2,7 @@
 #------------------------------------------------------------------------------
 # FILE:         files.ps1
 # CONTRIBUTOR:  Jeff Lill
-# COPYRIGHT:    Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+# COPYRIGHT:    Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -111,8 +111,6 @@ function Delete-File
         [Parameter(Position=0, Mandatory=$true)]
         [string]$Path
     )
-
-    # Delete the temporary output files
 
     try
     {

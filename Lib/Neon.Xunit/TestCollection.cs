@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 // FILE:        TestCollection.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ using Xunit;
 namespace Neon.Xunit
 {
     /// <summary>
-    /// Enumerates the NEONSDK related xUnit test collections.
+    /// Enumerates the NeonSDK related xUnit test collections.
     /// </summary>
     public static class TestCollection
     {

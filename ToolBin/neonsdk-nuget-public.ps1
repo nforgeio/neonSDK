@@ -2,7 +2,7 @@
 #------------------------------------------------------------------------------
 # FILE:         neon-nuget-public.ps1
 # CONTRIBUTOR:  Jeff Lill
-# COPYRIGHT:    Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+# COPYRIGHT:    Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ param
 #Ensure-VisualStudioNotRunning
 
 # Verify that the user has the required environment variables.  These will
-# be available only for maintainers and are intialized by the NEONCLOUD
+# be available only for maintainers and are intialized by the NeonCLOUD
 # [buildenv.cmd] script.
 
 if (!(Test-Path env:NC_ROOT))
@@ -56,7 +56,7 @@ if (!(Test-Path env:NC_ROOT))
     "*** ERROR: This script is intended for use by maintainers only:"
     "           [NC_ROOT] environment variable is not defined."
     ""
-    "           Maintainers should re-run the NEONCLOUD [buildenv.cmd] script."
+    "           Maintainers should re-run the NeonCLOUD [buildenv.cmd] script."
 
     return 1
 }
@@ -97,7 +97,7 @@ try
 
     $config = "Release"
 
-    # Load the library and NEONKUBE versions.
+    # Load the library and NeonKUBE versions.
 
     $msbuild        = $env:MSBUILDPATH
     $neonBuild      = "$env:NF_ROOT\ToolBin\neon-build\neon-build.exe"

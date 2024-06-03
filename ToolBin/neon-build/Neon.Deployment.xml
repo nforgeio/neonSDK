@@ -333,46 +333,95 @@
             <param name="include">Optionally specifies a pattern specifying the objects to be removed.</param>
             <param name="exclude">Optionally specifies a pattern specifying objects to be excluded from removal.</param>
         </member>
-        <member name="T:Neon.Deployment.CodeSigner">
+        <member name="T:Neon.Deployment.CodeSigning.AzureProfile">
+            <summary>
+            Defines parameters required for code signing via <b>Azure Code Signing</b>.
+            </summary>
+        </member>
+        <member name="M:Neon.Deployment.CodeSigning.AzureProfile.#ctor(System.String,System.String,System.String,System.String,System.String,System.String,System.String)">
+            <summary>
+            Constructor.
+            </summary>
+            <param name="azureTenantId">Specifies the Azure tenent ID for the key vault.</param>
+            <param name="azureClientId">Specifies the Azure client ID used for authenticating the signing request.</param>
+            <param name="azureClientSecret">Specifies the Azure client secret used for authenticating the signing request. </param>
+            <param name="codeSigningAccountEndpoint">Specifies the code signing account endpoint.</param>
+            <param name="codeSigningAccountName">Specifies the name of the Azure code signing account being used.</param>
+            <param name="certificateProfileName">Specifies the signing certificate name within the code signing account.</param>
+            <param name="correlationId">
+            Optionally specifies an opaque ID that will be logged by Azure for the signing operation.  This may
+            be useful for auditing, depending on the scenario.
+            </param>
+        </member>
+        <member name="P:Neon.Deployment.CodeSigning.AzureProfile.AzureTenantId">
+            <summary>
+            Returns the Azure tenent ID for the key vault.
+            </summary>
+        </member>
+        <member name="P:Neon.Deployment.CodeSigning.AzureProfile.AzureClientId">
+            <summary>
+            Returns the client ID used for authenticating the signing request.
+            </summary>
+        </member>
+        <member name="P:Neon.Deployment.CodeSigning.AzureProfile.AzureClientSecret">
+            <summary>
+            Returns the secret used for authenticating the signing request. 
+            </summary>
+        </member>
+        <member name="P:Neon.Deployment.CodeSigning.AzureProfile.CodeSigningAccountEndpoint">
+            <summary>
+            Returns the URL for the Azure key vault holding the signing certificate.
+            </summary>
+        </member>
+        <member name="P:Neon.Deployment.CodeSigning.AzureProfile.CodeSigningAccountName">
+            <summary>
+            Returns the name of the Azure code signing account being used.
+            </summary>
+        </member>
+        <member name="P:Neon.Deployment.CodeSigning.AzureProfile.CertificateProfileName">
+            <summary>
+            Returns the signing certificate name within the key vault.
+            </summary>
+        </member>
+        <member name="P:Neon.Deployment.CodeSigning.AzureProfile.CorrelationId">
+            <summary>
+            Returns the optional correlation ID.
+            </summary>
+        </member>
+        <member name="T:Neon.Deployment.CodeSigning.CodeSigner">
             <summary>
             Implements code signing.
             </summary>
         </member>
-        <member name="M:Neon.Deployment.CodeSigner.SignBinary(System.String,System.String,System.String,System.String,System.String,System.String)">
+        <member name="M:Neon.Deployment.CodeSigning.CodeSigner.IsReady(Neon.Deployment.CodeSigning.UsbTokenProfile)">
             <summary>
-            Signs an EXE or MSI file using a code signing certificate and the Windows
-            <b>signtool.exe</b> program.
+            Verifies that the current machine is ready for code signing using a USB code signing certificate and the Microsoft Built Tools <b>signtool</b> program.
             </summary>
+            <param name="profile">Specifies a <see cref="T:Neon.Deployment.CodeSigning.UsbTokenProfile"/> with the required signing prarameters.</param>
+            <returns><c>true</c> when the signing token is available and the profile ius correct.</returns>
+            <exception cref="T:System.PlatformNotSupportedException">Thrown when executed on a non 64-bit Windows machine.</exception>
+            <remarks>
+            <note>
+            <b>WARNING!</b> Be very careful when using this method with Extended Validation (EV) code signing 
+            USB tokens.  Using an incorrect password can brkick EV tokens since thay typically allow only a 
+            very limited number of signing attempts with invalid passwords.
+            </note>
+            </remarks>
+        </member>
+        <member name="M:Neon.Deployment.CodeSigning.CodeSigner.Sign(Neon.Deployment.CodeSigning.AzureProfile,System.String)">
+            <summary>
+            Signs an EXE, DLL or MSI file using Azure Code Signing using the <b>AzureSignTool</b>.
+            </summary>
+            <param name="profile">Specifies a <see cref="T:Neon.Deployment.CodeSigning.UsbTokenProfile"/> with the required signing prarameters.</param>
             <param name="targetPath">Specifies the path to the file being signed.</param>
-            <param name="provider">Specifies the certificate provider, like: "eToken Base Cryptographic Provider"</param>
-            <param name="certBase64">Specifies the base64 encoded public certificate (multi-line values are allowed).</param>
-            <param name="container">Specifies the certificate container, like: "Sectigo_20220830143311"</param>
-            <param name="timestampUri">Specifies the URI for the certificate timestamp service, like: http://timestamp.sectigo.com</param>
-            <param name="password">Specifies the certificate password.</param>
             <exception cref="T:System.PlatformNotSupportedException">Thrown when executed on a non 64-bit Windows machine.</exception>
-            <remarks>
-            <note>
-            <b>WARNING!</b> Be very careful when using this method with Extended Validation (EV) code signing 
-            USB tokens.  Using an incorrect password can brick EV tokens since thay typically allow only a 
-            very limited number of signing attempts with invalid passwords.
-            </note>
-            <note>
-            This method uses the Windows version of <b>signtool.exe</b> embedded into the
-            the <b>Neon.Deployment</b> library and to perform the code signing and this 
-            tool runs only on Windows.
-            </note>
-            </remarks>
         </member>
-        <member name="M:Neon.Deployment.CodeSigner.IsReady(System.String,System.String,System.String,System.String,System.String)">
+        <member name="M:Neon.Deployment.CodeSigning.CodeSigner.Sign(Neon.Deployment.CodeSigning.UsbTokenProfile,System.String)">
             <summary>
-            
+            Signs an EXE, DLL or MSI file using a USB code signing certificate and the <b>SignTool</b> from the Microsoft Built Tools.
             </summary>
-            <param name="provider">Specifies the certificate provider, like: "eToken Base Cryptographic Provider"</param>
-            <param name="certBase64">Specifies the base64 encoded public certificate (multi-line values are allowed).</param>
-            <param name="container">Specifies the certificate container, like: "Sectigo_20220830143311"</param>
-            <param name="timestampUri">Specifies the URI for the certificate timestamp service, like: http://timestamp.sectigo.com</param>
-            <param name="password">Specifies the certificate password.</param>
-            <returns><c>true</c> when signing is available.</returns>
+            <param name="profile">Specifies a <see cref="T:Neon.Deployment.CodeSigning.UsbTokenProfile"/> with the required signing prarameters.</param>
+            <param name="targetPath">Specifies the path to the file being signed.</param>
             <exception cref="T:System.PlatformNotSupportedException">Thrown when executed on a non 64-bit Windows machine.</exception>
             <remarks>
             <note>
@@ -380,19 +429,93 @@
             USB tokens.  Using an incorrect password can brick EV tokens since thay typically allow only a 
             very limited number of signing attempts with invalid passwords.
             </note>
-            <note>
-            This method uses the Windows version of <b>signtool.exe</b> embedded into the
-            the <b>Neon.Deployment</b> library and to perform the code signing and this 
-            tool runs only on Windows.
-            </note>
             </remarks>
         </member>
-        <member name="M:Neon.Deployment.CodeSigner.ExtractSignTool(System.String)">
+        <member name="M:Neon.Deployment.CodeSigning.CodeSigner.CheckAzureSignToolCache">
             <summary>
-            Extracts the <b>signtool.exe</b> binary from the embedded resource
+            Checks the NEONSDK USB signing tool cache folder to see if it's up-to-date,
+            returning <c>true</c> when it is current otherwise this method clears
+            the folder and returns, <c>false</c>, indicating that the signing client
+            binaries need to be installed.
+            </summary>
+            <returns><c>true</c> when the cache folder is up-to-date.</returns>
+        </member>
+        <member name="M:Neon.Deployment.CodeSigning.CodeSigner.CheckUsbSignToolCache">
+            <summary>
+            Checks the NEONSDK Azure signing tool cache folder to see if it's up-to-date,
+            returning <c>true</c> when it is current otherwise this method clears
+            the folder and returns, <c>false</c>, indicating that the signing client
+            binaries need to be installed.
+            </summary>
+            <returns><c>true</c> when the cache folder is up-to-date.</returns>
+        </member>
+        <member name="M:Neon.Deployment.CodeSigning.CodeSigner.InstallSignTool(System.String,System.Boolean)">
+            <summary>
+            Downloads and installs the <b>SignTool</b> binary.
+            </summary>
+            <param name="installFolder">The folder where the tool will be installed.</param>
+            <param name="toolsAlreadyCached">Indicates when the client signing tools are already cached.</param>
+            <returns>The path to the <b>SignTool</b> binary.</returns>
+        </member>
+        <member name="M:Neon.Deployment.CodeSigning.CodeSigner.InstallSigningDll(System.String,System.Boolean)">
+            <summary>
+            Downloads and installs the <b>Azure.CodeSigning.Dlib</b> DLL.
+            </summary>
+            <param name="installFolder">The folder where the DLL will be installed.</param>
+            <param name="toolsAlreadyCached">Indicates when the client signing tools are already cached.</param>
+            <returns>The path to the installed DLL.</returns>
+        </member>
+        <member name="M:Neon.Deployment.CodeSigning.CodeSigner.ExtractTestBinaryTo(System.String)">
+            <summary>
+            Extracts the <b>signee.exe</b> binary from the embedded resource
             to the specified path.
             </summary>
             <param name="targetPath">The target path for the binary.</param>
+        </member>
+        <member name="T:Neon.Deployment.CodeSigning.UsbTokenProfile">
+            <summary>
+            Defines parameters required for code signing using SignTool with a USB code signing token.
+            </summary>
+        </member>
+        <member name="M:Neon.Deployment.CodeSigning.UsbTokenProfile.#ctor(System.String,System.String,System.String,System.String,System.String)">
+            <summary>
+            Constructor.
+            </summary>
+            <param name="provider">Specifies the certificate provider, like: "eToken Base Cryptographic Provider"</param>
+            <param name="certBase64">Specifies the base64 encoded public certificate (multi-line values are allowed).</param>
+            <param name="container">Specifies the certificate container, like: "Sectigo_20220830143311"</param>
+            <param name="timestampUri">Specifies the URI for the certificate timestamp service, like: http://timestamp.sectigo.com</param>
+            <param name="password">Specifies the certificate password.</param>
+        </member>
+        <member name="P:Neon.Deployment.CodeSigning.UsbTokenProfile.TargetPath">
+            <summary>
+            Returns the path to the file being signed.
+            </summary>
+        </member>
+        <member name="P:Neon.Deployment.CodeSigning.UsbTokenProfile.Provider">
+            <summary>
+            Returns the certificate provider, like: "eToken Base Cryptographic Provider"
+            </summary>
+        </member>
+        <member name="P:Neon.Deployment.CodeSigning.UsbTokenProfile.CertBase64">
+            <summary>
+            Returns the base64 encoded public certificate (multi-line values are allowed).
+            </summary>
+        </member>
+        <member name="P:Neon.Deployment.CodeSigning.UsbTokenProfile.Container">
+            <summary>
+            Returns the certificate container, like: "Sectigo_20220830143311"
+            </summary>
+        </member>
+        <member name="P:Neon.Deployment.CodeSigning.UsbTokenProfile.TimestampUri">
+            <summary>
+            Returns the URI for the certificate timestamp service, like: http://timestamp.sectigo.com
+            </summary>
+        </member>
+        <member name="P:Neon.Deployment.CodeSigning.UsbTokenProfile.Password">
+            <summary>
+            Returns the certificate password.
+            </summary>
         </member>
         <member name="T:Neon.Deployment.DeploymentException">
             <summary>
@@ -1896,7 +2019,7 @@
         </member>
         <member name="M:Neon.Deployment.ProfileServer.Start">
             <summary>
-            Starts the server.  You should call this after configuring the handler callbacks.
+            Starts the server.  You must call this after configuring the handler callbacks.
             </summary>
             <exception cref="T:System.InvalidOperationException">Thrown if any of the handlers are not initialized.</exception>
         </member>

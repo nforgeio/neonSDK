@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 // FILE:        Test_LabelSelector.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -577,14 +577,14 @@ namespace TestCommon
 
             items.Clear();
             items.Add(new TestItem("one",
-                new KeyValuePair<string, string>("NEONKUBE.com/test", "true")));
+                new KeyValuePair<string, string>("NeonKUBE.com/test", "true")));
             items.Add(new TestItem("two",
-                new KeyValuePair<string, string>("NEONKUBE.com/test", "false")));
+                new KeyValuePair<string, string>("NeonKUBE.com/test", "false")));
 
-            Assert.Single(selector.Select("NEONKUBE.com/test == false"));
+            Assert.Single(selector.Select("NeonKUBE.com/test == false"));
 
-            Assert.Equal("one", selector.Select("NEONKUBE.com/test=true").First().Name);
-            Assert.Equal("two", selector.Select("NEONKUBE.com/test=false").First().Name);
+            Assert.Equal("one", selector.Select("NeonKUBE.com/test=true").First().Name);
+            Assert.Equal("two", selector.Select("NeonKUBE.com/test=false").First().Name);
 
             var maxDnsLabel = new string('a', 63);
             var maxName     = new string('z', 63);

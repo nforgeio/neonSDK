@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 // FILE:        NeonServiceOptions.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ namespace Neon.Service
         /// <para>
         /// Optionally specifies the <see cref="ILoggerFactory"/> the service will use for logging purposes.
         /// When set to <c>null</c> (the default), the <see cref="NeonService"/> class will configure
-        /// the OpenTelemetry logging pipeline and configure a logger factory for the service and NEONSDK libraries.
+        /// the OpenTelemetry logging pipeline and configure a logger factory for the service and NeonSDK libraries.
         /// </para>
         /// <para>
         /// You can set this when you need a completely custom logging configuration.
@@ -66,7 +66,7 @@ namespace Neon.Service
         /// <para>
         /// Optionally specifies the <see cref="TracerProvider"/> the service will use for tracing purposes.
         /// When set to <c>null</c> (the default), the <see cref="NeonService"/> class will configure the 
-        /// tracing pipeline for the service and NEONSDK libraries.
+        /// tracing pipeline for the service and NeonSDK libraries.
         /// </para>
         /// <para>
         /// You can set this when you need a completely custom tracing configuration.

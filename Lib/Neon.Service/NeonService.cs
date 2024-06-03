@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 // FILE:        NeonService.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,6 +30,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+using DnsClient;
+
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -43,15 +46,12 @@ using Neon.Retry;
 using Neon.Tasks;
 using Neon.Time;
 
-using DnsClient;
-using Prometheus;
-
 using OpenTelemetry;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
-using Microsoft.Extensions.Configuration.EnvironmentVariables;
-using Microsoft.Extensions.Configuration;
+
+using Prometheus;
 
 namespace Neon.Service
 {
@@ -216,7 +216,7 @@ namespace Neon.Service
     /// The <see cref="NeonService"/> constructor initializes the OpenTelemetry logging pipeline
     /// by default, initializing the <see cref="Logger"/> property as well as initializing 
     /// <see cref="TelemetryHub.LoggerFactory"/> and adding the logger factor and logger to
-    /// <see cref="NeonHelper.ServiceContainer"/>, making them available to NEONSDK libraries
+    /// <see cref="NeonHelper.ServiceContainer"/>, making them available to NeonSDK libraries
     /// so they may emit logs.  The logger created by <see cref="NeonService"/> in this case
     /// will be configured to write JSON formatted logs to the process standard output stream.
     /// </para>
@@ -297,7 +297,7 @@ namespace Neon.Service
     ///     When present and <see cref="NeonServiceOptions.TracerProvider"/> is <c>null</c>, then
     ///     this specifies the URI for the OpenTelemetry Collector where the traces will be sent.
     ///     If this environment variable is not present and the service is running in Kubernetes,
-    ///     then we're going to assume that you're running in a NEONKUBE cluster and <see cref="NeonService"/>
+    ///     then we're going to assume that you're running in a NeonKUBE cluster and <see cref="NeonService"/>
     ///     will default to sending traces to the <see cref="NeonHelper.NeonKubeOtelCollectorUri"/>
     ///     (<b>http://grafana-agent-node.neon-monitor.svc.cluster.local</b>) service endpoint deployed to the same Kubernetes namespace.
     ///     </para>
@@ -608,7 +608,7 @@ namespace Neon.Service
         // WARNING:
         //
         // The code below should be manually synchronized with similar code in [KubeHelper]
-        // if NEONKUBE related folder names ever change in the future.
+        // if NeonKUBE related folder names ever change in the future.
 
         private static string   testFolder;
         private static string   cachedNeonKubeUserFolder;
@@ -865,8 +865,8 @@ namespace Neon.Service
 
                     var loggingConfig = new ConfigurationBuilder()
                         .AddCustomEnvironmentVariables(
-                        prefix:         options.EnvironmentVariablePrefix,
-                        dotReplacement: options.EnvironmentVariableDotReplacement)
+                            prefix:         options.EnvironmentVariablePrefix,
+                            dotReplacement: options.EnvironmentVariableDotReplacement)
                         .Build();
                    
                     var loggerFactory = Microsoft.Extensions.Logging.LoggerFactory.Create(
@@ -973,9 +973,10 @@ namespace Neon.Service
 
                     // Give the derived service a chance to customize the trace pipeline.
 
-                    if (!OnTracerConfig(tracerProviderBuilder))
+                    if (!OnTracerConfig(tracerProviderBuilder) && traceCollectorUri != null)
                     {
-                        // Built-in configuration when the the derived class allows it.
+                        // Use a built-in configuration when the the derived class allows it
+                        // and we have a target collection URI.
 #if NET6_0_OR_GREATER
                         tracerProviderBuilder.AddOtlpExporter(
                             options =>
@@ -1265,6 +1266,12 @@ namespace Neon.Service
         public ILogger Logger { get; set; }
 
         /// <summary>
+        /// Returns the service current running status.  Use <see cref="SetStatusAsync(NeonServiceStatus)"/>
+        /// to update the service status.
+        /// </summary>
+        public NeonServiceStatus Status { get; private set; }
+
+        /// <summary>
         /// <para>
         /// Configured as the activity source used by the service for recording traces.
         /// </para>
@@ -1286,12 +1293,6 @@ namespace Neon.Service
         /// defaults to an empty list.
         /// </summary>
         public List<string> Arguments { get; private set; } = new List<string>();
-
-        /// <summary>
-        /// Returns the service current running status.  Use <see cref="SetStatusAsync(NeonServiceStatus)"/>
-        /// to update the service status.
-        /// </summary>
-        public NeonServiceStatus Status { get; private set; }
 
         /// <summary>
         /// <para>
@@ -1855,6 +1856,7 @@ namespace Neon.Service
 
             try
             {
+                await SetStatusAsync(NeonServiceStatus.Starting);
                 await OnRunAsync();
 
                 ExitCode = 0;
@@ -2148,9 +2150,9 @@ namespace Neon.Service
         /// <exception cref="FormatException">Thrown for file formatting problems.</exception>
         /// <remarks>
         /// <para>
-        /// The default password provider assumes that you have NEONDESKTOP installed and may be
+        /// The default password provider assumes that you have NeonDESKTOP installed and may be
         /// specifying passwords in the <b>~/.neonkube/passwords</b> folder (relative to the current
-        /// user's home directory).  This will be harmless if you don't have NEONDESKTOP installed;
+        /// user's home directory).  This will be harmless if you don't have NeonDESKTOP installed;
         /// it just probably won't find any passwords.
         /// </para>
         /// <para>
@@ -2318,9 +2320,9 @@ namespace Neon.Service
         /// <exception cref="FileNotFoundException">Thrown if there's no file at <paramref name="physicalPath"/>.</exception>
         /// <remarks>
         /// <para>
-        /// The default password provider assumes that you have NEONDESKTOP installed and may be
+        /// The default password provider assumes that you have NeonDESKTOP installed and may be
         /// specifying passwords in the <b>~/.neonkube/passwords</b> folder (relative to the current
-        /// user's home directory).  This will be harmless if you don't have NEONDESKTOP installed;
+        /// user's home directory).  This will be harmless if you don't have NeonDESKTOP installed;
         /// it just probably won't find any passwords.
         /// </para>
         /// <para>

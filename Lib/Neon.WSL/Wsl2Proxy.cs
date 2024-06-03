@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 // FILE:        Wsl2Proxy.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ namespace Neon.WSL
     /// <para>
     /// The <see cref="Wsl2Proxy"/> class wraps the <b>wsl.exe</b> tool such
     /// that Linux commands can be be invoked via code running on Windows.  We
-    /// currently use this for managing WSL2 for a local NEONDESKTOP cluster.
+    /// currently use this for managing WSL2 for a local NeonDESKTOP cluster.
     /// </para>
     /// <para><b>Managing WSL2 Distros</b></para>
     /// <para>

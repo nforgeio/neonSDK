@@ -17,15 +17,15 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="AsyncKeyedLock" Version="6.3.4" />
+        <PackageReference Include="AsyncKeyedLock" Version="6.4.2" />
         <PackageReference Include="DnsClient" Version="1.7.0" />
-        <PackageReference Include="MessagePack" Version="2.5.124" />
+        <PackageReference Include="MessagePack" Version="2.5.140" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.0" />
         <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.0" />
         <PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="8.0.0" />
         <PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.NewtonsoftJson" Version="8.0.0" />
         <PackageReference Include="Microsoft.Net.Http.Headers" Version="2.2.8" />
-        <PackageReference Include="NATS.Net" Version="2.0.3" />
+        <PackageReference Include="NATS.Net" Version="2.2.1" />
         <PackageReference Include="SlimCluster" Version="0.9.0" />
         <PackageReference Include="SlimCluster.Host" Version="0.9.0" />
         <PackageReference Include="SlimCluster.Serialization" Version="0.9.0" />

@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 // FILE:        CodeSigner.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -128,7 +128,7 @@ namespace Neon.Deployment.CodeSigning
                 if (!string.IsNullOrEmpty(profile.CorrelationId))
                 {
                     File.WriteAllText(tempMetadataFile.Path,
-    $@"{{
+$@"{{
 ""Endpoint"": ""{profile.CodeSigningAccountEndpoint}"",
 ""CodeSigningAccountName"": ""{profile.CodeSigningAccountName}"",
 ""CertificateProfileName"": ""{profile.CertificateProfileName}"",
@@ -139,7 +139,7 @@ namespace Neon.Deployment.CodeSigning
                 else
                 {
                     File.WriteAllText(tempMetadataFile.Path,
-    $@"{{
+$@"{{
 ""Endpoint"": ""{profile.CodeSigningAccountEndpoint}"",
 ""CodeSigningAccountName"": ""{profile.CodeSigningAccountName}"",
 ""CertificateProfileName"": ""{profile.CertificateProfileName}""
@@ -249,7 +249,7 @@ namespace Neon.Deployment.CodeSigning
         }
 
         /// <summary>
-        /// Checks the NEONSDK USB signing tool cache folder to see if it's up-to-date,
+        /// Checks the NeonSDK USB signing tool cache folder to see if it's up-to-date,
         /// returning <c>true</c> when it is current otherwise this method clears
         /// the folder and returns, <c>false</c>, indicating that the signing client
         /// binaries need to be installed.
@@ -277,7 +277,7 @@ namespace Neon.Deployment.CodeSigning
                 NeonHelper.DeleteFolderContents(versionPath);
                 File.WriteAllLines(versionPath, new string[] { cachedToolsVersion });
                 File.WriteAllText(Path.Combine(signingCacheFolder, "README.md"),
-@"This folder is used by NEONSDK to cache client code required to use Azure Code Signing
+@"This folder is used by NeonSDK to cache client code required to use Azure Code Signing
 to sign application binaries.
 ");
                 return false;
@@ -289,7 +289,7 @@ to sign application binaries.
         }
 
         /// <summary>
-        /// Checks the NEONSDK Azure signing tool cache folder to see if it's up-to-date,
+        /// Checks the NeonSDK Azure signing tool cache folder to see if it's up-to-date,
         /// returning <c>true</c> when it is current otherwise this method clears
         /// the folder and returns, <c>false</c>, indicating that the signing client
         /// binaries need to be installed.
@@ -317,7 +317,7 @@ to sign application binaries.
                 NeonHelper.DeleteFolderContents(versionPath);
                 File.WriteAllLines(versionPath, new string[] { cachedToolsVersion });
                 File.WriteAllText(Path.Combine(signingCacheFolder, "README.md"),
-@"This folder is used by NEONSDK to cache client code required to use USB Code Signing
+@"This folder is used by NeonSDK to cache client code required to use USB Code Signing
 to sign application binaries.
 ");
                 return false;

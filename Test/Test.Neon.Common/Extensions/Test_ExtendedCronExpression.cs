@@ -1,7 +1,7 @@
 // -----------------------------------------------------------------------------
 // FILE:	    Test_ExtendedCronExpression.cs
 // CONTRIBUTOR: NEONFORGE Team
-// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License").
 // You may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ using Xunit;
 
 namespace TestCommon.Extensions
 {
+    [Trait(TestTrait.Category, TestArea.NeonCommon)]
     public class Test_ExtendedCronExpression
     {
         /// <summary>

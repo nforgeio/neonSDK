@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 // FILE:        PowerShell.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -176,6 +176,13 @@ namespace Neon.Windows
                 File.WriteAllText(file.Path, 
 $@"
 try {{
+
+    # Disable ANSI terminal formatting.
+
+    $env:TERM = 'PlainText'
+
+    # Execute the command.
+
     {command} | Out-String -Width {PowershellBufferWidth}
 }}
 catch [Exception]

@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 // FILE:        DockerFixture.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -600,7 +600,7 @@ namespace Neon.Xunit
         /// This method is defined as <c>virtual</c> so that derived classes
         /// can modify how Docker is called.  For example, the <c>HiveFixture</c>
         /// class implemented in another assembly will override this to run
-        /// the <b>docker</b> within a cluster using <b>neon-cli</b>.
+        /// the <b>docker</b> within a cluster using <b>NeonCLIENT</b>.
         /// </note>
         /// </remarks>
         public virtual ExecuteResponse DockerExecute(params object[] args)
@@ -625,7 +625,7 @@ namespace Neon.Xunit
         /// This method is defined as <c>virtual</c> so that derived classes
         /// can modify how Docker is called.  For example, the <c>HiveFixture</c>
         /// class implemented in another assembly will override this to run
-        /// the <b>docker</b> within a cluster using <b>neon-cli</b>.
+        /// the <b>docker</b> within a cluster using <b>NeonCLIENT</b>.
         /// </note>
         /// </remarks>
         public virtual ExecuteResponse DockerExecute(string argString)
@@ -788,7 +788,7 @@ namespace Neon.Xunit
         /// <note>
         /// <para>
         /// Using this may result in very slow test performance, especially since
-        /// it will purge a local copy of <b>neon-cli</b> if present.  This means
+        /// it will purge a local copy of <b>NeonCLIENT</b> if present.  This means
         /// this and any other test images (like Couchbase) will need to be
         /// downloaded again after every reset.
         /// </para>

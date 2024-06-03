@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 // FILE:        ModelGenerator.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -2243,7 +2243,7 @@ namespace Neon.ModelGen
 
                         if (!genPersistence)
                         {
-                            writer.WriteLine($"            throw new NotSupportedException(\"Model persistence is not enabled.  Try specifying the [--persisted] option on the neon-cli command line.\");");
+                            writer.WriteLine($"            throw new NotSupportedException(\"Model persistence is not enabled.  Try specifying the [--persisted] option on the NeonCLIENT command line.\");");
                         }
                         else if (persistedKeyProperty == null)
                         {

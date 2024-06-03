@@ -4,7 +4,7 @@
         <TargetFramework>netstandard2.0</TargetFramework>
         <OutputType>Library</OutputType>
         <RootNamespace>Neon.Common</RootNamespace>
-        <Description>Additional classes used by other NEONSDK packages as well as NEONFORGE applications</Description>
+        <Description>Additional classes used by other NeonSDK packages as well as NEONFORGE applications</Description>
         <PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
         <IsPackable>true</IsPackable>
         <PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.Common.Extensions/README.md</PackageProjectUrl>
@@ -27,8 +27,8 @@
         <PackageReference Include="Microsoft.Extensions.ObjectPool" Version="8.0.0" />
         <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-        <PackageReference Include="OpenTelemetry" Version="1.6.0" />
-        <PackageReference Include="Quartz" Version="3.7.0" />
+        <PackageReference Include="OpenTelemetry" Version="1.8.1" />
+        <PackageReference Include="Quartz" Version="3.9.0" />
         <PackageReference Include="SharpZipLib.NETStandard" Version="1.0.7" />
         <PackageReference Include="System.Diagnostics.Contracts" Version="4.3.0" />
         <PackageReference Include="System.Diagnostics.Process" Version="4.3.0" />
@@ -36,10 +36,10 @@
         <PackageReference Include="System.Net.Http" Version="4.3.4" />
         <PackageReference Include="System.Runtime" Version="4.3.1" />
         <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.3.0" />
-        <PackageReference Include="System.Security.AccessControl" Version="6.0.0" />
+        <PackageReference Include="System.Security.AccessControl" Version="6.0.1" />
         <PackageReference Include="System.Threading.Thread" Version="4.3.0" />
         <PackageReference Include="System.ValueTuple" Version="4.5.0" />
-        <PackageReference Include="YamlDotNet" Version="13.3.1" />
+        <PackageReference Include="YamlDotNet" Version="15.1.2" />
     </ItemGroup>
 
     <ItemGroup>

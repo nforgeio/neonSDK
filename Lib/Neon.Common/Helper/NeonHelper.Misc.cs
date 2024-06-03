@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 // FILE:        NeonHelper.Misc.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -466,8 +466,8 @@ namespace Neon.Common
         /// <param name="cancellationToken">Optionally specifies a cancellation token.</param>
         /// <exception cref="TimeoutException">Thrown if the never returned <c>true</c> before the timeout.</exception>
         /// <remarks>
-        /// This method periodically calls <paramref name="predicate"/> until it
-        /// returns <c>true</c> or <pararef name="timeout"/> exceeded.
+        /// This method periodically calls <paramref name="predicate"/> until it returns
+        /// <c>true</c> or the timeout is exceeded.
         /// </remarks>
         public static void WaitFor(Func<bool> predicate, TimeSpan timeout, TimeSpan? pollInterval = null, string timeoutMessage = null, CancellationToken cancellationToken = default)
         {
@@ -507,8 +507,8 @@ namespace Neon.Common
         /// <returns>The tracking <see cref="Task"/>.</returns>
         /// <exception cref="TimeoutException">Thrown if the never returned <c>true</c> before the timeout.</exception>
         /// <remarks>
-        /// This method periodically calls <paramref name="predicate"/> until it
-        /// returns <c>true</c> or <pararef name="timeout"/> exceeded.
+        /// This method periodically calls <paramref name="predicate"/> until it returns
+        /// <c>true</c> or the timeout is exceeded.
         /// </remarks>
         public static async Task WaitForAsync(
             Func<Task<bool>>    predicate, 

@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 // FILE:        ExecuteResponse.cs
 // CONTRIBUTOR: Jeff Lill
-// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -57,6 +57,11 @@ namespace Neon.Common
         public int ExitCode { get; internal set; }
 
         /// <summary>
+        /// Returns <c>true</c> zero exit codes.
+        /// </summary>
+        public bool Success => ExitCode == 0;
+
+        /// <summary>
         /// Returns the captured standard output stream text from the process.
         /// </summary>
         public string OutputText { get; internal set; }
@@ -105,7 +110,7 @@ namespace Neon.Common
                 }
                 else
                 {
-                    throw new ExecuteException(this, OutputText);
+                    throw new ExecuteException(this, AllText);
                 }
             }
 

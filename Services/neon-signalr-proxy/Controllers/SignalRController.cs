@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 // FILE:        SignalRController.cs
 // CONTRIBUTOR: Marcus Bowyer
-// COPYRIGHT:   Copyright © 2005-2023 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -109,11 +109,11 @@ namespace NeonSignalRProxy.Controllers
             using var activity = TelemetryHub.ActivitySource.StartActivity();
 
             var isWebsocket = false;
-            if (HttpContext.Request.Headers.SecWebSocketAccept.Count > 0
-                || HttpContext.Request.Headers.SecWebSocketExtensions.Count > 0
-                || HttpContext.Request.Headers.SecWebSocketKey.Count > 0
-                || HttpContext.Request.Headers.SecWebSocketProtocol.Count > 0
-                || HttpContext.Request.Headers.SecWebSocketVersion.Count > 0)
+            if (HttpContext.Request.Headers.SecWebSocketAccept.Count > 0 ||
+                HttpContext.Request.Headers.SecWebSocketExtensions.Count > 0 ||
+                HttpContext.Request.Headers.SecWebSocketKey.Count > 0 ||
+                HttpContext.Request.Headers.SecWebSocketProtocol.Count > 0 ||
+                HttpContext.Request.Headers.SecWebSocketVersion.Count > 0)
             {
                 isWebsocket = true;
                 WebsocketMetrics.ConnectionsEstablished.Inc();
@@ -148,7 +148,7 @@ namespace NeonSignalRProxy.Controllers
 
                 HttpContext.Request.Headers.Append(SessionHelper.UpstreamHostHeaderName, host);
 
-                error    = await forwarder.SendAsync(HttpContext, $"{backend.Scheme}://{host}:{backend.Port}", httpClient, forwarderRequestConfig, transformer);
+                error = await forwarder.SendAsync(HttpContext, $"{backend.Scheme}://{host}:{backend.Port}", httpClient, forwarderRequestConfig, transformer);
 
                 if (error != ForwarderError.None)
                 {
@@ -157,13 +157,13 @@ namespace NeonSignalRProxy.Controllers
 
                     Logger.LogErrorEx(exception, "CatchAll");
                 }
+
                 return;
             }
 
             using var gauge = isWebsocket ? WebsocketMetrics.CurrentConnections.WithLabels(HttpContext.Request.Host.Value, session.UpstreamHost).TrackInProgress() : new Disposable();
 
             HttpContext.Request.Headers.Append(SessionHelper.UpstreamHostHeaderName, session.UpstreamHost);
-
             Logger.LogDebugEx(() => NeonHelper.JsonSerialize(session));
 
             session.ConnectionId = HttpContext.Connection.Id;
@@ -174,14 +174,12 @@ namespace NeonSignalRProxy.Controllers
             }
 
             signalrProxyService.CurrentConnections.Add(session.ConnectionId);
-
             Logger.LogDebugEx(() => $"Forwarding connection: [{NeonHelper.JsonSerializeToBytes(session)}]");
 
             error = await forwarder.SendAsync(HttpContext, $"{backend.Scheme}://{session.UpstreamHost}:{backend.Port}", httpClient, forwarderRequestConfig, transformer);
 
             Logger.LogDebugEx(() => $"Session closed: [{NeonHelper.JsonSerializeToBytes(session)}]");
-
-            signalrProxyService.CurrentConnections.RemoveWhere(x => x == session.ConnectionId);
+            signalrProxyService.CurrentConnections.RemoveWhere(connectionId => connectionId == session.ConnectionId);
 
             if (error != ForwarderError.None)
             {
