@@ -17,12 +17,6 @@
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace Neon.Tailwind
 {
@@ -59,6 +53,22 @@ namespace Neon.Tailwind
         public void RenderContent(RenderFragment content)
         {
             this.content = content;
+            StateHasChanged();
+        }
+
+        public void RenderComponent<TComponent>()
+            where TComponent : IComponent
+        {
+            this.content = builder =>
+            {
+                builder.OpenComponent<TComponent>(0);
+                builder.CloseComponent();
+            };
+        }
+
+        public void Close()
+        {
+            this.content = null;
             StateHasChanged();
         }
 

@@ -27,10 +27,14 @@ namespace Neon.Tailwind
 {
     public class PortalContent : ComponentBase, IDisposable
     {
-        [Inject] public IPortalBinder PortalBinder { get; set; }
+        [Inject]
+        public IPortalBinder PortalBinder { get; set; }
         
-        [Parameter] public RenderFragment ChildContent { get; set; }
-        [Parameter] public string PortalName { get; set; } = "root";
+        [Parameter]
+        public RenderFragment ChildContent { get; set; }
+
+        [Parameter]
+        public string PortalName { get; set; } = "root";
 
         public void Dispose() => PortalBinder?.GetPortal(PortalName)?.RenderContent(builder => builder.AddContent(0, ""));
 
