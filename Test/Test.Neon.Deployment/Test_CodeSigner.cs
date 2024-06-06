@@ -125,12 +125,10 @@ namespace TestDeployment
                     Assert.Equal(item.Value, File.GetLastWriteTimeUtc(item.Key));
                 }
 
-                // Clear the signing cache folder, set the cached [version.txt] file to
-                // an invalid version, and re-sign the binary to verify that we reinstall
-                // the client signing tools.
+                // Clear the signing cache folder and re-sign the binary to verify
+                // that we reinstall the client signing tools.
 
                 NeonHelper.DeleteFolderContents(signingCacheFolder);
-                File.WriteAllText(Path.Combine(signingCacheFolder, "version.txt"), "INVALID");
 
                 ExtractTestBinaryTo(tempFile.Path);
                 Assert.True(File.Exists(tempFile.Path));

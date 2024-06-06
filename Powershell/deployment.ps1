@@ -521,51 +521,6 @@ function Remove-FromS3
 }
 
 #------------------------------------------------------------------------------
-# Signs an executable file with a USB code signing token.
-#
-# ARGUMENTS:
-#
-#   targetPath          - Specifies the path to the file being signed.
-#   provider            - Specifies the certificate provider, like: "eToken Base Cryptographic Provider"
-#   certBase64          - Specifies the base64 encoded public certificate (multi-line values are allowed).
-#   container           - Specifies the certificate container, like: "Sectigo_20220830143311"
-#   timestampUri        - pecifies the URI for the certificate timestamp service, like: http://timestamp.sectigo.com
-#   password            - Specifies the certificate password.
-#
-# REMARKS:
-#
-# WARNING! Be very careful when using this function with Extended Validation (EV) code signing 
-#          USB tokens.  Using an incorrect password can brick EV tokens since thay typically 
-#          allow only a very limited number of signing attempts with invalid passwords.
-#
-# This method uses the Windows version of <b>signtool.exe</b> embedded into the
-# the <b>Neon.Deployment</b> library and to perform the code signing and this 
-# tool runs only on Windows.
-
-function Sign-WithUsbToken
-{
-    [CmdletBinding()]
-    param (
-        [Parameter(Position=0, Mandatory=$true)]
-        [string]$targetPath,
-        [Parameter(Position=1, Mandatory=$true)]
-        [string]$provider,
-        [Parameter(Position=2, Mandatory=$true)]
-        [string]$certBase64,
-        [Parameter(Position=3, Mandatory=$true)]
-        [string]$container,
-        [Parameter(Position=4, Mandatory=$true)]
-        [string]$timestampUri,
-        [Parameter(Position=5, Mandatory=$true)]
-        [string]$password
-    )
-
-    $profile = New-Object Neon.Deployment.CodeSigning.UsbTokenProfile $provider $thumprint $certBase64, $container $timestampUri $password
-
-    [Neon.Deployment.CodeSigner]::Sign($profile, $targetPath)
-}
-
-#------------------------------------------------------------------------------
 # Removes one or more S3 objects.
 #
 # ARGUMENTS:
@@ -617,7 +572,7 @@ function Remove-FromS3
 #          USB tokens.  Using an incorrect password can brick EV tokens since thay typically 
 #          allow only a very limited number of signing attempts with invalid passwords.
 #
-# This method uses the Windows version of <b>signtool.exe</b> embedded into the
+# This method uses the Windows version of <b>SignTool.exe</b> embedded into the
 # the <b>Neon.Deployment</b> library and to perform the code signing and this 
 # tool runs only on Windows.
 #
@@ -664,9 +619,8 @@ function Sign-IsReady-WithUsbToken
 #          USB tokens.  Using an incorrect password can brick EV tokens since thay typically 
 #          allow only a very limited number of signing attempts with invalid passwords.
 #
-# This method uses the Windows version of <b>signtool.exe</b> embedded into the
-# the <b>Neon.Deployment</b> library and to perform the code signing and this 
-# tool runs only on Windows.
+# This downloads and caches the Windows version of <b>SignTool.exe</b> and then uses that
+# perform the code signining.
 
 function Sign-WithUsbToken
 {
