@@ -28,7 +28,11 @@ namespace Neon.Tailwind
     public class PortalBinder : IPortalBinder
     {
         private Dictionary<string, Portal> portals = new();
-        public void RegisterPortal(string name, Portal portal) => portals.Add(name, portal);
+        public void RegisterPortal(string name, Portal portal)
+        {
+            portals[name] = portal;
+        }
+
         public Portal GetPortal(string name)
         {
             if (portals.TryGetValue(name, out var portal))
