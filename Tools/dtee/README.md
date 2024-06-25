@@ -1,0 +1,1 @@
+You'll need to manually copy the compiled **dtee.exe** to the repos's **~/Toolbin** folder after making any changes.
