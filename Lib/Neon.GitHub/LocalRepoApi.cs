@@ -873,6 +873,10 @@ namespace Neon.GitHub
         /// Specifies the commits to be cherry-picked from the source branch and added to the target.
         /// The commits will be applied in the order they appear here.
         /// </param>
+        /// <param name="strategy">
+        /// Optionallty specifies the merge strategy.  This defaults to
+        /// <see cref="CheckoutFileConflictStrategy.Theirs"/>.
+        /// </param>
         /// <returns>The tracking <see cref="Task"/>.</returns>
         /// <exception cref="LibGit2SharpException">
         /// Thrown when the source branch doesn't include any of the commits, the target
@@ -889,7 +893,10 @@ namespace Neon.GitHub
         /// Cherry-picking will stop if one of the operations fails due to a conflict.
         /// </para>
         /// </remarks>
-        public async Task CherryPickAsync(string sourceBranchName, IEnumerable<GitCommit> commits)
+        public async Task CherryPickAsync(
+            string                          sourceBranchName,
+            IEnumerable<GitCommit>          commits,
+            CheckoutFileConflictStrategy    strategy = CheckoutFileConflictStrategy.Theirs)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(sourceBranchName), nameof(sourceBranchName));
@@ -949,7 +956,7 @@ namespace Neon.GitHub
 
                 var options = new CherryPickOptions()
                 {
-                    FileConflictStrategy = CheckoutFileConflictStrategy.Theirs,
+                    FileConflictStrategy = strategy,
                     CommitOnSuccess      = true,
                 };
 
