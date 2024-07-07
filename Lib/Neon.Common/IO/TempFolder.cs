@@ -15,11 +15,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Neon.Common;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.IO;
+
+using Neon.Common;
 
 namespace Neon.IO
 {
@@ -71,6 +72,19 @@ namespace Neon.IO
             {
                 Directory.CreateDirectory(Path);
             }
+        }
+
+        /// <summary>
+        /// Used to construct an instance referencing an existing folder.
+        /// </summary>
+        /// <param name="existingPath">Specifies the path to the existing folder.</param>
+        /// <param name="stub">Used to disambiguate this constructor from <see cref="TempFolder(string, string, bool)"/></param>
+        public TempFolder(string existingPath, Stub.Value stub)
+        {
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(existingPath), nameof(existingPath));
+            Covenant.Requires<ArgumentException>(Directory.Exists(existingPath), $"Folder does not exist: {existingPath}");
+
+            Path = existingPath;
         }
 
         /// <summary>
