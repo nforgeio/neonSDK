@@ -519,6 +519,13 @@ namespace Neon.Tailwind
                 return;
             }
 
+            if (suppressInitial && !isInitialized)
+            {
+                State = TransitionState.Hidden;
+                isInitialized = true;
+                return;
+            }
+
             State = TransitionState.Leaving;
 
             var cssClass = new StringBuilder();
