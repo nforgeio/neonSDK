@@ -73,7 +73,7 @@ namespace Neon.Blazor
         /// </summary>
         /// <param name="properties"></param>
         /// <returns></returns>
-        public async Task AddPropertiesAsync(string[] properties)
+        public async Task AddPropertiesAsync(params string[] properties)
         {
             await SyncContext.Clear;
 
@@ -152,7 +152,7 @@ namespace Neon.Blazor
         /// </summary>
         /// <param name="properties"></param>
         /// <returns></returns>
-        public async Task RemovePropertiesAsync(string[] properties)
+        public async Task RemovePropertiesAsync(params string[] properties)
         {
             await SyncContext.Clear;
 
