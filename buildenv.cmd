@@ -25,7 +25,15 @@ echo The [%NF_ROOT%\neonSDK.sln] file does not exist.  Please pass the path
 echo to the NeonSDK solution folder.
 goto done
 
-:goodPath 
+:goodPath
+
+REM If NF_MAINTAINER is already set to "1", we're going to assume that all
+REM of the other environment variables are already set.
+
+if "%NF_MAINTAINER%"=="1" (
+    echo *** Environment already configured ***
+    goto done
+)
 
 REM Set NF_REPOS to the parent directory holding the NEONFORGE repositories.
 
