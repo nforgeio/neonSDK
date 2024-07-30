@@ -77,7 +77,7 @@ namespace TestBlazor
                 WebApplication.CreateBuilder(args)
             };
 
-            var cipherKey = AesCipher.GenerateKey();
+            var cipherKey = "+af83M1iaEFjCcBF2iTX8TBct42jsemWfcKnvcyzrm4=";
 
             var mock = new Mock<ILookupClient>();
 
