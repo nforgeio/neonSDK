@@ -153,7 +153,7 @@ namespace TestWSL
 
             var imagePath = await TestHelper.GetTestImageAsync();
 
-            using (var folderWithSpaces = new TempFolder(folder: Path.Combine(Path.GetTempPath(), $"test {Guid.NewGuid().ToString("d")}")))
+            using (var folderWithSpaces = new TempFolder(rootFolder: Path.Combine(Path.GetTempPath(), $"test {Guid.NewGuid().ToString("d")}")))
             {
                 using (var tempFolder = new TempFolder())
                 {

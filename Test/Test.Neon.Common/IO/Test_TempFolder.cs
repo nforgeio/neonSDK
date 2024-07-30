@@ -97,7 +97,7 @@ namespace TestCommon
 
             try
             {
-                using (var folder = new TempFolder(folder: customRoot))
+                using (var folder = new TempFolder(rootFolder: customRoot))
                 {
                     testFolderPath = folder.Path;
 

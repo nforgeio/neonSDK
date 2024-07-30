@@ -45,27 +45,27 @@ namespace Neon.IO
         /// <summary>
         /// Creates a temporary folder.
         /// </summary>
-        /// <param name="folder">Optionally overrides <see cref="Root"/> as the parent folder for this instance.</param>
+        /// <param name="rootFolder">Optionally overrides <see cref="Root"/> as the parent folder for this instance.</param>
         /// <param name="prefix">Optionally specifies a prefix to be added to the temporary directory name.</param>
         /// <param name="create">Optionally controls whether the temporary folder should actually be created.  This defaults to <c>true</c>.</param>
-        public TempFolder(string folder = null, string prefix = null, bool create = true)
+        public TempFolder(string rootFolder = null, string prefix = null, bool create = true)
         {
             prefix ??= string.Empty;
 
-            if (string.IsNullOrEmpty(folder))
+            if (string.IsNullOrEmpty(rootFolder))
             {
-                folder = Root;
+                rootFolder = Root;
             }
 
-            if (string.IsNullOrEmpty(folder))
+            if (string.IsNullOrEmpty(rootFolder))
             {
                 Path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"{prefix}{Guid.NewGuid()}");
             }
             else
             {
-                Directory.CreateDirectory(folder);
+                Directory.CreateDirectory(rootFolder);
 
-                Path = System.IO.Path.Combine(folder, Guid.NewGuid().ToString());
+                Path = System.IO.Path.Combine(rootFolder, Guid.NewGuid().ToString());
             }
 
             if (create)
