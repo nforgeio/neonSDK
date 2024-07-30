@@ -97,7 +97,7 @@ namespace TestCommon
 
             try
             {
-                using (var folder = new TempFolder(folder: customRoot))
+                using (var folder = new TempFolder(rootFolder: customRoot))
                 {
                     testFolderPath = folder.Path;
 
@@ -132,6 +132,39 @@ namespace TestCommon
 
             Assert.True(Directory.Exists(path));
             Directory.Delete(path);
+        }
+
+        [Fact]
+        public void Existing()
+        {
+            var tempFolderPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("d"));
+
+            // Parameter checks.
+
+            Assert.ThrowsAny<ArgumentNullException>(() => new TempFolder(null, Stub.Param));
+            Assert.ThrowsAny<ArgumentNullException>(() => new TempFolder(string.Empty, Stub.Param));
+
+            // The temporary folder does't exist yet, so we should see an exception.
+
+            Assert.ThrowsAny<ArgumentException>(() => new TempFolder(tempFolderPath, Stub.Param));
+
+            // Verify that this works.
+
+            Directory.CreateDirectory(tempFolderPath);
+
+            using (var tempFolder = new TempFolder(tempFolderPath, Stub.Param))
+            {
+                tempFolder.DisableDelete = true;
+            }
+
+            Assert.True(Directory.Exists(tempFolderPath));
+
+            using (var tempFolder = new TempFolder(tempFolderPath, Stub.Param))
+            {
+                tempFolder.DisableDelete = false;
+            }
+
+            Assert.False(Directory.Exists(tempFolderPath));
         }
     }
 }

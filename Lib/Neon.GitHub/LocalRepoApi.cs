@@ -388,9 +388,9 @@ namespace Neon.GitHub
 
             localBranchName ??= originBranchName;
 
-            var created = root.GitApi.Branches[localBranchName] == null;
+            var createBranch = root.GitApi.Branches[localBranchName] == null;
 
-            if (created)
+            if (createBranch)
             {
                 var branch = root.GitApi.CreateBranch(localBranchName, $"{root.Origin.Name}/{originBranchName}");
 
@@ -410,7 +410,7 @@ namespace Neon.GitHub
 
             WaitForBranch(localBranchName, exists: true);
 
-            return created;
+            return createBranch;
         }
 
         /// <summary>
@@ -487,10 +487,14 @@ namespace Neon.GitHub
         /// Merges another local branch into the current branch.
         /// </para>
         /// <note>
-        /// The checked out branch must not included an non-committed changes.
+        /// The current branch must not included any non-committed changes.
         /// </note>
         /// </summary>
-        /// <param name="branchName">Identifies the branch to be merged into the current branch.</param>
+        /// <param name="branchName">
+        /// Identifies the branch to be merged into the current branch.  This can simply
+        /// be the source branch name or specify a remote GitHub repo and branch like:
+        /// <b>GITHUB-REPO/BRANCH</b>
+        /// </param>
         /// <param name="throwOnConflict">Optionally specifies that the method should not throw an exception for conflicts.</param>
         /// <returns>
         /// A <see cref="MergeResult"/> for successful merges or when the merged failed and 
@@ -508,14 +512,14 @@ namespace Neon.GitHub
 
             var branch = root.GitApi.Branches[branchName];
 
-            if (branch == null)
-            {
-                throw new LibGit2SharpException($"Branch [{branchName}] does not exist.");
-            }
-
             if (IsDirty)
             {
                 throw new LibGit2SharpException($"Target branch [{CurrentBranch.FriendlyName}] has uncommited changes.");
+            }
+
+            if (branch == null)
+            {
+                throw new LibGit2SharpException($"Source branch [{branchName}] does not exist.");
             }
 
             var mergeOptions = new MergeOptions()
@@ -873,6 +877,10 @@ namespace Neon.GitHub
         /// Specifies the commits to be cherry-picked from the source branch and added to the target.
         /// The commits will be applied in the order they appear here.
         /// </param>
+        /// <param name="strategy">
+        /// Optionallty specifies the merge strategy.  This defaults to
+        /// <see cref="CheckoutFileConflictStrategy.Theirs"/>.
+        /// </param>
         /// <returns>The tracking <see cref="Task"/>.</returns>
         /// <exception cref="LibGit2SharpException">
         /// Thrown when the source branch doesn't include any of the commits, the target
@@ -889,7 +897,10 @@ namespace Neon.GitHub
         /// Cherry-picking will stop if one of the operations fails due to a conflict.
         /// </para>
         /// </remarks>
-        public async Task CherryPickAsync(string sourceBranchName, IEnumerable<GitCommit> commits)
+        public async Task CherryPickAsync(
+            string                          sourceBranchName,
+            IEnumerable<GitCommit>          commits,
+            CheckoutFileConflictStrategy    strategy = CheckoutFileConflictStrategy.Theirs)
         {
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(sourceBranchName), nameof(sourceBranchName));
@@ -949,7 +960,7 @@ namespace Neon.GitHub
 
                 var options = new CherryPickOptions()
                 {
-                    FileConflictStrategy = CheckoutFileConflictStrategy.Theirs,
+                    FileConflictStrategy = strategy,
                     CommitOnSuccess      = true,
                 };
 

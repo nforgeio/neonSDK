@@ -73,7 +73,7 @@ namespace Neon.Roslyn.Xunit
         /// <returns></returns>
         public static AdditionalSourceText FromFile(string path)
         {
-            return new AdditionalSourceText(File.ReadAllText(path));
+            return new AdditionalSourceText(File.ReadAllText(path), path: path);
         }
 
         /// <summary>

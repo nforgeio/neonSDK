@@ -234,7 +234,7 @@ Follow the steps below to configure a development or test workstation:
     b. **Show whole line completions**
     c. **Show whole line completions on new lines**
 
-29. *Optional:* Create the **EDITOR** environment variable and point it to `C:\Program Files\Notepad++\notepad++.exe` or your favorite text editor executable.
+29. *Optional:* Create the **EDITOR** environment variable and point it to `C:\progra~1~\Notepad++\notepad++.exe` or your favorite text editor executable.
 
 30. *Optional:* Potentially useful Visual Studio extensions
 

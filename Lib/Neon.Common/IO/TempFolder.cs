@@ -15,11 +15,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Neon.Common;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.IO;
+
+using Neon.Common;
 
 namespace Neon.IO
 {
@@ -44,33 +45,46 @@ namespace Neon.IO
         /// <summary>
         /// Creates a temporary folder.
         /// </summary>
-        /// <param name="folder">Optionally overrides <see cref="Root"/> as the parent folder for this instance.</param>
+        /// <param name="rootFolder">Optionally overrides <see cref="Root"/> as the parent folder for this instance.</param>
         /// <param name="prefix">Optionally specifies a prefix to be added to the temporary directory name.</param>
         /// <param name="create">Optionally controls whether the temporary folder should actually be created.  This defaults to <c>true</c>.</param>
-        public TempFolder(string folder = null, string prefix = null, bool create = true)
+        public TempFolder(string rootFolder = null, string prefix = null, bool create = true)
         {
             prefix ??= string.Empty;
 
-            if (string.IsNullOrEmpty(folder))
+            if (string.IsNullOrEmpty(rootFolder))
             {
-                folder = Root;
+                rootFolder = Root;
             }
 
-            if (string.IsNullOrEmpty(folder))
+            if (string.IsNullOrEmpty(rootFolder))
             {
                 Path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"{prefix}{Guid.NewGuid()}");
             }
             else
             {
-                Directory.CreateDirectory(folder);
+                Directory.CreateDirectory(rootFolder);
 
-                Path = System.IO.Path.Combine(folder, Guid.NewGuid().ToString());
+                Path = System.IO.Path.Combine(rootFolder, Guid.NewGuid().ToString());
             }
 
             if (create)
             {
                 Directory.CreateDirectory(Path);
             }
+        }
+
+        /// <summary>
+        /// Used to construct an instance referencing an existing folder.
+        /// </summary>
+        /// <param name="existingPath">Specifies the path to the existing folder.</param>
+        /// <param name="stub">Used to disambiguate this constructor from <see cref="TempFolder(string, string, bool)"/></param>
+        public TempFolder(string existingPath, Stub.Value stub)
+        {
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(existingPath), nameof(existingPath));
+            Covenant.Requires<ArgumentException>(Directory.Exists(existingPath), $"Folder does not exist: {existingPath}");
+
+            Path = existingPath;
         }
 
         /// <summary>
