@@ -388,9 +388,9 @@ namespace Neon.GitHub
 
             localBranchName ??= originBranchName;
 
-            var created = root.GitApi.Branches[localBranchName] == null;
+            var createBranch = root.GitApi.Branches[localBranchName] == null;
 
-            if (created)
+            if (createBranch)
             {
                 var branch = root.GitApi.CreateBranch(localBranchName, $"{root.Origin.Name}/{originBranchName}");
 
@@ -410,7 +410,7 @@ namespace Neon.GitHub
 
             WaitForBranch(localBranchName, exists: true);
 
-            return created;
+            return createBranch;
         }
 
         /// <summary>
@@ -487,10 +487,14 @@ namespace Neon.GitHub
         /// Merges another local branch into the current branch.
         /// </para>
         /// <note>
-        /// The checked out branch must not included an non-committed changes.
+        /// The current branch must not included any non-committed changes.
         /// </note>
         /// </summary>
-        /// <param name="branchName">Identifies the branch to be merged into the current branch.</param>
+        /// <param name="branchName">
+        /// Identifies the branch to be merged into the current branch.  This can simply
+        /// be the source branch name or specify a remote GitHub repo and branch like:
+        /// <b>GITHUB-REPO/BRANCH</b>
+        /// </param>
         /// <param name="throwOnConflict">Optionally specifies that the method should not throw an exception for conflicts.</param>
         /// <returns>
         /// A <see cref="MergeResult"/> for successful merges or when the merged failed and 
@@ -508,14 +512,14 @@ namespace Neon.GitHub
 
             var branch = root.GitApi.Branches[branchName];
 
-            if (branch == null)
-            {
-                throw new LibGit2SharpException($"Branch [{branchName}] does not exist.");
-            }
-
             if (IsDirty)
             {
                 throw new LibGit2SharpException($"Target branch [{CurrentBranch.FriendlyName}] has uncommited changes.");
+            }
+
+            if (branch == null)
+            {
+                throw new LibGit2SharpException($"Source branch [{branchName}] does not exist.");
             }
 
             var mergeOptions = new MergeOptions()
