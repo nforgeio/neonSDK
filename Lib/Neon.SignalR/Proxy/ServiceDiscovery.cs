@@ -16,49 +16,39 @@
 // limitations under the License.
 
 using System;
-using System.Linq;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-
-using DnsClient;
 
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-using Neon.Common;
-using Neon.Diagnostics;
-using Neon.Tasks;
+using Neon.SignalR.Proxy;
 
 namespace Neon.SignalR
 {
     /// <summary>
     /// Service discovery background service.
     /// </summary>
-    public class ServiceDiscovey : BackgroundService
+    public class ServiceDiscovery : BackgroundService
     {
-        private readonly ILogger<ServiceDiscovey> logger;
-        private readonly IDnsCache                dnsCache;
-        private readonly ProxyConfig              config;
-        private readonly ILookupClient            lookupClient;
+        private readonly ILogger<ServiceDiscovery> logger;
+        private readonly DnsProvider               dnsProvider;
+        private readonly ProxyConfig               config;
 
         /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="config"></param>
-        /// <param name="dnsCache"></param>
-        /// <param name="lookupClient"></param>
+        /// <param name="dnsProvider"></param>
         /// <param name="logger"></param>
-        public ServiceDiscovey(
-            ProxyConfig config,
-            IDnsCache dnsCache,
-            ILookupClient lookupClient,
-            ILogger<ServiceDiscovey> logger = null)
+        public ServiceDiscovery(
+            DnsProvider               dnsProvider,
+            ProxyConfig               config,
+            ILogger<ServiceDiscovery> logger = null)
         {
-            this.logger       = logger;
-            this.config       = config;
-            this.dnsCache     = dnsCache;
-            this.lookupClient = lookupClient;
+            this.dnsProvider = dnsProvider;
+            this.config      = config;
+            this.logger      = logger;
         }
 
         /// <summary>
@@ -72,86 +62,18 @@ namespace Neon.SignalR
 
             using PeriodicTimer timer = new PeriodicTimer(config.DnsProbeInterval);
 
-            await QueryAsync();
+            await this.dnsProvider.QueryAsync();
 
             try
             {
                 while (await timer.WaitForNextTickAsync(stoppingToken))
                 {
-                    await QueryAsync();
+                    await this.dnsProvider.QueryAsync();
                 }
             }
             catch (OperationCanceledException)
             {
                 logger?.LogInformation("Timed Hosted Service is stopping.");
-            }
-        }
-
-        private async Task QueryAsync()
-        {
-            await SyncContext.Clear;
-
-            try
-            {
-                var dns  = await lookupClient.QueryAsync(config.PeerAddress, QueryType.SRV);
-
-                if (dns.HasError || dns.Answers.IsEmpty())
-                {
-                    logger?.LogDebugEx(() => $"DNS error: [{NeonHelper.JsonSerialize(dns)}]");
-                }
-
-                var srv = dns.Answers.SrvRecords().Where(r => r.Port == config.Port).ToList();
-
-                dnsCache.Hosts = srv.Select(s => s.Target.Value.Trim('.')).ToHashSet();
-
-                foreach (var address in srv)
-                {
-                    try
-                    {
-                        if (address.DomainName.Value.Contains(config.Hostname)
-                            || address.Target.Value.Contains(config.Hostname))
-                        {
-                            var self = address.Target.Value.TrimEnd('.');
-
-                            dnsCache.SetSelfAddress(self);
-
-                            logger?.LogDebugEx(() => $"Service discovery complete.");
-
-                            continue;
-                        }
-
-                        var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
-
-                        var hostEntry   = await Dns.GetHostEntryAsync(
-                            hostNameOrAddress: config.Hostname,
-                            family:            System.Net.Sockets.AddressFamily.InterNetwork,
-                            cancellationToken: cts.Token);
-
-                        var ipString = address.Target.Value.Split('.').FirstOrDefault()?.Replace("-", ".").Trim();
-
-                        if (hostEntry.AddressList.Any(a => a.Equals(IPAddress.Parse(ipString))))
-                        {
-                            var self = address.Target.Value.TrimEnd('.');
-
-                            dnsCache.SetSelfAddress(self);
-
-                            logger?.LogDebugEx(() => $"Service discovery complete.");
-
-                            continue;
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        if (!NeonHelper.IsDevWorkstation)
-                        {
-                            logger?.LogErrorEx(e, () => "Error processing record.");
-                        }
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                logger?.LogErrorEx(e, () => "Error during service discovery");
             }
         }
     }

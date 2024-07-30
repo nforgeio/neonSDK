@@ -25,6 +25,8 @@ using DnsClient;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
+using Neon.SignalR.Proxy;
+
 using Yarp.ReverseProxy.Forwarder;
 
 namespace Neon.SignalR
@@ -43,6 +45,7 @@ namespace Neon.SignalR
         {
             services.TryAddSingleton<ILookupClient>(new LookupClient());
             services.TryAddSingleton<IDnsCache, DnsCache>();
+            services.TryAddSingleton<DnsProvider>();
 
             services.TryAddSingleton<ForwarderRequestConfig>(
                     serviceProvider =>
@@ -75,7 +78,7 @@ namespace Neon.SignalR
                                 ActivityHeadersPropagator = new ReverseProxyPropagator(DistributedContextPropagator.Current)
                             });
                     })
-                .AddHostedService<ServiceDiscovey>();
+                .AddHostedService<ServiceDiscovery>();
 
             return services;
         }

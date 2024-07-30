@@ -62,6 +62,7 @@ namespace Neon.SignalR
         /// <param name="forwarder">The forwarder used to forward requests upstream.</param>
         /// <param name="httpClient">The http client.</param>
         /// <param name="forwarderRequestConfig">The http forwarding configuration.</param>
+        /// <param name="dnsProvider">The DNS provider.</param>
         /// <param name="dataProtectionProvider">An optional data protection provider.</param>
         /// <param name="logger">An optional logger.</param>
         /// <returns></returns>
@@ -72,6 +73,7 @@ namespace Neon.SignalR
             IHttpForwarder                  forwarder,
             HttpMessageInvoker              httpClient,
             ForwarderRequestConfig          forwarderRequestConfig,
+            DnsProvider                     dnsProvider,
             IDataProtectionProvider         dataProtectionProvider = null,
             ILogger<SignalrProxyMiddleware> logger = null)
         {
@@ -89,7 +91,17 @@ namespace Neon.SignalR
 
                     if (!dnsCache.ContainsKey(upstream))
                     {
-                        throw new InvalidDnsException($"Upstream {upstream} not found in DNS cache");
+                        await dnsProvider.QueryAsync();
+
+                        if (!dnsCache.ContainsKey(upstream))
+                        {
+                            throw new InvalidDnsException($"Upstream {upstream} not found in DNS cache");
+                        }
+                    }
+
+                    if (dnsCache.GetSelfAddress().IsNullOrEmpty())
+                    {
+                        await dnsProvider.QueryAsync();
                     }
 
                     if (upstream == dnsCache.GetSelfAddress())
