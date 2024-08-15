@@ -74,6 +74,7 @@ namespace Neon.Blazor.Analyzers
 
                 var usings = new HashSet<string>()
                 {
+                    "System",
                     "System.Collections.Generic",
                     "System.Linq",
                     "Microsoft.AspNetCore.Components",
@@ -103,6 +104,9 @@ namespace Neon.Blazor.Analyzers
 {{
     public partial class {svg.ClassName} : ComponentBase
     {{
+        [Parameter]
+        public Guid Id {{ get; set; }} = Guid.NewGuid();
+
         /// <summary>
         /// Catch all for additional attributes.
         /// </summary>
@@ -169,6 +173,7 @@ namespace Neon.Blazor.Analyzers
             }}
 
             builder.AddMarkupContent(2, {svg.Body});
+            builder.SetKey(Id);
             builder.CloseElement();
         }}
 

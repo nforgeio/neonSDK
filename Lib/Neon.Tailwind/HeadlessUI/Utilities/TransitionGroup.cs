@@ -32,6 +32,12 @@ namespace Neon.Tailwind
     {
         public List<Transition> Transitions { get; private set; } = new List<Transition>();
 
+        /// <summary>
+        /// The tag ID.
+        /// </summary>
+        [Parameter]
+        public string Id { get; set; } = GenerateId();
+
         [Parameter] 
         public RenderFragment ChildContent { get; set; } = default!;
 
@@ -40,6 +46,14 @@ namespace Neon.Tailwind
 
         [Parameter]
         public bool SuppressInitial { get; set; } = false;
+
+        /// <summary>
+        /// Additional attributes.
+        /// </summary>
+        [Parameter(CaptureUnmatchedValues = true)]
+        public IReadOnlyDictionary<string, object> Attributes { get; set; } = new Dictionary<string, object>();
+
+        public TaskCompletionSource<bool> ChildRendered { get; set; } = new TaskCompletionSource<bool>();
 
         private TransitionState? state { get; set; }
         public TransitionState State
@@ -59,6 +73,7 @@ namespace Neon.Tailwind
             }
         }
         public event Action ChildHasChanged;
+        private bool disposed = false;
         public async Task NotifyChildChangedAsync() 
         {
             await SyncContext.Clear;
@@ -101,9 +116,19 @@ namespace Neon.Tailwind
                     ["Value"] = this,
                     ["ChildContent"] = ChildContent
                 });
+
+                builder.AddMultipleAttributes(2, Attributes.Select(a => new KeyValuePair<string, object>(a.Key, a.Value)));
+
+                builder.SetKey(Id);
+
                 builder.CloseComponent();
             }
+            else
+            {
+                ;
+            }
         }
+        public static string GenerateId() => Guid.NewGuid().ToString("N");
 
         /// <summary>
         /// Opens the transition.

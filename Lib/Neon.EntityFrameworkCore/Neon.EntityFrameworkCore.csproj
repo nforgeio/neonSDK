@@ -1,18 +1,18 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFrameworks>net8.0</TargetFrameworks>
         <OutputType>Library</OutputType>
-        <RootNamespace>Neon.Blazor</RootNamespace>
+        <RootNamespace>Neon.EntityFrameworkCore</RootNamespace>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
-        <PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.Blazor/README.md</PackageProjectUrl>
+        <PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.EntityFrameworkCore/README.md</PackageProjectUrl>
         <PackageIcon>nuget-icon.png</PackageIcon>
         <RepositoryUrl>https://github.com/nforgeio/neonSDK</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
         <Configurations>Debug;Release</Configurations>
-        <Description>A Blazor Component Library.</Description>
-        <PackageTags>blazor aspnetcore</PackageTags>
+        <Description>An EntityFrameworkCore Extension Library.</Description>
+        <PackageTags>neon entityframeworkcore efcore</PackageTags>
         <NoWarn>$(NoWarn);1591</NoWarn>
     </PropertyGroup>
 
@@ -26,24 +26,16 @@
         <None Include="..\..\LICENSE" Pack="true" PackagePath="" />
     </ItemGroup>
 
-    <ItemGroup>
-        <SupportedPlatform Include="browser" />
-    </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Neon.BuildInfo\Neon.BuildInfo.csproj" />
-        <ProjectReference Include="..\Neon.Common\Neon.Common.csproj" />
-        <ProjectReference Include="..\Neon.Cryptography\Neon.Cryptography.csproj" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.7" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="8.0.7" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Analyzers" Version="8.0.7" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.7" />
     </ItemGroup>
+
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Components" Version="8.0.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.0" />
+      <ProjectReference Include="..\Neon.Common\Neon.Common.csproj" />
     </ItemGroup>
-
-    <ItemGroup>
-        <Folder Include="Properties\" />
-    </ItemGroup>
-
 </Project>

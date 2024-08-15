@@ -21,5 +21,6 @@ namespace Neon.Tailwind
     {
         Portal GetPortal(string name);
         void RegisterPortal(string name, Portal portal);
+        void UnRegisterPortal(string name, Portal portal);
     }
 }

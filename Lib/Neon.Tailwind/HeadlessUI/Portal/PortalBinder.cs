@@ -15,22 +15,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Rendering;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Neon.Tailwind
 {
     public class PortalBinder : IPortalBinder
     {
-        private Dictionary<string, Portal> portals = new();
+        private Dictionary<string, Portal> portals = new Dictionary<string, Portal>();
         public void RegisterPortal(string name, Portal portal)
         {
             portals[name] = portal;
+        }
+        public void UnRegisterPortal(string name, Portal portal)
+        {
+            if (portals.ContainsKey(name))
+            {
+                portals.Remove(name);
+            }
         }
 
         public Portal GetPortal(string name)
