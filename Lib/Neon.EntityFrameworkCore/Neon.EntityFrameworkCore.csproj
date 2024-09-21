@@ -1,18 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFrameworks>net8.0</TargetFrameworks>
         <OutputType>Library</OutputType>
-        <RootNamespace>Neon.Roslyn.Xunit</RootNamespace>
-        <Description>Roslyn related utilities and extensions for testing with XUnit</Description>
+        <RootNamespace>Neon.EntityFrameworkCore</RootNamespace>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
-        <PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.Roslyn.Xunit/README.md</PackageProjectUrl>
+        <PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.EntityFrameworkCore/README.md</PackageProjectUrl>
         <PackageIcon>nuget-icon.png</PackageIcon>
         <RepositoryUrl>https://github.com/nforgeio/neonSDK</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
-        <PackageTags>roslyn reflection source generators xunit</PackageTags>
         <PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
         <Configurations>Debug;Release</Configurations>
+        <Description>An EntityFrameworkCore Extension Library.</Description>
+        <PackageTags>neon entityframeworkcore efcore</PackageTags>
         <NoWarn>$(NoWarn);1591</NoWarn>
     </PropertyGroup>
 
@@ -26,15 +26,16 @@
         <None Include="..\..\LICENSE" Pack="true" PackagePath="" />
     </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="FluentAssertions" Version="6.12.0" />
-        <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.10.0" PrivateAssets="all" />
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.10.0" PrivateAssets="all" />
-    </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Neon.Common\Neon.Common.csproj" />
-        <ProjectReference Include="..\Neon.Roslyn\Neon.Roslyn.csproj" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="$(DotNet8Version)" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="$(DotNet8Version)" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Analyzers" Version="$(DotNet8Version)" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="$(DotNet8Version)" />
     </ItemGroup>
 
+
+    <ItemGroup>
+      <ProjectReference Include="..\Neon.Common\Neon.Common.csproj" />
+    </ItemGroup>
 </Project>

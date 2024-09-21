@@ -34,13 +34,15 @@ namespace Neon.Blazor
         /// <returns></returns>
         public static IServiceCollection AddNeonBlazor(this IServiceCollection services)
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Create("Browser")))
+            if (RuntimeInformation.IsOSPlatform(PlatformExtensions.BrowserPlatform))
             {
                 services.AddBrowserComponents();
             }
             else
             {
+#pragma warning disable CA1416 // Validate platform compatibility
                 services.AddServerComponents();
+#pragma warning restore CA1416 // Validate platform compatibility
             }
 
             services

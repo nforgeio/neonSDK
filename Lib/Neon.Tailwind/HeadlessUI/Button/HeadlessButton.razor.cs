@@ -42,7 +42,8 @@ namespace Neon.Tailwind
         [Parameter] public string AriaLabel { get; set; }
 
         [Parameter] public RenderFragment ChildContent { get; set; }
-        [Parameter(CaptureUnmatchedValues = true)] public IReadOnlyDictionary<string, object> AdditionalAttributes { get; set; }
+        [Parameter(CaptureUnmatchedValues = true)]
+        public IReadOnlyDictionary<string, object> AdditionalAttributes { get; set; }
 
         protected HtmlElement buttonElement;
         private string previouslyRenderedElementId = null;

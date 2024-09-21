@@ -15,14 +15,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection.Metadata;
+using System.Threading.Tasks;
+
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
+
+using Neon.Tasks;
 
 namespace Neon.Tailwind
 {
     /// <summary>
     /// Portals provide a first-class way to render children into a DOM node that 
-    /// exists outside the DOM hierarchy of the parent component
+    /// exists outside the DOM hierarchy of the parent c
     /// </summary>
     public class Portal : ComponentBase
     {
@@ -37,6 +45,14 @@ namespace Neon.Tailwind
         /// </summary>
         [Parameter] 
         public string Name { get; set; } = "root";
+
+        /// <summary>
+        /// Additional attributes.
+        /// </summary>
+        [Parameter(CaptureUnmatchedValues = true)]
+        public IReadOnlyDictionary<string, object> Attributes { get; set; } = new Dictionary<string, object>();
+
+        public string Id { get; set; } = GenerateId();
 
         private RenderFragment content;
 
@@ -56,14 +72,76 @@ namespace Neon.Tailwind
             StateHasChanged();
         }
 
-        public void RenderComponent<TComponent>()
+        /// <summary>
+        /// Renders the <see cref="RenderFragment"/>.
+        /// </summary>
+        /// <param name="content"></param>
+        public async Task RenderContentAsync(RenderFragment content)
+        {
+            await SyncContext.Clear;
+
+            Id = GenerateId();
+
+            this.content = content;
+
+            await InvokeAsync(StateHasChanged);
+        }
+
+
+        public Task<TComponent> RenderComponentAsync<TComponent>()
             where TComponent : IComponent
         {
+            return RenderComponentAsync<TComponent>(parameters: null);
+        }
+
+        public Task<TComponent> RenderComponentAsync<TComponent>(Action<Dictionary<string, object>> parameterSetter = null)
+            where TComponent : IComponent
+        {
+            var parameters = new Dictionary<string, object>();
+            parameterSetter.Invoke(parameters);
+
+            return RenderComponentAsync<TComponent>(parameters);
+        }
+
+        public async Task<TComponent> RenderComponentAsync<TComponent>(Dictionary<string, object> parameters = null)
+            where TComponent : IComponent
+        {
+            await SyncContext.Clear;
+
+            Id = GenerateId();
+
+            var hasRendered = new TaskCompletionSource<bool>();
+            TComponent component = default;
+
+            var componentId = GenerateId();
+
             this.content = builder =>
             {
                 builder.OpenComponent<TComponent>(0);
+
+                if (parameters != null)
+                {
+                    builder.AddMultipleAttributes(1, parameters);
+                }
+
+                builder.AddComponentReferenceCapture(2, c =>
+                {
+                    if (component == null)
+                    {
+                        component = (TComponent)c;
+                        hasRendered.TrySetResult(true);
+                    }
+                });
+
+                builder.SetKey(componentId);
                 builder.CloseComponent();
             };
+
+            await InvokeAsync(StateHasChanged);
+
+            await hasRendered.Task;
+
+            return component;
         }
 
         public void Close()
@@ -72,13 +150,26 @@ namespace Neon.Tailwind
             StateHasChanged();
         }
 
+        public async Task CloseAsync()
+        {
+            await SyncContext.Clear;
+
+            this.content = null;
+
+            await InvokeAsync(StateHasChanged);
+        }
+
         /// <inheritdoc/>
         protected override void BuildRenderTree(RenderTreeBuilder builder)
         {
             builder.OpenElement(0, "div");
             builder.AddAttribute(1, "id", Name);
-            builder.AddContent(2, content);
+            builder.AddMultipleAttributes(2, Attributes.Select(a => new KeyValuePair<string, object>(a.Key, a.Value)));
+            builder.AddContent(3, content);
+            builder.SetKey(Id);
             builder.CloseElement();
         }
+
+        public static string GenerateId() => Guid.NewGuid().ToString("N");
     }
 }

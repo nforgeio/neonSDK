@@ -10,7 +10,7 @@
         <PackageReference Include="DnsClient" Version="1.7.0" />
         <PackageReference Include="Moq" Version="4.20.70" />
         <PackageReference Include="Yarp.ReverseProxy" Version="2.1.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.1" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="$(DotNet8Version)" />
     </ItemGroup>
 
     <ItemGroup>

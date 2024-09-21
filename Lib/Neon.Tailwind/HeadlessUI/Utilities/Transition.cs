@@ -18,15 +18,15 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Timers;
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
-using Microsoft.Extensions.Logging;
 
+using Neon.Tailwind.HeadlessUI.Utilities;
 using Neon.Tasks;
 
 namespace Neon.Tailwind
@@ -112,10 +112,15 @@ namespace Neon.Tailwind
         /// Additional attributes.
         /// </summary>
         [Parameter(CaptureUnmatchedValues = true)]
-        public IReadOnlyDictionary<string, object> Attributes { get; set; }
+        public IReadOnlyDictionary<string, object> Attributes { get; set; } = new Dictionary<string, object>();
 
         public event Action OnTransitionChange;
         public bool ChildIsVisible => (State != Tailwind.TransitionState.Hidden);
+
+        private bool disposed = false;
+
+        private TaskCompletionSource<bool> hasRendered = new TaskCompletionSource<bool>();
+        private TaskCompletionSource<bool> childRendered = new TaskCompletionSource<bool>();
 
         /// <summary>
         /// Generates an ID.
@@ -124,6 +129,10 @@ namespace Neon.Tailwind
         public static string GenerateId() => Guid.NewGuid().ToString("N");
         private async Task NotifyTransitionChangedAsync()
         {
+            childRendered = new TaskCompletionSource<bool>();
+
+            await InvokeAsync(StateHasChanged);
+
             if (OnTransitionChange != null)
             {
                 await InvokeAsync(OnTransitionChange);
@@ -154,6 +163,7 @@ namespace Neon.Tailwind
 
         private TransitionState? state { get; set; }
         public string CurrentCssClass { get; private set; }
+        public string LastCssClass { get; private set; }
         public string ClassAttributes { get; private set; }
 
         private bool transitionStarted;
@@ -186,7 +196,7 @@ namespace Neon.Tailwind
                 {
                     return SuppressInitial.Value;
                 }
-                
+
                 if (TransitionGroup != null)
                 {
                     return TransitionGroup.SuppressInitial;
@@ -201,15 +211,17 @@ namespace Neon.Tailwind
         /// <inheritdoc/>
         protected override void OnInitialized()
         {
+            base.OnInitialized();
+
             TransitionGroup?.RegisterTransition(this);
             OnTransitionChange += StateHasChanged;
-
-            base.OnInitialized();
         }
 
         protected override async Task OnParametersSetAsync()
         {
             await SyncContext.Clear;
+
+            await base.OnParametersSetAsync();
 
             if (!stateChangeRequested)
             {
@@ -248,23 +260,39 @@ namespace Neon.Tailwind
                 }
             }
 
-            if (show)
+            if (!isInitialized)
             {
-                await EnterAsync();
+                if (show && suppressInitial)
+                {
+                    State = TransitionState.Visible;
+                }
+                else
+                {
+                    State = TransitionState.Hidden;
+                }
+
+                await ClearCurrentTransitionAsync();
             }
             else
             {
-                await LeaveAsync();
+                if (show)
+                {
+                    await EnterAsync();
+                }
+                else
+                {
+                    await LeaveAsync();
+                }
             }
 
-            await base.OnParametersSetAsync();
+            isInitialized = true;
         }
 
         /// <inheritdoc/>
         public override async Task SetParametersAsync(ParameterView parameters)
         {
             await SyncContext.Clear;
-            
+
             var currentShowValue  = Show;
 
             parameters.SetParameterProperties(this);
@@ -275,44 +303,64 @@ namespace Neon.Tailwind
             await base.SetParametersAsync(ParameterView.Empty);
         }
 
+        protected override void OnAfterRender(bool firstRender)
+        {
+            base.OnAfterRender(firstRender);
+        }
+
         /// <inheritdoc/>
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             await SyncContext.Clear;
-            
-            if (TransitionHasStartedOrCompleted())
+
+            await base.OnAfterRenderAsync(firstRender);
+
+            if (!hasRendered.Task.IsCompleted)
             {
-                return;
+                hasRendered.TrySetResult(true);
             }
 
             if (firstRender)
             {
-                if (!suppressInitial)
+                if (!suppressInitial && show)
                 {
-                    await StartTransition();
+                    await EnterAsync();
                 }
             }
-        }
 
+            if (TransitionHasStartedOrCompleted())
+            {
+                return;
+            }
+        }
+        
         /// <inheritdoc/>
         protected override void BuildRenderTree(RenderTreeBuilder builder)
         {
             builder.OpenComponent<CascadingValue<Transition>>(0);
-            builder.AddAttribute(2, "Value", this);
+            builder.AddAttribute(1, "Value", this);
+            builder.AddMultipleAttributes(2, Attributes.Select(a => new KeyValuePair<string, object>(a.Key, a.Value)));
 
             if (State != TransitionState.Hidden)
             {
-                builder.AddAttribute(3, "ChildContent", ChildContent?.Invoke(CurrentCssClass));
+                if (CurrentCssClass != LastCssClass)
+                {
+                    LastCssClass = CurrentCssClass;
+                }
+
+                RenderFragment content = b =>
+                {
+                    b.OpenComponent<RenderNotifier>(0);
+                    b.AddComponentParameter(1, nameof(RenderNotifier.Transition), this);
+                    b.AddComponentParameter(2, nameof(RenderNotifier.ChildContent), ChildContent?.Invoke(CurrentCssClass));
+                    b.CloseComponent();
+                };
+
+                builder.AddAttribute(3, nameof(ChildContent), content);
             }
+            builder.SetKey(Id);
 
             builder.CloseComponent();
-        }
-
-        /// <inheritdoc/>
-        public void Dispose()
-        {
-            TransitionGroup?.UnRegisterTransition(this);
-            OnTransitionChange -= StateHasChanged;
         }
 
         /// <summary>
@@ -407,8 +455,18 @@ namespace Neon.Tailwind
                 cssClass.Append(ClassAttributes);
             }
 
-            await Task.Delay(25);
-            
+            var tasks = new List<Task>()
+            {
+                hasRendered.Task
+            };
+
+            if (State == TransitionState.Visible || State == TransitionState.Entering)
+            {
+                tasks.Add(childRendered.Task);
+            }
+
+            await Task.WhenAll(tasks);
+
             switch (State)
             {
                 case TransitionState.Entering:
@@ -454,11 +512,35 @@ namespace Neon.Tailwind
                     break;
             }
 
-            State = State == TransitionState.Entering ? TransitionState.Visible : TransitionState.Hidden;
+            switch (State)
+            {
+                case TransitionState.Entering:
+                case TransitionState.Visible:
+
+                    State = TransitionState.Visible;
+
+                    break;
+
+                case TransitionState.Hidden:
+                case TransitionState.Leaving:
+
+                    State = TransitionState.Hidden;
+
+                    break;
+
+                default:
+
+                    break;
+
+            }
+
             await ClearCurrentTransitionAsync();
         }
 
-        private bool TransitionHasStartedOrCompleted() => State == TransitionState.Visible || State == TransitionState.Hidden || transitionStarted;
+        private bool TransitionHasStartedOrCompleted()
+        {
+            return State == TransitionState.Visible || State == TransitionState.Hidden || transitionStarted;
+        }
 
         private async Task ClearCurrentTransitionAsync()
         {
@@ -540,6 +622,18 @@ namespace Neon.Tailwind
             CurrentCssClass = cssClass.ToString();
 
             await NotifyTransitionChangedAsync();
+        }
+
+        public async Task NotifyRenderAsync()
+        {
+            await SyncContext.Clear;
+
+            if (!childRendered.Task.IsCompleted)
+            {
+                childRendered.TrySetResult(true);
+
+                await InvokeAsync(StateHasChanged);
+            }
         }
     }
 }

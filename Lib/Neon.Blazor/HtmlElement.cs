@@ -51,7 +51,7 @@ namespace Neon.Blazor
         /// Additional attributes to be applied to the element.
         /// </summary>
         [Parameter(CaptureUnmatchedValues = true)] 
-        public IReadOnlyDictionary<string, object> Attributes { get; set; }
+        public IReadOnlyDictionary<string, object> Attributes { get; set; } = new Dictionary<string, object>();
 
         /// <summary>
         /// The child content.
@@ -98,6 +98,7 @@ namespace Neon.Blazor
                 builder.AddEventStopPropagationAttribute(5, eventName, true);
             builder.AddElementReferenceCapture(6, r => OnSetElementReference(r));
             builder.AddContent(6, ChildContent);
+            builder.SetKey(Id);
             builder.CloseElement();
         }
 
