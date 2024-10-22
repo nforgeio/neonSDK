@@ -205,7 +205,7 @@ namespace Neon.Deployment
 
                 var input = new StringReader(masterPassword);
 
-                var response = NeonHelper.ExecuteCapture("op",
+                var response = NeonHelper.ExecuteCapture("op.exe",
                     new string[]
                     {
                         "--cache",
@@ -266,7 +266,7 @@ namespace Neon.Deployment
 
                 var input = new StringReader(masterPassword);
 
-                var response = NeonHelper.ExecuteCapture("op",
+                var response = NeonHelper.ExecuteCapture("op.exe",
                     new string[]
                     {
                         "--cache",
@@ -293,7 +293,7 @@ namespace Neon.Deployment
         {
             lock (syncLock)
             {
-                NeonHelper.ExecuteCapture("op", new string[] { "signout" });
+                NeonHelper.ExecuteCapture("op.exe", new string[] { "signout" });
 
                 OnePassword.account        = null;
                 OnePassword.defaultVault   = null;
@@ -335,7 +335,7 @@ namespace Neon.Deployment
             {
                 EnsureSignedIn();
 
-retry:          var response = NeonHelper.ExecuteCapture("op",
+retry:          var response = NeonHelper.ExecuteCapture("op.exe",
                     new string[]
                     {
                         "--cache",
@@ -412,7 +412,7 @@ retry:          var response = NeonHelper.ExecuteCapture("op",
             {
                 EnsureSignedIn();
 
-retry:          var response = NeonHelper.ExecuteCapture("op",
+retry:          var response = NeonHelper.ExecuteCapture("op.exe",
                     new string[]
                     {
                         "--cache",
