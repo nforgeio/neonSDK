@@ -72,25 +72,27 @@ namespace Neon.Deployment
         public static bool Signedin => masterPassword != null;
 
         /// <summary>
-        /// <para>
         /// This class requires that a <b>op.exe</b> v1 client be installed and if
         /// the 1Password app is installed that it be version 8.0 or greater.
-        /// </para>
         /// </summary>
+        /// <param name="opPath">
+        /// Optionally specifies the fully qualified path to the 1Password CLI which
+        /// will be executed instead of the CLI found on the PATH.
+        /// </param>
         /// <exception cref="NotSupportedException">Thrown when any of the checks failed.</exception>
-        public static void CheckInstallation()
+        public static void CheckInstallation(string opPath = null)
         {
-            // Check for the [op.exe] client presence and version.
+            // Check for the [op.exe] CLI presence and version.
 
             ExecuteResponse response;
 
             try
             {
-                response = NeonHelper.ExecuteCapture("op.exe", new object[] { "--version" });
+                response = NeonHelper.ExecuteCapture(opPath ?? "op.exe", new object[] { "--version" });
             }
             catch
             {
-                throw new NotSupportedException("Cannot locate the 1Password [op.exe] v1 CLI.  This must be located on the PATH.");
+                throw new NotSupportedException("Cannot locate the 1Password [op.exe] v1 CLI.  This must be on the PATH.");
             }
 
             if (response.ExitCode != 0)
@@ -102,9 +104,9 @@ namespace Neon.Deployment
             {
                 var version = SemanticVersion.Parse(response.OutputText.Trim());
 
-                if (version >= SemanticVersion.Parse("2"))
+                if (version < SemanticVersion.Parse("2"))
                 {
-                    throw new NotSupportedException($"Installed 1Password [op.exe] CLI [Version={version}].  Only v1+ clients are supported at this time.");
+                    throw new NotSupportedException($"1Password [op.exe] CLI [Version={version}] is installed.  v2+ is required.");
                 }
             }
             catch (FormatException)
@@ -115,7 +117,7 @@ namespace Neon.Deployment
             // $hack(jefflill):
             //
             // Check for installed 1Password application version 7.x and throw an exception
-            // when present.  We never installed eealier 1Passwork versions, so we won't
+            // when present.  We never installed earlier 1Password versions, so we won't
             // bother checking for those.
 
             var probePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData", "Local", "1Password", "app", "7", "1Password.exe");
@@ -159,7 +161,7 @@ namespace Neon.Deployment
 
         /// <summary>
         /// Configures and signs into 1Password for the first time on a machine.  This
-        /// must be called once before <see cref="Signin(string, string, string)"/> will
+        /// must be called once before <see cref="Signin(string, string, string, string)"/> will
         /// work.
         /// </summary>
         /// <param name="signinAddress">Specifies the 1Password signin address.</param>
@@ -167,12 +169,16 @@ namespace Neon.Deployment
         /// <param name="secretKey">The 1Password secret key for the account.</param>
         /// <param name="masterPassword">Specified the master 1Password.</param>
         /// <param name="defaultVault">Specifies the default 1Password vault.</param>
+        /// <param name="opPath">
+        /// Optionally specifies the fully qualified path to the 1Password CLI which
+        /// will be executed instead of the CLI found on the PATH.
+        /// </param>
         /// <remarks>
         /// <para>
-        /// Typically, you'll first call <see cref="Configure(string, string, string, string, string)"/> once
+        /// Typically, you'll first call <see cref="Configure(string, string, string, string, string, string)"/> once
         /// for a workstation to configure the signin address and 1Password secret key during manual
         /// configuration.  The account shorthand name used for that operation can then be used thereafter
-        /// for calls to <see cref="Signin(string, string, string)"/> which don't require the additional 
+        /// for calls to <see cref="Signin(string, string, string, string)"/> which don't require the additional 
         /// information.
         /// </para>
         /// <para>
@@ -183,7 +189,7 @@ namespace Neon.Deployment
         /// as plaintext again on the machine.
         /// </para>
         /// </remarks>
-        public static void Configure(string signinAddress, string account, string secretKey, string masterPassword, string defaultVault)
+        public static void Configure(string signinAddress, string account, string secretKey, string masterPassword, string defaultVault, string opPath = null)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(signinAddress), nameof(signinAddress));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(account), nameof(account));
@@ -205,16 +211,13 @@ namespace Neon.Deployment
 
                 var input = new StringReader(masterPassword);
 
-                var response = NeonHelper.ExecuteCapture("op.exe",
+                var response = NeonHelper.ExecuteCapture(opPath ?? "op.exe",
                     new string[]
                     {
+                        "--account", account,
                         "--cache",
                         "signin",
-                        "--raw",
-                        signinAddress,
-                        account,
-                        secretKey,
-                        "--shorthand", account
+                        "--raw"
                     },
                     input: input);
 
@@ -230,15 +233,19 @@ namespace Neon.Deployment
 
         /// <summary>
         /// Signs into 1Password using just the account, master password, and default vault.  You'll
-        /// typically call this rather than <see cref="Configure(string, string, string, string, string)"/>
+        /// typically call this rather than <see cref="Configure(string, string, string, string, string, string)"/>
         /// which also requires the signin address as well as the secret key.
         /// </summary>
         /// <param name="account">The account's shorthand name (e.g. (e.g. "sally@neonforge.com").</param>
         /// <param name="masterPassword">The master password.</param>
         /// <param name="defaultVault">The default vault.</param>
+        /// <param name="opPath">
+        /// Optionally specifies the fully qualified path to the 1Password CLI which
+        /// will be executed instead of the CLI found on the PATH.
+        /// </param>
         /// <remarks>
         /// <para>
-        /// Typically, you'll first call <see cref="Configure(string, string, string, string, string)"/> once
+        /// Typically, you'll first call <see cref="Configure(string, string, string, string, string, string)"/> once
         /// for a workstation to configure the signin address and 1Password secret key during manual
         /// configuration.  The account shorthand name used for that operation can then be used thereafter
         /// for calls to this method which don't require the additional information.
@@ -251,7 +258,7 @@ namespace Neon.Deployment
         /// as plaintext again on the machine.
         /// </para>
         /// </remarks>
-        public static void Signin(string account, string masterPassword, string defaultVault)
+        public static void Signin(string account, string masterPassword, string defaultVault, string opPath = null)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(account), nameof(account));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(defaultVault), nameof(defaultVault));
@@ -266,13 +273,13 @@ namespace Neon.Deployment
 
                 var input = new StringReader(masterPassword);
 
-                var response = NeonHelper.ExecuteCapture("op.exe",
+                var response = NeonHelper.ExecuteCapture(opPath ?? "op.exe",
                     new string[]
                     {
+                        "--account", account,
                         "--cache",
                         "signin",
-                        "--raw",
-                        account
+                        "--raw"
                     },
                     input: input);
 
@@ -289,11 +296,23 @@ namespace Neon.Deployment
         /// <summary>
         /// Signs out.
         /// </summary>
-        public static void Signout()
+        /// <param name="opPath">
+        /// Optionally specifies the fully qualified path to the 1Password CLI which
+        /// will be executed instead of the CLI found on the PATH.
+        /// </param>
+        public static void Signout(string opPath = null)
         {
             lock (syncLock)
             {
-                NeonHelper.ExecuteCapture("op.exe", new string[] { "signout" });
+                if (string.IsNullOrEmpty(OnePassword.account))
+                {
+                    NeonHelper.ExecuteCapture(opPath ?? "op.exe",
+                        new string[]
+                        {
+                            "--account", OnePassword.account,
+                            "signout"
+                        });
+                }
 
                 OnePassword.account        = null;
                 OnePassword.defaultVault   = null;
@@ -308,6 +327,10 @@ namespace Neon.Deployment
         /// </summary>
         /// <param name="name">The password name with optional property.</param>
         /// <param name="vault">Optionally specifies a specific vault.</param>
+        /// <param name="opPath">
+        /// Optionally specifies the fully qualified path to the 1Password CLI which
+        /// will be executed instead of the CLI found on the PATH.
+        /// </param>
         /// <returns>The requested password (from the password's [password] field).</returns>
         /// <exception cref="OnePasswordException">Thrown when the requested secret or proerty doesn't exist or for other 1Password related problems.</exception>
         /// <remarks>
@@ -320,7 +343,7 @@ namespace Neon.Deployment
         /// SECRETNAME[PROPERTY]
         /// </example>
         /// </remarks>
-        public static string GetSecretPassword(string name, string vault = null)
+        public static string GetSecretPassword(string name, string vault = null, string opPath = null)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(name), nameof(name));
 
@@ -335,14 +358,15 @@ namespace Neon.Deployment
             {
                 EnsureSignedIn();
 
-retry:          var response = NeonHelper.ExecuteCapture("op.exe",
+retry:          var response = NeonHelper.ExecuteCapture(opPath ?? "op.exe",
                     new string[]
                     {
                         "--cache",
                         "--session", sessionToken,
-                        "get", "item", name,
+                        "item", "get", name,
                         "--vault", vault,
-                        "--fields", property
+                        "--fields", property,
+                        "--reveal"
                     });
 
                 switch (GetStatus(response))
@@ -385,6 +409,10 @@ retry:          var response = NeonHelper.ExecuteCapture("op.exe",
         /// </summary>
         /// <param name="name">The password name with optional property.</param>
         /// <param name="vault">Optionally specifies a specific vault.</param>
+        /// <param name="opPath">
+        /// Optionally specifies the fully qualified path to the 1Password CLI which
+        /// will be executed instead of the CLI found on the PATH.
+        /// </param>
         /// <returns>The requested value (from the password's <b>value</b> field).</returns>
         /// <exception cref="OnePasswordException">Thrown when the requested secret or proerty doesn't exist or for other 1Password related problems.</exception>
         /// <remarks>
@@ -397,7 +425,7 @@ retry:          var response = NeonHelper.ExecuteCapture("op.exe",
         /// SECRETNAME[PROPERTY]
         /// </example>
         /// </remarks>
-        public static string GetSecretValue(string name, string vault = null)
+        public static string GetSecretValue(string name, string vault = null, string opPath = null)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(name), nameof(name));
 
@@ -412,15 +440,17 @@ retry:          var response = NeonHelper.ExecuteCapture("op.exe",
             {
                 EnsureSignedIn();
 
-retry:          var response = NeonHelper.ExecuteCapture("op.exe",
+retry:          var response = NeonHelper.ExecuteCapture(opPath ?? "op.exe",
                     new string[]
                     {
                         "--cache",
                         "--session", sessionToken,
-                        "get", "item", name,
+                        "item", "get", name,
                         "--vault", vault,
-                        "--fields", property
+                        "--fields", property,
+                        "--reveal"
                     });
+
 
                 switch (GetStatus(response))
                 {
