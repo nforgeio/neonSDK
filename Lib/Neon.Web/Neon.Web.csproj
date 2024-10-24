@@ -50,7 +50,7 @@
 
     <ItemGroup>
         <PackageReference Include="AsyncKeyedLock" Version="7.0.0" />
-        <PackageReference Include="MessagePack" Version="2.5.172" />
+        <PackageReference Include="MessagePack" Version="2.5.187" />
     </ItemGroup>
 
     <ItemGroup>
