@@ -52,6 +52,11 @@ namespace Neon.Tailwind
         [Parameter(CaptureUnmatchedValues = true)]
         public IReadOnlyDictionary<string, object> Attributes { get; set; } = new Dictionary<string, object>();
 
+        [Parameter]
+        public string Class { get; set; }
+
+        private HashSet<string> classes = new HashSet<string>();
+
         public string Id { get; set; } = GenerateId();
 
         private RenderFragment content;
@@ -60,6 +65,18 @@ namespace Neon.Tailwind
         protected override void OnInitialized()
         {
             PortalBinder?.RegisterPortal(Name, this);
+        }
+
+        /// <inheritdoc/>
+        protected override void OnParametersSet()
+        {
+            if (Attributes != null && Attributes.TryGetValue("class", out var @class))
+            {
+                foreach (var c in ((string)@class).Split(' '))
+                {
+                    classes.Add(c);
+                }
+            }
         }
 
         /// <summary>
@@ -164,8 +181,9 @@ namespace Neon.Tailwind
         {
             builder.OpenElement(0, "div");
             builder.AddAttribute(1, "id", Name);
-            builder.AddMultipleAttributes(2, Attributes.Select(a => new KeyValuePair<string, object>(a.Key, a.Value)));
-            builder.AddContent(3, content);
+            builder.AddMultipleAttributes(2, Attributes.Where(a => a.Key != "class").Select(a => new KeyValuePair<string, object>(a.Key, a.Value)));
+            builder.AddAttribute(3, "class", string.Join(" ", classes));
+            builder.AddContent(4, content);
             builder.SetKey(Id);
             builder.CloseElement();
         }
