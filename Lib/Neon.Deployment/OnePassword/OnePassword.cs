@@ -279,17 +279,13 @@ namespace Neon.Deployment
                         "--account", account,
                         "--cache",
                         "signin",
-                        "--raw"
-                    },
-                    input: input);
+                    });
 
                 if (response.ExitCode != 0)
                 {
                     Signout();
                     throw new OnePasswordException(response.AllText);
                 }
-
-                SetSessionToken(response.OutputText.Trim());
             }
         }
 
@@ -362,7 +358,7 @@ retry:          var response = NeonHelper.ExecuteCapture(opPath ?? "op.exe",
                     new string[]
                     {
                         "--cache",
-                        "--session", sessionToken,
+                        "--account", OnePassword.account,
                         "item", "get", name,
                         "--vault", vault,
                         "--fields", property,
