@@ -63,8 +63,9 @@ if (!(Test-Path env:NC_ROOT))
 
 # Retrieve any necessary credentials.
 
-$nugetApiKey = Get-SecretPassword "NUGET_PUBLIC_KEY"
+$nugetApiKey  = Get-SecretPassword "NUGET_PUBLIC_KEY"
 $githubApiKey = Get-SecretPassword "GITHUB_PAT"
+
 #------------------------------------------------------------------------------
 # Builds and publishes the project packages.
 
