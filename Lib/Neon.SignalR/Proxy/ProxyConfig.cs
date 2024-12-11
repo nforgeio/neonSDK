@@ -16,6 +16,7 @@
 // limitations under the License.
 
 using System;
+using System.Threading.Tasks;
 
 namespace Neon.SignalR
 {
@@ -49,5 +50,10 @@ namespace Neon.SignalR
         /// The max value is TimeSpan.FromMilliseconds(int.MaxValue).
         /// </summary>
         public TimeSpan ActivityTimeout { get; set; } = TimeSpan.FromSeconds(100);
+
+        /// <summary>
+        /// The function to call when the service is ready.
+        /// </summary>
+        public Func<Task> ReadyFunction { get; set; } = null;
     }
 }

@@ -64,6 +64,11 @@ namespace Neon.SignalR
 
             await this.dnsProvider.QueryAsync();
 
+            if (config.ReadyFunction != null)
+            {
+                await config.ReadyFunction();
+            }
+
             try
             {
                 while (await timer.WaitForNextTickAsync(stoppingToken))

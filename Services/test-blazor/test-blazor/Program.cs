@@ -140,6 +140,10 @@ namespace TestBlazor
                     options.Port            = PORT;
                     options.Hostname        = hostname;
                     options.ActivityTimeout = TimeSpan.FromMilliseconds(int.MaxValue);
+                    options.ReadyFunction   = async () =>
+                    {
+                        await Task.Delay(1000);
+                    };
                 });
 
                 var app = builder.Build();
