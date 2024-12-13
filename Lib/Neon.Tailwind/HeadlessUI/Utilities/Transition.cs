@@ -117,8 +117,6 @@ namespace Neon.Tailwind
         public event Action OnTransitionChange;
         public bool ChildIsVisible => (State != Tailwind.TransitionState.Hidden);
 
-        private bool disposed = false;
-
         private TaskCompletionSource<bool> hasRendered = new TaskCompletionSource<bool>();
         private TaskCompletionSource<bool> childRendered = new TaskCompletionSource<bool>();
 
