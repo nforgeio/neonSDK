@@ -1,5 +1,5 @@
 ﻿@*//-----------------------------------------------------------------------------
-// FILE:	      HeadlessListboxOption.razor
+// FILE:	    HeadlessComboboxInput.razor
 // CONTRIBUTOR: Marcus Bowyer
 // COPYRIGHT:  	Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 //
@@ -19,18 +19,10 @@
 
 @typeparam TValue
 
+<input type="text"
+    @bind="inputValue"
+    @bind:after="ValueChangedAsync"
+    @bind:event="oninput"
+    @onclick="OnClickedAsync"
+    @attributes="@AdditionalAttributes" />
 
-<HtmlElement TagName="@TagName" 
-             PreventDefaultOn="@(new() { "onclick", "onfocus" })"
-             @onclick="HandleClick"
-             @onfocus="HandleFocus"
-             @onmouseenter="HandleMouseEnter"
-             @onmouseleave="HandleMouseLeave"              
-             @attributes="AdditionalAttributes"
-             Id="@Id" 
-             role="option" 
-             aria-selected="@IsSelected">
-    <CascadingValue Value="this">
-        @ChildContent?.Invoke(this)
-    </CascadingValue>
-</HtmlElement>

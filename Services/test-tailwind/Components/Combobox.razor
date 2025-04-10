@@ -1,0 +1,48 @@
+﻿@*//-----------------------------------------------------------------------------
+// FILE:	    Combobox.razor
+// CONTRIBUTOR: Marcus Bowyer
+// COPYRIGHT:  	Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.*@
+
+<HeadlessCombobox TValue="Person" @bind-Value="@selectedPerson" Context="combobox">
+    <div class="mt-1 relative">
+
+        <HeadlessComboboxInput TValue="Person" DisplayValue="(person) => person.Name" ValueChanged="OnInputChangedAsync" class="bg-gray-300" />
+        <TransitionGroup Show="@(combobox.State == ComboboxState.Open)">
+            <Transition Show="@(combobox.State == ComboboxState.Open)"
+            Leave="transition ease-in duration-[300ms]"
+            LeaveFrom="opacity-100"
+            LeaveTo="opacity-0"
+            Enter="transition ease-out duration-[300ms]"
+            EnterFrom="opacity-0"
+            EnterTo="opacity-100"
+            Context="transitionCss">
+                <HeadlessComboboxOptions Static="false" TValue="Person" class="@($"{transitionCss} focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 absolute mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm")">
+
+                    @foreach (var person in filteredPeople)
+                    {
+                        <HeadlessComboboxOption TValue="Person" Value="person" Context="option">
+                            <div class="@(option.IsActive ? "text-white bg-indigo-600" : "text-gray-900")">
+                                <span>@person.Name</span>
+                            </div>
+                    </HeadlessComboboxOption>
+                }
+
+            </HeadlessComboboxOptions>
+        </Transition>
+        </TransitionGroup>
+    </div>
+</HeadlessCombobox>
+
+<a href="#">@selectedPerson?.Name [@selectedPerson?.Id]</a>
