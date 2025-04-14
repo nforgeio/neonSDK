@@ -58,8 +58,13 @@ namespace Neon.Tailwind
             }
         }
 
-        internal async Task SetValueAsync(TValue value)
+        public async Task SetValueAsync(TValue value)
         {
+            if (value == null)
+            {
+                inputValue = string.Empty;
+            }
+
             inputValue = displayValue(value);
         }
 

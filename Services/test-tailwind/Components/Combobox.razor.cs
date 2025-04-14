@@ -26,6 +26,7 @@ namespace TestTailwind.Components
 {
     public partial class Combobox : ComponentBase
     {
+        public Neon.Tailwind.HeadlessCombobox<Person> HeadlessCombobox { get; set; }
         protected override void OnInitialized()
         {
             base.OnInitialized();
@@ -39,6 +40,12 @@ namespace TestTailwind.Components
 
             await InvokeAsync(StateHasChanged);
         }
+
+        private async Task ResetAsync()
+        {
+            HeadlessCombobox.CurrentValue = null;
+        }
+
         private Person selectedPerson;
 
         private List<Person> filteredPeople = new();
@@ -52,7 +59,7 @@ namespace TestTailwind.Components
             new() { Id = 5, Name = "Katelyn Rohan" }
         };
 
-        private record Person
+        public record Person
         {
             public int Id { get; init; }
             public string Name { get; init; }

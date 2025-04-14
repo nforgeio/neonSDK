@@ -15,10 +15,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.*@
 
-<HeadlessCombobox TValue="Person" @bind-Value="@selectedPerson" Context="combobox">
+<HeadlessCombobox @ref="HeadlessCombobox" TValue="Person" @bind-Value="@selectedPerson" Context="combobox">
     <div class="mt-1 relative">
 
-        <HeadlessComboboxInput TValue="Person" DisplayValue="(person) => person.Name" ValueChanged="OnInputChangedAsync" class="bg-gray-300" />
+        <HeadlessComboboxInput TValue="Person" DisplayValue="(person) => person.Name" ValueChanged="OnInputChangedAsync" placeholder="Search..." class="bg-gray-300" />
         <TransitionGroup Show="@(combobox.State == ComboboxState.Open)">
             <Transition Show="@(combobox.State == ComboboxState.Open)"
             Leave="transition ease-in duration-[300ms]"
@@ -46,3 +46,5 @@
 </HeadlessCombobox>
 
 <a href="#">@selectedPerson?.Name [@selectedPerson?.Id]</a>
+
+<button @onclick="ResetAsync">Reset</button>
