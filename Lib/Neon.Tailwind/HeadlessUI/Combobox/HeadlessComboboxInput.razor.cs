@@ -63,6 +63,8 @@ namespace Neon.Tailwind
             if (value == null)
             {
                 inputValue = string.Empty;
+
+                return;
             }
 
             inputValue = displayValue(value);

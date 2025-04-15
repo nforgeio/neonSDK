@@ -77,6 +77,7 @@ namespace Neon.Tailwind
         {
             options.Add(option);
         }
+
         public void UnregisterOption(HeadlessComboboxOption<TValue> option)
         {
             if (!options.Contains(option)) return;
@@ -193,6 +194,12 @@ namespace Neon.Tailwind
             State = ComboboxState.Open;
             await OnOpen.InvokeAsync();
             shouldFocus = true;
+
+            if (optionsElement != null)
+            {
+                await optionsElement.FocusAsync();
+            }
+
             StateHasChanged();
         }
         public ValueTask OptionsFocusAsync() => optionsElement?.FocusAsync() ?? ValueTask.CompletedTask;

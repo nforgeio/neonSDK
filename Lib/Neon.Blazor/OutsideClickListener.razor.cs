@@ -54,50 +54,73 @@ namespace Neon.Blazor
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             if (!firstRender)
+            {
                 return;
+            }
 
-            await ConnectToJavaScript();
-        }
+            listenerRef ??= DotNetObjectReference.Create(this);
 
-        private async Task ConnectToJavaScript()
-        {
-            listenerRef = DotNetObjectReference.Create(this);
-
-            jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>(
-                "import",
-                "/_content/Neon.Blazor/outsideClickListener.js");
+            jsModule ??= await JsRuntime.InvokeAsync<IJSObjectReference>(
+               "import",
+               "/_content/Neon.Blazor/outsideClickListener.js");
 
             await AttachAsync();
         }
 
         private async Task AttachAsync()
         {
-            await jsModule.InvokeVoidAsync(
-                identifier: "addWindowClickEvent",
-                args:
-                [
-                    HtmlElementRef,
+            if (jsModule == null)
+            {
+                return;
+            }
+
+            try
+            {
+
+                await jsModule.InvokeVoidAsync(
+                    identifier: "addWindowClickEvent",
+                    args:
+                    [
+                        HtmlElementRef,
                     listenerRef,
                     Capture
-                ]);
+                    ]);
+            }
+            catch (Exception)
+            {
+                // This exception is thrown when the JS runtime is disconnected.
+            }
         }
 
         private async Task DetachAsync()
         {
-            await jsModule!.InvokeVoidAsync(
-                identifier: "removeWindowClickEvent",
-                args:
-                [
-                    HtmlElementRef
-                ]);
+            if (jsModule == null)
+            {
+                return;
+            }
+
+            try
+            {
+                await jsModule!.InvokeVoidAsync(
+                    identifier: "removeWindowClickEvent",
+                    args:
+                    [
+                        HtmlElementRef
+                    ]);
+            }
+            catch (Exception)
+            {
+                // This exception is thrown when the JS runtime is disconnected.
+                // We can safely ignore it as we are already disposing of the component.
+            }
         }
 
         public async ValueTask DisposeAsync()
         {
-            await DetachAsync();
-
             if (jsModule != null)
             {
+                await DetachAsync();
+
                 await jsModule.DisposeAsync();
             }
 
