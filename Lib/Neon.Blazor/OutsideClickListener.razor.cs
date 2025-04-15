@@ -24,7 +24,7 @@ using Microsoft.JSInterop;
 
 namespace Neon.Blazor
 {
-    public partial class OutsideClickListener : IAsyncDisposable
+    public partial class OutsideClickListener : ComponentBase, IAsyncDisposable
     {
         [Inject]
         private IJSRuntime JsRuntime { get; set; }

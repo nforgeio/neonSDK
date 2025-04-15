@@ -73,7 +73,6 @@ namespace Neon.Tailwind
             }
         }
         public event Action ChildHasChanged;
-        private bool disposed = false;
         public async Task NotifyChildChangedAsync() 
         {
             await SyncContext.Clear;

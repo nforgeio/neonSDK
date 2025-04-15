@@ -103,7 +103,6 @@ namespace Neon.Tailwind
                     await Combobox.Close(true);
                     break;
                 default:
-                    await Combobox.SearchAsync(key);
                     break;
             }
         }
