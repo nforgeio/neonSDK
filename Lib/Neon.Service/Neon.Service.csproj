@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net6.0; net7.0; net8.0</TargetFrameworks>
+        <TargetFrameworks>net7.0; net8.0</TargetFrameworks>
         <OutputType>Library</OutputType>
         <RootNamespace>Neon.Service</RootNamespace>
         <Description>Service library supporting application deployment as containers as well as in-process for testing</Description>
@@ -20,10 +20,6 @@
         <ProjectReference Include="..\..\Lib\Neon.BuildInfo\Neon.BuildInfo.csproj" />
         <ProjectReference Include="..\Neon.Common\Neon.Common.csproj" />
         <ProjectReference Include="..\Neon.Cryptography\Neon.Cryptography.csproj" />
-    </ItemGroup>
-
-    <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
-        <PackageReference Include="Microsoft.Extensions.Telemetry" Version="8.0.0" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">

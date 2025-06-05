@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net6.0; net7.0; net8.0</TargetFrameworks>
+        <TargetFrameworks>net7.0; net8.0</TargetFrameworks>
         <OutputType>Library</OutputType>
         <RootNamespace>Neon.Web</RootNamespace>
         <PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
@@ -19,15 +19,6 @@
     <ItemGroup>
         <Compile Include="..\Neon.BuildInfo\AssemblyAttributes.cs" Link="Properties\AssemblyAttributes.cs" />
         <Compile Include="..\Neon.BuildInfo\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
-    </ItemGroup>
-
-    <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="$(DotNet6Version)" />
-        <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="$(DotNet6Version)" />
-        <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="$(DotNet6Version)" />
-        <PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="$(DotNet6Version)" />
-        <PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.NewtonsoftJson" Version="$(DotNet6Version)" />
-        <PackageReference Include="Microsoft.Net.Http.Headers" Version="2.2.8" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
