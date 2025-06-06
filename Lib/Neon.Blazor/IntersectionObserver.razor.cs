@@ -105,7 +105,14 @@ namespace Neon.Blazor
         {
             if (intersectionObserver is not null)
             {
-                await intersectionObserver.InvokeVoidAsync("disconnect");
+                try
+                {
+                    await intersectionObserver.InvokeVoidAsync("disconnect");
+                }
+                catch (Exception e)
+                {
+                    // Ignore this exception, it means the JS runtime is disconnected.
+                }
 
                 await intersectionObserver.DisposeAsync();
             }

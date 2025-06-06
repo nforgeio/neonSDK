@@ -15,6 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 
@@ -48,7 +49,8 @@ namespace Neon.Blazor
             services
                 .AddScoped<BodyOutlet>()
                 .AddScoped<MobileDetector>()
-                .AddScoped<FileDownloader>();
+                .AddScoped<FileDownloader>()
+                .AddScoped<TimeProvider, BrowserTimeProvider>();
 
             return services;
         }

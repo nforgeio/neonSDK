@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------
-// FILE:        HeadlessListboxOption.razor.cs
+// FILE:        HeadlessComboboxOption.razor.cs
 // CONTRIBUTOR: Marcus Bowyer
 // COPYRIGHT:   Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 //
@@ -28,12 +28,12 @@ using Neon.Blazor;
 
 namespace Neon.Tailwind
 {
-    public partial class HeadlessListboxOption<TValue> : IDisposable
+    public partial class HeadlessComboboxOption<TValue> : IDisposable
     {
-        [CascadingParameter] public HeadlessListbox<TValue> CascadedListbox { get; set; } = default!;
-        [CascadingParameter] public HeadlessListboxOptions<TValue> CascadedOptions { get; set; } = default!;
+        [CascadingParameter] public HeadlessCombobox<TValue> CascadedCombobox { get; set; } = default!;
+        [CascadingParameter] public HeadlessComboboxOptions<TValue> CascadedOptions { get; set; } = default!;
 
-        [Parameter] public RenderFragment<HeadlessListboxOption<TValue>> ChildContent { get; set; }
+        [Parameter] public RenderFragment<HeadlessComboboxOption<TValue>> ChildContent { get; set; }
 
         [Parameter] public bool IsEnabled { get; set; } = true;
         [Parameter] public bool IsVisible { get; set; } = true;
@@ -46,16 +46,16 @@ namespace Neon.Tailwind
 
         [Parameter(CaptureUnmatchedValues = true)] public IReadOnlyDictionary<string, object> AdditionalAttributes { get; set; }
 
-        public bool IsSelected => EqualityComparer<TValue>.Default.Equals(Value, Listbox.Value);
-        public bool IsActive => Listbox.IsActiveOption(this);
-        public HeadlessListbox<TValue> Listbox { get; set; } = default!;
-        public HeadlessListboxOptions<TValue> Options { get; set; } = default!;
+        public bool IsSelected => EqualityComparer<TValue>.Default.Equals(Value, Combobox.Value);
+        public bool IsActive => Combobox.IsActiveOption(this);
+        public HeadlessCombobox<TValue> Combobox { get; set; } = default!;
+        public HeadlessComboboxOptions<TValue> Options { get; set; } = default!;
 
         public override Task SetParametersAsync(ParameterView parameters)
         {
             parameters.SetParameterProperties(this);
 
-            ValidateAndSetListbox();
+            ValidateAndSetCombobox();
             ValidateAndSetOptions();
 
             return base.SetParametersAsync(ParameterView.Empty);
@@ -66,75 +66,75 @@ namespace Neon.Tailwind
             if (Options == null)
             {
                 if (CascadedOptions == null)
-                    throw new InvalidOperationException($"You must use {nameof(HeadlessListboxOption<TValue>)} inside an {nameof(HeadlessListboxOptions<TValue>)}.");
+                    throw new InvalidOperationException($"You must use {nameof(HeadlessComboboxOption<TValue>)} inside an {nameof(HeadlessComboboxOptions<TValue>)}.");
 
                 Options = CascadedOptions;
             }
             else if (CascadedOptions != Options)
             {
-                throw new InvalidOperationException($"{nameof(HeadlessListboxOption<TValue>)} does not support changing the {nameof(HeadlessListboxOptions<TValue>)} dynamically.");
+                throw new InvalidOperationException($"{nameof(HeadlessComboboxOption<TValue>)} does not support changing the {nameof(HeadlessComboboxOptions<TValue>)} dynamically.");
             }
         }
-        [MemberNotNull(nameof(Listbox), nameof(CascadedListbox))]
-        private void ValidateAndSetListbox()
+        [MemberNotNull(nameof(Combobox), nameof(CascadedCombobox))]
+        private void ValidateAndSetCombobox()
         {
-            if (Listbox == null)
+            if (Combobox == null)
             {
-                if (CascadedListbox == null)
-                    throw new InvalidOperationException($"You must use {nameof(HeadlessListboxOption<TValue>)} inside an {nameof(HeadlessListboxOptions<TValue>)}.");
+                if (CascadedCombobox == null)
+                    throw new InvalidOperationException($"You must use {nameof(HeadlessComboboxOption<TValue>)} inside an {nameof(HeadlessComboboxOptions<TValue>)}.");
 
-                Listbox = CascadedListbox;
+                Combobox = CascadedCombobox;
             }
-            else if (CascadedListbox != Listbox)
+            else if (CascadedCombobox != Combobox)
             {
-                throw new InvalidOperationException($"{nameof(HeadlessListboxOption<TValue>)} does not support changing the {nameof(HeadlessListbox<TValue>)} dynamically.");
+                throw new InvalidOperationException($"{nameof(HeadlessComboboxOption<TValue>)} does not support changing the {nameof(HeadlessCombobox<TValue>)} dynamically.");
             }
         }
 
         /// <inheritdoc/>
         protected override void OnInitialized()
         {
-            Listbox.RegisterOption(this);
+            Combobox.RegisterOption(this);
         }
 
         /// <inheritdoc/>
         public void Dispose()
         {
-            Listbox.UnregisterOption(this);
+            Combobox.UnregisterOption(this);
         }
 
         private async Task HandleClick()
         {
             if (!IsEnabled) return;
 
-            Listbox.CurrentValue = Value;
+            Combobox.CurrentValue = Value;
 
-            await Listbox.Close();
+            await Combobox.Close();
         }
         private void HandleFocus(EventArgs e)
         {
             if (IsEnabled)
             {
-                Listbox.GoToOption(this);
+                Combobox.GoToOption(this);
                 return;
             }
 
-            Listbox.GoToOption(ListboxFocus.Nothing);
+            Combobox.GoToOption(ComboboxFocus.Nothing);
         }
         protected async Task HandleMouseEnter(MouseEventArgs e)
         {
             if (!IsEnabled) return;
-            if (Listbox.State == ListboxState.Closed) return;
+            if (Combobox.State == ComboboxState.Closed) return;
 
-            await Listbox.OptionsFocusAsync();
+            await Combobox.OptionsFocusAsync();
             if (IsActive) return;
-            Listbox.GoToOption(this);
+            Combobox.GoToOption(this);
         }
         protected void HandleMouseLeave(MouseEventArgs e)
         {
             if (!IsEnabled) return;
             if (!IsActive) return;
-            Listbox.GoToOption(ListboxFocus.Nothing);
+            Combobox.GoToOption(ComboboxFocus.Nothing);
         }
     }
 }
