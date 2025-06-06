@@ -18,6 +18,8 @@
 using System;
 using System.Diagnostics.Contracts;
 using System.IO;
+using System.Runtime.CompilerServices;
+using System.Xml.Linq;
 
 using Neon.Common;
 using Octokit;
@@ -60,19 +62,13 @@ namespace Neon.Deployment
         //---------------------------------------------------------------------
         // Implementation
 
-        private static readonly object      syncLock = new object();
-        private static string               account;
-        private static string               defaultVault;
-        private static string               masterPassword;
-        private static string               sessionToken;
+        private static readonly object      syncLock          = new object();
+        private static readonly TimeSpan    keepAliveInterval = TimeSpan.FromMinutes(5);    // Only 5 minutes seems to work reliably
+        private static string               account;                // NULL when not signed-in
+        private static string               defaultVault;           // NULL when not signed-in
 
         /// <summary>
-        /// Returns <c>true</c> if the class is signed-in.
-        /// </summary>
-        public static bool Signedin => masterPassword != null;
-
-        /// <summary>
-        /// This class requires that a <b>op.exe</b> v1 client be installed and if
+        /// This class requires that a <b>op.exe</b> v2 client be installed and if
         /// the 1Password app is installed that it be version 8.0 or greater.
         /// </summary>
         /// <param name="opPath">
@@ -160,118 +156,38 @@ namespace Neon.Deployment
         }
 
         /// <summary>
-        /// Configures and signs into 1Password for the first time on a machine.  This
-        /// must be called once before <see cref="Signin(string, string, string, string)"/> will
-        /// work.
+        /// Clears fields to indicate the underlying secret manager is signed-out.
         /// </summary>
-        /// <param name="signinAddress">Specifies the 1Password signin address.</param>
-        /// <param name="account">Specifies the 1Password shorthand name to use for the account (e.g. "sally@neonforge.com").</param>
-        /// <param name="secretKey">The 1Password secret key for the account.</param>
-        /// <param name="masterPassword">Specified the master 1Password.</param>
-        /// <param name="defaultVault">Specifies the default 1Password vault.</param>
-        /// <param name="opPath">
-        /// Optionally specifies the fully qualified path to the 1Password CLI which
-        /// will be executed instead of the CLI found on the PATH.
-        /// </param>
-        /// <remarks>
-        /// <para>
-        /// Typically, you'll first call <see cref="Configure(string, string, string, string, string, string)"/> once
-        /// for a workstation to configure the signin address and 1Password secret key during manual
-        /// configuration.  The account shorthand name used for that operation can then be used thereafter
-        /// for calls to <see cref="Signin(string, string, string, string)"/> which don't require the additional 
-        /// information.
-        /// </para>
-        /// <para>
-        /// This two-stage process enhances security because both the master password and secret
-        /// key are required to authenticate and the only time the secret key will need to be
-        /// presented for the full login which will typically done manually once.  1Password
-        /// securely stores the secret key on the workstation and it will never need to be present
-        /// as plaintext again on the machine.
-        /// </para>
-        /// </remarks>
-        public static void Configure(string signinAddress, string account, string secretKey, string masterPassword, string defaultVault, string opPath = null)
+        private static void Clear()
         {
-            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(signinAddress), nameof(signinAddress));
-            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(account), nameof(account));
-            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(secretKey), nameof(secretKey));
-            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(masterPassword), nameof(masterPassword));
-            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(defaultVault), nameof(defaultVault));
-
-            lock (syncLock)
-            {
-                // 1Password doesn't allow reconfiguring without being signed-out first.
-
-                Signout();
-
-                // Sign back in.
-
-                OnePassword.account        = account;
-                OnePassword.defaultVault   = defaultVault;
-                OnePassword.masterPassword = masterPassword;
-
-                var input = new StringReader(masterPassword);
-
-                var response = NeonHelper.ExecuteCapture(opPath ?? "op.exe",
-                    new string[]
-                    {
-                        "--account", account,
-                        "--cache",
-                        "signin",
-                        "--raw"
-                    },
-                    input: input);
-
-                if (response.ExitCode != 0)
-                {
-                    Signout();
-                    throw new OnePasswordException(response.AllText);
-                }
-
-                SetSessionToken(response.OutputText.Trim());
-            }
+            OnePassword.account      = null;
+            OnePassword.defaultVault = null;
         }
 
         /// <summary>
-        /// Signs into 1Password using just the account, master password, and default vault.  You'll
-        /// typically call this rather than <see cref="Configure(string, string, string, string, string, string)"/>
-        /// which also requires the signin address as well as the secret key.
+        /// Signs into 1Password using just the account, master password, and default vault.
         /// </summary>
         /// <param name="account">The account's shorthand name (e.g. (e.g. "sally@neonforge.com").</param>
-        /// <param name="masterPassword">The master password.</param>
         /// <param name="defaultVault">The default vault.</param>
         /// <param name="opPath">
         /// Optionally specifies the fully qualified path to the 1Password CLI which
         /// will be executed instead of the CLI found on the PATH.
         /// </param>
-        /// <remarks>
-        /// <para>
-        /// Typically, you'll first call <see cref="Configure(string, string, string, string, string, string)"/> once
-        /// for a workstation to configure the signin address and 1Password secret key during manual
-        /// configuration.  The account shorthand name used for that operation can then be used thereafter
-        /// for calls to this method which don't require the additional information.
-        /// </para>
-        /// <para>
-        /// This two-stage process enhances security because both the master password and secret
-        /// key are required to authenticate and the only time the secret key will need to be
-        /// presented for the full login which will typically done manually once.  1Password
-        /// securely stores the secret key on the workstation and it will never need to be present
-        /// as plaintext again on the machine.
-        /// </para>
-        /// </remarks>
-        public static void Signin(string account, string masterPassword, string defaultVault, string opPath = null)
+        /// <exception cref="OnePasswordException">Thrown when signin fails.</exception>
+        /// <returns>
+        /// The time (UTC) when the session will be expire if not extended.
+        /// </returns>
+        public static DateTime? Signin(string account, string defaultVault, string opPath = null)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(account), nameof(account));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(defaultVault), nameof(defaultVault));
 
-            masterPassword = masterPassword ?? string.Empty;
-
             lock (syncLock)
             {
-                OnePassword.account        = account;
-                OnePassword.defaultVault   = defaultVault;
-                OnePassword.masterPassword = masterPassword;
+                Clear();
 
-                var input = new StringReader(masterPassword);
+                OnePassword.account      = account;
+                OnePassword.defaultVault = defaultVault;
 
                 var response = NeonHelper.ExecuteCapture(opPath ?? "op.exe",
                     new string[]
@@ -286,6 +202,8 @@ namespace Neon.Deployment
                     Signout();
                     throw new OnePasswordException(response.AllText);
                 }
+
+                return DateTime.UtcNow + keepAliveInterval;
             }
         }
 
@@ -308,12 +226,40 @@ namespace Neon.Deployment
                             "--account", OnePassword.account,
                             "signout"
                         });
+
+                    Clear();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Checks the 1Password CLI sign-in/connection status via the <b>whoami</b> command.
+        /// </summary>
+        /// <returns><c>true</c> when the CLI is connected.</returns>
+        public static bool IsSignedin(string opPath = null)
+        {
+            lock (syncLock)
+            {
+                if (string.IsNullOrEmpty(OnePassword.account))
+                {
+                    return false;
                 }
 
-                OnePassword.account        = null;
-                OnePassword.defaultVault   = null;
-                OnePassword.masterPassword = null;
-                OnePassword.sessionToken   = null;
+                var response = NeonHelper.ExecuteCapture(opPath ?? "op.exe",
+                    new string[]
+                    {
+                        "--account", OnePassword.account,
+                        "whoami"
+                    });
+
+                if (response.Success)
+                {
+                    return true;
+                }
+
+                Clear();
+
+                return false;
             }
         }
 
@@ -328,7 +274,7 @@ namespace Neon.Deployment
         /// will be executed instead of the CLI found on the PATH.
         /// </param>
         /// <returns>The requested password (from the password's [password] field).</returns>
-        /// <exception cref="OnePasswordException">Thrown when the requested secret or proerty doesn't exist or for other 1Password related problems.</exception>
+        /// <exception cref="OnePasswordException">Thrown when the requested secret or property doesn't exist or for other 1Password related problems.</exception>
         /// <remarks>
         /// <para>
         /// The <paramref name="name"/> parameter may optionally specify the desired
@@ -348,13 +294,9 @@ namespace Neon.Deployment
 
             name = parsedName.Name;
 
-            var retrying = false;
-
             lock (syncLock)
             {
-                EnsureSignedIn();
-
-retry:          var response = NeonHelper.ExecuteCapture(opPath ?? "op.exe",
+                var response = NeonHelper.ExecuteCapture(opPath ?? "op.exe",
                     new string[]
                     {
                         "--cache",
@@ -378,20 +320,6 @@ retry:          var response = NeonHelper.ExecuteCapture(opPath ?? "op.exe",
 
                         return value;
 
-                    case OnePasswordStatus.SessionExpired:
-
-                        if (retrying)
-                        {
-                            throw new OnePasswordException(response.AllText);
-                        }
-
-                        // Obtain a fresh session token and retry the operation.
-
-                        Signin(account, masterPassword, defaultVault);
-
-                        retrying = true;
-                        goto retry;
-
                     default:
 
                         throw new OnePasswordException(response.AllText);
@@ -410,7 +338,7 @@ retry:          var response = NeonHelper.ExecuteCapture(opPath ?? "op.exe",
         /// will be executed instead of the CLI found on the PATH.
         /// </param>
         /// <returns>The requested value (from the password's <b>value</b> field).</returns>
-        /// <exception cref="OnePasswordException">Thrown when the requested secret or proerty doesn't exist or for other 1Password related problems.</exception>
+        /// <exception cref="OnePasswordException">Thrown when the requested secret or property doesn't exist or for other 1Password related problems.</exception>
         /// <remarks>
         /// <para>
         /// The <paramref name="name"/> parameter may optionally specify the desired
@@ -430,23 +358,17 @@ retry:          var response = NeonHelper.ExecuteCapture(opPath ?? "op.exe",
 
             name = parsedName.Name;
 
-            var retrying = false;
-
             lock (syncLock)
             {
-                EnsureSignedIn();
-
-retry:          var response = NeonHelper.ExecuteCapture(opPath ?? "op.exe",
+                var response = NeonHelper.ExecuteCapture(opPath ?? "op.exe",
                     new string[]
                     {
                         "--cache",
-                        "--session", sessionToken,
                         "item", "get", name,
                         "--vault", vault,
                         "--fields", property,
                         "--reveal"
                     });
-
 
                 switch (GetStatus(response))
                 {
@@ -461,20 +383,6 @@ retry:          var response = NeonHelper.ExecuteCapture(opPath ?? "op.exe",
 
                         return value;
 
-                    case OnePasswordStatus.SessionExpired:
-
-                        if (retrying)
-                        {
-                            throw new OnePasswordException(response.AllText);
-                        }
-
-                        // Obtain a fresh session token and retry the operation.
-
-                        Signin(account, masterPassword, defaultVault);
-
-                        retrying = true;
-                        goto retry;
-
                     default:
 
                         throw new OnePasswordException(response.AllText);
@@ -483,23 +391,36 @@ retry:          var response = NeonHelper.ExecuteCapture(opPath ?? "op.exe",
         }
 
         /// <summary>
-        /// Updates the session token.
+        /// Attempts to extend the 1Password session by 30 minutes.
         /// </summary>
-        /// <param name="sessionToken">The new session token or <c>null</c>.</param>
-        private static void SetSessionToken(string sessionToken)
+        /// <param name="opPath">
+        /// Optionally specifies the fully qualified path to the 1Password CLI which
+        /// will be executed instead of the CLI found on the PATH.
+        /// </param>
+        /// <returns>
+        /// The new session expiration time (UTC) or <c>null</c> when we're not signed
+        /// into the underlying secret manager.
+        /// </returns>
+        public static DateTime? ExtendSession(string opPath = null)
         {
-            OnePassword.sessionToken = sessionToken;
-        }
+            Covenant.Assert(!string.IsNullOrEmpty(opPath), nameof(opPath));
 
-        /// <summary>
-        /// Ensures that we're signed into 1Password.
-        /// </summary>
-        /// <exception cref="OnePasswordException">Thrown if we're not signed in.</exception>
-        private static void EnsureSignedIn()
-        {
-            if (!Signedin)
+            lock (syncLock)
             {
-                throw new OnePasswordException("You are not signed into 1Password.");
+                var response = NeonHelper.ExecuteCapture(opPath ?? "op.exe",
+                    new string[]
+                    {
+                        "item", "list"
+                    });
+
+                if (response.Success)
+                {
+                    return DateTime.UtcNow + TimeSpan.FromMinutes(30);
+                }
+                else
+                {
+                    return null;
+                }
             }
         }
 

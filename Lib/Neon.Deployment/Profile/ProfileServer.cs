@@ -21,6 +21,7 @@ using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.IO;
 using System.IO.Pipes;
+using System.Linq;
 using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Text;
@@ -30,7 +31,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 using Neon.Common;
-using System.Linq;
 
 namespace Neon.Deployment
 {
@@ -307,16 +307,6 @@ namespace Neon.Deployment
                         pipes[i] = null;
                     }
                 }
-
-                // $hack(jefflill):
-                //
-                // The [NamedPipeStream.WaitForConnection()] doesn't throw an exception
-                // when the underlying pipe id disposed.  I was hoping to catch an
-                // [ObjectDisposedException] in the server threads as the signal for 
-                // the thread to exit.
-                //
-                // The simple alternative is to establish a (fake) client connection
-                // for each thread.
             }
 
             // $hack(jefflill):

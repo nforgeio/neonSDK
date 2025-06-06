@@ -22,8 +22,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Microsoft.Extensions.DependencyInjection;
-
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Xunit;
@@ -32,7 +30,6 @@ using Neon.Common;
 using Neon.Deployment;
 using Neon.IO;
 using Neon.Xunit;
-using System.Reflection.Metadata.Ecma335;
 
 namespace TestDeployment
 {
