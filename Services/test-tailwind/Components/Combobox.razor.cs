@@ -44,6 +44,8 @@ namespace TestTailwind.Components
         private async Task ResetAsync()
         {
             HeadlessCombobox.CurrentValue = null;
+
+            await Task.CompletedTask;
         }
 
         private Person selectedPerson;
