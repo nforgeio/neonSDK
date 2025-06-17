@@ -2423,7 +2423,7 @@ echo $? > {cmdFolder}/exit
                 {
                     Command     = command,
                     BashCommand = bashCommand,
-                    ExitCode    = cmdResult.ExitStatus,
+                    ExitCode    = cmdResult.ExitStatus ?? 0,
                     OutputText  = cmdResult.Result,
                     ErrorText   = cmdResult.Error
                 };
