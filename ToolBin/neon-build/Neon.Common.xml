@@ -2844,6 +2844,22 @@
             <param name="value">The time being converted.</param>
             <returns>The Unix time in naonseconds.</returns>
         </member>
+        <member name="T:Neon.Common.EnumerationExtensions">
+            <summary>
+            Implements <see cref="T:System.Collections.Generic.IEnumerable`1"/> extension methods.
+            </summary>
+        </member>
+        <member name="M:Neon.Common.EnumerationExtensions.TakeUpTo``1(System.Collections.Generic.IEnumerable{``0},System.Int32)">
+            <summary>
+            Returns up to the specified number of items from the front of an enumerable.
+            If the enumerable includes less than <paramref name="maxCount"/> then this
+            will return all of the items.
+            </summary>
+            <typeparam name="T">Specifies the enumerab;e's item type.</typeparam>
+            <param name="items">Specifies the enumerable to take items from.</param>
+            <param name="maxCount">Specifies the maximumnumber of items to to take.</param>
+            <returns>The taken items.</returns>
+        </member>
         <member name="T:Neon.Common.EnumExtensions">
             <summary>
             <see cref="T:System.Enum"/> extensions.
@@ -2907,6 +2923,83 @@
             </summary>
             <param name="e">The exception.</param>
             <returns>The underlying exception.</returns>
+        </member>
+        <member name="T:Neon.Common.Extensions.ExpressionExtensions">
+            <summary>
+            Provides extension methods for working with <see cref="T:System.Linq.Expressions.Expression"/> objects.
+            </summary>
+        </member>
+        <member name="M:Neon.Common.Extensions.ExpressionExtensions.Or``1(System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}},System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}})">
+            <summary>
+            Combines two expressions using the logical OR operator.
+            </summary>
+            <typeparam name="T">The type of the parameter in the expressions.</typeparam>
+            <param name="expression1">The first expression.</param>
+            <param name="expression2">The second expression.</param>
+            <returns>The combined expression.</returns>
+        </member>
+        <member name="M:Neon.Common.Extensions.ExpressionExtensions.OrAssign``1(System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}},System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}})">
+            <summary>
+            Combines two expressions using the logical OR assignment operator.
+            </summary>
+            <typeparam name="T">The type of the parameter in the expressions.</typeparam>
+            <param name="expression1">The first expression.</param>
+            <param name="expression2">The second expression.</param>
+            <returns>The combined expression.</returns>
+        </member>
+        <member name="M:Neon.Common.Extensions.ExpressionExtensions.OrElse``1(System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}},System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}})">
+            <summary>
+            Combines two expressions using the logical ORElse operator.
+            </summary>
+            <typeparam name="T">The type of the parameter in the expressions.</typeparam>
+            <param name="expression1">The first expression.</param>
+            <param name="expression2">The second expression.</param>
+            <returns>The combined expression.</returns>
+        </member>
+        <member name="M:Neon.Common.Extensions.ExpressionExtensions.ExclusiveOr``1(System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}},System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}})">
+            <summary>
+            Combines two expressions using the logical Exclusive OR operator.
+            </summary>
+            <typeparam name="T">The type of the parameter in the expressions.</typeparam>
+            <param name="expression1">The first expression.</param>
+            <param name="expression2">The second expression.</param>
+            <returns>The combined expression.</returns>
+        </member>
+        <member name="M:Neon.Common.Extensions.ExpressionExtensions.ExclusiveOrAssign``1(System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}},System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}})">
+            <summary>
+            Combines two expressions using the logical Exclusive OR assignment operator.
+            </summary>
+            <typeparam name="T">The type of the parameter in the expressions.</typeparam>
+            <param name="expression1">The first expression.</param>
+            <param name="expression2">The second expression.</param>
+            <returns>The combined expression.</returns>
+        </member>
+        <member name="M:Neon.Common.Extensions.ExpressionExtensions.And``1(System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}},System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}})">
+            <summary>
+            Combines two expressions using the logical AND operator.
+            </summary>
+            <typeparam name="T">The type of the parameter in the expressions.</typeparam>
+            <param name="expression1">The first expression.</param>
+            <param name="expression2">The second expression.</param>
+            <returns>The combined expression.</returns>
+        </member>
+        <member name="M:Neon.Common.Extensions.ExpressionExtensions.AndAlso``1(System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}},System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}})">
+            <summary>
+            Combines two expressions using the logical ANDAlso operator.
+            </summary>
+            <typeparam name="T">The type of the parameter in the expressions.</typeparam>
+            <param name="expression1">The first expression.</param>
+            <param name="expression2">The second expression.</param>
+            <returns>The combined expression.</returns>
+        </member>
+        <member name="M:Neon.Common.Extensions.ExpressionExtensions.AndAssign``1(System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}},System.Linq.Expressions.Expression{System.Func{``0,System.Boolean}})">
+            <summary>
+            Combines two expressions using the logical AND assignment operator.
+            </summary>
+            <typeparam name="T">The type of the parameter in the expressions.</typeparam>
+            <param name="expression1">The first expression.</param>
+            <param name="expression2">The second expression.</param>
+            <returns>The combined expression.</returns>
         </member>
         <member name="T:Neon.Common.HttpClientExtensions">
             <summary>
@@ -3758,12 +3851,12 @@
             are added to a ZIP archive.
             </summary>
             <param name="path">
-            Specifies the relative path of the file being preprocessed.  Your implementation
-            may decide whether or how to preprocess the file based on this path, often using
-            file exenstion.
+            Specifies the path of the file being preprocessed relative to the folder being zipped.
+            Your delegate implementation may decide whether and/or how to preprocess the file based
+            on this path, often using file name or extension.
             </param>
             <param name="input">Specifies a stream holding the file data being preprocessed.</param>
-            <returns>As the preprocessed stream.</returns>
+            <returns>As the processed stream.</returns>
         </member>
         <member name="T:Neon.Common.IStaticDirectoryExtensions">
             <summary>
@@ -4252,6 +4345,14 @@
             </note>
             </remarks>
         </member>
+        <member name="M:Neon.Common.StringBuilderExtensions.ToStringWithoutLastNewLine(System.Text.StringBuilder)">
+            <summary>
+            Converts the <see cref="T:System.Text.StringBuilder"/> passed into a string without
+            the last new line character sequence if there is one).
+            </summary>
+            <param name="sb">The <see cref="T:System.Text.StringBuilder"/>.</param>
+            <returns>The string builder as a string without the last new line.</returns>
+        </member>
         <member name="T:Neon.Common.StringExtensions">
             <summary>
             <see cref="T:System.String"/> extension methods.
@@ -4267,6 +4368,28 @@
             that an empty string will return a single empty line and a <c>null</c>
             string will return no lines.
             </returns>
+        </member>
+        <member name="M:Neon.Common.StringExtensions.GetHashCodeIgnoringWhitespace(System.String,System.Boolean)">
+            <summary>
+            Gets the hash code for a string, optionally ignoring case.
+            </summary>
+            <param name="obj"></param>
+            <param name="ignoreCase"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Neon.Common.StringExtensions.IsNullOrEmpty(System.String)">
+            <summary>
+            Extension method for checking if a string is null or empty.
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Neon.Common.StringExtensions.IsNullOrWhiteSpace(System.String)">
+            <summary>
+            Extension method for checking if a string is null or whitespace.
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
         </member>
         <member name="T:Neon.Common.TaskExtensions">
             <summary>
@@ -4495,6 +4618,11 @@
             Returns the process exit code.
             </summary>
         </member>
+        <member name="P:Neon.Common.ExecuteResponse.Success">
+            <summary>
+            Returns <c>true</c> zero exit codes.
+            </summary>
+        </member>
         <member name="P:Neon.Common.ExecuteResponse.OutputText">
             <summary>
             Returns the captured standard output stream text from the process.
@@ -4615,17 +4743,17 @@
         </member>
         <member name="F:Neon.Common.NeonHelper.NeonSdkProdRegistry">
             <summary>
-            Identifies the production NEONSDK container image registry.
+            Identifies the production NeonSDK container image registry.
             </summary>
         </member>
         <member name="F:Neon.Common.NeonHelper.NeonSdkDevRegistry">
             <summary>
-            Identifies the development NEONSDK container image registry.
+            Identifies the development NeonSDK container image registry.
             </summary>
         </member>
         <member name="P:Neon.Common.NeonHelper.NeonSdkBranchRegistry">
             <summary>
-            Returns the appropriate public container NEONSDK registry to be used for the git 
+            Returns the appropriate public container NeonSDK registry to be used for the git 
             branch the assembly was built from.  This returns <see cref="F:Neon.Common.NeonHelper.NeonSdkProdRegistry"/> for
             release branches and <see cref="F:Neon.Common.NeonHelper.NeonSdkDevRegistry"/> for all other branches.
             </summary>
@@ -4754,17 +4882,17 @@
         </member>
         <member name="F:Neon.Common.NeonHelper.cachedNeonSdkFolder">
             <summary>
-            Set to the user's NEONSDK folder.
+            Set to the user's NeonSDK folder.
             </summary>
         </member>
         <member name="F:Neon.Common.NeonHelper.cachedNeonSdkUsbCodeSigningFolder">
             <summary>
-            Set to the user's NEONSDK USB token code signing cache folder path.
+            Set to the user's NeonSDK USB token code signing cache folder path.
             </summary>
         </member>
         <member name="F:Neon.Common.NeonHelper.cachedNeonSdkAzureCodeSigningFolder">
             <summary>
-            Set to the user's NEONSDK Azure code signing cache folder path.
+            Set to the user's NeonSDK Azure code signing cache folder path.
             </summary>
         </member>
         <member name="P:Neon.Common.NeonHelper.ServiceContainer">
@@ -4797,19 +4925,19 @@
         </member>
         <member name="P:Neon.Common.NeonHelper.NeonSdkFolder">
             <summary>
-            Returns the path to the folder used by NEONSDK to persist and cache state, creating
+            Returns the path to the folder used by NeonSDK to persist and cache state, creating
             the directory if it doesn't exist.  This folder is located at: <b>~/.neonsdk</b>
             </summary>
         </member>
         <member name="P:Neon.Common.NeonHelper.NeonSdkUsbCodeSigningFolder">
             <summary>
-            Returns the path to the folder used by NEONSDK to cache download local USB token code signing code,
+            Returns the path to the folder used by NeonSDK to cache download local USB token code signing code,
             creating the directory if it doesn't exist.  This folder is located at: <b>~/.neonsdk/codesigning-usb</b>
             </summary>
         </member>
         <member name="P:Neon.Common.NeonHelper.NeonSdkAzureCodeSigningFolder">
             <summary>
-            Returns the path to the folder used by NEONSDK to cache download Azure code signing code,
+            Returns the path to the folder used by NeonSDK to cache download Azure code signing code,
             creating the directory if it doesn't exist.  This folder is located at: <b>~/.neonsdk/codesigning-azure</b>
             </summary>
         </member>
@@ -5505,8 +5633,8 @@
             <param name="cancellationToken">Optionally specifies a cancellation token.</param>
             <exception cref="T:System.TimeoutException">Thrown if the never returned <c>true</c> before the timeout.</exception>
             <remarks>
-            This method periodically calls <paramref name="predicate"/> until it
-            returns <c>true</c> or <pararef name="timeout"/> exceeded.
+            This method periodically calls <paramref name="predicate"/> until it returns
+            <c>true</c> or the timeout is exceeded.
             </remarks>
         </member>
         <member name="M:Neon.Common.NeonHelper.WaitForAsync(System.Func{System.Threading.Tasks.Task{System.Boolean}},System.TimeSpan,System.Nullable{System.TimeSpan},System.String,System.Threading.CancellationToken)">
@@ -5521,8 +5649,8 @@
             <returns>The tracking <see cref="T:System.Threading.Tasks.Task"/>.</returns>
             <exception cref="T:System.TimeoutException">Thrown if the never returned <c>true</c> before the timeout.</exception>
             <remarks>
-            This method periodically calls <paramref name="predicate"/> until it
-            returns <c>true</c> or <pararef name="timeout"/> exceeded.
+            This method periodically calls <paramref name="predicate"/> until it returns
+            <c>true</c> or the timeout is exceeded.
             </remarks>
         </member>
         <member name="M:Neon.Common.NeonHelper.SequenceEqual``1(System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEnumerable{``0})">
@@ -7693,6 +7821,73 @@
             emulated program must exit cleanly when this returns.
             </summary>
         </member>
+        <member name="T:Neon.Common.TextIndentor">
+            <summary>
+            Implements a simple scheme for managing line indentation when writing
+            to a <see cref="T:System.Text.StringBuilder"/> or <see cref="T:System.IO.TextWriter"/>.
+            </summary>
+        </member>
+        <member name="M:Neon.Common.TextIndentor.#ctor(System.Text.StringBuilder,System.Int32,System.Char,System.Int32)">
+            <summary>
+            Constructs and instance that outputs to a <see cref="T:System.Text.StringBuilder"/>.
+            </summary>
+            <param name="builder">Specifies the target <see cref="T:System.Text.StringBuilder"/>.</param>
+            <param name="indentWidth">Optionally specifies the number of spaces to indent for each indentation level.  This defaults to <b>4</b>.</param>
+            <param name="indentChar">Optionally specifies the indent character (defaults to a space).</param>
+            <param name="indentLevel">Optionally specifies the initial indent level.  This defaults to <b>0</b>.</param>
+        </member>
+        <member name="M:Neon.Common.TextIndentor.#ctor(System.IO.TextWriter,System.Int32,System.Char,System.Int32)">
+            <summary>
+            Constructs and instance that outputs to a <see cref="T:System.IO.TextWriter"/>.
+            </summary>
+            <param name="writer">Specifies the target <see cref="T:System.IO.TextWriter"/>.</param>
+            <param name="indentWidth">Optionally specifies the number of spaces to indent for each indentation level.  This defaults to <b>4</b>.</param>
+            <param name="indentChar">Optionally specifies the indent character (defaults to a space).</param>
+            <param name="indentLevel">Optionally specifies the initial indent level.  This defaults to <b>0</b>.</param>
+        </member>
+        <member name="M:Neon.Common.TextIndentor.InternalAppend(System.String)">
+            <summary>
+            Used internally to append text to the the output.
+            </summary>
+            <param name="text">Specifies the text to be appended.</param>
+        </member>
+        <member name="M:Neon.Common.TextIndentor.InternalAppendIndent(System.String)">
+            <summary>
+            Appends the indentation for the the current level when the
+            text passed is not <c>null</c> or empty and the current
+            line is empty.
+            </summary>
+            <param name="text">Specifies the text that will (eventually) be written ort <c>null</c>.</param>
+        </member>
+        <member name="M:Neon.Common.TextIndentor.Append(System.String)">
+            <summary>
+            Appends text to the the output, writing the current indent if this
+            is the first text being written to the current line.
+            </summary>
+            <param name="text">Specifies the text to be written.</param>
+        </member>
+        <member name="M:Neon.Common.TextIndentor.AppendLine(System.String)">
+            <summary>
+            Writes a line of text to the target prefixed by the indentation.
+            </summary>
+            <param name="text">Optionally specifies the text to be written.</param>
+        </member>
+        <member name="M:Neon.Common.TextIndentor.Reset">
+            <summary>
+            Resets the current indentation level zero.
+            </summary>
+        </member>
+        <member name="M:Neon.Common.TextIndentor.Indent">
+            <summary>
+            Increments the indentation level.
+            </summary>
+        </member>
+        <member name="M:Neon.Common.TextIndentor.UnIndent">
+            <summary>
+            Decrements the indentation level.
+            </summary>
+            <exception cref="T:System.InvalidOperationException">Thrown when the indentation level is already at zero.</exception>
+        </member>
         <member name="T:Neon.Common.TriState">
             <summary>
             Used to specify a tristate boolean with values: <b>true</b>, <b>false</b>, and <b>default</b>.
@@ -7716,7 +7911,7 @@
         <member name="T:Neon.Common.NamespaceDoc">
             <summary>
             This namespace includes generally useful types that are consumed by
-            the remaining NEONSDK libraries and can also be useful for
+            the remaining NeonSDK libraries and can also be useful for
             end-user applications.
             </summary>
         </member>
@@ -8683,7 +8878,7 @@
             <para>
             Profile values are also supported.  These are non-secret name/value pairs used for describing
             the local environment as required for CI/CD.  For example, we use this for describing the
-            IP addresses available for deploying a test NEONKUBE cluster.  Each developer will often
+            IP addresses available for deploying a test NeonKUBE cluster.  Each developer will often
             need distict node IP addresses that work on the local LAN and also don't conflict with
             addresses assigned to other developers.
             </para>
@@ -10650,9 +10845,7 @@
         </member>
         <member name="M:Neon.Diagnostics.TelemetryHub.ParseLogLevel(System.String,Microsoft.Extensions.Logging.LogLevel)">
             <summary>
-            Parses a <see cref="T:Microsoft.Extensions.Logging.LogLevel"/> from a string and also sets the 
-            <c>Logging__LogLevel__Microsoft</c> environment variable which
-            is honored by any created <see cref="T:Microsoft.Extensions.Logging.ILogger"/> instances.
+            Parses a <see cref="T:Microsoft.Extensions.Logging.LogLevel"/> from a string.
             </summary>
             <param name="input">The input string.</param>
             <param name="default">The default value to return when <paramref name="input"/> is <c>null</c> or invalid.</param>
@@ -11793,7 +11986,7 @@
         </member>
         <member name="M:Neon.IO.PreprocessReader.SetYamlMode">
             <summary>
-            Configures the reader for parsing YAML by setting the <see cref="P:Neon.IO.PreprocessReader.StatementMarker"/> to <b>"@"</b>
+            Configures the reader for parsing YAML by setting the <see cref="P:Neon.IO.PreprocessReader.StatementMarker"/> to <b>"~"</b>
             and the comment marker to <b>"#"</b>.
             </summary>
         </member>
@@ -12444,9 +12637,16 @@
             <summary>
             Creates a temporary folder.
             </summary>
-            <param name="folder">Optionally overrides <see cref="P:Neon.IO.TempFolder.Root"/> as the parent folder for this instance.</param>
+            <param name="rootFolder">Optionally overrides <see cref="P:Neon.IO.TempFolder.Root"/> as the parent folder for this instance.</param>
             <param name="prefix">Optionally specifies a prefix to be added to the temporary directory name.</param>
             <param name="create">Optionally controls whether the temporary folder should actually be created.  This defaults to <c>true</c>.</param>
+        </member>
+        <member name="M:Neon.IO.TempFolder.#ctor(System.String,Neon.Common.Stub.Value)">
+            <summary>
+            Used to construct an instance referencing an existing folder.
+            </summary>
+            <param name="existingPath">Specifies the path to the existing folder.</param>
+            <param name="stub">Used to disambiguate this constructor from <see cref="M:Neon.IO.TempFolder.#ctor(System.String,System.String,System.Boolean)"/></param>
         </member>
         <member name="P:Neon.IO.TempFolder.Path">
             <summary>
@@ -15365,6 +15565,11 @@
         <member name="F:Neon.Net.NetworkPorts.KubernetesApiServer">
             <summary>
             Kubernetes API port.
+            </summary>
+        </member>
+        <member name="F:Neon.Net.NetworkPorts.HubbleRelay">
+            <summary>
+            Hubble (Cilium) relay service port.
             </summary>
         </member>
         <member name="F:Neon.Net.NetworkPorts.Cassandra">

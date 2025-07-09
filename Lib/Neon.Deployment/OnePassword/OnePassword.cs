@@ -22,7 +22,6 @@ using System.Runtime.CompilerServices;
 using System.Xml.Linq;
 
 using Neon.Common;
-using Octokit;
 
 namespace Neon.Deployment
 {
@@ -64,19 +63,19 @@ namespace Neon.Deployment
 
         private static readonly object      syncLock          = new object();
         private static readonly TimeSpan    keepAliveInterval = TimeSpan.FromMinutes(5);    // Only 5 minutes seems to work reliably
-        private static string               account;                // NULL when not signed-in
-        private static string               defaultVault;           // NULL when not signed-in
+        private static string               account;                                        // NULL when not signed-in
+        private static string               defaultVault;                                   // NULL when not signed-in
 
         /// <summary>
         /// This class requires that a <b>op.exe</b> v2 client be installed and if
         /// the 1Password app is installed that it be version 8.0 or greater.
         /// </summary>
-        /// <param name="opPath">
+        /// <param name="cliPath">
         /// Optionally specifies the fully qualified path to the 1Password CLI which
-        /// will be executed instead of the CLI found on the PATH.
+        /// should be executed instead of the CLI found on the PATH.
         /// </param>
         /// <exception cref="NotSupportedException">Thrown when any of the checks failed.</exception>
-        public static void CheckInstallation(string opPath = null)
+        public static void CheckInstallation(string cliPath = null)
         {
             // Check for the [op.exe] CLI presence and version.
 
@@ -84,7 +83,7 @@ namespace Neon.Deployment
 
             try
             {
-                response = NeonHelper.ExecuteCapture(opPath ?? "op.exe", new object[] { "--version" });
+                response = NeonHelper.ExecuteCapture(cliPath ?? "op.exe", new object[] { "--version" });
             }
             catch
             {
@@ -169,15 +168,15 @@ namespace Neon.Deployment
         /// </summary>
         /// <param name="account">The account's shorthand name (e.g. (e.g. "sally@neonforge.com").</param>
         /// <param name="defaultVault">The default vault.</param>
-        /// <param name="opPath">
+        /// <param name="cliPath">
         /// Optionally specifies the fully qualified path to the 1Password CLI which
-        /// will be executed instead of the CLI found on the PATH.
+        /// should be executed instead of the CLI found on the PATH.
         /// </param>
         /// <exception cref="OnePasswordException">Thrown when signin fails.</exception>
         /// <returns>
         /// The time (UTC) when the session will be expire if not extended.
         /// </returns>
-        public static DateTime? Signin(string account, string defaultVault, string opPath = null)
+        public static DateTime? Signin(string account, string defaultVault, string cliPath = null)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(account), nameof(account));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(defaultVault), nameof(defaultVault));
@@ -189,12 +188,11 @@ namespace Neon.Deployment
                 OnePassword.account      = account;
                 OnePassword.defaultVault = defaultVault;
 
-                var response = NeonHelper.ExecuteCapture(opPath ?? "op.exe",
+                var response = NeonHelper.ExecuteCapture(cliPath ?? "op.exe",
                     new string[]
                     {
-                        "--account", account,
-                        "--cache",
                         "signin",
+                        "--account", account
                     });
 
                 if (response.ExitCode != 0)
@@ -210,21 +208,17 @@ namespace Neon.Deployment
         /// <summary>
         /// Signs out.
         /// </summary>
-        /// <param name="opPath">
-        /// Optionally specifies the fully qualified path to the 1Password CLI which
-        /// will be executed instead of the CLI found on the PATH.
-        /// </param>
-        public static void Signout(string opPath = null)
+        public static void Signout(string cliPath = null)
         {
             lock (syncLock)
             {
                 if (string.IsNullOrEmpty(OnePassword.account))
                 {
-                    NeonHelper.ExecuteCapture(opPath ?? "op.exe",
+                    NeonHelper.ExecuteCapture(cliPath ?? "op.exe",
                         new string[]
                         {
-                            "--account", OnePassword.account,
-                            "signout"
+                            "signout",
+                            "--account", OnePassword.account
                         });
 
                     Clear();
@@ -235,8 +229,12 @@ namespace Neon.Deployment
         /// <summary>
         /// Checks the 1Password CLI sign-in/connection status via the <b>whoami</b> command.
         /// </summary>
+        /// <param name="cliPath">
+        /// Optionally specifies the fully qualified path to the 1Password CLI which
+        /// should be executed instead of the CLI found on the PATH.
+        /// </param>
         /// <returns><c>true</c> when the CLI is connected.</returns>
-        public static bool IsSignedin(string opPath = null)
+        public static bool IsSignedin(string cliPath = null)
         {
             lock (syncLock)
             {
@@ -245,11 +243,11 @@ namespace Neon.Deployment
                     return false;
                 }
 
-                var response = NeonHelper.ExecuteCapture(opPath ?? "op.exe",
+                var response = NeonHelper.ExecuteCapture(cliPath ?? "op.exe",
                     new string[]
                     {
-                        "--account", OnePassword.account,
-                        "whoami"
+                        "whoami",
+                        "--account", OnePassword.account
                     });
 
                 if (response.Success)
@@ -269,9 +267,9 @@ namespace Neon.Deployment
         /// </summary>
         /// <param name="name">The password name with optional property.</param>
         /// <param name="vault">Optionally specifies a specific vault.</param>
-        /// <param name="opPath">
+        /// <param name="cliPath">
         /// Optionally specifies the fully qualified path to the 1Password CLI which
-        /// will be executed instead of the CLI found on the PATH.
+        /// should be executed instead of the CLI found on the PATH.
         /// </param>
         /// <returns>The requested password (from the password's [password] field).</returns>
         /// <exception cref="OnePasswordException">Thrown when the requested secret or property doesn't exist or for other 1Password related problems.</exception>
@@ -285,9 +283,10 @@ namespace Neon.Deployment
         /// SECRETNAME[PROPERTY]
         /// </example>
         /// </remarks>
-        public static string GetSecretPassword(string name, string vault = null, string opPath = null)
+        public static string GetSecretPassword(string name, string vault = null, string cliPath = null)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(name), nameof(name));
+            Covenant.Requires<InvalidOperationException>(!string.IsNullOrEmpty(account), "Not signed into 1Password");
 
             var parsedName = ProfileServer.ParseSecretName(name);
             var property   = parsedName.Property ?? "password";
@@ -296,13 +295,12 @@ namespace Neon.Deployment
 
             lock (syncLock)
             {
-                var response = NeonHelper.ExecuteCapture(opPath ?? "op.exe",
+                var response = NeonHelper.ExecuteCapture(cliPath ?? "op.exe",
                     new string[]
                     {
-                        "--cache",
-                        "--account", OnePassword.account,
                         "item", "get", name,
-                        "--vault", vault,
+                        "--account", OnePassword.account,
+                        "--vault", vault ?? defaultVault,
                         "--fields", property,
                         "--reveal"
                     });
@@ -333,9 +331,9 @@ namespace Neon.Deployment
         /// </summary>
         /// <param name="name">The password name with optional property.</param>
         /// <param name="vault">Optionally specifies a specific vault.</param>
-        /// <param name="opPath">
+        /// <param name="cliPath">
         /// Optionally specifies the fully qualified path to the 1Password CLI which
-        /// will be executed instead of the CLI found on the PATH.
+        /// should be executed instead of the CLI found on the PATH.
         /// </param>
         /// <returns>The requested value (from the password's <b>value</b> field).</returns>
         /// <exception cref="OnePasswordException">Thrown when the requested secret or property doesn't exist or for other 1Password related problems.</exception>
@@ -349,9 +347,10 @@ namespace Neon.Deployment
         /// SECRETNAME[PROPERTY]
         /// </example>
         /// </remarks>
-        public static string GetSecretValue(string name, string vault = null, string opPath = null)
+        public static string GetSecretValue(string name, string vault = null, string cliPath = null)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(name), nameof(name));
+            Covenant.Requires<InvalidOperationException>(!string.IsNullOrEmpty(account), "Not signed into 1Password");
 
             var parsedName = ProfileServer.ParseSecretName(name);
             var property   = parsedName.Property ?? "value";
@@ -360,12 +359,12 @@ namespace Neon.Deployment
 
             lock (syncLock)
             {
-                var response = NeonHelper.ExecuteCapture(opPath ?? "op.exe",
+                var response = NeonHelper.ExecuteCapture(cliPath ?? "op.exe",
                     new string[]
                     {
-                        "--cache",
                         "item", "get", name,
-                        "--vault", vault,
+                        "--account", OnePassword.account,
+                        "--vault", vault ?? defaultVault,
                         "--fields", property,
                         "--reveal"
                     });
@@ -393,21 +392,22 @@ namespace Neon.Deployment
         /// <summary>
         /// Attempts to extend the 1Password session by 30 minutes.
         /// </summary>
-        /// <param name="opPath">
+        /// <param name="cliPath">
         /// Optionally specifies the fully qualified path to the 1Password CLI which
-        /// will be executed instead of the CLI found on the PATH.
+        /// should be executed instead of the CLI found on the PATH.
         /// </param>
         /// <returns>
         /// The new session expiration time (UTC) or <c>null</c> when we're not signed
         /// into the underlying secret manager.
         /// </returns>
-        public static DateTime? ExtendSession(string opPath = null)
+        public static DateTime? ExtendSession(string cliPath = null)
         {
-            Covenant.Assert(!string.IsNullOrEmpty(opPath), nameof(opPath));
+            Covenant.Assert(!string.IsNullOrEmpty(cliPath), nameof(cliPath));
+            Covenant.Requires<InvalidOperationException>(!string.IsNullOrEmpty(account), "Not signed into 1Password");
 
             lock (syncLock)
             {
-                var response = NeonHelper.ExecuteCapture(opPath ?? "op.exe",
+                var response = NeonHelper.ExecuteCapture(cliPath ?? "op.exe",
                     new string[]
                     {
                         "item", "list"

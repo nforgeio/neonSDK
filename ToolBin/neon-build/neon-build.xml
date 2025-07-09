@@ -17,7 +17,7 @@
         </member>
         <member name="P:NeonBuild.Program.NeonSdkRepoPath">
             <summary>
-            Returns the path to the NEONSDK local repository root folder.
+            Returns the path to the NeonSDK local repository root folder.
             </summary>
         </member>
         <member name="M:NeonBuild.Program.Exit(System.Int32)">

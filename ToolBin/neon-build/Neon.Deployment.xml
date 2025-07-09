@@ -395,7 +395,7 @@
         </member>
         <member name="M:Neon.Deployment.CodeSigning.CodeSigner.IsReady(Neon.Deployment.CodeSigning.UsbTokenProfile)">
             <summary>
-            Verifies that the current machine is ready for code signing using a USB code signing certificate and the Microsoft Built Tools <b>signtool</b> program.
+            Verifies that the current machine is ready for code signing using a USB code signing token and the Microsoft Built Tools <b>signtool</b> program.
             </summary>
             <param name="profile">Specifies a <see cref="T:Neon.Deployment.CodeSigning.UsbTokenProfile"/> with the required signing prarameters.</param>
             <returns><c>true</c> when the signing token is available and the profile ius correct.</returns>
@@ -408,6 +408,29 @@
             </note>
             </remarks>
         </member>
+        <member name="M:Neon.Deployment.CodeSigning.CodeSigner.GetSignToolPath(System.String)">
+            <summary>
+            Returns the path to the <b>SignTool</b> located within the specified installation folder.
+            </summary>
+            <param name="installFolder">Specifies the installation folder.</param>
+            <returns>Tha path.</returns>
+        </member>
+        <member name="M:Neon.Deployment.CodeSigning.CodeSigner.GetAzureCodeSignDllPath(System.String)">
+            <summary>
+            Returns the path to the <b>Azure signing DLL</b> located within the specified installation folder.
+            </summary>
+            <param name="installFolder">Specifies the installation folder.</param>
+            <returns>Tha path.</returns>
+        </member>
+        <member name="M:Neon.Deployment.CodeSigning.CodeSigner.CheckAzureSignToolCache">
+            <summary>
+            Checks the NeonSDK Azure code signing tool cache folder to see if it's up-to-date,
+            returning <c>true</c> when it is current otherwise this method clears
+            the folder and returns, <c>false</c>, indicating that the signing client
+            binaries need to be installed.
+            </summary>
+            <returns><c>true</c> when the cache folder is up-to-date.</returns>
+        </member>
         <member name="M:Neon.Deployment.CodeSigning.CodeSigner.Sign(Neon.Deployment.CodeSigning.AzureProfile,System.String)">
             <summary>
             Signs an EXE, DLL or MSI file using Azure Code Signing using the <b>AzureSignTool</b>.
@@ -415,6 +438,15 @@
             <param name="profile">Specifies a <see cref="T:Neon.Deployment.CodeSigning.UsbTokenProfile"/> with the required signing prarameters.</param>
             <param name="targetPath">Specifies the path to the file being signed.</param>
             <exception cref="T:System.PlatformNotSupportedException">Thrown when executed on a non 64-bit Windows machine.</exception>
+        </member>
+        <member name="M:Neon.Deployment.CodeSigning.CodeSigner.CheckUsbSignToolCache">
+            <summary>
+            Checks the NeonSDK USB Token signing tool cache folder to see if it's up-to-date,
+            returning <c>true</c> when it is current otherwise this method clears
+            the folder and returns, <c>false</c>, indicating that the signing client
+            binaries need to be installed.
+            </summary>
+            <returns><c>true</c> when the cache folder is up-to-date.</returns>
         </member>
         <member name="M:Neon.Deployment.CodeSigning.CodeSigner.Sign(Neon.Deployment.CodeSigning.UsbTokenProfile,System.String)">
             <summary>
@@ -430,24 +462,6 @@
             very limited number of signing attempts with invalid passwords.
             </note>
             </remarks>
-        </member>
-        <member name="M:Neon.Deployment.CodeSigning.CodeSigner.CheckAzureSignToolCache">
-            <summary>
-            Checks the NEONSDK USB signing tool cache folder to see if it's up-to-date,
-            returning <c>true</c> when it is current otherwise this method clears
-            the folder and returns, <c>false</c>, indicating that the signing client
-            binaries need to be installed.
-            </summary>
-            <returns><c>true</c> when the cache folder is up-to-date.</returns>
-        </member>
-        <member name="M:Neon.Deployment.CodeSigning.CodeSigner.CheckUsbSignToolCache">
-            <summary>
-            Checks the NEONSDK Azure signing tool cache folder to see if it's up-to-date,
-            returning <c>true</c> when it is current otherwise this method clears
-            the folder and returns, <c>false</c>, indicating that the signing client
-            binaries need to be installed.
-            </summary>
-            <returns><c>true</c> when the cache folder is up-to-date.</returns>
         </member>
         <member name="M:Neon.Deployment.CodeSigning.CodeSigner.InstallSignTool(System.String,System.Boolean)">
             <summary>
@@ -467,7 +481,7 @@
         </member>
         <member name="M:Neon.Deployment.CodeSigning.CodeSigner.ExtractTestBinaryTo(System.String)">
             <summary>
-            Extracts the <b>signee.exe</b> binary from the embedded resource
+            Extracts the <b>SignTool.exe</b> binary from the embedded resource
             to the specified path.
             </summary>
             <param name="targetPath">The target path for the binary.</param>
@@ -1250,7 +1264,7 @@
             Nothing will be downloaded when the existing file is fully formed.
             </para>
             <note>
-            The target files (output and MD5) will be deleted when download appears to be corrupt.
+            The target files (download and MD5) will be deleted when download appears to be corrupt.
             </note>
             </remarks>
         </member>
@@ -1300,7 +1314,7 @@
             Nothing will be downloaded when the existing file is fully formed.
             </para>
             <note>
-            The target files (output and MD5) will be deleted when download appears to be corrupt.
+            The target files (download and MD5) will be deleted when download appears to be corrupt.
             </note>
             </remarks>
         </member>
@@ -1400,18 +1414,15 @@
             Unspecified error.
             </summary>
         </member>
-        <member name="P:Neon.Deployment.OnePassword.Signedin">
+        <member name="M:Neon.Deployment.OnePassword.CheckInstallation(System.String)">
             <summary>
-            Returns <c>true</c> if the class is signed-in.
-            </summary>
-        </member>
-        <member name="M:Neon.Deployment.OnePassword.CheckInstallation">
-            <summary>
-            <para>
-            This class requires that a <b>op.exe</b> v1 client be installed and if
+            This class requires that a <b>op.exe</b> v2 client be installed and if
             the 1Password app is installed that it be version 8.0 or greater.
-            </para>
             </summary>
+            <param name="cliPath">
+            Optionally specifies the fully qualified path to the 1Password CLI which
+            should be executed instead of the CLI found on the PATH.
+            </param>
             <exception cref="T:System.NotSupportedException">Thrown when any of the checks failed.</exception>
         </member>
         <member name="P:Neon.Deployment.OnePassword.CliConfigRequired">
@@ -1426,73 +1437,54 @@
             </note>
             </summary>
         </member>
-        <member name="M:Neon.Deployment.OnePassword.Configure(System.String,System.String,System.String,System.String,System.String)">
+        <member name="M:Neon.Deployment.OnePassword.Clear">
             <summary>
-            Configures and signs into 1Password for the first time on a machine.  This
-            must be called once before <see cref="M:Neon.Deployment.OnePassword.Signin(System.String,System.String,System.String)"/> will
-            work.
+            Clears fields to indicate the underlying secret manager is signed-out.
             </summary>
-            <param name="signinAddress">Specifies the 1Password signin address.</param>
-            <param name="account">Specifies the 1Password shorthand name to use for the account (e.g. "sally@neonforge.com").</param>
-            <param name="secretKey">The 1Password secret key for the account.</param>
-            <param name="masterPassword">Specified the master 1Password.</param>
-            <param name="defaultVault">Specifies the default 1Password vault.</param>
-            <remarks>
-            <para>
-            Typically, you'll first call <see cref="M:Neon.Deployment.OnePassword.Configure(System.String,System.String,System.String,System.String,System.String)"/> once
-            for a workstation to configure the signin address and 1Password secret key during manual
-            configuration.  The account shorthand name used for that operation can then be used thereafter
-            for calls to <see cref="M:Neon.Deployment.OnePassword.Signin(System.String,System.String,System.String)"/> which don't require the additional 
-            information.
-            </para>
-            <para>
-            This two-stage process enhances security because both the master password and secret
-            key are required to authenticate and the only time the secret key will need to be
-            presented for the full login which will typically done manually once.  1Password
-            securely stores the secret key on the workstation and it will never need to be present
-            as plaintext again on the machine.
-            </para>
-            </remarks>
         </member>
         <member name="M:Neon.Deployment.OnePassword.Signin(System.String,System.String,System.String)">
             <summary>
-            Signs into 1Password using just the account, master password, and default vault.  You'll
-            typically call this rather than <see cref="M:Neon.Deployment.OnePassword.Configure(System.String,System.String,System.String,System.String,System.String)"/>
-            which also requires the signin address as well as the secret key.
+            Signs into 1Password using just the account, master password, and default vault.
             </summary>
             <param name="account">The account's shorthand name (e.g. (e.g. "sally@neonforge.com").</param>
-            <param name="masterPassword">The master password.</param>
             <param name="defaultVault">The default vault.</param>
-            <remarks>
-            <para>
-            Typically, you'll first call <see cref="M:Neon.Deployment.OnePassword.Configure(System.String,System.String,System.String,System.String,System.String)"/> once
-            for a workstation to configure the signin address and 1Password secret key during manual
-            configuration.  The account shorthand name used for that operation can then be used thereafter
-            for calls to this method which don't require the additional information.
-            </para>
-            <para>
-            This two-stage process enhances security because both the master password and secret
-            key are required to authenticate and the only time the secret key will need to be
-            presented for the full login which will typically done manually once.  1Password
-            securely stores the secret key on the workstation and it will never need to be present
-            as plaintext again on the machine.
-            </para>
-            </remarks>
+            <param name="cliPath">
+            Optionally specifies the fully qualified path to the 1Password CLI which
+            should be executed instead of the CLI found on the PATH.
+            </param>
+            <exception cref="T:Neon.Deployment.OnePasswordException">Thrown when signin fails.</exception>
+            <returns>
+            The time (UTC) when the session will be expire if not extended.
+            </returns>
         </member>
-        <member name="M:Neon.Deployment.OnePassword.Signout">
+        <member name="M:Neon.Deployment.OnePassword.Signout(System.String)">
             <summary>
             Signs out.
             </summary>
         </member>
-        <member name="M:Neon.Deployment.OnePassword.GetSecretPassword(System.String,System.String)">
+        <member name="M:Neon.Deployment.OnePassword.IsSignedin(System.String)">
+            <summary>
+            Checks the 1Password CLI sign-in/connection status via the <b>whoami</b> command.
+            </summary>
+            <param name="cliPath">
+            Optionally specifies the fully qualified path to the 1Password CLI which
+            should be executed instead of the CLI found on the PATH.
+            </param>
+            <returns><c>true</c> when the CLI is connected.</returns>
+        </member>
+        <member name="M:Neon.Deployment.OnePassword.GetSecretPassword(System.String,System.String,System.String)">
             <summary>
             Returns a named password from the current user's standard 1Password 
             vault like <b>user-sally</b> by default or a custom named vault.
             </summary>
             <param name="name">The password name with optional property.</param>
             <param name="vault">Optionally specifies a specific vault.</param>
+            <param name="cliPath">
+            Optionally specifies the fully qualified path to the 1Password CLI which
+            should be executed instead of the CLI found on the PATH.
+            </param>
             <returns>The requested password (from the password's [password] field).</returns>
-            <exception cref="T:Neon.Deployment.OnePasswordException">Thrown when the requested secret or proerty doesn't exist or for other 1Password related problems.</exception>
+            <exception cref="T:Neon.Deployment.OnePasswordException">Thrown when the requested secret or property doesn't exist or for other 1Password related problems.</exception>
             <remarks>
             <para>
             The <paramref name="name"/> parameter may optionally specify the desired
@@ -1504,15 +1496,19 @@
             </example>
             </remarks>
         </member>
-        <member name="M:Neon.Deployment.OnePassword.GetSecretValue(System.String,System.String)">
+        <member name="M:Neon.Deployment.OnePassword.GetSecretValue(System.String,System.String,System.String)">
             <summary>
             Returns a named value from the current user's standard 1Password 
             vault like <b>user-sally</b> by default or a custom named vault.
             </summary>
             <param name="name">The password name with optional property.</param>
             <param name="vault">Optionally specifies a specific vault.</param>
+            <param name="cliPath">
+            Optionally specifies the fully qualified path to the 1Password CLI which
+            should be executed instead of the CLI found on the PATH.
+            </param>
             <returns>The requested value (from the password's <b>value</b> field).</returns>
-            <exception cref="T:Neon.Deployment.OnePasswordException">Thrown when the requested secret or proerty doesn't exist or for other 1Password related problems.</exception>
+            <exception cref="T:Neon.Deployment.OnePasswordException">Thrown when the requested secret or property doesn't exist or for other 1Password related problems.</exception>
             <remarks>
             <para>
             The <paramref name="name"/> parameter may optionally specify the desired
@@ -1524,17 +1520,18 @@
             </example>
             </remarks>
         </member>
-        <member name="M:Neon.Deployment.OnePassword.SetSessionToken(System.String)">
+        <member name="M:Neon.Deployment.OnePassword.ExtendSession(System.String)">
             <summary>
-            Updates the session token.
+            Attempts to extend the 1Password session by 30 minutes.
             </summary>
-            <param name="sessionToken">The new session token or <c>null</c>.</param>
-        </member>
-        <member name="M:Neon.Deployment.OnePassword.EnsureSignedIn">
-            <summary>
-            Ensures that we're signed into 1Password.
-            </summary>
-            <exception cref="T:Neon.Deployment.OnePasswordException">Thrown if we're not signed in.</exception>
+            <param name="cliPath">
+            Optionally specifies the fully qualified path to the 1Password CLI which
+            should be executed instead of the CLI found on the PATH.
+            </param>
+            <returns>
+            The new session expiration time (UTC) or <c>null</c> when we're not signed
+            into the underlying secret manager.
+            </returns>
         </member>
         <member name="M:Neon.Deployment.OnePassword.GetStatus(Neon.Common.ExecuteResponse)">
             <summary>

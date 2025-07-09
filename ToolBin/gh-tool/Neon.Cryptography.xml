@@ -298,7 +298,7 @@
             formatted as a lowercase hex string.
             </summary>
             <param name="input">The input string.</param>
-            <returns>The hash HEX string.</returns>
+            <returns>The hash as a HEX string.</returns>
         </member>
         <member name="M:Neon.Cryptography.CryptoHelper.ComputeMD5String(System.Byte[])">
             <summary>
@@ -306,7 +306,15 @@
             formatted as a lowercase hex string.
             </summary>
             <param name="input">The input bytes.</param>
-            <returns>The hash HEX string.</returns>
+            <returns>The hash as a HEX string.</returns>
+        </member>
+        <member name="M:Neon.Cryptography.CryptoHelper.ComputeMD5StringFromFile(System.String)">
+            <summary>
+            Computes the MD5 hash for file and returns the result
+            formatted as a lowercase hex string.
+            </summary>
+            <param name="path">The source file path.</param>
+            <returns>The hash as a HEX string.</returns>
         </member>
         <member name="M:Neon.Cryptography.CryptoHelper.ComputeMD5String(System.IO.Stream)">
             <summary>
@@ -315,7 +323,7 @@
             hex string.
             </summary>
             <param name="input">The stream.</param>
-            <returns>The hash HEX string.</returns>
+            <returns>The hash as a HEX string.</returns>
         </member>
         <member name="M:Neon.Cryptography.CryptoHelper.ComputeMD5Bytes(System.String)">
             <summary>
@@ -323,7 +331,7 @@
             as a byte array.
             </summary>
             <param name="input">The input string.</param>
-            <returns>The hash bytes.</returns>
+            <returns>The hash as a byte array.</returns>
         </member>
         <member name="M:Neon.Cryptography.CryptoHelper.ComputeMD5Bytes(System.Byte[])">
             <summary>
@@ -331,16 +339,23 @@
             as a byte array.
             </summary>
             <param name="input">The input bytes.</param>
-            <returns>The hash bytes.</returns>
+            <returns>The hash as a byte array.</returns>
         </member>
         <member name="M:Neon.Cryptography.CryptoHelper.ComputeMD5Bytes(System.IO.Stream)">
             <summary>
-            Computes the MD5 hash for a stream from the current position'
-            until the end and returns the result formatted as a lowercase 
-            hex string.
+            Computes the MD5 hash for a stream from the current position
+            until the end and returns the result as a byte array.
             </summary>
             <param name="input">The stream.</param>
-            <returns>The hash HEX string.</returns>
+            <returns>The hash as a byte array.</returns>
+        </member>
+        <member name="M:Neon.Cryptography.CryptoHelper.ComputeMD5BytesFromFile(System.String)">
+            <summary>
+            Computes the MD5 hash for file and returns the result
+            returns the result as a byte array.
+            </summary>
+            <param name="path">The source file path.</param>
+            <returns>The hash as a byte array.</returns>
         </member>
         <member name="F:Neon.Cryptography.CryptoHelper.SHA1ByteSize">
             <summary>
@@ -353,7 +368,7 @@
             formatted as a lowercase hex string.
             </summary>
             <param name="input">The input string.</param>
-            <returns>The hash HEX string.</returns>
+            <returns>The hash as a HEX string.</returns>
         </member>
         <member name="M:Neon.Cryptography.CryptoHelper.ComputeSHA1String(System.Byte[])">
             <summary>
@@ -361,7 +376,7 @@
             formatted as a lowercase hex string.
             </summary>
             <param name="input">The input bytes.</param>
-            <returns>The hash HEX string.</returns>
+            <returns>The hash as a HEX string.</returns>
         </member>
         <member name="M:Neon.Cryptography.CryptoHelper.ComputeSHA1String(System.IO.Stream)">
             <summary>
@@ -370,7 +385,15 @@
             hex string.
             </summary>
             <param name="input">The stream.</param>
-            <returns>The hash HEX string.</returns>
+            <returns>The hash as a HEX string.</returns>
+        </member>
+        <member name="M:Neon.Cryptography.CryptoHelper.ComputeSHA1StringFromFile(System.String)">
+            <summary>
+            Computes the SHA1 hash for file and returns the result
+            formatted as a lowercase hex string.
+            </summary>
+            <param name="path">The source file path.</param>
+            <returns>The hash as a HEX string.</returns>
         </member>
         <member name="M:Neon.Cryptography.CryptoHelper.ComputeSHA1Bytes(System.String)">
             <summary>
@@ -378,7 +401,7 @@
             as a byte array.
             </summary>
             <param name="input">The input string.</param>
-            <returns>The hash bytes.</returns>
+            <returns>The hash as a byte array.</returns>
         </member>
         <member name="M:Neon.Cryptography.CryptoHelper.ComputeSHA1Bytes(System.Byte[])">
             <summary>
@@ -386,7 +409,7 @@
             as a byte array.
             </summary>
             <param name="input">The input bytes.</param>
-            <returns>The hash bytes.</returns>
+            <returns>The hash as a byte array.</returns>
         </member>
         <member name="M:Neon.Cryptography.CryptoHelper.ComputeSHA1Bytes(System.IO.Stream)">
             <summary>
@@ -395,7 +418,15 @@
             hex string.
             </summary>
             <param name="input">The stream.</param>
-            <returns>The hash HEX string.</returns>
+            <returns>The hash as a byte array.</returns>
+        </member>
+        <member name="M:Neon.Cryptography.CryptoHelper.ComputeSHA1BytesFromFile(System.String)">
+            <summary>
+            Computes the SHA1 hash for file and returns the result
+            returns the result as a byte array.
+            </summary>
+            <param name="path">The source file path.</param>
+            <returns>The hash as a byte array.</returns>
         </member>
         <member name="F:Neon.Cryptography.CryptoHelper.SHA256ByteSize">
             <summary>
@@ -408,7 +439,7 @@
             formatted as a lowercase hex string.
             </summary>
             <param name="input">The input string.</param>
-            <returns>The hash HEX string.</returns>
+            <returns>The hash as a HEX string.</returns>
         </member>
         <member name="M:Neon.Cryptography.CryptoHelper.ComputeSHA256String(System.Byte[])">
             <summary>
@@ -416,7 +447,7 @@
             formatted as a lowercase hex string.
             </summary>
             <param name="input">The input bytes.</param>
-            <returns>The hash HEX string.</returns>
+            <returns>The hash as a HEX string.</returns>
         </member>
         <member name="M:Neon.Cryptography.CryptoHelper.ComputeSHA256String(System.IO.Stream)">
             <summary>
@@ -425,7 +456,15 @@
             hex string.
             </summary>
             <param name="input">The stream.</param>
-            <returns>The hash HEX string.</returns>
+            <returns>The hash as a HEX string.</returns>
+        </member>
+        <member name="M:Neon.Cryptography.CryptoHelper.ComputeSHA256StringFromFile(System.String)">
+            <summary>
+            Computes the SHA256 hash for file and returns the result
+            formatted as a lowercase hex string.
+            </summary>
+            <param name="path">The source file path.</param>
+            <returns>The hash as a HEX string.</returns>
         </member>
         <member name="M:Neon.Cryptography.CryptoHelper.ComputeSHA256Bytes(System.String)">
             <summary>
@@ -433,7 +472,7 @@
             as a byte array.
             </summary>
             <param name="input">The input string.</param>
-            <returns>The hash bytes.</returns>
+            <returns>The hash as a byte array.</returns>
         </member>
         <member name="M:Neon.Cryptography.CryptoHelper.ComputeSHA256Bytes(System.Byte[])">
             <summary>
@@ -441,7 +480,7 @@
             as a byte array.
             </summary>
             <param name="input">The input bytes.</param>
-            <returns>The hash bytes.</returns>
+            <returns>The hash as a byte array.</returns>
         </member>
         <member name="M:Neon.Cryptography.CryptoHelper.ComputeSHA256Bytes(System.IO.Stream)">
             <summary>
@@ -450,7 +489,15 @@
             hex string.
             </summary>
             <param name="input">The stream.</param>
-            <returns>The hash HEX string.</returns>
+            <returns>The hash as a byte array.</returns>
+        </member>
+        <member name="M:Neon.Cryptography.CryptoHelper.ComputeSHA256BytesFromFile(System.String)">
+            <summary>
+            Computes the SHA256 hash for file and returns the result
+            returns the result as a byte array.
+            </summary>
+            <param name="path">The source file path.</param>
+            <returns>The hash as a byte array.</returns>
         </member>
         <member name="F:Neon.Cryptography.CryptoHelper.SHA512ByteSize">
             <summary>
@@ -463,7 +510,7 @@
             formatted as a lowercase hex string.
             </summary>
             <param name="input">The input string.</param>
-            <returns>The hash HEX string.</returns>
+            <returns>The hash as a HEX string.</returns>
         </member>
         <member name="M:Neon.Cryptography.CryptoHelper.ComputeSHA512String(System.Byte[])">
             <summary>
@@ -471,7 +518,7 @@
             formatted as a lowercase hex string.
             </summary>
             <param name="input">The input bytes.</param>
-            <returns>The hash HEX string.</returns>
+            <returns>The hash as a HEX string.</returns>
         </member>
         <member name="M:Neon.Cryptography.CryptoHelper.ComputeSHA512String(System.IO.Stream)">
             <summary>
@@ -480,7 +527,15 @@
             hex string.
             </summary>
             <param name="input">The stream.</param>
-            <returns>The hash HEX string.</returns>
+            <returns>The hash as a HEX string.</returns>
+        </member>
+        <member name="M:Neon.Cryptography.CryptoHelper.ComputeSHA512StringFromFile(System.String)">
+            <summary>
+            Computes the SHA512 hash for file and returns the result
+            formatted as a lowercase hex string.
+            </summary>
+            <param name="path">The source file path.</param>
+            <returns>The hash as a HEX string.</returns>
         </member>
         <member name="M:Neon.Cryptography.CryptoHelper.ComputeSHA512Bytes(System.String)">
             <summary>
@@ -488,7 +543,7 @@
             as a byte array.
             </summary>
             <param name="input">The input string.</param>
-            <returns>The hash bytes.</returns>
+            <returns>The hash as a byte array.</returns>
         </member>
         <member name="M:Neon.Cryptography.CryptoHelper.ComputeSHA512Bytes(System.Byte[])">
             <summary>
@@ -505,7 +560,15 @@
             hex string.
             </summary>
             <param name="input">The stream.</param>
-            <returns>The hash HEX string.</returns>
+            <returns>The hash as a byte array.</returns>
+        </member>
+        <member name="M:Neon.Cryptography.CryptoHelper.ComputeSHA512BytesFromFile(System.String)">
+            <summary>
+            Computes the SHA512 hash for file and returns the result
+            returns the result as a byte array.
+            </summary>
+            <param name="path">The source file path.</param>
+            <returns>The hash as a byte array.</returns>
         </member>
         <member name="T:Neon.Cryptography.NamespaceDoc">
             <summary>
@@ -771,347 +834,6 @@
             <param name="targetPath">The target path.</param>
             <exception cref="T:System.Security.Cryptography.CryptographicException">Thrown if the password was not found or for other decryption problems.</exception>
         </member>
-        <member name="T:Neon.Cryptography.TlsCertificate">
-            <summary>
-            <para>
-            Holds the public and private parts of a TLS certificate.
-            </para>
-            <note>
-            <para>
-            This class is a bit of a hack and relies on the presence of the <b>openssl</b>
-            command line tool for Linux, OS/X,... and the <b>certutil</b> tool for Windows.
-            This means that you'll need to take care to ensure <b>openssl</b> is present in
-            your Docker images, etc.
-            </para>
-            <para>
-            This class is deprecated.  We recommend that you use the .NET Core 3+ 
-            <c>X509Certificate2</c> or .NETFramework class instead.
-            </para>
-            </note>
-            </summary>
-            <remarks>
-            <para>
-            This class follows the <b>HAProxy</b> convention of allowing the PEM encoded public certificate
-            and private key to be encoded into a single text file by simply concatenating the public
-            certificate with the private key, certificate first.
-            </para>
-            <note>
-            The certificate part must include any intermediate certificates issues by the certificate
-            authority after the certificate and before the private key.
-            </note>
-            </remarks>
-        </member>
-        <member name="M:Neon.Cryptography.TlsCertificate.Load(System.String)">
-            <summary>
-            Loads a combined public certificate and private key from a PEM encoded
-            text file.
-            </summary>
-            <param name="pemCombinedPath">Path to the source file.</param>
-            <returns>The parsed <see cref="T:Neon.Cryptography.TlsCertificate"/>.</returns>
-        </member>
-        <member name="M:Neon.Cryptography.TlsCertificate.Load(System.String,System.String)">
-            <summary>
-            Loads a combined public certificate and private key from two PEM encoded
-            files.
-            </summary>
-            <param name="certPath">Path to the public certificate PEM file.</param>
-            <param name="keyPath">Path to the private key PEM file.</param>
-            <returns>The parsed <see cref="T:Neon.Cryptography.TlsCertificate"/>.</returns>
-        </member>
-        <member name="M:Neon.Cryptography.TlsCertificate.Parse(System.String)">
-            <summary>
-            Parses a certificate and private key from PEM encoded text.
-            </summary>
-            <param name="pemCombined">The PEM encoded certificate and private key.</param>
-            <returns>The parsed <see cref="T:Neon.Cryptography.TlsCertificate"/>.</returns>
-            <exception cref="T:System.FormatException">Thrown if the certificate could not be parsed.</exception>
-        </member>
-        <member name="M:Neon.Cryptography.TlsCertificate.TryParse(System.String,Neon.Cryptography.TlsCertificate@)">
-            <summary>
-            Attempts to parse a certificate and private key from PEM encoded text.
-            </summary>
-            <param name="pemCombined">The PEM encoded certificate and private key.</param>
-            <param name="certificate">Returns as the parsed certificate.</param>
-            <returns><c>true</c> if the certificate was parsed successfully.</returns>
-        </member>
-        <member name="M:Neon.Cryptography.TlsCertificate.FromPemParts(System.String,System.String)">
-            <summary>
-            Constructs an instance by parsing the certificate and private key PEM encoded
-            parts passed.
-            </summary>
-            <param name="certPem">The certificate PEM text.</param>
-            <param name="keyPem">The optional private key PEM text.</param>
-            <returns>The parsed <see cref="T:Neon.Cryptography.TlsCertificate"/>.</returns>
-            <remarks>
-            <note>
-            The parts passed must include the <b>-----BEGIN CERTIFICATE-----</b>
-            and <b>-----BEGIN PRIVATE KEY-----</b> related headers and footers.
-            </note>
-            </remarks>
-        </member>
-        <member name="M:Neon.Cryptography.TlsCertificate.NormalizePem(System.String)">
-            <summary>
-            Normalizes PEM encoded text to have Linux style (LF) line endings.
-            </summary>
-            <param name="input">The input text.</param>
-            <returns>The normalized text.</returns>
-        </member>
-        <member name="M:Neon.Cryptography.TlsCertificate.CreateSelfSigned(System.String,System.Int32,System.Int32,Neon.Cryptography.Wildcard,System.String,System.String)">
-            <summary>
-            Generates a self-signed certificate for a hostname and/or a wildcarded hostname.
-            </summary>
-            <param name="hostname">
-            <para>
-            The hostname.
-            </para>
-            <note>
-            You can use include a <b>"*"</b> to specify a wildcard
-            certificate like: <b>*.test.com</b>.
-            </note>
-            </param>
-            <param name="bitCount">The certificate key size in bits: one of <b>1024</b>, <b>2048</b>, or <b>4096</b> (defaults to <b>2048</b>).</param>
-            <param name="validDays">
-            The number of days the certificate will be valid.  This defaults to 365,000 days
-            or about 1,000 years.
-            </param>
-            <param name="wildcard">
-            Optionally generate a wildcard certificate for the subdomains of 
-            <paramref name="hostname"/> or the combination of the subdomains
-            and the hostname.  This defaults to <see cref="F:Neon.Cryptography.Wildcard.None"/>
-            which does not generate a wildcard certificate.
-            </param>
-            <param name="issuedBy">Optionally specifies the issuer.</param>
-            <param name="issuedTo">Optionally specifies who/what the certificate is issued for.</param>
-            <returns>The new <see cref="T:Neon.Cryptography.TlsCertificate"/>.</returns>
-        </member>
-        <member name="M:Neon.Cryptography.TlsCertificate.CreateSelfSigned(System.Collections.Generic.IEnumerable{System.String},System.Int32,System.Int32,System.String,System.String)">
-            <summary>
-            Generates a self-signed certificate for arbitrary hostnames, possibly including 
-            hostnames with wildcards.
-            </summary>
-            <param name="hostnames">
-            <para>
-            The certificate hostnames.
-            </para>
-            <note>
-            You can use include a <b>"*"</b> to specify a wildcard
-            certificate like: <b>*.test.com</b>.
-            </note>
-            </param>
-            <param name="bitCount">The certificate key size in bits: one of <b>1024</b>, <b>2048</b>, or <b>4096</b> (defaults to <b>2048</b>).</param>
-            <param name="validDays">
-            The number of days the certificate will be valid.  This defaults to 365,000 days
-            or about 1,000 years.
-            </param>
-            <param name="issuedBy">Optionally specifies the issuer.</param>
-            <param name="issuedTo">Optionally specifies who/what the certificate is issued for.</param>
-            <returns>The new <see cref="T:Neon.Cryptography.TlsCertificate"/>.</returns>
-        </member>
-        <member name="M:Neon.Cryptography.TlsCertificate.Validate(System.String)">
-            <summary>
-            Validates a certificate file.
-            </summary>
-            <param name="path">Path to the certificate.</param>
-            <exception cref="T:System.ArgumentException">Thrown if the certificate is not valid.</exception>
-        </member>
-        <member name="M:Neon.Cryptography.TlsCertificate.#ctor">
-            <summary>
-            Constructs an uninitialized certificate.
-            </summary>
-        </member>
-        <member name="M:Neon.Cryptography.TlsCertificate.#ctor(System.String)">
-            <summary>
-            Constructs an instance by parsing the combined site certificate, any intermediate
-            certificates followed by the private key as PEM encoded text.
-            </summary>
-            <param name="pemCombined">The certificate(s) followed by the private key text.</param>
-        </member>
-        <member name="M:Neon.Cryptography.TlsCertificate.#ctor(System.String,System.String)">
-            <summary>
-            Constructs an instance by parsing the certificate and private key PEM encoded
-            text passed.
-            </summary>
-            <param name="certPem">The certificate PEM text.</param>
-            <param name="keyPem">The optional private key PEM text.</param>
-        </member>
-        <member name="P:Neon.Cryptography.TlsCertificate.CertPem">
-            <summary>
-            The public certificate as PEM encoded text.
-            </summary>
-        </member>
-        <member name="P:Neon.Cryptography.TlsCertificate.CertPemNormalized">
-            <summary>
-            The public certificate as PEM encoded text normalized with Linux-style line endings.
-            </summary>
-        </member>
-        <member name="P:Neon.Cryptography.TlsCertificate.KeyPem">
-            <summary>
-            The private key as PEM encoded text or <c>null</c> if the private key
-            is not present.
-            </summary>
-        </member>
-        <member name="P:Neon.Cryptography.TlsCertificate.KeyPemNormalized">
-            <summary>
-            The private key as PEM encoded text normalized with Linux-style line endings
-            or <c>null</c> if the private key is not present.
-            </summary>
-        </member>
-        <member name="P:Neon.Cryptography.TlsCertificate.CombinedPem">
-            <summary>
-            Returns the combined certificate and private key as PEM encoded text.
-            </summary>
-        </member>
-        <member name="P:Neon.Cryptography.TlsCertificate.CombinedPemNormalized">
-            <summary>
-            Returns the combined certificate and private key as PEM encoded text normalized
-            with Linux-style line endings for HAProxy compatability.
-            </summary>
-            <returns>The combined PEM coded certificate.</returns>
-        </member>
-        <member name="P:Neon.Cryptography.TlsCertificate.FriendlyName">
-            <summary>
-            <para>
-            The friendly name for the certificate.
-            </para>
-            <note>
-            This property was added for convienence and is not loaded from the 
-            certificate data.  You may set this to whatever you wish.
-            </note>
-            </summary>
-        </member>
-        <member name="P:Neon.Cryptography.TlsCertificate.ValidFrom">
-            <summary>
-            The date when the certificate becomes valid (or <c>null</c>).
-            </summary>
-        </member>
-        <member name="P:Neon.Cryptography.TlsCertificate.ValidUntil">
-            <summary>
-            The date when the certificate expires (or <c>null</c>).
-            </summary>
-        </member>
-        <member name="P:Neon.Cryptography.TlsCertificate.Hosts">
-            <summary>
-            The DNS hostnames covered by the certificate.  This may be a single or wildcard hostname
-            extracted from the certificate's <b>Common Name</b> or multiple hostname extracted
-            from the <b>Subject Alternative Name</b> from a SAN certificate.  This list will be 
-            <c>null</c> or empty if the hostname(s) are unknown.
-            </summary>
-        </member>
-        <member name="P:Neon.Cryptography.TlsCertificate.Thumbprint">
-            <summary>
-            The certificate thumbprint.
-            </summary>
-        </member>
-        <member name="M:Neon.Cryptography.TlsCertificate.Clone">
-            <summary>
-            Returns a deep copy of the instance.
-            </summary>
-            <returns>The clone.</returns>
-        </member>
-        <member name="P:Neon.Cryptography.TlsCertificate.HostNames">
-            <summary>
-            Returns the DNS hostnames covered by the certificate as a comma separated string.
-            </summary>
-        </member>
-        <member name="M:Neon.Cryptography.TlsCertificate.IsValidDate(System.Nullable{System.DateTime})">
-            <summary>
-            Determines whether the certificate is valid for the current or an optionally a specified date.
-            </summary>
-            <param name="dateTimeUtc">The optional date (UTC) to check.</param>
-            <returns><c>true</c> if the certificate is valid for the date.</returns>
-            <exception cref="T:System.InvalidOperationException">
-            Thrown if either of <see cref="P:Neon.Cryptography.TlsCertificate.ValidFrom"/> or <see cref="P:Neon.Cryptography.TlsCertificate.ValidUntil"/> are <c>null</c>.
-            </exception>
-        </member>
-        <member name="M:Neon.Cryptography.TlsCertificate.IsValidHost(System.String)">
-            <summary>
-            Determines whether the certificate is valid for a hostname.
-            </summary>
-            <param name="hostname">The hostname to validate.</param>
-            <returns><c>true</c> if the certificate is valid for the hostname.</returns>
-            <exception cref="T:System.InvalidOperationException"> Thrown if <see cref="P:Neon.Cryptography.TlsCertificate.Hosts"/> is <c>null</c> or empty.</exception>
-        </member>
-        <member name="M:Neon.Cryptography.TlsCertificate.ExtractField(System.String,System.String,System.Boolean)">
-            <summary>
-            Extracts a field from a certificate dump.
-            </summary>
-            <param name="prefix">The field prefix.</param>
-            <param name="info">The certificate dump.</param>
-            <param name="throwOnNotFound">Can optionally disable not found error checking.</param>
-            <returns>The extracted field or <c>null</c> if it was not found.</returns>
-            <exception cref="T:System.FormatException">Thrown if the field wasn't found and error checking isn't disabled.</exception>
-        </member>
-        <member name="M:Neon.Cryptography.TlsCertificate.AddHost(System.String)">
-            <summary>
-            Adds a host to <see cref="P:Neon.Cryptography.TlsCertificate.Hosts"/> if it doesn't already exist.
-            </summary>
-            <param name="host">The host to be added.</param>
-        </member>
-        <member name="M:Neon.Cryptography.TlsCertificate.ParseCertUtil(System.String)">
-            <summary>
-            Extracts certificate properties such as <see cref="P:Neon.Cryptography.TlsCertificate.ValidFrom"/>, <see cref="P:Neon.Cryptography.TlsCertificate.ValidUntil"/>, and <see cref="P:Neon.Cryptography.TlsCertificate.Hosts"/> 
-            from the dump output from the Windows <b>CertUtil.exe</b> tool (e.g. via <c>certutil -dump cert.pem</c>).
-            </summary>
-            <param name="info">The dumped certificate information.</param>
-            <remarks>
-            <note>
-            Interesting Fact: <b>OpenSSL</b> and <b>CertUtil</b> report slightly different valid dates
-            for the same certificate.  It appears that <b>CertUtil</b> reports the actual dates whereas
-            <b>OpenSSL</b> rounds <see cref="P:Neon.Cryptography.TlsCertificate.ValidFrom"/> down to <b>00:00:00</b> and rounds <see cref="P:Neon.Cryptography.TlsCertificate.ValidUntil"/> 
-            up to <b>23:59:59</b>.  I'm guessing OpenSSL is doing this to give clients that do not
-            properly handle UTC conversions times some leaway at the beginning and end of a certficiate's life.
-            </note>
-            </remarks>
-        </member>
-        <member name="M:Neon.Cryptography.TlsCertificate.ParseOpenSsl(System.String)">
-            <summary>
-            Extracts certificate properties such as <see cref="P:Neon.Cryptography.TlsCertificate.ValidFrom"/>, <see cref="P:Neon.Cryptography.TlsCertificate.ValidUntil"/>, and <see cref="P:Neon.Cryptography.TlsCertificate.Hosts"/> 
-            from the dump output from the <b>OpenSSL</b> tool (e.g. via <c>openssl x509 -in cert.pem -text</c>).
-            </summary>
-            <param name="info">The dumped certificate information.</param>
-            <remarks>
-            <note>
-            Interesting Fact: <b>OpenSSL</b> and <b>CertUtil</b> report slightly different valid dates
-            for the same certificate.  It appears that <b>CertUtil</b> reports the actual dates whereas
-            <b>OpenSSL</b> rounds <see cref="P:Neon.Cryptography.TlsCertificate.ValidFrom"/> down to <b>00:00:00</b> and rounds <see cref="P:Neon.Cryptography.TlsCertificate.ValidUntil"/> 
-            up to <b>23:59:59</b>.  I'm guessing OpenSSL is doing this to give clients that do not
-            properly handle UTC conversions times some leaway at the beginning and end of a certficiate's life.
-            </note>
-            </remarks>
-        </member>
-        <member name="M:Neon.Cryptography.TlsCertificate.Parse">
-            <summary>
-            Attempts to parse the certificate details.
-            </summary>
-            <exception cref="T:System.FormatException">Thrown if the certificate cannot be parsed.</exception>
-        </member>
-        <member name="M:Neon.Cryptography.TlsCertificate.ToX509(System.Boolean)">
-            <summary>
-            <para>
-            Converts the <see cref="T:Neon.Cryptography.TlsCertificate"/> into a <see cref="T:System.Security.Cryptography.X509Certificates.X509Certificate2"/>.
-            </para>
-            <note>
-            The certificate return <b>will not</b> include the <see cref="T:Neon.Cryptography.TlsCertificate"/>'s private
-            key if there is one.
-            </note>
-            </summary>
-            <param name="publicOnly">Optionally include just the public certificate and exclude any private key.</param>
-            <returns>The new <see cref="T:System.Security.Cryptography.X509Certificates.X509Certificate2"/>.</returns>
-        </member>
-        <member name="M:Neon.Cryptography.TlsCertificate.ExtractPemBytes(System.String)">
-            <summary>
-            <para>
-            Extracts and decodes the base-64 encoded bytes within PEM text.
-            </para>
-            <note>
-            This works only when the PEM text includes only a single
-            <b>BEGIN...END</b> section.
-            </note>
-            </summary>
-            <param name="pem">The PEM text.</param>
-            <returns>The extracted bytes.</returns>
-            <exception cref="T:System.ArgumentException">Thrown if <paramref name="pem"/> includes more than one base-64 encoded section.</exception>
-        </member>
         <member name="T:Neon.Cryptography.Wildcard">
             <summary>
             Enumerates the possible wildcard certificate generation modes.
@@ -1177,11 +899,12 @@
             </list>
             </remarks>
         </member>
-        <member name="M:System.GuidCryptoExtensions.ToFoldedHex(System.Guid)">
+        <member name="M:System.GuidCryptoExtensions.ToFoldedHex(System.Guid,System.Boolean)">
             <summary>
             Computes and returns the 16-character lowercase HEX folded MD5 hash of the GUID.
             </summary>
             <param name="guid">The GUID.</param>
+            <param name="dashes">Optionally includes dashes between each HEX byte.</param>
             <returns>The 8-byte hash.</returns>
             <remarks>
             <para>
