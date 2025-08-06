@@ -526,40 +526,5 @@ namespace Neon.Deployment
                 return field.Value;
             }
         }
-
-        /// <summary>
-        /// Attempts to extend the 1Password session by 30 minutes.
-        /// </summary>
-        /// <param name="cliPath">
-        /// Optionally specifies the fully qualified path to the 1Password CLI which
-        /// should be executed instead of the CLI found on the PATH.
-        /// </param>
-        /// <returns>
-        /// The new session expiration time (UTC) or <c>null</c> when we're not signed
-        /// into the underlying secret manager.
-        /// </returns>
-        public static DateTime? ExtendSession(string cliPath = null)
-        {
-            Covenant.Assert(!string.IsNullOrEmpty(cliPath), nameof(cliPath));
-            Covenant.Requires<InvalidOperationException>(!string.IsNullOrEmpty(account), "Not signed into 1Password");
-
-            lock (syncLock)
-            {
-                var response = NeonHelper.ExecuteCapture(cliPath ?? "op.exe",
-                    new string[]
-                    {
-                        "item", "list"
-                    });
-
-                if (response.Success)
-                {
-                    return DateTime.UtcNow + TimeSpan.FromMinutes(30);
-                }
-                else
-                {
-                    return null;
-                }
-            }
-        }
     }
 }
