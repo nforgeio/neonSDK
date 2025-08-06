@@ -310,7 +310,7 @@ COMMANDS:
 
                 var profileClient = new MaintainerProfile();
 
-                return cachedGithubToken = profileClient.GetSecretPassword("GITHUB[accesstoken]");
+                return cachedGithubToken = profileClient.GetSecretValue("GITHUB[accesstoken]");
             }
         }
     }

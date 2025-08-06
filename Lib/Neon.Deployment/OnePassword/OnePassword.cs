@@ -16,12 +16,17 @@
 // limitations under the License.
 
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics.Contracts;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Xml.Linq;
 
 using Neon.Common;
+
+using Newtonsoft.Json.Linq;
 
 namespace Neon.Deployment
 {
@@ -61,10 +66,10 @@ namespace Neon.Deployment
         //---------------------------------------------------------------------
         // Implementation
 
-        private static readonly object      syncLock          = new object();
-        private static readonly TimeSpan    keepAliveInterval = TimeSpan.FromMinutes(5);    // Only 5 minutes seems to work reliably
-        private static string               account;                                        // NULL when not signed-in
-        private static string               defaultVault;                                   // NULL when not signed-in
+        private static readonly object                                  syncLock = new object();
+        private static string                                           account;        // NULL when not signed-in
+        private static string                                           defaultVault;   // NULL when not signed-in
+        private static ReadOnlyDictionary<string, OnePasswordVault>     vaults;         // NULL when not signed-in
 
         /// <summary>
         /// This class requires that a <b>op.exe</b> v2 client be installed and if
@@ -161,10 +166,12 @@ namespace Neon.Deployment
         {
             OnePassword.account      = null;
             OnePassword.defaultVault = null;
+            OnePassword.vaults       = null;
         }
 
         /// <summary>
-        /// Signs into 1Password using just the account, master password, and default vault.
+        /// Signs into 1Password using just the account, master password, and default vault and loads
+        /// information about all 1Password vaults, items, and fields.
         /// </summary>
         /// <param name="account">The account's shorthand name (e.g. (e.g. "sally@neonforge.com").</param>
         /// <param name="defaultVault">The default vault.</param>
@@ -173,10 +180,7 @@ namespace Neon.Deployment
         /// should be executed instead of the CLI found on the PATH.
         /// </param>
         /// <exception cref="OnePasswordException">Thrown when signin fails.</exception>
-        /// <returns>
-        /// The time (UTC) when the session will be expire if not extended.
-        /// </returns>
-        public static DateTime? Signin(string account, string defaultVault, string cliPath = null)
+        public static void Signin(string account, string defaultVault, string cliPath = null)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(account), nameof(account));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(defaultVault), nameof(defaultVault));
@@ -187,6 +191,8 @@ namespace Neon.Deployment
 
                 OnePassword.account      = account;
                 OnePassword.defaultVault = defaultVault;
+
+                // Start a 1Password CLI session.
 
                 var response = NeonHelper.ExecuteCapture(cliPath ?? "op.exe",
                     new string[]
@@ -201,7 +207,129 @@ namespace Neon.Deployment
                     throw new OnePasswordException(response.AllText);
                 }
 
-                return DateTime.UtcNow + keepAliveInterval;
+                // Retrieve information for all 1Password vaults and items.  This is
+                // equivalent to executing this on the command line:
+                //
+                //      op item list --format=json | op item get --reveal --format=json
+
+                response = NeonHelper.ExecuteCapture(cliPath ?? "op.exe",
+                    new string[]
+                    {
+                        "item", "list", "--format=json"
+                    });
+
+                if (response.ExitCode != 0)
+                {
+                    Signout();
+                    throw new OnePasswordException(response.AllText);
+                }
+
+                response = NeonHelper.ExecuteCapture(cliPath ?? "op.exe",
+                    new string[]
+                    {
+                        "item", "get", "--reveal", "--format=json"
+                    },
+                    input: new StringReader(response.OutputText));
+
+                if (response.ExitCode != 0)
+                {
+                    Signout();
+                    throw new OnePasswordException(response.AllText);
+                }
+
+                // The 1Password CLI returns the item information as formatted JSON but
+                // not as an array.  We'll need to extract individual item JSON by looking
+                // for "{" and "}" characters at the beginning of the output lines.
+
+                var itemReader = new StringReader(response.OutputText);
+                var vaults     = new Dictionary<string, OnePasswordVault>(StringComparer.InvariantCultureIgnoreCase);
+                var sb         = new StringBuilder();
+
+                while (true)
+                {
+                    const string errorMsg = "Improperly formatted 1Password vault JSON.";
+
+                    sb.Clear();
+
+                    // Validate the first line of the vault JSON, if there is one.
+
+                    var line = itemReader.ReadLine();
+
+                    if (line == null)
+                    {
+                        break;
+                    }
+
+                    if (line.Length == 0 || line[0] != '{')
+                    {
+                        throw new OnePasswordException(errorMsg);
+                    }
+
+                    // Accumulate JSON lines until we get to the line with the closing "}".
+
+                    sb.AppendLine(line);
+
+                    while (true)
+                    {
+                        line = itemReader.ReadLine();
+
+                        if (line.Length == 0)
+                        {
+                            throw new OnePasswordException(errorMsg);
+                        }
+
+                        sb.AppendLine(line);
+
+                        if (line[0] == '}')
+                        {
+                            break;
+                        }
+                    }
+
+                    // Create the vault and item if they don't already exist.
+
+                    // [sb] now holds the item JSON so we need to extract the contents.
+
+                    var itemObject  = JObject.Parse(sb.ToString());
+                    var itemId      = (string)itemObject["id"];
+                    var itemName    = (string)itemObject["title"];
+                    var vaultId     = (string)itemObject["vault"]["id"];
+                    var vaultName   = (string)itemObject["vault"]["name"];
+                    var fieldsArray = (JArray)itemObject["fields"];
+
+                    if (!vaults.TryGetValue(vaultName, out var vault))
+                    {
+                        vault = new OnePasswordVault(vaultId, vaultName);
+
+                        vaults.Add(vaultName, vault);
+                    }
+
+                    Covenant.Assert(vault.Id == vaultId);
+
+                    var fields = new List<OnePasswordField>();
+
+                    foreach (var fieldToken in fieldsArray)
+                    {
+                        var fieldObject = (JObject)fieldToken;
+                        var fieldType   = (string)fieldObject["type"];
+                        var fieldName   = (string)fieldObject["label"];
+                        var fieldValue  = (string)fieldObject["value"];
+
+                        if ((fieldType != "STRING" && fieldType != "CONCEALED") || fieldValue == null)
+                        {
+                            continue;
+                        }
+
+                        fields.Add(new OnePasswordField(fieldName, fieldValue));
+                    }
+
+                    if (fields.Count > 0)
+                    {
+                        vault.Items.Add(itemName, new OnePasswordItem(itemName, fields));
+                    }
+                }
+
+                OnePassword.vaults = new ReadOnlyDictionary<string, OnePasswordVault>(vaults);
             }
         }
 
@@ -262,130 +390,102 @@ namespace Neon.Deployment
         }
 
         /// <summary>
-        /// Returns a named password from the current user's standard 1Password 
-        /// vault like <b>user-sally</b> by default or a custom named vault.
+        /// Returns an item password from the current user's default 1Password 
+        /// vault like <b>user-sally</b> by default or a specific vault.
         /// </summary>
-        /// <param name="name">The password name with optional property.</param>
-        /// <param name="vault">Optionally specifies a specific vault.</param>
-        /// <param name="cliPath">
-        /// Optionally specifies the fully qualified path to the 1Password CLI which
-        /// should be executed instead of the CLI found on the PATH.
-        /// </param>
-        /// <returns>The requested password (from the password's [password] field).</returns>
-        /// <exception cref="OnePasswordException">Thrown when the requested secret or property doesn't exist or for other 1Password related problems.</exception>
+        /// <param name="itemRef">The item reference with optional field name (defaults to <b>"password"</b>).</param>
+        /// <param name="vaultName">Optionally specifies a specific vault, otherwise the item/field will be retrieved from the default vault.</param>
+        /// <returns>The requested password from the referenced item.</returns>
+        /// <exception cref="OnePasswordException">Thrown when the requested 1Password is not signed-in or the vault/item/ field doesn't exist.</exception>
         /// <remarks>
         /// <para>
-        /// The <paramref name="name"/> parameter may optionally specify the desired
-        /// 1Password property to override the default <b>"password"</b> for this
-        /// method.  Properties are specified like:
+        /// The <paramref name="itemRef"/> parameter may optionally specify the desired
+        /// 1Password field to override the default <b>"password"</b> for this method.
+        /// Specific field references are specified like:
         /// </para>
         /// <example>
-        /// SECRETNAME[PROPERTY]
+        /// ITEMNAME[FIELDNAME]
         /// </example>
         /// </remarks>
-        public static string GetSecretPassword(string name, string vault = null, string cliPath = null)
+        public static string GetSecretPassword(string itemRef, string vaultName = null)
         {
-            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(name), nameof(name));
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(itemRef), nameof(itemRef));
             Covenant.Requires<InvalidOperationException>(!string.IsNullOrEmpty(account), "Not signed into 1Password");
 
-            var parsedName = ProfileServer.ParseSecretName(name);
-            var property   = parsedName.Property ?? "password";
+            var parsedRef = ProfileServer.ParseItemRef(itemRef);
+            var fieldName = parsedRef.FieldName ?? "password";
 
-            name = parsedName.Name;
+            fieldName = parsedRef.FieldName;
+            vaultName = vaultName ?? defaultVault;
 
             lock (syncLock)
             {
-                var response = NeonHelper.ExecuteCapture(cliPath ?? "op.exe",
-                    new string[]
-                    {
-                        "item", "get", name,
-                        "--account", OnePassword.account,
-                        "--vault", vault ?? defaultVault,
-                        "--fields", property,
-                        "--reveal"
-                    });
-
-                switch (GetStatus(response))
+                if (!vaults.TryGetValue(vaultName, out var vault))
                 {
-                    case OnePasswordStatus.OK:
-
-                        var value = response.OutputText.Trim();
-
-                        if (value == string.Empty)
-                        {
-                            throw new OnePasswordException($"Property [{property}] returned an empty string.  Does it exist?.");
-                        }
-
-                        return value;
-
-                    default:
-
-                        throw new OnePasswordException(response.AllText);
+                    throw new OnePasswordException($"Vault does not exist: {vaultName}");
                 }
+
+                if (!vault.Items.TryGetValue(parsedRef.ItemName, out var item))
+                {
+                    throw new OnePasswordException($"Item does not exist: {vaultName}:{parsedRef.ItemName}");
+                }
+
+                if (!item.Fields.TryGetValue(fieldName, out var field))
+                {
+                    throw new OnePasswordException($"Field does not exist: {vaultName}:{parsedRef.ItemName}[{fieldName}]");
+                }
+
+                return field.Value;
             }
         }
 
         /// <summary>
-        /// Returns a named value from the current user's standard 1Password 
-        /// vault like <b>user-sally</b> by default or a custom named vault.
+        /// Returns a named field from the current user's default 1Password 
+        /// vault like <b>user-sally</b> by default or a specific vault.
         /// </summary>
-        /// <param name="name">The password name with optional property.</param>
-        /// <param name="vault">Optionally specifies a specific vault.</param>
-        /// <param name="cliPath">
-        /// Optionally specifies the fully qualified path to the 1Password CLI which
-        /// should be executed instead of the CLI found on the PATH.
-        /// </param>
-        /// <returns>The requested value (from the password's <b>value</b> field).</returns>
-        /// <exception cref="OnePasswordException">Thrown when the requested secret or property doesn't exist or for other 1Password related problems.</exception>
+        /// <param name="itemRef">The item reference with optional field name (defaults to <b>"value"</b>).</param>
+        /// <param name="vaultName">Optionally specifies a specific vault, otherwise the item/field will be retrieved from the default vault.</param>
+        /// <returns>The requested password from the referenced item.</returns>
+        /// <exception cref="OnePasswordException">Thrown when the requested 1Password is not signed-in or the vault/item/ field doesn't exist.</exception>
         /// <remarks>
         /// <para>
-        /// The <paramref name="name"/> parameter may optionally specify the desired
-        /// 1Password property to override the default <b>"value"</b> for this
-        /// method.  Properties are specified like:
+        /// The <paramref name="itemRef"/> parameter may optionally specify the desired
+        /// 1Password field to override the default <b>"password"</b> for this method.
+        /// Specific field references are specified like:
         /// </para>
         /// <example>
-        /// SECRETNAME[PROPERTY]
+        /// ITEMNAME[FIELDNAME]
         /// </example>
         /// </remarks>
-        public static string GetSecretValue(string name, string vault = null, string cliPath = null)
+        public static string GetSecretValue(string itemRef, string vaultName = null)
         {
-            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(name), nameof(name));
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(itemRef), nameof(itemRef));
             Covenant.Requires<InvalidOperationException>(!string.IsNullOrEmpty(account), "Not signed into 1Password");
 
-            var parsedName = ProfileServer.ParseSecretName(name);
-            var property   = parsedName.Property ?? "value";
+            var parsedRef = ProfileServer.ParseItemRef(itemRef);
+            var fieldName = parsedRef.FieldName ?? "value ";
 
-            name = parsedName.Name;
+            fieldName = parsedRef.FieldName;
+            vaultName = vaultName ?? defaultVault;
 
             lock (syncLock)
             {
-                var response = NeonHelper.ExecuteCapture(cliPath ?? "op.exe",
-                    new string[]
-                    {
-                        "item", "get", name,
-                        "--account", OnePassword.account,
-                        "--vault", vault ?? defaultVault,
-                        "--fields", property,
-                        "--reveal"
-                    });
-
-                switch (GetStatus(response))
+                if (!vaults.TryGetValue(vaultName, out var vault))
                 {
-                    case OnePasswordStatus.OK:
-
-                        var value = response.OutputText.Trim();
-
-                        if (value == string.Empty)
-                        {
-                            throw new OnePasswordException($"Property [{property}] returned an empty string.  Does it exist?.");
-                        }
-
-                        return value;
-
-                    default:
-
-                        throw new OnePasswordException(response.AllText);
+                    throw new OnePasswordException($"Vault does not exist: {vaultName}");
                 }
+
+                if (!vault.Items.TryGetValue(parsedRef.ItemName, out var item))
+                {
+                    throw new OnePasswordException($"Item does not exist: {vaultName}:{parsedRef.ItemName}");
+                }
+
+                if (!item.Fields.TryGetValue(fieldName, out var field))
+                {
+                    throw new OnePasswordException($"Field does not exist: {vaultName}:{parsedRef.ItemName}[{fieldName}]");
+                }
+
+                return field.Value;
             }
         }
 
@@ -420,38 +520,6 @@ namespace Neon.Deployment
                 else
                 {
                     return null;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Returns a <see cref="OnePasswordStatus"/> corresponding to a 1Password CLI response.
-        /// </summary>
-        /// <param name="response">The 1Password CLI response.</param>
-        /// <returns>The status code.</returns>
-        private static OnePasswordStatus GetStatus(ExecuteResponse response)
-        {
-            Covenant.Requires<ArgumentNullException>(response != null, nameof(response));
-            
-            // $hack(jefflill):
-            //
-            // The 1Password CLI doesn't return useful exit codes at this time,
-            // so we're going to try to figure out what we need from the response
-            // text returned by the CLI.
-
-            if (response.ExitCode == 0)
-            {
-                return OnePasswordStatus.OK;
-            }
-            else
-            {
-                if (response.AllText.Contains("session expired") || response.AllText.Contains("You are not currently signed in"))
-                {
-                    return OnePasswordStatus.SessionExpired;
-                }
-                else
-                {
-                    return OnePasswordStatus.Other;
                 }
             }
         }

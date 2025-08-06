@@ -38,46 +38,46 @@ namespace TestDeployment
     [Trait(TestTrait.Category, TestArea.NeonDeployment)]
     [Collection(TestCollection.NonParallel)]
     [CollectionDefinition(TestCollection.NonParallel, DisableParallelization = true)]
-    public partial class Test_ParseSecretNames
+    public partial class Test_ParseItemRef
     {
         [Fact]
         public void Parse_Null()
         {
-            Assert.Throws<ArgumentNullException>(() => ProfileServer.ParseSecretName(null));
+            Assert.Throws<ArgumentNullException>(() => ProfileServer.ParseItemRef(null));
         }
 
         [Fact]
         public void Parse_Empty()
         {
-            Assert.Equal(string.Empty, ProfileServer.ParseSecretName(string.Empty).Name);
-            Assert.Null(ProfileServer.ParseSecretName(string.Empty).Property);
+            Assert.Equal(string.Empty, ProfileServer.ParseItemRef(string.Empty).ItemName);
+            Assert.Null(ProfileServer.ParseItemRef(string.Empty).FieldName);
         }
 
         [Fact]
         public void Parse_NoProperty()
         {
-            Assert.Equal("test", ProfileServer.ParseSecretName("test").Name);
-            Assert.Null(ProfileServer.ParseSecretName("test").Property);
+            Assert.Equal("test", ProfileServer.ParseItemRef("test").ItemName);
+            Assert.Null(ProfileServer.ParseItemRef("test").FieldName);
         }
 
         [Fact]
         public void Parse_WithProperty()
         {
-            Assert.Equal("test", ProfileServer.ParseSecretName("test[property]").Name);
-            Assert.Equal("property", ProfileServer.ParseSecretName("test[property]").Property);
+            Assert.Equal("test", ProfileServer.ParseItemRef("test[property]").ItemName);
+            Assert.Equal("property", ProfileServer.ParseItemRef("test[property]").FieldName);
         }
 
         [Fact]
         public void Parse_BadProperty()
         {
-            Assert.Equal("test[property", ProfileServer.ParseSecretName("test[property").Name);
-            Assert.Null(ProfileServer.ParseSecretName("test[property").Property);
+            Assert.Equal("test[property", ProfileServer.ParseItemRef("test[property").ItemName);
+            Assert.Null(ProfileServer.ParseItemRef("test[property").FieldName);
 
-            Assert.Equal("testproperty]", ProfileServer.ParseSecretName("testproperty]").Name);
-            Assert.Null(ProfileServer.ParseSecretName("testproperty]").Property);
+            Assert.Equal("testproperty]", ProfileServer.ParseItemRef("testproperty]").ItemName);
+            Assert.Null(ProfileServer.ParseItemRef("testproperty]").FieldName);
 
-            Assert.Equal("test", ProfileServer.ParseSecretName("test[]").Name);
-            Assert.Null(ProfileServer.ParseSecretName("test[]").Property);
+            Assert.Equal("test", ProfileServer.ParseItemRef("test[]").ItemName);
+            Assert.Null(ProfileServer.ParseItemRef("test[]").FieldName);
         }
     }
 }

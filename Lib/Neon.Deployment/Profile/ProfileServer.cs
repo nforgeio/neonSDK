@@ -97,16 +97,11 @@ namespace Neon.Deployment
     /// <item>
     ///     <term><b>GET-SECRET-PASSWORD</b></term>
     ///     <description>
-    ///     <para><c>(name, [vault], [masterpassword])</c></para>
+    ///     <para><c>(name, [vault])</c></para>
     ///     <para>
     ///     This requests a password from 1Password by <b>name</b> and <b>vault</b>, which
     ///     is optional and defaults to the user name as defined by the <b>userVault</b>
     ///     Neon Assistant setting.  The password is returned as the response.
-    ///     </para>
-    ///     <para>
-    ///     <b>masterpassword</b> is optional.  This is passed in circumstances where the
-    ///     caller already knows the master password, such as for fully automated
-    ///     CI/CD operations.
     ///     </para>
     ///     <note>
     ///     The value returned by the protocol is value encoded as UTF-8 and then converted
@@ -117,16 +112,11 @@ namespace Neon.Deployment
     /// <item>
     ///     <term><b>GET-SECRET-VALUE</b></term>
     ///     <description>
-    ///     <para><c>(name, [vault], [masterpassword])</c></para>
+    ///     <para><c>(name, [vault]])</c></para>
     ///     <para>
     ///     This requests a secret value from 1Password by <b>name</b> and <b>vault</b>, which
     ///     is optional and defaults to the user name as defined by the <b>userVault</b>
     ///     Neon Assistant setting.  The value is returned as the response.
-    ///     </para>
-    ///     <para>
-    ///     <b>masterpassword</b> is optional.  This is passed in circumstances where the
-    ///     caller already knows the master password, such as for fully automated
-    ///     CI/CD operations.
     ///     </para>
     ///     <note>
     ///     The value returned by the protocol is value encoded as UTF-8 and then converted
@@ -174,50 +164,50 @@ namespace Neon.Deployment
 
         /// <summary>
         /// <para>
-        /// Parses a secret name by extracting the <b>name</b> and <b>property</b>
-        /// components.  secret names can be formatted like: <b>NAME</b> or <b>NAME[PROPERTY]</b>.
+        /// Parses an item reference by extracting the <b>name</b> and <b>field</b>
+        /// components.  Item references can be formatted like: <b>NAME</b> or <b>NAME[FIELD]</b>.
         /// </para>
         /// <note>
         /// When the property syntax passed is malformed, we're just going to return the
         /// entire input string as the name rather than throwing an exception here.  This
         /// will probably result in a failed lookup which will be reported to the user who
-        /// will have a good chance then of figuring out what happened.
+        /// will have a good chance of figuring out what happened.
         /// </note>
         /// </summary>
-        /// <param name="secretName">The secret name.</param>
+        /// <param name="itemRef">The secret name.</param>
         /// <returns>An anonymous structure including the name and property (if specified).</returns>
-        public static (string Name, string Property) ParseSecretName(string secretName)
+        public static (string ItemName, string FieldName) ParseItemRef(string itemRef)
         {
-            Covenant.Requires<ArgumentNullException>(secretName != null, nameof(secretName));
+            Covenant.Requires<ArgumentNullException>(itemRef != null, nameof(itemRef));
 
-            var pLeftBracket  = secretName.IndexOf('[');
+            var pLeftBracket  = itemRef.IndexOf('[');
             var pRightBracket = -1;
 
             if (pLeftBracket != -1)
             {
-                if (secretName.Last() == ']')
+                if (itemRef.Last() == ']')
                 {
-                    pRightBracket = secretName.Length - 1;
+                    pRightBracket = itemRef.Length - 1;
                 }
             }
 
             if (pLeftBracket != -1 && pRightBracket != -1)
             {
-                var name     = secretName.Substring(0, pLeftBracket);
-                var property = secretName.Substring(pLeftBracket + 1, pRightBracket - pLeftBracket - 1);
+                var name     = itemRef.Substring(0, pLeftBracket);
+                var property = itemRef.Substring(pLeftBracket + 1, pRightBracket - pLeftBracket - 1);
 
                 if (property == string.Empty)
                 {
-                    return (Name: name, Property: null);
+                    return (ItemName: name, FieldName: null);
                 }
                 else
                 {
-                    return (Name: name, Property: property);
+                    return (ItemName: name, FieldName: property);
                 }
             }
             else
             {
-                return (Name: secretName, Property: null);
+                return (ItemName: itemRef, FieldName: null);
             }
         }
 
@@ -242,7 +232,7 @@ namespace Neon.Deployment
         /// <param name="threadCount">Optionally specifies the number of threads to create to handle inbound requests.  This defaults to <b>10</b>.</param>
         public ProfileServer(string pipeName = DeploymentHelper.NeonProfileServicePipe, int threadCount = 10)
         {
-            Covenant.Requires<NotSupportedException>(NeonHelper.IsWindows, $"[{nameof(ProfileServer)}] currently only supports Windows.");
+            Covenant.Requires<NotSupportedException>(NeonHelper.IsWindows, $"[{nameof(ProfileServer)}] currently supports Windows only.");
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(pipeName));
             Covenant.Requires<ArgumentException>(threadCount > 0, nameof(threadCount));
 
@@ -392,7 +382,7 @@ namespace Neon.Deployment
         /// This must be initalized before calling <see cref="Start()"/>.
         /// </note>
         /// </summary>
-        public Func<ProfileRequest, string, string, string, ProfileHandlerResult> GetSecretPasswordHandler { get; set; }
+        public Func<ProfileRequest, string, string, ProfileHandlerResult> GetSecretPasswordHandler { get; set; }
 
         /// <summary>
         /// <para>
@@ -403,7 +393,7 @@ namespace Neon.Deployment
         /// This must be initalized before calling <see cref="Start()"/>.
         /// </note>
         /// </summary>
-        public Func<ProfileRequest, string, string, string, ProfileHandlerResult> GetSecretValueHandler { get; set; }
+        public Func<ProfileRequest, string, string, ProfileHandlerResult> GetSecretValueHandler { get; set; }
 
         /// <summary>
         /// <para>
@@ -495,9 +485,8 @@ namespace Neon.Deployment
                         }
                     }
 
-                    request.Args.TryGetValue("name", out var name);
+                    request.Args.TryGetValue("item-ref", out var itemRef);
                     request.Args.TryGetValue("vault", out var vault);
-                    request.Args.TryGetValue("masterpassword", out var masterPassword);
 
                     try
                     {
@@ -515,35 +504,35 @@ namespace Neon.Deployment
 
                             case "GET-PROFILE-VALUE":
 
-                                if (name == null)
+                                if (itemRef == null)
                                 {
                                     handlerResult = ProfileHandlerResult.CreateError(request, ProfileStatus.MissingArg, $"GET-PROFILE-VALUE: [name] argument is required.");
                                     break;
                                 }
 
-                                handlerResult = GetProfileValueHandler(request, name);
+                                handlerResult = GetProfileValueHandler(request, itemRef);
                                 break;
 
                             case "GET-SECRET-PASSWORD":
 
-                                if (name == null)
+                                if (itemRef == null)
                                 {
                                     handlerResult = ProfileHandlerResult.CreateError(request, ProfileStatus.MissingArg, $"GET-SECRET-PASSWORD: [name] argument is required.");
                                     break;
                                 }
 
-                                handlerResult = GetSecretPasswordHandler(request, name, vault, masterPassword);
+                                handlerResult = GetSecretPasswordHandler(request, itemRef, vault);
                                 break;
 
                             case "GET-SECRET-VALUE":
 
-                                if (name == null)
+                                if (itemRef == null)
                                 {
                                     handlerResult = ProfileHandlerResult.CreateError(request, ProfileStatus.MissingArg, $"GET-SECRET-VALUE: [name] argument is required.");
                                     break;
                                 }
 
-                                handlerResult = GetSecretValueHandler(request, name, vault, masterPassword);
+                                handlerResult = GetSecretValueHandler(request, itemRef, vault);
                                 break;
 
                             case "CALL":

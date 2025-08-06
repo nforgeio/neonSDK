@@ -189,7 +189,7 @@ namespace Neon.Deployment
 
             var args = new Dictionary<string, string>();
 
-            args.Add("name", name);
+            args.Add("item-ref", name);
 
             try
             {
@@ -207,22 +207,17 @@ namespace Neon.Deployment
         }
 
         /// <inheritdoc/>
-        public string GetSecretPassword(string name, string vault = null, string masterPassword = null, bool nullOnNotFound = false)
+        public string GetSecretPassword(string name, string vault = null, bool nullOnNotFound = false)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(name), nameof(name));
 
             var args = new Dictionary<string, string>();
 
-            args.Add("name", name);
+            args.Add("item-ref", name);
 
             if (!string.IsNullOrEmpty(vault))
             {
                 args.Add("vault", vault);
-            }
-
-            if (!string.IsNullOrEmpty(masterPassword))
-            {
-                args.Add("masterpassword", masterPassword);
             }
 
             try
@@ -241,22 +236,17 @@ namespace Neon.Deployment
         }
 
         /// <inheritdoc/>
-        public string GetSecretValue(string name, string vault = null, string masterPassword = null, bool nullOnNotFound = false)
+        public string GetSecretValue(string name, string vault = null, bool nullOnNotFound = false)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(name), nameof(name));
 
             var args = new Dictionary<string, string>();
 
-            args.Add("name", name);
+            args.Add("item-ref", name);
 
             if (!string.IsNullOrEmpty(vault))
             {
                 args.Add("vault", vault);
-            }
-
-            if (!string.IsNullOrEmpty(masterPassword))
-            {
-                args.Add("masterpassword", masterPassword);
             }
 
             try

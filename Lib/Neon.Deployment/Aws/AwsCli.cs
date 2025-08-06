@@ -152,13 +152,12 @@ namespace Neon.Deployment
         /// <param name="awsAccessKeyId">Optionally overrides the AWS access key ID 1Password secret name.</param>
         /// <param name="awsSecretAccessKey">Optionally overrides the AWS access key 1Password secret name.</param>
         /// <param name="vault">Optionally overrides the current user's 1Password vault.</param>
-        /// <param name="masterPassword">Optionally specifies the master 1Password.</param>
-        public static void SetCredentials(string awsAccessKeyId = "AWS_NEONFORGE[ACCESS_KEY_ID]", string awsSecretAccessKey = "AWS_NEONFORGE[SECRET_ACCESS_KEY]", string vault = null, string masterPassword = null)
+        public static void SetCredentials(string awsAccessKeyId = "AWS_NEONFORGE[ACCESS_KEY_ID]", string awsSecretAccessKey = "AWS_NEONFORGE[SECRET_ACCESS_KEY]", string vault = null)
         {
             var profileClient = new MaintainerProfile();
 
-            Environment.SetEnvironmentVariable("AWS_ACCESS_KEY_ID", profileClient.GetSecretPassword(awsAccessKeyId, vault, masterPassword));
-            Environment.SetEnvironmentVariable("AWS_SECRET_ACCESS_KEY", profileClient.GetSecretPassword(awsSecretAccessKey, vault, masterPassword));
+            Environment.SetEnvironmentVariable("AWS_ACCESS_KEY_ID", profileClient.GetSecretPassword(awsAccessKeyId, vault));
+            Environment.SetEnvironmentVariable("AWS_SECRET_ACCESS_KEY", profileClient.GetSecretPassword(awsSecretAccessKey, vault));
         }
 
         /// <summary>
