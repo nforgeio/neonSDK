@@ -171,19 +171,21 @@ namespace Neon.Deployment
 
         /// <summary>
         /// Signs into 1Password using just the account, master password, and default vault and loads
-        /// information about all 1Password vaults, items, and fields.
+        /// loads all secrets from the default vault as well as any vaults specified by <paramref name="preloadVaults"/>.
         /// </summary>
         /// <param name="account">The account's shorthand name (e.g. (e.g. "sally@neonforge.com").</param>
         /// <param name="defaultVault">The default vault.</param>
+        /// <param name="preloadVaults">Specifies additonial vaults (seperated by commas) where items will be preloaded.</param>
         /// <param name="cliPath">
         /// Optionally specifies the fully qualified path to the 1Password CLI which
         /// should be executed instead of the CLI found on the PATH.
         /// </param>
         /// <exception cref="OnePasswordException">Thrown when signin fails.</exception>
-        public static void Signin(string account, string defaultVault, string cliPath = null)
+        public static void Signin(string account, string defaultVault, string preloadVaults, string cliPath = null)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(account), nameof(account));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(defaultVault), nameof(defaultVault));
+            Covenant.Requires<ArgumentNullException>(preloadVaults != null, nameof(preloadVaults));
 
             lock (syncLock)
             {
@@ -224,12 +226,48 @@ namespace Neon.Deployment
                     throw new OnePasswordException(response.AllText);
                 }
 
+                // [op item list --format=json] returns a JSON array listing the
+                // 1Password items.  We're going to parse this and filter this
+                // to exclude any items not in the default vault or any of the
+                // prefetch vaults.
+
+                var vaultNames = new HashSet<string>();
+
+                vaultNames.Add(defaultVault);
+
+                foreach (var vault in preloadVaults.Split(','))
+                {
+                    var trimmedVault = vault.Trim();
+
+                    if (trimmedVault != string.Empty && !vaultNames.Contains(trimmedVault))
+                    {
+                        vaultNames.Add(trimmedVault);
+                    }
+                }
+
+                var allItemsArray    = JArray.Parse(response.OutputText);
+                var filterItemsArray = new JArray();
+
+                foreach (JObject item in allItemsArray)
+                {
+                    var vaultName = (string)item["vault"]["name"];
+
+                    if (vaultNames.Contains(vaultName))
+                    {
+                        filterItemsArray.Add(item);
+                    }
+                }
+
+                var test = filterItemsArray.ToString();
+
+                // Retrieve the filtered items. 
+
                 response = NeonHelper.ExecuteCapture(cliPath ?? "op.exe",
                     new string[]
                     {
                         "item", "get", "--reveal", "--format=json"
                     },
-                    input: new StringReader(response.OutputText));
+                    input: new StringReader(filterItemsArray.ToString()));
 
                 if (response.ExitCode != 0)
                 {
