@@ -180,7 +180,7 @@ namespace Neon.Deployment
         /// Optionally specifies the fully qualified path to the 1Password CLI which
         /// should be executed instead of the CLI found on the PATH.
         /// </param>
-        /// <exception cref="OnePasswordException">Thrown when signin fails.</exception>
+        /// <exception cref="OnePasswordException">Thrown when sign-in fails.</exception>
         public static void Signin(string account, string defaultVault, string preloadVaults, string cliPath = null)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(account), nameof(account));
@@ -344,6 +344,17 @@ namespace Neon.Deployment
 
                     Covenant.Assert(vault.Id == vaultId);
 
+                    var validFieldTypes = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase)
+                    {
+                        "DATE",
+                        "EMAIL",
+                        "MONTH_YEAR",
+                        "OTP",
+                        "PHONE",
+                        "STRING",
+                        "URL",
+                    };
+
                     var fields = new List<OnePasswordField>();
 
                     foreach (var fieldToken in fieldsArray)
@@ -353,7 +364,7 @@ namespace Neon.Deployment
                         var fieldName   = (string)fieldObject["label"];
                         var fieldValue  = (string)fieldObject["value"];
 
-                        if ((fieldType != "STRING" && fieldType != "CONCEALED") || fieldValue == null)
+                        if ((!validFieldTypes.Contains(fieldType) && fieldType != "CONCEALED") || fieldValue == null)
                         {
                             continue;
                         }
