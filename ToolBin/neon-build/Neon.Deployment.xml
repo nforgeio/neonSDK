@@ -44,14 +44,13 @@
             <param name="args">The argument list.</param>
             <returns>The argument list with the debug option, when enabled.</returns>
         </member>
-        <member name="M:Neon.Deployment.AwsCli.SetCredentials(System.String,System.String,System.String,System.String)">
+        <member name="M:Neon.Deployment.AwsCli.SetCredentials(System.String,System.String,System.String)">
             <summary>
             Sets the AWS credential environment variables by loading them from 1Password.
             </summary>
             <param name="awsAccessKeyId">Optionally overrides the AWS access key ID 1Password secret name.</param>
             <param name="awsSecretAccessKey">Optionally overrides the AWS access key 1Password secret name.</param>
             <param name="vault">Optionally overrides the current user's 1Password vault.</param>
-            <param name="masterPassword">Optionally specifies the master 1Password.</param>
         </member>
         <member name="M:Neon.Deployment.AwsCli.RemoveCredentials">
             <summary>
@@ -1442,20 +1441,19 @@
             Clears fields to indicate the underlying secret manager is signed-out.
             </summary>
         </member>
-        <member name="M:Neon.Deployment.OnePassword.Signin(System.String,System.String,System.String)">
+        <member name="M:Neon.Deployment.OnePassword.Signin(System.String,System.String,System.String,System.String)">
             <summary>
-            Signs into 1Password using just the account, master password, and default vault.
+            Signs into 1Password using just the account, master password, and default vault and loads
+            loads all secrets from the default vault as well as any vaults specified by <paramref name="preloadVaults"/>.
             </summary>
             <param name="account">The account's shorthand name (e.g. (e.g. "sally@neonforge.com").</param>
             <param name="defaultVault">The default vault.</param>
+            <param name="preloadVaults">Specifies additonial vaults (seperated by commas) where items will be preloaded.</param>
             <param name="cliPath">
             Optionally specifies the fully qualified path to the 1Password CLI which
             should be executed instead of the CLI found on the PATH.
             </param>
-            <exception cref="T:Neon.Deployment.OnePasswordException">Thrown when signin fails.</exception>
-            <returns>
-            The time (UTC) when the session will be expire if not extended.
-            </returns>
+            <exception cref="T:Neon.Deployment.OnePasswordException">Thrown when sign-in fails.</exception>
         </member>
         <member name="M:Neon.Deployment.OnePassword.Signout(System.String)">
             <summary>
@@ -1472,73 +1470,45 @@
             </param>
             <returns><c>true</c> when the CLI is connected.</returns>
         </member>
-        <member name="M:Neon.Deployment.OnePassword.GetSecretPassword(System.String,System.String,System.String)">
+        <member name="M:Neon.Deployment.OnePassword.GetSecretPassword(System.String,System.String)">
             <summary>
-            Returns a named password from the current user's standard 1Password 
-            vault like <b>user-sally</b> by default or a custom named vault.
+            Returns an item password from the current user's default 1Password 
+            vault like <b>user-sally</b> by default or a specific vault.
             </summary>
-            <param name="name">The password name with optional property.</param>
-            <param name="vault">Optionally specifies a specific vault.</param>
-            <param name="cliPath">
-            Optionally specifies the fully qualified path to the 1Password CLI which
-            should be executed instead of the CLI found on the PATH.
-            </param>
-            <returns>The requested password (from the password's [password] field).</returns>
-            <exception cref="T:Neon.Deployment.OnePasswordException">Thrown when the requested secret or property doesn't exist or for other 1Password related problems.</exception>
+            <param name="itemRef">The item reference with optional field name (defaults to <b>"password"</b>).</param>
+            <param name="vaultName">Optionally specifies a specific vault, otherwise the item/field will be retrieved from the default vault.</param>
+            <returns>The requested password from the referenced item.</returns>
+            <exception cref="T:Neon.Deployment.OnePasswordException">Thrown when the requested 1Password is not signed-in or the vault/item/ field doesn't exist.</exception>
             <remarks>
             <para>
-            The <paramref name="name"/> parameter may optionally specify the desired
-            1Password property to override the default <b>"password"</b> for this
-            method.  Properties are specified like:
+            The <paramref name="itemRef"/> parameter may optionally specify the desired
+            1Password field to override the default <b>"password"</b> for this method.
+            Specific field references are specified like:
             </para>
             <example>
-            SECRETNAME[PROPERTY]
+            ITEMNAME[FIELDNAME]
             </example>
             </remarks>
         </member>
-        <member name="M:Neon.Deployment.OnePassword.GetSecretValue(System.String,System.String,System.String)">
+        <member name="M:Neon.Deployment.OnePassword.GetSecretValue(System.String,System.String)">
             <summary>
-            Returns a named value from the current user's standard 1Password 
-            vault like <b>user-sally</b> by default or a custom named vault.
+            Returns a named field from the current user's default 1Password 
+            vault like <b>user-sally</b> by default or a specific vault.
             </summary>
-            <param name="name">The password name with optional property.</param>
-            <param name="vault">Optionally specifies a specific vault.</param>
-            <param name="cliPath">
-            Optionally specifies the fully qualified path to the 1Password CLI which
-            should be executed instead of the CLI found on the PATH.
-            </param>
-            <returns>The requested value (from the password's <b>value</b> field).</returns>
-            <exception cref="T:Neon.Deployment.OnePasswordException">Thrown when the requested secret or property doesn't exist or for other 1Password related problems.</exception>
+            <param name="itemRef">The item reference with optional field name (defaults to <b>"value"</b>).</param>
+            <param name="vaultName">Optionally specifies a specific vault, otherwise the item/field will be retrieved from the default vault.</param>
+            <returns>The requested password from the referenced item.</returns>
+            <exception cref="T:Neon.Deployment.OnePasswordException">Thrown when the requested 1Password is not signed-in or the vault/item/ field doesn't exist.</exception>
             <remarks>
             <para>
-            The <paramref name="name"/> parameter may optionally specify the desired
-            1Password property to override the default <b>"value"</b> for this
-            method.  Properties are specified like:
+            The <paramref name="itemRef"/> parameter may optionally specify the desired
+            1Password field to override the default <b>"password"</b> for this method.
+            Specific field references are specified like:
             </para>
             <example>
-            SECRETNAME[PROPERTY]
+            ITEMNAME[FIELDNAME]
             </example>
             </remarks>
-        </member>
-        <member name="M:Neon.Deployment.OnePassword.ExtendSession(System.String)">
-            <summary>
-            Attempts to extend the 1Password session by 30 minutes.
-            </summary>
-            <param name="cliPath">
-            Optionally specifies the fully qualified path to the 1Password CLI which
-            should be executed instead of the CLI found on the PATH.
-            </param>
-            <returns>
-            The new session expiration time (UTC) or <c>null</c> when we're not signed
-            into the underlying secret manager.
-            </returns>
-        </member>
-        <member name="M:Neon.Deployment.OnePassword.GetStatus(Neon.Common.ExecuteResponse)">
-            <summary>
-            Returns a <see cref="T:Neon.Deployment.OnePassword.OnePasswordStatus"/> corresponding to a 1Password CLI response.
-            </summary>
-            <param name="response">The 1Password CLI response.</param>
-            <returns>The status code.</returns>
         </member>
         <member name="T:Neon.Deployment.OnePasswordException">
             <summary>
@@ -1551,6 +1521,77 @@
             </summary>
             <param name="message">Optionally specifies the exception message.</param>
             <param name="innerException">Optionally specifies an inner exception.</param>
+        </member>
+        <member name="T:Neon.Deployment.OnePasswordField">
+            <summary>
+            Descrives a 1Password item field.
+            </summary>
+        </member>
+        <member name="M:Neon.Deployment.OnePasswordField.#ctor(System.String,System.String)">
+            <summary>
+            Constructor.
+            </summary>
+            <param name="name">Specifies the field name.</param>
+            <param name="value">Specifies the field value.</param>
+        </member>
+        <member name="P:Neon.Deployment.OnePasswordField.Name">
+            <summary>
+            Returns the 1Password field name.
+            </summary>
+        </member>
+        <member name="P:Neon.Deployment.OnePasswordField.Value">
+            <summary>
+            Returns the 1Password field value.
+            </summary>
+        </member>
+        <member name="T:Neon.Deployment.OnePasswordItem">
+            <summary>
+            Describes a 1Password item.
+            </summary>
+        </member>
+        <member name="M:Neon.Deployment.OnePasswordItem.#ctor(System.String,System.Collections.Generic.IEnumerable{Neon.Deployment.OnePasswordField})">
+            <summary>
+            Constructor.
+            </summary>
+            <param name="name">Specifies the 1Password item name.</param>
+            <param name="fields">Specifies the 1password item fields.</param>
+        </member>
+        <member name="P:Neon.Deployment.OnePasswordItem.Name">
+            <summary>
+            Returns the 1Password item name.
+            </summary>
+        </member>
+        <member name="P:Neon.Deployment.OnePasswordItem.Fields">
+            <summary>
+            Returns a read-only dictionary with the item fields keyed by case-insensitive name.
+            </summary>
+        </member>
+        <member name="T:Neon.Deployment.OnePasswordVault">
+            <summary>
+            Describes a 1Password vault including any related secret items.
+            </summary>
+        </member>
+        <member name="M:Neon.Deployment.OnePasswordVault.#ctor(System.String,System.String)">
+            <summary>
+            Constructor.
+            </summary>
+            <param name="id">Specifies the 1Password vault UUID.</param>
+            <param name="name">Specifies the 1Password vault name.</param>
+        </member>
+        <member name="P:Neon.Deployment.OnePasswordVault.Id">
+            <summary>
+            Returns the 1Password vault UUID.
+            </summary>
+        </member>
+        <member name="P:Neon.Deployment.OnePasswordVault.Name">
+            <summary>
+            Returns the 1Password vault name.
+            </summary>
+        </member>
+        <member name="P:Neon.Deployment.OnePasswordVault.Items">
+            <summary>
+            Returns dictionary of the vault items keyed by case-insensitive item name.
+            </summary>
         </member>
         <member name="T:Neon.Deployment.MaintainerProfile">
             <summary>
@@ -1665,10 +1706,10 @@
         <member name="M:Neon.Deployment.MaintainerProfile.GetProfileValue(System.String,System.Boolean)">
             <inheritdoc/>
         </member>
-        <member name="M:Neon.Deployment.MaintainerProfile.GetSecretPassword(System.String,System.String,System.String,System.Boolean)">
+        <member name="M:Neon.Deployment.MaintainerProfile.GetSecretPassword(System.String,System.String,System.Boolean)">
             <inheritdoc/>
         </member>
-        <member name="M:Neon.Deployment.MaintainerProfile.GetSecretValue(System.String,System.String,System.String,System.Boolean)">
+        <member name="M:Neon.Deployment.MaintainerProfile.GetSecretValue(System.String,System.String,System.Boolean)">
             <inheritdoc/>
         </member>
         <member name="M:Neon.Deployment.MaintainerProfile.GetCommonSecrets">
@@ -1915,16 +1956,11 @@
             <item>
                 <term><b>GET-SECRET-PASSWORD</b></term>
                 <description>
-                <para><c>(name, [vault], [masterpassword])</c></para>
+                <para><c>(name, [vault])</c></para>
                 <para>
                 This requests a password from 1Password by <b>name</b> and <b>vault</b>, which
                 is optional and defaults to the user name as defined by the <b>userVault</b>
                 Neon Assistant setting.  The password is returned as the response.
-                </para>
-                <para>
-                <b>masterpassword</b> is optional.  This is passed in circumstances where the
-                caller already knows the master password, such as for fully automated
-                CI/CD operations.
                 </para>
                 <note>
                 The value returned by the protocol is value encoded as UTF-8 and then converted
@@ -1935,16 +1971,11 @@
             <item>
                 <term><b>GET-SECRET-VALUE</b></term>
                 <description>
-                <para><c>(name, [vault], [masterpassword])</c></para>
+                <para><c>(name, [vault]])</c></para>
                 <para>
                 This requests a secret value from 1Password by <b>name</b> and <b>vault</b>, which
                 is optional and defaults to the user name as defined by the <b>userVault</b>
                 Neon Assistant setting.  The value is returned as the response.
-                </para>
-                <para>
-                <b>masterpassword</b> is optional.  This is passed in circumstances where the
-                caller already knows the master password, such as for fully automated
-                CI/CD operations.
                 </para>
                 <note>
                 The value returned by the protocol is value encoded as UTF-8 and then converted
@@ -1986,20 +2017,20 @@
             </list>
             </remarks>
         </member>
-        <member name="M:Neon.Deployment.ProfileServer.ParseSecretName(System.String)">
+        <member name="M:Neon.Deployment.ProfileServer.ParseItemRef(System.String)">
             <summary>
             <para>
-            Parses a secret name by extracting the <b>name</b> and <b>property</b>
-            components.  secret names can be formatted like: <b>NAME</b> or <b>NAME[PROPERTY]</b>.
+            Parses an item reference by extracting the <b>name</b> and <b>field</b>
+            components.  Item references can be formatted like: <b>NAME</b> or <b>NAME[FIELD]</b>.
             </para>
             <note>
             When the property syntax passed is malformed, we're just going to return the
             entire input string as the name rather than throwing an exception here.  This
             will probably result in a failed lookup which will be reported to the user who
-            will have a good chance then of figuring out what happened.
+            will have a good chance of figuring out what happened.
             </note>
             </summary>
-            <param name="secretName">The secret name.</param>
+            <param name="itemRef">The secret name.</param>
             <returns>An anonymous structure including the name and property (if specified).</returns>
         </member>
         <member name="M:Neon.Deployment.ProfileServer.#ctor(System.String,System.Int32)">

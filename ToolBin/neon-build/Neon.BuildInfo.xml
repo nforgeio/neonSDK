@@ -153,19 +153,19 @@
             <summary>Branch: master</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.Commit">
-            <summary>Commit: 4168f6c2</summary>
+            <summary>Commit: 77328099</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.Sha">
-            <summary>Sha: 4168f6c2af1f1a353f47e7594c6c6d6daa9bbbff</summary>
+            <summary>Sha: 77328099f8579e1ea321c8f0b05aba7ddc8faaff</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.CommitDate">
-            <summary>Commit date: 2025-06-16T13:29:30-07:00</summary>
+            <summary>Commit date: 2025-08-11T13:49:05-07:00</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.Commits">
-            <summary>Commits on top of base version: 10</summary>
+            <summary>Commits on top of base version: 20</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.Tag">
-            <summary>Tag: v4.0.14-10-g4168f6c2</summary>
+            <summary>Tag: v4.0.14-20-g77328099</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.BaseTag">
             <summary>Base tag: v4.0.14</summary>
@@ -192,7 +192,7 @@
             <summary>Minor: 0</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.SemVer.Patch">
-            <summary>Patch: 24</summary>
+            <summary>Patch: 34</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.SemVer.Label">
             <summary>Label: </summary>

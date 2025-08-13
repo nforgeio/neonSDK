@@ -48,6 +48,8 @@ USAGE: dtee [--out:PATH] [--err:PATH] [--both:PATH] -- COMMAND
                   will be written
     --quiet     - specifies that STDOUT and STDERR streams should not
                   be written to the process output
+    --debug     - writes the arguments and STDOUT and STDERR to
+                 [%TEMP%\dee-tool.debug]
 
     COMMAND     - specifies the batch command to be executed passed as
                   a single string
@@ -73,159 +75,208 @@ NOTE: Lines written to the BOTH file from the standard streams
                 Environment.Exit(1);
             }
 
-            //-----------------------------------------------------------------
-            // Parse the command line arguments.
-
-            var outPath  = (string)null;
-            var errPath  = (string)null;
-            var bothPath = (string)null;
-            var quiet    = false;
-            var command  = (string)null;
-            var sepIndex = -1;
-
-            // Look for the command separator.
-
-            for (int i = 0; i < args.Length; i++)
-            {
-                if (args[i] == "--")
-                {
-                    sepIndex = i;
-                    break;
-                }
-            }
-
-            if (sepIndex == -1)
-            {
-                Console.Error.WriteLine();
-                Console.Error.WriteLine("*** ERROR: Missing \"--\" followed by COMMAND");
-                Console.Error.WriteLine();
-                Environment.Exit(1);
-            }
-
-            // Make sure there's only one COMMAND argument after the separator.
-
-            if (args.Length == sepIndex + 1)
-            {
-                Console.Error.WriteLine();
-                Console.Error.WriteLine("*** ERROR: Missing COMMAND after \"--\"");
-                Console.Error.WriteLine();
-                Environment.Exit(1);
-            }
-            else if (args.Length > sepIndex + 2)
-            {
-                Console.Error.WriteLine();
-                Console.Error.WriteLine("*** ERROR: Extra arguments after COMMAND");
-                Console.Error.WriteLine();
-                Environment.Exit(1);
-            }
-
-            command = args[sepIndex + 1];
-
-            // Parse the output path options.
-
-            for (int i = 0; i < sepIndex; i++)
-            {
-                var option = args[i];
-
-                if (option.StartsWith("--out="))
-                {
-                    outPath = option.Substring("--out=".Length);
-                }
-                else if (option.StartsWith("--err="))
-                {
-                    errPath = option.Substring("--err=".Length);
-                }
-                else if (option.StartsWith("--both="))
-                {
-                    bothPath = option.Substring("--both=".Length);
-                }
-                else if (option == "--quiet")
-                {
-                    quiet = true;
-                }
-                else
-                {
-                    Console.Error.WriteLine();
-                    Console.Error.WriteLine($"*** ERROR: Invalid option: {option}");
-                    Console.Error.WriteLine();
-                    Environment.Exit(1);
-                }
-            }
-
-            //-----------------------------------------------------------------
-            // Execute the command, writing the command streams to the files
-            // specified by the options as well as to this process's standard
-            // output streams.
-
-            var syncRoot   = new object();
-            var encoding   = Encoding.UTF8;
-            var outWriter  = outPath != null ? new StreamWriter(File.Create(outPath), encoding) : (StreamWriter)null;
-            var errWriter  = errPath != null ? new StreamWriter(File.Create(errPath), encoding) : (StreamWriter)null;
-            var bothWriter = bothPath != null ? new StreamWriter(File.Create(bothPath), encoding) : (StreamWriter)null;
-            var exitcode   = 1;
-
             try
             {
-                var processInfo = new ProcessStartInfo("cmd", $"/c {command}")
-                {
-                    UseShellExecute        = false,
-                    RedirectStandardError  = true,
-                    RedirectStandardOutput = true,
-                    CreateNoWindow         = true,
-                    StandardOutputEncoding = encoding,
-                    StandardErrorEncoding  = encoding
-                };
+                //-----------------------------------------------------------------
+                // Parse the command line arguments.
 
-                using var process = new Process()
-                {
-                    StartInfo = processInfo
-                };
+                var outPath  = (string)null;
+                var errPath  = (string)null;
+                var bothPath = (string)null;
+                var argError = (string)null;
+                var quiet    = false;
+                var debug    = false;
+                var command  = (string)null;
+                var sepIndex = -1;
 
-                process.OutputDataReceived +=
-                    (s, a) =>
+                // Look for the command separator.
+
+                for (int i = 0; i < args.Length; i++)
+                {
+                    if (args[i] == "--")
                     {
-                        lock (syncRoot)
-                        {
-                            if (!quiet)
-                            {
-                                Console.Out.WriteLine(a.Data);
-                            }
+                        sepIndex = i;
+                        break;
+                    }
+                }
 
-                            outWriter?.WriteLine(a.Data);
-                            bothWriter?.WriteLine(a.Data);
-                        }
+                if (sepIndex == -1)
+                {
+                    argError = "*** ERROR: Missing \"--\" followed by COMMAND";
+                }
+
+                // Make sure there's only one COMMAND argument after the separator.
+
+                if (args.Length == sepIndex + 1)
+                {
+                    argError = "*** ERROR: Missing COMMAND after \"--\"";
+                }
+                else if (args.Length > sepIndex + 2)
+                {
+                    argError = "*** ERROR: Extra arguments after COMMAND";
+                }
+
+                command = args[sepIndex + 1];
+
+                // Parse the output path options.
+
+                for (int i = 0; i < sepIndex; i++)
+                {
+                    var option = args[i];
+
+                    if (option.StartsWith("--out="))
+                    {
+                        outPath = option.Substring("--out=".Length);
+                    }
+                    else if (option.StartsWith("--err="))
+                    {
+                        errPath = option.Substring("--err=".Length);
+                    }
+                    else if (option.StartsWith("--both="))
+                    {
+                        bothPath = option.Substring("--both=".Length);
+                    }
+                    else if (option == "--quiet")
+                    {
+                        quiet = true;
+                    }
+                    else if (option == "--debug")
+                    {
+                        debug = true;
+                    }
+                    else
+                    {
+                        argError = $"*** ERROR: Invalid option: {option}";
+                        break;
+                    }
+                }
+
+                //-----------------------------------------------------------------
+                // Execute the command, writing the command streams to the files
+                // specified by the options as well as to this process's standard
+                // output streams.
+
+                var syncRoot        = new object();
+                var encoding        = Encoding.UTF8;
+                var outWriter       = outPath != null ? new StreamWriter(File.Create(outPath), encoding) : null;
+                var errWriter       = errPath != null ? new StreamWriter(File.Create(errPath), encoding) : null;
+                var bothWriter      = bothPath != null ? new StreamWriter(File.Create(bothPath), encoding) : null;
+                var debugPath       = Path.Combine(Path.GetTempPath(), "dee-tool.debug");
+                var debugWriter     = debug ? new StreamWriter(debugPath) : null;
+                var outStringWriter = new StringWriter();
+                var errStringWriter = new StringWriter();
+                var exitcode        = 1;
+
+                if (debug)
+                {
+                    debugWriter.WriteLine("DTEE ARGS: ################################################");
+
+                    for (var i = 0; i < args.Length; i++)
+                    {
+                        debugWriter.WriteLine($"    {i}: {args[i]}");
+                    }
+
+                    debugWriter.WriteLine("###########################################################");
+                }
+
+                if (argError != null)
+                {
+                    var writer = errWriter ?? bothWriter;
+
+                    if (writer != null)
+                    {
+                        writer.WriteLine();
+                        writer.WriteLine(argError);
+                    }
+
+                    Environment.Exit(1);
+                }
+
+                try
+                {
+                    var processInfo = new ProcessStartInfo("cmd", $"/c {command}")
+                    {
+                        UseShellExecute        = false,
+                        RedirectStandardError  = true,
+                        RedirectStandardOutput = true,
+                        CreateNoWindow         = true,
+                        StandardOutputEncoding = encoding,
+                        StandardErrorEncoding  = encoding
                     };
 
-                process.ErrorDataReceived +=
-                    (s, a) =>
+                    using var process = new Process()
                     {
-                        lock (syncRoot)
-                        {
-                            if (!quiet)
-                            {
-                                Console.Error.WriteLine(a.Data);
-                            }
-
-                            errWriter?.WriteLine(a.Data);
-                            bothWriter?.WriteLine(a.Data);
-                        }
+                        StartInfo = processInfo
                     };
 
-                process.Start();
-                process.BeginOutputReadLine();
-                process.BeginErrorReadLine();
-                process.WaitForExit();
+                    process.OutputDataReceived +=
+                        (s, a) =>
+                        {
+                            lock (syncRoot)
+                            {
+                                if (!quiet)
+                                {
+                                    Console.Out.WriteLine(a.Data);
+                                }
 
-                exitcode = process.ExitCode;
+                                outWriter?.WriteLine(a.Data);
+                                bothWriter?.WriteLine(a.Data);
+                                outStringWriter.WriteLine(a.Data);
+                            }
+                        };
+
+                    process.ErrorDataReceived +=
+                        (s, a) =>
+                        {
+                            lock (syncRoot)
+                            {
+                                if (!quiet)
+                                {
+                                    Console.Error.WriteLine(a.Data);
+                                }
+
+                                errWriter?.WriteLine(a.Data);
+                                bothWriter?.WriteLine(a.Data);
+                                errStringWriter.WriteLine(a.Data);
+                            }
+                        };
+
+                    process.Start();
+                    process.BeginOutputReadLine();
+                    process.BeginErrorReadLine();
+                    process.WaitForExit();
+
+                    exitcode = process.ExitCode;
+
+                    if (debug)
+                    {
+                        debugWriter.WriteLine("STDOUT: ###################################################");
+                        debugWriter.WriteLine("");
+                        debugWriter.Write(outStringWriter.ToString());
+                        debugWriter.WriteLine("###########################################################");
+
+                        debugWriter.WriteLine("STDERR: ###################################################");
+                        debugWriter.Write(errStringWriter.ToString());
+                        debugWriter.WriteLine("###########################################################");
+                    }
+                }
+                finally
+                {
+                    outWriter?.Dispose();
+                    errWriter?.Dispose();
+                    bothWriter?.Dispose();
+                    outStringWriter.Dispose();
+                    errStringWriter.Dispose();
+                    debugWriter?.Dispose();
+                }
+
+                Environment.Exit(exitcode);
             }
-            finally
+            catch (Exception e)
             {
-                outWriter?.Dispose();
-                errWriter?.Dispose();
-                bothWriter?.Dispose();
+                Console.WriteLine($"*** EXCEPTION: {e.GetType().FullName}: {e.Message}");
+                Console.WriteLine(e.StackTrace);
             }
-
-            Environment.Exit(exitcode);
         }
     }
 }
