@@ -24,7 +24,9 @@ using System.Threading.Tasks;
 using Neon.Common;
 using Neon.Tasks;
 
+#pragma warning disable IDE0130 // Namespace does not match folder structure
 namespace Neon.IO
+#pragma warning restore IDE0130 // Namespace does not match folder structure
 {
     /// <summary>
     /// <para>
@@ -49,11 +51,11 @@ namespace Neon.IO
     /// </remarks>
     public class SubStream : Stream
     {
-        private Stream      baseStream;
-        private long        start;          // Starting position of the substream data within the base stream
-        private long        length;         // Length of the subsection
-        private long        position;       // Current position relative to the substream data
-        private long        orgBasePos;     // Original base position (restored when this is disposed)
+        private readonly Stream     baseStream;
+        private readonly long       start;          // Starting position of the substream data within the base stream
+        private readonly long       length;         // Length of the subsection
+        private long                position;       // Current position relative to the substream data
+        private readonly long       orgBasePos;     // Original base position (restored when this is disposed)
 
         /// <summary>
         /// Constructs a substream that operates on a range of bytes within a base stream.
@@ -195,7 +197,7 @@ namespace Neon.IO
                 {
                     var cb = Math.Min(count, (int)(length - Position));
 
-                    baseStream.Read(buffer, offset, cb);
+                    cb        = baseStream.Read(buffer, offset, cb);
                     Position += cb;
 
                     return cb;
@@ -213,7 +215,7 @@ namespace Neon.IO
 
                 case SeekOrigin.Current:
 
-                    return Position = Position + offset;
+                    return Position += offset;
 
                 case SeekOrigin.End:
 

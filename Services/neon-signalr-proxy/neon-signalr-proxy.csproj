@@ -1,7 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net9.0</TargetFramework>
         <OutputType>Exe</OutputType>
         <RootNamespace>NeonSignalRProxy</RootNamespace>
         <IsPackable>false</IsPackable>
@@ -31,15 +31,15 @@
 
     <ItemGroup>
         <PackageReference Include="CommandLineParser" Version="2.9.1" />
-        <PackageReference Include="DnsClient" Version="1.7.0" />
-        <PackageReference Include="EnyimMemcachedCore" Version="3.2.2" />
-        <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="$(DotNet8Version)" />
+        <PackageReference Include="DnsClient" Version="1.8.0" />
+        <PackageReference Include="EnyimMemcachedCore" Version="3.4.4" />
+        <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="$(DotNetVersion)" />
         <PackageReference Include="OpenTelemetry.Instrumentation.StackExchangeRedis" Version="1.0.0-rc9.8" />
         <PackageReference Include="prometheus-net" Version="8.2.1" />
         <PackageReference Include="prometheus-net.AspNetCore" Version="8.2.1" />
-        <PackageReference Include="prometheus-net.DotNetRuntime" Version="4.4.0" />
-        <PackageReference Include="Yarp.ReverseProxy" Version="2.1.0" />
-        <PackageReference Include="Yarp.Telemetry.Consumption" Version="2.1.0" />
+        <PackageReference Include="prometheus-net.DotNetRuntime" Version="4.4.1" />
+        <PackageReference Include="Yarp.ReverseProxy" Version="2.3.0" />
+        <PackageReference Include="Yarp.Telemetry.Consumption" Version="2.3.0" />
     </ItemGroup>
 
 </Project>

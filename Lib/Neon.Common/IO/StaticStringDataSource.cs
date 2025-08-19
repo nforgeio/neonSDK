@@ -21,7 +21,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 
+#pragma warning disable IDE0130 // Namespace does not match folder structure
 namespace ICSharpCode.SharpZipLib.Zip
+#pragma warning restore IDE0130 // Namespace does not match folder structure
 {
     /// <summary>
     /// Implements a <see cref="IStaticDataSource"/> that wraps a string to be
@@ -30,7 +32,7 @@ namespace ICSharpCode.SharpZipLib.Zip
     /// </summary>
     public class StaticStringDataSource : IStaticDataSource
     {
-        private byte[] data;
+        private readonly byte[] data;
 
         /// <summary>
         /// Constructor.

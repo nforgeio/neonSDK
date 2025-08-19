@@ -17,7 +17,7 @@
         <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
         <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-        <NoWarn>1701;1702;NETSDK1138;CS8892;ASP0014;IDE0063;IDE0090;IDE0017;IDE0079;IDE0066;NU1605;MSB3026;MSB3061;IDE0055</NoWarn>
+        <NoWarn>1701;1702;NETSDK1138;CS8892;ASP0014;IDE0063;IDE0090;IDE0017;IDE0079;IDE0066;NU1605;MSB3026;MSB3061;IDE0055;IDE0130</NoWarn>
 
         <!-- Debugging -->
 
@@ -45,12 +45,51 @@
 
     </PropertyGroup>
 
+    <!--
+    We're going to set $(DotNetVersion) to the specific SDK we're targetting to make it
+    easier to reference SDK nuget packages.  Note that we're not using wildcards here
+    because we need to control when we upgrade so we can do consistent builds; for example,
+    if we need to re-release an older version of our stuff with the same .NET SDK
+    we originally released it with.
+    -->
+
     <PropertyGroup Label="Dotnet versions">
-        <DotNet6Version>6.0.*</DotNet6Version>
-        <DotNet7Version>7.0.*</DotNet7Version>
-        <DotNet8Version>8.0.*</DotNet8Version>
-        <DotNet9Version>9.0.0-*</DotNet9Version>
+        <DotNet8Version>8.0.1</DotNet8Version>
+        <DotNet9Version>9.0.8</DotNet9Version>
+        <LatestDotNetVersion>9.0.8</LatestDotNetVersion>
     </PropertyGroup>
+
+    <Choose>
+        <When Condition="'$(TargetFramework)'=='netstandard2.0' or '$(TargetFramework)'=='netstandard2.1'">
+            <PropertyGroup>
+                <DotNetVersion>$(LatestDotNetVersion)</DotNetVersion>
+            </PropertyGroup>
+        </When>
+        <When Condition="'$(TargetFrameworkVersion)'=='v4.8'">
+            <PropertyGroup>
+                <DotNetVersion>$(LatestDotNetVersion)</DotNetVersion>
+            </PropertyGroup>
+        </When>
+        <When Condition="'$(TargetFramework)'=='net8.0' or '$(TargetFramework)'=='net8.0-windows'">
+            <PropertyGroup>
+                <DotNetVersion>$(DotNet8Version)</DotNetVersion>
+            </PropertyGroup>
+        </When>
+        <When Condition="'$(TargetFramework)'=='net9.0' or '$(TargetFramework)'=='net9.0-windows' or '$(TargetFramework)'=='net9.0-windows10.0.19041.0'">
+            <PropertyGroup>
+                <DotNetVersion>$(DotNet9Version)</DotNetVersion>
+            </PropertyGroup>
+        </When>
+        <Otherwise>
+            <PropertyGroup>
+                <DotNetVersion>UNKNOWN</DotNetVersion>
+            </PropertyGroup>
+        </Otherwise>
+    </Choose>
+
+    <Target Name="FrameworkCheck" BeforeTargets="BeforeCompile">
+        <Error Text="[Directory.Build.targets] doesn't support [$(TargetFramework)] yet." Condition="'$(DotNetVersion)'=='UNKNOWN'"/>
+    </Target>
 
     <!-- Build configuration related settings -->
 
@@ -140,19 +179,9 @@
         </When>
         <Otherwise>
             <PropertyGroup>
-                <ModelGeneratorPath>$(NF_ROOT)\Tools\neon-modelgen\bin\$(Configuration)\net8.0\win-x64\neon-modelgen</ModelGeneratorPath>
+                <ModelGeneratorPath>$(NF_ROOT)\Tools\neon-modelgen\bin\$(Configuration)\net9.0\win-x64\neon-modelgen</ModelGeneratorPath>
             </PropertyGroup>
         </Otherwise>
     </Choose>
-
-    <!-- Build breaks for some reason without this, since the .NET 8.0 upgrade -->
-
-    <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
-        <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="6.0.0" />
-    </ItemGroup>
-
-    <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
-        <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="7.0.0" />
-    </ItemGroup>
 
 </Project>

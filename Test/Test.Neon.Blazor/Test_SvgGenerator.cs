@@ -40,20 +40,21 @@ namespace Test.Neon.Blazor
         [Fact]
         public void SimpleGeneratorTest()
         {
-            var svg = @"<svg xmlns=""http://www.w3.org/2000/svg"" viewBox=""0 0 24 24"">
+            var svg =
+@"<svg xmlns=""http://www.w3.org/2000/svg"" viewBox=""0 0 24 24"">
   <path d=""M4 5v11h16V5H4Zm-2-.993C2 3.451 2.455 3 2.992 3h18.016c.548 0 .992.449.992 1.007V18H2V4.007ZM1 19h22v2H1v-2Z""/>
 </svg>";
 
             Compilation compilation = CreateCompilation(string.Empty);
 
-            List<AdditionalText> additionalTexts = new List<AdditionalText>
-            {
+            List<AdditionalText> additionalTexts =
+            [
                 new CustomAdditionalText("foo.svg", svg)
-            };
+            ];
 
             Compilation newComp = RunGenerators(
                 compilation,
-                ImmutableArray.CreateRange(additionalTexts),
+                [.. additionalTexts],
                 out ImmutableArray<Diagnostic> generatorDiags,
                 new SvgGenerator());
 
@@ -73,6 +74,7 @@ namespace Test.Neon.Blazor
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -173,8 +175,8 @@ namespace Neon.Blazor.Svg
         private static Compilation CreateCompilation(string source, OutputKind outputKind = OutputKind.ConsoleApplication)
         {
             return CSharpCompilation.Create("compilation",
-                new[] { CSharpSyntaxTree.ParseText(source, new CSharpParseOptions(LanguageVersion.Preview)) },
-                new[] { MetadataReference.CreateFromFile(typeof(Binder).GetTypeInfo().Assembly.Location) },
+                [CSharpSyntaxTree.ParseText(source, new CSharpParseOptions(LanguageVersion.Preview))],
+                [MetadataReference.CreateFromFile(typeof(Binder).GetTypeInfo().Assembly.Location)],
                 new CSharpCompilationOptions(outputKind));
         }
 

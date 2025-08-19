@@ -35,7 +35,7 @@ namespace TestCryptography
     [Trait(TestTrait.Category, TestArea.NeonCryptography)]
     public class Test_NeonVault
     {
-        private static string   unencryptedText =
+        private const string   unencryptedText =
 @"One bright morning in the middle of the night
 two dead boys got up to fight
 Back to back they faced each other
@@ -45,9 +45,9 @@ and ran to save the two dead boys
 If you don't believe this lie is true
 ask the blind man, he saw it, too.
 ";
-        private static byte[]   unencryptedBytes = Encoding.UTF8.GetBytes(unencryptedText);
-        private static string   password1        = NeonHelper.GetCryptoRandomPassword(20);
-        private static string   password2        = NeonHelper.GetCryptoRandomPassword(20);
+        private readonly static byte[] unencryptedBytes = Encoding.UTF8.GetBytes(unencryptedText);
+        private readonly static string password1        = NeonHelper.GetCryptoRandomPassword(20);
+        private readonly static string password2        = NeonHelper.GetCryptoRandomPassword(20);
 
         private string GetPassword(string name)
         {
@@ -286,7 +286,7 @@ ask the blind man, he saw it, too.
                 {
                     var encrypted = new byte[(int)target.Length];
 
-                    target.Read(encrypted, 0, encrypted.Length);
+                    target.ReadExactly(encrypted, 0, encrypted.Length);
 
                     var lastHexDigit = (char)encrypted[encrypted.Length - 1];
 
@@ -405,7 +405,7 @@ ask the blind man, he saw it, too.
                 {
                     var encrypted = new byte[(int)target.Length];
 
-                    target.Read(encrypted, 0, encrypted.Length);
+                    target.ReadExactly(encrypted, 0, encrypted.Length);
 
                     encrypted[encrypted.Length - 1] = (byte)'Z';
 
@@ -431,7 +431,7 @@ ask the blind man, he saw it, too.
                 {
                     var encrypted = new byte[(int)target.Length];
 
-                    target.Read(encrypted, 0, encrypted.Length);
+                    target.ReadExactly(encrypted, 0, encrypted.Length);
 
                     target.Position = 0;
                     target.Write(encrypted, 0, encrypted.Length - 1);

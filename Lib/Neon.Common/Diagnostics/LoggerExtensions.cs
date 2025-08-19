@@ -257,7 +257,7 @@ namespace Neon.Diagnostics
             {
                 if (exception != null)
                 {
-                    Activity.Current?.RecordException(exception);
+                    Activity.Current?.AddException(exception);
                 }
 
                 var context = Activity.Current.Context;
@@ -291,14 +291,11 @@ namespace Neon.Diagnostics
 
             logAttributes.Add(LogAttributeNames.InternalBody, message);
 
-            if (attributeSetter != null)
-            {
-                attributeSetter.Invoke(logAttributes);
-            }
+            attributeSetter?.Invoke(logAttributes);
 
             // Use stock [ILogger] to log the event.
 
-            logger.Log(logLevel, default(EventId), logAttributes.Attributes, exception,
+            logger.Log(logLevel, default, logAttributes.Attributes, exception,
                 (state, exception) =>
                 {
                     return message;

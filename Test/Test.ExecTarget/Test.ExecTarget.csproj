@@ -1,15 +1,14 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net9.0</TargetFramework>
         <OutputType>Exe</OutputType>
         <StartupObject>ExecTarget.Program</StartupObject>
         <GenerateDocumentationFile>false</GenerateDocumentationFile>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
-        <PackageReference Include="Microsoft.TestPlatform.TestHost" Version="17.9.0" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="$(DotNetVersion)" />
     </ItemGroup>
 
     <ItemGroup>

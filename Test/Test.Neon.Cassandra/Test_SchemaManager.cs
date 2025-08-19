@@ -44,13 +44,13 @@ namespace Test.Neon.Cassandra
         //---------------------------------------------------------------------
         // These need to be static because they maintain state across test runs.
 
-        private static int          keyspaceId = 0;
-        private static object       syncLock   = new object();
+        private static readonly object  syncLock   = new object();
+        private static int              keyspaceId = 0;
 
         //---------------------------------------------------------------------
         // Instance members.
 
-        private ISession    cassandra;
+        private readonly ISession       cassandra;
 
         public Test_SchemaManager(YugaByteFixture fixture)
         {
@@ -68,7 +68,7 @@ namespace Test.Neon.Cassandra
         /// <summary>
         /// Returns a unique keyspace name for this test run.
         /// </summary>
-        private string GetUniqueKeyspaceName()
+        private static string GetUniqueKeyspaceName()
         {
             lock (syncLock)
             {
@@ -82,7 +82,7 @@ namespace Test.Neon.Cassandra
         /// </summary>
         /// <param name="scripts">The script file contents.</param>
         /// <returns>The <see cref="TempFolder"/> holding the files.</returns>
-        private async Task<TempFolder> PersistSchemaScriptsAsync(string[] scripts)
+        private async static Task<TempFolder> PersistSchemaScriptsAsync(string[] scripts)
         {
             var tempFolder = new TempFolder();
 
@@ -100,7 +100,7 @@ namespace Test.Neon.Cassandra
         /// </summary>
         /// <param name="scripts">The script file contents.</param>
         /// <returns>The <see cref="TempFolder"/> holding the files.</returns>
-        private async Task<TempFolder> PersistSchemaScriptsWithZerosAsync(string[] scripts)
+        private static async Task<TempFolder> PersistSchemaScriptsWithZerosAsync(string[] scripts)
         {
             var tempFolder = new TempFolder();
 
@@ -137,7 +137,7 @@ namespace Test.Neon.Cassandra
             }
             finally
             {
-                cassandra.ChangeKeyspace(tempKeyspace);
+                cassandra.ChangeKeyspace(orgKeyspace);
             }
         }
 
@@ -148,7 +148,7 @@ namespace Test.Neon.Cassandra
 
             var keyspaceName = GetUniqueKeyspaceName();
 
-            using (var tempFolder = await PersistSchemaScriptsAsync(new string[0]))
+            using (var tempFolder = await PersistSchemaScriptsAsync([]))
             {
                 Assert.Throws<FileNotFoundException>(
                     () =>
@@ -421,8 +421,7 @@ namespace Test.Neon.Cassandra
             // the updates are applied.
 
             scripts =
-                new string[]
-                {
+            [
                     "CREATE KEYSPACE ${keyspace};",
 @"CREATE TABLE my_table (key integer, version integer, PRIMARY KEY (key));
 GO           
@@ -430,7 +429,7 @@ INSERT INTO my_table (key, version) values (1, 1);",
                     "UPDATE my_table SET version = 2 WHERE key = 1;",
                     "UPDATE my_table SET version = 3 WHERE key = 1;",
                     "UPDATE my_table SET version = 4 WHERE key = 1;",
-                };
+            ];
 
             using (var tempFolder = await PersistSchemaScriptsAsync(scripts))
             {
@@ -458,18 +457,17 @@ INSERT INTO my_table (key, version) values (1, 1);",
             // Add a couple additional upgrade scripts and verify.
 
             scripts =
-                new string[]
-                {
-                    "CREATE KEYSPACE ${keyspace};",
+            [
+                "CREATE KEYSPACE ${keyspace};",
 @"CREATE TABLE my_table (key integer, version integer, PRIMARY KEY (key));
 GO           
 INSERT INTO my_table (key, version) values (1, 1);",
-                    "UPDATE my_table SET version = 2 WHERE key = 1;",
-                    "UPDATE my_table SET version = 3 WHERE key = 1;",
-                    "UPDATE my_table SET version = 4 WHERE key = 1;",
-                    "UPDATE my_table SET version = 5 WHERE key = 1;",
-                    "UPDATE my_table SET version = 6 WHERE key = 1;",
-                };
+                "UPDATE my_table SET version = 2 WHERE key = 1;",
+                "UPDATE my_table SET version = 3 WHERE key = 1;",
+                "UPDATE my_table SET version = 4 WHERE key = 1;",
+                "UPDATE my_table SET version = 5 WHERE key = 1;",
+                "UPDATE my_table SET version = 6 WHERE key = 1;",
+            ];
 
             using (var tempFolder = await PersistSchemaScriptsAsync(scripts))
             {
@@ -524,16 +522,15 @@ INSERT INTO my_table (key, version) values (1, 1);",
             // the updates are applied.
 
             scripts =
-                new string[]
-                {
-                    "CREATE KEYSPACE ${keyspace};",
+            [
+                "CREATE KEYSPACE ${keyspace};",
 @"CREATE TABLE my_table (key integer, version integer, PRIMARY KEY (key));
 GO           
 INSERT INTO my_table (key, version) values (1, 1);",
-                    "UPDATE my_table SET version = 2 WHERE key = 1;",
-                    "UPDATE my_table SET version = 3 WHERE key = 1;",
-                    "UPDATE my_table SET version = 4 WHERE key = 1;",
-                };
+                "UPDATE my_table SET version = 2 WHERE key = 1;",
+                "UPDATE my_table SET version = 3 WHERE key = 1;",
+                "UPDATE my_table SET version = 4 WHERE key = 1;",
+            ];
 
             using (var tempFolder = await PersistSchemaScriptsAsync(scripts))
             {
@@ -562,16 +559,15 @@ INSERT INTO my_table (key, version) values (1, 1);",
             // verify that the scripts weren't executed again during an upgrade.
 
             scripts =
-                new string[]
-                {
-                    "CREATE KEYSPACE ${keyspace};",
+            [
+                "CREATE KEYSPACE ${keyspace};",
 @"CREATE TABLE my_table (key integer, version integer, PRIMARY KEY (key));
 GO           
 INSERT INTO my_table (key, version) values (1, 101);",
-                    "UPDATE my_table SET version = 102 WHERE key = 1;",
-                    "UPDATE my_table SET version = 103 WHERE key = 1;",
-                    "UPDATE my_table SET version = 104 WHERE key = 1;",
-                };
+                "UPDATE my_table SET version = 102 WHERE key = 1;",
+                "UPDATE my_table SET version = 103 WHERE key = 1;",
+                "UPDATE my_table SET version = 104 WHERE key = 1;",
+            ];
 
             using (var tempFolder = await PersistSchemaScriptsAsync(scripts))
             {
@@ -625,16 +621,15 @@ INSERT INTO my_table (key, version) values (1, 101);",
             // the updates are applied.
 
             scripts =
-                new string[]
-                {
-                    "CREATE KEYSPACE ${keyspace};",
+            [
+                "CREATE KEYSPACE ${keyspace};",
 @"CREATE TABLE my_table (key integer, version integer, PRIMARY KEY (key));
 GO           
 INSERT INTO my_table (key, version) values (1, 1);",
-                    "UPDATE my_table SET version = 2 WHERE key = 1;",
-                    "UPDATE my_table SET version = 3 WHERE key = 1;",
-                    "UPDATE my_table SET version = 4 WHERE key = 1;",
-                };
+                "UPDATE my_table SET version = 2 WHERE key = 1;",
+                "UPDATE my_table SET version = 3 WHERE key = 1;",
+                "UPDATE my_table SET version = 4 WHERE key = 1;",
+            ];
 
             using (var tempFolder = await PersistSchemaScriptsAsync(scripts))
             {
@@ -708,16 +703,15 @@ INSERT INTO my_table (key, version) values (1, 1);",
             // the updates are applied.
 
             scripts =
-                new string[]
-                {
-                    "CREATE KEYSPACE ${keyspace};",
+            [
+                "CREATE KEYSPACE ${keyspace};",
 @"CREATE TABLE my_table (key integer, version integer, PRIMARY KEY (key));
 GO           
 INSERT INTO my_table (key, version) values (1, 1);",
-                    "UPDATE my_table SET version = 2 WHERE key = 1;",
-                    "UPDATE my_table SET version = 3 WHERE key = 1;",
-                    "UPDATE my_table SET version = 4 WHERE key = 1;",
-                };
+                "UPDATE my_table SET version = 2 WHERE key = 1;",
+                "UPDATE my_table SET version = 3 WHERE key = 1;",
+                "UPDATE my_table SET version = 4 WHERE key = 1;",
+            ];
 
             using (var tempFolder = await PersistSchemaScriptsAsync(scripts))
             {
@@ -796,16 +790,15 @@ INSERT INTO my_table (key, version) values (1, 1);",
             // the updates are applied.
 
             scripts =
-                new string[]
-                {
-                    "CREATE KEYSPACE ${keyspace};",
+            [
+                "CREATE KEYSPACE ${keyspace};",
 @"CREATE TABLE my_table (key integer, version integer, PRIMARY KEY (key));
 GO           
 INSERT INTO my_table (key, version) values (1, 1);",
-                    "UPDATE my_table SET version = 2 WHERE key = 1;",
-                    "UPDATE my_table SET version = 3 WHERE key = 1;",
-                    "UPDATE my_table SET version = 4 WHERE key = 1;",
-                };
+                "UPDATE my_table SET version = 2 WHERE key = 1;",
+                "UPDATE my_table SET version = 3 WHERE key = 1;",
+                "UPDATE my_table SET version = 4 WHERE key = 1;",
+            ];
 
             using (var tempFolder = await PersistSchemaScriptsWithZerosAsync(scripts))
             {
@@ -833,8 +826,7 @@ INSERT INTO my_table (key, version) values (1, 1);",
             // Add a couple additional upgrade scripts and verify.
 
             scripts =
-                new string[]
-                {
+            [
                     "CREATE KEYSPACE ${keyspace};",
 @"CREATE TABLE my_table (key integer, version integer, PRIMARY KEY (key));
 GO           
@@ -844,7 +836,7 @@ INSERT INTO my_table (key, version) values (1, 1);",
                     "UPDATE my_table SET version = 4 WHERE key = 1;",
                     "UPDATE my_table SET version = 5 WHERE key = 1;",
                     "UPDATE my_table SET version = 6 WHERE key = 1;",
-                };
+            ];
 
             using (var tempFolder = await PersistSchemaScriptsWithZerosAsync(scripts))
             {
@@ -909,16 +901,15 @@ INSERT INTO my_table (key, version) values (1, 1);",
             // we detect the updater conflict.
 
             scripts =
-                new string[]
-                {
-                    "CREATE KEYSPACE ${keyspace};",
+            [
+                "CREATE KEYSPACE ${keyspace};",
 @"CREATE TABLE my_table (key integer, version integer, PRIMARY KEY (key));
 GO           
 INSERT INTO my_table (key, version) values (1, 1);",
-                    "UPDATE my_table SET version = 2 WHERE key = 1;",
-                    "UPDATE my_table SET version = 3 WHERE key = 1;",
-                    "UPDATE my_table SET version = 4 WHERE key = 1;",
-                };
+                "UPDATE my_table SET version = 2 WHERE key = 1;",
+                "UPDATE my_table SET version = 3 WHERE key = 1;",
+                "UPDATE my_table SET version = 4 WHERE key = 1;",
+            ];
 
             using (var tempFolder = await PersistSchemaScriptsAsync(scripts))
             {
@@ -992,16 +983,15 @@ INSERT INTO my_table (key, version) values (1, 1);",
             // the updates are applied.
 
             scripts =
-                new string[]
-                {
-                    "CREATE KEYSPACE ${keyspace};",
+            [
+                "CREATE KEYSPACE ${keyspace};",
 @"CREATE TABLE my_table (key integer, version integer, PRIMARY KEY (key));
 GO           
 INSERT INTO my_table (key, version) values (1, 1);",
-                    "UPDATE my_table SET version = 2 WHERE key = 1;",
-                    "UPDATE my_table SET version = 3 WHERE key = 1;",
-                    "UPDATE my_table SET version = 4 WHERE key = 1;",
-                };
+                "UPDATE my_table SET version = 2 WHERE key = 1;",
+                "UPDATE my_table SET version = 3 WHERE key = 1;",
+                "UPDATE my_table SET version = 4 WHERE key = 1;",
+            ];
 
             using (var tempFolder = await PersistSchemaScriptsAsync(scripts))
             {

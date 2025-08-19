@@ -36,15 +36,21 @@ namespace Neon.Blazor.Analyzers
     /// A generator to convert .svg files into Blazor components.
     /// </summary>
     [Generator]
+#pragma warning disable RS1042 // Implementations of this interface are not allowed
     public class SvgGenerator : ISourceGenerator
+#pragma warning restore RS1042 // Implementations of this interface are not allowed
     {
+        private static readonly TextInfo textInfo = new CultureInfo("en-US",false).TextInfo;
 
-        private static TextInfo textInfo = new CultureInfo("en-US",false).TextInfo;
-
-        private static List<string> attributesToKeep = new List<string>()
-        {
+        private readonly static List<string> attributesToKeep =
+        [
             "viewBox"
-        };
+        ];
+
+        /// <inheritdoc/>
+        public void Initialize(GeneratorInitializationContext context)
+        {
+        }
 
         /// <inheritdoc/>
         public void Execute(GeneratorExecutionContext context)
@@ -194,15 +200,10 @@ namespace Neon.Blazor.Analyzers
                 sb.AppendLine("#pragma warning restore CS1591 // Restore warnings for missing comments.");
 
                 var sourceString = sb.ToString();
+
                 context.AddSource($"{svg.ClassName}.g.cs", sourceString);
             }
 
-        }
-
-        /// <inheritdoc/>
-        public void Initialize(GeneratorInitializationContext context)
-        {
-            
         }
 
         /// <summary>
@@ -244,7 +245,7 @@ namespace Neon.Blazor.Analyzers
 
             var svg = new Svg()
             {
-                Attributes = new Dictionary<string, string>(),
+                Attributes = [],
                 Body       = $@"@""{body.Replace("\"", "\"\"")}""",
                 ClassName  = GetClassName(svgText.Path)
             };

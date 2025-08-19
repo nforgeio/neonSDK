@@ -1,7 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.0; net7.0; net8.0</TargetFrameworks>
+        <TargetFrameworks>net8.0; net9.0</TargetFrameworks>
         <OutputType>Library</OutputType>
         <RootNamespace>Neon.Xunit</RootNamespace>
         <Description>Xunit extensions including several additional test fixtures</Description>
@@ -23,15 +23,14 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.2.7" />
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
-        <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.2.0" />
-        <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.3.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.3.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.3.0" />
         <PackageReference Include="Microsoft.Net.Http.Server" Version="1.1.4" />
-        <PackageReference Include="NATS.Client" Version="1.0.8" />
+        <PackageReference Include="NATS.Client" Version="1.1.8" />
         <PackageReference Include="STAN.Client" Version="0.3.0" />
-        <PackageReference Include="xunit.extensibility.core" Version="2.9.0" />
-        <PackageReference Include="YamlDotNet" Version="15.1.2" />
+        <PackageReference Include="xunit.extensibility.core" Version="2.9.3" />
+        <PackageReference Include="YamlDotNet" Version="16.3.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -39,8 +38,7 @@
         <ProjectReference Include="..\Neon.Common\Neon.Common.csproj" />
         <ProjectReference Include="..\Neon.Cryptography\Neon.Cryptography.csproj" />
         <ProjectReference Include="..\Neon.Docker\Neon.Docker.csproj" />
-        <ProjectReference Include="..\Neon.Service\Neon.Service.csproj" Condition="'$(TargetFramework)' == 'net7.0'" />
-        <ProjectReference Include="..\Neon.Service\Neon.Service.csproj" Condition="'$(TargetFramework)' == 'net8.0'" />
+        <ProjectReference Include="..\Neon.Service\Neon.Service.csproj" />
     </ItemGroup>
 
     <ItemGroup>

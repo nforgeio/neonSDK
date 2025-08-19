@@ -66,7 +66,7 @@ namespace Neon.CSharp
 
                         if (frameworkVersion.Major >= 6)
                         {
-                            return ReferenceAssemblies.Net60;
+                            return ReferenceAssemblies.Net80;
                         }
                         break;
                 }
@@ -133,7 +133,7 @@ namespace Neon.CSharp
                 compilerOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, optimizationLevel: OptimizationLevel.Release);
             }
 
-            var compilation = CSharpCompilation.Create(assemblyName, new[] { syntaxTree }, references, compilerOptions);
+            var compilation = CSharpCompilation.Create(assemblyName, [syntaxTree], references, compilerOptions);
             var dllStream   = new MemoryStream();
 
             using (var pdbStream = new MemoryStream())

@@ -46,13 +46,12 @@ namespace Neon.Tailwind
         [Parameter]
         public int DebouceTimeout { get; set; } = 350;
 
-        private readonly List<HeadlessComboboxOption<TValue>> options = new();
+        private readonly List<HeadlessComboboxOption<TValue>> options = [];
 
         public ComboboxState State { get; protected set; } = ComboboxState.Closed;
 
-        private HeadlessComboboxOption<TValue> activeOption;
-        private ClickOffEventHandler clickOffEventHandler;
-        private SearchAssistant searchAssistant;
+        private HeadlessComboboxOption<TValue>  activeOption;
+        private readonly SearchAssistant        searchAssistant = null;
 
         private HeadlessComboboxOptions<TValue> optionsElement;
 

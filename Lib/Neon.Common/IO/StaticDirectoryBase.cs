@@ -27,7 +27,9 @@ using System.Threading.Tasks;
 
 using Neon.Common;
 
+#pragma warning disable IDE0130 // Namespace does not match folder structure
 namespace Neon.IO
+#pragma warning restore IDE0130 // Namespace does not match folder structure
 {
     /// <summary>
     /// <para>
@@ -40,12 +42,12 @@ namespace Neon.IO
     /// </summary>
     public abstract class StaticDirectoryBase : IStaticDirectory
     {
-        private object                                  syncLock = new object();
-        private StaticDirectoryBase                     root;
-        private Dictionary<string, StaticFileBase>      pathToFile;         // Used by the root directory only
-        private Dictionary<string, StaticDirectoryBase> pathToDirectory;    // Used by the root directory only
-        private Dictionary<string, StaticDirectoryBase> nameToDirectory;
-        private Dictionary<string, StaticFileBase>      nameToFile;
+        private readonly object                                     syncLock = new object();
+        private readonly StaticDirectoryBase                        root;
+        private Dictionary<string, StaticFileBase>                  pathToFile;         // Used by the root directory only
+        private Dictionary<string, StaticDirectoryBase>             pathToDirectory;    // Used by the root directory only
+        private readonly Dictionary<string, StaticDirectoryBase>    nameToDirectory;
+        private readonly Dictionary<string, StaticFileBase>         nameToFile;
 
         /// <summary>
         /// Protected constructor.
@@ -67,12 +69,12 @@ namespace Neon.IO
             {
                 if (parent != null)
                 {
-                    throw new ArgumentNullException($"[{nameof(parent)}] must be NULL when [{nameof(root)}] is NULL.");
+                    throw new ArgumentNullException(nameof(parent), $"[{nameof(parent)}] must be NULL when [{nameof(root)}] is NULL.");
                 }
 
                 if (!string.IsNullOrEmpty(name))
                 {
-                    throw new ArgumentNullException($"[{nameof(name)}] must be NULL or empty when [{nameof(root)}] is NULL.");
+                    throw new ArgumentNullException(nameof(name), $"[{nameof(name)}] must be NULL or empty when [{nameof(root)}] is NULL.");
                 }
             }
             else
@@ -151,12 +153,7 @@ namespace Neon.IO
 
             var file = FindFile(path);
 
-            if (file == null)
-            {
-                throw new FileNotFoundException($"File [{path}] not found.");
-            }
-
-            return file;
+            return file == null ? throw new FileNotFoundException($"File [{path}] not found.") : (IStaticFile)file;
         }
 
         /// <summary>
@@ -233,12 +230,7 @@ namespace Neon.IO
 
             var directory = FindDirectory(path);
 
-            if (directory == null)
-            {
-                throw new FileNotFoundException($"Directory [{path}] not found.");
-            }
-
-            return directory;
+            return directory == null ? throw new FileNotFoundException($"Directory [{path}] not found.") : (IStaticDirectory)directory;
         }
 
         /// <summary>

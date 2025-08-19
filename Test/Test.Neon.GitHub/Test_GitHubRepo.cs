@@ -655,7 +655,7 @@ namespace TestGitHub
                         {
                             await repo.Local.CreateBranchAsync(newBranchName, "master");
                             Assert.Equal(newBranchName, repo.Local.CurrentBranch.FriendlyName);
-                            Assert.True(repo.GitApi.Branches[newBranchName] != null);
+                            Assert.NotNull(repo.GitApi.Branches[newBranchName]);
                             Assert.True(repo.GitApi.Branches[newBranchName].IsCurrentRepositoryHead);
                             await repo.Local.PushAsync();
                         }
@@ -671,7 +671,7 @@ namespace TestGitHub
                         using (var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepoPath, repoPath, newBranchName))
                         {
                             Assert.Equal(newBranchName, repo.Local.CurrentBranch.FriendlyName);
-                            Assert.True(repo.GitApi.Branches[newBranchName] != null);
+                            Assert.NotNull(repo.GitApi.Branches[newBranchName]);
                             Assert.True(repo.GitApi.Branches[newBranchName].IsCurrentRepositoryHead);
 
                             await repo.Local.CheckoutAsync("master");

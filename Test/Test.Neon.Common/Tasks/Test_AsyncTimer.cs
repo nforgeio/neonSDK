@@ -57,13 +57,13 @@ namespace TestCommon
 
                 timer.Start(TimeSpan.FromSeconds(1));
                 await Task.Delay(TimeSpan.FromSeconds(4.5));
-                Assert.True(ticks == 5);
+                Assert.Equal(5, ticks);
                 Assert.Equal(TimeSpan.FromSeconds(1), timer.Interval);
 
                 timer.Stop();
                 ticks = 0;
                 await Task.Delay(TimeSpan.FromSeconds(4.5));
-                Assert.True(ticks == 0);
+                Assert.Equal(0, ticks);
             }
         }
 
@@ -89,12 +89,12 @@ namespace TestCommon
 
                 timer.Start(TimeSpan.FromSeconds(1), delayFirstTick: true);
                 await Task.Delay(TimeSpan.FromSeconds(4.5));
-                Assert.True(ticks == 4);
+                Assert.Equal(4, ticks);
 
                 timer.Stop();
                 ticks = 0;
                 await Task.Delay(TimeSpan.FromSeconds(4.5));
-                Assert.True(ticks == 0);
+                Assert.Equal(0, ticks);
             }
         }
 
@@ -119,21 +119,21 @@ namespace TestCommon
 
                 timer.Start(TimeSpan.FromSeconds(1));
                 await Task.Delay(TimeSpan.FromSeconds(4.5));
-                Assert.True(ticks == 5);
+                Assert.Equal(5, ticks);
 
                 timer.Stop();
                 ticks = 0;
                 await Task.Delay(TimeSpan.FromSeconds(4.5));
-                Assert.True(ticks == 0);
+                Assert.Equal(0, ticks);
 
                 timer.Start();
                 await Task.Delay(TimeSpan.FromSeconds(4.5));
-                Assert.True(ticks == 5);
+                Assert.Equal(5, ticks);
 
                 timer.Stop();
                 ticks = 0;
                 await Task.Delay(TimeSpan.FromSeconds(4.5));
-                Assert.True(ticks == 0);
+                Assert.Equal(0, ticks);
             }
         }
 
@@ -160,12 +160,12 @@ namespace TestCommon
 
                 timer.Start(TimeSpan.FromSeconds(1));
                 await Task.Delay(TimeSpan.FromSeconds(4.5));
-                Assert.True(ticks0 == 5);
+                Assert.Equal(5, ticks0);
 
                 timer.Stop();
                 ticks0 = 0;
                 await Task.Delay(TimeSpan.FromSeconds(4.5));
-                Assert.True(ticks0 == 0);
+                Assert.Equal(0, ticks0);
 
                 timer.Start(
                     callback: async () =>
@@ -174,12 +174,12 @@ namespace TestCommon
                         await Task.CompletedTask;
                     });
                 await Task.Delay(TimeSpan.FromSeconds(4.5));
-                Assert.True(ticks1 == 5);
+                Assert.Equal(5, ticks1);
 
                 timer.Stop();
                 ticks1 = 0;
                 await Task.Delay(TimeSpan.FromSeconds(4.5));
-                Assert.True(ticks1 == 0);
+                Assert.Equal(0, ticks1);
             }
         }
 
@@ -203,23 +203,26 @@ namespace TestCommon
                 Assert.False(timer.IsRunning);
                 Assert.Equal(0, ticks);
 
+                ticks = 0;
                 timer.Start(TimeSpan.FromSeconds(1));
                 await Task.Delay(TimeSpan.FromSeconds(4.5));
-                Assert.True(ticks == 5);
+                Assert.True(ticks >= 5);
+                Assert.True(ticks < 6);
 
                 timer.Stop();
                 ticks = 0;
                 await Task.Delay(TimeSpan.FromSeconds(4.5));
-                Assert.True(ticks == 0);
+                Assert.Equal(0, ticks);
 
                 timer.Start(TimeSpan.FromSeconds(2), delayFirstTick: true);
                 await Task.Delay(TimeSpan.FromSeconds(4.5));
-                Assert.True(ticks == 2);
+                Assert.True(ticks >= 2);
+                Assert.True(ticks < 3);
 
                 timer.Stop();
                 ticks = 0;
                 await Task.Delay(TimeSpan.FromSeconds(4.5));
-                Assert.True(ticks == 0);
+                Assert.Equal(0, ticks);
             }
         }
 
@@ -239,12 +242,12 @@ namespace TestCommon
 
             timer.Start(TimeSpan.FromSeconds(1));
             await Task.Delay(TimeSpan.FromSeconds(4.5));
-            Assert.True(ticks == 5);
+            Assert.Equal(5, ticks);
 
             timer.Dispose();
             ticks = 0;
             await Task.Delay(TimeSpan.FromSeconds(4.5));
-            Assert.True(ticks == 0);
+            Assert.Equal(0, ticks);
 
             // Verify that calling [Dispose()] on an already disposed timer
             // does not throw an exception.
@@ -270,7 +273,7 @@ namespace TestCommon
             {
                 timer.Start(TimeSpan.FromSeconds(1));
                 await Task.Delay(TimeSpan.FromSeconds(4.5));
-                Assert.True(ticks == 5);
+                Assert.Equal(5, ticks);
             }
         }
 

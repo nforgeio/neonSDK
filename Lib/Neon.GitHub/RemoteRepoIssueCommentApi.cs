@@ -57,7 +57,7 @@ namespace Neon.GitHub
     /// </summary>
     public class RemoteRepoIssueCommentApi
     {
-        private GitHubRepo root;
+        private readonly GitHubRepo root;
 
         /// <summary>
         /// Internal constructor.
@@ -73,11 +73,11 @@ namespace Neon.GitHub
         /// <summary>
         /// Gets a specific repository comment by ID.
         /// </summary>
-        /// <param name="id">Specifies the comment ID.</param>
+        /// <param name="commentId">Specifies the comment ID.</param>
         /// <returns>The <see cref="IssueComment"/>.</returns>
-        public async Task<IssueComment> GetAsync(int id)
+        public async Task<IssueComment> GetAsync(long commentId)
         {
-            return await root.GitHubApi.Issue.Comment.Get(root.Remote.Id, id);
+            return await root.GitHubApi.Issue.Comment.Get(root.Remote.Id, commentId);
         }
 
         /// <summary>
@@ -92,48 +92,48 @@ namespace Neon.GitHub
         /// <summary>
         /// Gets all comments from a specific issue.
         /// </summary>
-        /// <param name="number">Specifies the issue number.</param>
+        /// <param name="issueNumber">Specifies the issue number.</param>
         /// <returns></returns>
         /// <returns>The <see cref="IssueComment"/> instances</returns>
-        public async Task<IEnumerable<IssueComment>> GetAllForIssue(int number)
+        public async Task<IEnumerable<IssueComment>> GetAllForIssue(long issueNumber)
         {
-            return await root.GitHubApi.Issue.Comment.GetAllForIssue(root.Remote.Owner, root.Remote.Name, number);
+            return await root.GitHubApi.Issue.Comment.GetAllForIssue(root.Remote.Owner, root.Remote.Name, issueNumber);
         }
 
         /// <summary>
         /// Adds a comment to an issue.
         /// </summary>
-        /// <param name="number">Specifies the issue number.</param>
+        /// <param name="issueNumber">Specifies the issue number.</param>
         /// <param name="newComment">Specifies the comment text.</param>
         /// <returns></returns>
-        public async Task<IssueComment> CreateAsync(int number, string newComment)
+        public async Task<IssueComment> CreateAsync(long issueNumber, string newComment)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(newComment), nameof(newComment));
 
-            return await root.GitHubApi.Issue.Comment.Create(root.Remote.Id, number, newComment);
+            return await root.GitHubApi.Issue.Comment.Create(root.Remote.Id, issueNumber, newComment);
         }
 
         /// <summary>
         /// Removes a comment from the repository.
         /// </summary>
-        /// <param name="id">Specifies the comment ID.</param>
+        /// <param name="commentId">Specifies the comment ID.</param>
         /// <returns>The tracking <see cref="Task"/>.</returns>
-        public async Task DeleteAsync(int id)
+        public async Task DeleteAsync(long commentId)
         {
-            await root.GitHubApi.Issue.Comment.Delete(root.Remote.Id, id);
+            await root.GitHubApi.Issue.Comment.Delete(root.Remote.Id, commentId);
         }
 
         /// <summary>
         /// Updates an issue comment.
         /// </summary>
-        /// <param name="id">Specifies the comment ID.</param>
+        /// <param name="commentId">Specifies the comment ID.</param>
         /// <param name="commentUpdate">Specifies the updated comment text.</param>
         /// <returns>The updated <see cref="IssueComment"/>.</returns>
-        public async Task<IssueComment> UpdateAsync(int id, string commentUpdate)
+        public async Task<IssueComment> UpdateAsync(long commentId, string commentUpdate)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(commentUpdate), nameof(commentUpdate));
 
-            return await root.GitHubApi.Issue.Comment.Update(root.Remote.Id, id, commentUpdate);
+            return await root.GitHubApi.Issue.Comment.Update(root.Remote.Id, commentId, commentUpdate);
         }
     }
 }

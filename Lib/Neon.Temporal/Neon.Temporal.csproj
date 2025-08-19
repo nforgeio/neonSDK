@@ -1,7 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFrameworks>net8.0; net9.0</TargetFrameworks>
         <OutputType>Library</OutputType>
         <RootNamespace>Neon.Temporal</RootNamespace>
         <Description>Useful classes and extensions for Temporal</Description>
@@ -21,9 +21,8 @@
         <Compile Include="..\Neon.BuildInfo\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
     </ItemGroup>
 
-
     <ItemGroup>
-        <PackageReference Include="Microsoft.Extensions.Telemetry" Version="8.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Telemetry" Version="$(DotNetVersion)" />
         <PackageReference Include="Temporalio" Version="1.3.0" />
     </ItemGroup>
 

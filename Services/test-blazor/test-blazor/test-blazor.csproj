@@ -1,7 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net9.0</TargetFramework>
         <RootNamespace>TestBlazor</RootNamespace>
         <AssemblyName>$(AssemblyName.Replace(' ', '_'))</AssemblyName>
     </PropertyGroup>
@@ -10,7 +10,7 @@
         <PackageReference Include="DnsClient" Version="1.7.0" />
         <PackageReference Include="Moq" Version="4.20.70" />
         <PackageReference Include="Yarp.ReverseProxy" Version="2.1.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="$(DotNet8Version)" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="$(DotNetVersion)" />
     </ItemGroup>
 
     <ItemGroup>

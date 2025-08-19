@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
     <PropertyGroup>
-        <TargetFrameworks>net8.0</TargetFrameworks>
+        <TargetFrameworks>net8.0; net9.0</TargetFrameworks>
         <OutputType>Library</OutputType>
         <RootNamespace>Neon.Blazor</RootNamespace>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
@@ -37,9 +37,9 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Components" Version="$(DotNet8Version)" />
-        <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="$(DotNet8Version)" />
-        <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.1.34" />
+        <PackageReference Include="Microsoft.AspNetCore.Components" Version="$(DotNetVersion)" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="$(DotNetVersion)" />
+        <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.0" />
     </ItemGroup>
 
     <ItemGroup>

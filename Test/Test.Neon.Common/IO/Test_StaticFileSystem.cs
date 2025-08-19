@@ -457,14 +457,14 @@ namespace TestCommon
             var directories = fs.GetDirectories(searchPattern: null, options: SearchOption.AllDirectories);
 
             Assert.Equal(8, directories.Count());
-            Assert.Single(directories.Where(directory => directory.Path == "/TestCommon"));
-            Assert.Single(directories.Where(directory => directory.Path == "/TestCommon/IORes"));
-            Assert.Single(directories.Where(directory => directory.Path == "/TestCommon/IORes/Resources"));
-            Assert.Single(directories.Where(directory => directory.Path == "/TestCommon/IORes/Resources/Folder1"));
-            Assert.Single(directories.Where(directory => directory.Path == "/TestCommon/IORes/Resources/Folder1/Folder3"));
-            Assert.Single(directories.Where(directory => directory.Path == "/TestCommon/IORes/Resources/Folder2"));
-            Assert.Single(directories.Where(directory => directory.Path == "/TestCommon/IORes/Resources/Folder2/Folder4"));
-            Assert.Single(directories.Where(directory => directory.Path == "/TestCommon/IORes/Resources/Folder8"));
+            Assert.Contains(directories, static directory => directory.Path == "/TestCommon");
+            Assert.Contains(directories, static directory => directory.Path == "/TestCommon/IORes");
+            Assert.Contains(directories, static directory => directory.Path == "/TestCommon/IORes/Resources");
+            Assert.Contains(directories, static directory => directory.Path == "/TestCommon/IORes/Resources/Folder1");
+            Assert.Contains(directories, static directory => directory.Path == "/TestCommon/IORes/Resources/Folder1/Folder3");
+            Assert.Contains(directories, static directory => directory.Path == "/TestCommon/IORes/Resources/Folder2");
+            Assert.Contains(directories, static directory => directory.Path == "/TestCommon/IORes/Resources/Folder2/Folder4");
+            Assert.Contains(directories, static directory => directory.Path == "/TestCommon/IORes/Resources/Folder8");
         }
 
         [Fact]
@@ -476,50 +476,50 @@ namespace TestCommon
             var directories = fs.GetDirectories("*", SearchOption.AllDirectories);
 
             Assert.Equal(8, directories.Count());
-            Assert.Single(directories.Where(directory => directory.Path == "/TestCommon"));
-            Assert.Single(directories.Where(directory => directory.Path == "/TestCommon/IORes"));
-            Assert.Single(directories.Where(directory => directory.Path == "/TestCommon/IORes/Resources"));
-            Assert.Single(directories.Where(directory => directory.Path == "/TestCommon/IORes/Resources/Folder1"));
-            Assert.Single(directories.Where(directory => directory.Path == "/TestCommon/IORes/Resources/Folder1/Folder3"));
-            Assert.Single(directories.Where(directory => directory.Path == "/TestCommon/IORes/Resources/Folder2"));
-            Assert.Single(directories.Where(directory => directory.Path == "/TestCommon/IORes/Resources/Folder2/Folder4"));
-            Assert.Single(directories.Where(directory => directory.Path == "/TestCommon/IORes/Resources/Folder8"));
+            Assert.Contains(directories, static directory => directory.Path == "/TestCommon");
+            Assert.Contains(directories, static directory => directory.Path == "/TestCommon/IORes");
+            Assert.Contains(directories, static directory => directory.Path == "/TestCommon/IORes/Resources");
+            Assert.Contains(directories, static directory => directory.Path == "/TestCommon/IORes/Resources/Folder1");
+            Assert.Contains(directories, static directory => directory.Path == "/TestCommon/IORes/Resources/Folder1/Folder3");
+            Assert.Contains(directories, static directory => directory.Path == "/TestCommon/IORes/Resources/Folder2");
+            Assert.Contains(directories, static directory => directory.Path == "/TestCommon/IORes/Resources/Folder2/Folder4");
+            Assert.Contains(directories, static directory => directory.Path == "/TestCommon/IORes/Resources/Folder8");
 
             // Filter by: *.*
 
             directories = fs.GetDirectories("*.*", SearchOption.AllDirectories);
 
             Assert.Equal(8, directories.Count());
-            Assert.Single(directories.Where(directory => directory.Path == "/TestCommon"));
-            Assert.Single(directories.Where(directory => directory.Path == "/TestCommon/IORes"));
-            Assert.Single(directories.Where(directory => directory.Path == "/TestCommon/IORes/Resources"));
-            Assert.Single(directories.Where(directory => directory.Path == "/TestCommon/IORes/Resources/Folder1"));
-            Assert.Single(directories.Where(directory => directory.Path == "/TestCommon/IORes/Resources/Folder1/Folder3"));
-            Assert.Single(directories.Where(directory => directory.Path == "/TestCommon/IORes/Resources/Folder2"));
-            Assert.Single(directories.Where(directory => directory.Path == "/TestCommon/IORes/Resources/Folder2/Folder4"));
-            Assert.Single(directories.Where(directory => directory.Path == "/TestCommon/IORes/Resources/Folder8"));
+            Assert.Contains(directories, static directory => directory.Path == "/TestCommon");
+            Assert.Contains(directories, static directory => directory.Path == "/TestCommon/IORes");
+            Assert.Contains(directories, static directory => directory.Path == "/TestCommon/IORes/Resources");
+            Assert.Contains(directories, static directory => directory.Path == "/TestCommon/IORes/Resources/Folder1");
+            Assert.Contains(directories, static directory => directory.Path == "/TestCommon/IORes/Resources/Folder1/Folder3");
+            Assert.Contains(directories, static directory => directory.Path == "/TestCommon/IORes/Resources/Folder2");
+            Assert.Contains(directories, static directory => directory.Path == "/TestCommon/IORes/Resources/Folder2/Folder4");
+            Assert.Contains(directories, static directory => directory.Path == "/TestCommon/IORes/Resources/Folder8");
 
             // Filter by: F*
 
             directories = fs.GetDirectories("F*", SearchOption.AllDirectories);
 
             Assert.Equal(5, directories.Count());
-            Assert.Single(directories.Where(directory => directory.Path == "/TestCommon/IORes/Resources/Folder1"));
-            Assert.Single(directories.Where(directory => directory.Path == "/TestCommon/IORes/Resources/Folder1/Folder3"));
-            Assert.Single(directories.Where(directory => directory.Path == "/TestCommon/IORes/Resources/Folder2"));
-            Assert.Single(directories.Where(directory => directory.Path == "/TestCommon/IORes/Resources/Folder2/Folder4"));
-            Assert.Single(directories.Where(directory => directory.Path == "/TestCommon/IORes/Resources/Folder8"));
+            Assert.Contains(directories, static directory => directory.Path == "/TestCommon/IORes/Resources/Folder1");
+            Assert.Contains(directories, static directory => directory.Path == "/TestCommon/IORes/Resources/Folder1/Folder3");
+            Assert.Contains(directories, static directory => directory.Path == "/TestCommon/IORes/Resources/Folder2");
+            Assert.Contains(directories, static directory => directory.Path == "/TestCommon/IORes/Resources/Folder2/Folder4");
+            Assert.Contains(directories, static directory => directory.Path == "/TestCommon/IORes/Resources/Folder8");
 
             // Filter by: Folder?
 
             directories = fs.GetDirectories("Folder?", SearchOption.AllDirectories);
 
             Assert.Equal(5, directories.Count());
-            Assert.Single(directories.Where(directory => directory.Path == "/TestCommon/IORes/Resources/Folder1"));
-            Assert.Single(directories.Where(directory => directory.Path == "/TestCommon/IORes/Resources/Folder1/Folder3"));
-            Assert.Single(directories.Where(directory => directory.Path == "/TestCommon/IORes/Resources/Folder2"));
-            Assert.Single(directories.Where(directory => directory.Path == "/TestCommon/IORes/Resources/Folder2/Folder4"));
-            Assert.Single(directories.Where(directory => directory.Path == "/TestCommon/IORes/Resources/Folder8"));
+            Assert.Contains(directories, static directory => directory.Path == "/TestCommon/IORes/Resources/Folder1");
+            Assert.Contains(directories, static directory => directory.Path == "/TestCommon/IORes/Resources/Folder1/Folder3");
+            Assert.Contains(directories, static directory => directory.Path == "/TestCommon/IORes/Resources/Folder2");
+            Assert.Contains(directories, static directory => directory.Path == "/TestCommon/IORes/Resources/Folder2/Folder4");
+            Assert.Contains(directories, static directory => directory.Path == "/TestCommon/IORes/Resources/Folder8");
         }
 
         [Fact]
@@ -777,12 +777,11 @@ namespace TestCommon
         [Fact]
         public void Partial_List_Directories()
         {
-            var fs        = Assembly.GetExecutingAssembly().GetResourceFileSystem("TestCommon.IORes.Resources");
-            var directory = fs;
+            var fs = Assembly.GetExecutingAssembly().GetResourceFileSystem("TestCommon.IORes.Resources");
 
             // Directory: /Folder1/
 
-            directory = fs.GetDirectories("Folder1").Single();
+            var directory = fs.GetDirectories("Folder1").Single();
 
             Assert.Single(directory.GetDirectories("Folder3"));
             Assert.Empty(directory.GetDirectories("NOT-FOUND"));
@@ -1077,18 +1076,18 @@ namespace TestCommon
                 await fs.ZipAsync(zipPath, searchOptions: SearchOption.AllDirectories, zipOptions: StaticZipOptions.LinuxLineEndings);
                 fastZip.ExtractZip(zipPath, unzipFolder, null);
 
-                Assert.True(!File.ReadAllText(Path.Combine(unzipFolder, "TextFile1.txt")).Contains("\r\n"));
-                Assert.True(!File.ReadAllText(Path.Combine(unzipFolder, "TextFile2.txt")).Contains("\r\n"));
+                Assert.DoesNotContain("\r\n", File.ReadAllText(Path.Combine(unzipFolder, "TextFile1.txt")));
+                Assert.DoesNotContain("\r\n", File.ReadAllText(Path.Combine(unzipFolder, "TextFile2.txt")));
 
-                Assert.True(!File.ReadAllText(Path.Combine(unzipFolder, "Folder1", "TextFile3.txt")).Contains("\r\n"));
-                Assert.True(!File.ReadAllText(Path.Combine(unzipFolder, "Folder1", "TextFile4.txt")).Contains("\r\n"));
-                Assert.True(!File.ReadAllText(Path.Combine(unzipFolder, "Folder1", "Folder3", "TextFile5.txt")).Contains("\r\n"));
+                Assert.DoesNotContain("\r\n", File.ReadAllText(Path.Combine(unzipFolder, "Folder1", "TextFile3.txt")));
+                Assert.DoesNotContain("\r\n", File.ReadAllText(Path.Combine(unzipFolder, "Folder1", "TextFile4.txt")));
+                Assert.DoesNotContain("\r\n", File.ReadAllText(Path.Combine(unzipFolder, "Folder1", "Folder3", "TextFile5.txt")));
 
-                Assert.True(!File.ReadAllText(Path.Combine(unzipFolder, "Folder2", "TextFile6.txt")).Contains("\r\n"));
-                Assert.True(!File.ReadAllText(Path.Combine(unzipFolder, "Folder2", "TextFile7.txt")).Contains("\r\n"));
-                Assert.True(!File.ReadAllText(Path.Combine(unzipFolder, "Folder2", "Folder4", "TextFile8.txt")).Contains("\r\n"));
+                Assert.DoesNotContain("\r\n", File.ReadAllText(Path.Combine(unzipFolder, "Folder2", "TextFile6.txt")));
+                Assert.DoesNotContain("\r\n", File.ReadAllText(Path.Combine(unzipFolder, "Folder2", "TextFile7.txt")));
+                Assert.DoesNotContain("\r\n", File.ReadAllText(Path.Combine(unzipFolder, "Folder2", "Folder4", "TextFile8.txt")));
 
-                Assert.True(!File.ReadAllText(Path.Combine(unzipFolder, "Folder8", "Test")).Contains("\r\n"));
+                Assert.DoesNotContain("\r\n", File.ReadAllText(Path.Combine(unzipFolder, "Folder8", "Test")));
             }
         }
 

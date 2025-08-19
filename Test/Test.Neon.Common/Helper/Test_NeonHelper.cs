@@ -38,7 +38,9 @@ namespace TestCommon
         [Fact]
         public void FrameworkVersionTest()
         {
-#if NET8_0_OR_GREATER
+#if NET9_0_OR_GREATER
+            var checkVersion = SemanticVersion.Parse("9.0");
+#elif NET8_0_OR_GREATER
             var checkVersion = SemanticVersion.Parse("8.0");
 #elif NET7_0_OR_GREATER
             var checkVersion = SemanticVersion.Parse("7.0");

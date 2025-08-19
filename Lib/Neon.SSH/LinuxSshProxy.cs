@@ -84,7 +84,7 @@ namespace Neon.SSH
         /// Used to ensure that only one SSH.NET connection attempt will be inflight
         /// at the same time to the same target computer.
         /// </summary>
-        private static Dictionary<string, object> connectLocks = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
+        private readonly static Dictionary<string, object> connectLocks = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
 
         /// <summary>
         /// <para>
@@ -410,9 +410,9 @@ namespace Neon.SSH
 
                 // Only return the first line of the status.
 
-                result = result ?? string.Empty;
+                result ??= string.Empty;
 
-                var pos = result.IndexOfAny(new char[] { '\r', '\n' });
+                var pos = result.IndexOfAny(['\r', '\n']);
 
                 if (pos != -1)
                 {
@@ -562,7 +562,7 @@ namespace Neon.SSH
         /// <param name="actionName">Idenfies the action for logging purposes.</param>
         /// <param name="action">The action to be performed.</param>
         /// <param name="timeout">The timeout.</param>
-        private void DeadlockBreaker(string actionName, Action action, TimeSpan timeout)
+        private static void DeadlockBreaker(string actionName, Action action, TimeSpan timeout)
         {
             //LogLine($"*** DEADLOCK EXECUTE: {actionName}");
 
@@ -589,7 +589,7 @@ namespace Neon.SSH
         /// </summary>
         /// <param name="credentials">The credentials.</param>
         /// <returns>The <see cref="AuthenticationMethod"/>.</returns>
-        protected AuthenticationMethod GetAuthenticationMethod(SshCredentials credentials)
+        protected static AuthenticationMethod GetAuthenticationMethod(SshCredentials credentials)
         {
             Covenant.Requires<ArgumentNullException>(credentials != null, nameof(credentials));
 
@@ -929,10 +929,7 @@ rm {HostFolders.Home(Username)}/askpass
         /// <inheritdoc/>
         public virtual void Log(string text)
         {
-            if (logWriter != null)
-            {
-                logWriter.Write(text);
-            }
+            logWriter?.Write(text);
         }
 
         /// <inheritdoc/>
@@ -948,10 +945,7 @@ rm {HostFolders.Home(Username)}/askpass
         /// <inheritdoc/>
         public virtual void LogFlush()
         {
-            if (logWriter != null)
-            {
-                logWriter.Flush();
-            }
+            logWriter?.Flush();
         }
 
         /// <inheritdoc/>
@@ -1017,7 +1011,7 @@ rm {HostFolders.Home(Username)}/askpass
         /// <inheritdoc/>
         public void Connect(TimeSpan timeout = default)
         {
-            if (timeout == default(TimeSpan))
+            if (timeout == default)
             {
                 timeout = ConnectTimeout;
             }
@@ -1041,7 +1035,7 @@ rm {HostFolders.Home(Username)}/askpass
         /// <inheritdoc/>
         public void WaitForBoot(TimeSpan? timeout = null)
         {
-            Covenant.Requires<ArgumentException>(timeout != null ? timeout >= TimeSpan.Zero : true, nameof(timeout));
+            Covenant.Requires<ArgumentException>(timeout == null || timeout >= TimeSpan.Zero, nameof(timeout));
 
             var operationTimer = new PolledTimer(timeout ?? TimeSpan.FromMinutes(10));
 
@@ -1155,7 +1149,7 @@ rm {HostFolders.Home(Username)}/askpass
                             continue;
                         }
 
-                        var split = line.Split(new char[] { '=' }, 2);
+                        var split = line.Split(['='], 2);
 
                         if (split.Length < 2)
                         {
@@ -1548,7 +1542,7 @@ rm {HostFolders.Home(Username)}/askpass
 
             LogLine($"*** Downloading: {source}");
 
-            var downloadPath = $"{DownloadFolderPath}/{LinuxPath.GetFileName(source)}-{Guid.NewGuid().ToString("d")}";
+            var downloadPath = $"{DownloadFolderPath}/{LinuxPath.GetFileName(source)}-{Guid.NewGuid():d}";
 
             // We're not able to download some files directly due to permission issues 
             // so we'll make a temporary copy of the target file within the user's
@@ -1669,7 +1663,7 @@ if [ -f ""{path}"" ] ; then rm ""{path}""; fi
 
             LogLine($"*** Uploading: {target}");
 
-            var uploadPath = $"{UploadFolderPath}/{LinuxPath.GetFileName(target)}-{Guid.NewGuid().ToString("d")}";
+            var uploadPath = $"{UploadFolderPath}/{LinuxPath.GetFileName(target)}-{Guid.NewGuid():d}";
 
             try
             {
@@ -1714,10 +1708,7 @@ if [ -f ""{path}"" ] ; then rm ""{path}""; fi
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(target), nameof(target));
 
-            if (bytes == null)
-            {
-                bytes = Array.Empty<byte>();
-            }
+            bytes ??= [];
 
             using (var ms = new MemoryStream(bytes))
             {
@@ -1731,8 +1722,8 @@ if [ -f ""{path}"" ] ; then rm ""{path}""; fi
             Covenant.Requires<ArgumentNullException>(textStream != null, nameof(textStream));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(target), nameof(target));
 
-            inputEncoding  = inputEncoding ?? Encoding.UTF8;
-            outputEncoding = outputEncoding ?? Encoding.UTF8;
+            inputEncoding  ??= Encoding.UTF8;
+            outputEncoding ??= Encoding.UTF8;
 
             using (var reader = new StreamReader(textStream, inputEncoding))
             {
@@ -1820,7 +1811,7 @@ if [ -f ""{path}"" ] ; then rm ""{path}""; fi
         /// The method also converts arguments with types like <c>bool</c> into a Bash compatible
         /// form.
         /// </remarks>
-        private string FormatCommand(string command, params object[] args)
+        private static string FormatCommand(string command, params object[] args)
         {
             var sb = new StringBuilder();
 
@@ -1992,7 +1983,7 @@ if [ -f ""{path}"" ] ; then rm ""{path}""; fi
 
                 // Upload the ZIP file to a temporary folder.
 
-                var bundleFolder = $"{HostFolders.Exec(Username)}/{Guid.NewGuid().ToString("d")}";
+                var bundleFolder = $"{HostFolders.Exec(Username)}/{Guid.NewGuid():d}";
                 var zipPath      = LinuxPath.Combine(bundleFolder, "__bundle.zip");
 
                 RunCommand($"mkdir {bundleFolder} && chmod 700 {bundleFolder}", RunOptions.LogOnErrorOnly);
@@ -2315,7 +2306,7 @@ echo $? > {cmdFolder}/exit
         /// <param name="command">The command.</param>
         /// <param name="args">The arguments.</param>
         /// <returns>The Bash command string.</returns>
-        private string ToBash(string command, params object[] args)
+        private static string ToBash(string command, params object[] args)
         {
             return new CommandBundle(command, args).ToBash();
         }
@@ -2423,7 +2414,7 @@ echo $? > {cmdFolder}/exit
                 {
                     Command     = command,
                     BashCommand = bashCommand,
-                    ExitCode    = cmdResult.ExitStatus,
+                    ExitCode    = cmdResult.ExitStatus ?? -1,   // SSH.NET now returns NULL when the process was terminated with a signal
                     OutputText  = cmdResult.Result,
                     ErrorText   = cmdResult.Error
                 };
@@ -2468,7 +2459,7 @@ echo $? > {cmdFolder}/exit
                 {
                     if (binaryOutput)
                     {
-                        var outputBinary = response.OutputBinary ?? Array.Empty<byte>();
+                        var outputBinary = response.OutputBinary ?? [];
 
                         LogLine($"    BINARY OUTPUT [length={outputBinary.Length}]");
                     }

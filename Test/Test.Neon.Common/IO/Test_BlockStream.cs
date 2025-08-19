@@ -71,7 +71,7 @@ namespace TestCommon
 
             buf = new byte[cb];
             s.Position = 0;
-            s.Read(buf, 0, cb);
+            _ = s.Read(buf, 0, cb);
             Assert.Equal(cmp, buf);
             Assert.Equal((long)cb, s.Position);
             Assert.Equal((long)cb, s.Length);
@@ -105,7 +105,7 @@ namespace TestCommon
 
             buf = new byte[cb];
             s.Position = 0;
-            s.Read(buf, 0, cb);
+            _ = s.Read(buf, 0, cb);
             Assert.Equal(cmp, buf);
             Assert.Equal((long)cb, s.Position);
             Assert.Equal((long)cb, s.Length);
@@ -139,7 +139,7 @@ namespace TestCommon
 
             buf = new byte[cb];
             s.Position = 0;
-            s.Read(buf, 0, cb);
+            _ = s.Read(buf, 0, cb);
             Assert.Equal(cmp, buf);
             Assert.Equal((long)cb, s.Position);
             Assert.Equal((long)cb, s.Length);
@@ -171,7 +171,7 @@ namespace TestCommon
 
             buf = new byte[cb];
             s.Position = 0;
-            s.Read(buf, 0, cb);
+            _ = s.Read(buf, 0, cb);
             Assert.Equal(cmp, buf);
             Assert.Equal((long)cb, s.Position);
 
@@ -202,7 +202,7 @@ namespace TestCommon
 
             buf = new byte[cb];
             s.Position = 0;
-            s.Read(buf, 0, cb);
+            _ = s.Read(buf, 0, cb);
             Assert.Equal(cmp, buf);
             Assert.Equal((long)cb, s.Position);
         }
@@ -264,7 +264,7 @@ namespace TestCommon
 
             s.Position = 0;
             Zero(r);
-            s.Read(r, 0, 10);
+            _ = s.Read(r, 0, 10);
             Assert.Equal(10, s.Length);
             Assert.Equal(10, s.Position);
             Assert.Equal(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }, r);
@@ -616,7 +616,7 @@ namespace TestCommon
                     buffer[i] = (byte)(j+1);
                 }
 
-                bs.Read(buffer, 0, i);
+                _ = bs.Read(buffer, 0, i);
 
                 for (int j = 0; j < i; j++)
                 {

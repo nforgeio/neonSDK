@@ -137,7 +137,7 @@ namespace Neon.Service
         /// <summary>
         /// Optionally specifies additional labels to be identify the source for <see cref="MetricsMode.Push"/> mode.
         /// </summary>
-        public IList<Tuple<string, string>> PushLabels { get; set; } = new List<Tuple<string, string>>();
+        public IList<Tuple<string, string>> PushLabels { get; set; } = [];
 
         /// <summary>
         /// <para>
@@ -202,14 +202,14 @@ namespace Neon.Service
 
                     // Ensure that the path starts with a "/" but does not end with one.
 
-                    if (!Path.StartsWith("/"))
+                    if (!Path.StartsWith('/'))
                     {
                         Path = "/" + Path;
                     }
 
-                    if (Path.EndsWith("/"))
+                    if (Path.EndsWith('/'))
                     {
-                        Path = Path.Substring(0, Path.Length - 1);
+                        Path = Path[..^1];
                     }
                     break;
 
@@ -220,7 +220,7 @@ namespace Neon.Service
                         throw new ArgumentException("Metrics [PushUrl] is required.");
                     }
 
-                    if (!Uri.TryCreate(PushUrl, UriKind.Absolute, out var uri))
+                    if (!Uri.TryCreate(PushUrl, UriKind.Absolute, result: out _))
                     {
                         throw new ArgumentException($"Metrics [PushUrl={PushUrl}] is not a valid URL.");
                     }

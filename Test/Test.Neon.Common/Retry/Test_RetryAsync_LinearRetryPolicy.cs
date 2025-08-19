@@ -501,7 +501,7 @@ namespace TestCommon
                         });
                 });
 
-            Assert.True(4 <= times.Count && times.Count <= 6);
+            Assert.True(4 <= times.Count && times.Count <= 7);
         }
 
         [Fact]

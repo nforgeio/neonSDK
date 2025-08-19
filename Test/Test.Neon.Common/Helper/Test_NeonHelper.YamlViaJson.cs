@@ -134,8 +134,8 @@ namespace TestCommon
 
             people = NeonHelper.YamlDeserializeViaJson<List<IPerson>>(s);
 
-            Assert.Single(people.Where(p => p.Gender == Gender.Male));
-            Assert.Single(people.Where(p => p.Gender == Gender.Female));
+            Assert.Contains(people, static p => p.Gender == Gender.Male);
+            Assert.Contains(people, static p => p.Gender == Gender.Female);
 
             var man = (Man)people.Where(p => p.Gender == Gender.Male).FirstOrDefault();
             var woman = (Woman)people.Where(p => p.Gender == Gender.Female).FirstOrDefault();

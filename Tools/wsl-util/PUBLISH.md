@@ -1,7 +1,7 @@
 # Instructions
 
 You'll need to publish the **wsl-util** project to **$\neonSDK\Toolbin** after making any changes.
-Not that publishing within Visual Studio doesn't seem to work any more for some reason, so you'll
+Note that publishing within Visual Studio doesn't seem to work any more for some reason, so you'll
 need to publish via this script instead:
 
 ```

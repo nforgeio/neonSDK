@@ -71,7 +71,7 @@ namespace Neon.Common
             }
 
             /// <inheritdoc/>
-            public object ReadYaml(IParser parser, Type type)
+            public object ReadYaml(IParser parser, Type type, ObjectDeserializer deserializer)
             {
                 var scaler = parser.Current as Scalar;
 
@@ -88,7 +88,7 @@ namespace Neon.Common
             }
 
             /// <inheritdoc/>
-            public void WriteYaml(IEmitter emitter, object value, Type type)
+            public void WriteYaml(IEmitter emitter, object value, Type type, ObjectSerializer serializer)
             {
                 emitter.Emit(new Scalar(null, NeonHelper.EnumToString(type, value)));
             }
@@ -111,7 +111,7 @@ namespace Neon.Common
 
                     if (!string.IsNullOrEmpty(value))
                     {
-                        bool isMultiLine = value.IndexOfAny(new char[] { '\r', '\n', '\x85', '\x2028', '\x2029' }) >= 0;
+                        bool isMultiLine = value.IndexOfAny(['\r', '\n', '\x85', '\x2028', '\x2029']) >= 0;
 
                         if (isMultiLine)
                         {
@@ -130,7 +130,7 @@ namespace Neon.Common
         //---------------------------------------------------------------------
         // Implementation
 
-        private static Lazy<ISerializer> yamlSerializer =
+        private static readonly Lazy<ISerializer> yamlSerializer =
             new Lazy<ISerializer>(
                 () =>
                 {
@@ -183,7 +183,7 @@ namespace Neon.Common
                         .Build();
                 });
 
-        private static Lazy<IDeserializer> strictYamlDeserializer =
+        private static readonly Lazy<IDeserializer> strictYamlDeserializer =
             new Lazy<IDeserializer>(
                 () =>
                 {
@@ -193,7 +193,7 @@ namespace Neon.Common
                         .Build();
                 });
 
-        private static Lazy<IDeserializer> relaxedYamlDeserializer =
+        private static readonly Lazy<IDeserializer> relaxedYamlDeserializer =
             new Lazy<IDeserializer>(
                 () =>
                 {
@@ -438,10 +438,9 @@ namespace Neon.Common
         }
 
         private static readonly char[] specialYamlChars =
-            new char[]
-            {
-                ':','{','}','[',']',',','&','*','#','?','|','-','<','>','=','!','%','@','\\','\r','\n','"','\''
-            };
+        [
+            ':','{','}','[',']',',','&','*','#','?','|','-','<','>','=','!','%','@','\\','\r','\n','"','\''
+        ];
 
         /// <summary>
         /// Returns the serialized YAML value for a <see cref="JValue"/>.
@@ -504,7 +503,7 @@ namespace Neon.Common
                     {
                         var sb = new StringBuilder();
 
-                        sb.Append("\"");
+                        sb.Append('"');
 
                         foreach (var ch in value)
                         {
@@ -522,7 +521,7 @@ namespace Neon.Common
 
                                 case '\'':
 
-                                    sb.Append("'");
+                                    sb.Append('\'');
                                     break;
 
                                 case '"':
@@ -537,7 +536,7 @@ namespace Neon.Common
                             }
                         }
 
-                        sb.Append("\"");
+                        sb.Append('"');
 
                         return sb.ToString();
                     }

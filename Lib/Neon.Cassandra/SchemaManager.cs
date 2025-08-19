@@ -332,11 +332,11 @@ namespace Neon.Cassandra
         /// </summary>
         public const string DbInfoTableName = "__dbinfo";
 
-        private Dictionary<string, string>  variables = new Dictionary<string, string>();
-        private ISession                    session;
-        private string                      keyspace;
-        private string                      scriptFolder;
-        private Dictionary<int, string>     versionToScript;
+        private readonly Dictionary<string, string> variables = [];
+        private readonly string                     keyspace;
+        private readonly Dictionary<int, string>    versionToScript;
+        private readonly ISession                   session;
+        private readonly string                     scriptFolder;
 
         /// <summary>
         /// Constructs an instance that loads scripts from files.
@@ -489,6 +489,7 @@ namespace Neon.Cassandra
         }
 
         /// <inheritdoc/>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA1816:Dispose methods should call SuppressFinalize", Justification = "<Pending>")]
         public void Dispose()
         {
             Dispose(true);
@@ -502,7 +503,9 @@ namespace Neon.Cassandra
         {
             if (disposing)
             {
+#pragma warning disable CA1816 // Dispose methods should call SuppressFinalize
                 GC.SuppressFinalize(this);
+#pragma warning restore CA1816 // Dispose methods should call SuppressFinalize
             }
         }
 
@@ -573,10 +576,12 @@ namespace Neon.Cassandra
             // We need to create the keyspace so read the [schema-0.script] script and execute it,
             // subsituting the keyspace name for any ${keyspace} macro variables.
 
+#pragma warning disable CA1854 // Prefer the 'IDictionary.TryGetValue(TKey, out TValue)' method
             if (!status.VersionToScript.ContainsKey(0))
             {
                 throw new SchemaManagerException($"No keyspace creation script file [schema-0.script] found in [{scriptFolder}].");
             }
+#pragma warning restore CA1854 // Prefer the 'IDictionary.TryGetValue(TKey, out TValue)' method
 
             var orgKeyspace = session.Keyspace;
 
@@ -869,20 +874,14 @@ CREATE TABLE IF NOT EXISTS {DbInfoTableName} (
                             continue;
                         }
 
-                        if (updateAction != null)
-                        {
-                            updateAction.Invoke(false, item.Key);
-                        }
+                        updateAction?.Invoke(false, item.Key);
 
                         var script = item.Value.Replace("${keyspace}", keyspace);
 
                         await session.ExecuteBatchAsync(script);
                         await session.ExecuteAsync($"UPDATE {DbInfoTableName} SET version = {item.Key} WHERE key = 1;");
 
-                        if (updateAction != null)
-                        {
-                            updateAction.Invoke(true, item.Key);
-                        }
+                        updateAction?.Invoke(true, item.Key);
 
                         if (stopVersion == item.Key)
                         {

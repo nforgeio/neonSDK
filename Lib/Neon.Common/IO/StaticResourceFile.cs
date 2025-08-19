@@ -25,15 +25,17 @@ using System.Threading.Tasks;
 
 using Neon.Common;
 
+#pragma warning disable IDE0130 // Namespace does not match folder structure
 namespace Neon.IO
+#pragma warning restore IDE0130 // Namespace does not match folder structure
 {
     /// <summary>
     /// Implements the <see cref="IStaticFile"/> abstractionreferencing an embedded <see cref="Assembly"/> resource.
     /// </summary>
     internal class StaticResourceFile : StaticFileBase
     {
-        private Assembly    assembly;
-        private string      resourceName;
+        private readonly Assembly   assembly;
+        private readonly string     resourceName;
 
         /// <summary>
         /// Constructor.
@@ -96,7 +98,7 @@ namespace Neon.IO
         /// <inheritdoc/>
         public override string ReadAllText(Encoding encoding = null)
         {
-            encoding = encoding ?? Encoding.UTF8;
+            encoding ??= Encoding.UTF8;
 
             using (var stream = assembly.GetManifestResourceStream(resourceName))
             {
@@ -110,7 +112,7 @@ namespace Neon.IO
         /// <inheritdoc/>
         public async override Task<string> ReadAllTextAsync(Encoding encoding = null)
         {
-            encoding = encoding ?? Encoding.UTF8;
+            encoding ??= Encoding.UTF8;
 
             using (var stream = assembly.GetManifestResourceStream(resourceName))
             {

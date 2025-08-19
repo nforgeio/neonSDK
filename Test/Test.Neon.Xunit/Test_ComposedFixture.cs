@@ -57,18 +57,28 @@ namespace TestXunit
 
         public class Startup
         {
+#pragma warning disable IDE0290 // Use primary constructor
             public Startup(IConfiguration configuration)
+#pragma warning restore IDE0290 // Use primary constructor
             {
                 Configuration = configuration;
             }
 
             public IConfiguration Configuration { get; }
 
+#pragma warning disable CA1822 // Mark members as static
+#pragma warning disable IDE0060 // Remove unused parameter
             public void ConfigureServices(IServiceCollection services)
+#pragma warning restore IDE0060 // Remove unused parameter
+#pragma warning restore CA1822 // Mark members as static
             {
             }
 
+#pragma warning disable CA1822 // Mark members as static
+#pragma warning disable IDE0060 // Remove unused parameter
             public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+#pragma warning restore IDE0060 // Remove unused parameter
+#pragma warning restore CA1822 // Mark members as static
             {
                 // This is a simple test that replies to all requests with: [Answer].
 
@@ -83,12 +93,12 @@ namespace TestXunit
         //---------------------------------------------------------------------
         // Implementation
 
-        private ComposedFixture     composedFixture;
-        private AspNetFixture       aspNetFixture;
-        private ContainerFixture    containerFixture;
-        private DockerFixture       dockerFixture;
-        private HostsFixture        hostsFixture;
-        private NatsFixture         natsFixture;
+        private readonly ComposedFixture     composedFixture;
+        private readonly AspNetFixture       aspNetFixture;
+        private readonly ContainerFixture    containerFixture;
+        private readonly DockerFixture       dockerFixture;
+        private readonly HostsFixture        hostsFixture;
+        private readonly NatsFixture         natsFixture;
 
         public Test_ComposedFixture(ComposedFixture composedFixture)
         {
@@ -168,7 +178,7 @@ namespace TestXunit
 
             // Verify DockerFixture.
 
-            Assert.NotEmpty(dockerFixture.ListContainers().Where(container => container.Name == "my-container"));
+            Assert.Contains(dockerFixture.ListContainers(), static container => container.Name == "my-container");
 
             var composeYaml =
 $@"version: '3'
@@ -180,7 +190,7 @@ services:
 ";
             dockerFixture.DeployStack("my-stack", composeYaml);
 
-            Assert.NotEmpty(dockerFixture.ListStacks().Where(stack => stack.Name == "my-stack"));
+            Assert.Contains(dockerFixture.ListStacks(), static stack => stack.Name == "my-stack");
         }
     }
 }

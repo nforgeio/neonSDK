@@ -56,7 +56,7 @@ namespace Neon.GitHub
     /// </summary>
     public class RemoteRepoIssueApi
     {
-        private GitHubRepo root;
+        private readonly GitHubRepo root;
 
         /// <summary>
         /// Internal constructor.
@@ -88,7 +88,31 @@ namespace Neon.GitHub
             Covenant.Requires<ArgumentNullException>(newIssue != null, nameof(newIssue));
             root.EnsureNotDisposed();
 
-            return await root.GitHubApi.Issue.Create(root.Remote.Id, newIssue);
+            var now   = DateTimeOffset.Now;
+            var issue = await root.GitHubApi.Issue.Create(root.Remote.Id, newIssue);
+
+            // $hack(jefflill):
+            //
+            // It looks like new issues aren't immediately showing up when listing
+            // issues.  I'm going to poll for the presence of the issue by querying
+            // for recent issues so we don't slam GitHub.
+
+            var request = new RepositoryIssueRequest()
+            {
+                Since = now - TimeSpan.FromMinutes(2)
+            };
+
+            await NeonHelper.WaitForAsync(
+                async () =>
+                {
+                    var issues  = await root.GitHubApi.Issue.GetAllForRepository(root.Remote.Id, request);
+
+                    return !issues.Where(i => i.Number == i.Number).IsEmpty();
+                },
+                timeout:      TimeSpan.FromSeconds(60),
+                pollInterval: TimeSpan.FromSeconds(1));
+
+            return issue;
         }
 
         /// <summary>
@@ -127,20 +151,22 @@ namespace Neon.GitHub
         /// <summary>
         /// Returns all repository issues, potentially filtered.
         /// </summary>
-        /// <param name="options">Optionally specifies result pagination ootions.</param>
+        /// <param name="options">Optionally specifies result pagination options.</param>
         /// <returns>The issues.</returns>
         public async Task<IEnumerable<Issue>> GetAllAsync(ApiOptions options = null)
         {
             await SyncContext.Clear;
             root.EnsureNotDisposed();
 
+            var request = new RepositoryIssueRequest();
+
             if (options == null)
             {
-                return await root.GitHubApi.Issue.GetAllForRepository(root.Remote.Id);
+                return await root.GitHubApi.Issue.GetAllForRepository(root.Remote.Id, request);
             }
             else
             {
-                return await root.GitHubApi.Issue.GetAllForRepository(root.Remote.Id, options);
+                return await root.GitHubApi.Issue.GetAllForRepository(root.Remote.Id, request, options);
             }
         }
 
@@ -148,7 +174,7 @@ namespace Neon.GitHub
         /// Returns repository issues that satisfy a filter.
         /// </summary>
         /// <param name="request">Used to filter issues by assignee, mileston, etc.</param>
-        /// <param name="options">Optionally secifies result pagination ootions.</param>
+        /// <param name="options">Optionally secifies result pagination options.</param>
         /// <returns>The issues.</returns>
         public async Task<IEnumerable<Issue>> GetAllAsync(RepositoryIssueRequest request, ApiOptions options = null)
         {
@@ -192,8 +218,10 @@ namespace Neon.GitHub
             Covenant.Requires<ArgumentNullException>(request != null, nameof(request));
             root.EnsureNotDisposed();
 
-            request.Repos = new RepositoryCollection();
-            request.Repos.Add(root.Remote.Owner, root.Remote.Name);
+            request.Repos = new RepositoryCollection
+            {
+                { root.Remote.Owner, root.Remote.Name }
+            };
 
             return await root.GitHubApi.Search.SearchIssues(request);
         }
