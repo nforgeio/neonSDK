@@ -17,6 +17,7 @@
         <PublishSingleFile>false</PublishSingleFile>
         <SelfContained>true</SelfContained>
         <PublishTrimmed>false</PublishTrimmed>
+        <StartupObject></StartupObject>
     </PropertyGroup>
 
     <ItemGroup>

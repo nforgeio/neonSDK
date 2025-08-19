@@ -298,10 +298,10 @@ function Invoke-CaptureStreams
         $quietOption = "--quiet"
     }
 
-    # Uncomment this to have the [DTEE.EXE] tool write the command
-    # arguments and STDOUT/STDERR streams to: %TEMP%\dee-tool.debug
-    #
-    # This is useful for debugging complex scripts.
+    # Set this to "$debug" to have [dtee.exe] print out command line arguments
+    # to [%TEMP\dtee-tool-debug] for debugging purposes.  Note that this IS
+    # currently somewhat fragile since this means that only one instance of
+    # the [dtee.exe] can write to this file at a time.
     #
     # DON'T LEAVE THIS ENABLED LONG-TERM!
 
@@ -310,7 +310,7 @@ function Invoke-CaptureStreams
     $pInfo = [Diagnostics.ProcessStartInfo]::new()
     $pInfo = @{
         FileName        = 'dtee.exe'
-        Arguments       = "$quietOption $debugOption `"--out=$outPath`" `"--err=$errPath`" `"--both=$bothPath`" -- `"$command`""
+        Arguments       = "$quietOption $debugOption `"--out=$outPath`" `"--err=$errPath`" `"--both=$bothPath`" `"--`" `"$command`""
         UseShellExecute = $false
     }
 
