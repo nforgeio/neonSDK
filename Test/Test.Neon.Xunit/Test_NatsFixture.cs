@@ -164,7 +164,7 @@ namespace TestXunit
 
                 subscription.Start();
                 connection.Publish("subject", jack);
-                NeonHelper.WaitFor(() => received != null && receivedLowLevel != null, TimeSpan.FromSeconds(5));
+                NeonHelper.WaitFor(() => received != null && receivedLowLevel != null, TimeSpan.FromSeconds(5), cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
                 Assert.True(received.Data == jack);
             }
@@ -206,7 +206,7 @@ namespace TestXunit
 
                 subscription.Start();
                 connection.Publish("subject", jack);
-                NeonHelper.WaitFor(() => received != null && receivedLowLevel != null && receivedFromHandler != null, TimeSpan.FromSeconds(5));
+                NeonHelper.WaitFor(() => received != null && receivedLowLevel != null && receivedFromHandler != null, TimeSpan.FromSeconds(5), cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
                 Assert.True(received.Data == jack);
             }
@@ -246,7 +246,7 @@ namespace TestXunit
 
                 subscription.Start();
                 connection.Publish("subject", jack);
-                NeonHelper.WaitFor(() => received != null && receivedLowLevel != null, TimeSpan.FromSeconds(5));
+                NeonHelper.WaitFor(() => received != null && receivedLowLevel != null, TimeSpan.FromSeconds(5), cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
                 Assert.True(received.Data == jack);
             }
@@ -288,7 +288,7 @@ namespace TestXunit
 
                 subscription.Start();
                 connection.Publish("subject", jack);
-                NeonHelper.WaitFor(() => received != null && receivedLowLevel != null && receivedFromHandler != null, TimeSpan.FromSeconds(5));
+                NeonHelper.WaitFor(() => received != null && receivedLowLevel != null && receivedFromHandler != null, TimeSpan.FromSeconds(5), cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
                 Assert.True(received.Data == jack);
             }
@@ -467,7 +467,7 @@ namespace TestXunit
                         connection.Publish(request.Reply, jill);
                     });
 
-                reply = await connection.RequestAsync<Person, Person>("subject", jack);
+                reply = await connection.RequestAsync<Person, Person>("subject", jack, token: Xunit.TestContext.Current.CancellationToken);
 
                 Assert.True(request.Data == jack);
                 Assert.True(reply.Data == jill);

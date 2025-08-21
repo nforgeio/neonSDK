@@ -115,7 +115,7 @@ namespace TestNeonService
 
                 // Give the service some time to process some messages.
 
-                NeonHelper.WaitFor(() => service.SentCount > 0 && service.ReceiveCount > 0, timeout: TimeSpan.FromSeconds(60));
+                NeonHelper.WaitFor(() => service.SentCount > 0 && service.ReceiveCount > 0, timeout: TimeSpan.FromSeconds(60), cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
                 Assert.True(service.SentCount > 0);
                 Assert.True(service.ReceiveCount > 0);

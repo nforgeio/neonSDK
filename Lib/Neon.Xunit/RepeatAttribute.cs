@@ -17,13 +17,16 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 
 using Xunit;
 using Xunit.Sdk;
+using Xunit.v3;
 
 namespace Neon.Xunit
 {
@@ -52,16 +55,19 @@ namespace Neon.Xunit
         /// </summary>
         /// <param name="testMethod">Specifies the target test method.</param>
         /// <returns>The argument arrays.</returns>
-        public override IEnumerable<object[]> GetData(MethodInfo testMethod)
+        public override ValueTask<IReadOnlyCollection<ITheoryDataRow>> GetData(MethodInfo testMethod, DisposalTracker tracker)
         {
-            var iterations = new object[count][];
+            var rows = new List<TheoryDataRow>(count);
 
             for (int i = 0; i < count; i++)
             {
-                iterations[i] = new object[] { i };
+                rows.Add(new TheoryDataRow(new object[] { i }));
             }
 
-            return (IEnumerable<object[]>)iterations;
+            return ValueTask.FromResult((IReadOnlyCollection<ITheoryDataRow>)rows.AsReadOnly());
         }
+
+        /// <inheritdoc/>
+        public override bool SupportsDiscoveryEnumeration() => false;
     }
 }

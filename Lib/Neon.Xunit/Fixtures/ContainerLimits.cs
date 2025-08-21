@@ -25,9 +25,9 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-using Xunit;
-
 using Neon.Common;
+
+using Xunit;
 
 namespace Neon.Xunit
 {

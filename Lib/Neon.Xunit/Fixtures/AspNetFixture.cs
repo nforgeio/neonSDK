@@ -33,7 +33,7 @@ using Neon.Data;
 using Neon.Diagnostics;
 using Neon.Net;
 
-using Xunit.Abstractions;
+using Xunit;
 
 namespace Neon.Xunit
 {

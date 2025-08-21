@@ -194,8 +194,8 @@ namespace TestXunit
 
             // Verify that the Neon services from [group 2] are running.
 
-            NeonHelper.WaitFor(() => service1Fixture.Service.Status == NeonServiceStatus.Running, timeout: TimeSpan.FromSeconds(10));
-            NeonHelper.WaitFor(() => service2Fixture.Service.Status == NeonServiceStatus.Running, timeout: TimeSpan.FromSeconds(10));
+            NeonHelper.WaitFor(() => service1Fixture.Service.Status == NeonServiceStatus.Running, timeout: TimeSpan.FromSeconds(10), cancellationToken: Xunit.TestContext.Current.CancellationToken);
+            NeonHelper.WaitFor(() => service2Fixture.Service.Status == NeonServiceStatus.Running, timeout: TimeSpan.FromSeconds(10), cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
             // ...and that they have the configuration settings set by the [CodeFixture].
 

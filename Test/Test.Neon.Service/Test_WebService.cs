@@ -101,7 +101,7 @@ namespace TestNeonService
 
             var client = fixture.GetHttpClient();
 
-            Assert.Equal("UNCONFIGURED", await client.GetStringAsync("/"));
+            Assert.Equal("UNCONFIGURED", await client.GetStringAsync("/", Xunit.TestContext.Current.CancellationToken));
         }
 
         [Fact]
@@ -119,7 +119,7 @@ namespace TestNeonService
 
             var client = fixture.GetHttpClient();
 
-            Assert.Equal("From: ENVIRONMENT", await client.GetStringAsync("/"));
+            Assert.Equal("From: ENVIRONMENT", await client.GetStringAsync("/", cancellationToken: Xunit.TestContext.Current.CancellationToken));
         }
 
         [Fact]
@@ -137,7 +137,7 @@ namespace TestNeonService
 
             var client = fixture.GetHttpClient();
 
-            Assert.Equal("From: VIRTUAL FILE", await client.GetStringAsync("/"));
+            Assert.Equal("From: VIRTUAL FILE", await client.GetStringAsync("/", cancellationToken: Xunit.TestContext.Current.CancellationToken));
         }
 
         [Fact]
@@ -160,7 +160,7 @@ namespace TestNeonService
 
                 var client = fixture.GetHttpClient();
 
-                Assert.Equal("From: PHYSICAL FILE", await client.GetStringAsync("/"));
+                Assert.Equal("From: PHYSICAL FILE", await client.GetStringAsync("/", cancellationToken: Xunit.TestContext.Current.CancellationToken));
             }
         }
 
@@ -191,7 +191,7 @@ namespace TestNeonService
 
                 var client = fixture.GetHttpClient();
 
-                Assert.Equal("From: ENCRYPTED FILE", await client.GetStringAsync("/"));
+                Assert.Equal("From: ENCRYPTED FILE", await client.GetStringAsync("/", cancellationToken: Xunit.TestContext.Current.CancellationToken));
             }
         }
 
@@ -218,7 +218,7 @@ WEB_RESULT=HELLO WORLD!
 
                 var client = fixture.GetHttpClient();
 
-                Assert.Equal("HELLO WORLD!", await client.GetStringAsync("/"));
+                Assert.Equal("HELLO WORLD!", await client.GetStringAsync("/", cancellationToken: Xunit.TestContext.Current.CancellationToken));
             }
         }
 
@@ -253,7 +253,7 @@ WEB_RESULT=HELLO WORLD! (encrypted)
 
                 var client = fixture.GetHttpClient();
 
-                Assert.Equal("HELLO WORLD! (encrypted)", await client.GetStringAsync("/"));
+                Assert.Equal("HELLO WORLD! (encrypted)", await client.GetStringAsync("/", cancellationToken: Xunit.TestContext.Current.CancellationToken));
             }
         }
     }

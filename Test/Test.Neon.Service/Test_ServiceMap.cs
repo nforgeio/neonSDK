@@ -150,14 +150,14 @@ namespace TestNeonService
 
                 var webServiceDescription = serviceMap["web-service"];
 
-                Assert.Equal("Hello World!", await client.GetStringAsync(webServiceDescription.Endpoints.Default.Uri));
+                Assert.Equal("Hello World!", await client.GetStringAsync(webServiceDescription.Endpoints.Default.Uri, cancellationToken: Xunit.TestContext.Current.CancellationToken));
 
                 // Now query the [relay-service] which calls the [web-service]
                 // and verify.
 
                 var relayServiceDescription = serviceMap["relay-service"];
 
-                Assert.Equal("Hello World!", await client.GetStringAsync(relayServiceDescription.Endpoints.Default.Uri));
+                Assert.Equal("Hello World!", await client.GetStringAsync(relayServiceDescription.Endpoints.Default.Uri, cancellationToken: Xunit.TestContext.Current.CancellationToken));
             }
         }
     }

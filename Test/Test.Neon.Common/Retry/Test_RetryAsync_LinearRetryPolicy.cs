@@ -90,7 +90,8 @@ namespace TestCommon
                             times.Add(DateTime.UtcNow);
                             await Task.CompletedTask;
                             throw new TransientException();
-                        });
+                        },
+                        cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 });
 
             Assert.Equal(policy.MaxAttempts , times.Count);
@@ -112,7 +113,8 @@ namespace TestCommon
                             times.Add(DateTime.UtcNow);
                             await Task.CompletedTask;
                             throw new TransientException();
-                        });
+                        },
+                        cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 });
 
             Assert.Equal(policy.MaxAttempts, times.Count);
@@ -134,7 +136,8 @@ namespace TestCommon
                             times.Add(DateTime.UtcNow);
                             await Task.CompletedTask;
                             throw new NotImplementedException();
-                        });
+                        },
+                        cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 });
 
             Assert.Single(times);
@@ -155,7 +158,8 @@ namespace TestCommon
                             times.Add(DateTime.UtcNow);
                             await Task.CompletedTask;
                             throw new NotImplementedException();
-                        });
+                        },
+                        cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 });
 
             Assert.Single(times);
@@ -184,7 +188,8 @@ namespace TestCommon
                             {
                                 throw new NotImplementedException();
                             }
-                        });
+                        },
+                        cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 });
 
             Assert.Equal(2, times.Count);
@@ -214,7 +219,8 @@ namespace TestCommon
                             {
                                 throw new NotImplementedException();
                             }
-                        });
+                        },
+                        cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 });
 
             Assert.Equal(2, times.Count);
@@ -235,7 +241,8 @@ namespace TestCommon
                     await Task.CompletedTask;
 
                     success = true;
-                });
+                },
+                cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
             Assert.Single(times);
             Assert.True(success);
@@ -254,7 +261,8 @@ namespace TestCommon
                     await Task.CompletedTask;
 
                     return "WOOHOO!";
-                });
+                },
+                cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
             Assert.Single(times);
             Assert.Equal("WOOHOO!", success);
@@ -279,7 +287,8 @@ namespace TestCommon
                     }
 
                     success = true;
-                });
+                },
+                cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
             Assert.True(success);
             Assert.Equal(policy.MaxAttempts, times.Count);
@@ -304,7 +313,8 @@ namespace TestCommon
                     }
 
                     return "WOOHOO!";
-                });
+                },
+                cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
             Assert.Equal("WOOHOO!", success);
             Assert.Equal(policy.MaxAttempts, times.Count);
@@ -330,7 +340,8 @@ namespace TestCommon
                     }
 
                     success = true;
-                });
+                },
+                cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
             Assert.True(success);
             Assert.Equal(policy.MaxAttempts, times.Count);
@@ -356,7 +367,8 @@ namespace TestCommon
                     }
 
                     success = true;
-                });
+                },
+                cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
             Assert.True(success);
             Assert.Equal(policy.MaxAttempts, times.Count);
@@ -389,7 +401,8 @@ namespace TestCommon
                     }
 
                     success = true;
-                });
+                },
+                cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
             Assert.True(success);
             Assert.Equal(policy.MaxAttempts, times.Count);
@@ -418,7 +431,8 @@ namespace TestCommon
                     }
 
                     success = true;
-                });
+                },
+                cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
             Assert.True(success);
             Assert.Equal(policy.MaxAttempts, times.Count);
@@ -446,7 +460,8 @@ namespace TestCommon
                     }
 
                     return "WOOHOO!";
-                });
+                },
+                cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
             Assert.Equal("WOOHOO!", success);
             Assert.Equal(policy.MaxAttempts, times.Count);
@@ -473,7 +488,8 @@ namespace TestCommon
                             await Task.CompletedTask;
 
                             throw new TransientException();
-                        });
+                        },
+                        cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 });
 
             Assert.True(times.Count >= 4);
@@ -481,7 +497,7 @@ namespace TestCommon
             // We'll wait a bit longer to enure that any (incorrect) deadline computed
             // by the policy when constructed above does not impact a subsequent run.
 
-            await Task.Delay(TimeSpan.FromSeconds(4));
+            await Task.Delay(TimeSpan.FromSeconds(4), cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
             times.Clear();
 
@@ -498,7 +514,8 @@ namespace TestCommon
                             await Task.CompletedTask;
 
                             throw new TransientException();
-                        });
+                        },
+                        cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 });
 
             Assert.True(4 <= times.Count && times.Count <= 7);

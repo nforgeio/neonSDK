@@ -161,16 +161,16 @@ namespace TestDeployment
                 SetDefaultHandlers(server);
                 server.Start();
 
-                await Task.Run(() => Assert.Equal("zero-profile", client.GetProfileValue("zero")));
-                await Task.Run(() => Assert.Equal("one-profile", client.GetProfileValue("one")));
-                await Task.Run(() => Assert.Equal("two-profile", client.GetProfileValue("two")));
-                await Task.Run(() => Assert.Equal("three-profile", client.GetProfileValue("three")));
-                await Task.Run(() => Assert.Equal("four-profile", client.GetProfileValue("four")));
-                await Task.Run(() => Assert.Equal("five-profile", client.GetProfileValue("five")));
-                await Task.Run(() => Assert.Equal("six-profile", client.GetProfileValue("six")));
-                await Task.Run(() => Assert.Equal("seven-profile", client.GetProfileValue("seven")));
-                await Task.Run(() => Assert.Equal("eight-profile", client.GetProfileValue("eight")));
-                await Task.Run(() => Assert.Equal("nine-profile", client.GetProfileValue("nine")));
+                await Task.Run(() => Assert.Equal("zero-profile", client.GetProfileValue("zero")), cancellationToken: Xunit.TestContext.Current.CancellationToken);
+                await Task.Run(() => Assert.Equal("one-profile", client.GetProfileValue("one")), cancellationToken: Xunit.TestContext.Current.CancellationToken);
+                await Task.Run(() => Assert.Equal("two-profile", client.GetProfileValue("two")), cancellationToken: Xunit.TestContext.Current.CancellationToken);
+                await Task.Run(() => Assert.Equal("three-profile", client.GetProfileValue("three")), cancellationToken: Xunit.TestContext.Current.CancellationToken);
+                await Task.Run(() => Assert.Equal("four-profile", client.GetProfileValue("four")), cancellationToken: Xunit.TestContext.Current.CancellationToken);
+                await Task.Run(() => Assert.Equal("five-profile", client.GetProfileValue("five")), cancellationToken: Xunit.TestContext.Current.CancellationToken);
+                await Task.Run(() => Assert.Equal("six-profile", client.GetProfileValue("six")), cancellationToken: Xunit.TestContext.Current.CancellationToken);
+                await Task.Run(() => Assert.Equal("seven-profile", client.GetProfileValue("seven")), cancellationToken: Xunit.TestContext.Current.CancellationToken);
+                await Task.Run(() => Assert.Equal("eight-profile", client.GetProfileValue("eight")), cancellationToken: Xunit.TestContext.Current.CancellationToken);
+                await Task.Run(() => Assert.Equal("nine-profile", client.GetProfileValue("nine")), cancellationToken: Xunit.TestContext.Current.CancellationToken);
             }
 
             // Verify that the server is able to handle multiple requests
@@ -181,16 +181,16 @@ namespace TestDeployment
                 SetDefaultHandlers(server);
                 server.Start();
 
-                await Task.Run(() => Assert.Equal("zero-profile", client.GetProfileValue("zero")));
-                await Task.Run(() => Assert.Equal("one-profile", client.GetProfileValue("one")));
-                await Task.Run(() => Assert.Equal("two-profile", client.GetProfileValue("two")));
-                await Task.Run(() => Assert.Equal("three-profile", client.GetProfileValue("three")));
-                await Task.Run(() => Assert.Equal("four-profile", client.GetProfileValue("four")));
-                await Task.Run(() => Assert.Equal("five-profile", client.GetProfileValue("five")));
-                await Task.Run(() => Assert.Equal("six-profile", client.GetProfileValue("six")));
-                await Task.Run(() => Assert.Equal("seven-profile", client.GetProfileValue("seven")));
-                await Task.Run(() => Assert.Equal("eight-profile", client.GetProfileValue("eight")));
-                await Task.Run(() => Assert.Equal("nine-profile", client.GetProfileValue("nine")));
+                await Task.Run(() => Assert.Equal("zero-profile", client.GetProfileValue("zero")), cancellationToken: Xunit.TestContext.Current.CancellationToken);
+                await Task.Run(() => Assert.Equal("one-profile", client.GetProfileValue("one")), cancellationToken: Xunit.TestContext.Current.CancellationToken);
+                await Task.Run(() => Assert.Equal("two-profile", client.GetProfileValue("two")), cancellationToken: Xunit.TestContext.Current.CancellationToken);
+                await Task.Run(() => Assert.Equal("three-profile", client.GetProfileValue("three")), cancellationToken: Xunit.TestContext.Current.CancellationToken);
+                await Task.Run(() => Assert.Equal("four-profile", client.GetProfileValue("four")), cancellationToken: Xunit.TestContext.Current.CancellationToken);
+                await Task.Run(() => Assert.Equal("five-profile", client.GetProfileValue("five")), cancellationToken: Xunit.TestContext.Current.CancellationToken);
+                await Task.Run(() => Assert.Equal("six-profile", client.GetProfileValue("six")), cancellationToken: Xunit.TestContext.Current.CancellationToken);
+                await Task.Run(() => Assert.Equal("seven-profile", client.GetProfileValue("seven")), cancellationToken: Xunit.TestContext.Current.CancellationToken);
+                await Task.Run(() => Assert.Equal("eight-profile", client.GetProfileValue("eight")), cancellationToken: Xunit.TestContext.Current.CancellationToken);
+                await Task.Run(() => Assert.Equal("nine-profile", client.GetProfileValue("nine")), cancellationToken: Xunit.TestContext.Current.CancellationToken);
             }
         }
 

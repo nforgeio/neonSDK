@@ -104,7 +104,7 @@ INSERT INTO enumerate_table (value) values (9);
         {
             var values = new HashSet<int>();
 
-            using (var reader = await postgres.ExecuteReaderAsync("SELECT value FROM enumerate_table;"))
+            using (var reader = await postgres.ExecuteReaderAsync("SELECT value FROM enumerate_table;", cancellationToken: Xunit.TestContext.Current.CancellationToken))
             {
                 await foreach (var row in reader.ToAsyncEnumerable())
                 {
@@ -125,7 +125,7 @@ INSERT INTO enumerate_table (value) values (9);
             var command         = preparedCommand.Clone();
             var values          = new HashSet<int>();
 
-            using (var reader = await command.ExecuteReaderAsync())
+            using (var reader = await command.ExecuteReaderAsync(cancellationToken: Xunit.TestContext.Current.CancellationToken))
             {
                 await foreach (var row in reader.ToAsyncEnumerable())
                 {
@@ -153,7 +153,7 @@ INSERT INTO enumerate_table (value) values (9);
 
             command.Parameters["value"].Value = 5;
 
-            using (var reader = await command.ExecuteReaderAsync())
+            using (var reader = await command.ExecuteReaderAsync(cancellationToken: Xunit.TestContext.Current.CancellationToken))
             {
                 await foreach (var row in reader.ToAsyncEnumerable())
                 {

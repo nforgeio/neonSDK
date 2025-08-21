@@ -94,15 +94,15 @@ namespace TestXunit
             {
                 var jack = new Person()
                 {
-                    Id = 1,
+                    Id   = 1,
                     Name = "Jack",
-                    Age = 10,
+                    Age  = 10,
                     Data = new byte[] { 0, 1, 2, 3, 4 }
                 };
 
                 connection.Publish("subject", jack);
 
-                NeonHelper.WaitFor(() => received != null, TimeSpan.FromSeconds(5));
+                NeonHelper.WaitFor(() => received != null, TimeSpan.FromSeconds(5), cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 Assert.True(received.Data == jack);
             }
         }
@@ -133,7 +133,7 @@ namespace TestXunit
 
                 connection.Publish("subject", jack);
 
-                NeonHelper.WaitFor(() => received != null, TimeSpan.FromSeconds(5));
+                NeonHelper.WaitFor(() => received != null, TimeSpan.FromSeconds(5), cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 Assert.True(received.Data == jack);
             }
         }
@@ -154,15 +154,15 @@ namespace TestXunit
             {
                 var jack = new Person()
                 {
-                    Id = 1,
+                    Id   = 1,
                     Name = "Jack",
-                    Age = 10,
+                    Age  = 10,
                     Data = new byte[] { 0, 1, 2, 3, 4 }
                 };
 
                 connection.Publish("subject", jack);
 
-                NeonHelper.WaitFor(() => received != null, TimeSpan.FromSeconds(5));
+                NeonHelper.WaitFor(() => received != null, TimeSpan.FromSeconds(5), cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 Assert.True(received.Data == jack);
             }
         }
@@ -193,7 +193,7 @@ namespace TestXunit
 
                 connection.Publish("subject", jack);
 
-                NeonHelper.WaitFor(() => received != null, TimeSpan.FromSeconds(5));
+                NeonHelper.WaitFor(() => received != null, TimeSpan.FromSeconds(5), cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 Assert.True(received.Data == jack);
             }
         }
@@ -222,7 +222,7 @@ namespace TestXunit
 
                 connection.Publish("subject", jack);
 
-                NeonHelper.WaitFor(() => received != null, TimeSpan.FromSeconds(5));
+                NeonHelper.WaitFor(() => received != null, TimeSpan.FromSeconds(5), cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 Assert.True(received.Data == jack);
             }
         }
@@ -256,7 +256,7 @@ namespace TestXunit
                         ackReceived = true;
                     });
 
-                NeonHelper.WaitFor(() => received != null && ackReceived, TimeSpan.FromSeconds(5));
+                NeonHelper.WaitFor(() => received != null && ackReceived, TimeSpan.FromSeconds(5), cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 Assert.True(received.Data == jack);
             }
         }
@@ -285,7 +285,7 @@ namespace TestXunit
 
                 await connection.PublishAsync("subject", jack);
 
-                NeonHelper.WaitFor(() => received != null, TimeSpan.FromSeconds(5));
+                NeonHelper.WaitFor(() => received != null, TimeSpan.FromSeconds(5), cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 Assert.True(received.Data == jack);
             }
         }

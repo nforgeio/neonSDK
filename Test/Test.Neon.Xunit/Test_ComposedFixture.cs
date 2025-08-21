@@ -156,7 +156,7 @@ namespace TestXunit
 
             using (var client = new HttpClient() { BaseAddress = aspNetFixture.BaseAddress })
             {
-                Assert.Equal("World!", await client.GetStringAsync("Hello"));
+                Assert.Equal("World!", await client.GetStringAsync("Hello", cancellationToken: Xunit.TestContext.Current.CancellationToken));
             }
 
             // Verify the ContainerFixture.

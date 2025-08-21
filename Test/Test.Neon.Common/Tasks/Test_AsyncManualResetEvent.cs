@@ -56,9 +56,10 @@ namespace TestCommon
                     taskRunning = true;
                     await manualEvent.WaitAsync();
                     taskCompleted = true;
-                });
+                },
+                cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
-                NeonHelper.WaitFor(() => taskRunning, defaultTimeout);
+                NeonHelper.WaitFor(() => taskRunning, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 Thread.Sleep(TimeSpan.FromSeconds(5));
                 Assert.False(taskCompleted);
             }
@@ -76,9 +77,10 @@ namespace TestCommon
                     taskRunning = true;
                     await manualEvent.WaitAsync();
                     taskCompleted = true;
-                });
+                },
+                cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
-                NeonHelper.WaitFor(() => taskCompleted, defaultTimeout);
+                NeonHelper.WaitFor(() => taskCompleted, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
             }
 
             // Verify that an event that starts out unsignalled and is subsequently
@@ -94,12 +96,13 @@ namespace TestCommon
                     taskRunning = true;
                     await manualEvent.WaitAsync();
                     taskCompleted = true;
-                });
+                },
+                cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
-                NeonHelper.WaitFor(() => taskRunning, defaultTimeout);
+                NeonHelper.WaitFor(() => taskRunning, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 Assert.False(taskCompleted);
                 manualEvent.Set();
-                NeonHelper.WaitFor(() => taskCompleted, defaultTimeout);
+                NeonHelper.WaitFor(() => taskCompleted, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
             }
 
             // Verify that an event that can be signalled while already signalled
@@ -115,15 +118,16 @@ namespace TestCommon
                     taskRunning = true;
                     await manualEvent.WaitAsync();
                     taskCompleted = true;
-                });
+                },
+                cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
-                NeonHelper.WaitFor(() => taskRunning, defaultTimeout);
+                NeonHelper.WaitFor(() => taskRunning, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 Assert.False(taskCompleted);
                 manualEvent.Set();
                 manualEvent.Set();
                 manualEvent.Set();
                 manualEvent.Set();
-                NeonHelper.WaitFor(() => taskCompleted, defaultTimeout);
+                NeonHelper.WaitFor(() => taskCompleted, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
             }
 
             // Verify that an event that starts out unsignalled is subsequently
@@ -141,12 +145,13 @@ namespace TestCommon
                     taskRunning = true;
                     await manualEvent.WaitAsync();
                     taskCompleted = true;
-                });
+                },
+                cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
-                NeonHelper.WaitFor(() => taskRunning, defaultTimeout);
+                NeonHelper.WaitFor(() => taskRunning, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 Assert.False(taskCompleted);
                 manualEvent.Set();
-                NeonHelper.WaitFor(() => taskCompleted, defaultTimeout);
+                NeonHelper.WaitFor(() => taskCompleted, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
                 // Verify that we can another task won't block on the already 
                 // signalled event.
@@ -159,10 +164,11 @@ namespace TestCommon
                     taskRunning = true;
                     await manualEvent.WaitAsync();
                     taskCompleted = true;
-                });
+                },
+                cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
-                NeonHelper.WaitFor(() => taskRunning, defaultTimeout);
-                NeonHelper.WaitFor(() => taskCompleted, TimeSpan.FromSeconds(5));
+                NeonHelper.WaitFor(() => taskRunning, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
+                NeonHelper.WaitFor(() => taskCompleted, TimeSpan.FromSeconds(5), cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 Assert.True(taskCompleted);
 
                 // Now reset the event and verify that the next task blocks.
@@ -177,9 +183,10 @@ namespace TestCommon
                     taskRunning = true;
                     await manualEvent.WaitAsync();
                     taskCompleted = true;
-                });
+                },
+                cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
-                NeonHelper.WaitFor(() => taskRunning, defaultTimeout);
+                NeonHelper.WaitFor(() => taskRunning, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 Thread.Sleep(TimeSpan.FromSeconds(5));
                 Assert.False(taskCompleted);
             }
@@ -198,11 +205,12 @@ namespace TestCommon
                         taskRunning = true;
                         await manualEvent.WaitAsync();
                         taskCompleted = true;
-                    });
+                    },
+                    cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
-                    NeonHelper.WaitFor(() => taskRunning, defaultTimeout);
+                    NeonHelper.WaitFor(() => taskRunning, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
                     manualEvent.Set();
-                    NeonHelper.WaitFor(() => taskCompleted, defaultTimeout);
+                    NeonHelper.WaitFor(() => taskCompleted, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
                     manualEvent.Reset();
                 }
@@ -333,7 +341,7 @@ namespace TestCommon
                         i).Start();
                 }
 
-                NeonHelper.WaitFor(() => taskInfo.AllRunning, defaultTimeout);
+                NeonHelper.WaitFor(() => taskInfo.AllRunning, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 Thread.Sleep(TimeSpan.FromSeconds(5));
                 Assert.False(taskInfo.AnyComplete);
             }
@@ -359,8 +367,8 @@ namespace TestCommon
                         i).Start();
                 }
 
-                NeonHelper.WaitFor(() => taskInfo.AllRunning, defaultTimeout);
-                NeonHelper.WaitFor(() => taskInfo.AllComplete, defaultTimeout);
+                NeonHelper.WaitFor(() => taskInfo.AllRunning, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
+                NeonHelper.WaitFor(() => taskInfo.AllComplete, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
             }
 
             // Verify that an event that starts out unsignalled and is subsequently
@@ -384,10 +392,10 @@ namespace TestCommon
                         i).Start();
                 }
 
-                NeonHelper.WaitFor(() => taskInfo.AllRunning, defaultTimeout);
+                NeonHelper.WaitFor(() => taskInfo.AllRunning, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 Assert.False(taskInfo.AnyComplete);
                 manualEvent.Set();
-                NeonHelper.WaitFor(() => taskInfo.AllComplete, defaultTimeout);
+                NeonHelper.WaitFor(() => taskInfo.AllComplete, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
             }
 
             // Verify that we can reuse an event multiple times for multiple tasks.
@@ -412,10 +420,10 @@ namespace TestCommon
                             i).Start();
                     }
 
-                    NeonHelper.WaitFor(() => taskInfo.AllRunning, defaultTimeout);
+                    NeonHelper.WaitFor(() => taskInfo.AllRunning, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
                     Assert.False(taskInfo.AnyComplete);
                     manualEvent.Set();
-                    NeonHelper.WaitFor(() => taskInfo.AllComplete, defaultTimeout);
+                    NeonHelper.WaitFor(() => taskInfo.AllComplete, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
                     manualEvent.Reset();
                 }
             }
@@ -472,12 +480,12 @@ namespace TestCommon
                     i).Start();
             }
 
-            NeonHelper.WaitFor(() => taskInfo.AllRunning, defaultTimeout);
+            NeonHelper.WaitFor(() => taskInfo.AllRunning, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
             Assert.False(taskInfo.AnyComplete);
 
             manualEvent.Dispose();
 
-            NeonHelper.WaitFor(() => taskInfo.AllFaulted, defaultTimeout);
+            NeonHelper.WaitFor(() => taskInfo.AllFaulted, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
             Assert.False(badException);
         }
     }

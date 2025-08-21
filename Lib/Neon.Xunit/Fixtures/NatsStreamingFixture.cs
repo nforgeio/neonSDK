@@ -30,12 +30,13 @@ using NATS.Client;
 using STAN.Client;
 
 using Newtonsoft.Json.Linq;
-using Xunit;
 
 using Neon.Common;
 using Neon.Data;
 using Neon.Retry;
 using Neon.Net;
+
+using Xunit;
 
 namespace Neon.Xunit
 {

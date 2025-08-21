@@ -41,7 +41,6 @@ using Test.Neon.UxModels;
 using Newtonsoft.Json.Linq;
 
 using Xunit;
-using Xunit.Abstractions;
 
 namespace TestModelGen.UxAspNet
 {
@@ -320,9 +319,9 @@ namespace TestModelGen.UxAspNet
         [Fact]
         public async Task GetString()
         {
-            Assert.Equal("Hello World!", await client.GetStringAsync("Hello World!"));
-            Assert.Equal("Goodbye World!", await client.GetStringAsync("Goodbye World!"));
-            Assert.Null(await client.GetStringAsync(null));
+            Assert.Equal("Hello World!", await client.GetStringAsync("Hello World!", _cancellationToken: Xunit.TestContext.Current.CancellationToken));
+            Assert.Equal("Goodbye World!", await client.GetStringAsync("Goodbye World!", _cancellationToken: Xunit.TestContext.Current.CancellationToken));
+            Assert.Null(await client.GetStringAsync(null, _cancellationToken: Xunit.TestContext.Current.CancellationToken));
 
             // $todo(jefflill):
             //
@@ -337,38 +336,38 @@ namespace TestModelGen.UxAspNet
             //
             //      Assert.Equal("", await client.GetStringAsync(""));
 
-            Assert.Null(await client.GetStringAsync(""));
+            Assert.Null(await client.GetStringAsync("", _cancellationToken: Xunit.TestContext.Current.CancellationToken));
         }
 
         [Fact]
         public async Task GetBool()
         {
-            Assert.True(await client.GetBoolAsync(true));
-            Assert.False(await client.GetBoolAsync(false));
+            Assert.True(await client.GetBoolAsync(true, _cancellationToken: Xunit.TestContext.Current.CancellationToken));
+            Assert.False(await client.GetBoolAsync(false, _cancellationToken: Xunit.TestContext.Current.CancellationToken));
         }
 
         [Fact]
         public async Task GetInt()
         {
-            Assert.Equal(0, await client.GetIntAsync(0));
-            Assert.Equal(100, await client.GetIntAsync(100));
-            Assert.Equal(-100, await client.GetIntAsync(-100));
+            Assert.Equal(0, await client.GetIntAsync(0, _cancellationToken: Xunit.TestContext.Current.CancellationToken));
+            Assert.Equal(100, await client.GetIntAsync(100, _cancellationToken: Xunit.TestContext.Current.CancellationToken));
+            Assert.Equal(-100, await client.GetIntAsync(-100, _cancellationToken: Xunit.TestContext.Current.CancellationToken));
         }
 
         [Fact]
         public async Task GetDouble()
         {
-            Assert.Equal(0, await client.GetDoubleAsync(0));
-            Assert.Equal(1.234, await client.GetDoubleAsync(1.234));
-            Assert.Equal(-1.234, await client.GetDoubleAsync(-1.234));
+            Assert.Equal(0, await client.GetDoubleAsync(0, _cancellationToken: Xunit.TestContext.Current.CancellationToken));
+            Assert.Equal(1.234, await client.GetDoubleAsync(1.234, _cancellationToken: Xunit.TestContext.Current.CancellationToken));
+            Assert.Equal(-1.234, await client.GetDoubleAsync(-1.234, _cancellationToken: Xunit.TestContext.Current.CancellationToken));
         }
 
         [Fact]
         public async Task GetTimeSpan()
         {
-            Assert.Equal(TimeSpan.Zero, await client.GetTimeSpanAsync(TimeSpan.Zero));
-            Assert.Equal(TimeSpan.FromDays(2.3456), await client.GetTimeSpanAsync(TimeSpan.FromDays(2.3456)));
-            Assert.Equal(TimeSpan.FromDays(-2.3456), await client.GetTimeSpanAsync(TimeSpan.FromDays(-2.3456)));
+            Assert.Equal(TimeSpan.Zero, await client.GetTimeSpanAsync(TimeSpan.Zero, _cancellationToken: Xunit.TestContext.Current.CancellationToken));
+            Assert.Equal(TimeSpan.FromDays(2.3456), await client.GetTimeSpanAsync(TimeSpan.FromDays(2.3456), _cancellationToken: Xunit.TestContext.Current.CancellationToken));
+            Assert.Equal(TimeSpan.FromDays(-2.3456), await client.GetTimeSpanAsync(TimeSpan.FromDays(-2.3456), _cancellationToken: Xunit.TestContext.Current.CancellationToken));
         }
 
         [Fact]
@@ -376,13 +375,13 @@ namespace TestModelGen.UxAspNet
         {
             var version = new Version(1, 2, 3);
 
-            Assert.Equal(version, await client.GetVersionAsync(version));
+            Assert.Equal(version, await client.GetVersionAsync(version, _cancellationToken: Xunit.TestContext.Current.CancellationToken));
         }
 
         [Fact]
         public async Task CreatePerson()
         {
-            var person = await client.CreatePersonAsync(10, "Jeff", 58, Gender.Male);
+            var person = await client.CreatePersonAsync(10, "Jeff", 58, Gender.Male, _cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
             Assert.Equal(10, person.Id);
             Assert.Equal("Jeff", person.Name);
@@ -401,7 +400,7 @@ namespace TestModelGen.UxAspNet
                 Gender = Gender.Male
             };
 
-            var modified = await client.IncrementAgeAsync(person);
+            var modified = await client.IncrementAgeAsync(person, _cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
             Assert.Equal(10, modified.Id);
             Assert.Equal("Jeff", modified.Name);
@@ -431,42 +430,42 @@ namespace TestModelGen.UxAspNet
         [Fact]
         public async Task OptionalParams()
         {
-            Assert.Null(await client.GetOptionalStringViaHeader_NullAsync());
-            Assert.Equal("Goodbye World!", await client.GetOptionalStringViaHeader_ValueAsync("Goodbye World!"));
-            Assert.Equal("Hello World!", await client.GetOptionalStringViaHeader_ValueAsync());
-            Assert.Equal("Goodbye World!", await client.GetOptionalStringViaHeader_ValueAsync("Goodbye World!"));
+            Assert.Null(await client.GetOptionalStringViaHeader_NullAsync(_cancellationToken: Xunit.TestContext.Current.CancellationToken));
+            Assert.Equal("Goodbye World!", await client.GetOptionalStringViaHeader_ValueAsync("Goodbye World!", _cancellationToken: Xunit.TestContext.Current.CancellationToken));
+            Assert.Equal("Hello World!", await client.GetOptionalStringViaHeader_ValueAsync(_cancellationToken: Xunit.TestContext.Current.CancellationToken));
+            Assert.Equal("Goodbye World!", await client.GetOptionalStringViaHeader_ValueAsync("Goodbye World!", _cancellationToken: Xunit.TestContext.Current.CancellationToken));
 
-            Assert.Null((await client.UnsafeGetOptionalStringViaHeader_NullAsync()).As<string>());
-            Assert.Equal("Goodbye World!", (await client.UnsafeGetOptionalStringViaHeader_NullAsync("Goodbye World!")).As<string>());
-            Assert.Equal("Hello World!", (await client.UnsafeGetOptionalStringViaHeader_ValueAsync()).As<string>());
-            Assert.Equal("Goodbye World!", (await client.UnsafeGetOptionalStringViaHeader_ValueAsync("Goodbye World!")).As<string>());
+            Assert.Null((await client.UnsafeGetOptionalStringViaHeader_NullAsync(_cancellationToken: Xunit.TestContext.Current.CancellationToken)).As<string>());
+            Assert.Equal("Goodbye World!", (await client.UnsafeGetOptionalStringViaHeader_NullAsync("Goodbye World!", _cancellationToken: Xunit.TestContext.Current.CancellationToken)).As<string>());
+            Assert.Equal("Hello World!", (await client.UnsafeGetOptionalStringViaHeader_ValueAsync(_cancellationToken: Xunit.TestContext.Current.CancellationToken)).As<string>());
+            Assert.Equal("Goodbye World!", (await client.UnsafeGetOptionalStringViaHeader_ValueAsync("Goodbye World!", _cancellationToken: Xunit.TestContext.Current.CancellationToken)).As<string>());
 
-            Assert.Equal(MyEnum.Three, await client.GetOptionalEnumViaHeaderAsync());
-            Assert.Equal(MyEnum.Two, await client.GetOptionalEnumViaHeaderAsync(MyEnum.Two));
-            Assert.Equal(MyEnum.Three, (await client.UnsafeGetOptionalEnumViaHeaderAsync()).As<MyEnum>());
-            Assert.Equal(MyEnum.Two, (await client.UnsafeGetOptionalEnumViaHeaderAsync(MyEnum.Two)).As<MyEnum>());
+            Assert.Equal(MyEnum.Three, await client.GetOptionalEnumViaHeaderAsync(_cancellationToken: Xunit.TestContext.Current.CancellationToken));
+            Assert.Equal(MyEnum.Two, await client.GetOptionalEnumViaHeaderAsync(MyEnum.Two, _cancellationToken: Xunit.TestContext.Current.CancellationToken));
+            Assert.Equal(MyEnum.Three, (await client.UnsafeGetOptionalEnumViaHeaderAsync(_cancellationToken: Xunit.TestContext.Current.CancellationToken)).As<MyEnum>());
+            Assert.Equal(MyEnum.Two, (await client.UnsafeGetOptionalEnumViaHeaderAsync(MyEnum.Two, _cancellationToken: Xunit.TestContext.Current.CancellationToken)).As<MyEnum>());
 
-            Assert.Equal(1.234, await client.GetOptionalDoubleViaHeaderAsync());
-            Assert.Equal(2.345, await client.GetOptionalDoubleViaHeaderAsync(2.345));
-            Assert.Equal(1.234, (await client.UnsafeGetOptionalDoubleViaHeaderAsync()).As<double>());
-            Assert.Equal(2.345, (await client.UnsafeGetOptionalDoubleViaHeaderAsync(2.345)).As<double>());
+            Assert.Equal(1.234, await client.GetOptionalDoubleViaHeaderAsync(_cancellationToken: Xunit.TestContext.Current.CancellationToken));
+            Assert.Equal(2.345, await client.GetOptionalDoubleViaHeaderAsync(2.345, _cancellationToken: Xunit.TestContext.Current.CancellationToken));
+            Assert.Equal(1.234, (await client.UnsafeGetOptionalDoubleViaHeaderAsync(_cancellationToken: Xunit.TestContext.Current.CancellationToken)).As<double>());
+            Assert.Equal(2.345, (await client.UnsafeGetOptionalDoubleViaHeaderAsync(2.345, _cancellationToken: Xunit.TestContext.Current.CancellationToken)).As<double>());
 
-            Assert.Equal(1.234, await client.GetOptionalDoubleViaBodyAsync());
-            Assert.Equal(2.345, await client.GetOptionalDoubleViaBodyAsync(2.345));
-            Assert.Equal(1.234, (await client.UnsafeGetOptionalDoubleViaBodyAsync()).As<double>());
-            Assert.Equal(2.345, (await client.UnsafeGetOptionalDoubleViaBodyAsync(2.345)).As<double>());
+            Assert.Equal(1.234, await client.GetOptionalDoubleViaBodyAsync(_cancellationToken: Xunit.TestContext.Current.CancellationToken));
+            Assert.Equal(2.345, await client.GetOptionalDoubleViaBodyAsync(2.345, _cancellationToken: Xunit.TestContext.Current.CancellationToken));
+            Assert.Equal(1.234, (await client.UnsafeGetOptionalDoubleViaBodyAsync(_cancellationToken: Xunit.TestContext.Current.CancellationToken)).As<double>());
+            Assert.Equal(2.345, (await client.UnsafeGetOptionalDoubleViaBodyAsync(2.345, _cancellationToken: Xunit.TestContext.Current.CancellationToken)).As<double>());
 
-            Assert.Equal("Hello World!", await client.GetOptionalStringViaBodyAsync());
-            Assert.Equal("Goodbye World!", await client.GetOptionalStringViaBodyAsync("Goodbye World!"));
-            Assert.Equal("Hello World!", (await client.UnsafeGetOptionalStringViaBodyAsync()).As<string>());
-            Assert.Equal("Goodbye World!", (await client.UnsafeGetOptionalStringViaBodyAsync("Goodbye World!")).As<string>());
+            Assert.Equal("Hello World!", await client.GetOptionalStringViaBodyAsync(_cancellationToken: Xunit.TestContext.Current.CancellationToken));
+            Assert.Equal("Goodbye World!", await client.GetOptionalStringViaBodyAsync("Goodbye World!", _cancellationToken: Xunit.TestContext.Current.CancellationToken));
+            Assert.Equal("Hello World!", (await client.UnsafeGetOptionalStringViaBodyAsync(_cancellationToken: Xunit.TestContext.Current.CancellationToken)).As<string>());
+            Assert.Equal("Goodbye World!", (await client.UnsafeGetOptionalStringViaBodyAsync("Goodbye World!", _cancellationToken: Xunit.TestContext.Current.CancellationToken)).As<string>());
         }
 
         [Fact]
         public async Task GetStringList()
         {
-            Assert.Null(await client.GetStringListAsync(null));
-            Assert.Empty(await client.GetStringListAsync(new ObservableCollection<string>()));
+            Assert.Null(await client.GetStringListAsync(null, _cancellationToken: Xunit.TestContext.Current.CancellationToken));
+            Assert.Empty(await client.GetStringListAsync(new ObservableCollection<string>(), _cancellationToken: Xunit.TestContext.Current.CancellationToken));
 
             var list = new ObservableCollection<string>();
 
@@ -474,14 +473,14 @@ namespace TestModelGen.UxAspNet
             list.Add("one");
             list.Add("two");
 
-            Assert.Equal(list, await client.GetStringListAsync(list));
+            Assert.Equal(list, await client.GetStringListAsync(list, _cancellationToken: Xunit.TestContext.Current.CancellationToken));
         }
 
         [Fact]
         public async Task GetPersonList()
         {
-            Assert.Null(await client.GetPersonListAsync(null));
-            Assert.Empty(await client.GetPersonListAsync(new ObservableCollection<Person>()));
+            Assert.Null(await client.GetPersonListAsync(null, _cancellationToken: Xunit.TestContext.Current.CancellationToken));
+            Assert.Empty(await client.GetPersonListAsync(new ObservableCollection<Person>(), _cancellationToken: Xunit.TestContext.Current.CancellationToken));
 
             var list = new ObservableCollection<Person>();
 
@@ -503,14 +502,14 @@ namespace TestModelGen.UxAspNet
                 Data = new byte[] { 5, 6, 7, 8, 9 }
             });
 
-            Assert.Equal(list, await client.GetPersonListAsync(list));
+            Assert.Equal(list, await client.GetPersonListAsync(list, _cancellationToken: Xunit.TestContext.Current.CancellationToken));
         }
 
         [Fact]
         public async Task GetPersonArray()
         {
-            Assert.Null(await client.GetPersonArrayAsync(null));
-            Assert.Empty(await client.GetPersonArrayAsync(new Person[0]));
+            Assert.Null(await client.GetPersonArrayAsync(null, _cancellationToken: Xunit.TestContext.Current.CancellationToken));
+            Assert.Empty(await client.GetPersonArrayAsync(new Person[0], _cancellationToken: Xunit.TestContext.Current.CancellationToken));
 
             var list = new Person[]
             {
@@ -532,7 +531,7 @@ namespace TestModelGen.UxAspNet
                 }
             };
 
-            Assert.Equal(list, await client.GetPersonArrayAsync(list));
+            Assert.Equal(list, await client.GetPersonArrayAsync(list, _cancellationToken: Xunit.TestContext.Current.CancellationToken));
         }
 
         [Fact]

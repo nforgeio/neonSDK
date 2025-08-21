@@ -93,14 +93,15 @@ namespace TestCommon
                     {
                         haveLock = true;
                     }
-                });
+                },
+                cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
-            NeonHelper.WaitFor(() => inTask, defaultTimeout);
-            await Task.Delay(taskWait);
+            NeonHelper.WaitFor(() => inTask, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
+            await Task.Delay(taskWait, cancellationToken: Xunit.TestContext.Current.CancellationToken);
             Assert.False(haveLock);
 
             readLock.Dispose();
-            NeonHelper.WaitFor(() => haveLock, defaultTimeout);
+            NeonHelper.WaitFor(() => haveLock, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
             rwLock.Dispose();
         }
@@ -126,14 +127,15 @@ namespace TestCommon
                     {
                         haveLock = true;
                     }
-                });
+                },
+                cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
-            NeonHelper.WaitFor(() => inTask, defaultTimeout);
-            await Task.Delay(taskWait);
+            NeonHelper.WaitFor(() => inTask, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
+            await Task.Delay(taskWait, cancellationToken: Xunit.TestContext.Current.CancellationToken);
             Assert.True(haveLock);
 
             readLock.Dispose();
-            NeonHelper.WaitFor(() => haveLock, defaultTimeout);
+            NeonHelper.WaitFor(() => haveLock, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
             rwLock.Dispose();
         }
@@ -159,14 +161,15 @@ namespace TestCommon
                     {
                         haveLock = true;
                     }
-                });
+                },
+                cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
-            NeonHelper.WaitFor(() => inTask, defaultTimeout);
-            await Task.Delay(taskWait);
+            NeonHelper.WaitFor(() => inTask, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
+            await Task.Delay(taskWait, cancellationToken: Xunit.TestContext.Current.CancellationToken);
             Assert.False(haveLock);
 
             writeLock.Dispose();
-            NeonHelper.WaitFor(() => haveLock, defaultTimeout);
+            NeonHelper.WaitFor(() => haveLock, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
             rwLock.Dispose();
         }
@@ -195,15 +198,16 @@ namespace TestCommon
                         {
                             Interlocked.Increment(ref acquireCount);
                         }
-                    });
+                    },
+                    cancellationToken: Xunit.TestContext.Current.CancellationToken);
             }
 
-            NeonHelper.WaitFor(() => waitCount == readerCount, defaultTimeout);
-            await Task.Delay(taskWait);
+            NeonHelper.WaitFor(() => waitCount == readerCount, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
+            await Task.Delay(taskWait, cancellationToken: Xunit.TestContext.Current.CancellationToken);
             Assert.Equal(0, acquireCount);
 
             writeLock.Dispose();
-            NeonHelper.WaitFor(() => acquireCount == readerCount, defaultTimeout);
+            NeonHelper.WaitFor(() => acquireCount == readerCount, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
             rwLock.Dispose();
         }
@@ -237,15 +241,16 @@ namespace TestCommon
 
                         Interlocked.Increment(ref acquireCount);
                         testLock.Dispose();
-                    });
+                    },
+                    cancellationToken: Xunit.TestContext.Current.CancellationToken);
             }
 
-            NeonHelper.WaitFor(() => waitCount == writerCount, defaultTimeout);
-            await Task.Delay(taskWait);
+            NeonHelper.WaitFor(() => waitCount == writerCount, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
+            await Task.Delay(taskWait, cancellationToken: Xunit.TestContext.Current.CancellationToken);
             Assert.Equal(0, acquireCount);
 
             writeLock.Dispose();
-            NeonHelper.WaitFor(() => acquireCount == writerCount, defaultTimeout);
+            NeonHelper.WaitFor(() => acquireCount == writerCount, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
             rwLock.Dispose();
         }
@@ -307,14 +312,15 @@ namespace TestCommon
                             haveLock = true;
 
                             writeLock.Dispose();
-                        });
+                        },
+                        cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
-                    NeonHelper.WaitFor(() => inTask, defaultTimeout);
-                    await Task.Delay(taskWait);
+                    NeonHelper.WaitFor(() => inTask, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
+                    await Task.Delay(taskWait, cancellationToken: Xunit.TestContext.Current.CancellationToken);
                     Assert.False(haveLock);
 
                     readLock.Dispose();
-                    NeonHelper.WaitFor(() => haveLock, defaultTimeout);
+                    NeonHelper.WaitFor(() => haveLock, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 }
             }
         }
@@ -342,14 +348,15 @@ namespace TestCommon
                             {
                                 haveLock = true;
                             }
-                        });
+                        },
+                        cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
-                    NeonHelper.WaitFor(() => inTask, defaultTimeout);
-                    await Task.Delay(taskWait);
+                    NeonHelper.WaitFor(() => inTask, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
+                    await Task.Delay(taskWait, cancellationToken: Xunit.TestContext.Current.CancellationToken);
                     Assert.True(haveLock);
 
                     readLock.Dispose();
-                    NeonHelper.WaitFor(() => haveLock, defaultTimeout);
+                    NeonHelper.WaitFor(() => haveLock, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 }
             }
         }
@@ -377,14 +384,15 @@ namespace TestCommon
                             {
                                 haveLock = true;
                             }
-                        });
+                        },
+                        cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
-                    NeonHelper.WaitFor(() => inTask, defaultTimeout);
-                    await Task.Delay(taskWait);
+                    NeonHelper.WaitFor(() => inTask, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
+                    await Task.Delay(taskWait, cancellationToken: Xunit.TestContext.Current.CancellationToken);
                     Assert.False(haveLock);
 
                     writeLock.Dispose();
-                    NeonHelper.WaitFor(() => haveLock, defaultTimeout);
+                    NeonHelper.WaitFor(() => haveLock, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 }
             }
         }
@@ -416,15 +424,16 @@ namespace TestCommon
                                 {
                                     Interlocked.Increment(ref acquireCount);
                                 }
-                            });
+                            },
+                            cancellationToken: Xunit.TestContext.Current.CancellationToken);
                     }
 
-                    NeonHelper.WaitFor(() => waitCount == readerCount, defaultTimeout);
-                    await Task.Delay(taskWait);
+                    NeonHelper.WaitFor(() => waitCount == readerCount, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
+                    await Task.Delay(taskWait, cancellationToken: Xunit.TestContext.Current.CancellationToken);
                     Assert.Equal(0, acquireCount);
 
                     writeLock.Dispose();
-                    NeonHelper.WaitFor(() => acquireCount == readerCount, defaultTimeout);
+                    NeonHelper.WaitFor(() => acquireCount == readerCount, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 }
             }
         }
@@ -456,15 +465,16 @@ namespace TestCommon
                                 {
                                     Interlocked.Increment(ref acquireCount);
                                 }
-                            });
+                            },
+                            cancellationToken: Xunit.TestContext.Current.CancellationToken);
                     }
 
-                    NeonHelper.WaitFor(() => waitCount == writerCount, defaultTimeout);
-                    await Task.Delay(taskWait);
+                    NeonHelper.WaitFor(() => waitCount == writerCount, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
+                    await Task.Delay(taskWait, cancellationToken: Xunit.TestContext.Current.CancellationToken);
                     Assert.Equal(0, acquireCount);
 
                     writeLock.Dispose();
-                    NeonHelper.WaitFor(() => acquireCount == writerCount, defaultTimeout);
+                    NeonHelper.WaitFor(() => acquireCount == writerCount, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 }
             }
         }
@@ -485,7 +495,7 @@ namespace TestCommon
 
             using (await rwLock.GetReadLockAsync())
             {
-                await Task.Delay(250);
+                await Task.Delay(250, cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 haveLock = true;
             }
 
@@ -499,7 +509,7 @@ namespace TestCommon
 
             using (await rwLock.GetWriteLockAsync())
             {
-                await Task.Delay(250);
+                await Task.Delay(250, cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 haveLock = true;
             }
 
@@ -530,14 +540,15 @@ namespace TestCommon
                         await Task.Delay(250);
                         haveLock = true;
                     }
-                });
+                },
+                cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
-            NeonHelper.WaitFor(() => inTask, defaultTimeout);
-            await Task.Delay(taskWait);
+            NeonHelper.WaitFor(() => inTask, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
+            await Task.Delay(taskWait, cancellationToken: Xunit.TestContext.Current.CancellationToken);
             Assert.False(haveLock);
 
             readLock.Dispose();
-            NeonHelper.WaitFor(() => haveLock, defaultTimeout);
+            NeonHelper.WaitFor(() => haveLock, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
             rwLock.Dispose();
         }
@@ -564,14 +575,15 @@ namespace TestCommon
                         await Task.Delay(250);
                         haveLock = true;
                     }
-                });
+                },
+                cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
-            NeonHelper.WaitFor(() => inTask, defaultTimeout);
-            await Task.Delay(taskWait);
+            NeonHelper.WaitFor(() => inTask, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
+            await Task.Delay(taskWait, cancellationToken: Xunit.TestContext.Current.CancellationToken);
             Assert.True(haveLock);
 
             readLock.Dispose();
-            NeonHelper.WaitFor(() => haveLock, defaultTimeout);
+            NeonHelper.WaitFor(() => haveLock, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
             rwLock.Dispose();
         }
@@ -599,14 +611,15 @@ namespace TestCommon
                         await Task.Delay(250);
                         haveLock = true;
                     }
-                });
+                },
+                cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
-            NeonHelper.WaitFor(() => inTask, defaultTimeout);
-            await Task.Delay(taskWait);
+            NeonHelper.WaitFor(() => inTask, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
+            await Task.Delay(taskWait, cancellationToken: Xunit.TestContext.Current.CancellationToken);
             Assert.False(haveLock);
 
             writeLock.Dispose();
-            NeonHelper.WaitFor(() => haveLock, defaultTimeout);
+            NeonHelper.WaitFor(() => haveLock, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
             rwLock.Dispose();
         }
@@ -637,15 +650,16 @@ namespace TestCommon
                             await Task.Delay(100);
                             Interlocked.Increment(ref acquireCount);
                         }
-                    });
+                    },
+                    cancellationToken: Xunit.TestContext.Current.CancellationToken);
             }
 
-            NeonHelper.WaitFor(() => waitCount == readerCount, defaultTimeout);
-            await Task.Delay(taskWait);
+            NeonHelper.WaitFor(() => waitCount == readerCount, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
+            await Task.Delay(taskWait, cancellationToken: Xunit.TestContext.Current.CancellationToken);
             Assert.Equal(0, acquireCount);
 
             writeLock.Dispose();
-            NeonHelper.WaitFor(() => acquireCount == readerCount, defaultTimeout);
+            NeonHelper.WaitFor(() => acquireCount == readerCount, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
             rwLock.Dispose();
         }
@@ -676,15 +690,16 @@ namespace TestCommon
                             await Task.Delay(100);
                             Interlocked.Increment(ref acquireCount);
                         }
-                    });
+                    },
+                    cancellationToken: Xunit.TestContext.Current.CancellationToken);
             }
 
-            NeonHelper.WaitFor(() => waitCount == writerCount, defaultTimeout);
-            await Task.Delay(taskWait);
+            NeonHelper.WaitFor(() => waitCount == writerCount, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
+            await Task.Delay(taskWait, cancellationToken: Xunit.TestContext.Current.CancellationToken);
             Assert.Equal(0, acquireCount);
 
             writeLock.Dispose();
-            NeonHelper.WaitFor(() => acquireCount == writerCount, defaultTimeout);
+            NeonHelper.WaitFor(() => acquireCount == writerCount, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
             rwLock.Dispose();
         }
@@ -705,7 +720,7 @@ namespace TestCommon
 
                     using (await rwLock.GetReadLockAsync())
                     {
-                        await Task.Delay(100);
+                        await Task.Delay(100, cancellationToken: Xunit.TestContext.Current.CancellationToken);
                         haveLock = true;
                     }
 
@@ -717,7 +732,7 @@ namespace TestCommon
 
                     using (await rwLock.GetWriteLockAsync())
                     {
-                        await Task.Delay(100);
+                        await Task.Delay(100, cancellationToken: Xunit.TestContext.Current.CancellationToken);
                         haveLock = true;
                     }
 
@@ -751,14 +766,15 @@ namespace TestCommon
                                 await Task.Delay(100);
                                 haveLock = true;
                             }
-                        });
+                        },
+                        cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
-                    NeonHelper.WaitFor(() => inTask, defaultTimeout);
-                    await Task.Delay(taskWait);
+                    NeonHelper.WaitFor(() => inTask, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
+                    await Task.Delay(taskWait, cancellationToken: Xunit.TestContext.Current.CancellationToken);
                     Assert.False(haveLock);
 
                     readLock.Dispose();
-                    NeonHelper.WaitFor(() => haveLock, defaultTimeout);
+                    NeonHelper.WaitFor(() => haveLock, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 }
             }
         }
@@ -787,14 +803,15 @@ namespace TestCommon
                                 await Task.Delay(100);
                                 haveLock = true;
                             }
-                        });
+                        },
+                        cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
-                    NeonHelper.WaitFor(() => inTask, defaultTimeout);
-                    await Task.Delay(taskWait);
+                    NeonHelper.WaitFor(() => inTask, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
+                    await Task.Delay(taskWait, cancellationToken: Xunit.TestContext.Current.CancellationToken);
                     Assert.True(haveLock);
 
                     readLock.Dispose();
-                    NeonHelper.WaitFor(() => haveLock, defaultTimeout);
+                    NeonHelper.WaitFor(() => haveLock, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 }
             }
         }
@@ -824,14 +841,15 @@ namespace TestCommon
                                 await Task.Delay(100);
                                 haveLock = true;
                             }
-                        });
+                        },
+                        cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
-                    NeonHelper.WaitFor(() => inTask, defaultTimeout);
-                    await Task.Delay(taskWait);
+                    NeonHelper.WaitFor(() => inTask, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
+                    await Task.Delay(taskWait, cancellationToken: Xunit.TestContext.Current.CancellationToken);
                     Assert.False(haveLock);
 
                     writeLock.Dispose();
-                    NeonHelper.WaitFor(() => haveLock, defaultTimeout);
+                    NeonHelper.WaitFor(() => haveLock, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 }
             }
         }
@@ -865,15 +883,16 @@ namespace TestCommon
                                     await Task.Delay(100);
                                     Interlocked.Increment(ref acquireCount);
                                 }
-                            });
+                            },
+                            cancellationToken: Xunit.TestContext.Current.CancellationToken);
                     }
 
-                    NeonHelper.WaitFor(() => waitCount == readerCount, defaultTimeout);
-                    await Task.Delay(taskWait);
+                    NeonHelper.WaitFor(() => waitCount == readerCount, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
+                    await Task.Delay(taskWait, cancellationToken: Xunit.TestContext.Current.CancellationToken);
                     Assert.Equal(0, acquireCount);
 
                     writeLock.Dispose();
-                    NeonHelper.WaitFor(() => acquireCount == readerCount, defaultTimeout);
+                    NeonHelper.WaitFor(() => acquireCount == readerCount, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 }
             }
         }
@@ -907,15 +926,16 @@ namespace TestCommon
                                     await Task.Delay(100);
                                     Interlocked.Increment(ref acquireCount);
                                 }
-                            });
+                            },
+                            cancellationToken: Xunit.TestContext.Current.CancellationToken);
                     }
 
-                    NeonHelper.WaitFor(() => waitCount == writerCount, defaultTimeout);
-                    await Task.Delay(taskWait);
+                    NeonHelper.WaitFor(() => waitCount == writerCount, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
+                    await Task.Delay(taskWait, cancellationToken: Xunit.TestContext.Current.CancellationToken);
                     Assert.Equal(0, acquireCount);
 
                     writeLock.Dispose();
-                    NeonHelper.WaitFor(() => acquireCount == writerCount, defaultTimeout);
+                    NeonHelper.WaitFor(() => acquireCount == writerCount, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 }
             }
         }
@@ -946,9 +966,10 @@ namespace TestCommon
                     haveLock = true;
 
                     lk.Dispose();
-                });
+                },
+                cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
-                NeonHelper.WaitFor(() => haveLock, defaultTimeout);
+                NeonHelper.WaitFor(() => haveLock, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
                 // Wait for the first write lock.
 
@@ -960,9 +981,10 @@ namespace TestCommon
                     haveLock = true;
 
                     lk.Dispose();
-                });
+                },
+                cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
-                NeonHelper.WaitFor(() => haveLock, defaultTimeout);
+                NeonHelper.WaitFor(() => haveLock, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
                 // Wait for the second write lock.  Not that write lock 2
                 // is favored over read lock 2.
@@ -975,9 +997,10 @@ namespace TestCommon
                     haveLock = true;
 
                     lk.Dispose();
-                });
+                },
+                cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
-                NeonHelper.WaitFor(() => haveLock, defaultTimeout);
+                NeonHelper.WaitFor(() => haveLock, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
                 // Wait for the second read lock.
 
@@ -989,9 +1012,10 @@ namespace TestCommon
                     haveLock = true;
 
                     lk.Dispose();
-                });
+                },
+                cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
-                NeonHelper.WaitFor(() => haveLock, defaultTimeout);
+                NeonHelper.WaitFor(() => haveLock, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
             }
         }
 
@@ -1036,7 +1060,8 @@ namespace TestCommon
                                     Interlocked.Decrement(ref readers);
                                 }
                             }
-                        }));
+                        },
+                        cancellationToken: Xunit.TestContext.Current.CancellationToken));
                 }
 
                 for (int i = 0; i < writeTaskCount; i++)
@@ -1059,16 +1084,17 @@ namespace TestCommon
                                     }
 
                                     Interlocked.Increment(ref writers);
-                                    await Task.Delay(delay);
+                                    await Task.Delay(delay, cancellationToken: Xunit.TestContext.Current.CancellationToken);
                                     Interlocked.Decrement(ref writers);
                                 }
                             }
-                        }));
+                        },
+                        cancellationToken: Xunit.TestContext.Current.CancellationToken));
                 }
 
-                await Task.Delay(TimeSpan.FromSeconds(60));
+                await Task.Delay(TimeSpan.FromSeconds(60), cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 exit = true;
-                await NeonHelper.WaitAllAsync(tasks.ToArray(), defaultTimeout);
+                await NeonHelper.WaitAllAsync(tasks.ToArray(), defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 Assert.False(error);
             }
         }

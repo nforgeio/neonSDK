@@ -150,7 +150,7 @@ namespace TestCommon
 
                 // Wait for [task1] to actually acquire to mutex.
 
-                NeonHelper.WaitFor(() => task1Acquired, defaultTimeout);
+                NeonHelper.WaitFor(() => task1Acquired, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
                 // Start two new tasks that will block.
 
@@ -311,7 +311,7 @@ namespace TestCommon
 
                 // Wait for [task1] to actually acquire to mutex.
 
-                NeonHelper.WaitFor(() => task1Acquired, defaultTimeout);
+                NeonHelper.WaitFor(() => task1Acquired, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
                 // Start two new tasks that will block.
 

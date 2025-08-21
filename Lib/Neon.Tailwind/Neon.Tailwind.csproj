@@ -45,6 +45,7 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="$(DotNetVersion)" />
+        <PackageReference Include="Microsoft.Net.Http.Headers" Version="$(DotNetVersion)" />
     </ItemGroup>
 
     <ItemGroup>

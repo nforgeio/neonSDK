@@ -238,7 +238,7 @@ namespace Test.Neon.Postgres
                 "CREATE DATABASE ${database};"
             };
 
-            await postgres.ExecuteNonQueryAsync($"CREATE DATABASE {databaseName};");
+            await postgres.ExecuteNonQueryAsync($"CREATE DATABASE {databaseName};", cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
             using (var tempFolder = await PersistSchemaScriptsAsync(scripts))
             {
@@ -312,7 +312,7 @@ namespace Test.Neon.Postgres
 
                     // Drop the DBINFO table for the test.
 
-                    await schemaManager.TargetConnection.ExecuteNonQueryAsync($"DROP TABLE {SchemaManager.DbInfoTableName};");
+                    await schemaManager.TargetConnection.ExecuteNonQueryAsync($"DROP TABLE {SchemaManager.DbInfoTableName};", cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
                     status = await schemaManager.GetStatusAsync();
                     Assert.Equal(SchemaStatus.ExistsNoSchema, status.SchemaStatus);
@@ -350,7 +350,7 @@ namespace Test.Neon.Postgres
 
                     // Set a negative version in DBINFO and verify the exception.
 
-                    await schemaManager.TargetConnection.ExecuteNonQueryAsync($"UPDATE {SchemaManager.DbInfoTableName} SET version = -1;");
+                    await schemaManager.TargetConnection.ExecuteNonQueryAsync($"UPDATE {SchemaManager.DbInfoTableName} SET version = -1;", cancellationToken: Xunit.TestContext.Current.CancellationToken);
                     await Assert.ThrowsAsync<SchemaManagerException>(async () => await schemaManager.GetStatusAsync());
                 }
             }
@@ -410,7 +410,7 @@ INSERT INTO my_table (version) values (1);",
 
                     // Verify that the updates were actually applied.
 
-                    Assert.Equal(4, (int)await schemaManager.TargetConnection.ExecuteScalarAsync("SELECT version FROM my_table;"));
+                    Assert.Equal(4, (int)await schemaManager.TargetConnection.ExecuteScalarAsync("SELECT version FROM my_table;", cancellationToken: Xunit.TestContext.Current.CancellationToken));
                 }
             }
 
@@ -443,7 +443,7 @@ INSERT INTO my_table (version) values (1);",
 
                     // Verify that the updates were actually applied.
 
-                    Assert.Equal(6, (int)await schemaManager.TargetConnection.ExecuteScalarAsync("SELECT version FROM my_table;"));
+                    Assert.Equal(6, (int)await schemaManager.TargetConnection.ExecuteScalarAsync("SELECT version FROM my_table;", cancellationToken: Xunit.TestContext.Current.CancellationToken));
                 }
             }
         }
@@ -501,7 +501,7 @@ INSERT INTO my_table (version) values (1);",
 
                     // Verify that the updates were actually applied.
 
-                    Assert.Equal(4, (int)await schemaManager.TargetConnection.ExecuteScalarAsync("SELECT version FROM my_table;"));
+                    Assert.Equal(4, (int)await schemaManager.TargetConnection.ExecuteScalarAsync("SELECT version FROM my_table;", cancellationToken: Xunit.TestContext.Current.CancellationToken));
                 }
             }
 
@@ -533,7 +533,7 @@ INSERT INTO my_table (version) values (101);",
 
                     // Verify that the updates were not applied.
 
-                    Assert.Equal(4, (int)await schemaManager.TargetConnection.ExecuteScalarAsync("SELECT version FROM my_table;"));
+                    Assert.Equal(4, (int)await schemaManager.TargetConnection.ExecuteScalarAsync("SELECT version FROM my_table;", cancellationToken: Xunit.TestContext.Current.CancellationToken));
                 }
             }
         }
@@ -594,7 +594,7 @@ INSERT INTO my_table (version) values (1);",
                     status = await schemaManager.GetStatusAsync();
 
                     Assert.Equal(2, status.Version);
-                    Assert.Equal(2, (int)await schemaManager.TargetConnection.ExecuteScalarAsync("SELECT version FROM my_table;"));
+                    Assert.Equal(2, (int)await schemaManager.TargetConnection.ExecuteScalarAsync("SELECT version FROM my_table;", cancellationToken: Xunit.TestContext.Current.CancellationToken));
 
                     // Apply the remaining updates and verify.
 
@@ -603,7 +603,7 @@ INSERT INTO my_table (version) values (1);",
                     status = await schemaManager.GetStatusAsync();
 
                     Assert.Equal(4, status.Version);
-                    Assert.Equal(4, (int)await schemaManager.TargetConnection.ExecuteScalarAsync("SELECT version FROM my_table;"));
+                    Assert.Equal(4, (int)await schemaManager.TargetConnection.ExecuteScalarAsync("SELECT version FROM my_table;", cancellationToken: Xunit.TestContext.Current.CancellationToken));
                 }
             }
         }
@@ -665,7 +665,7 @@ INSERT INTO my_table (version) values (1);",
                     status = await schemaManager.GetStatusAsync();
 
                     Assert.Equal(4, status.Version);
-                    Assert.Equal(4, (int)await schemaManager.TargetConnection.ExecuteScalarAsync("SELECT version FROM my_table;"));
+                    Assert.Equal(4, (int)await schemaManager.TargetConnection.ExecuteScalarAsync("SELECT version FROM my_table;", cancellationToken: Xunit.TestContext.Current.CancellationToken));
 
                     // Verify that we're not allowed to stop at an update that's
                     // already been applied.
@@ -677,7 +677,7 @@ INSERT INTO my_table (version) values (1);",
                     status = await schemaManager.GetStatusAsync();
 
                     Assert.Equal(4, status.Version);
-                    Assert.Equal(4, (int)await schemaManager.TargetConnection.ExecuteScalarAsync("SELECT version FROM my_table;"));
+                    Assert.Equal(4, (int)await schemaManager.TargetConnection.ExecuteScalarAsync("SELECT version FROM my_table;", cancellationToken: Xunit.TestContext.Current.CancellationToken));
                 }
             }
         }
@@ -737,7 +737,7 @@ INSERT INTO my_table (version) values (1);",
 
                     // Verify that the updates were actually applied.
 
-                    Assert.Equal(4, (int)await schemaManager.TargetConnection.ExecuteScalarAsync("SELECT version FROM my_table;"));
+                    Assert.Equal(4, (int)await schemaManager.TargetConnection.ExecuteScalarAsync("SELECT version FROM my_table;", cancellationToken: Xunit.TestContext.Current.CancellationToken));
                 }
             }
 
@@ -770,7 +770,7 @@ INSERT INTO my_table (version) values (1);",
 
                     // Verify that the updates were actually applied.
 
-                    Assert.Equal(6, (int)await schemaManager.TargetConnection.ExecuteScalarAsync("SELECT version FROM my_table;"));
+                    Assert.Equal(6, (int)await schemaManager.TargetConnection.ExecuteScalarAsync("SELECT version FROM my_table;", cancellationToken: Xunit.TestContext.Current.CancellationToken));
                 }
             }
         }
@@ -802,7 +802,8 @@ INSERT INTO my_table (version) values (1);",
 
                     // Update the DBINFO table to make it appear that another updater is updating.
 
-                    await schemaManager.TargetConnection.ExecuteNonQueryAsync($"UPDATE {SchemaManager.DbInfoTableName} SET updater = 'another-updater', update_start_utc = (now() at time zone 'utc'), update_finish_utc = NULL;");
+                    await schemaManager.TargetConnection.ExecuteNonQueryAsync($"UPDATE {SchemaManager.DbInfoTableName} SET updater = 'another-updater', update_start_utc = (now() at time zone 'utc'), update_finish_utc = NULL;",
+                        cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 }
             }
 
@@ -843,7 +844,7 @@ INSERT INTO my_table (version) values (1);",
                     status = await schemaManager.GetStatusAsync();
 
                     Assert.Equal(4, status.Version);
-                    Assert.Equal(4, (int)await schemaManager.TargetConnection.ExecuteScalarAsync("SELECT version FROM my_table;"));
+                    Assert.Equal(4, (int)await schemaManager.TargetConnection.ExecuteScalarAsync("SELECT version FROM my_table;", cancellationToken: Xunit.TestContext.Current.CancellationToken));
                 }
             }
         }
@@ -875,7 +876,8 @@ INSERT INTO my_table (version) values (1);",
 
                     // Update the DBINFO table to make it appear that another updater failed.
 
-                    await schemaManager.TargetConnection.ExecuteNonQueryAsync($"UPDATE {SchemaManager.DbInfoTableName} SET updater = 'another-updater', update_start_utc = (now() at time zone 'utc'), update_finish_utc = NULL, error = 'Something bad happened!';");
+                    await schemaManager.TargetConnection.ExecuteNonQueryAsync($"UPDATE {SchemaManager.DbInfoTableName} SET updater = 'another-updater', update_start_utc = (now() at time zone 'utc'), update_finish_utc = NULL, error = 'Something bad happened!';",
+                        cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 }
             }
 
@@ -917,7 +919,7 @@ INSERT INTO my_table (version) values (1);",
                     status = await schemaManager.GetStatusAsync();
 
                     Assert.Equal(4, status.Version);
-                    Assert.Equal(4, (int)await schemaManager.TargetConnection.ExecuteScalarAsync("SELECT version FROM my_table;"));
+                    Assert.Equal(4, (int)await schemaManager.TargetConnection.ExecuteScalarAsync("SELECT version FROM my_table;", cancellationToken: Xunit.TestContext.Current.CancellationToken));
                 }
             }
         }

@@ -26,10 +26,11 @@
         <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.3.0" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.3.0" />
         <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.3.0" />
+        <PackageReference Include="Microsoft.Net.Http.Headers" Version="$(DotNetVersion)" />
         <PackageReference Include="Microsoft.Net.Http.Server" Version="1.1.4" />
-        <PackageReference Include="NATS.Client" Version="1.1.8" />
+        <PackageReference Include="NATS.Client" Version="1.0.8" />
         <PackageReference Include="STAN.Client" Version="0.3.0" />
-        <PackageReference Include="xunit.extensibility.core" Version="2.9.3" />
+        <PackageReference Include="xunit.v3.extensibility.core" Version="3.0.1" />
         <PackageReference Include="YamlDotNet" Version="16.3.0" />
     </ItemGroup>
 

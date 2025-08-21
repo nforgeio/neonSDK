@@ -102,7 +102,7 @@ namespace TestXunit
         {
             // Verify that we can communicate with the service.
 
-            Assert.Equal("World!", await client.GetStringAsync("Hello"));
+            Assert.Equal("World!", await client.GetStringAsync("Hello", cancellationToken: Xunit.TestContext.Current.CancellationToken));
 
             // Restart the service and verify that we actually see
             // a new service instance by changing the answer.
@@ -110,7 +110,7 @@ namespace TestXunit
             Startup.Answer = "FooBar!";
             fixture.Restart<Startup>();
 
-            Assert.Equal("FooBar!", await client.GetStringAsync("Hello"));
+            Assert.Equal("FooBar!", await client.GetStringAsync("Hello", cancellationToken: Xunit.TestContext.Current.CancellationToken));
         }
     }
 }

@@ -154,7 +154,7 @@ namespace TestCommon
                         i).Start();
                 }
 
-                NeonHelper.WaitFor(() => taskInfo.AllRunning, defaultTimeout);
+                NeonHelper.WaitFor(() => taskInfo.AllRunning, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 Thread.Sleep(TimeSpan.FromSeconds(5));
                 Assert.False(taskInfo.AnyComplete);
             }
@@ -190,7 +190,7 @@ namespace TestCommon
                         i).Start();
                 }
 
-                NeonHelper.WaitFor(() => taskInfo.AllRunning, defaultTimeout);
+                NeonHelper.WaitFor(() => taskInfo.AllRunning, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 Thread.Sleep(TimeSpan.FromSeconds(5));
                 Assert.False(taskInfo.AnyComplete);
             }
@@ -225,7 +225,7 @@ namespace TestCommon
                         i).Start();
                 }
 
-                NeonHelper.WaitFor(() => taskInfo.AllRunning, defaultTimeout);
+                NeonHelper.WaitFor(() => taskInfo.AllRunning, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 Thread.Sleep(TimeSpan.FromSeconds(5));
                 Assert.False(taskInfo.AnyComplete);
 
@@ -238,7 +238,8 @@ namespace TestCommon
                         {
                             return taskInfo.Where(ti => ti.IsComplete).Count() == i + 1;
                         },
-                        defaultTimeout);
+                        defaultTimeout,
+                        cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 }
 
                 // Also verify that disposing the event multiple time isn't a problem.
@@ -264,23 +265,24 @@ namespace TestCommon
                             await autoEvent.WaitAsync();
                             count++;
                         }
-                    });
+                    },
+                    cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
                 // Verify that the event starts out with the RESET state.
 
-                await Task.Delay(2000);
+                await Task.Delay(2000, cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 Assert.Equal(0, count);
 
                 // Verify a single pulse.
 
                 autoEvent.Set();
-                await Task.Delay(2000);
+                await Task.Delay(2000, cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 Assert.Equal(1, count);
 
                 // Verify a second pulse.
 
                 autoEvent.Set();
-                await Task.Delay(2000);
+                await Task.Delay(2000, cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 Assert.Equal(2, count);
             }
         }
@@ -336,12 +338,12 @@ namespace TestCommon
                     i).Start();
             }
 
-            NeonHelper.WaitFor(() => taskInfo.AllRunning, defaultTimeout);
+            NeonHelper.WaitFor(() => taskInfo.AllRunning, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
             Assert.False(taskInfo.AnyComplete);
 
             autoEvent.Dispose();
 
-            NeonHelper.WaitFor(() => taskInfo.AllFaulted, defaultTimeout);
+            NeonHelper.WaitFor(() => taskInfo.AllFaulted, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
             Assert.False(badException);
         }
     }

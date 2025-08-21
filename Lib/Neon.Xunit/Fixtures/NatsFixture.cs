@@ -27,14 +27,14 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using NATS.Client;
-
 using Newtonsoft.Json.Linq;
-using Xunit;
 
 using Neon.Common;
 using Neon.Data;
 using Neon.Retry;
 using Neon.Net;
+
+using Xunit;
 
 namespace Neon.Xunit
 {

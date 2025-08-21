@@ -1,8 +1,8 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFrameworks>net9.0</TargetFrameworks>
-        <OutputType>Library</OutputType>
+        <OutputType>Exe</OutputType>
         <RootNamespace>TestModelGen</RootNamespace>
         <IsPackable>false</IsPackable>
         <Configurations>Debug;Release</Configurations>
@@ -34,10 +34,11 @@
         <PackageReference Include="Linq2Couchbase" Version="1.4.2" />
         <PackageReference Include="LiquidTestReports.Markdown" Version="1.1.1-beta" />
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="$(DotNetVersion)" />
+        <PackageReference Include="Microsoft.Net.Http.Headers" Version="$(DotNetVersion)" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
         <PackageReference Include="Microsoft.TestPlatform.TestHost" Version="17.14.1" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-        <PackageReference Include="xunit" Version="2.9.3" />
+        <PackageReference Include="xunit.v3" Version="3.0.1" />
         <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>

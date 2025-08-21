@@ -635,7 +635,8 @@ namespace TestCommon
                                     Assert.Equal(i + 1, substream.Position);
                                 }
                             }
-                        }));
+                        },
+                        cancellationToken: Xunit.TestContext.Current.CancellationToken));
 
                     tasks.Add(Task.Run(
                         () =>
@@ -660,7 +661,8 @@ namespace TestCommon
                                     Assert.Equal(i + 1, substream.Position);
                                 }
                             }
-                        }));
+                        },
+                        cancellationToken: Xunit.TestContext.Current.CancellationToken));
 
 
                     tasks.Add(Task.Run(
@@ -686,7 +688,8 @@ namespace TestCommon
                                     Assert.Equal(i + 1, substream.Position);
                                 }
                             }
-                        }));
+                        },
+                        cancellationToken: Xunit.TestContext.Current.CancellationToken));
 
 
                     tasks.Add(Task.Run(
@@ -712,9 +715,10 @@ namespace TestCommon
                                     Assert.Equal(i + 1, substream.Position);
                                 }
                             }
-                        }));
+                        },
+                        cancellationToken: Xunit.TestContext.Current.CancellationToken));
 
-                    await Task.Delay(TimeSpan.FromSeconds(10));
+                    await Task.Delay(TimeSpan.FromSeconds(10), cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
                     exit = true;
 

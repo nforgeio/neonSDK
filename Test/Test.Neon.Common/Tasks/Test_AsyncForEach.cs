@@ -216,7 +216,7 @@ namespace TestCommon
             // and cancel the operation.  Then wait for the overall
             // operation to complete with an [OperationCanceledException].
 
-            await Task.Delay(TimeSpan.FromSeconds(delay.TotalSeconds / 2));
+            await Task.Delay(TimeSpan.FromSeconds(delay.TotalSeconds / 2), cancellationToken: Xunit.TestContext.Current.CancellationToken);
             cts.Cancel();
             await Assert.ThrowsAsync<OperationCanceledException>(async () => await task);
 
@@ -276,7 +276,7 @@ namespace TestCommon
             // and cancel the operation.  Then wait for the overall
             // operation to complete with an [OperationCanceledException].
 
-            await Task.Delay(TimeSpan.FromSeconds(delay.TotalSeconds / 2));
+            await Task.Delay(TimeSpan.FromSeconds(delay.TotalSeconds / 2), cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
             try
             {

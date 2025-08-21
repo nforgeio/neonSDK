@@ -60,11 +60,11 @@ namespace TestCommon
         {
             using (var ms = new MemoryStream())
             {
-                await ms.WriteAsync(Array.Empty<byte>());
+                await ms.WriteAsync(Array.Empty<byte>(), cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
                 Assert.Equal<long>(0, ms.Length);
 
-                await ms.WriteAsync(new byte[] { 0, 1, 2, 3, 4 });
+                await ms.WriteAsync(new byte[] { 0, 1, 2, 3, 4 }, cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
                 Assert.Equal<long>(5, ms.Length);
 

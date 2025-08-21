@@ -50,19 +50,19 @@ namespace TestCommon
                 }))
             {
                 Assert.False(timer.IsRunning);
-                await Task.Delay(TimeSpan.FromSeconds(1));
+                await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 Assert.Equal(TimeSpan.Zero, timer.Interval);
                 Assert.False(timer.IsRunning);
                 Assert.Equal(0, ticks);
 
                 timer.Start(TimeSpan.FromSeconds(1));
-                await Task.Delay(TimeSpan.FromSeconds(4.5));
+                await Task.Delay(TimeSpan.FromSeconds(4.5), cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 Assert.Equal(5, ticks);
                 Assert.Equal(TimeSpan.FromSeconds(1), timer.Interval);
 
                 timer.Stop();
                 ticks = 0;
-                await Task.Delay(TimeSpan.FromSeconds(4.5));
+                await Task.Delay(TimeSpan.FromSeconds(4.5), cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 Assert.Equal(0, ticks);
             }
         }
@@ -83,17 +83,17 @@ namespace TestCommon
                 }))
             {
                 Assert.False(timer.IsRunning);
-                await Task.Delay(TimeSpan.FromSeconds(1));
+                await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 Assert.False(timer.IsRunning);
                 Assert.Equal(0, ticks);
 
                 timer.Start(TimeSpan.FromSeconds(1), delayFirstTick: true);
-                await Task.Delay(TimeSpan.FromSeconds(4.5));
+                await Task.Delay(TimeSpan.FromSeconds(4.5), cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 Assert.Equal(4, ticks);
 
                 timer.Stop();
                 ticks = 0;
-                await Task.Delay(TimeSpan.FromSeconds(4.5));
+                await Task.Delay(TimeSpan.FromSeconds(4.5), cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 Assert.Equal(0, ticks);
             }
         }
@@ -113,26 +113,26 @@ namespace TestCommon
                 }))
             {
                 Assert.False(timer.IsRunning);
-                await Task.Delay(TimeSpan.FromSeconds(1));
+                await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 Assert.False(timer.IsRunning);
                 Assert.Equal(0, ticks);
 
                 timer.Start(TimeSpan.FromSeconds(1));
-                await Task.Delay(TimeSpan.FromSeconds(4.5));
+                await Task.Delay(TimeSpan.FromSeconds(4.5), cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 Assert.Equal(5, ticks);
 
                 timer.Stop();
                 ticks = 0;
-                await Task.Delay(TimeSpan.FromSeconds(4.5));
+                await Task.Delay(TimeSpan.FromSeconds(4.5), cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 Assert.Equal(0, ticks);
 
                 timer.Start();
-                await Task.Delay(TimeSpan.FromSeconds(4.5));
+                await Task.Delay(TimeSpan.FromSeconds(4.5), cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 Assert.Equal(5, ticks);
 
                 timer.Stop();
                 ticks = 0;
-                await Task.Delay(TimeSpan.FromSeconds(4.5));
+                await Task.Delay(TimeSpan.FromSeconds(4.5), cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 Assert.Equal(0, ticks);
             }
         }
@@ -154,17 +154,17 @@ namespace TestCommon
                 }))
             {
                 Assert.False(timer.IsRunning);
-                await Task.Delay(TimeSpan.FromSeconds(1));
+                await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 Assert.False(timer.IsRunning);
                 Assert.Equal(0, ticks0);
 
                 timer.Start(TimeSpan.FromSeconds(1));
-                await Task.Delay(TimeSpan.FromSeconds(4.5));
+                await Task.Delay(TimeSpan.FromSeconds(4.5), cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 Assert.Equal(5, ticks0);
 
                 timer.Stop();
                 ticks0 = 0;
-                await Task.Delay(TimeSpan.FromSeconds(4.5));
+                await Task.Delay(TimeSpan.FromSeconds(4.5), cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 Assert.Equal(0, ticks0);
 
                 timer.Start(
@@ -173,12 +173,12 @@ namespace TestCommon
                         ticks1++;
                         await Task.CompletedTask;
                     });
-                await Task.Delay(TimeSpan.FromSeconds(4.5));
+                await Task.Delay(TimeSpan.FromSeconds(4.5), cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 Assert.Equal(5, ticks1);
 
                 timer.Stop();
                 ticks1 = 0;
-                await Task.Delay(TimeSpan.FromSeconds(4.5));
+                await Task.Delay(TimeSpan.FromSeconds(4.5), cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 Assert.Equal(0, ticks1);
             }
         }
@@ -199,29 +199,29 @@ namespace TestCommon
                 }))
             {
                 Assert.False(timer.IsRunning);
-                await Task.Delay(TimeSpan.FromSeconds(1));
+                await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 Assert.False(timer.IsRunning);
                 Assert.Equal(0, ticks);
 
                 ticks = 0;
                 timer.Start(TimeSpan.FromSeconds(1));
-                await Task.Delay(TimeSpan.FromSeconds(4.5));
+                await Task.Delay(TimeSpan.FromSeconds(4.5), cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 Assert.True(ticks >= 5);
                 Assert.True(ticks < 6);
 
                 timer.Stop();
                 ticks = 0;
-                await Task.Delay(TimeSpan.FromSeconds(4.5));
+                await Task.Delay(TimeSpan.FromSeconds(4.5), cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 Assert.Equal(0, ticks);
 
                 timer.Start(TimeSpan.FromSeconds(2), delayFirstTick: true);
-                await Task.Delay(TimeSpan.FromSeconds(4.5));
+                await Task.Delay(TimeSpan.FromSeconds(4.5), cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 Assert.True(ticks >= 2);
                 Assert.True(ticks < 3);
 
                 timer.Stop();
                 ticks = 0;
-                await Task.Delay(TimeSpan.FromSeconds(4.5));
+                await Task.Delay(TimeSpan.FromSeconds(4.5), cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 Assert.Equal(0, ticks);
             }
         }
@@ -241,12 +241,12 @@ namespace TestCommon
                 });
 
             timer.Start(TimeSpan.FromSeconds(1));
-            await Task.Delay(TimeSpan.FromSeconds(4.5));
+            await Task.Delay(TimeSpan.FromSeconds(4.5), cancellationToken: Xunit.TestContext.Current.CancellationToken);
             Assert.Equal(5, ticks);
 
             timer.Dispose();
             ticks = 0;
-            await Task.Delay(TimeSpan.FromSeconds(4.5));
+            await Task.Delay(TimeSpan.FromSeconds(4.5), cancellationToken: Xunit.TestContext.Current.CancellationToken);
             Assert.Equal(0, ticks);
 
             // Verify that calling [Dispose()] on an already disposed timer
@@ -272,7 +272,7 @@ namespace TestCommon
                 }))
             {
                 timer.Start(TimeSpan.FromSeconds(1));
-                await Task.Delay(TimeSpan.FromSeconds(4.5));
+                await Task.Delay(TimeSpan.FromSeconds(4.5), cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 Assert.Equal(5, ticks);
             }
         }

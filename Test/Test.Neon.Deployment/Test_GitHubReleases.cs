@@ -123,8 +123,9 @@ namespace TestDeployment
 
                         return releaseList.FirstOrDefault(r => r.Id == release.Id) != null;
                     },
-                    timeout:      TimeSpan.FromMinutes(5),
-                    pollInterval: TimeSpan.FromSeconds(5));
+                    timeout:           TimeSpan.FromMinutes(5),
+                    pollInterval:      TimeSpan.FromSeconds(5),
+                    cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
                 // Fetch the new release:
 
@@ -133,9 +134,10 @@ namespace TestDeployment
                 Assert.NotNull(fetchedRelease);
                 Assert.False(fetchedRelease.Draft);
 
-                var assertUri = GitHub.Releases.GetAssetUri(release, asset);
 #pragma warning disable xUnit1031 // Do not use blocking task operations in test method
-                var assetText = httpClient.GetAsync(assertUri).Result.Content.ReadAsStringAsync().Result;
+                var assertUri = GitHub.Releases.GetAssetUri(release, asset);
+                var assetText = httpClient.GetAsync(assertUri, cancellationToken: Xunit.TestContext.Current.CancellationToken).Result.Content
+                                          .ReadAsStringAsync(cancellationToken: Xunit.TestContext.Current.CancellationToken).Result;
 #pragma warning restore xUnit1031 // Do not use blocking task operations in test method
 
                 Assert.Equal("test asset contents", assetText);
@@ -223,8 +225,9 @@ namespace TestDeployment
 
                         return releaseList.FirstOrDefault(r => r.Id == release.Id) != null;
                     },
-                    timeout:      TimeSpan.FromMinutes(5),
-                    pollInterval: TimeSpan.FromSeconds(5));
+                    timeout:           TimeSpan.FromMinutes(5),
+                    pollInterval:      TimeSpan.FromSeconds(5),
+                    cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
                 // Fetch the new release:
 
@@ -233,9 +236,9 @@ namespace TestDeployment
                 Assert.NotNull(fetchedRelease);
                 Assert.False(fetchedRelease.Draft);
 
-                var assertUri = GitHub.Releases.GetAssetUri(release, asset);
 #pragma warning disable xUnit1031 // Do not use blocking task operations in test method
-                var assetText = httpClient.GetAsync(assertUri).Result.Content.ReadAsStringAsync().Result;
+                var assertUri = GitHub.Releases.GetAssetUri(release, asset);
+                var assetText = httpClient.GetAsync(assertUri, cancellationToken: Xunit.TestContext.Current.CancellationToken).Result.Content.ReadAsStringAsync(cancellationToken: Xunit.TestContext.Current.CancellationToken).Result;
 #pragma warning restore xUnit1031 // Do not use blocking task operations in test method
 
                 Assert.Equal("test asset contents", assetText);
@@ -255,8 +258,9 @@ namespace TestDeployment
 
                         return releaseList.FirstOrDefault(r => r.Id == release.Id) == null;
                     },
-                    timeout:      TimeSpan.FromMinutes(5),
-                    pollInterval: TimeSpan.FromSeconds(5));
+                    timeout:           TimeSpan.FromMinutes(5),
+                    pollInterval:      TimeSpan.FromSeconds(5),
+                    cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
                 // Fetch the release to verify that it's no longer present:
 
@@ -290,7 +294,7 @@ namespace TestDeployment
                 //
                 // It can take some time for release operations to actually completed.
 
-                await Task.Delay(releaseDelay);
+                await Task.Delay(releaseDelay, cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
                 // List all releases to ensure that new release is included.  Note
                 // that GitHub release publication appears to happen asynchronously
@@ -303,8 +307,9 @@ namespace TestDeployment
 
                         return releaseList.FirstOrDefault(r => r.Id == release.Id) != null;
                     },
-                    timeout:      TimeSpan.FromMinutes(5),
-                    pollInterval: TimeSpan.FromSeconds(5));
+                    timeout:           TimeSpan.FromMinutes(5),
+                    pollInterval:      TimeSpan.FromSeconds(5),
+                    cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
 
                 // Adding an asset for published releases should fail:
@@ -341,7 +346,7 @@ namespace TestDeployment
                 //
                 // It can take some time for release operations to actually completed.
 
-                await Task.Delay(releaseDelay);
+                await Task.Delay(releaseDelay, cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
                 // List all releases to ensure that the new release is no longer present:
 
@@ -380,7 +385,7 @@ namespace TestDeployment
                 //
                 // It can take some time for release operations to actually completed.
 
-                await Task.Delay(releaseDelay);
+                await Task.Delay(releaseDelay, cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
                 // List all releases to ensure that new release is included.  Note
                 // that GitHub release publication appears to happen asynchronously
@@ -393,8 +398,9 @@ namespace TestDeployment
 
                         return releaseList.FirstOrDefault(r => r.Id == release.Id) != null;
                     },
-                    timeout:      TimeSpan.FromMinutes(5),
-                    pollInterval: TimeSpan.FromSeconds(5));
+                    timeout:           TimeSpan.FromMinutes(5),
+                    pollInterval:      TimeSpan.FromSeconds(5),
+                    cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
 
                 // Also confirm that we can fetch the draft release.
@@ -407,7 +413,7 @@ namespace TestDeployment
                 //
                 // It can take some time for release operations to actually completed.
 
-                await Task.Delay(releaseDelay);
+                await Task.Delay(releaseDelay, cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
                 // Delete the draft release.
 
@@ -417,7 +423,7 @@ namespace TestDeployment
                 //
                 // It can take some time for release operations to actually completed.
 
-                await Task.Delay(releaseDelay);
+                await Task.Delay(releaseDelay, cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
                 // Confirm that the release is gone.
 
@@ -466,7 +472,7 @@ namespace TestDeployment
                 // It looks like it may take a bit of time for new releases to be available
                 // for listing on GitHub.  We're going to wait a bit.
 
-                await Task.Delay(TimeSpan.FromSeconds(5));
+                await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
                 // Exercise Find()
 
@@ -512,7 +518,7 @@ namespace TestDeployment
                 using (var tempFolder = new TempFolder())
                 {
                     var targetPath = Path.Combine(tempFolder.Path, download.Filename);
-                    var path       = await DeploymentHelper.DownloadMultiPartAsync(download, targetPath);
+                    var path       = await DeploymentHelper.DownloadMultiPartAsync(download, targetPath, cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
                     Assert.Equal(targetPath, path);
 
@@ -549,7 +555,8 @@ namespace TestDeployment
                             }
 
                             return true;
-                        });
+                        },
+                        cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 }
 
                 Assert.Equal(partCount + 2, progressValues.Count);
@@ -594,7 +601,7 @@ namespace TestDeployment
                 {
                     var targetPath = Path.Combine(tempFolder.Path, download.Name);
 
-                    await DeploymentHelper.DownloadMultiPartAsync(download, targetPath);
+                    await DeploymentHelper.DownloadMultiPartAsync(download, targetPath, cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
                     using (var stream = File.OpenRead(targetPath))
                     {
@@ -622,7 +629,8 @@ namespace TestDeployment
                             }
 
                             return true;
-                        });
+                        },
+                        cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
                     using (var stream = File.OpenRead(targetPath))
                     {
@@ -650,7 +658,8 @@ namespace TestDeployment
                             }
 
                             return true;
-                        });
+                        },
+                        cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
                     using (var stream = File.OpenRead(targetPath))
                     {
@@ -677,7 +686,8 @@ namespace TestDeployment
                             }
 
                             return true;
-                        });
+                        },
+                        cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
                     using (var stream = File.OpenRead(targetPath))
                     {
@@ -721,7 +731,7 @@ namespace TestDeployment
                 {
                     var targetPath = Path.Combine(tempFolder.Path, download.Filename);
 
-                    await Assert.ThrowsAsync<IOException>(async () => await DeploymentHelper.DownloadMultiPartAsync(download, targetPath));
+                    await Assert.ThrowsAsync<IOException>(async () => await DeploymentHelper.DownloadMultiPartAsync(download, targetPath, cancellationToken: Xunit.TestContext.Current.CancellationToken));
                 }
             }
             finally
@@ -759,7 +769,7 @@ namespace TestDeployment
                 {
                     var targetPath = Path.Combine(tempFolder.Path, download.Filename);
 
-                    await Assert.ThrowsAsync<IOException>(async () => await DeploymentHelper.DownloadMultiPartAsync(download, targetPath));
+                    await Assert.ThrowsAsync<IOException>(async () => await DeploymentHelper.DownloadMultiPartAsync(download, targetPath, cancellationToken: Xunit.TestContext.Current.CancellationToken));
                 }
             }
             finally
@@ -797,7 +807,7 @@ namespace TestDeployment
                 {
                     var targetPath = Path.Combine(tempFolder.Path, download.Filename);
 
-                    await Assert.ThrowsAsync<IOException>(async () => await DeploymentHelper.DownloadMultiPartAsync(download, targetPath));
+                    await Assert.ThrowsAsync<IOException>(async () => await DeploymentHelper.DownloadMultiPartAsync(download, targetPath, cancellationToken: Xunit.TestContext.Current.CancellationToken));
                 }
             }
             finally

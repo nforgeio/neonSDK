@@ -235,10 +235,11 @@ namespace TestCommon
                         {
                             await Task.Delay(TimeSpan.FromSeconds(2)); 
                             periodicTask.CancellationTokenSource.Cancel();
-                        })
+                        },
+                        cancellationToken: Xunit.TestContext.Current.CancellationToken)
                 };
 
-            await NeonHelper.WaitAllAsync(tasks, TimeSpan.FromSeconds(10));
+            await NeonHelper.WaitAllAsync(tasks, TimeSpan.FromSeconds(10), cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
             Assert.True(terminated);
             Assert.Null(exception);

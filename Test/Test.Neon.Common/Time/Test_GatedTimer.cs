@@ -106,7 +106,8 @@ namespace TestCommon
                     timer.Dispose();
                     Assert.True(count >= 10);
                     Assert.Equal("test state 1", (string)state);
-                });
+                },
+                cancellationToken: Xunit.TestContext.Current.CancellationToken);
         }
 
         [Fact]

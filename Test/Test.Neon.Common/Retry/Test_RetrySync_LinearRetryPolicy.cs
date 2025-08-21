@@ -89,7 +89,8 @@ namespace TestCommon
                         {
                             times.Add(DateTime.UtcNow);
                             throw new TransientException();
-                        });
+                        },
+                        cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 });
 
             Assert.Equal(policy.MaxAttempts , times.Count);
@@ -110,7 +111,8 @@ namespace TestCommon
                         {
                             times.Add(DateTime.UtcNow);
                             throw new TransientException();
-                        });
+                        },
+                        cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 });
 
             Assert.Equal(policy.MaxAttempts, times.Count);
@@ -131,7 +133,8 @@ namespace TestCommon
                         {
                             times.Add(DateTime.UtcNow);
                             throw new NotImplementedException();
-                        });
+                        },
+                        cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 });
 
             Assert.Single(times);
@@ -151,7 +154,8 @@ namespace TestCommon
                         {
                             times.Add(DateTime.UtcNow);
                             throw new NotImplementedException();
-                        });
+                        },
+                        cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 });
 
             Assert.Single(times);
@@ -179,7 +183,8 @@ namespace TestCommon
                             {
                                 throw new NotImplementedException();
                             }
-                        });
+                        },
+                        cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 });
 
             Assert.Equal(2, times.Count);
@@ -208,7 +213,8 @@ namespace TestCommon
                             {
                                 throw new NotImplementedException();
                             }
-                        });
+                        },
+                        cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 });
 
             Assert.Equal(2, times.Count);
@@ -228,7 +234,8 @@ namespace TestCommon
                     times.Add(DateTime.UtcNow);
 
                     success = true;
-                });
+                },
+                cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
             Assert.Single(times);
             Assert.True(success);
@@ -246,7 +253,8 @@ namespace TestCommon
                     times.Add(DateTime.UtcNow);
 
                     return "WOOHOO!";
-                });
+                },
+                cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
             Assert.Single(times);
             Assert.Equal("WOOHOO!", success);
@@ -270,7 +278,8 @@ namespace TestCommon
                     }
 
                     success = true;
-                });
+                },
+                cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
             Assert.True(success);
             Assert.Equal(policy.MaxAttempts, times.Count);
@@ -294,7 +303,8 @@ namespace TestCommon
                     }
 
                     return "WOOHOO!";
-                });
+                },
+                cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
             Assert.Equal("WOOHOO!", success);
             Assert.Equal(policy.MaxAttempts, times.Count);
@@ -319,7 +329,8 @@ namespace TestCommon
                     }
 
                     success = true;
-                });
+                },
+                cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
             Assert.True(success);
             Assert.Equal(policy.MaxAttempts, times.Count);
@@ -344,7 +355,8 @@ namespace TestCommon
                     }
 
                     success = true;
-                });
+                },
+                cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
             Assert.True(success);
             Assert.Equal(policy.MaxAttempts, times.Count);
@@ -376,7 +388,8 @@ namespace TestCommon
                     }
 
                     success = true;
-                });
+                },
+                cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
             Assert.True(success);
             Assert.Equal(policy.MaxAttempts, times.Count);
@@ -404,7 +417,8 @@ namespace TestCommon
                     }
 
                     success = true;
-                });
+                },
+                cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
             Assert.True(success);
             Assert.Equal(policy.MaxAttempts, times.Count);
@@ -431,7 +445,8 @@ namespace TestCommon
                     }
 
                     return "WOOHOO!";
-                });
+                },
+                cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
             Assert.Equal("WOOHOO!", success);
             Assert.Equal(policy.MaxAttempts, times.Count);
@@ -457,7 +472,8 @@ namespace TestCommon
                             times.Add(DateTime.UtcNow);
 
                             throw new TransientException();
-                        });
+                        },
+                        cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 });
 
             Assert.Equal(4, times.Count);
@@ -481,7 +497,8 @@ namespace TestCommon
                             times.Add(DateTime.UtcNow);
 
                             throw new TransientException();
-                        });
+                        },
+                        cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 });
 
             Assert.Equal(4, times.Count);

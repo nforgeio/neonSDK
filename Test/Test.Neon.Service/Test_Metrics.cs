@@ -262,8 +262,8 @@ namespace TestNeonService
             {
                 // We're expecting the metrics scrape request to fail since metrics are disabled.
 
-                await Assert.ThrowsAsync<HttpRequestException>(async () => await httpClient.GetAsync($"http://127.0.0.1:{NetworkPorts.PrometheusMetrics}"));
-                await Assert.ThrowsAsync<HttpRequestException>(async () => await httpClient.GetAsync($"http://127.0.0.1:{NetworkPorts.PrometheusMetrics}/metrics/"));
+                await Assert.ThrowsAsync<HttpRequestException>(async () => await httpClient.GetAsync($"http://127.0.0.1:{NetworkPorts.PrometheusMetrics}", cancellationToken: Xunit.TestContext.Current.CancellationToken));
+                await Assert.ThrowsAsync<HttpRequestException>(async () => await httpClient.GetAsync($"http://127.0.0.1:{NetworkPorts.PrometheusMetrics}/metrics/", cancellationToken: Xunit.TestContext.Current.CancellationToken));
             }
 
             // Tell the service it can exit.
@@ -293,7 +293,7 @@ namespace TestNeonService
 
                 using (var httpClient = new HttpClient())
                 {
-                    var scrapedMetrics = await httpClient.GetStringAsync($"http://127.0.0.1:{NetworkPorts.PrometheusMetrics}/metrics/");
+                    var scrapedMetrics = await httpClient.GetStringAsync($"http://127.0.0.1:{NetworkPorts.PrometheusMetrics}/metrics/", cancellationToken: Xunit.TestContext.Current.CancellationToken);
                     var metrics        = ParseMetrics(scrapedMetrics);
 
                     // Verify the test counter.
@@ -343,7 +343,7 @@ namespace TestNeonService
 
                 using (var httpClient = new HttpClient())
                 {
-                    var scrapedMetrics = await httpClient.GetStringAsync($"http://127.0.0.1:{metricsPort}/metrics/");
+                    var scrapedMetrics = await httpClient.GetStringAsync($"http://127.0.0.1:{metricsPort}/metrics/", cancellationToken: Xunit.TestContext.Current.CancellationToken);
                     var metrics        = ParseMetrics(scrapedMetrics);
 
                     // Verify the test counter.
@@ -393,7 +393,7 @@ namespace TestNeonService
 
                 using (var httpClient = new HttpClient())
                 {
-                    var scrapedMetrics = await httpClient.GetStringAsync($"http://127.0.0.1:{NetworkPorts.PrometheusMetrics}/{metricsPath}");
+                    var scrapedMetrics = await httpClient.GetStringAsync($"http://127.0.0.1:{NetworkPorts.PrometheusMetrics}/{metricsPath}", cancellationToken: Xunit.TestContext.Current.CancellationToken);
                     var metrics        = ParseMetrics(scrapedMetrics);
 
                     // Verify the test counter.
@@ -445,7 +445,7 @@ namespace TestNeonService
 
                 using (var httpClient = new HttpClient())
                 {
-                    var scrapedMetrics = await httpClient.GetStringAsync($"http://127.0.0.1:{metricPort}/{metricsPath}");
+                    var scrapedMetrics = await httpClient.GetStringAsync($"http://127.0.0.1:{metricPort}/{metricsPath}", cancellationToken: Xunit.TestContext.Current.CancellationToken);
                     var metrics        = ParseMetrics(scrapedMetrics);
 
                     // Verify the test counter.
@@ -535,7 +535,8 @@ namespace TestNeonService
                                 metrics = receivedMetrics;
                             }
                         }
-                    });
+                    },
+                    cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
                 // Tell the service it can exit.
 
@@ -586,7 +587,7 @@ namespace TestNeonService
 
                 using (var httpClient = new HttpClient())
                 {
-                    var scrapedMetrics = await httpClient.GetStringAsync($"http://127.0.0.1:{metricPort}/{metricsPath}");
+                    var scrapedMetrics = await httpClient.GetStringAsync($"http://127.0.0.1:{metricPort}/{metricsPath}", cancellationToken: Xunit.TestContext.Current.CancellationToken);
                     var metrics        = ParseMetrics(scrapedMetrics);
 
                     // Verify the test counter.

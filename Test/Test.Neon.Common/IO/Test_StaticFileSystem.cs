@@ -1302,7 +1302,7 @@ Line 7
 Line 8
 Line 9
 ",
-                await reader.ReadToEndAsync());
+                await reader.ReadToEndAsync(cancellationToken: Xunit.TestContext.Current.CancellationToken));
             }
         }
 
@@ -1487,7 +1487,7 @@ Line 7
 Line 8
 Line 9
 ",
-                await reader.ReadToEndAsync());
+                await reader.ReadToEndAsync(cancellationToken: Xunit.TestContext.Current.CancellationToken));
             }
         }
 

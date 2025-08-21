@@ -182,15 +182,15 @@ namespace TestNeonService
             var listener1 = new HttpListener();
             var listener2 = new HttpListener();
 
-            await Task.Delay(TimeSpan.FromSeconds(startDelay));
+            await Task.Delay(TimeSpan.FromSeconds(startDelay), cancellationToken: Xunit.TestContext.Current.CancellationToken);
             listener0.Prefixes.Add($"http://127.0.0.1:{port0}/");
             listener0.Start();
 
-            await Task.Delay(TimeSpan.FromSeconds(startDelay));
+            await Task.Delay(TimeSpan.FromSeconds(startDelay), cancellationToken: Xunit.TestContext.Current.CancellationToken);
             listener1.Prefixes.Add($"http://127.0.0.1:{port1}/");
             listener1.Start();
 
-            await Task.Delay(TimeSpan.FromSeconds(startDelay));
+            await Task.Delay(TimeSpan.FromSeconds(startDelay), cancellationToken: Xunit.TestContext.Current.CancellationToken);
             listener2.Prefixes.Add($"http://127.0.0.1:{port2}/");
             listener2.Start();
 
@@ -246,15 +246,15 @@ namespace TestNeonService
             var listener1 = new HttpListener();
             var listener2 = new HttpListener();
 
-            await Task.Delay(TimeSpan.FromSeconds(startDelay));
+            await Task.Delay(TimeSpan.FromSeconds(startDelay), cancellationToken: Xunit.TestContext.Current.CancellationToken);
             listener0.Prefixes.Add($"http://127.0.0.1:{port0}/");
             listener0.Start();
 
-            await Task.Delay(TimeSpan.FromSeconds(startDelay));
+            await Task.Delay(TimeSpan.FromSeconds(startDelay), cancellationToken: Xunit.TestContext.Current.CancellationToken);
             listener1.Prefixes.Add($"http://127.0.0.1:{port1}/");
             listener1.Start();
 
-            await Task.Delay(TimeSpan.FromSeconds(startDelay));
+            await Task.Delay(TimeSpan.FromSeconds(startDelay), cancellationToken: Xunit.TestContext.Current.CancellationToken);
             listener2.Prefixes.Add($"http://127.0.0.1:{port2}/");
             listener2.Start();
 
@@ -311,15 +311,15 @@ namespace TestNeonService
             var listener1 = new HttpListener();
             var listener2 = new HttpListener();
 
-            await Task.Delay(TimeSpan.FromSeconds(startDelay));
+            await Task.Delay(TimeSpan.FromSeconds(startDelay), cancellationToken: Xunit.TestContext.Current.CancellationToken);
             listener0.Prefixes.Add($"http://127.0.0.1:{port0}/");
             listener0.Start();
 
-            await Task.Delay(TimeSpan.FromSeconds(startDelay));
+            await Task.Delay(TimeSpan.FromSeconds(startDelay), cancellationToken: Xunit.TestContext.Current.CancellationToken);
             listener1.Prefixes.Add($"http://127.0.0.1:{port1}/");
             listener1.Start();
 
-            await Task.Delay(TimeSpan.FromSeconds(startDelay));
+            await Task.Delay(TimeSpan.FromSeconds(startDelay), cancellationToken: Xunit.TestContext.Current.CancellationToken);
             listener2.Prefixes.Add($"http://127.0.0.1:{port2}/");
             listener2.Start();
 

@@ -21,6 +21,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="Microsoft.Net.Http.Headers" Version="$(DotNetVersion)" />
         <PackageReference Include="prometheus-net.AspNetCore" Version="8.2.1" />
     </ItemGroup>
 

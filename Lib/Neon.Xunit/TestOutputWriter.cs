@@ -31,7 +31,6 @@ using Neon.Tasks;
 using Neon.Xunit;
 
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Neon.Xunit
 {

@@ -86,9 +86,10 @@ namespace TestCommon
                                     }
                                 }
                             }
-                        }));
+                        },
+                        cancellationToken: Xunit.TestContext.Current.CancellationToken));
 
-                    await NeonHelper.WaitAllAsync(tasks, defaultTimeout);
+                    await NeonHelper.WaitAllAsync(tasks, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
                 }
 
                 Assert.False(error);
@@ -127,18 +128,19 @@ namespace TestCommon
                     {
                         disposed = true;
                     }
-                });
+                },
+                cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
             // Wait for the task to have called [AcquireAsync()].
 
-            NeonHelper.WaitFor(() => inTask, defaultTimeout);
+            NeonHelper.WaitFor(() => inTask, defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
             // Dispose the mutex, wait for the task to exit and then verify
             // that it caught the [ObjectDisposedException].
 
             mutex.Dispose();
 #pragma warning disable xUnit1031 // Do not use blocking task operations in test method
-            task.Wait(defaultTimeout);
+            task.Wait(defaultTimeout, cancellationToken: Xunit.TestContext.Current.CancellationToken);
 #pragma warning restore xUnit1031 // Do not use blocking task operations in test method
 
             Assert.False(acquired);
