@@ -161,7 +161,7 @@ namespace Test.Neon.SignalR
             secondConnection.On<string>("Echo", message => tcs2.SetResult(message));
 
             await CheckConnectionsAsync();
-            await connection.InvokeAsync("EchoUser", "userA", "Hello, World!");
+            await connection.InvokeAsync("EchoUser", "userA", "Hello, World!", cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
             Assert.Equal("Hello, World!", await AwaitWithTimeoutAsync<string>(tcs.Task));
             Assert.Equal("Hello, World!", await AwaitWithTimeoutAsync<string>(tcs2.Task));
@@ -179,7 +179,7 @@ namespace Test.Neon.SignalR
             secondConnection.On<string>("Echo", message => tcs2.SetResult(message));
 
             await CheckConnectionsAsync();
-            await connection.InvokeAsync("SayHello", null);
+            await connection.InvokeAsync("SayHello", null, cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
             Assert.Equal("Hello, World!", await AwaitWithTimeoutAsync<string>(tcs.Task));
             Assert.Equal("Hello, World!", await AwaitWithTimeoutAsync<string>(tcs2.Task));
@@ -206,7 +206,7 @@ namespace Test.Neon.SignalR
 
             await CheckConnectionsAsync();
 
-            await connection.InvokeAsync("EchoUser", "userA", "Hello, World!");
+            await connection.InvokeAsync("EchoUser", "userA", "Hello, World!", cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
             Assert.Equal("Hello, World!", await AwaitWithTimeoutAsync<string>(tcs.Task));
             Assert.Equal("Hello, World!", await AwaitWithTimeoutAsync<string>(tcs2.Task));
@@ -218,7 +218,7 @@ namespace Test.Neon.SignalR
             tcs3 = new TaskCompletionSource<string>();
             tcs4 = new TaskCompletionSource<string>();
 
-            await connection.InvokeAsync("EchoUser", "userC", "Hello, World!");
+            await connection.InvokeAsync("EchoUser", "userC", "Hello, World!", cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
             Assert.Null(await AwaitWithTimeoutAsync<string>(tcs.Task, throwOnTimeout: false));
             Assert.Null(await AwaitWithTimeoutAsync<string>(tcs2.Task, throwOnTimeout: false));
@@ -241,12 +241,12 @@ namespace Test.Neon.SignalR
             var groupName = $"HubConnectionCanSendAndReceiveGroupMessages_{Guid.NewGuid():N}";
 
             await CheckConnectionsAsync();
-            await connection.InvokeAsync("AddSelfToGroup", groupName);
-            await secondConnection.InvokeAsync("AddSelfToGroup", groupName);
+            await connection.InvokeAsync("AddSelfToGroup", groupName, cancellationToken: Xunit.TestContext.Current.CancellationToken);
+            await secondConnection.InvokeAsync("AddSelfToGroup", groupName, cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
-            await Task.Delay(100);
+            await Task.Delay(100, Xunit.TestContext.Current.CancellationToken);
 
-            await connection.InvokeAsync("EchoGroup", groupName, "Hello, World!");
+            await connection.InvokeAsync("EchoGroup", groupName, "Hello, World!", cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
             Assert.Equal("Hello, World!", await AwaitWithTimeoutAsync<string>(tcs.Task));
             Assert.Equal("Hello, World!", await AwaitWithTimeoutAsync<string>(tcs2.Task));
@@ -266,9 +266,9 @@ namespace Test.Neon.SignalR
             var groupName = $"HubConnectionCanUnsubscribeFromGroupMessages_{Guid.NewGuid():N}";
 
             await CheckConnectionsAsync();
-            await connection.InvokeAsync("AddSelfToGroup", groupName);
-            await secondConnection.InvokeAsync("AddSelfToGroup", groupName);
-            await connection.InvokeAsync("EchoGroup", groupName, "Hello, World!");
+            await connection.InvokeAsync("AddSelfToGroup", groupName, cancellationToken: Xunit.TestContext.Current.CancellationToken);
+            await secondConnection.InvokeAsync("AddSelfToGroup", groupName, cancellationToken: Xunit.TestContext.Current.CancellationToken);
+            await connection.InvokeAsync("EchoGroup", groupName, "Hello, World!", cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
             Assert.Equal("Hello, World!", await AwaitWithTimeoutAsync<string>(tcs.Task));
             Assert.Equal("Hello, World!", await AwaitWithTimeoutAsync<string>(tcs2.Task));
@@ -276,8 +276,8 @@ namespace Test.Neon.SignalR
             tcs  = new TaskCompletionSource<string>();
             tcs2 = new TaskCompletionSource<string>();
 
-            await secondConnection.InvokeAsync("RemoveSelfFromGroup", groupName);
-            await connection.InvokeAsync("EchoGroup", groupName, "Hello, World!");
+            await secondConnection.InvokeAsync("RemoveSelfFromGroup", groupName, cancellationToken: Xunit.TestContext.Current.CancellationToken);
+            await connection.InvokeAsync("EchoGroup", groupName, "Hello, World!", cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
             Assert.Equal("Hello, World!", await AwaitWithTimeoutAsync<string>(tcs.Task));
             Assert.Null(await AwaitWithTimeoutAsync<string>(tcs2.Task, throwOnTimeout: false));
@@ -297,8 +297,8 @@ namespace Test.Neon.SignalR
             var groupName = $"HubConnectionCanAddUserToGroup_{Guid.NewGuid():N}";
 
             await CheckConnectionsAsync();
-            await secondConnection.InvokeAsync("AddUserToGroup", connection.ConnectionId, groupName);
-            await connection.InvokeAsync("EchoGroup", groupName, "Hello, World!");
+            await secondConnection.InvokeAsync("AddUserToGroup", connection.ConnectionId, groupName, cancellationToken: Xunit.TestContext.Current.CancellationToken);
+            await connection.InvokeAsync("EchoGroup", groupName, "Hello, World!", cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
             Assert.Equal("Hello, World!", await AwaitWithTimeoutAsync<string>(tcs.Task));
         }
@@ -317,15 +317,15 @@ namespace Test.Neon.SignalR
             var groupName = $"HubConnectionCanRemoveUserFromGroup_{Guid.NewGuid():N}";
 
             await CheckConnectionsAsync();
-            await secondConnection.InvokeAsync("AddUserToGroup", connection.ConnectionId, groupName);
-            await connection.InvokeAsync("EchoGroup", groupName, "Hello, World!");
+            await secondConnection.InvokeAsync("AddUserToGroup", connection.ConnectionId, groupName, cancellationToken: Xunit.TestContext.Current.CancellationToken);
+            await connection.InvokeAsync("EchoGroup", groupName, "Hello, World!", cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
             Assert.Equal("Hello, World!", await AwaitWithTimeoutAsync<string>(tcs.Task));
 
             tcs = new TaskCompletionSource<string>();
 
-            await secondConnection.InvokeAsync("RemoveUserFromGroup", connection.ConnectionId, groupName);
-            await secondConnection.InvokeAsync("EchoGroup", groupName, "Hello, World!");
+            await secondConnection.InvokeAsync("RemoveUserFromGroup", connection.ConnectionId, groupName, cancellationToken: Xunit.TestContext.Current.CancellationToken);
+            await secondConnection.InvokeAsync("EchoGroup", groupName, "Hello, World!", cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
             Assert.Null(await AwaitWithTimeoutAsync<string>(tcs2.Task, throwOnTimeout: false));
         }

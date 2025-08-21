@@ -1,19 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
-  <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <NoDefaultLaunchSettingsFile>true</NoDefaultLaunchSettingsFile>
-    <StaticWebAssetProjectMode>Default</StaticWebAssetProjectMode>
-    <RootNamespace>test-blazor-2.Client</RootNamespace>
-    <AssemblyName>$(AssemblyName.Replace(' ', '_'))</AssemblyName>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <NoDefaultLaunchSettingsFile>true</NoDefaultLaunchSettingsFile>
+        <RootNamespace>test-blazor-2.Client</RootNamespace>
+        <AssemblyName>test-blazor.Client</AssemblyName>
+        <StaticWebAssetProjectMode>Default</StaticWebAssetProjectMode>
+        <StaticWebAssetMakeReferencedAssetOriginalItemSpecAbsolute Condition="'$(StaticWebAssetMakeReferencedAssetOriginalItemSpecAbsolute)' == ''">true</StaticWebAssetMakeReferencedAssetOriginalItemSpecAbsolute>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="$(DotNetVersion)" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="$(DotNetVersion)" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\Lib\Neon.Blazor\Neon.Blazor.csproj" Exclude="" />
-  </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\Lib\Neon.Blazor\Neon.Blazor.csproj" Exclude="" />
+    </ItemGroup>
 
 </Project>

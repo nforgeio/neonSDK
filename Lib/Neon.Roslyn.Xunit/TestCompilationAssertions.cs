@@ -39,7 +39,6 @@ namespace Neon.Roslyn.Xunit
         public TestCompilationAssertions(TestCompilation compilation)
             : base(compilation)
         {
-
         }
 
         /// <summary>

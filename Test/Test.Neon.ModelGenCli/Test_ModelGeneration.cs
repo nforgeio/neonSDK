@@ -103,17 +103,17 @@ namespace Test.NeonCli
     [CollectionDefinition(TestCollection.NonParallel, DisableParallelization = true)]
     public class Test_ModelGeneration
     {
-        private string thisAssemblyPath = Assembly.GetExecutingAssembly().Location;
+        private string thisAssemblyPath = NeonHelper.GetEntryAssemblyPath();
 
         [Fact]
         public async Task AllTargets()
         {
             using (var runner = new ProgramRunner())
             {
-                // Verify that all types are generated when no targets
-                // are specified.
+                // Verify that all types are generated when no targets are specified.
 
                 var result = await runner.ExecuteAsync(Program.Main, $"--source-namespace={typeof(Test_ModelGeneration).Namespace}", thisAssemblyPath);
+
                 Assert.Equal(0, result.ExitCode);
 
                 var sourceCode = result.OutputText;
@@ -138,6 +138,7 @@ namespace Test.NeonCli
                 // are specified.
 
                 var result = await runner.ExecuteAsync(Program.Main, $"--source-namespace={typeof(Test_ModelGeneration).Namespace}", "--targets=1", thisAssemblyPath);
+
                 Assert.Equal(0, result.ExitCode);
 
                 var sourceCode = result.OutputText;
@@ -162,6 +163,7 @@ namespace Test.NeonCli
                 // are specified.
 
                 var result = await runner.ExecuteAsync(Program.Main, $"--source-namespace={typeof(Test_ModelGeneration).Namespace}", "--targets=2", thisAssemblyPath);
+
                 Assert.Equal(0, result.ExitCode);
 
                 var sourceCode = result.OutputText;
@@ -186,6 +188,7 @@ namespace Test.NeonCli
                 // are specified.
 
                 var result = await runner.ExecuteAsync(Program.Main, $"--source-namespace={typeof(Test_ModelGeneration).Namespace}", "--targets=client", thisAssemblyPath);
+
                 Assert.Equal(0, result.ExitCode);
 
                 var sourceCode = result.OutputText;
@@ -210,6 +213,7 @@ namespace Test.NeonCli
                 // are specified.
 
                 var result = await runner.ExecuteAsync(Program.Main, $"--source-namespace={typeof(Test_ModelGeneration).Namespace}", "--targets=3,client", thisAssemblyPath);
+
                 Assert.Equal(0, result.ExitCode);
 
                 var sourceCode = result.OutputText;
@@ -234,6 +238,7 @@ namespace Test.NeonCli
                 // are specified.
 
                 var result = await runner.ExecuteAsync(Program.Main, $"--source-namespace={typeof(FooBar.Class4).Namespace}", thisAssemblyPath);
+
                 Assert.Equal(0, result.ExitCode);
 
                 var sourceCode = result.OutputText;
@@ -258,6 +263,7 @@ namespace Test.NeonCli
                 // are specified.
 
                 var result = await runner.ExecuteAsync(Program.Main, $"--source-namespace={typeof(Test_ModelGeneration).Namespace}", "--no-services", thisAssemblyPath);
+
                 Assert.Equal(0, result.ExitCode);
 
                 var sourceCode = result.OutputText;

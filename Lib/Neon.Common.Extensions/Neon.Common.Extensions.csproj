@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
@@ -37,7 +37,7 @@
         <PackageReference Include="System.Threading.Thread" Version="4.3.0" />
         <PackageReference Include="System.ValueTuple" Version="4.6.1" />
         <PackageReference Include="YamlDotNet" Version="16.3.0" />
-    </ItemGroup>
+    </ItemGroup > 
 
     <ItemGroup>
         <None Include="..\nuget-icon.png" Pack="true" PackagePath="" />
