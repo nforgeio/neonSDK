@@ -1635,10 +1635,9 @@ namespace Neon.Common
         /// Returns the fully qualified path the entry assembly for the current process.
         /// </summary>
         /// <returns>The entry assembly file path.</returns>
-        [Obsolete("Avoid this because it is not compatible with single-file executables.")]
         public static string GetEntryAssemblyPath()
         {
-            return GetAssemblyPath(Assembly.GetEntryAssembly());
+            return Process.GetCurrentProcess().MainModule.FileName;
         }
 
         /// <summary>
