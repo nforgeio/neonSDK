@@ -25,14 +25,14 @@ using System.Reflection;
 // unit tests.  Normally, folks have MSBUILD generate these files, but that doesn't
 // work for complex solutions due to the scourge of duplicate symbols.
 //
-// We're relying on [Directory.Build.props] to detect the target framework and
+// We're relying on [Directory.Build.targets] to detect the target framework and
 // define the associated build constant.  Note that when no relaveat constant is
 // defined, we assume .NET Framework 4.8.
 //
-// IMPORTANT: [Directory.Build.props] and the code below will need to be updated
+// IMPORTANT: [Directory.Build.targets] and the code below will need to be updated
 //            when we upgrade to a new framework version.
 //
-// See [Directory.Build.props] for more information.
+// See [Directory.Build.targets] for more information.
 
 #if NETSTANDARD2_0
 [assembly: global::System.Runtime.Versioning.TargetFrameworkAttribute(".NETStandard,Version=v2.0", FrameworkDisplayName = ".NET Standard 2.0")]
@@ -41,7 +41,7 @@ using System.Reflection;
 #elif NET8_0
 [assembly: global::System.Runtime.Versioning.TargetFrameworkAttribute(".NETCoreApp,Version=v8.0", FrameworkDisplayName = ".NET 8.0")]
 #elif NET9_0
-[assembly: global::System.Runtime.Versioning.TargetFrameworkAttribute(".NETCoreApp,Version=v8.0", FrameworkDisplayName = ".NET 9.0")]
+[assembly: global::System.Runtime.Versioning.TargetFrameworkAttribute(".NETCoreApp,Version=v9.0", FrameworkDisplayName = ".NET 9.0")]
 #elif NET48
 [assembly: global::System.Runtime.Versioning.TargetFrameworkAttribute(".NETFramework,Version=v4.8", FrameworkDisplayName = ".NET Framework 4.8")]
 #else

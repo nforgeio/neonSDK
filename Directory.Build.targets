@@ -17,7 +17,8 @@
         <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
         <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-        <NoWarn>1701;1702;NETSDK1138;CS8892;ASP0014;IDE0063;IDE0090;IDE0017;IDE0079;IDE0066;NU1605;MSB3026;MSB3061;IDE0055;IDE0130;NU1603</NoWarn>
+        <NoWarn>1701;1702;NETSDK1138;CS8892;ASP0014;IDE0063;IDE0090;IDE0017;IDE0079;IDE0066;NU1605;IDE0055;IDE0130;NU1603;NU1608</NoWarn>
+        <MSBuildWarningsAsMessages>$(MSBuildWarningsAsMessages);MSB3274;MSB3275;MSB3268</MSBuildWarningsAsMessages>
 
         <!-- Debugging -->
 
@@ -54,7 +55,7 @@
     -->
 
     <PropertyGroup Label="Dotnet versions">
-        <DotNet8Version>8.0.1</DotNet8Version>
+        <DotNet8Version>8.0.19</DotNet8Version>
         <DotNet9Version>9.0.8</DotNet9Version>
         <LatestDotNetVersion>9.0.8</LatestDotNetVersion>
     </PropertyGroup>

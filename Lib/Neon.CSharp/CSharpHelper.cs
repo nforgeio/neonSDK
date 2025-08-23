@@ -64,7 +64,7 @@ namespace Neon.CSharp
 
                     case NetFramework.Net:
 
-                        if (frameworkVersion.Major >= 6)
+                        if (frameworkVersion.Major >= 8)
                         {
                             return ReferenceAssemblies.Net80;
                         }
