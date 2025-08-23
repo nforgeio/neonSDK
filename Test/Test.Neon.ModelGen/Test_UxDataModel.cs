@@ -46,7 +46,6 @@ namespace TestModelGen.UxDataModel
     {
     }
 
-    [Persistable]   // This should cause the "__T" property to be generated.
     public interface EmptyPersistableData
     {
     }

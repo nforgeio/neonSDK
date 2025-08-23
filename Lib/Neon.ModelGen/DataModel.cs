@@ -95,17 +95,6 @@ namespace Neon.ModelGen
         public DataModel BaseModel { get; set;}
 
         /// <summary>
-        /// Returns the entity persistence settings if the data model was tagged with <c>[Persistedable]</c>
-        /// or <c>null</c> otherwise.
-        /// </summary>
-        public PersistableAttribute Persistable { get; set; }
-
-        /// <summary>
-        /// Returns <c>true</c> if the data model is persistable.
-        /// </summary>
-        public bool IsPersistable => Persistable != null;
-
-        /// <summary>
         /// Indicates whether the current data model is derived from another model.
         /// </summary>
         public bool IsDerived => BaseTypeName != null;

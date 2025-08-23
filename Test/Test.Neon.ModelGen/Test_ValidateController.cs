@@ -30,12 +30,6 @@ using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Mvc;
 
-using Couchbase;
-using Couchbase.Core;
-using Couchbase.Linq;
-using Couchbase.Linq.Extensions;
-using Couchbase.N1QL;
-
 using Neon.Common;
 using Neon.Xunit;
 

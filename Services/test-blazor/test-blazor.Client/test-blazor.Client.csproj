@@ -5,6 +5,7 @@
         <NoDefaultLaunchSettingsFile>true</NoDefaultLaunchSettingsFile>
         <RootNamespace>test-blazor-2.Client</RootNamespace>
         <AssemblyName>test-blazor.Client</AssemblyName>
+        <DebugType>embedded</DebugType>
         <StaticWebAssetProjectMode>Default</StaticWebAssetProjectMode>
         <StaticWebAssetMakeReferencedAssetOriginalItemSpecAbsolute Condition="'$(StaticWebAssetMakeReferencedAssetOriginalItemSpecAbsolute)' == ''">true</StaticWebAssetMakeReferencedAssetOriginalItemSpecAbsolute>
     </PropertyGroup>

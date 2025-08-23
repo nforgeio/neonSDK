@@ -42,6 +42,8 @@ namespace Neon.ModelGen
     /// </summary>
     public class ModelGenerator
     {
+        private const string typePropertyName = "T$$";
+
         private static Regex    routeConstraintRegex = new Regex(@"\{[^:\}]*:[^:\}]*\}");   // Matches route template parameters with constraints (like: "{param:int}").
         private static Regex    routeParameterRegex  = new Regex(@"\{([^\}]*)\}");          // Matches route template parameters (like: "{param}") capturing just the parameter name.
 
@@ -51,7 +53,6 @@ namespace Neon.ModelGen
         private bool                                generateUx         = false;
         private StringWriter                        writer;
         private HashSet<Type>                       convertableTypes;
-        private string                              typePropertyName;
 
         /// <summary>
         /// Constructs a code generator.
@@ -59,9 +60,8 @@ namespace Neon.ModelGen
         /// <param name="settings">Optional settings.  Reasonable defaults will be used when this is <c>null</c>.</param>
         public ModelGenerator(ModelGeneratorSettings settings = null)
         {
-            this.Settings         = settings ?? new ModelGeneratorSettings();
-            this.Output           = new ModelGeneratorOutput();
-            this.typePropertyName = settings.V1Compatible ? "__T" : "T$$";
+            this.Settings = settings ?? new ModelGeneratorSettings();
+            this.Output   = new ModelGeneratorOutput();
 
             if (string.IsNullOrEmpty(settings.SourceNamespace))
             {
@@ -754,8 +754,6 @@ namespace Neon.ModelGen
             }
             else
             {
-                dataModel.Persistable = dataType.GetCustomAttribute<PersistableAttribute>();
-
                 // A data model interface is allowed to implement another 
                 // data model interface to specify a base class.  Note that
                 // only one of these references is allowed and it may only
@@ -977,7 +975,7 @@ namespace Neon.ModelGen
             foreach (var dataModel in nameToDataModel.Values
                 .OrderBy(dm => dm.SourceType.Name.ToLowerInvariant()))
             {
-                GenerateDataModel(dataModel, genPersistence: Settings.Persisted && dataModel.Persistable != null);
+                GenerateDataModel(dataModel);
             }
 
             // Generate the service clients (if enabled).
@@ -1103,37 +1101,10 @@ namespace Neon.ModelGen
         /// Generates source code for a data model.
         /// </summary>
         /// <param name="dataModel">The data model.</param>
-        /// <param name="genPersistence">Optionally enables the generation of database persistence related code for this data model.</param>
-        private void GenerateDataModel(DataModel dataModel, bool genPersistence)
+        private void GenerateDataModel(DataModel dataModel)
         {
             string          defaultValueExpression;
-            string          virtualModifier      = dataModel.IsDerived ? "override" : "virtual";
-            PropertyInfo    persistedKeyProperty = null;
-
-            if (genPersistence && !dataModel.IsEnum)
-            {
-                // We need to identify the data model property that acts as the
-                // database key.
-
-                foreach (var property in dataModel.SourceType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy))
-                {
-                    if (property.GetCustomAttribute<PersistableKeyAttribute>() != null)
-                    {
-                        if (persistedKeyProperty != null)
-                        {
-                            Output.Error($"[{dataModel.SourceType.FullName}]: This data model has two properties [{persistedKeyProperty.Name}] and [{property.Name}] that are both tagged with [PersisabledKey].  This is allowed for only one property per type.");
-                            break;
-                        }
-
-                        persistedKeyProperty = property;
-                    }
-                }
-
-                if (persistedKeyProperty == null)
-                {
-                    Output.Error($"[{dataModel.SourceType.FullName}]: This data model has no property tagged with [PersistableKey].  Persistable classes must tag one property as the database key.");
-                }
-            }
+            string          virtualModifier = dataModel.IsDerived ? "override" : "virtual";
 
             if (firstItemGenerated)
             {
@@ -1191,11 +1162,6 @@ namespace Neon.ModelGen
                     }
                 }
 
-                if (dataModel.IsPersistable)
-                {
-                    baseTypeRef += $", IPersistableType<{dataModel.SourceType.Name}>";
-                }
-
                 var className = dataModel.SourceType.Name;
 
                 writer.WriteLine($"    /// <threadsafety static=\"true\" instance=\"false\"/>");
@@ -1204,58 +1170,11 @@ namespace Neon.ModelGen
 
                 if (Settings.RoundTrip)
                 {
-                    if (genPersistence && dataModel.IsPersistable)
-                    {
-                        // We need to generate a custom Linq2Couchbase document filter attribute for
-                        // each persisted data model.
-
-                        writer.WriteLine($"        //---------------------------------------------------------------------");
-                        writer.WriteLine($"        // Private types:");
-                        writer.WriteLine();
-                        writer.WriteLine($"        /// <summary>");
-                        writer.WriteLine($"        /// Used to tag the <see cref=\"{className}\"/> entity such that Linq2Couchbase will");
-                        writer.WriteLine($"        /// be able to transparently add a <c>where</c> clause that filters by entity type");
-                        writer.WriteLine($"        /// to all queries for this entity type.");
-                        writer.WriteLine($"        /// </summary>");
-                        writer.WriteLine($"        private class {className}Filter : global::Couchbase.Linq.Filters.IDocumentFilter<{className}>");
-                        writer.WriteLine($"        {{");
-                        writer.WriteLine($"            //-----------------------------------------------------------------");
-                        writer.WriteLine($"            // Static members:");
-                        writer.WriteLine();
-                        writer.WriteLine($"            private static Expression<Func<{className}, bool>> whereExpression;");
-                        writer.WriteLine();
-                        writer.WriteLine($"            static {className}Filter()");
-                        writer.WriteLine($"            {{");
-                        writer.WriteLine($"                var parameter = Expression.Parameter(typeof({className}), \"p\");");
-                        writer.WriteLine();
-                        writer.WriteLine($"                whereExpression = Expression.Lambda<Func<{className}, bool>>(Expression.Equal(Expression.PropertyOrField(parameter, \"__T\"), Expression.Constant({className}.PersistedType)), parameter);");
-                        writer.WriteLine($"            }}");
-                        writer.WriteLine();
-                        writer.WriteLine($"            //-----------------------------------------------------------------");
-                        writer.WriteLine($"            // Instance members:");
-                        writer.WriteLine();
-                        writer.WriteLine($"            public int Priority {{ get; set; }}");
-                        writer.WriteLine();
-                        writer.WriteLine($"            public IQueryable<{className}> ApplyFilter(IQueryable<{className}> source)");
-                        writer.WriteLine($"            {{");
-                        writer.WriteLine($"                return source.Where(whereExpression);");
-                        writer.WriteLine($"            }}");
-                        writer.WriteLine($"        }}");
-                        writer.WriteLine();
-                    }
-
                     //-------------------------------------
                     // Generate the static members
 
                     writer.WriteLine($"        //---------------------------------------------------------------------");
                     writer.WriteLine($"        // Static members:");
-
-                    if (dataModel.IsPersistable)
-                    {
-                        writer.WriteLine();
-                        writer.WriteLine($"        public const string PersistedType = \"{dataModel.PersistedType}\";");
-                    }
-
                     writer.WriteLine();
                     writer.WriteLine($"        /// <summary>");
                     writer.WriteLine($"        /// Static constructor.");
@@ -1266,28 +1185,6 @@ namespace Neon.ModelGen
                     writer.WriteLine();
                     writer.WriteLine($"            NeonHelper.PackageReferenceToNeonCommonIsRequired();");
                     writer.WriteLine($"        }}");
-
-                    if (genPersistence && dataModel.IsPersistable)
-                    {
-                        writer.WriteLine();
-                        writer.WriteLine($"        /// <summary>");
-                        writer.WriteLine($"        /// Performs any persistence related initialization including registering the Linq2Couchbase type");
-                        writer.WriteLine($"        /// filter.  This is typically called via <see cref=\"RoundtripDataHelper.PersistableInitialize()\"/>.");
-                        writer.WriteLine($"        /// </summary>");
-
-                        if (!Settings.AllowDebuggerStepInto)
-                        {
-                            writer.WriteLine($"        [DebuggerStepThrough]");
-                        }
-
-                        writer.WriteLine($"        public static void PersistableInitialize()");
-                        writer.WriteLine($"        {{");
-                        writer.WriteLine($"            // Register the document filter with Linq2Couchbase.");
-                        writer.WriteLine();
-                        writer.WriteLine($"            global::Couchbase.Linq.Filters.DocumentFilterManager.SetFilter<{className}>(new {className}Filter());");
-                        writer.WriteLine($"        }}");
-                    }
-
                     writer.WriteLine();
                     writer.WriteLine($"        /// <summary>");
                     writer.WriteLine($"        /// Deserializes an instance from JSON text.");
@@ -1447,56 +1344,6 @@ namespace Neon.ModelGen
                     writer.WriteLine();
                     writer.WriteLine($"            return CreateFrom(response.JsonText);");
                     writer.WriteLine($"        }}");
-
-                    if (dataModel.IsPersistable)
-                    {
-                        writer.WriteLine();
-                        writer.WriteLine($"        /// <summary>");
-                        writer.WriteLine($"        /// Determines whether another entity instance has the same underlying type as this class.");
-                        writer.WriteLine($"        /// </summary>");
-                        writer.WriteLine($"        /// <param name=\"instance\">The instance to be tested or <c>null</c>.</param>");
-                        writer.WriteLine($"        /// <returns>");
-                        writer.WriteLine($"        /// <c>true</c> if the <paramref name=\"instance\"/> is not <c>null</c> and it has");
-                        writer.WriteLine($"        /// the same type as the current class.");
-                        writer.WriteLine($"        /// </returns>");
-
-                        if (!Settings.AllowDebuggerStepInto)
-                        {
-                            writer.WriteLine($"        [DebuggerStepThrough]");
-                        }
-
-                        writer.WriteLine($"        public static bool SameTypeAs(IPersistableType instance)");
-                        writer.WriteLine($"        {{");
-                        writer.WriteLine($"            if (instance == null)");
-                        writer.WriteLine($"            {{");
-                        writer.WriteLine($"                return false;");
-                        writer.WriteLine($"            }}");
-                        writer.WriteLine();
-                        writer.WriteLine($"            return instance.__T == {className}.PersistedType;");
-                        writer.WriteLine($"        }}");
-                    }
-
-                    // For data models tagged with [Persistable], we need to generate the static CreateKey(...) method.
-
-                    if (dataModel.IsPersistable)
-                    {
-                        writer.WriteLine();
-                        writer.WriteLine($"        /// <summary>");
-                        writer.WriteLine($"        /// Creates a persistence key.");
-                        writer.WriteLine($"        /// </summary>");
-                        writer.WriteLine($"        /// <param name=\"args\">Arguments identifying the item.</param>");
-
-                        if (!Settings.AllowDebuggerStepInto)
-                        {
-                            writer.WriteLine($"        [DebuggerStepThrough]");
-                        }
-
-                        writer.WriteLine($"        public static string CreateKey(params object[] args)");
-                        writer.WriteLine($"        {{");
-                        writer.WriteLine($"            return RoundtripDataHelper.GetPersistedKey(\"{dataModel.PersistedType}\", args);");
-                        writer.WriteLine($"        }}");
-                    }
-
                     writer.WriteLine();
                     writer.WriteLine($"        /// <summary>");
                     writer.WriteLine($"        /// Compares two instances for equality by performing a deep comparision of all object");
@@ -1558,12 +1405,6 @@ namespace Neon.ModelGen
                     writer.WriteLine($"        //---------------------------------------------------------------------");
                     writer.WriteLine($"        // Instance members:");
 
-                    if (dataModel.IsPersistable)
-                    {
-                        writer.WriteLine();
-                        writer.WriteLine($"        private string cachedT;");
-                    }
-
                     // Generate the backing __O property.
 
                     if (dataModel.BaseTypeName == null)
@@ -1596,15 +1437,8 @@ namespace Neon.ModelGen
 
                     writer.WriteLine($"        public {className}()");
                     writer.WriteLine($"        {{");
-
-                    if (genPersistence && dataModel.IsPersistable)
-                    {
-                        writer.WriteLine($"            __T = PersistedType;");
-                    }
-
                     writer.WriteLine($"            __O = new JObject();");
                     writer.WriteLine($"        }}");
-
                     writer.WriteLine();
                     writer.WriteLine($"        /// <summary>");
                     writer.WriteLine($"        /// Protected constructor used internally to initialize derived classes.");
@@ -1618,12 +1452,6 @@ namespace Neon.ModelGen
 
                     writer.WriteLine($"        protected {className}(JObject jObject)");
                     writer.WriteLine($"        {{");
-
-                    if (genPersistence && dataModel.IsPersistable)
-                    {
-                        writer.WriteLine($"            __T = PersistedType;");
-                    }
-
                     writer.WriteLine($"            __O = jObject;");
                     writer.WriteLine($"        }}");
                 }
@@ -1847,25 +1675,6 @@ namespace Neon.ModelGen
                         }
                     }
 
-                    // For persistable types, load and verify the [__T] property when this is not a derived class.
-
-                    if (dataModel.IsPersistable)
-                    {
-                        writer.WriteLine();
-                        writer.WriteLine($"            if (!isDerived)");
-                        writer.WriteLine($"            {{");
-                        writer.WriteLine($"                property = this.__O.Property(\"{typePropertyName}\");");
-                        writer.WriteLine($"                if (property == null)");
-                        writer.WriteLine($"                {{");
-                        writer.WriteLine($"                    throw new ArgumentNullException(\"[{className}.{typePropertyName}] property is required when deserializing.\");");
-                        writer.WriteLine($"                }}");
-                        writer.WriteLine($"                else");
-                        writer.WriteLine($"                {{");
-                        writer.WriteLine($"                    this.__T = (string)property.Value;");
-                        writer.WriteLine($"                }}");
-                        writer.WriteLine($"            }}");
-                    }
-
                     writer.WriteLine($"        }}");
 
                     //---------------------------------------------------------
@@ -1964,13 +1773,6 @@ namespace Neon.ModelGen
                                     break;
                             }
                         }
-                    }
-
-                    if (dataModel.IsPersistable)
-                    {
-                        // Serialize the [__T] property
-
-                        writer.WriteLine($"            this.__O[\"{typePropertyName}\"] = PersistedType;");
                     }
 
                     writer.WriteLine();
@@ -2188,91 +1990,6 @@ namespace Neon.ModelGen
                     }
 
                     writer.WriteLine($"        }}");
-
-                    if (dataModel.IsPersistable)
-                    {
-                        //---------------------------------------------------------
-                        // Generate the persisted type property.
-
-                        writer.WriteLine();
-                        writer.WriteLine($"        /// <summary>");
-                        writer.WriteLine($"        /// Identifies the persisted object type.  \"__T\" is short for \"type\".  This is persisted as \"{typePropertyName}\".");
-                        writer.WriteLine($"        /// </summary>");
-                        writer.WriteLine($"        [JsonProperty(PropertyName = \"{typePropertyName}\", DefaultValueHandling = DefaultValueHandling.Include, Required = Required.Default, Order = 0)]");
-                        writer.WriteLine($"        [DefaultValue(null)]");
-                        writer.WriteLine($"        public string __T");
-                        writer.WriteLine($"        {{");
-                        writer.WriteLine($"            get");
-                        writer.WriteLine($"            {{");
-                        writer.WriteLine($"                 if (cachedT != null)");
-                        writer.WriteLine($"                 {{");
-                        writer.WriteLine($"                     return cachedT;");
-                        writer.WriteLine($"                 }}");
-                        writer.WriteLine();
-                        writer.WriteLine($"                 cachedT = (string)__O[\"{typePropertyName}\"];");
-                        writer.WriteLine();
-                        writer.WriteLine($"                 if (cachedT != null)");
-                        writer.WriteLine($"                 {{");
-                        writer.WriteLine($"                     return cachedT;");
-                        writer.WriteLine($"                 }}");
-                        writer.WriteLine();
-                        writer.WriteLine($"                 return PersistedType;");
-                        writer.WriteLine($"            }}");
-                        writer.WriteLine();
-                        writer.WriteLine($"            set => cachedT = value;");
-                        writer.WriteLine($"        }}");
-                    }
-
-                    //---------------------------------------------------------
-                    // Generate any persistance related members.
-
-                    if (dataModel.IsPersistable)
-                    {
-                        writer.WriteLine();
-                        writer.WriteLine($"        /// <summary>");
-                        writer.WriteLine($"        /// Returns the object's persistence key.");
-                        writer.WriteLine($"        /// </summary>");
-
-                        if (!Settings.AllowDebuggerStepInto)
-                        {
-                            writer.WriteLine($"        [DebuggerStepThrough]");
-                        }
-
-                        writer.WriteLine($"        public string GetKey()");
-                        writer.WriteLine($"        {{");
-
-                        if (!genPersistence)
-                        {
-                            writer.WriteLine($"            throw new NotSupportedException(\"Model persistence is not enabled.  Try specifying the [--persisted] option on the NeonCLIENT command line.\");");
-                        }
-                        else if (persistedKeyProperty == null)
-                        {
-                            writer.WriteLine($"            throw new NotSupportedException(\"No source data model property was tagged by [PersistableKey].\");");
-                        }
-                        else if (persistedKeyProperty.PropertyType.IsValueType)
-                        {
-                            writer.WriteLine($"            return RoundtripDataHelper.GetPersistedKey(PersistedType, {persistedKeyProperty.Name}.ToString());");
-                        }
-                        else
-                        {
-                            writer.WriteLine($"            if ({persistedKeyProperty.Name} == null)");
-                            writer.WriteLine($"            {{");
-                            writer.WriteLine($"                throw new NotSupportedException(\"Persistence key property [{persistedKeyProperty.Name}] cannot be NULL.\");");
-                            writer.WriteLine($"            }}");
-                            writer.WriteLine();
-
-                            if (persistedKeyProperty.PropertyType == typeof(string))
-                            {
-                                writer.WriteLine($"            return RoundtripDataHelper.GetPersistedKey(PersistedType, {persistedKeyProperty.Name});");
-                            }
-                            else
-                            {
-                                writer.WriteLine($"            return GetPersistedKey(PersistedType, {persistedKeyProperty.Name}.ToString());");
-                            }
-                        }
-
-                        writer.WriteLine($"        }}");
-                    }
 
                     writer.WriteLine();
                     writer.WriteLine($"        /// <summary>");

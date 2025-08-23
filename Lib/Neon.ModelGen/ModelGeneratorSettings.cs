@@ -85,13 +85,6 @@ namespace Neon.ModelGen
         public bool RoundTrip { get; set; } = true;
 
         /// <summary>
-        /// Optionally generate generated database persistance related code for
-        /// data models tagged with <c>[Persistable]</c>.  This defaults to
-        /// <c>false</c>.
-        /// </summary>
-        public bool Persisted { get; set; } = false;
-
-        /// <summary>
         /// <para>
         /// Used to select a specific targets to be included in the
         /// generated output.
@@ -123,20 +116,5 @@ namespace Neon.ModelGen
         /// only when debugging model generation and defaults to <c>false</c>.
         /// </summary>
         public bool AllowDebuggerStepInto { get; set; } = false;
-
-        /// <summary>
-        /// <para>
-        /// Optionally specifies that model classes should be generated such that 
-        /// document type <c>__T</c> properties be serialized using the old v1.x
-        /// compatible <b>"__T"</b> property name rather than the <b>"T$$"</b>
-        /// property name generated for <b>Neon.ModelGen v2+</b>.
-        /// </para>
-        /// <para>
-        /// New projects should leave this alone but existing 1.x based projects
-        /// must set this to <c>true</c> or use the new <b>neon-modelgen --v1compatible</b> 
-        /// option to avoid database corruption and/or data transmission issues. 
-        /// </para>
-        /// </summary>
-        public bool V1Compatible { get; set; } = false;
     }
 }

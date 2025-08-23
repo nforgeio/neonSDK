@@ -29,8 +29,6 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
-        <PackageReference Include="CouchbaseNetClient" Version="2.7.27" />
-        <PackageReference Include="Linq2Couchbase" Version="1.4.2" />
         <PackageReference Include="LiquidTestReports.Markdown" Version="1.1.1-beta" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="$(DotNetVersion)" />
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="$(DotNetVersion)" />

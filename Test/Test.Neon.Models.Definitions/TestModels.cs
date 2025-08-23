@@ -86,10 +86,8 @@ namespace Test.Neon.Models.Definitions
         Other = 0x0004
     }
 
-    [Persistable]
     public interface Person
     {
-        [PersistableKey]
         int Id { get; set; }
         string Name { get; set; }
         int Age { get; set; }
@@ -117,27 +115,21 @@ namespace Test.Neon.Models.Definitions
         DateTime Timestamp { get; set; }
     }
 
-    [Persistable]
     public interface City
     {
-        [PersistableKey]
         string Name { get; set; }
         int Population { get; set; }
     }
 
-    [Persistable]
     public interface Country
     {
-        [PersistableKey]
         string Name { get; set; }
         int Population { get; set; }
     }
 
-    [Persistable]
     [DataModel(Name = "custom-person")]
     public interface CustomPerson
     {
-        [PersistableKey]
         [JsonProperty(PropertyName = "my-id")]
         int Id { get; set; }
         [JsonProperty(PropertyName = "my-name")]
@@ -153,7 +145,6 @@ namespace Test.Neon.Models.Definitions
     [DataModel(Name = "nonpersistable-person")]
     public interface NonPersistablePerson
     {
-        [PersistableKey]
         [JsonProperty(PropertyName = "my-id")]
         int Id { get; set; }
         [JsonProperty(PropertyName = "my-name")]
@@ -174,11 +165,9 @@ namespace Test.Neon.Models.Definitions
         Three
     }
 
-    [Persistable]
     [DataModel(Name = "Family")]
     public interface Family
     {
-        [PersistableKey]
         [JsonProperty(PropertyName = "id")]
         int Id { get; set; }
 
@@ -192,11 +181,9 @@ namespace Test.Neon.Models.Definitions
         Person Baby { get; set; }
     }
 
-    [Persistable]
     [DataModel(Name = "TagColor")]
     public interface TagColor
     {
-        [PersistableKey]
         string Id { get; set; }
 
         string Name { get; set; }

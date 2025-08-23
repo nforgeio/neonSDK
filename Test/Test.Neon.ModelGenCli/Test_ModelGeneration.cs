@@ -91,7 +91,6 @@ namespace Test.NeonCli
         {
             references.Add(typeof(System.Dynamic.CallInfo));
             references.Add(typeof(Newtonsoft.Json.JsonToken));
-            references.Add(typeof(Couchbase.Linq.BucketContext));
         }
     }
 
