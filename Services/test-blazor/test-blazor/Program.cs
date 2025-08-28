@@ -1,4 +1,4 @@
-// -----------------------------------------------------------------------------
+ // -----------------------------------------------------------------------------
 // FILE:	    Program.cs
 // CONTRIBUTOR: NEONFORGE Team
 // COPYRIGHT:   Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
@@ -48,11 +48,11 @@ namespace TestBlazor
     public static class Program
     {
 
-        const string DEBUG_HEADER = "Debug";
+        const string DEBUG_HEADER       = "Debug";
         const string DEBUG_METADATA_KEY = "debug";
-        const string DEBUG_VALUE = "true";
-        const string DNS_NAME = "test";
-        const int PORT = 11054;
+        const string DEBUG_VALUE        = "true";
+        const string DNS_NAME           = "test";
+        const int PORT                  = 11054;
 
         /// <summary>
         /// IP addresses of the servers.

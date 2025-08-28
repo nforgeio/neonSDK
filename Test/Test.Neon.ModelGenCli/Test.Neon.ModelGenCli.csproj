@@ -39,7 +39,6 @@
         </PackageReference>
         <PackageReference Include="LiquidTestReports.Markdown" Version="1.1.1-beta" />
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="$(DotNetVersion)" />
-        <PackageReference Include="Microsoft.Net.Http.Headers" Version="$(DotNetVersion)" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
         <PackageReference Include="Microsoft.TestPlatform.TestHost" Version="17.14.1" />
         <PackageReference Include="xunit.v3" Version="3.0.1" />

@@ -11,6 +11,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    </ItemGroup>
+
+    <ItemGroup>
         <Compile Include="$(NF_ROOT)\Lib\Neon.BuildInfo\AssemblyAttributes.cs" Link="Properties\AssemblyAttributes.cs" />
         <Compile Include="$(NF_ROOT)\Lib\Neon.BuildInfo\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
     </ItemGroup>
@@ -32,8 +36,7 @@
         </PackageReference>
         <PackageReference Include="Linq2Couchbase" Version="1.4.2" />
         <PackageReference Include="LiquidTestReports.Markdown" Version="1.1.1-beta" />
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="$(DotNetVersion)" />
-        <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="$(DotNetVersion)" />
+        <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="$(DotNetVersion)" />
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="$(DotNetVersion)" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
         <PackageReference Include="Microsoft.TestPlatform.TestHost" Version="17.14.1" />
