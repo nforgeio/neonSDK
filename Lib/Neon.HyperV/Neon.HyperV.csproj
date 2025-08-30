@@ -18,7 +18,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Include="..\Neon.BuildInfo\AssemblyAttributes.cs" Link="Properties\AssemblyAttributes.cs" />
         <Compile Include="..\Neon.BuildInfo\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
     </ItemGroup>
 

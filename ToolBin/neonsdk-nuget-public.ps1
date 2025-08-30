@@ -177,6 +177,7 @@ try
     Publish Neon.GitHub                 $neonSdkVersion
     Publish Neon.HyperV                 $neonSdkVersion
     Publish Neon.JsonConverters         $neonSdkVersion
+    Publish Neon.K8s                    $neonSdkVersion
     Publish Neon.ModelGen               $neonSdkVersion
     Publish Neon.ModelGenerator         $neonSdkVersion
     Publish Neon.Nats                   $neonSdkVersion

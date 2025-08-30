@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net8.0; net9.0</TargetFrameworks>
+        <OutputType>Library</OutputType>
+        <Configurations>Debug;Release</Configurations>
+        <Description>Kubernetes SDK extensions and helpers.</Description>
+        <PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
+        <IsPackable>true</IsPackable>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.K8s/README.md</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/nforgeio/neonSDK</RepositoryUrl>
+        <PackageIcon>nuget-icon.png</PackageIcon>
+        <IsPackable>true</IsPackable>
+        <RepositoryType>git</RepositoryType>
+        <PackageTags>kubernetes sdk k8s</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="AsyncKeyedLock" Version="7.1.6" />
+        <PackageReference Include="KubernetesClient" Version="12.0.16" />
+        <PackageReference Include="Macross.Json.Extensions" Version="3.0.0" />
+        <PackageReference Include="System.Collections.Concurrent" Version="4.3.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="..\nuget-icon.png" Pack="true" PackagePath="" />
+        <None Include="..\..\LICENSE" Pack="true" PackagePath="" />
+        <None Include="README.md" Pack="true" PackagePath="" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Neon.Common\Neon.Common.csproj" />
+      <ProjectReference Include="..\Neon.K8s.Core\Neon.K8s.Core.csproj" />
+    </ItemGroup>
+
+</Project>

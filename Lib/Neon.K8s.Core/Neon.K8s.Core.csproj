@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <OutputType>Library</OutputType>
+        <Configurations>Debug;Release</Configurations>
+        <Description>Kubernetes SDK extensions and helpers.</Description>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <PackageProjectUrl>https://docs.neonforge.com/docs/operator-sdk</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/nforgeio/operator-sdk</RepositoryUrl>
+        <PackageIcon>nuget-icon.png</PackageIcon>
+        <IsPackable>true</IsPackable>
+        <RepositoryType>git</RepositoryType>
+        <PackageTags>kubernetes k8s</PackageTags>
+        <PackageReleaseNotes>https://github.com/nforgeio/operator-sdk/releases</PackageReleaseNotes>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="KubernetesClient.Basic" Version="12.0.16" />
+        <PackageReference Include="KubernetesClient.Models" Version="12.0.16" />
+        <PackageReference Include="Microsoft.Extensions.Http" Version="$(DotNetVersion)" />
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="$(DotNetVersion)" />
+        <PackageReference Include="YamlDotNet" Version="16.3.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="..\nuget-icon.png" Pack="true" PackagePath="" />
+        <None Include="..\..\LICENSE" Pack="true" PackagePath="" />
+        <None Include="README.md" Pack="true" PackagePath="" />
+    </ItemGroup>
+
+</Project>

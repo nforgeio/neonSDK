@@ -20,7 +20,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Include="$(NK_ROOT)\Lib\Neon.Kube.BuildInfo\AssemblyAttributes.cs" Link="Properties\AssemblyAttributes.cs" />
         <Compile Include="$(NK_ROOT)\Lib\Neon.Kube.BuildInfo\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
     </ItemGroup>
 
@@ -97,7 +96,7 @@
     </Target>
 
     <ItemGroup>
-        <ModelGenFiles Include="$(NF_ROOT)\Tools\neon-modelgen\*"/>
+        <ModelGenFiles Include="$(NF_ROOT)\Tools\neon-modelgen\*" />
     </ItemGroup>
 
     <Target Inputs="@(ModelGenFiles)" Outputs="@(ModelGenFiles->'%(Filename).content')" Name="BuildModelGenerator" BeforeTargets="Build;BeforeCompile;CoreCompile">

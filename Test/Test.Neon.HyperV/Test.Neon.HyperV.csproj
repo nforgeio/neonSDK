@@ -14,7 +14,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Include="$(NF_ROOT)\Lib\Neon.BuildInfo\AssemblyAttributes.cs" Link="Properties\AssemblyAttributes.cs" />
         <Compile Include="$(NF_ROOT)\Lib\Neon.BuildInfo\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
 
         <!-- $todo(jefflill): Remove this when we're ready to test the WMI implementation -->
