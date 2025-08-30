@@ -134,6 +134,32 @@ namespace Neon.GitHub
         }
 
         /// <summary>
+        /// Waits for a remote branch to exist.  This is useful because it can take
+        /// a bit of time for new branches pushed to the remove to actually show up
+        /// on GitHub.
+        /// </summary>
+        /// <param name="branchName">Specifies the branch name.</param>
+        /// <param name="timeout">Optionally specifies a timeout (defaults to <b>30 seconds</b></param>
+        /// <returns>The tracking <see cref="Task"/>.</returns>
+        /// <exception cref="TimeoutException">Thrown when the branch cannot be found before the timeout.</exception>
+        public async Task WaitForBranchAsync(string branchName, TimeSpan timeout = default)
+        {
+            await SyncContext.Clear;
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
+            root.EnsureNotDisposed();
+
+            if (timeout == default)
+            {
+                timeout = TimeSpan.FromSeconds(30);
+            }
+
+            await NeonHelper.WaitForAsync(
+                async () => await ExistsAsync(branchName),
+                                timeout:      timeout,
+                                pollInterval: TimeSpan.FromSeconds(2));
+        }
+
+        /// <summary>
         /// Removes an origin branch, if it exists.
         /// </summary>
         /// <param name="branchName">Specifies the origin repository branch name.</param>

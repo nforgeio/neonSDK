@@ -383,6 +383,7 @@ namespace TestGitHub
                             // Push the branch to GitHub and verify.
 
                             await repo.Local.PushAsync();
+                            await repo.Remote.Branch.WaitForBranchAsync(newBranchName);
 
                             var newRemoteBranch = await repo.Remote.Branch.FindAsync(newBranchName);
 
@@ -611,6 +612,7 @@ namespace TestGitHub
                             // Push to remote and verify.
 
                             await repo.Local.PushAsync();
+                            await repo.Remote.Branch.WaitForBranchAsync(newBranchName);
                             Assert.NotNull(repo.GitApi.Branches[newBranchName]);
                             Assert.NotNull(await repo.Remote.Branch.FindAsync(newBranchName));
 
@@ -658,6 +660,7 @@ namespace TestGitHub
                             Assert.NotNull(repo.GitApi.Branches[newBranchName]);
                             Assert.True(repo.GitApi.Branches[newBranchName].IsCurrentRepositoryHead);
                             await repo.Local.PushAsync();
+                            await repo.Remote.Branch.WaitForBranchAsync(newBranchName);
                         }
 
                         // Delete all repo files, re-clone the remote repo and then verify that
@@ -1677,6 +1680,7 @@ namespace TestGitHub
                                 Directory.CreateDirectory(testFolder);
                                 File.WriteAllText(file1Path, "HELLO WORLD!");
                                 await repo.Local.PushAsync();
+                                await repo.Remote.Branch.WaitForBranchAsync("test");
                                 Assert.True(repo.Local.CurrentBranch.IsTracking);
 
                                 // Switch back to the master branch and remove the local test branch.
