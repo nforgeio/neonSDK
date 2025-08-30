@@ -23,16 +23,11 @@
 
     <ItemGroup>
         <None Remove="xunit.runner.json" />
+        <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 
     <ItemGroup>
         <Compile Include="Test_Driver.cs" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <Content Include="xunit.runner.json">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
     </ItemGroup>
 
     <ItemGroup>

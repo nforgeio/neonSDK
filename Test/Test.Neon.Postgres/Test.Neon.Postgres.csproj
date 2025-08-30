@@ -25,13 +25,11 @@
         <None Remove="Scripts\schema-0001.script" />
         <None Remove="Scripts\schema-0002.script" />
         <None Remove="Scripts\schema-0003.script" />
-        <None Remove="xunit.runner.json" />
     </ItemGroup>
 
     <ItemGroup>
-        <Content Include="xunit.runner.json">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
+        <None Remove="xunit.runner.json" />
+        <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 
     <ItemGroup>
