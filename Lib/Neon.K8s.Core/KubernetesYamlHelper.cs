@@ -71,8 +71,19 @@ namespace Neon.K8s
             return builder.Build();
         }
 
-        private static readonly IValueSerializer Serializer =
-            new SerializerBuilder()
+        private static readonly IValueSerializer Serializer;
+
+        /// <summary>
+        /// Static constructor.
+        /// </summary>
+        static KubernetesYamlHelper()
+        {
+            // $note(jefflill):
+            //
+            // We're going to initialize the field initialization here so it'll
+            // be easier to debug exceptions.
+
+            Serializer = new SerializerBuilder()
                 .DisableAliases()
                 .WithNamingConvention(CamelCaseNamingConvention.Instance)
                 .WithTypeConverter(new IntOrStringYamlConverter())
@@ -84,19 +95,7 @@ namespace Neon.K8s
                 .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitNull)
                 .WithOverridesFromJsonPropertyAttributes()
                 .BuildValueSerializer();
-
-        private static readonly IDictionary<string, Type> ModelTypeMap = typeof(KubernetesEntityAttribute).Assembly
-            .GetTypes()
-            .Where(type => type.GetCustomAttributes(typeof(KubernetesEntityAttribute), true).Any())
-            .ToDictionary(
-                type =>
-                {
-                    var attr        = (KubernetesEntityAttribute)type.GetCustomAttribute(typeof(KubernetesEntityAttribute), true);
-                    var groupPrefix = string.IsNullOrEmpty(attr.Group) ? "" : $"{attr.Group}/";
-
-                    return $"{groupPrefix}{attr.ApiVersion}/{attr.Kind}";
-                },
-                type => type);
+        }
 
         /// <summary>
         /// Deserialize a YAML string into a Kubernetes object.
@@ -156,14 +155,17 @@ namespace Neon.K8s
         {
             // Use VersionInfo from the model namespace as that should be stable.
             // If this is not generated in the future we will get an obvious compiler error.
+
             var targetNamespace = typeof(VersionInfo).Namespace;
 
             // Get all the concrete model types from the code generated namespace.
+
             var types = typeof(KubernetesEntityAttribute).Assembly
                 .ExportedTypes
                 .Where(type => type.Namespace == targetNamespace && !type.IsInterface && !type.IsAbstract);
 
             // Map any JsonPropertyAttribute instances to YamlMemberAttribute instances.
+
             foreach (var type in types)
             {
                 foreach (var property in type.GetProperties())
