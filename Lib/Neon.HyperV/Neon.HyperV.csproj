@@ -33,6 +33,7 @@
         <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
         <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
         <PackageReference Include="PowerShellStandard.Library" Version="5.1.1" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.4" />
         <PackageReference Include="System.Management" Version="9.0.8" />
     </ItemGroup>
 
