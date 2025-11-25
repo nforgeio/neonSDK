@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,6 +27,7 @@ using DnsClient.Protocol;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -67,6 +69,7 @@ namespace TestBlazor
         public static async Task Main(string[] args)
         {
             var tasks = new List<Task>();
+            var tokens = new List<CancellationTokenSource>();
 
             var servers = new WebApplicationBuilder[]
             {
@@ -112,11 +115,10 @@ namespace TestBlazor
                 dnsMock.Setup(dns => dns.ContainsKey(It.IsAny<string>())).Returns(true);
                 dnsMock.SetupGet(dns => dns.Hosts).Returns(new HashSet<string>());
 
-                builder.Services.AddSingleton<IDnsCache>(dnsMock.Object);
-                builder.Services.AddMemoryCache();
-
-                // Add services to the container.
                 builder.Services
+                    .AddSingleton<IDnsCache>(dnsMock.Object)
+                    .AddSingleton<TimeProvider>(TimeProvider.System)
+                    .AddMemoryCache()
                     .AddRazorComponents()
                     .AddInteractiveServerComponents()
                     .AddInteractiveWebAssemblyComponents();
@@ -167,15 +169,25 @@ namespace TestBlazor
                         .AddInteractiveServerRenderMode()
                         .AddInteractiveWebAssemblyRenderMode()
                         .AddAdditionalAssemblies(typeof(Client.Program).Assembly);
+
+                    endpoints.MapGet("/err", async context =>
+                    {
+                        context.Response.StatusCode = 503;
+                        await context.Response.WriteAsync("This is an error page.");
+                    });
                 });
 
-                tasks.Add(app.RunAsync());
+                var cts = new CancellationTokenSource();
+                tokens.Add(cts);
+                tasks.Add(app.RunAsync(cts.Token));
 
             }
 
             var proxyBuilder = WebApplication.CreateBuilder(args);
 
-            proxyBuilder.Services.AddReverseProxy()
+            proxyBuilder.Services
+                    .AddSingleton<TimeProvider>(TimeProvider.System)
+                    .AddReverseProxy()
                     .LoadFromMemory(GetRoutes(), GetClusters());
 
             proxyBuilder.WebHost.ConfigureKestrel(options =>
@@ -190,6 +202,40 @@ namespace TestBlazor
             {
                 proxyPipeline.UseLoadBalancing();
             });
+
+            //_ = proxy.RunAsync();
+
+            //await Task.Delay(TimeSpan.FromSeconds(30)); // Allow time for the servers to start.
+
+            //await proxy.DisposeAsync();
+
+            //for (int i = 0; i < servers.Length - 1; i++)
+            //{
+            //    tokens[i].Cancel();
+            //    Addresses.RemoveAt(0);
+            //}
+
+            //Console.WriteLine("Killed all but 1 server");
+
+            //proxyBuilder = WebApplication.CreateBuilder(args);
+
+            //proxyBuilder.Services
+            //        .AddSingleton<TimeProvider>(TimeProvider.System)
+            //        .AddReverseProxy()
+            //        .LoadFromMemory(GetRoutes(), GetClusters());
+
+            //proxyBuilder.WebHost.ConfigureKestrel(options =>
+            //{
+            //    options.Listen(IPAddress.Parse($"127.0.0.{10 + servers.Length}"), PORT);
+            //});
+
+            //proxy = proxyBuilder.Build();
+
+            //// We can customize the proxy pipeline and add/remove/replace steps
+            //proxy.MapReverseProxy(proxyPipeline =>
+            //{
+            //    proxyPipeline.UseLoadBalancing();
+            //});
 
             tasks.Add(proxy.RunAsync());
 
