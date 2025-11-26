@@ -52,6 +52,8 @@ namespace Neon.Tailwind
         }
         private async Task ValueChangedAsync()
         {
+            await SyncContext.Clear;
+
             if (ValueChanged.HasDelegate)
             {
                 await ValueChanged.InvokeAsync(inputValue);
@@ -60,9 +62,13 @@ namespace Neon.Tailwind
 
         public async Task SetValueAsync(TValue value)
         {
+            await SyncContext.Clear;
+
             if (value == null)
             {
                 inputValue = string.Empty;
+
+                return;
             }
 
             inputValue = displayValue(value);

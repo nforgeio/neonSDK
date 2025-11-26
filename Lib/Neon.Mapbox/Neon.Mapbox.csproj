@@ -1,0 +1,66 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+    <PropertyGroup>
+        <TargetFrameworks>net8.0</TargetFrameworks>
+        <OutputType>Library</OutputType>
+        <RootNamespace>Neon.Mapbox</RootNamespace>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.Mapbox/README.md</PackageProjectUrl>
+        <PackageIcon>nuget-icon.png</PackageIcon>
+        <RepositoryUrl>https://github.com/nforgeio/neonSDK</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
+        <Configurations>Debug;Release</Configurations>
+        <Description>A Mapbox Component Library for Blazor.</Description>
+        <PackageTags>blazor aspnetcore mapbox</PackageTags>
+        <NoWarn>$(NoWarn);1591</NoWarn>
+        <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Include="..\Neon.BuildInfo\AssemblyAttributes.cs" Link="Properties\AssemblyAttributes.cs" />
+        <Compile Include="..\Neon.BuildInfo\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="..\nuget-icon.png" Pack="true" PackagePath="" />
+        <None Include="..\..\LICENSE" Pack="true" PackagePath="" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- .js/.css files will be referenced via <script>/<link> tags; other content files will just be included in the app's 'dist' directory without any tags referencing them -->
+        <EmbeddedResource Include="wwwroot\**\*.js" LogicalName="blazor:js:%(RecursiveDir)%(Filename)%(Extension)" />
+        <EmbeddedResource Include="wwwroot\**\*.css" LogicalName="blazor:css:%(RecursiveDir)%(Filename)%(Extension)" />
+        <EmbeddedResource Include="wwwroot\**" Exclude="**\*.js;**\*.css" LogicalName="blazor:file:%(RecursiveDir)%(Filename)%(Extension)" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Folder Include="wwwroot\" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="$(DotNet8Version)" />
+        <PackageReference Include="NetTopologySuite.IO.GeoJSON4STJ" Version="4.0.0" />
+        <PackageReference Include="OneOf" Version="3.0.271" />
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\Neon.Common\Neon.Common.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Update="Types\mapbox-jl.d.ts">
+            <SubType>Code</SubType>
+        </None>
+        <None Update="Types\geojson.d.ts">
+            <SubType>Code</SubType>
+        </None>
+    </ItemGroup>
+
+    <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+        <TypeScriptRemoveComments>false</TypeScriptRemoveComments>
+        <TypeScriptSourceMap>true</TypeScriptSourceMap>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+        <TypeScriptRemoveComments>true</TypeScriptRemoveComments>
+        <TypeScriptSourceMap>false</TypeScriptSourceMap>
+    </PropertyGroup>
+</Project>

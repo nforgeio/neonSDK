@@ -1415,12 +1415,17 @@
         </member>
         <member name="M:Neon.Deployment.OnePassword.CheckInstallation(System.String)">
             <summary>
-            This class requires that a <b>op.exe</b> v2 client be installed and if
+            Returns <c>true</c> if the class is signed-in.
+            </summary>
+        </member>
+        <member name="M:Neon.Deployment.OnePassword.CheckInstallation(System.String)">
+            <summary>
+            This class requires that a <b>op.exe</b> v1 client be installed and if
             the 1Password app is installed that it be version 8.0 or greater.
             </summary>
-            <param name="cliPath">
+            <param name="opPath">
             Optionally specifies the fully qualified path to the 1Password CLI which
-            should be executed instead of the CLI found on the PATH.
+            will be executed instead of the CLI found on the PATH.
             </param>
             <exception cref="T:System.NotSupportedException">Thrown when any of the checks failed.</exception>
         </member>
@@ -1436,49 +1441,88 @@
             </note>
             </summary>
         </member>
-        <member name="M:Neon.Deployment.OnePassword.Clear">
+        <member name="M:Neon.Deployment.OnePassword.Configure(System.String,System.String,System.String,System.String,System.String,System.String)">
             <summary>
-            Clears fields to indicate the underlying secret manager is signed-out.
+            Configures and signs into 1Password for the first time on a machine.  This
+            must be called once before <see cref="M:Neon.Deployment.OnePassword.Signin(System.String,System.String,System.String,System.String)"/> will
+            work.
             </summary>
+            <param name="signinAddress">Specifies the 1Password signin address.</param>
+            <param name="account">Specifies the 1Password shorthand name to use for the account (e.g. "sally@neonforge.com").</param>
+            <param name="secretKey">The 1Password secret key for the account.</param>
+            <param name="masterPassword">Specified the master 1Password.</param>
+            <param name="defaultVault">Specifies the default 1Password vault.</param>
+            <param name="opPath">
+            Optionally specifies the fully qualified path to the 1Password CLI which
+            will be executed instead of the CLI found on the PATH.
+            </param>
+            <remarks>
+            <para>
+            Typically, you'll first call <see cref="M:Neon.Deployment.OnePassword.Configure(System.String,System.String,System.String,System.String,System.String,System.String)"/> once
+            for a workstation to configure the signin address and 1Password secret key during manual
+            configuration.  The account shorthand name used for that operation can then be used thereafter
+            for calls to <see cref="M:Neon.Deployment.OnePassword.Signin(System.String,System.String,System.String,System.String)"/> which don't require the additional 
+            information.
+            </para>
+            <para>
+            This two-stage process enhances security because both the master password and secret
+            key are required to authenticate and the only time the secret key will need to be
+            presented for the full login which will typically done manually once.  1Password
+            securely stores the secret key on the workstation and it will never need to be present
+            as plaintext again on the machine.
+            </para>
+            </remarks>
         </member>
         <member name="M:Neon.Deployment.OnePassword.Signin(System.String,System.String,System.String,System.String)">
             <summary>
-            Signs into 1Password using just the account, master password, and default vault and loads
-            loads all secrets from the default vault as well as any vaults specified by <paramref name="preloadVaults"/>.
+            Signs into 1Password using just the account, master password, and default vault.  You'll
+            typically call this rather than <see cref="M:Neon.Deployment.OnePassword.Configure(System.String,System.String,System.String,System.String,System.String,System.String)"/>
+            which also requires the signin address as well as the secret key.
             </summary>
             <param name="account">The account's shorthand name (e.g. (e.g. "sally@neonforge.com").</param>
             <param name="defaultVault">The default vault.</param>
-            <param name="preloadVaults">Specifies additonial vaults (seperated by commas) where items will be preloaded.</param>
-            <param name="cliPath">
+            <param name="opPath">
             Optionally specifies the fully qualified path to the 1Password CLI which
-            should be executed instead of the CLI found on the PATH.
+            will be executed instead of the CLI found on the PATH.
             </param>
-            <exception cref="T:Neon.Deployment.OnePasswordException">Thrown when sign-in fails.</exception>
+            <remarks>
+            <para>
+            Typically, you'll first call <see cref="M:Neon.Deployment.OnePassword.Configure(System.String,System.String,System.String,System.String,System.String,System.String)"/> once
+            for a workstation to configure the signin address and 1Password secret key during manual
+            configuration.  The account shorthand name used for that operation can then be used thereafter
+            for calls to this method which don't require the additional information.
+            </para>
+            <para>
+            This two-stage process enhances security because both the master password and secret
+            key are required to authenticate and the only time the secret key will need to be
+            presented for the full login which will typically done manually once.  1Password
+            securely stores the secret key on the workstation and it will never need to be present
+            as plaintext again on the machine.
+            </para>
+            </remarks>
         </member>
         <member name="M:Neon.Deployment.OnePassword.Signout(System.String)">
             <summary>
             Signs out.
             </summary>
-        </member>
-        <member name="M:Neon.Deployment.OnePassword.IsSignedin(System.String)">
-            <summary>
-            Checks the 1Password CLI sign-in/connection status via the <b>whoami</b> command.
-            </summary>
-            <param name="cliPath">
+            <param name="opPath">
             Optionally specifies the fully qualified path to the 1Password CLI which
-            should be executed instead of the CLI found on the PATH.
+            will be executed instead of the CLI found on the PATH.
             </param>
-            <returns><c>true</c> when the CLI is connected.</returns>
         </member>
-        <member name="M:Neon.Deployment.OnePassword.GetSecretPassword(System.String,System.String)">
+        <member name="M:Neon.Deployment.OnePassword.GetSecretPassword(System.String,System.String,System.String)">
             <summary>
             Returns an item password from the current user's default 1Password 
             vault like <b>user-sally</b> by default or a specific vault.
             </summary>
-            <param name="itemRef">The item reference with optional field name (defaults to <b>"password"</b>).</param>
-            <param name="vaultName">Optionally specifies a specific vault, otherwise the item/field will be retrieved from the default vault.</param>
-            <returns>The requested password from the referenced item.</returns>
-            <exception cref="T:Neon.Deployment.OnePasswordException">Thrown when the requested 1Password is not signed-in or the vault/item/ field doesn't exist.</exception>
+            <param name="name">The password name with optional property.</param>
+            <param name="vault">Optionally specifies a specific vault.</param>
+            <param name="opPath">
+            Optionally specifies the fully qualified path to the 1Password CLI which
+            will be executed instead of the CLI found on the PATH.
+            </param>
+            <returns>The requested password (from the password's [password] field).</returns>
+            <exception cref="T:Neon.Deployment.OnePasswordException">Thrown when the requested secret or proerty doesn't exist or for other 1Password related problems.</exception>
             <remarks>
             <para>
             The <paramref name="itemRef"/> parameter may optionally specify the desired
@@ -1490,15 +1534,19 @@
             </example>
             </remarks>
         </member>
-        <member name="M:Neon.Deployment.OnePassword.GetSecretValue(System.String,System.String)">
+        <member name="M:Neon.Deployment.OnePassword.GetSecretValue(System.String,System.String,System.String)">
             <summary>
             Returns a named field from the current user's default 1Password 
             vault like <b>user-sally</b> by default or a specific vault.
             </summary>
-            <param name="itemRef">The item reference with optional field name (defaults to <b>"value"</b>).</param>
-            <param name="vaultName">Optionally specifies a specific vault, otherwise the item/field will be retrieved from the default vault.</param>
-            <returns>The requested password from the referenced item.</returns>
-            <exception cref="T:Neon.Deployment.OnePasswordException">Thrown when the requested 1Password is not signed-in or the vault/item/ field doesn't exist.</exception>
+            <param name="name">The password name with optional property.</param>
+            <param name="vault">Optionally specifies a specific vault.</param>
+            <param name="opPath">
+            Optionally specifies the fully qualified path to the 1Password CLI which
+            will be executed instead of the CLI found on the PATH.
+            </param>
+            <returns>The requested value (from the password's <b>value</b> field).</returns>
+            <exception cref="T:Neon.Deployment.OnePasswordException">Thrown when the requested secret or proerty doesn't exist or for other 1Password related problems.</exception>
             <remarks>
             <para>
             The <paramref name="itemRef"/> parameter may optionally specify the desired

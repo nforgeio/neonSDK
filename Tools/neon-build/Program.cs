@@ -387,7 +387,8 @@ ARGUMENTS:
                             Program.Exit(1);
                         }
 
-                        if (!Directory.GetFiles(repoRoot, "*.sln", SearchOption.TopDirectoryOnly).Any())
+                        if (!Directory.GetFiles(repoRoot, "*.sln", SearchOption.TopDirectoryOnly).Any()
+                            && !Directory.GetFiles(repoRoot, "*.slnx", SearchOption.TopDirectoryOnly).Any())
                         {
                             Console.Error.WriteLine($"*** ERROR: [{repoRoot}] folder does not include a Visual Studio solution.");
                             Console.Error.WriteLine($"           This is required for your safety.");

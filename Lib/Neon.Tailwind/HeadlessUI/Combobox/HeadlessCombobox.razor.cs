@@ -51,13 +51,10 @@ namespace Neon.Tailwind
         public ComboboxState State { get; protected set; } = ComboboxState.Closed;
 
         private HeadlessComboboxOption<TValue> activeOption;
-        private ClickOffEventHandler clickOffEventHandler;
-        private SearchAssistant searchAssistant;
 
         private HeadlessComboboxOptions<TValue> optionsElement;
 
         internal HeadlessComboboxInput<TValue> InputElement;
-        public string SearchQuery => searchAssistant.SearchQuery;
         public TValue CurrentValue
         {
             get => Value;
@@ -77,6 +74,7 @@ namespace Neon.Tailwind
         {
             options.Add(option);
         }
+
         public void UnregisterOption(HeadlessComboboxOption<TValue> option)
         {
             if (!options.Contains(option)) return;
@@ -193,27 +191,13 @@ namespace Neon.Tailwind
             State = ComboboxState.Open;
             await OnOpen.InvokeAsync();
             shouldFocus = true;
+
             StateHasChanged();
         }
         public ValueTask OptionsFocusAsync() => optionsElement?.FocusAsync() ?? ValueTask.CompletedTask;
         public void SetActiveAsValue() => CurrentValue = activeOption is null ? default : activeOption.Value;
 
         public Task HandleClickOff() => Close();
-        private void HandleSearchChange(object sender, EventArgs e)
-        {
-            if (!string.IsNullOrEmpty(SearchQuery))
-            {
-                var item = options.FirstOrDefault(mi => (mi.SearchValue ?? "").StartsWith(SearchQuery, StringComparison.OrdinalIgnoreCase) && mi.IsEnabled);
-                GoToOption(item);
-            }
-        }
-        public async Task SearchAsync(string key)
-        {
-            await searchAssistant.SearchAsync(key);
-        }
-
-
-        public void Dispose() => searchAssistant.Dispose();
 
     }
 }

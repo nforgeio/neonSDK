@@ -49,8 +49,7 @@ namespace Neon.Blazor
             services
                 .AddScoped<BodyOutlet>()
                 .AddScoped<MobileDetector>()
-                .AddScoped<FileDownloader>()
-                .AddScoped<TimeProvider, BrowserTimeProvider>();
+                .AddScoped<FileDownloader>();
 
             return services;
         }

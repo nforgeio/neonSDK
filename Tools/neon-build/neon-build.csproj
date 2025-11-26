@@ -5,17 +5,11 @@
         <TargetFramework>net8.0</TargetFramework>
         <RootNamespace>NeonBuild</RootNamespace>
         <AssemblyName>neon-build</AssemblyName>
-        <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+        <RuntimeIdentifiers>win-x64;osx-x64</RuntimeIdentifiers>
         <Configurations>Debug;Release</Configurations>
         <DebugType>embedded</DebugType>
-        <SelfContained>false</SelfContained>
-        <PublishSingleFile>false</PublishSingleFile>
-        <PublishTrimmed>false</PublishTrimmed>
-    </PropertyGroup>
-
-    <PropertyGroup>
-        <PublishSingleFile>false</PublishSingleFile>
         <SelfContained>true</SelfContained>
+        <PublishSingleFile>true</PublishSingleFile>
         <PublishTrimmed>false</PublishTrimmed>
         <StartupObject></StartupObject>
     </PropertyGroup>

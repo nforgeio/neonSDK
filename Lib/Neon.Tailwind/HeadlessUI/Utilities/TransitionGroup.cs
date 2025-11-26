@@ -74,7 +74,6 @@ namespace Neon.Tailwind
         }
 
         public event Action ChildHasChanged;
-
         public async Task NotifyChildChangedAsync() 
         {
             await SyncContext.Clear;

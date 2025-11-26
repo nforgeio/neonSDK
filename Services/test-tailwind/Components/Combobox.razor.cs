@@ -22,6 +22,8 @@ using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Components;
 
+using Neon.Tasks;
+
 namespace TestTailwind.Components
 {
     public partial class Combobox : ComponentBase
@@ -43,9 +45,12 @@ namespace TestTailwind.Components
 
         private async Task ResetAsync()
         {
-            HeadlessCombobox.CurrentValue = null;
+            await SyncContext.Clear;
 
-            await Task.CompletedTask;
+            HeadlessCombobox.CurrentValue = null;
+            filteredPeople = allPeople;
+
+            await InvokeAsync(StateHasChanged);
         }
 
         private Person selectedPerson;
