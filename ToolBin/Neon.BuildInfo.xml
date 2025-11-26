@@ -153,19 +153,19 @@
             <summary>Branch: marcus</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.Commit">
-            <summary>Commit: 5b2d5d2e</summary>
+            <summary>Commit: 00feeba3</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.Sha">
-            <summary>Sha: 5b2d5d2e86795488f7b6ab901a5c028f99e138d2</summary>
+            <summary>Sha: 00feeba3cd6c183471f7492b95091d4ae686d0f0</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.CommitDate">
-            <summary>Commit date: 2025-11-26T13:25:16-08:00</summary>
+            <summary>Commit date: 2025-11-26T13:51:56-08:00</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.Commits">
-            <summary>Commits on top of base version: 29</summary>
+            <summary>Commits on top of base version: 32</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.Tag">
-            <summary>Tag: v4.0.14-29-g5b2d5d2e</summary>
+            <summary>Tag: v4.0.14-32-g00feeba3</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.BaseTag">
             <summary>Base tag: v4.0.14</summary>
@@ -192,7 +192,7 @@
             <summary>Minor: 0</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.SemVer.Patch">
-            <summary>Patch: 43</summary>
+            <summary>Patch: 46</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.SemVer.Label">
             <summary>Label: </summary>
