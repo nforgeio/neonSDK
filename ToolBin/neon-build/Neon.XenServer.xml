@@ -177,7 +177,7 @@
         <member name="M:Neon.XenServer.XenClient.CreateTempIso(System.String,System.String)">
             <summary>
             Used for temporarily uploading an ISO disk to a XenServer such that it can be mounted
-            to a VM, typically for one-time initialization purposes.  NEONKUBE uses this as a very
+            to a VM, typically for one-time initialization purposes.  NeonKUBE uses this as a very
             simple poor man's alternative to <b>cloud-init</b> for initializing a VM on first boot.
             </summary>
             <param name="isoPath">Path to the source ISO file on the local workstation.</param>
@@ -185,7 +185,7 @@
             <returns>A <see cref="T:Neon.XenServer.XenTempIso"/> with information about the new storage repository and its contents.</returns>
             <remarks>
             <para>
-            During cluster setup on virtualization platforms like XenServer and Hyper-V, NEONKUBE need
+            During cluster setup on virtualization platforms like XenServer and Hyper-V, NeonKUBE need
             to configure new VMs with IP addresses, hostnames, etc.  Traditionally, we've relied on
             being able to SSH into the VM to perform all of these actions, but this relied on being
             VM being able to obtain an IP address via DHCP and for setup to be able to discover the
@@ -209,7 +209,7 @@
             via this ISO, but we decided not to go there, at least for now (we couldn't get that working).
             </note>
             <note>
-            NEONKUBE doesn't use this technique for true cloud deployments (AWS, Azure, Google,...) because
+            NeonKUBE doesn't use this technique for true cloud deployments (AWS, Azure, Google,...) because
             we can configure VM networking directly via the cloud APIs.  
             </note>
             <para>
@@ -307,7 +307,7 @@
             </note>
             </remarks>
         </member>
-        <member name="M:Neon.XenServer.XenClient.MachineOperations.Create(System.String,System.String,System.Int32,System.Int64,System.Int64,System.Boolean,System.Collections.Generic.IEnumerable{Neon.XenServer.XenVirtualDisk},System.String,System.String)">
+        <member name="M:Neon.XenServer.XenClient.MachineOperations.Create(System.String,System.String,System.Int32,System.Int64,System.Int64,System.Boolean,System.Collections.Generic.IEnumerable{Neon.XenServer.XenVirtualDisk},System.String,System.String,System.String,System.Collections.Generic.IEnumerable{System.String})">
             <summary>
             <para>
             Creates a virtual machine from a template, optionally initializing its memory and 
@@ -340,6 +340,15 @@
             not sure what problems having autostart VMs in a HA pool cause.
             </note>
             </param>
+            <param name="description">
+            <para>
+            Optionally specifies the description to be assigned to the virtual machine.
+            </para>
+            <note>
+            This may not include CR or LF characters.
+            </note>
+            </param>
+            <param name="tags">Optionally specifies any tags to be added to the virtual machine.</param>
             <returns>The new <see cref="T:Neon.XenServer.XenVirtualMachine"/>.</returns>
             <exception cref="T:Neon.XenServer.XenException">Thrown if the operation failed.</exception>
             <remarks>
@@ -666,7 +675,7 @@
         <member name="T:Neon.XenServer.XenTempIso">
             <summary>
             Holds information about a temporary ISO.  These are created temporarily and 
-            used during NEONKUBE cluster setup to inject a configuration script into a new 
+            used during NeonKUBE cluster setup to inject a configuration script into a new 
             node VM during cluster setup.  See <see cref="M:Neon.XenServer.XenClient.CreateTempIso(System.String,System.String)"/>
             for more information.
             </summary>
@@ -789,6 +798,16 @@
             <summary>
             Returns the IP address associated with the VM or <c>null</c>
             if the VM is not running or hasn't obtained an address yet.
+            </summary>
+        </member>
+        <member name="P:Neon.XenServer.XenVirtualMachine.Description">
+            <summary>
+            Returns the virtual machine description
+            </summary>
+        </member>
+        <member name="P:Neon.XenServer.XenVirtualMachine.Tags">
+            <summary>
+            Returns the virtual machine tags.
             </summary>
         </member>
         <member name="P:Neon.XenServer.XenVirtualMachine.IsRunning">

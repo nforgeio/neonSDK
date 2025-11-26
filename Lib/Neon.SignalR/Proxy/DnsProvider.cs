@@ -38,6 +38,7 @@ namespace Neon.SignalR.Proxy
         private readonly IDnsCache            dnsCache;
         private readonly ProxyConfig          config;
         private readonly ILookupClient        lookupClient;
+        private readonly SemaphoreSlim        semaphore = new SemaphoreSlim(1, 1);
 
         /// <summary>
         /// Constructor.
@@ -52,9 +53,9 @@ namespace Neon.SignalR.Proxy
             ILookupClient        lookupClient,
             ILogger<DnsProvider> logger = null)
         {
-            this.logger = logger;
-            this.config = config;
-            this.dnsCache = dnsCache;
+            this.logger       = logger;
+            this.config       = config;
+            this.dnsCache     = dnsCache;
             this.lookupClient = lookupClient;
         }
 
@@ -64,6 +65,8 @@ namespace Neon.SignalR.Proxy
 
             try
             {
+                await semaphore.WaitAsync();
+
                 var dns  = await lookupClient.QueryAsync(config.PeerAddress, QueryType.SRV);
 
                 if (dns.HasError || dns.Answers.IsEmpty())
@@ -123,6 +126,10 @@ namespace Neon.SignalR.Proxy
             catch (Exception e)
             {
                 logger?.LogErrorEx(e, () => "Error during service discovery");
+            }
+            finally
+            {
+                semaphore.Release();
             }
         }
     }

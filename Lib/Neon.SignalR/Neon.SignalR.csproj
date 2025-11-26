@@ -26,7 +26,7 @@
         <PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.NewtonsoftJson" Version="$(DotNet8Version)" />
         <PackageReference Include="Microsoft.Net.Http.Headers" Version="$(DotNet8Version)" />
         <PackageReference Include="NATS.Net" Version="2.3.3" />
-        <PackageReference Include="Yarp.ReverseProxy" Version="2.1.0" />
+        <PackageReference Include="Yarp.ReverseProxy" Version="2.3.0" />
     </ItemGroup>
 
     <ItemGroup>

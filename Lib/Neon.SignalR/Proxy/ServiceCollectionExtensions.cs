@@ -46,6 +46,7 @@ namespace Neon.SignalR
             services.TryAddSingleton<ILookupClient>(new LookupClient());
             services.TryAddSingleton<IDnsCache, DnsCache>();
             services.TryAddSingleton<DnsProvider>();
+            services.TryAddSingleton<RetryTransformer>();
 
             services.TryAddSingleton<ForwarderRequestConfig>(
                     serviceProvider =>
@@ -75,7 +76,7 @@ namespace Neon.SignalR
                                 AllowAutoRedirect         = false,
                                 AutomaticDecompression    = DecompressionMethods.None,
                                 UseCookies                = false,
-                                ActivityHeadersPropagator = new ReverseProxyPropagator(DistributedContextPropagator.Current)
+                                ActivityHeadersPropagator = new ReverseProxyPropagator(DistributedContextPropagator.Current),
                             });
                     })
                 .AddHostedService<ServiceDiscovery>();

@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>pubcore</name>
+    </assembly>
+    <members>
+        <member name="T:pubcore.Program">
+            <summary>
+            Program class.
+            </summary>
+        </member>
+        <member name="F:pubcore.Program.Version">
+            <summary>
+            Tool version number.
+            </summary>
+        </member>
+        <member name="M:pubcore.Program.Main(System.String[])">
+            <summary>
+            Program entry point.
+            </summary>
+            <param name="args">Command line arguments.</param>
+        </member>
+        <member name="M:pubcore.Program.LogVerbose(System.String)">
+            <summary>
+            Logs a message to STDERR when [--verbose] was specified.
+            </summary>
+            <param name="message">The message.</param>
+        </member>
+    </members>
+</doc>

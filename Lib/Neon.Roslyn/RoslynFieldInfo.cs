@@ -47,17 +47,17 @@ namespace Neon.Roslyn
                 {
                     attributes = default(FieldAttributes);
 
-                    if (field.IsStatic)
+                    if (this.field.IsStatic)
                     {
                         attributes |= FieldAttributes.Static;
                     }
 
-                    if (field.IsReadOnly)
+                    if (this.field.IsReadOnly)
                     {
                         attributes |= FieldAttributes.InitOnly;
                     }
 
-                    switch (field.DeclaredAccessibility)
+                    switch (this.field.DeclaredAccessibility)
                     {
                         case Accessibility.Public:
                             attributes |= FieldAttributes.Public;
@@ -77,11 +77,11 @@ namespace Neon.Roslyn
 
         public override RuntimeFieldHandle FieldHandle => throw new NotSupportedException();
 
-        public override Type FieldType => field.Type.AsType(metadataLoadContext);
+        public override Type FieldType => this.field.Type.AsType(metadataLoadContext);
 
-        public override Type DeclaringType => field.ContainingType.AsType(metadataLoadContext);
+        public override Type DeclaringType => this.field.ContainingType.AsType(metadataLoadContext);
 
-        public override string Name => field.Name;
+        public override string Name => this.field.Name;
 
         public override Type ReflectedType => throw new NotImplementedException();
 

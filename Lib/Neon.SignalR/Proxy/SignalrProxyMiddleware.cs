@@ -20,7 +20,6 @@ using System.Net.Http;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -64,6 +63,7 @@ namespace Neon.SignalR
         /// <param name="forwarderRequestConfig">The http forwarding configuration.</param>
         /// <param name="dnsProvider">The DNS provider.</param>
         /// <param name="dataProtectionProvider">An optional data protection provider.</param>
+        /// <param name="transformer">The retry transformer that decides whether to send the response to the client.</param>
         /// <param name="logger">An optional logger.</param>
         /// <returns></returns>
         public async Task InvokeAsync(
@@ -74,6 +74,7 @@ namespace Neon.SignalR
             HttpMessageInvoker              httpClient,
             ForwarderRequestConfig          forwarderRequestConfig,
             DnsProvider                     dnsProvider,
+            RetryTransformer                transformer,
             IDataProtectionProvider         dataProtectionProvider = null,
             ILogger<SignalrProxyMiddleware> logger = null)
         {
@@ -135,18 +136,27 @@ namespace Neon.SignalR
 
                 logger?.LogDebugEx(() => $"Forwarding to existing upstream: {upstream}");
 
-                var error = await forwarder.SendAsync(context, $"{context.Request.Scheme}://{upstream}:{config.Port}", httpClient, forwarderRequestConfig);
+                var error = await forwarder.SendAsync(context, $"{context.Request.Scheme}://{upstream}:{config.Port}", httpClient, forwarderRequestConfig, transformer);
 
-                // Check if the proxy operation was successful
-                if (error != ForwarderError.None)
+
+                var errorFeature = context.Features.Get<IForwarderErrorFeature>();
+
+                if (errorFeature == null)
                 {
-                    var errorFeature = context.Features.Get<IForwarderErrorFeature>();
-                    var exception = errorFeature.Exception;
-
-                    logger?.LogErrorEx(exception);
+                    return;
                 }
 
-                return;
+                var exception    = errorFeature.Exception;
+
+                if (exception is HttpRequestException)
+                {
+                    if (((HttpRequestException)exception).HttpRequestError == HttpRequestError.ConnectionError)
+                    {
+                        logger?.LogInformationEx(() => $"Upstream {upstream} connection error. Handling connection locally.");
+                    }
+                }
+
+                logger?.LogErrorEx(exception);
             }
 
             logger?.LogDebugEx(() => $"Handling request locally: {dnsCache.GetSelfAddress()}");
@@ -156,28 +166,13 @@ namespace Neon.SignalR
                 context.Request.Host = new HostString(originHost);
             }
 
-            var cookieContent = dataProtector?.Protect(dnsCache.GetSelfAddress()) ?? dnsCache.GetSelfAddress();
+            if (!context.Response.HasStarted)
+            {
+                var cookieContent = dataProtector?.Protect(dnsCache.GetSelfAddress()) ?? dnsCache.GetSelfAddress();
 
-            context.Response.Cookies.Append(cookieKey, cookieContent);
-
-            await next(context);
-        }
-    }
-
-    /// <summary>
-    /// Extension methods for the <see cref="SignalrProxyMiddleware"/>.
-    /// </summary>
-    public static class SignalrProxyMiddlewareExtensions
-    {
-        /// <summary>
-        /// Extension method to add the <see cref="SignalrProxyMiddleware"/> to the pipeline.
-        /// </summary>
-        /// <param name="builder"></param>
-        /// <returns></returns>
-        public static IApplicationBuilder UseSignalrProxy(
-            this IApplicationBuilder builder)
-        {
-            return builder.UseMiddleware<SignalrProxyMiddleware>();
+                context.Response.Cookies.Append(cookieKey, cookieContent);
+                await next(context);
+            }
         }
     }
 }
