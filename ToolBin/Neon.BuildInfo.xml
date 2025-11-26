@@ -150,22 +150,22 @@
             <summary>Repository URL: https://github.com/nforgeio/neonSDK.git</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.Branch">
-            <summary>Branch: master</summary>
+            <summary>Branch: marcus</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.Commit">
-            <summary>Commit: 465bda4e</summary>
+            <summary>Commit: 5b2d5d2e</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.Sha">
-            <summary>Sha: 465bda4e7811bc663a702dc147b125e87a6570a3</summary>
+            <summary>Sha: 5b2d5d2e86795488f7b6ab901a5c028f99e138d2</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.CommitDate">
-            <summary>Commit date: 2025-04-15T14:28:10-07:00</summary>
+            <summary>Commit date: 2025-11-26T13:25:16-08:00</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.Commits">
-            <summary>Commits on top of base version: 4</summary>
+            <summary>Commits on top of base version: 29</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.Tag">
-            <summary>Tag: v4.0.14-4-g465bda4e</summary>
+            <summary>Tag: v4.0.14-29-g5b2d5d2e</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.BaseTag">
             <summary>Base tag: v4.0.14</summary>
@@ -192,7 +192,7 @@
             <summary>Minor: 0</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.SemVer.Patch">
-            <summary>Patch: 18</summary>
+            <summary>Patch: 43</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.SemVer.Label">
             <summary>Label: </summary>

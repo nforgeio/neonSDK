@@ -106,7 +106,7 @@ namespace Neon.Deployment
         /// <exception cref="NotSupportedException">Thrown when not running on Windows.</exception>
         public MaintainerProfile(string pipeName, TimeSpan connectTimeout = default)
         {
-            Covenant.Requires<NotSupportedException>(NeonHelper.IsWindows, $"[{nameof(MaintainerProfile)}] currently only supports Windows.");
+            //Covenant.Requires<NotSupportedException>(NeonHelper.IsWindows, $"[{nameof(MaintainerProfile)}] currently only supports Windows.");
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(pipeName), nameof(pipeName));
 
             this.pipeName = pipeName;

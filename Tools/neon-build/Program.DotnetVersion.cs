@@ -58,7 +58,24 @@ namespace NeonBuild
 
             var globalJson        = NeonHelper.JsonDeserialize<dynamic>(File.ReadAllText(globalJsonPath));
             var sdkVersion        = globalJson["sdk"]["version"];
-            var runtimeConfigPath = $"C:\\Program Files\\dotnet\\sdk\\{sdkVersion}\\dotnet.runtimeconfig.json";
+
+            var runtimeConfigBase = string.Empty;
+
+            if (NeonHelper.IsWindows)
+            {
+                runtimeConfigBase = "C:\\Program Files\\dotnet";
+            }
+            else if (NeonHelper.IsOSX)
+            {
+                runtimeConfigBase = "/usr/local/share/dotnet";
+            }
+            else
+            {
+                Console.Error.WriteLine("*** ERROR: Unsupported operating system.");
+                Program.Exit(1);
+            }
+            
+            var runtimeConfigPath = Path.Combine(runtimeConfigBase, "sdk", sdkVersion.ToString(), "dotnet.runtimeconfig.json");
             var runtimeConfig     = NeonHelper.JsonDeserialize<dynamic>(File.ReadAllText(runtimeConfigPath));
             var runtimeVersion    = runtimeConfig["runtimeOptions"]["framework"]["version"];
 
