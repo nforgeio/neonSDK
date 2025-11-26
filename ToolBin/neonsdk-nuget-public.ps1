@@ -173,10 +173,12 @@ try
     Publish Neon.CSharp                 $neonSdkVersion
     Publish Neon.Deployment             $neonSdkVersion
     Publish Neon.Docker                 $neonSdkVersion
+    Publish Neon.ECharts                $neonSdkVersion
     Publish Neon.EntityFrameworkCore    $neonSdkVersion
     Publish Neon.GitHub                 $neonSdkVersion
     Publish Neon.HyperV                 $neonSdkVersion
     Publish Neon.JsonConverters         $neonSdkVersion
+    Publish Neon.Mapbox                 $neonSdkVersion
     Publish Neon.ModelGen               $neonSdkVersion
     Publish Neon.ModelGenerator         $neonSdkVersion
     Publish Neon.Nats                   $neonSdkVersion
