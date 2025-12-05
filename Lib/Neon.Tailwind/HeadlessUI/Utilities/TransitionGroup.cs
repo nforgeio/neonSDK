@@ -72,7 +72,9 @@ namespace Neon.Tailwind
                 state = value;
             }
         }
+
         public event Action ChildHasChanged;
+
         public async Task NotifyChildChangedAsync() 
         {
             await SyncContext.Clear;

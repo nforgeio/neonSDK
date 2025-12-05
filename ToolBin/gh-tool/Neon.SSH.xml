@@ -308,7 +308,7 @@
             <summary>
             Converts the original command into a Bash command.
             </summary>
-            <param name="comment">Optionall specifies a comment string to be included.</param>
+            <param name="comment">Optionally specifies a comment string to be included.</param>
             <returns>The Bash command string.</returns>
         </member>
         <member name="M:Neon.SSH.CommandResponse.EnsureSuccess">
@@ -330,7 +330,7 @@
             replace whenever you change any of these values.
             </note>
             <note>
-            Changing any of these will likely break [neon-cli] interactions
+            Changing any of these will likely break [NeonCLIENT] interactions
             with existing clusters that use the previous folder path.  Be
             ver sure you know what you're doing when you make changes.
             </note>
@@ -540,19 +540,19 @@
         <member name="P:Neon.SSH.ILinuxSshProxy.IsInvolved">
             <summary>
             Used to indicate that the remote machine will be involved in a configuration step.  
-            This property is a bit of a hack used when displaying the status of a neonKUBE cluster setup.
+            This property is a bit of a hack used when displaying the status of a NeonKUBE cluster setup.
             </summary>
         </member>
         <member name="P:Neon.SSH.ILinuxSshProxy.IsConfiguring">
             <summary>
             Used to indicate that the remote machine is actively being being configured.  This property is 
-            a bit of a hack used when displaying the status of a neonKUBE cluster setup.
+            a bit of a hack used when displaying the status of a NeonKUBE cluster setup.
             </summary>
         </member>
         <member name="P:Neon.SSH.ILinuxSshProxy.IsReady">
             <summary>
             Indicates that the remote machine has completed or has failed the current set of operations.  
-            This property is a bit of a hack used when displaying the status of a neonKUBE cluster setup.
+            This property is a bit of a hack used when displaying the status of a NeonKUBE cluster setup.
             </summary>
             <remarks>
             <note>
@@ -563,7 +563,7 @@
         <member name="P:Neon.SSH.ILinuxSshProxy.IsFaulted">
             <summary>
             Indicates that the remote machine is in a faulted state because one or more operations
-            have failed.  This property is a bit of a hack used when displaying the status of a neonKUBE
+            have failed.  This property is a bit of a hack used when displaying the status of a NeonKUBE
             cluster setup.
             </summary>
         </member>
@@ -778,12 +778,24 @@
             <param name="path">The directory path.</param>
             <returns><c>true</c> if the directory exists.</returns>
         </member>
+        <member name="M:Neon.SSH.ILinuxSshProxy.DeleteDirectory(System.String)">
+            <summary>
+            Deletes the directory if it exists.
+            </summary>
+            <param name="path">The directory path.</param>
+        </member>
         <member name="M:Neon.SSH.ILinuxSshProxy.FileExists(System.String)">
             <summary>
             Determines whether a file exists on the remote server.
             </summary>
             <param name="path">The file path.</param>
             <returns><c>true</c> if the file exists.</returns>
+        </member>
+        <member name="M:Neon.SSH.ILinuxSshProxy.DeleteFile(System.String)">
+            <summary>
+            Deletes the file if it exists.
+            </summary>
+            <param name="path">The file path.</param>
         </member>
         <member name="M:Neon.SSH.ILinuxSshProxy.Upload(System.String,System.IO.Stream,System.String,System.String,System.Boolean)">
             <summary>
@@ -956,12 +968,19 @@
             </exception>
             <remarks>
             <note>
+            <para>
             <paramref name="command"/> may not include single quotes or redirect
             angle brackets such as <b>&lt;</b> or <b>>&gt;</b>.  For more complex
             command, try uploading and executing a <see cref="T:Neon.SSH.CommandBundle"/> instead.
+            </para>
+            <para>
+            Commands may not longer than <see cref="F:Neon.SSH.LinuxSshProxy.MaxCommandLength"/> characters.
+            Note that the command length includes the string passed as well as an additional
+            internal command configuring the PATH.
+            </para>
             </note>
             <note>
-            Any <c>null</c> arguments will be ignored.
+            Any <c>null</c> arguments will be ignore
             </note>
             <para>
             The <paramref name="runOptions"/> flags control how this command functions.
@@ -985,11 +1004,6 @@
             <param name="runOptions">The execution options (defaults to <see cref="F:Neon.SSH.RunOptions.Defaults"/>).</param>
             <returns>The <see cref="T:Neon.SSH.CommandResponse"/>.</returns>
             <remarks>
-            <note>
-            <paramref name="bundle"/> may not include single quotes or redirect
-            angle brackets such as <b>&lt;</b> or <b>>&gt;</b>.  For more complex
-            command, try uploading and executing a <see cref="T:Neon.SSH.CommandBundle"/> instead.
-            </note>
             <para>
             This method is intended for situations where one or more files need to be uploaded to a cluster node 
             and then be used when a command is executed.
@@ -1025,9 +1039,16 @@
             <returns>The <see cref="T:Neon.SSH.CommandResponse"/>.</returns>
             <remarks>
             <note>
+            <para>
             <paramref name="command"/> may not include single quotes or redirect
             angle brackets such as <b>&lt;</b> or <b>>&gt;</b>.  For more complex
             command, try uploading and executing a <see cref="T:Neon.SSH.CommandBundle"/> instead.
+            </para>
+            <para>
+            Commands may not longer than <see cref="F:Neon.SSH.LinuxSshProxy.MaxCommandLength"/> characters.
+            Note that the command length includes the string passed as well as an additional
+            internal command configuring the PATH.
+            </para>
             </note>
             <para>
             This method uses the <see cref="P:Neon.SSH.ILinuxSshProxy.DefaultRunOptions"/> when executing the command.
@@ -1051,9 +1072,16 @@
             <returns>The <see cref="T:Neon.SSH.CommandResponse"/>.</returns>
             <remarks>
             <note>
+            <para>
             <paramref name="command"/> may not include single quotes or redirect
             angle brackets such as <b>&lt;</b> or <b>>&gt;</b>.  For more complex
             command, try uploading and executing a <see cref="T:Neon.SSH.CommandBundle"/> instead.
+            </para>
+            <para>
+            Commands may not longer than <see cref="F:Neon.SSH.LinuxSshProxy.MaxCommandLength"/> characters.
+            Note that the command length includes the string passed as well as an additional
+            internal command configuring the PATH.
+            </para>
             </note>
             <para>
             The <paramref name="runOptions"/> flags control how this command functions.
@@ -1083,9 +1111,16 @@
             <returns>The <see cref="T:Neon.SSH.CommandResponse"/>.</returns>
             <remarks>
             <note>
+            <para>
             <paramref name="command"/> may not include single quotes or redirect
             angle brackets such as <b>&lt;</b> or <b>>&gt;</b>.  For more complex
             command, try uploading and executing a <see cref="T:Neon.SSH.CommandBundle"/> instead.
+            </para>
+            <para>
+            Commands may not longer than <see cref="F:Neon.SSH.LinuxSshProxy.MaxCommandLength"/> characters.
+            Note that the command length includes the string passed as well as an additional
+            internal command configuring the PATH.
+            </para>
             </note>
             <para>
             This method uses the <see cref="P:Neon.SSH.ILinuxSshProxy.DefaultRunOptions"/> when executing the command.
@@ -1111,9 +1146,16 @@
             <returns>The <see cref="T:Neon.SSH.CommandResponse"/>.</returns>
             <remarks>
             <note>
+            <para>
             <paramref name="command"/> may not include single quotes or redirect
             angle brackets such as <b>&lt;</b> or <b>>&gt;</b>.  For more complex
             command, try uploading and executing a <see cref="T:Neon.SSH.CommandBundle"/> instead.
+            </para>
+            <para>
+            Commands may not longer than <see cref="F:Neon.SSH.LinuxSshProxy.MaxCommandLength"/> characters.
+            Note that the command length includes the string passed as well as an additional
+            internal command configuring the PATH.
+            </para>
             </note>
             <para>
             The <paramref name="runOptions"/> flags control how this command functions.
@@ -1166,31 +1208,6 @@
             This command requires that the <b>unzip</b> package be installed on the host.
             </note>
             </remarks>
-        </member>
-        <member name="M:Neon.SSH.ILinuxSshProxy.VerifyCertificate(System.String,Neon.Cryptography.TlsCertificate,System.String)">
-            <summary>
-            Verifies a TLS/SSL certificate.
-            </summary>
-            <param name="name">The certificate name (included in errors).</param>
-            <param name="certificate">The certificate being tested or <c>null</c>.</param>
-            <param name="hostname">The hostname to be secured by the certificate.</param>
-            <returns>The command response.</returns>
-            <remarks>
-            You may pass <paramref name="certificate"/> as <c>null</c> to indicate that no 
-            checking is to be performed as a convienence.
-            </remarks>
-        </member>
-        <member name="M:Neon.SSH.ILinuxSshProxy.CreateShell">
-            <summary>
-            Creates an interactive shell.
-            </summary>
-            <returns>A <see cref="T:Renci.SshNet.ShellStream"/>.</returns>
-        </member>
-        <member name="M:Neon.SSH.ILinuxSshProxy.CreateSudoShell">
-            <summary>
-            Creates an interactive shell for running with <b>sudo</b> permissions. 
-            </summary>
-            <returns>A <see cref="T:Renci.SshNet.ShellStream"/>.</returns>
         </member>
         <member name="M:Neon.SSH.ILinuxSshProxy.GetNetworkInterface(System.Net.IPAddress)">
             <summary>
@@ -1270,7 +1287,7 @@
             <summary>
             <para>
             Returns an indication of whether the <b>neon-init</b> service has been executed
-            on the remote machine.  This service is deployed to neonKUBE cluster nodes to
+            on the remote machine.  This service is deployed to NeonKUBE cluster nodes to
             act as a poor-man's <b>cloud-init</b> used to configure the network and credentials 
             by mounting a virual ISO drive with a configuration script for non-cloud environments.
             </para>
@@ -1288,7 +1305,7 @@
             Manually sets the <b>neon-init</b> service execution status. 
             </para>
             <para>
-            The <b>neon-init</b> service is deployed to neonKUBE cluster nodes to act
+            The <b>neon-init</b> service is deployed to NeonKUBE cluster nodes to act
             as a poor-man's <b>cloud-init</b> to configure the network and credentials 
             by mounting a virual ISO drive with a configuration script for non-cloud 
             environments.
@@ -1388,6 +1405,11 @@
             Uses a SSH/SCP connection to provide access to Linux machines to access
             files, run commands, etc.
             </para>
+            <note>
+            <b>IMPORTANT:</b> We use this class to manage Ubuntu Linux machines.  This 
+            will likely work for Debian and other Debian based distros but other distros 
+            like Alpine and Red Hat may have problems or may not work at all.
+            </note>
             </summary>
             <remarks>
             <para>
@@ -1413,6 +1435,18 @@
             <summary>
             Used to ensure that only one SSH.NET connection attempt will be inflight
             at the same time to the same target computer.
+            </summary>
+        </member>
+        <member name="F:Neon.SSH.LinuxSshProxy.MaxCommandLength">
+            <summary>
+            <para>
+            Specifies the maximum length of command strings passed to the non-bundle
+            </para>
+            <note>
+            Note that the command length includes the user's string passed as well as
+            an additional internal command configuring the PATH.
+            </note>
+            <c>RunCommand()</c> and <c>SudoCommand()</c> methods.
             </summary>
         </member>
         <member name="M:Neon.SSH.LinuxSshProxy.GetConnectLock(System.String)">
@@ -1579,6 +1613,54 @@
         <member name="M:Neon.SSH.LinuxSshProxy.Reboot(System.Boolean)">
             <inheritdoc/>
         </member>
+        <member name="M:Neon.SSH.LinuxSshProxy.UpdateRootCertificates(System.String)">
+            <summary>
+            Checks for and installs any new root certificates.
+            </summary>
+            <param name="aptGetTool">Optionally specifies a custom <b>apt-get</b> tool or script.</param>
+            <remarks>
+            <note>
+            NeonKUBE deploys a <b>safe-apt-get</b> script that handles situations where
+            a package operation is already in progress (such as checking for daily updates).
+            </note>
+            </remarks>
+        </member>
+        <member name="M:Neon.SSH.LinuxSshProxy.PatchLinux(System.String)">
+            <summary>
+            Patches Linux on the node applying all outstanding security patches but without 
+            upgrading the Linux distribution.
+            </summary>
+            <param name="aptGetTool">Optionally specifies a custom <b>apt-get</b> tool or script.</param>
+            <returns><c>true</c> when a reboot is required.</returns>
+            <remarks>
+            <note>
+            NeonKUBE deploys a <b>safe-apt-get</b> script that handles situations where
+            a package operation is already in progress (such as checking for daily updates).
+            </note>
+            </remarks>
+        </member>
+        <member name="M:Neon.SSH.LinuxSshProxy.UpgradeLinuxDistribution(System.String,System.Boolean)">
+            <summary>
+            Upgrades to the latest Linux kernel.
+            </summary>
+            <param name="aptGetTool">
+            <para>
+            Optionally specifies a custom <b>apt-get</b> tool or compatible
+            script to be used for performing the upgrade.
+            </para>
+            <note>
+            NeonKUBE deploys a <b>safe-apt-get</b> script that handles situations where
+            a package operation is already in progress (such as checking for daily updates).
+            We use this parameter to use this script.
+            </note>
+            </param>
+            <param name="upgradeKernel">
+            <para>
+            Optionally upgrade to the latest stable kernel.
+            </para>
+            </param>
+            <returns><c>true</c> when a reboot is required.</returns>
+        </member>
         <member name="M:Neon.SSH.LinuxSshProxy.Log(System.String)">
             <inheritdoc/>
         </member>
@@ -1681,7 +1763,13 @@
         <member name="M:Neon.SSH.LinuxSshProxy.DirectoryExists(System.String)">
             <inheritdoc/>
         </member>
+        <member name="M:Neon.SSH.LinuxSshProxy.DeleteDirectory(System.String)">
+            <inheritdoc/>
+        </member>
         <member name="M:Neon.SSH.LinuxSshProxy.FileExists(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Neon.SSH.LinuxSshProxy.DeleteFile(System.String)">
             <inheritdoc/>
         </member>
         <member name="M:Neon.SSH.LinuxSshProxy.Upload(System.String,System.IO.Stream,System.String,System.String,System.Boolean)">
@@ -1810,20 +1898,33 @@
         <member name="M:Neon.SSH.LinuxSshProxy.SudoCommand(Neon.SSH.CommandBundle,Neon.SSH.RunOptions)">
             <inheritdoc/>
         </member>
-        <member name="M:Neon.SSH.LinuxSshProxy.VerifyCertificate(System.String,Neon.Cryptography.TlsCertificate,System.String)">
-            <inheritdoc/>
-        </member>
-        <member name="M:Neon.SSH.LinuxSshProxy.CreateShell">
-            <inheritdoc/>
-        </member>
-        <member name="M:Neon.SSH.LinuxSshProxy.CreateSudoShell">
-            <inheritdoc/>
-        </member>
         <member name="M:Neon.SSH.LinuxSshProxy.GetNetworkInterface(System.Net.IPAddress)">
             <inheritdoc/>
         </member>
         <member name="M:Neon.SSH.LinuxSshProxy.GetTimeUtc">
             <inheritdoc/>
+        </member>
+        <member name="M:Neon.SSH.LinuxSshProxy.Clean(System.Boolean,System.Boolean,System.String)">
+            <summary>
+            <para>
+            Cleans a node by removing unnecessary package manager metadata, cached DHCP information, journald
+            logs... and then fills unreferenced file system blocks with zeros so the disk image will or
+            trims the file system (when possible) so the image will compress better.
+            </para>
+            <para>
+            This also clears log files, apt package info, cached DHCP addresses, as well as the last
+            login info and Bash command history.
+            </para>
+            </summary>
+            <param name="trim">Optionally trims the file system.</param>
+            <param name="zero">Optionally zeros unreferenced file system blocks.</param>
+            <param name="aptGetTool">Optionally specifies a custom <b>apt-get</b> tool or script.</param>
+            <remarks>
+            <note>
+            NeonKUBE deploys a <b>safe-apt-get</b> script that handles situations where
+            a package operation is already in progress (such as checking for daily updates).
+            </note>
+            </remarks>
         </member>
         <member name="M:Neon.SSH.LinuxSshProxy.ListDisks(System.Boolean)">
             <inheritdoc/>
@@ -1846,6 +1947,13 @@
         <member name="M:Neon.SSH.LinuxSshProxy.SetNeonInitStatus(System.Boolean,System.Boolean)">
             <inheritdoc/>
         </member>
+        <member name="M:Neon.SSH.LinuxSshProxy.SetPassword(System.String,System.String)">
+            <summary>
+            Changes a user password.
+            </summary>
+            <param name="username">The username.</param>
+            <param name="password">The new password.</param>
+        </member>
         <member name="M:Neon.SSH.LinuxSshProxy.ToString">
             <inheritdoc/>
         </member>
@@ -1856,6 +1964,11 @@
             files, run commands, etc.  This extends <see cref="T:Neon.SSH.LinuxSshProxy"/> by 
             adding the <see cref="P:Neon.SSH.LinuxSshProxy`1.Metadata"/> property with a generic type.
             </para>
+            <note>
+            <b>IMPORTANT:</b> We use this class to manage Ubuntu Linux machines.  This 
+            will likely work for Debian and other Debian based distros but other distros 
+            like Alpine and Red Hat may have problems or may not work at all.
+            </note>
             </summary>
             <typeparam name="TMetadata">
             Defines the metadata type the application wishes to associate with the server.
@@ -2049,12 +2162,13 @@
             <param name="password">The password.</param>
             <returns>The <see cref="T:Neon.SSH.SshCredentials"/>.</returns>
         </member>
-        <member name="M:Neon.SSH.SshCredentials.FromPrivateKey(System.String,System.String)">
+        <member name="M:Neon.SSH.SshCredentials.FromPrivateKey(System.String,System.String,System.String)">
             <summary>
-            Returns credentials based on a user name and password.
+            Returns credentials based on a user name and password and an optional passphrase.
             </summary>
             <param name="username">The user name.</param>
             <param name="privateKey">The unencrypted PEM-encoded private key.</param>
+            <param name="passPhrase">Optionally specifies a pass phrase.</param>
             <returns>The <see cref="T:Neon.SSH.SshCredentials"/>.</returns>
         </member>
         <member name="P:Neon.SSH.SshCredentials.None">

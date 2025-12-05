@@ -22,8 +22,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Microsoft.Extensions.DependencyInjection;
-
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Xunit;
@@ -32,7 +30,6 @@ using Neon.Common;
 using Neon.Deployment;
 using Neon.IO;
 using Neon.Xunit;
-using System.Reflection.Metadata.Ecma335;
 
 namespace TestDeployment
 {
@@ -69,7 +66,7 @@ namespace TestDeployment
             server.GetProfileValueHandler     = (request, name) => ProfileHandlerResult.Create($"{name}-profile");
 
             server.GetSecretPasswordHandler = 
-                (request, name, vault, masterPassword) =>
+                (request, name, vault) =>
                 {
                     var sb = new StringBuilder();
 
@@ -78,11 +75,6 @@ namespace TestDeployment
                     if (vault != null)
                     {
                         sb.AppendWithSeparator(vault, "-");
-                    }
-
-                    if (masterPassword != null)
-                    {
-                        sb.AppendWithSeparator(masterPassword, "-");
                     }
 
                     sb.Append("-password");
@@ -91,7 +83,7 @@ namespace TestDeployment
                 };
 
             server.GetSecretValueHandler =
-                (request, name, vault, masterPassword) =>
+                (request, name, vault) =>
                 {
                     var sb = new StringBuilder();
 
@@ -100,11 +92,6 @@ namespace TestDeployment
                     if (vault != null)
                     {
                         sb.AppendWithSeparator(vault, "-");
-                    }
-
-                    if (masterPassword != null)
-                    {
-                        sb.AppendWithSeparator(masterPassword, "-");
                     }
 
                     sb.Append("-secret");
@@ -257,21 +244,6 @@ namespace TestDeployment
 
         [Theory]
         [Repeat(repeatCount)]
-        public void GetSecretPassword_UsingMasterPassword(int repeatCount)
-        {
-            var client = new MaintainerProfile(pipeName);
-
-            using (var server = new ProfileServer(pipeName))
-            {
-                SetDefaultHandlers(server);
-                server.Start();
-
-                Assert.Equal("test-vault-master-password", client.GetSecretPassword("test", "vault", "master"));
-            }
-        }
-
-        [Theory]
-        [Repeat(repeatCount)]
         public void GetSecretPassword_Exception(int repeatCount)
         {
             var client = new MaintainerProfile(pipeName);
@@ -280,7 +252,7 @@ namespace TestDeployment
             {
                 SetDefaultHandlers(server);
 
-                server.GetSecretPasswordHandler = (request, name, value, masterpassword) => throw new Exception("test exception");
+                server.GetSecretPasswordHandler = (request, name, value) => throw new Exception("test exception");
 
                 server.Start();
 
@@ -305,21 +277,6 @@ namespace TestDeployment
 
         [Theory]
         [Repeat(repeatCount)]
-        public void GetSecretValue_UsingMasterPassword(int repeatCount)
-        {
-            var client = new MaintainerProfile(pipeName);
-
-            using (var server = new ProfileServer(pipeName))
-            {
-                SetDefaultHandlers(server);
-                server.Start();
-
-                Assert.Equal("test-vault-master-secret", client.GetSecretValue("test", "vault", "master"));
-            }
-        }
-
-        [Theory]
-        [Repeat(repeatCount)]
         public void GetSecretValue_Exception(int repeatCount)
         {
             var client = new MaintainerProfile(pipeName);
@@ -328,99 +285,11 @@ namespace TestDeployment
             {
                 SetDefaultHandlers(server);
 
-                server.GetSecretValueHandler = (request, name, value, masterpassword) => throw new Exception("test exception");
+                server.GetSecretValueHandler = (request, name, value) => throw new Exception("test exception");
 
                 server.Start();
 
                 Assert.Throws<ProfileException>(() => client.GetSecretValue("test"));
-            }
-        }
-
-        [Fact]
-        public void SecretCaching_InMemory()
-        {
-            // Verify that in-memory secret caching works.
-
-            var client = new MaintainerProfile(pipeName);
-
-            using (var server = new ProfileServer(pipeName))
-            {
-                SetDefaultHandlers(server);
-
-                server.Start();
-
-                // Request a secret to load it into the cache.
-
-                const string expectedValue = "test-secret";
-
-                Assert.Equal(expectedValue, client.GetSecretValue("test"));
-            }
-        }
-
-        [Fact]
-        public void SecretCaching_EnvironmentVars()
-        {
-            // Verify that environment variable secret caching works.
-
-            var client = new MaintainerProfile(pipeName);
-
-            using (var server = new ProfileServer(pipeName))
-            {
-                SetDefaultHandlers(server);
-
-                server.Start();
-
-                // Request a secret to load it into the cache.
-
-                const string expectedValue = "test-secret";
-
-                Assert.Equal(expectedValue, client.GetSecretValue("test"));
-            }
-        }
-
-        [Fact]
-        public void ProfileCaching_InMemory()
-        {
-            // Verify that in-memory profile caching works.
-
-            var client = new MaintainerProfile(pipeName);
-
-            using (var server = new ProfileServer(pipeName))
-            {
-                SetDefaultHandlers(server);
-
-                server.GetSecretValueHandler = (request, name, value, masterpassword) => throw new Exception("test exception");
-
-                server.Start();
-
-                // Request a profile value to load it into the cache.
-
-                const string expectedValue = "test-profile";
-
-                Assert.Equal(expectedValue, client.GetProfileValue("test"));
-            }
-        }
-
-        [Fact]
-        public void ProfileCaching_EnvironmentVars()
-        {
-            // Verify that environment variable profile caching works.
-
-            var client = new MaintainerProfile(pipeName);
-
-            using (var server = new ProfileServer(pipeName))
-            {
-                SetDefaultHandlers(server);
-
-                server.GetSecretValueHandler = (request, name, value, masterpassword) => throw new Exception("test exception");
-
-                server.Start();
-
-                // Request a profile value to load it into the cache.
-
-                const string expectedValue = "test-profile";
-
-                Assert.Equal(expectedValue, client.GetProfileValue("test"));
             }
         }
     }

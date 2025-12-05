@@ -37,7 +37,7 @@
         </member>
         <member name="T:GHTool.CommandAttribute">
             <summary>
-            Used to tag a <see cref="T:GHTool.ICommand"/> for automatic inclusion in a program.
+            Used to tag an <see cref="T:GHTool.ICommand"/> for automatic inclusion in a program.
             </summary>
         </member>
         <member name="M:GHTool.CommandAttribute.#ctor(System.Boolean)">
@@ -71,7 +71,7 @@
         </member>
         <member name="P:GHTool.CommandBase.CheckOptions">
             <summary>
-            Indicates that unknown command options should be checked against <see cref="P:GHTool.CommandBase.ExtendedOptions"/>.
+            Indicates that command options should be checked against <see cref="P:GHTool.CommandBase.ExtendedOptions"/>.
             This defaults to <c>true</c>.
             </summary>
         </member>
@@ -123,7 +123,7 @@
         </member>
         <member name="P:GHTool.ICommand.CheckOptions">
             <summary>
-            Indicates that unknown command options should be checked against <see cref="P:GHTool.ICommand.ExtendedOptions"/>.
+            Indicates that command options should be checked against <see cref="P:GHTool.ICommand.ExtendedOptions"/>.
             </summary>
         </member>
         <member name="M:GHTool.ICommand.NeedsSshCredentials(Neon.Common.CommandLine)">
@@ -138,7 +138,7 @@
         <member name="P:GHTool.ICommand.SplitItem">
             <summary>
             Returns the item used to split a command line into two parts with
-            the left part having standard <b>neon-cli</b> options and the right
+            the left part having standard <b>NeonCLIENT</b> options and the right
             part being a command that will be executed remotely.  This returns as
             <c>null</c> for commands that don't split.
             </summary>
@@ -163,7 +163,7 @@
             <summary>
             Parses a GitHub repository path.
             </summary>
-            <param name="path">The path, like: <b>[SERVER]/OWNER/REPO</b></param>
+            <param name="path">The path, like: <b>[SERVER/]OWNER/REPO</b></param>
             <returns>The parsed <see cref="T:GHTool.GitHubRepoPath"/>.</returns>
             <exception cref="T:System.FormatException">Thrown when the input is invalid.</exception>
             <remarks>

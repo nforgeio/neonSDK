@@ -72,6 +72,8 @@ namespace Neon.Tailwind
             }
 
             inputValue = displayValue(value);
+
+            await Task.CompletedTask;
         }
 
         protected override void OnAfterRender(bool firstRender)

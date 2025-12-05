@@ -109,7 +109,7 @@ namespace Neon.Blazor
                 {
                     await intersectionObserver.InvokeVoidAsync("disconnect");
                 }
-                catch (Exception)
+                catch
                 {
                     // Ignore this exception, it means the JS runtime is disconnected.
                 }
