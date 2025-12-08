@@ -21,7 +21,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="YugaByteCassandraCSharpDriver" Version="3.16.3" />
+        <PackageReference Include="YugaByteCassandraCSharpDriver" />
     </ItemGroup>
 
     <ItemGroup>

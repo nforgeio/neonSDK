@@ -34,10 +34,10 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-        <PackageReference Include="Neon.Octokit" Version="6.0.2" />
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-        <PackageReference Include="System.IO.Pipes.AccessControl" Version="5.0.0" />
+        <PackageReference Include="Microsoft.CSharp" />
+        <PackageReference Include="Neon.Octokit" />
+        <PackageReference Include="Newtonsoft.Json" />
+        <PackageReference Include="System.IO.Pipes.AccessControl" />
     </ItemGroup>
 
 </Project>

@@ -1,7 +1,7 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+<Project Sdk="Microsoft.NET.Sdk.Razor">
 
     <PropertyGroup>
-        <TargetFrameworks>net8.0</TargetFrameworks>
+        <TargetFramework>net10.0</TargetFramework>
         <OutputType>Library</OutputType>
         <RootNamespace>Neon.ECharts</RootNamespace>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
@@ -34,7 +34,7 @@
 	</ItemGroup>
 
 	<ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
-		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="$(DotNet8Version)" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.Web" />
 	</ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\Neon.Blazor\Neon.Blazor.csproj" />

@@ -12,7 +12,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="System.Dynamic.Runtime" Version="4.3.0" />
+        <PackageReference Include="System.Dynamic.Runtime" />
     </ItemGroup>
 
     <ItemGroup>

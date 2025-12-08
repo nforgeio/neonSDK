@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net8.0</TargetFrameworks>
+        <TargetFramework>net10.0</TargetFramework>
         <OutputType>Library</OutputType>
         <RootNamespace>Neon.EntityFrameworkCore</RootNamespace>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
@@ -28,10 +28,10 @@
 
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="$(DotNet8Version)" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="$(DotNet8Version)" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Analyzers" Version="$(DotNet8Version)" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="$(DotNet8Version)" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Analyzers" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
     </ItemGroup>
 
 

@@ -22,8 +22,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="NATS.Client" Version="1.0.8" />
-        <PackageReference Include="STAN.Client" Version="0.3.0" />
+        <PackageReference Include="NATS.Client" />
+        <PackageReference Include="STAN.Client" />
     </ItemGroup>
 
     <ItemGroup>

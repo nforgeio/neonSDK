@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
     <PropertyGroup>
-        <TargetFrameworks>net8.0</TargetFrameworks>
+        <TargetFramework>net10.0</TargetFramework>
         <OutputType>Library</OutputType>
         <RootNamespace>Neon.Mapbox</RootNamespace>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
@@ -38,9 +38,9 @@
         <Folder Include="wwwroot\" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="$(DotNet8Version)" />
-        <PackageReference Include="NetTopologySuite.IO.GeoJSON4STJ" Version="4.0.0" />
-        <PackageReference Include="OneOf" Version="3.0.271" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.Web" />
+        <PackageReference Include="NetTopologySuite.IO.GeoJSON4STJ" />
+        <PackageReference Include="OneOf" />
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\Neon.Common\Neon.Common.csproj" />

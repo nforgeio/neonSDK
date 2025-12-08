@@ -1,0 +1,126 @@
+<Project>
+    <PropertyGroup>
+        <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+        <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+        <CentralPackageFloatingVersionsEnabled>true</CentralPackageFloatingVersionsEnabled>
+        <NoWarn>NU1507;$(NoWarn)</NoWarn>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <NeonSdkVersion>4.0.19-preview.2</NeonSdkVersion>
+        <DotNetVersion Condition="'$(TargetFramework)' == 'net10.0'">[10.*,)</DotNetVersion>
+        <DotNetVersion Condition="'$(TargetFramework)' == 'net9.0'">[9.*,10.0)</DotNetVersion>
+        <DotNetVersion Condition="'$(TargetFramework)' == 'net8.0'">[8.*,9.0)</DotNetVersion>
+        <DotNetVersion Condition="'$(TargetFramework)' == 'net7.0'">[7.*,8.0)</DotNetVersion>
+        <DotNetVersion Condition="'$(TargetFramework)' == 'net6.0'">[6.*,7.0)</DotNetVersion>
+        <DotNetVersion Condition="'$(DotNetVersion)' == ''">[10.*,)</DotNetVersion>
+        <EfCoreVersion>[8.*,9.0)</EfCoreVersion>
+        <NpgsqlVersion>[8.*,9.0)</NpgsqlVersion>
+    </PropertyGroup>
+    
+    <ItemGroup>
+        <PackageVersion Include="AsyncKeyedLock" Version="7.0.0" />
+        <PackageVersion Include="Basic.Reference.Assemblies" Version="1.4.5" />
+        <PackageVersion Include="CommandLineParser" Version="2.9.1" />
+        <PackageVersion Include="CouchbaseNetClient" Version="2.7.27" />
+        <PackageVersion Include="coverlet.collector" Version="6.0.2" />
+        <PackageVersion Include="DiscUtils.Iso9660" Version="0.16.13" />
+        <PackageVersion Include="DnsClient" Version="1.7.0" />
+        <PackageVersion Include="EnyimMemcachedCore" Version="3.2.2" />
+        <PackageVersion Include="FluentAssertions" Version="7.0.0" />
+        <PackageVersion Include="FluentAssertions.Analyzers" Version="0.34.1" />
+        <PackageVersion Include="GitInfo" Version="3.3.5" />
+        <PackageVersion Include="HeroIcons.Blazor" Version="1.0.6" />
+        <PackageVersion Include="LibGit2Sharp" Version="0.31.0" />
+        <PackageVersion Include="Linq2Couchbase" Version="1.4.2" />
+        <PackageVersion Include="LiquidTestReports.Markdown" Version="1.1.1-beta" />
+        <PackageVersion Include="MessagePack" Version="2.5.187" />
+        <PackageVersion Include="Microsoft.AspNetCore.Components" Version="$(DotNetVersion)" />
+        <PackageVersion Include="Microsoft.AspNetCore.Components.Web" Version="$(DotNetVersion)" />
+        <PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly" Version="$(DotNetVersion)" />
+        <PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="$(DotNetVersion)" />
+        <PackageVersion Include="Microsoft.AspNetCore.Hosting" Version="2.2.7" />
+        <PackageVersion Include="Microsoft.AspNetCore.Http" Version="2.2.0" />
+        <PackageVersion Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
+        <PackageVersion Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="$(DotNetVersion)" />
+        <PackageVersion Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.2.0" />
+        <PackageVersion Include="Microsoft.AspNetCore.SignalR.Client" Version="$(DotNetVersion)" />
+        <PackageVersion Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="$(DotNetVersion)" />
+        <PackageVersion Include="Microsoft.AspNetCore.SignalR.Protocols.NewtonsoftJson" Version="$(DotNetVersion)" />
+        <PackageVersion Include="Microsoft.AspNetCore.TestHost" Version="$(DotNetVersion)" />
+        <PackageVersion Include="Microsoft.Bcl.AsyncInterfaces" Version="$(DotNetVersion)" />
+        <PackageVersion Include="Microsoft.CodeAnalysis" Version="4.10.0" />
+        <PackageVersion Include="Microsoft.CodeAnalysis.Common" Version="4.10.0" />
+        <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.10.0" />
+        <PackageVersion Include="Microsoft.CSharp" Version="4.7.0" />
+        <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="$(DotNetVersion)" />
+        <PackageVersion Include="Microsoft.EntityFrameworkCore.Abstractions" Version="$(DotNetVersion)" />
+        <PackageVersion Include="Microsoft.EntityFrameworkCore.Analyzers" Version="$(DotNetVersion)" />
+        <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="$(DotNetVersion)" />
+        <PackageVersion Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="$(DotNetVersion)" />
+        <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="$(DotNetVersion)" />
+        <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="$(DotNetVersion)" />
+        <PackageVersion Include="Microsoft.Extensions.Hosting" Version="$(DotNetVersion)" />
+        <PackageVersion Include="Microsoft.Extensions.Logging" Version="$(DotNetVersion)" />
+        <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="$(DotNetVersion)" />
+        <PackageVersion Include="Microsoft.Extensions.ObjectPool" Version="$(DotNetVersion)" />
+        <PackageVersion Include="Microsoft.Extensions.Telemetry" Version="$(DotNetVersion)" />
+        <PackageVersion Include="Microsoft.Net.Http.Headers" Version="$(DotNetVersion)" />
+        <PackageVersion Include="Microsoft.Net.Http.Server" Version="1.1.4" />
+        <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+        <PackageVersion Include="Microsoft.TestPlatform.TestHost" Version="17.12.0" />
+        <PackageVersion Include="Microsoft.Win32.Registry" Version="5.0.0" />
+        <PackageVersion Include="Moq" Version="4.20.70" />
+        <PackageVersion Include="NATS.Client" Version="1.0.8" />
+        <PackageVersion Include="NATS.Net" Version="2.3.3" />
+        <PackageVersion Include="Neon.Octokit" Version="6.0.2" />
+        <PackageVersion Include="NetTopologySuite.IO.GeoJSON4STJ" Version="4.0.0" />
+        <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
+        <PackageVersion Include="Npgsql" Version="$(NpgsqlVersion)" />
+        <PackageVersion Include="Octokit" Version="11.0.1" />
+        <PackageVersion Include="OneOf" Version="3.0.271" />
+        <PackageVersion Include="OpenTelemetry" Version="1.9.0" />
+        <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.9.0" />
+        <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.9.0" />
+        <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.9.0" />
+        <PackageVersion Include="OpenTelemetry.Instrumentation.StackExchangeRedis" Version="1.0.0-rc9.8" />
+        <PackageVersion Include="PowerShellStandard.Library" Version="5.1.1" />
+        <PackageVersion Include="prometheus-net" Version="8.2.1" />
+        <PackageVersion Include="prometheus-net.AspNetCore" Version="8.2.1" />
+        <PackageVersion Include="prometheus-net.DotNetRuntime" Version="4.4.0" />
+        <PackageVersion Include="Quartz" Version="3.13.0" />
+        <PackageVersion Include="SharpZipLib.NETStandard" Version="1.0.7" />
+        <PackageVersion Include="SSH.NET" Version="2020.0.2" />
+        <PackageVersion Include="STAN.Client" Version="0.3.0" />
+        <PackageVersion Include="System.Buffers" Version="4.6.1" />
+        <PackageVersion Include="System.CodeDom" Version="$(DotNetVersion)" />
+        <PackageVersion Include="System.Diagnostics.Contracts" Version="4.3.0" />
+        <PackageVersion Include="System.Diagnostics.Process" Version="4.3.0" />
+        <PackageVersion Include="System.Dynamic.Runtime" Version="4.3.0" />
+        <PackageVersion Include="System.IO.FileSystem.AccessControl" Version="5.0.0" />
+        <PackageVersion Include="System.IO.Pipes" Version="4.3.0" />
+        <PackageVersion Include="System.IO.Pipes.AccessControl" Version="5.0.0" />
+        <PackageVersion Include="System.Management" Version="$(DotNetVersion)" />
+        <PackageVersion Include="System.Management.Automation" Version="7.4.4" />
+        <PackageVersion Include="System.Net.Http" Version="4.3.4" />
+        <PackageVersion Include="System.Net.NameResolution" Version="4.3.0" />
+        <PackageVersion Include="System.Net.Requests" Version="4.3.0" />
+        <PackageVersion Include="System.Net.Security" Version="4.3.2" />
+        <PackageVersion Include="System.Runtime" Version="4.3.1" />
+        <PackageVersion Include="System.Runtime.Loader" Version="4.3.0" />
+        <PackageVersion Include="System.Runtime.Serialization.Primitives" Version="4.3.0" />
+        <PackageVersion Include="System.Security.AccessControl" Version="6.0.1" />
+        <PackageVersion Include="System.Security.Cryptography.Cng" Version="5.0.0" />
+        <PackageVersion Include="System.Text.Json" Version="$(DotNetVersion)" />
+        <PackageVersion Include="System.Threading.Thread" Version="4.3.0" />
+        <PackageVersion Include="System.ValueTuple" Version="4.6.1" />
+        <PackageVersion Include="Temporalio" Version="1.3.0" />
+        <PackageVersion Include="xunit" Version="2.9.0" />
+        <PackageVersion Include="xunit.extensibility.core" Version="2.9.0" />
+        <PackageVersion Include="xunit.runner.visualstudio" Version="2.8.2" />
+        <PackageVersion Include="YamlDotNet" Version="15.1.2" />
+        <PackageVersion Include="Yarp.ReverseProxy" Version="2.3.0" />
+        <PackageVersion Include="Yarp.Telemetry.Consumption" Version="2.1.0" />
+        <PackageVersion Include="YugaByteCassandraCSharpDriver" Version="3.16.3" />
+    </ItemGroup>
+</Project>

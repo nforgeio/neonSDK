@@ -1,0 +1,285 @@
+<Solution>
+  <Configurations>
+    <BuildType Name="CodeDoc" />
+    <BuildType Name="Debug" />
+    <BuildType Name="Release" />
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/Doc/">
+    <File Path="Doc/config.yaml" />
+    <File Path="Doc/DEVELOPER.md" />
+    <File Path="Doc/docfx.json" />
+    <File Path="Doc/TEST-VERSION.md" />
+    <File Path="Doc/WSL-Ubuntu-Image.md" />
+  </Folder>
+  <Folder Name="/Doc/Images/" />
+  <Folder Name="/Doc/Images/Developer/">
+    <File Path="Doc/Images/Developer/DockerLogo.png" />
+    <File Path="Doc/Images/Developer/DockerNetwork.png" />
+    <File Path="Doc/Images/Developer/DockerSysTray.png" />
+    <File Path="Doc/Images/Developer/hyper-v.png" />
+    <File Path="Doc/Images/Developer/PythonImports.png" />
+    <File Path="Doc/Images/Developer/SkypeConnections.png" />
+    <File Path="Doc/Images/Developer/virtualization.png" />
+    <File Path="Doc/Images/Developer/VisualStudioClone.png" />
+    <File Path="Doc/Images/Developer/WinSCPHiddenFiles.png" />
+  </Folder>
+  <Folder Name="/External/">
+    <File Path="External/zenburn-ligh-putty.reg" />
+  </Folder>
+  <Folder Name="/External/OpenSSL/">
+    <File Path="External/OpenSSL/DOWNLOAD.md" />
+    <File Path="External/OpenSSL/HashInfo.txt" />
+    <File Path="External/OpenSSL/libeay32.dll" />
+    <File Path="External/OpenSSL/OpenSSL License.txt" />
+    <File Path="External/OpenSSL/openssl.cnf" />
+    <File Path="External/OpenSSL/openssl.exe" />
+    <File Path="External/OpenSSL/ReadMe.txt" />
+    <File Path="External/OpenSSL/ssleay32.dll" />
+  </Folder>
+  <Folder Name="/Github/">
+    <File Path=".dockerignore" />
+    <File Path=".editorconfig" />
+    <File Path=".gitattributes" />
+    <File Path=".gitignore" />
+    <File Path=".password-name" />
+    <File Path="buildenv.cmd" />
+    <File Path="buildenv.ps1" />
+    <File Path="Directory.Build.props" />
+    <File Path="global.json" />
+    <File Path="LICENSE" />
+    <File Path="nuget.config" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/Github/.github/" />
+  <Folder Name="/Github/.github/actions/" />
+  <Folder Name="/Github/.github/workflows/">
+    <File Path=".github/workflows/new-issues.yaml" />
+  </Folder>
+  <Folder Name="/Lib/">
+    <File Path="Lib/nuget-icon.png" />
+    <Project Path="Lib/Neon.Blazor.Analyzers/Neon.Blazor.Analyzers.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Debug" />
+    </Project>
+    <Project Path="Lib/Neon.Blazor/Neon.Blazor.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Lib/Neon.BuildInfo/Neon.BuildInfo.csproj">
+      <BuildType Project="Debug" />
+    </Project>
+    <Project Path="Lib/Neon.Cassandra/Neon.Cassandra.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Lib/Neon.Common.Extensions/Neon.Common.Extensions.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Debug" />
+    </Project>
+    <Project Path="Lib/Neon.Common/Neon.Common.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Lib/Neon.Cryptography/Neon.Cryptography.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Lib/Neon.CSharp/Neon.CSharp.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Lib/Neon.Deployment/Neon.Deployment.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Lib/Neon.Docker/Neon.Docker.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Lib/Neon.GitHub/Neon.GitHub.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Lib/Neon.HyperV/Neon.HyperV.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Lib/Neon.JsonConverters/Neon.JsonConverters.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Lib/Neon.ModelGen/Neon.ModelGen.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Lib/Neon.ModelGenerator/Neon.ModelGenerator.csproj">
+      <BuildDependency Project="Tools/neon-modelgen/neon-modelgen.csproj" />
+      <BuildDependency Project="Tools/pubcore/pubcore.csproj" />
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Lib/Neon.Nats/Neon.Nats.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Lib/Neon.Postgres/Neon.Postgres.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Lib/Neon.Roslyn/Neon.Roslyn.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Debug" />
+    </Project>
+    <Project Path="Lib/Neon.Service/Neon.Service.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Lib/Neon.SSH/Neon.SSH.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Lib/Neon.Tailwind/Neon.Tailwind.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Lib/Neon.Web/Neon.Web.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Lib/Neon.WinTTY/Neon.WinTTY.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Lib/Neon.WSL/Neon.WSL.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Lib/Neon.XenServer/Neon.XenServer.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Lib/Neon.Xunit.YugaByte/Neon.Xunit.YugaByte.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Lib/Neon.Xunit/Neon.Xunit.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Lib/Neon.YugaByte/Neon.YugaByte.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+  </Folder>
+  <Folder Name="/Powershell/">
+    <File Path="Powershell/deployment.ps1" />
+    <File Path="Powershell/error-handling.ps1" />
+    <File Path="Powershell/files.ps1" />
+    <File Path="Powershell/git.ps1" />
+    <File Path="Powershell/github.ps1" />
+    <File Path="Powershell/includes.ps1" />
+    <File Path="Powershell/README.md" />
+    <File Path="Powershell/utility.ps1" />
+  </Folder>
+  <Folder Name="/Services/">
+    <Project Path="Services/neon-signalr-proxy/neon-signalr-proxy.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Debug" />
+    </Project>
+    <Project Path="Services/test-api/test-api.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="services/test-tailwind/test-tailwind.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+  </Folder>
+  <Folder Name="/Test/">
+    <File Path="Test/README.md" />
+    <Project Path="Test/Test.ExecTarget/Test.ExecTarget.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Test/Test.Neon.Blazor/Test.Neon.Blazor.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Debug" />
+      <Build Solution="Debug|Any CPU" Project="false" />
+    </Project>
+    <Project Path="Test/Test.Neon.Cassandra/Test.Neon.Cassandra.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Test/Test.Neon.Common/Test.Neon.Common.csproj">
+      <BuildDependency Project="Test/Test.ExecTarget/Test.ExecTarget.csproj" />
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Test/Test.Neon.Cryptography/Test.Neon.Cryptography.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Test/Test.Neon.Deployment/Test.Neon.Deployment.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Test/Test.Neon.GitHub/Test.Neon.GitHub.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Test/Test.Neon.HyperV/Test.Neon.HyperV.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Debug" />
+    </Project>
+    <Project Path="Test/Test.Neon.JsonConverters/Test.Neon.JsonConverters.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Test/Test.Neon.ModelGen/Test.Neon.ModelGen.csproj">
+      <BuildDependency Project="Test/Test.Neon.Models/Test.Neon.Models.csproj" />
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Test/Test.Neon.ModelGenCli/Test.Neon.ModelGenCli.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Test/Test.Neon.Postgres/Test.Neon.Postgres.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Test/Test.Neon.Service/Test.Neon.Service.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Test/Test.Neon.Web/Test.Neon.Web.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Test/Test.Neon.WSL/Test.Neon.WSL.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Test/Test.Neon.XenServer/Test.Neon.XenServer.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Test/Test.Neon.Xunit/Test.Neon.Xunit.csproj" />
+    <Project Path="Test/Test.Neon.YugaByte/Test.Neon.YugaByte.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+  </Folder>
+  <Folder Name="/Test/Models/">
+    <Project Path="Test/Test.Neon.Models.Definitions/Test.Neon.Models.Definitions.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Test/Test.Neon.Models/Test.Neon.Models.csproj">
+      <BuildDependency Project="Lib/Neon.ModelGen/Neon.ModelGen.csproj" />
+      <BuildDependency Project="Tools/neon-modelgen/neon-modelgen.csproj" />
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+  </Folder>
+  <Folder Name="/ToolBin/">
+    <File Path="ToolBin/gh-tool.cmd" />
+    <File Path="ToolBin/neon-build.cmd" />
+    <File Path="ToolBin/neon-publish-images.cmd" />
+    <File Path="ToolBin/neonsdk-archive.cmd" />
+    <File Path="ToolBin/neonsdk-archive.ps1" />
+    <File Path="ToolBin/neonsdk-builder.cmd" />
+    <File Path="ToolBin/neonsdk-builder.ps1" />
+    <File Path="ToolBin/neonsdk-nuget-dev.cmd" />
+    <File Path="ToolBin/neonsdk-nuget-dev.ps1" />
+    <File Path="ToolBin/neonsdk-nuget-public.cmd" />
+    <File Path="ToolBin/neonsdk-nuget-public.ps1" />
+    <File Path="ToolBin/unix-text.cmd" />
+    <File Path="ToolBin/wsl-util.cmd" />
+  </Folder>
+  <Folder Name="/Tools/">
+    <Project Path="Tools/core-layers/core-layers.csproj" />
+    <Project Path="Tools/dtee/dtee.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Debug" />
+      <BuildType Solution="Release|Any CPU" Project="Debug" />
+    </Project>
+    <Project Path="Tools/gh-tool/gh-tool.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Tools/neon-build/neon-build.csproj">
+      <BuildDependency Project="Tools/pubcore/pubcore.csproj" />
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Tools/neon-modelgen/neon-modelgen.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Tools/pubcore/pubcore.csproj" />
+    <Project Path="Tools/unix-text/unix-text.csproj">
+      <BuildDependency Project="Tools/pubcore/pubcore.csproj" />
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Tools/wsl-util/wsl-util.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+  </Folder>
+  <Folder Name="/User/" />
+  <Folder Name="/User/jefflill/" />
+  <Folder Name="/Websites/" />
+  <Project Path="Images/Images.csproj">
+    <BuildType Solution="CodeDoc|*" Project="Release" />
+  </Project>
+</Solution>

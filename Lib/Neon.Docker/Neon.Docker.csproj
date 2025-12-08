@@ -22,14 +22,14 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-        <PackageReference Include="System.Buffers" Version="4.5.1" />
-        <PackageReference Include="System.Diagnostics.Contracts" Version="4.3.0" />
-        <PackageReference Include="System.Dynamic.Runtime" Version="4.3.0" />
-        <PackageReference Include="System.IO.Pipes" Version="4.3.0" />
-        <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
-        <PackageReference Include="System.Net.Requests" Version="4.3.0" />
-        <PackageReference Include="System.Net.Security" Version="4.3.2" />
+        <PackageReference Include="Microsoft.CSharp" />
+        <PackageReference Include="System.Buffers" />
+        <PackageReference Include="System.Diagnostics.Contracts" />
+        <PackageReference Include="System.Dynamic.Runtime" />
+        <PackageReference Include="System.IO.Pipes" />
+        <PackageReference Include="System.Net.NameResolution" />
+        <PackageReference Include="System.Net.Requests" />
+        <PackageReference Include="System.Net.Security" />
     </ItemGroup>
 
     <ItemGroup>
