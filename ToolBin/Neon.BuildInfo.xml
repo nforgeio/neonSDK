@@ -141,10 +141,10 @@
             <summary>Provides access to the git information for the current assembly.</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.IsDirty">
-            <summary>IsDirty: true</summary>
+            <summary>IsDirty: false</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.IsDirtyString">
-            <summary>IsDirtyString: true</summary>
+            <summary>IsDirtyString: false</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.RepositoryUrl">
             <summary>Repository URL: https://github.com/nforgeio/neonSDK.git</summary>
@@ -153,19 +153,19 @@
             <summary>Branch: master</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.Commit">
-            <summary>Commit: 465bda4e</summary>
+            <summary>Commit: 1b210dd4</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.Sha">
-            <summary>Sha: 465bda4e7811bc663a702dc147b125e87a6570a3</summary>
+            <summary>Sha: 1b210dd47d711d4058bae2708928ae84d4bad76c</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.CommitDate">
-            <summary>Commit date: 2025-04-15T14:28:10-07:00</summary>
+            <summary>Commit date: 2025-12-08T10:07:18-08:00</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.Commits">
-            <summary>Commits on top of base version: 4</summary>
+            <summary>Commits on top of base version: 29</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.Tag">
-            <summary>Tag: v4.0.14-4-g465bda4e</summary>
+            <summary>Tag: v4.0.14-29-g1b210dd4</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.BaseTag">
             <summary>Base tag: v4.0.14</summary>
@@ -192,7 +192,7 @@
             <summary>Minor: 0</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.SemVer.Patch">
-            <summary>Patch: 18</summary>
+            <summary>Patch: 43</summary>
         </member>
         <member name="F:Internal.ThisAssembly.Git.SemVer.Label">
             <summary>Label: </summary>
