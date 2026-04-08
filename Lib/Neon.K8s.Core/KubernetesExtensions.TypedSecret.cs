@@ -33,6 +33,7 @@ using Microsoft.Extensions.Logging;
 
 using Neon.Common;
 using Neon.Diagnostics;
+using Neon.Kube;
 using Neon.Retry;
 using Neon.Tasks;
 

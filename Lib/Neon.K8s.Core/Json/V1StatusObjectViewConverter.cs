@@ -19,7 +19,10 @@ using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace k8s.Models
+using k8s;
+using k8s.Models;
+
+namespace Neon.K8s
 {
     internal sealed class V1StatusConverter : JsonConverter<V1Status>
     {

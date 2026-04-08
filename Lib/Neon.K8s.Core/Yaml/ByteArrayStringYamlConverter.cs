@@ -19,11 +19,14 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
+using k8s;
+using k8s.Models;
+
 using YamlDotNet.Core;
 using YamlDotNet.Core.Events;
 using YamlDotNet.Serialization;
 
-namespace Neon.K8s.YamlConverters
+namespace Neon.K8s
 {
     internal class ByteArrayStringYamlConverter : IYamlTypeConverter
     {

@@ -1,4 +1,4 @@
-# Neon.Kubernetes.Core
+# Neon.K8s.Core
 
 [![.NET Test](https://github.com/nforgeio/operator-sdk/actions/workflows/test.yaml/badge.svg?branch=master)](https://github.com/nforgeio/operator-sdk/actions/workflows/test.yaml)
 [![NuGet Version](https://img.shields.io/nuget/v/Neon.Kubernetes.Core?style=flat&logo=nuget&label=NuGet)](https://www.nuget.org/packages/Neon.Kubernetes.Core)
@@ -7,4 +7,4 @@
 
 ---
 
-Contains some useful Kubernetes utilities.
+Contains some useful Kubernetes utilities targetting .NET Standard 2.0.

@@ -44,14 +44,29 @@ namespace Neon
 
         /// <summary>
         /// <para>
-        /// The released library/package version.
+        /// Specifies the version to use when publishing NeonSDK related packages to NuGet.org.
         /// </para>
         /// <note>
-        /// <b>WARNING:</b> Do not rename this constant without updating the relevant 
-        /// release scripts to match.
+        /// The <b>Neon.KuberntesClient.*</b> packages are published using the same version as
+        /// the original official <b>KubernetesClient</b> package.
+        /// </note>
+        /// <note>
+        /// <b>WARNING:</b> Do not rename this constant without updating the relevant release
+        /// scripts to match.
         /// </note>
         /// </summary>
         public const string NeonSdkVersion = "5.0.0";
+
+        /// <summary>
+        /// <para>
+        /// Specifies the version to use when publishing NeonSDK related packages to NuGet.org.
+        /// </para>
+        /// <note>
+        /// <b>WARNING:</b> Do not rename this constant without updating the relevant release
+        /// scripts to match.
+        /// </note>
+        /// </summary>
+        public const string NeonKubernetesClientVersion = "17.0.14";
 
         /// <summary>
         /// The product license.

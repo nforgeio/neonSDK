@@ -1,4 +1,4 @@
-# Neon.Kubernetes
+# Neon.K8s
 
 [![.NET Test](https://github.com/nforgeio/operator-sdk/actions/workflows/test.yaml/badge.svg?branch=master)](https://github.com/nforgeio/operator-sdk/actions/workflows/test.yaml)
 [![NuGet Version](https://img.shields.io/nuget/v/Neon.Kubernetes?style=flat&logo=nuget&label=NuGet)](https://www.nuget.org/packages/Neon.Kubernetes)

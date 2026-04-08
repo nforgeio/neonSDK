@@ -17,6 +17,9 @@
 
 using System.Runtime.Serialization;
 
+using k8s;
+using k8s.Models;
+
 namespace Neon.K8s
 {
     /// <summary>

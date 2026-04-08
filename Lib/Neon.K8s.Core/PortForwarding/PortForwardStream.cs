@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
-// FILE:	    PortForwardStream.cs
+// FILE:        PortForwardStream.cs
 // CONTRIBUTOR: Marcus Bowyer
-// COPYRIGHT:	Copyright © 2005-2025 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-using AsyncKeyedLock;
 using k8s;
 
 using Microsoft.Extensions.Logging;
@@ -37,7 +36,7 @@ using Microsoft.Extensions.Logging;
 using Neon.Diagnostics;
 using Neon.Net;
 
-namespace Neon.K8s.PortForward
+namespace Neon.Kube.PortForward
 {
     /// <summary>
     /// Implements a a stream that forwards traffic from a port on the client
@@ -47,7 +46,7 @@ namespace Neon.K8s.PortForward
     {
         private const int BUFFER_SIZE = 8192;
 
-        private AsyncNonKeyedLocker     syncLock = new(1);
+        private SemaphoreSlim           syncLock = new SemaphoreSlim(1);
         private TcpClient               localConnection;
         private RemoteConnectionFactory remoteConnectionFactory;
         private ILogger                 logger;
@@ -74,7 +73,7 @@ namespace Neon.K8s.PortForward
         {
             Covenant.Requires<ArgumentNullException>(localConnection != null, nameof(localConnection));
             Covenant.Requires<ArgumentNullException>(remoteConnectionFactory != null, nameof(remoteConnectionFactory));
-            Covenant.Requires<ArgumentNullException>(NetHelper.IsValidPort(remotePort), nameof(remotePort), $"Invalid TCP port: {remotePort}");
+            Covenant.Requires<ArgumentNullException>(NetHelper.IsValidPort(remotePort), () => nameof(remotePort), () => $"Invalid TCP port: {remotePort}");
 
             this.logger                  = loggerFactory?.CreateLogger<PortForwardStream>();
             this.localConnection         = localConnection;
@@ -200,7 +199,8 @@ namespace Neon.K8s.PortForward
                 return;
             }
             StreamDemuxer remoteStreams = null;
-            using (await syncLock.LockAsync())
+            await syncLock.WaitAsync();
+            try
             {
                 if (remote == null)
                 {
@@ -209,6 +209,10 @@ namespace Neon.K8s.PortForward
                     this.remoteStreams.ConnectionClosed += this.RemoteConnectionClosed;
                     remoteStreams = this.remoteStreams;
                 }
+            }
+            finally
+            {
+                syncLock.Release();
             }
             if (remoteStreams != null)
             {
@@ -261,18 +265,24 @@ namespace Neon.K8s.PortForward
 
         private void StopLocal()
         {
-            using (syncLock.Lock())
+            syncLock.Wait();
+            try
             {
                 localConnection?.Close();
                 localConnection = null;
                 localStream?.Close();
                 localStream = null;
             }
+            finally
+            {
+                syncLock.Release();
+            }
         }
 
         private void StopRemote()
         {
-            using (syncLock.Lock())
+            syncLock.Wait();
+            try
             {
                 var remoteStreams = this.remoteStreams;
                 if (remoteStreams != null)
@@ -285,6 +295,10 @@ namespace Neon.K8s.PortForward
                 this.remoteStreams = null;
                 remote?.Dispose();
                 remote = null;
+            }
+            finally
+            {
+                syncLock.Release();
             }
         }
     }

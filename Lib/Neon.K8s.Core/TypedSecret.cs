@@ -1,7 +1,7 @@
 // -----------------------------------------------------------------------------
 // FILE:        TypedSecret.cs
 // CONTRIBUTOR: NEONFORGE Team
-// COPYRIGHT:   Copyright © 2005-2025 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License").
 // You may not use this file except in compliance with the License.
@@ -135,7 +135,7 @@ namespace Neon.K8s
             Covenant.Requires<ArgumentNullException>(data != null, nameof(data));
 
             Data                                     = data ?? new TSecretData();
-            UntypedSecret                            = KubernetesHelper.CreateObject<V1Secret>(name);
+            UntypedSecret                            = KubeHelper.CreateKubeObject<V1Secret>(name);
             UntypedSecret.Metadata.NamespaceProperty = @namespace;
             UntypedSecret.Data                       = new Dictionary<string, byte[]>();
             UntypedSecret.Data[DataPropertyName]     = Encoding.UTF8.GetBytes(NeonHelper.JsonSerialize(Data));

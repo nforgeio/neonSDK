@@ -80,7 +80,7 @@ namespace TestGitHub
                         Assert.Throws<NoLocalRepositoryException>(() => _ = repo.Local.Folder);
                         Assert.Throws<NoLocalRepositoryException>(() => _ = repo.GitApi);
 
-                        await Assert.ThrowsAsync<NoLocalRepositoryException>(async () => await repo.Local.CheckoutAsync("master"));
+                        await Assert.ThrowsAsync<NoLocalRepositoryException>(async () => await repo.Local.CheckoutBranchAsync("master"));
                         await Assert.ThrowsAsync<NoLocalRepositoryException>(async () => await repo.Local.CheckoutOriginAsync("master"));
                         await Assert.ThrowsAsync<NoLocalRepositoryException>(async () => await repo.Local.CreateBranchAsync("test", "master"));
                         await Assert.ThrowsAsync<NoLocalRepositoryException>(async () => await repo.Local.CommitAsync());

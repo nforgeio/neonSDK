@@ -293,7 +293,7 @@ namespace TestGitHub
                             File.WriteAllText(testFilePath, "HELLO WORLD!");
                             await repo.Local.CommitAsync();
 
-                            await repo.Local.CheckoutAsync("master");
+                            await repo.Local.CheckoutBranchAsync("master");
                             Assert.False(File.Exists(testFilePath));
                         }
                     }
@@ -349,7 +349,7 @@ namespace TestGitHub
 
                             // Remove the local branch and verify.
 
-                            await repo.Local.CheckoutAsync("master");
+                            await repo.Local.CheckoutBranchAsync("master");
                             repo.GitApi.Branches.Remove(repo.GitApi.Branches[newBranchName]);
                             Assert.Null(repo.GitApi.Branches[newBranchName]);
                             Assert.Null(await repo.Remote.Branch.FindAsync(newBranchName));
@@ -480,7 +480,7 @@ namespace TestGitHub
                             // Switch back to the master branch and merge changes from the other branch
                             // and then verify that we see the new test file.
 
-                            await repo.Local.CheckoutAsync("master");
+                            await repo.Local.CheckoutBranchAsync("master");
 
                             var result = await repo.Local.MergeAsync(newBranchName);
 
@@ -522,7 +522,7 @@ namespace TestGitHub
                             // Switch back to the master branch and change the contents of the
                             // test file to something different and commit.
 
-                            await repo.Local.CheckoutAsync("master");
+                            await repo.Local.CheckoutBranchAsync("master");
                             Directory.CreateDirectory(Path.GetDirectoryName(testFilePath));
                             File.WriteAllText(testFilePath, "GOODBYE WORLD!");
                             await repo.Local.CommitAsync();
@@ -618,7 +618,7 @@ namespace TestGitHub
 
                             // Switch back to master so we'll be able to delete the branch.
 
-                            await repo.Local.CheckoutAsync("master");
+                            await repo.Local.CheckoutBranchAsync("master");
                             Assert.Equal("master", repo.Local.CurrentBranch.FriendlyName);
 
                             // Verify that [GetAsync()] returns an existing branch and throws for a non-existent one.
@@ -677,13 +677,13 @@ namespace TestGitHub
                             Assert.NotNull(repo.GitApi.Branches[newBranchName]);
                             Assert.True(repo.GitApi.Branches[newBranchName].IsCurrentRepositoryHead);
 
-                            await repo.Local.CheckoutAsync("master");
+                            await repo.Local.CheckoutBranchAsync("master");
                             Assert.Equal("master", repo.Local.CurrentBranch.FriendlyName);
 
-                            await repo.Local.CheckoutAsync(newBranchName);
+                            await repo.Local.CheckoutBranchAsync(newBranchName);
                             Assert.Equal(newBranchName, repo.Local.CurrentBranch.FriendlyName);
 
-                            await repo.Local.CheckoutAsync("master");
+                            await repo.Local.CheckoutBranchAsync("master");
                             Assert.Equal("master", repo.Local.CurrentBranch.FriendlyName);
                         }
                     }
@@ -733,7 +733,7 @@ namespace TestGitHub
                         Assert.Throws<ObjectDisposedException>(() => _ = repo.Origin);
                         Assert.Throws<ObjectDisposedException>(() => _ = repo.Remote);
 
-                        await Assert.ThrowsAsync<ObjectDisposedException>(async () => await repo.Local.CheckoutAsync("master"));
+                        await Assert.ThrowsAsync<ObjectDisposedException>(async () => await repo.Local.CheckoutBranchAsync("master"));
                         await Assert.ThrowsAsync<ObjectDisposedException>(async () => await repo.Local.CheckoutOriginAsync("master"));
                         await Assert.ThrowsAsync<ObjectDisposedException>(async () => await repo.Local.CreateBranchAsync("test", "master"));
                         await Assert.ThrowsAsync<ObjectDisposedException>(async () => await repo.Local.CommitAsync());
@@ -1130,7 +1130,7 @@ namespace TestGitHub
 
                             var testCommits = await repo.Local.GetBranchCommitsAsync(newBranchName);
 
-                            await repo.Local.CheckoutAsync("master");
+                            await repo.Local.CheckoutBranchAsync("master");
                             await repo.Local.CherryPickAsync(newBranchName, testCommits.Take(2));
 
                             // Verify that the master branch now includes these commits.
@@ -1685,7 +1685,7 @@ namespace TestGitHub
 
                                 // Switch back to the master branch and remove the local test branch.
 
-                                await repo.Local.CheckoutAsync("master");
+                                await repo.Local.CheckoutBranchAsync("master");
                                 await repo.Local.RemoveBranchAsync("test");
 
                                 // Checkout the test branch from GitHub and verify that the test branch
@@ -1704,7 +1704,7 @@ namespace TestGitHub
                                 // Remove the local test branch and then check it out again, detached
                                 // this time and verify.
 
-                                await repo.Local.CheckoutAsync("master");
+                                await repo.Local.CheckoutBranchAsync("master");
                                 await repo.Local.RemoveBranchAsync("test");
                                 await repo.Local.CheckoutOriginAsync("test", detached: true);
                                 Assert.False(repo.Local.CurrentBranch.IsTracking);

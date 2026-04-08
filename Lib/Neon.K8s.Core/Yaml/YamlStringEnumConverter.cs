@@ -22,16 +22,19 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
 
+using k8s;
+using k8s.Models;
+
 using YamlDotNet.Core;
 using YamlDotNet.Core.Events;
 using YamlDotNet.Serialization;
 
-namespace Neon.Kubernetes.Core.YamlConverters
+namespace Neon.K8s
 {
     /// <summary>
     /// Converts enum values to and from strings using the <see cref="EnumMemberAttribute"/>.
     /// </summary>
-    public class YamlStringEnumConverter : IYamlTypeConverter
+    internal class YamlStringEnumConverter : IYamlTypeConverter
     {
         /// <inheritdoc/>
         public bool Accepts(Type type) => type.IsEnum;

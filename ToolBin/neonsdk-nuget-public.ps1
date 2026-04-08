@@ -93,7 +93,6 @@ function Publish
 
     dotnet nuget push "$env:NF_BUILD\nuget\$project.$neonSdkVersion.nupkg" --api-key $githubApiKey --source https://nuget.pkg.github.com/nforgeio/index.json --skip-duplicate
     ThrowOnExitCode
-
 }
 
 try
@@ -104,15 +103,19 @@ try
 
     # Load the library and NeonKUBE versions.
 
-    $msbuild        = $env:MSBUILDPATH
-    $neonBuild      = "$env:NF_ROOT\ToolBin\neon-build\neon-build.exe"
-    $nfRoot         = "$env:NF_ROOT"
-    $nfSolution     = "$nfRoot\neonSDK.sln"
-    $nfBuild        = "$env:NF_BUILD"
-    $nfLib          = "$nfRoot\Lib"
-    $nfTools        = "$nfRoot\Tools"
-    $nfToolBin      = "$nfRoot\ToolBin"
-    $neonSdkVersion = $(& "$nfToolBin\neon-build" read-version "$nfLib/Neon.Common/Build.cs" NeonSdkVersion)
+    $msbuild    = $env:MSBUILDPATH
+    $neonBuild  = "$env:NF_ROOT\ToolBin\neon-build\neon-build.exe"
+    $nfRoot     = "$env:NF_ROOT"
+    $nfSolution = "$nfRoot\neonSDK.sln"
+    $nfBuild    = "$env:NF_BUILD"
+    $nfLib      = "$nfRoot\Lib"
+    $nfTools    = "$nfRoot\Tools"
+    $nfToolBin  = "$nfRoot\ToolBin"
+
+    # $todo(jefflill): It would be better to extract these from the [Directory.Build.target] files.
+
+    $neonSdkVersion              = $(& "$nfToolBin\neon-build" read-version "$nfLib/Neon.Common/Build.cs" NeonSdkVersion)
+    $neonKubernetesClientVersion = $(& "$nfToolBin\neon-build" read-version "$nfLib/Neon.Common/Build.cs" NeonKubernetesClientVersion)
 
     #--------------------------------------------------------------------------
     # SourceLink configuration:
@@ -163,39 +166,43 @@ try
     #------------------------------------------------------------------------------
     # Build and publish the projects.
 
-    Publish Neon.Blazor                 $neonSdkVersion
-    Publish Neon.Blazor.Analyzers       $neonSdkVersion
-    Publish Neon.BuildInfo              $neonSdkVersion
-    Publish Neon.Cassandra              $neonSdkVersion
-    Publish Neon.Common                 $neonSdkVersion
-    Publish Neon.Common.Extensions      $neonSdkVersion
-    Publish Neon.Cryptography           $neonSdkVersion
-    Publish Neon.CSharp                 $neonSdkVersion
-    Publish Neon.Deployment             $neonSdkVersion
-    Publish Neon.Docker                 $neonSdkVersion
-    Publish Neon.EntityFrameworkCore    $neonSdkVersion
-    Publish Neon.GitHub                 $neonSdkVersion
-    Publish Neon.HyperV                 $neonSdkVersion
-    Publish Neon.JsonConverters         $neonSdkVersion
-    Publish Neon.K8s                    $neonSdkVersion
-    Publish Neon.ModelGen               $neonSdkVersion
-    Publish Neon.ModelGenerator         $neonSdkVersion
-    Publish Neon.Nats                   $neonSdkVersion
-    Publish Neon.Postgres               $neonSdkVersion
-    Publish Neon.Roslyn                 $neonSdkVersion
-    Publish Neon.Roslyn.Xunit           $neonSdkVersion
-    Publish Neon.Service                $neonSdkVersion
-    Publish Neon.SignalR                $neonSdkVersion
-    Publish Neon.SSH                    $neonSdkVersion
-    Publish Neon.Tailwind               $neonSdkVersion
-    Publish Neon.Temporal               $neonSdkVersion
-    Publish Neon.Web                    $neonSdkVersion
-    Publish Neon.WinTTY                 $neonSdkVersion
-    Publish Neon.WSL                    $neonSdkVersion
-    Publish Neon.XenServer              $neonSdkVersion
-    Publish Neon.Xunit                  $neonSdkVersion
-    Publish Neon.Xunit.YugaByte         $neonSdkVersion
-    Publish Neon.YugaByte               $neonSdkVersion
+    Publish Neon.Blazor                     $neonSdkVersion
+    Publish Neon.Blazor.Analyzers           $neonSdkVersion
+    Publish Neon.BuildInfo                  $neonSdkVersion
+    Publish Neon.Cassandra                  $neonSdkVersion
+    Publish Neon.Common                     $neonSdkVersion
+    Publish Neon.Common.Extensions          $neonSdkVersion
+    Publish Neon.Cryptography               $neonSdkVersion
+    Publish Neon.CSharp                     $neonSdkVersion
+    Publish Neon.Deployment                 $neonSdkVersion
+    Publish Neon.Docker                     $neonSdkVersion
+    Publish Neon.EntityFrameworkCore        $neonSdkVersion
+    Publish Neon.GitHub                     $neonSdkVersion
+    Publish Neon.HyperV                     $neonSdkVersion
+    Publish Neon.JsonConverters             $neonSdkVersion
+    Publish Neon.K8s                        $neonSdkVersion
+    Publish Neon.K8s.Core                   $neonSdkVersion
+    Publish Neon.KubernetesClient           $neonKubernetesClientVersion
+    Publish Neon.KubernetesClient.Basic     $neonKubernetesClientVersion
+    Publish Neon.KubernetesClient.Models    $neonKubernetesClientVersion
+    Publish Neon.ModelGen                   $neonSdkVersion
+    Publish Neon.ModelGenerator             $neonSdkVersion
+    Publish Neon.Nats                       $neonSdkVersion
+    Publish Neon.Postgres                   $neonSdkVersion
+    Publish Neon.Roslyn                     $neonSdkVersion
+    Publish Neon.Roslyn.Xunit               $neonSdkVersion
+    Publish Neon.Service                    $neonSdkVersion
+    Publish Neon.SignalR                    $neonSdkVersion
+    Publish Neon.SSH                        $neonSdkVersion
+    Publish Neon.Tailwind                   $neonSdkVersion
+    Publish Neon.Temporal                   $neonSdkVersion
+    Publish Neon.Web                        $neonSdkVersion
+    Publish Neon.WinTTY                     $neonSdkVersion
+    Publish Neon.WSL                        $neonSdkVersion
+    Publish Neon.XenServer                  $neonSdkVersion
+    Publish Neon.Xunit                      $neonSdkVersion
+    Publish Neon.Xunit.YugaByte             $neonSdkVersion
+    Publish Neon.YugaByte                   $neonSdkVersion
 
     #------------------------------------------------------------------------------
     # Remove all of the generated nuget files so these don't accumulate.

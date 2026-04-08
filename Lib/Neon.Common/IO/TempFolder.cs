@@ -63,7 +63,10 @@ namespace Neon.IO
             }
             else
             {
-                Directory.CreateDirectory(rootFolder);
+                if (create)
+                {
+                    Directory.CreateDirectory(rootFolder);
+                }
 
                 Path = System.IO.Path.Combine(rootFolder, Guid.NewGuid().ToString());
             }

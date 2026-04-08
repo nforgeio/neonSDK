@@ -302,15 +302,22 @@ namespace Neon.GitHub
         }
 
         /// <summary>
-        /// Checks out a local repository branch.
+        /// Checks out a local or remote repository branch.
         /// </summary>
-        /// <param name="branchName">Specifies the local branch to be checked out.</param>
+        /// <param name="branchName">Specifies the local branch or tag to be checked out.</param>
         /// <returns>The tracking <see cref="Task"/>.</returns>
         /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
         /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
         /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
-        public async Task CheckoutAsync(string branchName)
+        public async Task CheckoutBranchAsync(string branchName)
         {
+            // $todo(jefflill):
+            //
+            // Figure out how to optionally create a branch from a tag.  This can be
+            // done on the command line via:
+            //
+            //      git checkout -b <new-branch-name> <tag-name>
+
             await SyncContext.Clear;
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
             root.EnsureNotDisposed();
@@ -332,7 +339,7 @@ namespace Neon.GitHub
 
                 if (remoteBranch == null)
                 {
-                    throw new LibGit2SharpException($"Branch [{branchName}] does not exist locally or remote.");
+                    throw new LibGit2SharpException($"Branch [{branchName}] does not exist local or remote.");
                 }
 
                 // Create local branch with the specified name and then configure it
@@ -342,6 +349,71 @@ namespace Neon.GitHub
                 branch = root.GitApi.Branches.Update(branch, branch => branch.TrackedBranch = remoteBranch.CanonicalName);
 
                 Commands.Checkout(root.GitApi, branch);
+            }
+
+            await Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// <para>
+        /// Checks out a local tag, optionally creating a new branch.
+        /// </para>
+        /// <note>
+        /// When a branch is not created, the repo will be placed in a <b>detached HEAD</b>
+        /// state, meaning that any new commits won't be associated with any branch.
+        /// </note>
+        /// </summary>
+        /// <param name="tagName">Specifies the local tag to be checked out.</param>
+        /// <param name="newBranchName">Optionally specifies the name of the new branch to be created.</param>
+        /// <returns>The tracking <see cref="Task"/>.</returns>
+        /// <exception cref="ObjectDisposedException">Thrown when the <see cref="GitHubRepo"/> has been disposed.</exception>
+        /// <exception cref="NoLocalRepositoryException">Thrown when the <see cref="GitHubRepo"/> is not associated with a local git repository.</exception>
+        /// <exception cref="LibGit2SharpException">Thrown if the operation fails.</exception>
+        public async Task CheckoutTagAsync(string tagName, string newBranchName = null)
+        {
+            await SyncContext.Clear;
+            Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(tagName), nameof(tagName));
+            root.EnsureNotDisposed();
+            root.EnsureLocalRepo();
+
+            GitBranch branch;
+
+            // If we're creating a new branch, ensure that it doesn't already exist
+            // either local or remote.
+
+            if (newBranchName != null)
+            {
+                branch = root.GitApi.Branches[newBranchName];
+
+                if (branch != null)
+                {
+                    throw new LibGit2SharpException($"Local branch [{newBranchName}] already exists.");
+                }
+
+                var remoteBranch = root.GitApi.Branches[$"origin/{newBranchName}"];
+
+                if (remoteBranch != null)
+                {
+                    throw new LibGit2SharpException($"Remote branch [{newBranchName}] already exists.");
+                }
+            }
+
+            // Locate the tag commit.
+
+            var tag = root.GitApi.Tags[tagName];
+
+            if (tag == null)
+            {
+                throw new LibGit2SharpException($"Tag [{tagName}] does not exist.");
+            }
+
+            var tagCommit = (LibGit2Sharp.Commit)tag.Target;
+
+            branch = Commands.Checkout(root.GitApi, tagCommit);
+
+            if (newBranchName != null)
+            {
+                root.GitApi.CreateBranch(newBranchName);
             }
 
             await Task.CompletedTask;
@@ -404,7 +476,7 @@ namespace Neon.GitHub
                 }
             }
 
-            await CheckoutAsync(localBranchName);
+            await CheckoutBranchAsync(localBranchName);
 
             // Wait for the branch to appear.
 
@@ -435,7 +507,7 @@ namespace Neon.GitHub
 
             if (newBranch != null)
             {
-                await CheckoutAsync(branchName);
+                await CheckoutBranchAsync(branchName);
 
                 return false;
             }
@@ -448,7 +520,7 @@ namespace Neon.GitHub
             }
 
             root.GitApi.CreateBranch(branchName, sourceBranch.Tip);
-            await CheckoutAsync(branchName);
+            await CheckoutBranchAsync(branchName);
 
             // Wait for the branch to appear.
 

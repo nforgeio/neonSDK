@@ -27,9 +27,6 @@ using System.Threading.Tasks;
 using k8s;
 using k8s.Models;
 
-using Neon.K8s.YamlConverters;
-using Neon.Kubernetes.Core.YamlConverters;
-
 using YamlDotNet.Core;
 using YamlDotNet.Core.Events;
 using YamlDotNet.Serialization;
@@ -40,7 +37,7 @@ namespace Neon.K8s
     /// <summary>
     /// YAML/Kubernetes related utilities.
     /// </summary>
-    public static class KubernetesYamlHelper
+    internal static class KubernetesYaml
     {
         private static DeserializerBuilder CommonDeserializerBuilder =>
             new DeserializerBuilder()
@@ -76,7 +73,7 @@ namespace Neon.K8s
         /// <summary>
         /// Static constructor.
         /// </summary>
-        static KubernetesYamlHelper()
+        static KubernetesYaml()
         {
             // $note(jefflill):
             //
@@ -105,7 +102,7 @@ namespace Neon.K8s
         /// <param name="strict"></param>
         /// <param name="stringTypeDeserialization"></param>
         /// <returns></returns>
-        public static TValue YamlDeserialize<TValue>(string yaml, bool strict = false, bool stringTypeDeserialization = true)
+        public static TValue Deserialize<TValue>(string yaml, bool strict = false, bool stringTypeDeserialization = true)
         {
             using var reader = new StringReader(yaml);
 
@@ -120,7 +117,7 @@ namespace Neon.K8s
         /// <param name="strict"></param>
         /// <param name="stringTypeDeserialization"></param>
         /// <returns></returns>
-        public static TValue YamlDeserialize<TValue>(Stream yaml, bool strict = false, bool stringTypeDeserialization = true)
+        public static TValue Deserialize<TValue>(Stream yaml, bool strict = false, bool stringTypeDeserialization = true)
         {
             using var reader = new StreamReader(yaml);
 
@@ -132,7 +129,7 @@ namespace Neon.K8s
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        public static string YamlSerialize(object value)
+        public static string Serialize(object value)
         {
             if (value == null)
             {

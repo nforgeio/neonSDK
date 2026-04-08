@@ -19,12 +19,15 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
+using k8s;
+using k8s.Models;
+
 using YamlDotNet.Core;
 using YamlDotNet.Serialization.EventEmitters;
 using YamlDotNet.Serialization;
 using YamlDotNet.Core.Events;
 
-namespace Neon.K8s.YamlConverters
+namespace Neon.K8s
 {
     internal class FloatEmitter : ChainedEventEmitter
     {

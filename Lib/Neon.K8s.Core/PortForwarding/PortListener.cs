@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
-// FILE:	    PortListener.cs
+// FILE:        PortListener.cs
 // CONTRIBUTOR: Marcus Bowyer
-// COPYRIGHT:	Copyright © 2005-2025 by NEONFORGE LLC.  All rights reserved.
+// COPYRIGHT:   Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ using Microsoft.Extensions.Logging;
 
 using Neon.Net;
 
-namespace Neon.K8s.PortForward
+namespace Neon.Kube.PortForward
 {
     /// <inheritdoc/>
     internal sealed class PortListener : IPortListener
@@ -49,7 +49,7 @@ namespace Neon.K8s.PortForward
             ILoggerFactory    loggerFactory     = null,
             CancellationToken cancellationToken = default)
         {
-            Covenant.Requires<ArgumentException>(NetHelper.IsValidPort(localPort), nameof(localPort), $"Invalid TCP port: {localPort}");
+            Covenant.Requires<ArgumentException>(NetHelper.IsValidPort(localPort), () => nameof(localPort), () => $"Invalid TCP port: {localPort}");
 
             this.localPort    = localPort;
             this.localAddress = localAddress ?? IPAddress.Loopback;

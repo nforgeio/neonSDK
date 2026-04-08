@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
-// FILE:	    RemoteConnectionFactory.cs
-// CONTRIBUTOR: Marcus Bowyer
-// COPYRIGHT:	Copyright © 2005-2025 by NEONFORGE LLC.  All rights reserved.
+// FILE:        KubernetesObjectMetadata.cs
+// CONTRIBUTOR: Jeff Lill
+// COPYRIGHT:   Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,28 +16,35 @@
 // limitations under the License.
 
 using System;
-using System.Buffers.Binary;
-using System.Buffers;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.Contracts;
-using System.IO;
 using System.Linq;
-using System.Net.Sockets;
-using System.Net.WebSockets;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
-using Microsoft.Extensions.Logging;
+using k8s;
+using k8s.Models;
 
-using Neon.Net;
+using Neon.Common;
 
-namespace Neon.K8s.PortForward
+namespace Neon.K8s
 {
     /// <summary>
-    /// Delegate that creates the <see cref="WebSocket"/> for a <see cref="PortForwardStream"/>.
+    /// Describes a Kubernetes object by its basic properties, <see cref="ApiVersion"/>, <see cref="Kind"/>, and <see cref="Metadata"/>.
     /// </summary>
-    /// <returns>The <see cref="WebSocket"/>.</returns>
-    internal delegate Task<WebSocket> RemoteConnectionFactory();
+    public class KubernetesObjectMetadata : IKubernetesObject<V1ObjectMeta>, IMetadata<V1ObjectMeta>, IValidate
+    {
+        /// <inheritdoc/>
+        public string ApiVersion { get; set; }
+
+        /// <inheritdoc/>
+        public string Kind { get; set; }
+
+        /// <inheritdoc/>
+        public V1ObjectMeta Metadata { get; set; }
+
+        /// <inheritdoc/>
+        public void Validate()
+        {
+        }
+    }
 }

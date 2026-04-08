@@ -31,7 +31,7 @@ namespace Neon.K8s
     /// <summary>
     /// JSON/Kubernetes related utilities.
     /// </summary>
-    public static class KubernetesJsonHelper
+    internal static class KubernetesJson
     {
         private static readonly JsonSerializerOptions JsonSerializerOptions = new JsonSerializerOptions();
 
@@ -109,7 +109,7 @@ namespace Neon.K8s
         /// <summary>
         /// Static onstructor.
         /// </summary>
-        static KubernetesJsonHelper()
+        static KubernetesJson()
         {
             JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
             JsonSerializerOptions.PropertyNamingPolicy   = JsonNamingPolicy.CamelCase;
@@ -145,7 +145,7 @@ namespace Neon.K8s
         /// <param name="json">The JSON string to deserialize.</param>
         /// <param name="jsonSerializerOptions">The optional <see cref="JsonSerializerOptions"/> to use for deserialization.</param>
         /// <returns>The deserialized value of type <typeparamref name="TValue"/>.</returns>
-        public static TValue JsonDeserialize<TValue>(string json, JsonSerializerOptions jsonSerializerOptions = null)
+        public static TValue Deserialize<TValue>(string json, JsonSerializerOptions jsonSerializerOptions = null)
         {
             return JsonSerializer.Deserialize<TValue>(json, jsonSerializerOptions ?? JsonSerializerOptions);
         }
@@ -157,7 +157,7 @@ namespace Neon.K8s
         /// <param name="json">The JSON stream to deserialize.</param>
         /// <param name="jsonSerializerOptions">The optional <see cref="JsonSerializerOptions"/> to use for deserialization.</param>
         /// <returns>The deserialized value of type <typeparamref name="TValue"/>.</returns>
-        public static TValue JsonDeserialize<TValue>(Stream json, JsonSerializerOptions jsonSerializerOptions = null)
+        public static TValue Deserialize<TValue>(Stream json, JsonSerializerOptions jsonSerializerOptions = null)
         {
             return JsonSerializer.Deserialize<TValue>(json, jsonSerializerOptions ?? JsonSerializerOptions);
         }
@@ -168,7 +168,7 @@ namespace Neon.K8s
         /// <param name="value">The object to serialize.</param>
         /// <param name="jsonSerializerOptions">The optional <see cref="JsonSerializerOptions"/> to use for serialization.</param>
         /// <returns>The JSON string representation of the object.</returns>
-        public static string JsonSerialize(object value, JsonSerializerOptions jsonSerializerOptions = null)
+        public static string Serialize(object value, JsonSerializerOptions jsonSerializerOptions = null)
         {
             return JsonSerializer.Serialize(value, jsonSerializerOptions ?? JsonSerializerOptions);
         }
@@ -182,8 +182,8 @@ namespace Neon.K8s
         /// <returns>A deep copy of the object.</returns>
         public static T JsonClone<T>(T value, JsonSerializerOptions jsonSerializerOptions = null)
         {
-            return JsonDeserialize<T>(
-                json: JsonSerializer.Serialize(value, jsonSerializerOptions ?? JsonSerializerOptions),
+            return Deserialize<T>(
+                json:                  JsonSerializer.Serialize(value, jsonSerializerOptions ?? JsonSerializerOptions),
                 jsonSerializerOptions: jsonSerializerOptions ?? JsonSerializerOptions);
         }
 
@@ -195,7 +195,7 @@ namespace Neon.K8s
         /// <returns><c>true</c> if the objects are equal; otherwise, <c>false</c>.</returns>
         public static bool JsonEquals<T>(this T x, T y)
         {
-            return JsonSerialize(x) == JsonSerialize(y);
+            return Serialize(x) == Serialize(y);
         }
     }
 }
