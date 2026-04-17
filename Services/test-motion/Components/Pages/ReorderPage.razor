@@ -1,0 +1,88 @@
+@page "/reorder"
+@rendermode InteractiveServer
+
+<PageTitle>Motion Demo - Reorder</PageTitle>
+
+<div class="page-header">
+    <h1>Reorder</h1>
+    <p>The <code>&lt;ReorderGroup&gt;</code> component lets users drag items to reorder them. Each item animates with a FLIP transition to its new position.</p>
+</div>
+
+<div class="demo-container">
+    <div class="demo-stage" style="align-items:stretch;padding:1.5rem 2rem">
+        <ReorderGroup TItem="TaskItem"
+                      Items="_tasks"
+                      RenderItem="@RenderTask"
+                      OnReorder="@(updated => _tasks = updated)"
+                      Transition="@(new AnimateOptions { Type = "spring", Bounce = 0.2 })" />
+    </div>
+    <div class="demo-controls">
+        <span style="font-size:0.8rem;color:#94a3b8">Drag items to reorder</span>
+    </div>
+</div>
+
+<h2>Horizontal list</h2>
+<p>Drag cards left or right to reorder them horizontally.</p>
+
+<div class="demo-container">
+    <div class="demo-stage" style="padding:1.5rem;overflow-x:auto">
+        <ReorderGroup TItem="ColorCard"
+                      Items="_cards"
+                      RenderItem="@RenderCard"
+                      OnReorder="@(updated => _cards = updated)"
+                      CssClass="motion-reorder-group motion-reorder-row"
+                      Transition="@(new AnimateOptions { Duration = 0.3, Ease = "easeOut" })" />
+    </div>
+</div>
+
+<div class="code-block">
+&lt;<span class="fn">ReorderGroup</span> <span class="str">TItem</span>=<span class="str">"MyItem"</span>
+  <span class="str">Items</span>=<span class="str">"_items"</span>
+  <span class="str">RenderItem</span>=<span class="str">"@@RenderItem"</span>
+  <span class="str">OnReorder</span>=<span class="str">"@@(updated =&gt; _items = updated)"</span>
+  <span class="str">Transition</span>=<span class="str">"@@(new AnimateOptions &#123; Type = "spring" &#125;)"</span> /&gt;
+
+@@code &#123;
+  <span class="kw">private</span> RenderFragment&lt;MyItem&gt; RenderItem =&gt; item =&gt; @@&lt;div&gt;@@item.Name&lt;/div&gt;;
+&#125;
+</div>
+
+@code {
+    private record TaskItem(string Id, string Label, string Priority, string Color);
+    private record ColorCard(string Id, string Label, string Bg);
+
+    private List<TaskItem> _tasks = new()
+    {
+        new("t1", "Design system tokens",    "High",   "#6366f1"),
+        new("t2", "Component architecture",  "High",   "#8b5cf6"),
+        new("t3", "Animation library",       "Medium", "#a78bfa"),
+        new("t4", "Accessibility audit",     "Medium", "#c084fc"),
+        new("t5", "Performance review",      "Low",    "#e879f9"),
+        new("t6", "Documentation",           "Low",    "#f472b6"),
+    };
+
+    private List<ColorCard> _cards = new()
+    {
+        new("c1", "One",   "linear-gradient(135deg,#6366f1,#8b5cf6)"),
+        new("c2", "Two",   "linear-gradient(135deg,#8b5cf6,#a78bfa)"),
+        new("c3", "Three", "linear-gradient(135deg,#a78bfa,#c084fc)"),
+        new("c4", "Four",  "linear-gradient(135deg,#c084fc,#e879f9)"),
+    };
+
+    private RenderFragment<TaskItem> RenderTask => task =>
+    @<div class="ro-task-item">
+        <div class="ro-drag-handle">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+            </svg>
+        </div>
+        <div class="ro-task-dot" style="background:@task.Color"></div>
+        <div class="ro-task-label">@task.Label</div>
+        <div class="ro-task-priority" style="color:@task.Color">@task.Priority</div>
+    </div>;
+
+    private RenderFragment<ColorCard> RenderCard => card =>
+    @<div class="ro-color-card" style="background:@card.Bg">
+        @card.Label
+    </div>;
+}

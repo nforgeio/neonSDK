@@ -83,6 +83,12 @@ namespace Neon.ECharts
             await Module.InvokeVoidAsync("echartsFunctions.registerMap", name, svg);
         }
 
+        public async Task RegisterGeoMap(string name, string geoJSON)
+        {
+            await InitAsync();
+            await Module.InvokeVoidAsync("echartsFunctions.registerGeoJSON", name, geoJSON);
+        }
+
         public async Task SetupChart<T>(string id, string theme, EChartsOption<T> option, bool notMerge = false)
         {
             await SetupChart(id, theme, option.ToString(), notMerge);

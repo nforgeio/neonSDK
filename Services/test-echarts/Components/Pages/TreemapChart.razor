@@ -1,0 +1,38 @@
+@page "/treemap"
+@rendermode InteractiveServer
+
+<PageTitle>Treemap Chart</PageTitle>
+
+<h1>Treemap Chart</h1>
+<p>A treemap showing disk space usage by category.</p>
+
+<div class="chart-container">
+    <EChart OptionRaw="@_option" style="width:100%;height:100%;" />
+</div>
+
+@code {
+    private string _option = @"{
+        ""title"": { ""text"": ""Disk Usage"", ""left"": ""center"" },
+        ""tooltip"": { ""formatter"": ""{b}: {c} GB"" },
+        ""series"": [{
+            ""type"": ""treemap"",
+            ""data"": [
+                { ""name"": ""Documents"", ""value"": 40, ""children"": [
+                    { ""name"": ""PDFs"", ""value"": 15 },
+                    { ""name"": ""Spreadsheets"", ""value"": 10 },
+                    { ""name"": ""Presentations"", ""value"": 15 }
+                ]},
+                { ""name"": ""Media"", ""value"": 80, ""children"": [
+                    { ""name"": ""Photos"", ""value"": 30 },
+                    { ""name"": ""Videos"", ""value"": 40 },
+                    { ""name"": ""Music"", ""value"": 10 }
+                ]},
+                { ""name"": ""Code"", ""value"": 25, ""children"": [
+                    { ""name"": ""Projects"", ""value"": 15 },
+                    { ""name"": ""Libraries"", ""value"": 10 }
+                ]},
+                { ""name"": ""System"", ""value"": 35 }
+            ]
+        }]
+    }";
+}

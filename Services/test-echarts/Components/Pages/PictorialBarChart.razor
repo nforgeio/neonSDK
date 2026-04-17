@@ -1,0 +1,35 @@
+@page "/pictorialbar"
+@rendermode InteractiveServer
+
+<PageTitle>Pictorial Bar Chart</PageTitle>
+
+<h1>Pictorial Bar Chart</h1>
+<p>A pictorial bar chart using symbols to represent data values.</p>
+
+<div class="chart-container">
+    <EChart OptionRaw="@_option" style="width:100%;height:100%;" />
+</div>
+
+@code {
+    private string _option = @"{
+        ""title"": { ""text"": ""Fuel Consumption"" },
+        ""tooltip"": {},
+        ""xAxis"": { ""data"": [""Sedan"", ""SUV"", ""Truck"", ""Sports"", ""Hybrid""], ""axisTick"": { ""show"": false } },
+        ""yAxis"": { ""name"": ""L/100km"" },
+        ""series"": [{
+            ""type"": ""pictorialBar"",
+            ""symbol"": ""roundRect"",
+            ""symbolRepeat"": ""fixed"",
+            ""symbolSize"": [20, 6],
+            ""symbolMargin"": 2,
+            ""data"": [
+                { ""value"": 7, ""symbolSize"": [20, 6] },
+                { ""value"": 10, ""symbolSize"": [20, 6] },
+                { ""value"": 12, ""symbolSize"": [20, 6] },
+                { ""value"": 9, ""symbolSize"": [20, 6] },
+                { ""value"": 4, ""symbolSize"": [20, 6] }
+            ],
+            ""label"": { ""show"": true, ""position"": ""top"", ""formatter"": ""{c} L"" }
+        }]
+    }";
+}

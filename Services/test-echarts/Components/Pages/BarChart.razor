@@ -1,0 +1,25 @@
+@page "/bar"
+@rendermode InteractiveServer
+
+<PageTitle>Bar Chart</PageTitle>
+
+<h1>Bar Chart</h1>
+<p>A basic bar chart showing monthly sales data.</p>
+
+<div class="chart-container">
+    <EChart OptionRaw="@_option" style="width:100%;height:100%;" />
+</div>
+
+@code {
+    private string _option = @"{
+        ""title"": { ""text"": ""Monthly Sales"" },
+        ""tooltip"": { ""trigger"": ""axis"" },
+        ""legend"": { ""data"": [""Sales"", ""Expenses""] },
+        ""xAxis"": { ""type"": ""category"", ""data"": [""Jan"", ""Feb"", ""Mar"", ""Apr"", ""May"", ""Jun""] },
+        ""yAxis"": { ""type"": ""value"" },
+        ""series"": [
+            { ""name"": ""Sales"", ""type"": ""bar"", ""data"": [120, 200, 150, 80, 70, 110] },
+            { ""name"": ""Expenses"", ""type"": ""bar"", ""data"": [90, 140, 100, 60, 50, 80] }
+        ]
+    }";
+}

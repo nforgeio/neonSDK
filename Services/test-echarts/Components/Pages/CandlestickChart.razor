@@ -1,0 +1,30 @@
+@page "/candlestick"
+@rendermode InteractiveServer
+
+<PageTitle>Candlestick Chart</PageTitle>
+
+<h1>Candlestick Chart</h1>
+<p>A financial candlestick chart showing stock OHLC data.</p>
+
+<div class="chart-container">
+    <EChart OptionRaw="@_option" style="width:100%;height:100%;" />
+</div>
+
+@code {
+    private string _option = @"{
+        ""title"": { ""text"": ""Stock Price"" },
+        ""tooltip"": { ""trigger"": ""axis"", ""axisPointer"": { ""type"": ""cross"" } },
+        ""xAxis"": { ""type"": ""category"", ""data"": [""Mon"", ""Tue"", ""Wed"", ""Thu"", ""Fri""] },
+        ""yAxis"": { ""type"": ""value"", ""min"": 2200 },
+        ""series"": [{
+            ""type"": ""candlestick"",
+            ""data"": [
+                [2320.26, 2320.26, 2287.3, 2362.94],
+                [2300, 2291.3, 2288.26, 2308.38],
+                [2295.35, 2346.5, 2295.35, 2346.92],
+                [2347.22, 2358.98, 2337.35, 2363.8],
+                [2360.75, 2382.48, 2347.89, 2383.76]
+            ]
+        }]
+    }";
+}

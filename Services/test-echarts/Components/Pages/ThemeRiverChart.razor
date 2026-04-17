@@ -1,0 +1,49 @@
+@page "/themeriver"
+@rendermode InteractiveServer
+
+<PageTitle>Theme River Chart</PageTitle>
+
+<h1>Theme River Chart</h1>
+<p>A theme river chart showing trends over time for multiple categories.</p>
+
+<div class="chart-container">
+    <EChart OptionRaw="@_option" style="width:100%;height:100%;" />
+</div>
+
+@code {
+    private string _option = @"{
+        ""title"": { ""text"": ""Programming Language Trends"" },
+        ""tooltip"": { ""trigger"": ""axis"" },
+        ""singleAxis"": { ""type"": ""time"", ""top"": 50, ""bottom"": 50 },
+        ""series"": [{
+            ""type"": ""themeRiver"",
+            ""emphasis"": { ""itemStyle"": { ""shadowBlur"": 20, ""shadowColor"": ""rgba(0, 0, 0, 0.8)"" } },
+            ""data"": [
+                [""2020/01/01"", 10, ""Python""],
+                [""2020/04/01"", 15, ""Python""],
+                [""2020/07/01"", 18, ""Python""],
+                [""2020/10/01"", 22, ""Python""],
+                [""2021/01/01"", 25, ""Python""],
+                [""2021/04/01"", 28, ""Python""],
+                [""2020/01/01"", 20, ""JavaScript""],
+                [""2020/04/01"", 22, ""JavaScript""],
+                [""2020/07/01"", 19, ""JavaScript""],
+                [""2020/10/01"", 21, ""JavaScript""],
+                [""2021/01/01"", 23, ""JavaScript""],
+                [""2021/04/01"", 20, ""JavaScript""],
+                [""2020/01/01"", 8, ""Rust""],
+                [""2020/04/01"", 10, ""Rust""],
+                [""2020/07/01"", 12, ""Rust""],
+                [""2020/10/01"", 14, ""Rust""],
+                [""2021/01/01"", 16, ""Rust""],
+                [""2021/04/01"", 19, ""Rust""],
+                [""2020/01/01"", 12, ""Go""],
+                [""2020/04/01"", 13, ""Go""],
+                [""2020/07/01"", 14, ""Go""],
+                [""2020/10/01"", 15, ""Go""],
+                [""2021/01/01"", 16, ""Go""],
+                [""2021/04/01"", 17, ""Go""]
+            ]
+        }]
+    }";
+}

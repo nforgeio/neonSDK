@@ -1,0 +1,38 @@
+@page "/parallel"
+@rendermode InteractiveServer
+
+<PageTitle>Parallel Chart</PageTitle>
+
+<h1>Parallel Coordinates Chart</h1>
+<p>A parallel coordinates chart for multi-dimensional data comparison.</p>
+
+<div class="chart-container">
+    <EChart OptionRaw="@_option" style="width:100%;height:100%;" />
+</div>
+
+@code {
+    private string _option = @"{
+        ""title"": { ""text"": ""Car Specifications"" },
+        ""parallelAxis"": [
+            { ""dim"": 0, ""name"": ""Price ($k)"" },
+            { ""dim"": 1, ""name"": ""Horsepower"" },
+            { ""dim"": 2, ""name"": ""MPG"" },
+            { ""dim"": 3, ""name"": ""Weight (lb)"" },
+            { ""dim"": 4, ""name"": ""0-60 (s)"" }
+        ],
+        ""series"": [{
+            ""type"": ""parallel"",
+            ""lineStyle"": { ""width"": 2, ""opacity"": 0.5 },
+            ""data"": [
+                [25, 180, 32, 3200, 7.5],
+                [35, 240, 28, 3600, 6.2],
+                [45, 300, 22, 3900, 5.5],
+                [55, 350, 18, 4200, 4.8],
+                [30, 200, 30, 3400, 7.0],
+                [40, 260, 25, 3700, 6.0],
+                [50, 320, 20, 4000, 5.2],
+                [28, 190, 35, 3100, 7.8]
+            ]
+        }]
+    }";
+}

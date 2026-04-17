@@ -1,0 +1,113 @@
+@page "/bento-grid"
+@rendermode InteractiveServer
+
+<PageTitle>Motion Demo - Bento Grid</PageTitle>
+
+<div class="page-header">
+    <h1>Bento grid → modal</h1>
+    <p>A classic shared-layout pattern: each tile in the bento grid has its own <code>LayoutId</code>. Click a tile to see it morph into a modal; click the backdrop to see it morph back into its original slot. The grid tile and the modal card share a layout id so they animate as a single continuous element.</p>
+</div>
+
+<div class="flex h-full justify-center content-center bg-black" style="height: 80vh;">
+
+    <SharedLayout Transition="@SpringTransition">
+
+        <!-- Cards -->
+        <div class="w-full h-full grid flex-wrap grid-rows-4 p-4 md:grid-rows-6 grid-cols-2 gap-4 justify-center">
+            @for (var i = 0; i < _cards.Count; i++)
+            {
+                var idx  = i;
+                var card = _cards[i];
+                var rowSpan = idx == 1 ? "md:row-span-4"
+                            : idx == 3 ? "md:row-span-2"
+                                       : "md:row-span-3";
+
+                <div class="@($"col-span-1 md:col-span-1 p-0 {rowSpan}")">
+                    @if (_index != idx)
+                    {
+                        <SharedLayoutItem @key="card.Id"
+                                          LayoutId="@card.Id"
+                                          Transition="@CardTransition"
+                                          class="flex w-full h-full cursor-pointer"
+                                          style="@($"background-color:{card.Color}; color:#000; border-radius:30px;")"
+                                          @onclick="@(() => Open(idx))">
+                            <p class="text-3xl p-4 font-bold self-end">@card.Title</p>
+                        </SharedLayoutItem>
+                    }
+                </div>
+            }
+        </div>
+
+        <!-- Overlay -->
+        @if (_index != null)
+        {
+            <div style="background-color: rgba(0,0,0,0.8); width: 100vw; height: 100vh; position: fixed; top: 0; left: 0; z-index: 10;"
+                 @onclick="Close"></div>
+        }
+
+        <!-- Modal card -->
+        @if (_index != null)
+        {
+            var sel = _cards[_index.Value];
+
+            <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; width: fit-content; height: fit-content; justify-content: center; align-content: center; z-index: 11;">
+                <SharedLayoutItem LayoutId="@sel.Id"
+                                  Transition="@SpringTransition"
+                                  class="single-image flex justify-center bg-black/30"
+                                  style="@($"width: 70vw; height: 60vh; border-radius: 20px; background-color: {sel.Color};")"
+                                  @onclick:stopPropagation="true">
+                    <p class="text-3xl text-white font-bold">@sel.Title</p>
+                </SharedLayoutItem>
+            </div>
+        }
+
+    </SharedLayout>
+</div>
+
+<div class="code-block">
+&lt;<span class="fn">SharedLayout</span>&gt;
+  @@foreach (<span class="kw">var</span> card <span class="kw">in</span> cards)
+  &#123;
+    @@if (selected?.Id != card.Id)
+    &#123;
+      &lt;<span class="fn">SharedLayoutItem</span> <span class="str">LayoutId</span>=<span class="str">"@@card.Id"</span>
+                         <span class="str">@@onclick</span>=<span class="str">"@@(() =&gt; selected = card)"</span>&gt;
+        ...
+      &lt;/<span class="fn">SharedLayoutItem</span>&gt;
+    &#125;
+  &#125;
+
+  @@if (selected != <span class="kw">null</span>)
+  &#123;
+    &lt;<span class="fn">div</span> <span class="str">class</span>=<span class="str">"overlay"</span> <span class="str">@@onclick</span>=<span class="str">"@@(() =&gt; selected = null)"</span>&gt;&lt;/<span class="fn">div</span>&gt;
+    &lt;<span class="fn">SharedLayoutItem</span> <span class="str">LayoutId</span>=<span class="str">"@@selected.Id"</span>&gt;
+      ...modal content...
+    &lt;/<span class="fn">SharedLayoutItem</span>&gt;
+  &#125;
+&lt;/<span class="fn">SharedLayout</span>&gt;
+</div>
+
+@code {
+    private record Card(string Id, string Title, string Color);
+
+    private readonly List<Card> _cards = new()
+    {
+        new("0", "Card 0", "#e76f51"),
+        new("1", "Card 1", "#F4A261"),
+        new("2", "Card 2", "#e9c46a"),
+        new("3", "Card 3", "#264653"),
+    };
+
+    // Modal open/close uses spring (matches the reference example).
+    private static readonly AnimateOptions SpringTransition =
+        new() { Type = "spring", Stiffness = 200, Damping = 20 };
+
+    // Card-side (returning to grid) uses the 0.3 s easeInOut from the reference.
+    private static readonly AnimateOptions CardTransition =
+        new() { Duration = 0.3, Ease = "easeInOut" };
+
+    private int? _index;
+
+    void Open(int i)  => _index = i;
+    void Close()      => _index = null;
+}

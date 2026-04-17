@@ -1,0 +1,67 @@
+@page "/graphic"
+@rendermode InteractiveServer
+
+<PageTitle>Graphic</PageTitle>
+
+<h1>Graphic</h1>
+<p>The <code>graphic</code> component allows adding custom shapes, text, and images as overlays on charts.</p>
+
+<div class="chart-container">
+    <EChart OptionRaw="@_option" style="width:100%;height:100%;" />
+</div>
+
+@code {
+    private string _option = @"{
+        ""title"": { ""text"": ""Chart with Graphic Overlays"" },
+        ""tooltip"": { ""trigger"": ""axis"" },
+        ""xAxis"": { ""type"": ""category"", ""data"": [""Mon"", ""Tue"", ""Wed"", ""Thu"", ""Fri""] },
+        ""yAxis"": { ""type"": ""value"" },
+        ""series"": [{
+            ""type"": ""line"",
+            ""data"": [120, 200, 150, 80, 170],
+            ""smooth"": true,
+            ""areaStyle"": { ""opacity"": 0.3 }
+        }],
+        ""graphic"": [
+            {
+                ""type"": ""group"",
+                ""left"": ""center"",
+                ""top"": ""58%"",
+                ""children"": [
+                    {
+                        ""type"": ""rect"",
+                        ""z"": 100,
+                        ""left"": ""center"",
+                        ""top"": ""middle"",
+                        ""shape"": { ""width"": 220, ""height"": 50, ""r"": 8 },
+                        ""style"": { ""fill"": ""rgba(0, 0, 0, 0.7)"", ""stroke"": ""#555"", ""lineWidth"": 1 }
+                    },
+                    {
+                        ""type"": ""text"",
+                        ""z"": 100,
+                        ""left"": ""center"",
+                        ""top"": ""middle"",
+                        ""style"": {
+                            ""fill"": ""#fff"",
+                            ""text"": ""Watermark / Annotation"",
+                            ""font"": ""bold 16px sans-serif""
+                        }
+                    }
+                ]
+            },
+            {
+                ""type"": ""circle"",
+                ""left"": ""85%"",
+                ""top"": ""15%"",
+                ""shape"": { ""r"": 30 },
+                ""style"": { ""fill"": ""rgba(255, 100, 0, 0.3)"", ""stroke"": ""#ff6400"", ""lineWidth"": 2 }
+            },
+            {
+                ""type"": ""text"",
+                ""left"": ""82%"",
+                ""top"": ""22%"",
+                ""style"": { ""fill"": ""#ff6400"", ""text"": ""Alert"", ""font"": ""bold 12px sans-serif"" }
+            }
+        ]
+    }";
+}

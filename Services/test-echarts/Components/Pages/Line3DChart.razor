@@ -1,0 +1,46 @@
+@page "/line3d"
+@rendermode InteractiveServer
+
+<PageTitle>Line 3D Chart</PageTitle>
+
+<h1>Line 3D Chart</h1>
+<p>A 3D line chart showing a spiral trajectory through 3D space.</p>
+
+<div class="chart-container">
+    <EChart OptionRaw="@_option" style="width:100%;height:100%;" />
+</div>
+
+@code {
+    private string _option;
+
+    protected override void OnInitialized()
+    {
+        // Generate a 3D spiral
+        var dataPoints = new System.Text.StringBuilder();
+        dataPoints.Append("[");
+        for (int i = 0; i < 200; i++)
+        {
+            double t = i * 0.1;
+            double x = Math.Cos(t) * (10 + t * 0.5);
+            double y = Math.Sin(t) * (10 + t * 0.5);
+            double z = t * 2;
+            if (i > 0) dataPoints.Append(",");
+            dataPoints.Append($"[{x:F2},{y:F2},{z:F2}]");
+        }
+        dataPoints.Append("]");
+
+        _option = $@"{{
+            ""title"": {{ ""text"": ""3D Spiral"" }},
+            ""tooltip"": {{}},
+            ""xAxis3D"": {{ ""type"": ""value"" }},
+            ""yAxis3D"": {{ ""type"": ""value"" }},
+            ""zAxis3D"": {{ ""type"": ""value"" }},
+            ""grid3D"": {{ ""viewControl"": {{ ""autoRotate"": true }} }},
+            ""series"": [{{
+                ""type"": ""line3D"",
+                ""lineStyle"": {{ ""width"": 4 }},
+                ""data"": {dataPoints}
+            }}]
+        }}";
+    }
+}

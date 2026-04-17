@@ -99,6 +99,9 @@
     <Project Path="Lib/Neon.JsonConverters/Neon.JsonConverters.csproj">
       <BuildType Solution="CodeDoc|*" Project="Release" />
     </Project>
+    <Project Path="Lib/Neon.Motion/Neon.Motion.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
     <Project Path="Lib/Neon.ModelGen/Neon.ModelGen.csproj">
       <BuildType Solution="CodeDoc|*" Project="Release" />
     </Project>

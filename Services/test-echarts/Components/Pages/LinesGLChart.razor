@@ -1,0 +1,150 @@
+@page "/linesgl"
+@rendermode InteractiveServer
+
+@using Microsoft.JSInterop
+@using Neon.ECharts
+
+<PageTitle>Lines GL Chart</PageTitle>
+
+<h1>Lines GL Chart</h1>
+<p>A GPU-accelerated lines chart inspired by the
+    <a href="https://echarts.apache.org/examples/en/editor.html?c=linesGL-ny&gl=1" target="_blank">ECharts NY streets example</a>,
+    rendering thousands of street-like line segments on a geo map.</p>
+
+<div class="chart-container">
+    <div id="@_chartId" style="width:100%;height:100%;"></div>
+</div>
+
+@code {
+    private readonly string _chartId = "echarts_" + System.Guid.NewGuid().ToString("N");
+
+    [Inject] public JsInterop JsInterop { get; set; }
+    [Inject] public HttpClient HttpClient { get; set; }
+
+    protected override async System.Threading.Tasks.Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Register world map for geo coordinate system
+            var geoJson = await HttpClient.GetStringAsync("world.json");
+            await JsInterop.RegisterGeoMap("world", geoJson);
+
+            // Generate street-like data around New York City
+            var option = GenerateOption();
+            await JsInterop.SetupChart(_chartId, "dark", option, false);
+        }
+    }
+
+    private string GenerateOption()
+    {
+        var random = new System.Random(42);
+        var sb = new System.Text.StringBuilder();
+
+        // Generate flat coordinate array for linesGL polyline format:
+        // [numPoints, lng1, lat1, lng2, lat2, ..., numPoints, lng1, lat1, ...]
+        // Simulating a street grid around Manhattan/NYC area
+        double centerLng = -74.006;
+        double centerLat = 40.7128;
+
+        sb.Append("[");
+
+        int segmentCount = 0;
+
+        // Generate grid-like streets (avenues - north/south)
+        for (int i = 0; i < 60; i++)
+        {
+            double lng = centerLng - 0.04 + (i * 0.0014);
+            double latStart = centerLat - 0.03 + random.NextDouble() * 0.005;
+            double latEnd = centerLat + 0.03 + random.NextDouble() * 0.005;
+            int points = 3 + random.Next(4);
+
+            if (segmentCount > 0) sb.Append(",");
+            sb.Append(points);
+            for (int p = 0; p < points; p++)
+            {
+                double t = (double)p / (points - 1);
+                double lat = latStart + t * (latEnd - latStart);
+                double jitter = (random.NextDouble() - 0.5) * 0.001;
+                sb.Append($",{(lng + jitter):F6},{lat:F6}");
+            }
+            segmentCount++;
+        }
+
+        // Generate grid-like streets (streets - east/west)
+        for (int i = 0; i < 80; i++)
+        {
+            double lat = centerLat - 0.03 + (i * 0.00078);
+            double lngStart = centerLng - 0.04 + random.NextDouble() * 0.005;
+            double lngEnd = centerLng + 0.04 + random.NextDouble() * 0.005;
+            int points = 3 + random.Next(4);
+
+            sb.Append(",");
+            sb.Append(points);
+            for (int p = 0; p < points; p++)
+            {
+                double t = (double)p / (points - 1);
+                double lng = lngStart + t * (lngEnd - lngStart);
+                double jitter = (random.NextDouble() - 0.5) * 0.001;
+                sb.Append($",{lng:F6},{(lat + jitter):F6}");
+            }
+            segmentCount++;
+        }
+
+        // Generate random diagonal streets and connectors
+        for (int i = 0; i < 800; i++)
+        {
+            double lng1 = centerLng + (random.NextDouble() - 0.5) * 0.08;
+            double lat1 = centerLat + (random.NextDouble() - 0.5) * 0.06;
+            int points = 2 + random.Next(3);
+
+            sb.Append(",");
+            sb.Append(points);
+
+            double angle = random.NextDouble() * System.Math.PI * 2;
+            double length = 0.001 + random.NextDouble() * 0.005;
+
+            for (int p = 0; p < points; p++)
+            {
+                double t = (double)p / (points - 1);
+                double lng = lng1 + System.Math.Cos(angle) * length * t + (random.NextDouble() - 0.5) * 0.0005;
+                double lat = lat1 + System.Math.Sin(angle) * length * t + (random.NextDouble() - 0.5) * 0.0005;
+                sb.Append($",{lng:F6},{lat:F6}");
+            }
+            segmentCount++;
+        }
+
+        sb.Append("]");
+
+        return $@"{{
+            ""backgroundColor"": ""#111"",
+            ""title"": {{
+                ""text"": ""LinesGL — NYC Streets ({segmentCount:N0} segments)"",
+                ""left"": ""center"",
+                ""textStyle"": {{ ""color"": ""#ccc"" }}
+            }},
+            ""geo"": {{
+                ""center"": [{centerLng}, {centerLat}],
+                ""zoom"": 360,
+                ""map"": ""world"",
+                ""roam"": true,
+                ""silent"": true,
+                ""itemStyle"": {{
+                    ""color"": ""transparent"",
+                    ""borderColor"": ""rgba(255,255,255,0.05)"",
+                    ""borderWidth"": 1
+                }}
+            }},
+            ""series"": [{{
+                ""type"": ""linesGL"",
+                ""coordinateSystem"": ""geo"",
+                ""blendMode"": ""lighter"",
+                ""polyline"": true,
+                ""lineStyle"": {{
+                    ""color"": ""orange"",
+                    ""opacity"": 0.3
+                }},
+                ""data"": {sb}
+            }}]
+        }}";
+    }
+}

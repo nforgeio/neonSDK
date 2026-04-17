@@ -1,0 +1,31 @@
+@page "/boxplot"
+@rendermode InteractiveServer
+
+<PageTitle>Boxplot Chart</PageTitle>
+
+<h1>Boxplot Chart</h1>
+<p>A box and whisker plot showing data distribution across categories.</p>
+
+<div class="chart-container">
+    <EChart OptionRaw="@_option" style="width:100%;height:100%;" />
+</div>
+
+@code {
+    private string _option = @"{
+        ""title"": { ""text"": ""Test Score Distribution"" },
+        ""tooltip"": { ""trigger"": ""item"" },
+        ""xAxis"": { ""type"": ""category"", ""data"": [""Class A"", ""Class B"", ""Class C"", ""Class D"", ""Class E""] },
+        ""yAxis"": { ""type"": ""value"", ""name"": ""Score"" },
+        ""series"": [{
+            ""name"": ""Scores"",
+            ""type"": ""boxplot"",
+            ""data"": [
+                [655, 850, 940, 980, 1070],
+                [760, 800, 845, 885, 960],
+                [550, 640, 720, 800, 900],
+                [680, 770, 830, 870, 950],
+                [600, 700, 780, 840, 920]
+            ]
+        }]
+    }";
+}

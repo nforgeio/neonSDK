@@ -1,0 +1,102 @@
+@page "/scroll"
+@rendermode InteractiveServer
+@inject JsInterop Motion
+@implements IAsyncDisposable
+
+<PageTitle>Motion Demo - Scroll</PageTitle>
+
+<div class="page-header">
+    <h1>Scroll</h1>
+    <p><code>scroll()</code> tracks scroll progress (0–1) within any scrollable container and delivers it to a callback on every frame. Scroll the panel below.</p>
+</div>
+
+<div class="demo-container">
+    <div class="demo-stage" style="flex-direction:column;align-items:stretch;padding:1.5rem 1.5rem 1rem;gap:1rem">
+
+        <div style="display:flex;align-items:center;gap:1.5rem">
+            <div class="scroll-progress-badge">@(_progress.ToString("P0"))</div>
+            <div style="flex:1">
+                <div style="font-size:0.75rem;color:#94a3b8;margin-bottom:0.4rem;font-weight:500">SCROLL PROGRESS</div>
+                <div class="scroll-track">
+                    <div class="scroll-progress-bar" style="width:@(_progress.ToString("P2", System.Globalization.CultureInfo.InvariantCulture))"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="scroll-viewport" id="@_scrollContainerId">
+            <div class="scroll-content">
+                @foreach (var block in _blocks)
+                {
+                    <div class="scroll-block" style="background:@block.Color">@block.Label</div>
+                }
+            </div>
+        </div>
+
+    </div>
+    <div class="demo-controls">
+        <span class="demo-controls-label">Axis:</span>
+        <button class="btn btn-ghost btn-sm @(_axis == "y" ? "btn-primary" : "")" @onclick='() => RestartScroll("y")'>Vertical</button>
+        <button class="btn btn-ghost btn-sm @(_axis == "x" ? "btn-primary" : "")" @onclick='() => RestartScroll("x")'>Horizontal</button>
+    </div>
+</div>
+
+<div class="code-block">
+<span class="kw">import</span> &#123; <span class="fn">scroll</span> &#125; <span class="kw">from</span> <span class="str">"motion"</span>
+
+<span class="fn">scroll</span>(
+  (progress, info) =&gt; &#123;
+    progressBar.style.width = progress * <span class="num">100</span> + <span class="str">"%"</span>
+  &#125;,
+  &#123; <span class="str">container</span>: document.<span class="fn">querySelector</span>(<span class="str">"#scroll-viewport"</span>) &#125;
+)
+</div>
+
+@code {
+    private readonly string _scrollContainerId = "scroll_" + Guid.NewGuid().ToString("N")[..8];
+    private readonly string _scrollId          = "scroll_sub_" + Guid.NewGuid().ToString("N")[..8];
+    private double _progress;
+    private string _axis = "y";
+
+    private record ScrollBlock(string Label, string Color);
+
+    private readonly ScrollBlock[] _blocks =
+    [
+        new("Block 1 — top",    "linear-gradient(135deg,#6366f1,#8b5cf6)"),
+        new("Block 2",          "linear-gradient(135deg,#8b5cf6,#a78bfa)"),
+        new("Block 3",          "linear-gradient(135deg,#a78bfa,#c084fc)"),
+        new("Block 4",          "linear-gradient(135deg,#c084fc,#e879f9)"),
+        new("Block 5 — bottom", "linear-gradient(135deg,#e879f9,#f472b6)"),
+    ];
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        await StartScrollAsync();
+    }
+
+    async Task StartScrollAsync()
+    {
+        await Motion.ScrollAsync(
+            _scrollId,
+            async (id, progress, info) =>
+            {
+                _progress = progress;
+                await InvokeAsync(StateHasChanged);
+            },
+            new ScrollOptions
+            {
+                Axis      = _axis,
+                Container = "#" + _scrollContainerId,
+            });
+    }
+
+    async Task RestartScroll(string axis)
+    {
+        _axis = axis;
+        await Motion.CancelScrollAsync(_scrollId);
+        await StartScrollAsync();
+    }
+
+    public async ValueTask DisposeAsync() =>
+        await Motion.CancelScrollAsync(_scrollId);
+}

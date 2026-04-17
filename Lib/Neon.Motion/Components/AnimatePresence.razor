@@ -1,0 +1,7 @@
+@namespace Neon.Motion.Components
+@inject JsInterop JsInterop
+
+@if (_isRendering)
+{
+    <div id="@_id" @attributes="AdditionalAttributes">@ChildContent</div>
+}

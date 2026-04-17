@@ -1,0 +1,78 @@
+@page "/spring"
+@rendermode InteractiveServer
+
+<PageTitle>Motion Demo - Spring</PageTitle>
+
+<div class="page-header">
+    <h1>Spring</h1>
+    <p>Spring animations use physics — stiffness, damping, and mass — to create natural-feeling motion. Use <code>type: "spring"</code> in the options.</p>
+</div>
+
+<div class="demo-container">
+    <div class="demo-stage cols-3">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0.75rem">
+            <MotionDiv @ref="_soft" class="motion-box" />
+            <span style="font-size:0.75rem;color:#64748b;font-weight:500">Soft<br/><span style="color:#94a3b8">bounce 0.6</span></span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0.75rem">
+            <MotionDiv @ref="_medium" class="motion-box" />
+            <span style="font-size:0.75rem;color:#64748b;font-weight:500;text-align:center">Medium<br/><span style="color:#94a3b8">bounce 0.25</span></span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0.75rem">
+            <MotionDiv @ref="_stiff" class="motion-box" />
+            <span style="font-size:0.75rem;color:#64748b;font-weight:500;text-align:center">Stiff<br/><span style="color:#94a3b8">stiffness 400</span></span>
+        </div>
+    </div>
+    <div class="demo-controls">
+        <span class="demo-controls-label">Play:</span>
+        <button class="btn btn-primary" @onclick="PlayAll">Play All</button>
+        <button class="btn btn-ghost" @onclick="Reset">Reset</button>
+    </div>
+</div>
+
+<div class="code-block">
+<span class="cm">// Soft bounce</span>
+<span class="fn">animate</span>(<span class="str">"#box"</span>, &#123; <span class="str">rotate</span>: <span class="num">90</span> &#125;,
+  &#123; <span class="str">type</span>: <span class="str">"spring"</span>, <span class="str">bounce</span>: <span class="num">0.6</span> &#125;)
+
+<span class="cm">// Default spring</span>
+<span class="fn">animate</span>(<span class="str">"#box"</span>, &#123; <span class="str">rotate</span>: <span class="num">90</span> &#125;,
+  &#123; <span class="str">type</span>: <span class="str">"spring"</span>, <span class="str">bounce</span>: <span class="num">0.25</span> &#125;)
+
+<span class="cm">// High stiffness — snappy</span>
+<span class="fn">animate</span>(<span class="str">"#box"</span>, &#123; <span class="str">rotate</span>: <span class="num">90</span> &#125;,
+  &#123; <span class="str">type</span>: <span class="str">"spring"</span>, <span class="str">stiffness</span>: <span class="num">400</span>, <span class="str">damping</span>: <span class="num">30</span> &#125;)
+</div>
+
+@code {
+    private MotionDiv _soft;
+    private MotionDiv _medium;
+    private MotionDiv _stiff;
+    private bool _flipped;
+
+    async Task PlayAll()
+    {
+        var values = _flipped
+            ? new AnimationValues().Rotate(0).Y(0)
+            : new AnimationValues().Rotate(90).Y(-30);
+
+        await Task.WhenAll(
+            _soft.AnimateAsync(values, new AnimateOptions { Type = "spring", Bounce = 0.6 }),
+            _medium.AnimateAsync(values, new AnimateOptions { Type = "spring", Bounce = 0.25 }),
+            _stiff.AnimateAsync(values, new AnimateOptions { Type = "spring", Stiffness = 400, Damping = 30 })
+        );
+
+        _flipped = !_flipped;
+    }
+
+    async Task Reset()
+    {
+        _flipped = false;
+        var values = new AnimationValues().Rotate(0).Y(0);
+        await Task.WhenAll(
+            _soft.AnimateAsync(values, new AnimateOptions { Duration = 0.3 }),
+            _medium.AnimateAsync(values, new AnimateOptions { Duration = 0.3 }),
+            _stiff.AnimateAsync(values, new AnimateOptions { Duration = 0.3 })
+        );
+    }
+}

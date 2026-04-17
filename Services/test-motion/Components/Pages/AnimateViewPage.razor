@@ -1,0 +1,75 @@
+@page "/animate-view"
+@rendermode InteractiveServer
+
+<PageTitle>Motion Demo - AnimateView</PageTitle>
+
+<div class="page-header">
+    <h1>AnimateView</h1>
+    <p>The <code>&lt;AnimateView&gt;</code> component automatically animates its children when they scroll into the browser viewport — no manual <code>inView()</code> wiring required.</p>
+</div>
+
+<div class="demo-container">
+    <div class="demo-stage" style="padding:0;align-items:stretch">
+        <div class="av-scroll-area">
+            <div class="av-spacer">↓ Scroll down to trigger animations</div>
+
+            <AnimateView Initial="@(new AnimationValues().Opacity(0).X(-40))"
+                         Animate="@(new AnimationValues().Opacity(1).X(0))"
+                         Transition="@(new AnimateOptions { Duration = 0.5, Ease = "easeOut" })">
+                <div class="av-card" style="border-left:3px solid #6366f1">
+                    <div class="av-card-title">Slide from left</div>
+                    <div class="av-card-body">Enters from the left when it scrolls into view.</div>
+                </div>
+            </AnimateView>
+
+            <AnimateView Initial="@(new AnimationValues().Opacity(0).X(40))"
+                         Animate="@(new AnimationValues().Opacity(1).X(0))"
+                         Transition="@(new AnimateOptions { Duration = 0.5, Ease = "easeOut" })">
+                <div class="av-card" style="border-left:3px solid #8b5cf6">
+                    <div class="av-card-title">Slide from right</div>
+                    <div class="av-card-body">Enters from the right when it scrolls into view.</div>
+                </div>
+            </AnimateView>
+
+            <AnimateView Initial="@(new AnimationValues().Opacity(0).Y(40).Scale(0.9))"
+                         Animate="@(new AnimationValues().Opacity(1).Y(0).Scale(1))"
+                         Transition="@(new AnimateOptions { Type = "spring", Bounce = 0.4 })">
+                <div class="av-card" style="border-left:3px solid #a78bfa">
+                    <div class="av-card-title">Spring scale-up</div>
+                    <div class="av-card-body">Fades and scales in with spring physics.</div>
+                </div>
+            </AnimateView>
+
+            <AnimateView Initial="@(new AnimationValues().Opacity(0).Y(30))"
+                         Animate="@(new AnimationValues().Opacity(1).Y(0))"
+                         Exit="@(new AnimationValues().Opacity(0).Y(-30))"
+                         Transition="@(new AnimateOptions { Duration = 0.4, Ease = "easeInOut" })">
+                <div class="av-card" style="border-left:3px solid #c084fc">
+                    <div class="av-card-title">With exit animation</div>
+                    <div class="av-card-body">Animates out (upward) when it scrolls back out of view.</div>
+                </div>
+            </AnimateView>
+
+            <AnimateView Initial="@(new AnimationValues().Opacity(0).Rotate(-10))"
+                         Animate="@(new AnimationValues().Opacity(1).Rotate(0))"
+                         Transition="@(new AnimateOptions { Duration = 0.6, Ease = "easeOut" })">
+                <div class="av-card" style="border-left:3px solid #e879f9">
+                    <div class="av-card-title">Rotate in</div>
+                    <div class="av-card-body">Rotates from −10° to 0° on enter.</div>
+                </div>
+            </AnimateView>
+
+            <div class="av-spacer">— end —</div>
+        </div>
+    </div>
+</div>
+
+<div class="code-block">
+&lt;<span class="fn">AnimateView</span>
+  <span class="str">Initial</span>=<span class="str">"@@(new AnimationValues().Opacity(0).Y(40))"</span>
+  <span class="str">Animate</span>=<span class="str">"@@(new AnimationValues().Opacity(1).Y(0))"</span>
+  <span class="str">Exit</span>=<span class="str">"@@(new AnimationValues().Opacity(0).Y(-40))"</span>
+  <span class="str">Transition</span>=<span class="str">"@@(new AnimateOptions &#123; Duration = 0.5 &#125;)"</span>&gt;
+  &lt;div class=<span class="str">"card"</span>&gt;…&lt;/div&gt;
+&lt;/<span class="fn">AnimateView</span>&gt;
+</div>

@@ -1,0 +1,96 @@
+@page "/map"
+@rendermode InteractiveServer
+
+@using System.Net.Http
+@using Neon.ECharts
+
+<PageTitle>Map Chart</PageTitle>
+
+<h1>Map Chart</h1>
+<p>A world map chart showing population data by country with GeoJSON registration.</p>
+
+<div class="chart-container">
+    <div id="@_chartId" style="width:100%;height:100%;"></div>
+</div>
+
+@code {
+    private readonly string _chartId = "echarts_" + Guid.NewGuid().ToString("N");
+
+    [Inject]
+    public JsInterop JsInterop { get; set; }
+
+    [Inject]
+    public HttpClient HttpClient { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Fetch the world GeoJSON from wwwroot
+            var geoJson = await HttpClient.GetStringAsync("world.json");
+
+            // Register the map with ECharts
+            await JsInterop.RegisterGeoMap("world", geoJson);
+
+            // Now set up the chart
+            var option = @"{
+                ""title"": { ""text"": ""World Population"", ""left"": ""center"" },
+                ""tooltip"": { ""trigger"": ""item"", ""formatter"": ""{b}: {c}"" },
+                ""visualMap"": {
+                    ""min"": 0,
+                    ""max"": 1500000,
+                    ""left"": ""left"",
+                    ""top"": ""bottom"",
+                    ""text"": [""High"", ""Low""],
+                    ""calculable"": true,
+                    ""inRange"": { ""color"": [""#e0f3f8"", ""#abd9e9"", ""#74add1"", ""#4575b4"", ""#313695""] }
+                },
+                ""series"": [{
+                    ""type"": ""map"",
+                    ""map"": ""world"",
+                    ""roam"": true,
+                    ""emphasis"": {
+                        ""label"": { ""show"": true, ""fontSize"": 12 },
+                        ""itemStyle"": { ""areaColor"": ""#ffd700"" }
+                    },
+                    ""data"": [
+                        { ""name"": ""China"", ""value"": 1412000 },
+                        { ""name"": ""India"", ""value"": 1408000 },
+                        { ""name"": ""United States"", ""value"": 332000 },
+                        { ""name"": ""Indonesia"", ""value"": 276000 },
+                        { ""name"": ""Pakistan"", ""value"": 225000 },
+                        { ""name"": ""Brazil"", ""value"": 214000 },
+                        { ""name"": ""Nigeria"", ""value"": 213000 },
+                        { ""name"": ""Bangladesh"", ""value"": 169000 },
+                        { ""name"": ""Russia"", ""value"": 146000 },
+                        { ""name"": ""Mexico"", ""value"": 130000 },
+                        { ""name"": ""Japan"", ""value"": 125000 },
+                        { ""name"": ""Ethiopia"", ""value"": 118000 },
+                        { ""name"": ""Philippines"", ""value"": 112000 },
+                        { ""name"": ""Egypt"", ""value"": 104000 },
+                        { ""name"": ""Vietnam"", ""value"": 98000 },
+                        { ""name"": ""Germany"", ""value"": 83000 },
+                        { ""name"": ""Turkey"", ""value"": 85000 },
+                        { ""name"": ""Iran"", ""value"": 86000 },
+                        { ""name"": ""Thailand"", ""value"": 70000 },
+                        { ""name"": ""United Kingdom"", ""value"": 68000 },
+                        { ""name"": ""France"", ""value"": 67000 },
+                        { ""name"": ""Italy"", ""value"": 59000 },
+                        { ""name"": ""South Africa"", ""value"": 60000 },
+                        { ""name"": ""Tanzania"", ""value"": 63000 },
+                        { ""name"": ""Myanmar"", ""value"": 55000 },
+                        { ""name"": ""South Korea"", ""value"": 52000 },
+                        { ""name"": ""Colombia"", ""value"": 51000 },
+                        { ""name"": ""Kenya"", ""value"": 55000 },
+                        { ""name"": ""Spain"", ""value"": 47000 },
+                        { ""name"": ""Argentina"", ""value"": 46000 },
+                        { ""name"": ""Canada"", ""value"": 38000 },
+                        { ""name"": ""Australia"", ""value"": 26000 }
+                    ]
+                }]
+            }";
+
+            await JsInterop.SetupChart(_chartId, "light", option, false);
+        }
+    }
+}

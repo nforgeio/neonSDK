@@ -1,0 +1,31 @@
+@page "/bar3d"
+@rendermode InteractiveServer
+
+<PageTitle>Bar 3D Chart</PageTitle>
+
+<h1>Bar 3D Chart</h1>
+<p>A 3D bar chart showing data across two categorical axes.</p>
+
+<div class="chart-container">
+    <EChart OptionRaw="@_option" style="width:100%;height:100%;" />
+</div>
+
+@code {
+    private string _option = @"{
+        ""title"": { ""text"": ""3D Bar Chart"" },
+        ""tooltip"": {},
+        ""xAxis3D"": { ""type"": ""category"", ""data"": [""A"", ""B"", ""C""] },
+        ""yAxis3D"": { ""type"": ""category"", ""data"": [""X"", ""Y"", ""Z""] },
+        ""zAxis3D"": { ""type"": ""value"" },
+        ""grid3D"": { ""viewControl"": { ""autoRotate"": true } },
+        ""series"": [{
+            ""type"": ""bar3D"",
+            ""shading"": ""lambert"",
+            ""data"": [
+                [0, 0, 5], [0, 1, 7], [0, 2, 3],
+                [1, 0, 8], [1, 1, 4], [1, 2, 6],
+                [2, 0, 2], [2, 1, 9], [2, 2, 5]
+            ]
+        }]
+    }";
+}

@@ -1,0 +1,58 @@
+@page "/richtext"
+@rendermode InteractiveServer
+
+<PageTitle>Rich Text</PageTitle>
+
+<h1>Rich Text Labels</h1>
+<p>ECharts supports rich text formatting in labels with multiple styles, colors, and icons within a single label.</p>
+
+<div class="chart-container">
+    <EChart OptionRaw="@_option" style="width:100%;height:100%;" />
+</div>
+
+@code {
+    private string _option = @"{
+        ""title"": { ""text"": ""Pie Chart with Rich Text Labels"" },
+        ""tooltip"": { ""trigger"": ""item"" },
+        ""series"": [{
+            ""type"": ""pie"",
+            ""radius"": [""35%"", ""60%""],
+            ""center"": [""50%"", ""55%""],
+            ""data"": [
+                { ""value"": 335, ""name"": ""Marketing"" },
+                { ""value"": 234, ""name"": ""Engineering"" },
+                { ""value"": 154, ""name"": ""Sales"" },
+                { ""value"": 135, ""name"": ""Support"" },
+                { ""value"": 105, ""name"": ""Operations"" }
+            ],
+            ""label"": {
+                ""show"": true,
+                ""formatter"": ""{title|{b}}\n{value|${c}}\n{percent|{d}%}"",
+                ""rich"": {
+                    ""title"": {
+                        ""fontSize"": 14,
+                        ""fontWeight"": ""bold"",
+                        ""color"": ""#333"",
+                        ""lineHeight"": 24
+                    },
+                    ""value"": {
+                        ""fontSize"": 18,
+                        ""fontWeight"": ""bold"",
+                        ""color"": ""#1a73e8"",
+                        ""lineHeight"": 26
+                    },
+                    ""percent"": {
+                        ""fontSize"": 12,
+                        ""color"": ""#999"",
+                        ""lineHeight"": 20,
+                        ""padding"": [2, 4],
+                        ""borderRadius"": 3,
+                        ""backgroundColor"": ""#f5f5f5""
+                    }
+                }
+            },
+            ""labelLine"": { ""length"": 20, ""length2"": 30 },
+            ""itemStyle"": { ""borderRadius"": 6, ""borderColor"": ""#fff"", ""borderWidth"": 2 }
+        }]
+    }";
+}

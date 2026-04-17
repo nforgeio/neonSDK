@@ -1,0 +1,51 @@
+@page "/datazoom"
+@rendermode InteractiveServer
+
+<PageTitle>DataZoom</PageTitle>
+
+<h1>DataZoom</h1>
+<p>Interactive data zoom controls for panning and zooming into large datasets using both slider and inside (scroll/drag) zoom.</p>
+
+<div class="chart-container">
+    <EChart OptionRaw="@_option" style="width:100%;height:100%;" />
+</div>
+
+@code {
+    private string _option;
+
+    protected override void OnInitialized()
+    {
+        var random = new Random(42);
+        var categories = new System.Text.StringBuilder();
+        var values = new System.Text.StringBuilder();
+
+        categories.Append("[");
+        values.Append("[");
+
+        for (int i = 0; i < 200; i++)
+        {
+            if (i > 0) { categories.Append(","); values.Append(","); }
+            categories.Append($"\"{new DateTime(2024, 1, 1).AddDays(i):MMM dd}\"");
+            values.Append(random.Next(50, 500));
+        }
+
+        categories.Append("]");
+        values.Append("]");
+
+        _option = $@"{{
+            ""title"": {{ ""text"": ""Daily Revenue (Zoomable)"" }},
+            ""tooltip"": {{ ""trigger"": ""axis"" }},
+            ""xAxis"": {{ ""type"": ""category"", ""data"": {categories} }},
+            ""yAxis"": {{ ""type"": ""value"", ""name"": ""Revenue ($)"" }},
+            ""dataZoom"": [
+                {{ ""type"": ""slider"", ""start"": 0, ""end"": 30 }},
+                {{ ""type"": ""inside"", ""start"": 0, ""end"": 30 }}
+            ],
+            ""series"": [{{
+                ""type"": ""bar"",
+                ""data"": {values},
+                ""itemStyle"": {{ ""color"": ""#5470c6"" }}
+            }}]
+        }}";
+    }
+}

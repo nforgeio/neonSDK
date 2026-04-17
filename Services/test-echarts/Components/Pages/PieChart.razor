@@ -1,0 +1,34 @@
+@page "/pie"
+@rendermode InteractiveServer
+
+<PageTitle>Pie Chart</PageTitle>
+
+<h1>Pie Chart</h1>
+<p>A pie chart with a donut variant showing browser market share.</p>
+
+<div class="chart-container">
+    <EChart OptionRaw="@_option" style="width:100%;height:100%;" />
+</div>
+
+@code {
+    private string _option = @"{
+        ""title"": { ""text"": ""Browser Market Share"", ""left"": ""center"" },
+        ""tooltip"": { ""trigger"": ""item"" },
+        ""legend"": { ""orient"": ""vertical"", ""left"": ""left"" },
+        ""series"": [{
+            ""name"": ""Browser"",
+            ""type"": ""pie"",
+            ""radius"": [""40%"", ""70%""],
+            ""avoidLabelOverlap"": true,
+            ""itemStyle"": { ""borderRadius"": 10, ""borderColor"": ""#fff"", ""borderWidth"": 2 },
+            ""label"": { ""show"": true, ""formatter"": ""{b}: {d}%"" },
+            ""data"": [
+                { ""value"": 1048, ""name"": ""Chrome"" },
+                { ""value"": 735, ""name"": ""Safari"" },
+                { ""value"": 580, ""name"": ""Firefox"" },
+                { ""value"": 484, ""name"": ""Edge"" },
+                { ""value"": 300, ""name"": ""Other"" }
+            ]
+        }]
+    }";
+}

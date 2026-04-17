@@ -1,0 +1,73 @@
+@page "/basic"
+@rendermode InteractiveServer
+@inject JsInterop Motion
+
+<PageTitle>Motion Demo - Basic</PageTitle>
+
+<div class="page-header">
+    <h1>Basic Animations</h1>
+    <p>Use <code>animate()</code> to drive transforms, opacity, and other CSS properties on any element. Click a button to replay the animation.</p>
+</div>
+
+<div class="demo-container">
+    <div class="demo-stage">
+        <MotionDiv @ref="_box" class="motion-box" />
+    </div>
+    <div class="demo-controls">
+        <span class="demo-controls-label">Animate:</span>
+        <button class="btn btn-primary" @onclick="Rotate">Rotate 360°</button>
+        <button class="btn btn-ghost" @onclick="FadeOut">Fade Out</button>
+        <button class="btn btn-ghost" @onclick="FadeIn">Fade In</button>
+        <button class="btn btn-ghost" @onclick="Scale">Scale Up</button>
+        <button class="btn btn-ghost" @onclick="Slide">Slide Right</button>
+        <button class="btn btn-ghost" @onclick="Reset">Reset</button>
+    </div>
+</div>
+
+<div class="code-block">
+<span class="cm">// Rotate</span>
+<span class="fn">animate</span>(<span class="str">"#box"</span>, &#123; <span class="str">rotate</span>: <span class="num">360</span> &#125;)
+
+<span class="cm">// Fade out then in</span>
+<span class="fn">animate</span>(<span class="str">"#box"</span>, &#123; <span class="str">opacity</span>: <span class="num">0</span> &#125;, &#123; <span class="str">duration</span>: <span class="num">0.4</span> &#125;)
+
+<span class="cm">// Scale</span>
+<span class="fn">animate</span>(<span class="str">"#box"</span>, &#123; <span class="str">scale</span>: <span class="num">1.4</span> &#125;, &#123; <span class="str">duration</span>: <span class="num">0.3</span> &#125;)
+
+<span class="cm">// Slide right</span>
+<span class="fn">animate</span>(<span class="str">"#box"</span>, &#123; <span class="str">x</span>: <span class="num">120</span> &#125;, &#123; <span class="str">ease</span>: <span class="str">"easeOut"</span> &#125;)
+</div>
+
+@code {
+    private MotionDiv _box;
+
+    async Task Rotate() =>
+        await _box.AnimateAsync(
+            new AnimationValues().Rotate(360),
+            new AnimateOptions { Duration = 0.6, Ease = "easeInOut" });
+
+    async Task FadeOut() =>
+        await _box.AnimateAsync(
+            new AnimationValues().Opacity(0),
+            new AnimateOptions { Duration = 0.4 });
+
+    async Task FadeIn() =>
+        await _box.AnimateAsync(
+            new AnimationValues().Opacity(1),
+            new AnimateOptions { Duration = 0.4 });
+
+    async Task Scale() =>
+        await _box.AnimateAsync(
+            new AnimationValues().Scale(1.4),
+            new AnimateOptions { Duration = 0.3, Ease = "backOut" });
+
+    async Task Slide() =>
+        await _box.AnimateAsync(
+            new AnimationValues().X(120),
+            new AnimateOptions { Duration = 0.45, Ease = "easeOut" });
+
+    async Task Reset() =>
+        await _box.AnimateAsync(
+            new AnimationValues().Rotate(0).Opacity(1).Scale(1).X(0),
+            new AnimateOptions { Duration = 0.35, Ease = "easeOut" });
+}

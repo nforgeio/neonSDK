@@ -1,0 +1,30 @@
+@page "/scatter"
+@rendermode InteractiveServer
+
+<PageTitle>Scatter Chart</PageTitle>
+
+<h1>Scatter Chart</h1>
+<p>A scatter plot showing the relationship between height and weight.</p>
+
+<div class="chart-container">
+    <EChart OptionRaw="@_option" style="width:100%;height:100%;" />
+</div>
+
+@code {
+    private string _option = @"{
+        ""title"": { ""text"": ""Height vs Weight"" },
+        ""tooltip"": { ""trigger"": ""item"" },
+        ""xAxis"": { ""name"": ""Height (cm)"", ""type"": ""value"" },
+        ""yAxis"": { ""name"": ""Weight (kg)"", ""type"": ""value"" },
+        ""series"": [{
+            ""type"": ""scatter"",
+            ""symbolSize"": 12,
+            ""data"": [
+                [161.2, 51.6], [167.5, 59.0], [159.5, 49.2], [157.0, 63.0], [155.8, 53.6],
+                [170.0, 59.0], [159.1, 47.6], [166.0, 69.8], [176.2, 66.8], [160.2, 75.2],
+                [172.5, 55.2], [170.9, 54.2], [172.9, 62.5], [153.4, 42.0], [160.0, 50.0],
+                [174.0, 65.6], [168.9, 56.0], [175.0, 70.2], [180.3, 83.6], [167.0, 58.0]
+            ]
+        }]
+    }";
+}

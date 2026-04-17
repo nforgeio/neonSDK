@@ -15,9 +15,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using Neon.ECharts.Options.Series.Bar3D;
+
 namespace Neon.ECharts.Components
 {
-    public partial class EBar3D : ChartComponentBase<Options.Series.Bar.Bar3D>
+    public partial class EBar3D : ChartComponentBase<Bar3D>
     {
     }
 }

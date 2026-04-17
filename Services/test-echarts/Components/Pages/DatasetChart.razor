@@ -1,0 +1,36 @@
+@page "/dataset"
+@rendermode InteractiveServer
+
+<PageTitle>Dataset</PageTitle>
+
+<h1>Dataset</h1>
+<p>Using the <code>dataset</code> component to manage data separately from series, enabling data sharing across multiple series.</p>
+
+<div class="chart-container">
+    <EChart OptionRaw="@_option" style="width:100%;height:100%;" />
+</div>
+
+@code {
+    private string _option = @"{
+        ""title"": { ""text"": ""Product Sales (Dataset)"" },
+        ""tooltip"": { ""trigger"": ""axis"" },
+        ""legend"": {},
+        ""dataset"": {
+            ""source"": [
+                [""product"", ""Q1"", ""Q2"", ""Q3"", ""Q4""],
+                [""Laptop"",    43.3, 85.8, 93.7, 58.1],
+                [""Phone"",     83.1, 73.4, 55.1, 86.4],
+                [""Tablet"",    86.4, 65.2, 82.5, 41.2],
+                [""Watch"",     72.4, 53.9, 39.1, 49.5]
+            ]
+        },
+        ""xAxis"": { ""type"": ""category"" },
+        ""yAxis"": {},
+        ""series"": [
+            { ""type"": ""bar"" },
+            { ""type"": ""bar"" },
+            { ""type"": ""bar"" },
+            { ""type"": ""bar"" }
+        ]
+    }";
+}

@@ -15,9 +15,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using Neon.ECharts.Options.Series.Scatter3D;
+
 namespace Neon.ECharts.Components
 {
-    public partial class EScatter3D : ChartComponentBase<Options.Series.Scatter.Scatter3D>
+    public partial class EScatter3D : ChartComponentBase<Scatter3D>
     {
     }
 }

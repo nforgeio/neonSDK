@@ -1,0 +1,49 @@
+@page "/surface"
+@rendermode InteractiveServer
+
+<PageTitle>Surface Chart</PageTitle>
+
+<h1>Surface Chart</h1>
+<p>A 3D surface plot showing a mathematical function.</p>
+
+<div class="chart-container">
+    <EChart OptionRaw="@_option" style="width:100%;height:100%;" />
+</div>
+
+@code {
+    private string _option;
+
+    protected override void OnInitialized()
+    {
+        // Generate surface data for z = sin(sqrt(x^2 + y^2))
+        var dataPoints = new System.Text.StringBuilder();
+        dataPoints.Append("[");
+        bool first = true;
+        for (double x = -3; x <= 3; x += 0.3)
+        {
+            for (double y = -3; y <= 3; y += 0.3)
+            {
+                double r = Math.Sqrt(x * x + y * y);
+                double z = Math.Sin(r) * 3;
+                if (!first) dataPoints.Append(",");
+                first = false;
+                dataPoints.Append($"[{x:F2},{y:F2},{z:F2}]");
+            }
+        }
+        dataPoints.Append("]");
+
+        _option = $@"{{
+            ""title"": {{ ""text"": ""3D Surface: sin(r)"" }},
+            ""tooltip"": {{}},
+            ""xAxis3D"": {{ ""type"": ""value"" }},
+            ""yAxis3D"": {{ ""type"": ""value"" }},
+            ""zAxis3D"": {{ ""type"": ""value"" }},
+            ""grid3D"": {{ ""viewControl"": {{ ""autoRotate"": true }} }},
+            ""series"": [{{
+                ""type"": ""surface"",
+                ""wireframe"": {{ ""show"": true }},
+                ""data"": {dataPoints}
+            }}]
+        }}";
+    }
+}

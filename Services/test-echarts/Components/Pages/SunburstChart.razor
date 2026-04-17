@@ -1,0 +1,44 @@
+@page "/sunburst"
+@rendermode InteractiveServer
+
+<PageTitle>Sunburst Chart</PageTitle>
+
+<h1>Sunburst Chart</h1>
+<p>A sunburst chart showing hierarchical data in concentric rings.</p>
+
+<div class="chart-container">
+    <EChart OptionRaw="@_option" style="width:100%;height:100%;" />
+</div>
+
+@code {
+    private string _option = @"{
+        ""title"": { ""text"": ""Organization Structure"" },
+        ""series"": [{
+            ""type"": ""sunburst"",
+            ""radius"": [""10%"", ""90%""],
+            ""label"": { ""rotate"": ""radial"" },
+            ""data"": [
+                { ""name"": ""Engineering"", ""children"": [
+                    { ""name"": ""Frontend"", ""value"": 8, ""children"": [
+                        { ""name"": ""React"", ""value"": 4 },
+                        { ""name"": ""Vue"", ""value"": 4 }
+                    ]},
+                    { ""name"": ""Backend"", ""value"": 6, ""children"": [
+                        { ""name"": ""C#"", ""value"": 3 },
+                        { ""name"": ""Go"", ""value"": 3 }
+                    ]},
+                    { ""name"": ""DevOps"", ""value"": 3 }
+                ]},
+                { ""name"": ""Product"", ""children"": [
+                    { ""name"": ""Design"", ""value"": 4 },
+                    { ""name"": ""PM"", ""value"": 3 },
+                    { ""name"": ""Research"", ""value"": 2 }
+                ]},
+                { ""name"": ""Sales"", ""children"": [
+                    { ""name"": ""Enterprise"", ""value"": 5 },
+                    { ""name"": ""SMB"", ""value"": 4 }
+                ]}
+            ]
+        }]
+    }";
+}

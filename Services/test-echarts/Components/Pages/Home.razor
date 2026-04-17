@@ -1,0 +1,168 @@
+@page "/"
+
+<PageTitle>ECharts Demo - Home</PageTitle>
+
+<div class="home-hero">
+    <h1>Neon.ECharts</h1>
+    <p>Explore all chart types available in the Neon.ECharts Blazor component library, powered by Apache ECharts.</p>
+</div>
+
+<div class="section-label">Standard Charts</div>
+<div class="chart-grid">
+    <a class="chart-card" href="bar">
+        <div class="chart-card-icon standard"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" /></svg></div>
+        <div><div class="chart-card-text">Bar</div><div class="chart-card-desc">Vertical & horizontal bars</div></div>
+    </a>
+    <a class="chart-card" href="line">
+        <div class="chart-card-icon standard"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" /></svg></div>
+        <div><div class="chart-card-text">Line</div><div class="chart-card-desc">Line & area charts</div></div>
+    </a>
+    <a class="chart-card" href="pie">
+        <div class="chart-card-icon standard"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z" /><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0013.5 3v7.5z" /></svg></div>
+        <div><div class="chart-card-text">Pie</div><div class="chart-card-desc">Pie & donut charts</div></div>
+    </a>
+    <a class="chart-card" href="scatter">
+        <div class="chart-card-icon standard"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><circle cx="5" cy="8" r="2"/><circle cx="10" cy="14" r="2"/><circle cx="16" cy="6" r="2"/><circle cx="14" cy="17" r="2"/><circle cx="20" cy="11" r="2"/></svg></div>
+        <div><div class="chart-card-text">Scatter</div><div class="chart-card-desc">Scatter plots</div></div>
+    </a>
+    <a class="chart-card" href="effectscatter">
+        <div class="chart-card-icon standard"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><circle cx="12" cy="12" r="3" fill="currentColor" opacity="0.5"/><circle cx="12" cy="12" r="6" stroke-dasharray="3 3"/><circle cx="12" cy="12" r="9" stroke-dasharray="2 4"/></svg></div>
+        <div><div class="chart-card-text">Effect Scatter</div><div class="chart-card-desc">Ripple effects</div></div>
+    </a>
+    <a class="chart-card" href="candlestick">
+        <div class="chart-card-icon standard"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><rect x="5" y="8" width="3" height="8" rx="0.5"/><line x1="6.5" y1="4" x2="6.5" y2="8" stroke="currentColor" stroke-width="1.5"/><line x1="6.5" y1="16" x2="6.5" y2="20" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="6" width="3" height="10" rx="0.5"/><rect x="17" y="9" width="3" height="6" rx="0.5"/></svg></div>
+        <div><div class="chart-card-text">Candlestick</div><div class="chart-card-desc">Financial OHLC charts</div></div>
+    </a>
+    <a class="chart-card" href="heatmap">
+        <div class="chart-card-icon standard"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><rect x="2" y="2" width="6" height="6" rx="1" opacity="0.3"/><rect x="9" y="2" width="6" height="6" rx="1" opacity="0.7"/><rect x="16" y="2" width="6" height="6" rx="1" opacity="0.5"/><rect x="2" y="9" width="6" height="6" rx="1" opacity="0.9"/><rect x="9" y="9" width="6" height="6" rx="1" opacity="0.4"/><rect x="16" y="9" width="6" height="6" rx="1" opacity="0.8"/><rect x="2" y="16" width="6" height="6" rx="1" opacity="0.6"/><rect x="9" y="16" width="6" height="6" rx="1" opacity="1"/><rect x="16" y="16" width="6" height="6" rx="1" opacity="0.2"/></svg></div>
+        <div><div class="chart-card-text">Heatmap</div><div class="chart-card-desc">Heat map visualization</div></div>
+    </a>
+    <a class="chart-card" href="boxplot">
+        <div class="chart-card-icon standard"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><rect x="6" y="8" width="12" height="8" rx="1"/><line x1="12" y1="4" x2="12" y2="8"/><line x1="12" y1="16" x2="12" y2="20"/><line x1="9" y1="4" x2="15" y2="4"/><line x1="9" y1="20" x2="15" y2="20"/></svg></div>
+        <div><div class="chart-card-text">Boxplot</div><div class="chart-card-desc">Box & whisker plots</div></div>
+    </a>
+    <a class="chart-card" href="radar">
+        <div class="chart-card-icon standard"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><polygon points="12,2 22,9 19,20 5,20 2,9"/><polygon points="12,6 18,10.5 16.5,17 7.5,17 6,10.5" fill="currentColor" opacity="0.2"/></svg></div>
+        <div><div class="chart-card-text">Radar</div><div class="chart-card-desc">Spider/radar charts</div></div>
+    </a>
+    <a class="chart-card" href="funnel">
+        <div class="chart-card-icon standard"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" opacity="0.7"><path d="M2 4h20L14 12v6l-4 2V12L2 4z"/></svg></div>
+        <div><div class="chart-card-text">Funnel</div><div class="chart-card-desc">Funnel charts</div></div>
+    </a>
+    <a class="chart-card" href="gauge">
+        <div class="chart-card-icon standard"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path d="M12 21a9 9 0 110-18 9 9 0 010 18z"/><path d="M12 12l4-6" stroke-linecap="round" stroke-width="2"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg></div>
+        <div><div class="chart-card-text">Gauge</div><div class="chart-card-desc">Gauge/meter charts</div></div>
+    </a>
+    <a class="chart-card" href="graph">
+        <div class="chart-card-icon standard"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="12" cy="18" r="3"/><line x1="8.5" y1="7.5" x2="10" y2="16"/><line x1="15.5" y1="7.5" x2="14" y2="16"/><line x1="9" y1="6" x2="15" y2="6"/></svg></div>
+        <div><div class="chart-card-text">Graph</div><div class="chart-card-desc">Network graphs</div></div>
+    </a>
+    <a class="chart-card" href="sankey">
+        <div class="chart-card-icon standard"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><rect x="2" y="3" width="4" height="8" rx="1" opacity="0.7"/><rect x="2" y="13" width="4" height="8" rx="1" opacity="0.5"/><rect x="18" y="2" width="4" height="6" rx="1" opacity="0.6"/><rect x="18" y="10" width="4" height="5" rx="1" opacity="0.8"/><rect x="18" y="17" width="4" height="5" rx="1" opacity="0.4"/></svg></div>
+        <div><div class="chart-card-text">Sankey</div><div class="chart-card-desc">Flow diagrams</div></div>
+    </a>
+    <a class="chart-card" href="treemap">
+        <div class="chart-card-icon standard"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><rect x="2" y="2" width="12" height="10" rx="1" opacity="0.7"/><rect x="16" y="2" width="6" height="10" rx="1" opacity="0.5"/><rect x="2" y="14" width="8" height="8" rx="1" opacity="0.4"/><rect x="12" y="14" width="10" height="8" rx="1" opacity="0.6"/></svg></div>
+        <div><div class="chart-card-text">Treemap</div><div class="chart-card-desc">Treemap charts</div></div>
+    </a>
+    <a class="chart-card" href="sunburst">
+        <div class="chart-card-icon standard"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><circle cx="12" cy="12" r="3" fill="currentColor" opacity="0.4"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="9"/></svg></div>
+        <div><div class="chart-card-text">Sunburst</div><div class="chart-card-desc">Sunburst charts</div></div>
+    </a>
+    <a class="chart-card" href="tree">
+        <div class="chart-card-icon standard"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><circle cx="12" cy="4" r="2.5"/><circle cx="5" cy="14" r="2.5"/><circle cx="19" cy="14" r="2.5"/><line x1="12" y1="6.5" x2="5" y2="11.5"/><line x1="12" y1="6.5" x2="19" y2="11.5"/></svg></div>
+        <div><div class="chart-card-text">Tree</div><div class="chart-card-desc">Tree diagrams</div></div>
+    </a>
+    <a class="chart-card" href="themeriver">
+        <div class="chart-card-icon standard"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M2 8 C6 6, 10 10, 14 8 C18 6, 20 7, 22 8 L22 12 C20 11, 18 10, 14 12 C10 14, 6 10, 2 12 Z" opacity="0.6"/><path d="M2 14 C6 12, 10 16, 14 14 C18 12, 20 13, 22 14 L22 18 C20 17, 18 16, 14 18 C10 20, 6 16, 2 18 Z" opacity="0.3"/></svg></div>
+        <div><div class="chart-card-text">Theme River</div><div class="chart-card-desc">Theme river charts</div></div>
+    </a>
+    <a class="chart-card" href="parallel">
+        <div class="chart-card-icon standard"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><line x1="4" y1="3" x2="4" y2="21"/><line x1="10" y1="3" x2="10" y2="21"/><line x1="16" y1="3" x2="16" y2="21"/><line x1="22" y1="3" x2="22" y2="21"/><polyline points="4,7 10,14 16,9 22,16" opacity="0.5"/></svg></div>
+        <div><div class="chart-card-text">Parallel</div><div class="chart-card-desc">Parallel coordinates</div></div>
+    </a>
+    <a class="chart-card" href="pictorialbar">
+        <div class="chart-card-icon standard"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M4 20 L4 14 C4 12 6 12 6 14 L6 20Z" opacity="0.5"/><path d="M9 20 L9 10 C9 8 11 8 11 10 L11 20Z" opacity="0.7"/><path d="M14 20 L14 6 C14 4 16 4 16 6 L16 20Z" opacity="0.6"/><path d="M19 20 L19 8 C19 6 21 6 21 8 L21 20Z" opacity="0.8"/></svg></div>
+        <div><div class="chart-card-text">Pictorial Bar</div><div class="chart-card-desc">Pictorial bar charts</div></div>
+    </a>
+    <a class="chart-card" href="lines">
+        <div class="chart-card-icon standard"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path d="M3 17 Q8 8, 12 12 Q16 16, 21 7" stroke-linecap="round"/><circle cx="3" cy="17" r="1.5" fill="currentColor"/><circle cx="21" cy="7" r="1.5" fill="currentColor"/></svg></div>
+        <div><div class="chart-card-text">Lines</div><div class="chart-card-desc">Route/path lines</div></div>
+    </a>
+    <a class="chart-card" href="map">
+        <div class="chart-card-icon standard"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z" /></svg></div>
+        <div><div class="chart-card-text">Map</div><div class="chart-card-desc">GeoJSON world map</div></div>
+    </a>
+    <a class="chart-card" href="calendar">
+        <div class="chart-card-icon standard"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" /></svg></div>
+        <div><div class="chart-card-text">Calendar</div><div class="chart-card-desc">Calendar heatmaps</div></div>
+    </a>
+</div>
+
+<div class="section-label">Features</div>
+<div class="chart-grid">
+    <a class="chart-card" href="dataset">
+        <div class="chart-card-icon feature"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125" /></svg></div>
+        <div><div class="chart-card-text">Dataset</div><div class="chart-card-desc">Data-driven charts</div></div>
+    </a>
+    <a class="chart-card" href="datazoom">
+        <div class="chart-card-icon feature"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6" /></svg></div>
+        <div><div class="chart-card-text">DataZoom</div><div class="chart-card-desc">Zoom & pan controls</div></div>
+    </a>
+    <a class="chart-card" href="graphic">
+        <div class="chart-card-icon feature"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.994 15.994 0 011.622-3.395m3.42 3.42a15.995 15.995 0 004.764-4.648l3.876-5.814a1.151 1.151 0 00-1.597-1.597L14.146 6.32a15.996 15.996 0 00-4.649 4.763m3.42 3.42a6.776 6.776 0 00-3.42-3.42" /></svg></div>
+        <div><div class="chart-card-text">Graphic</div><div class="chart-card-desc">Custom annotations</div></div>
+    </a>
+    <a class="chart-card" href="richtext">
+        <div class="chart-card-icon feature"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 011.037-.443 48.282 48.282 0 005.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" /></svg></div>
+        <div><div class="chart-card-text">Rich Text</div><div class="chart-card-desc">Styled label formatting</div></div>
+    </a>
+</div>
+
+<div class="section-label">3D / GL Charts</div>
+<div class="chart-grid">
+    <a class="chart-card" href="bar3d">
+        <div class="chart-card-icon gl"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" /></svg></div>
+        <div><div class="chart-card-text">Bar 3D</div><div class="chart-card-desc">3D bar charts</div></div>
+    </a>
+    <a class="chart-card" href="scatter3d">
+        <div class="chart-card-icon gl"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" /><circle cx="10" cy="10" r="1" fill="currentColor"/><circle cx="15" cy="9" r="1" fill="currentColor"/></svg></div>
+        <div><div class="chart-card-text">Scatter 3D</div><div class="chart-card-desc">3D scatter plots</div></div>
+    </a>
+    <a class="chart-card" href="line3d">
+        <div class="chart-card-icon gl"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" /><path d="M6 14 Q12 8, 18 12" stroke-linecap="round"/></svg></div>
+        <div><div class="chart-card-text">Line 3D</div><div class="chart-card-desc">3D line charts</div></div>
+    </a>
+    <a class="chart-card" href="lines3d">
+        <div class="chart-card-icon gl"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" /><path d="M5 15 Q12 8, 19 11" opacity="0.5"/></svg></div>
+        <div><div class="chart-card-text">Lines 3D</div><div class="chart-card-desc">3D flight lines</div></div>
+    </a>
+    <a class="chart-card" href="map3d">
+        <div class="chart-card-icon gl"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" /></svg></div>
+        <div><div class="chart-card-text">Map 3D</div><div class="chart-card-desc">3D world maps</div></div>
+    </a>
+    <a class="chart-card" href="surface">
+        <div class="chart-card-icon gl"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path d="M3 18 Q7 10, 12 14 Q17 18, 21 10" stroke-linecap="round"/><path d="M3 14 Q7 6, 12 10 Q17 14, 21 6" stroke-linecap="round" opacity="0.4"/></svg></div>
+        <div><div class="chart-card-text">Surface</div><div class="chart-card-desc">3D surface plots</div></div>
+    </a>
+    <a class="chart-card" href="globe">
+        <div class="chart-card-icon gl"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3" /></svg></div>
+        <div><div class="chart-card-text">Globe</div><div class="chart-card-desc">Globe visualization</div></div>
+    </a>
+    <a class="chart-card" href="flowgl">
+        <div class="chart-card-icon gl"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path d="M3 12 Q7 6, 12 12 Q17 18, 21 12" stroke-linecap="round"/><path d="M17 10l4 2-4 2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div><div class="chart-card-text">Flow GL</div><div class="chart-card-desc">Vector field flow</div></div>
+    </a>
+    <a class="chart-card" href="graphgl">
+        <div class="chart-card-icon gl"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="8" r="2.5"/><circle cx="8" cy="18" r="2.5"/><circle cx="18" cy="18" r="2.5"/><line x1="8.5" y1="6" x2="15.5" y2="8" opacity="0.4"/><line x1="7" y1="8.5" x2="7.5" y2="15.5" opacity="0.4"/></svg></div>
+        <div><div class="chart-card-text">Graph GL</div><div class="chart-card-desc">Large-scale graphs</div></div>
+    </a>
+    <a class="chart-card" href="scattergl">
+        <div class="chart-card-icon gl"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><circle cx="5" cy="8" r="1.5" opacity="0.7"/><circle cx="10" cy="14" r="1.5" opacity="0.5"/><circle cx="16" cy="6" r="1.5" opacity="0.8"/><circle cx="14" cy="17" r="1.5" opacity="0.6"/><circle cx="20" cy="11" r="1.5" opacity="0.4"/></svg></div>
+        <div><div class="chart-card-text">Scatter GL</div><div class="chart-card-desc">GPU scatter plots</div></div>
+    </a>
+    <a class="chart-card" href="linesgl">
+        <div class="chart-card-icon gl"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor"><line x1="3" y1="18" x2="10" y2="6" opacity="0.5"/><line x1="5" y1="20" x2="14" y2="4" opacity="0.3"/><line x1="8" y1="16" x2="20" y2="8" opacity="0.6"/><line x1="6" y1="10" x2="18" y2="14" opacity="0.4"/></svg></div>
+        <div><div class="chart-card-text">Lines GL</div><div class="chart-card-desc">GPU line segments</div></div>
+    </a>
+</div>

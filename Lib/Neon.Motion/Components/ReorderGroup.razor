@@ -1,0 +1,26 @@
+@namespace Neon.Motion.Components
+@typeparam TItem
+
+<div class="@CssClass" @attributes="AdditionalAttributes">
+    @if (Items != null && RenderItem != null)
+    {
+        for (int i = 0; i < _orderedItems.Count && i < _itemElemIds.Count; i++)
+        {
+            var item   = _orderedItems[i];
+            var elemId = _itemElemIds[i];
+            var isDrag = elemId == _draggingElemId;
+
+            <div id="@elemId"
+                 @key="elemId"
+                 class="motion-reorder-item @(isDrag ? "motion-reorder-dragging" : "")"
+                 draggable="true"
+                 @ondragstart="@(async () => await OnDragStartAsync(elemId))"
+                 @ondragover:preventDefault="true"
+                 @ondragover="@(async () => await OnDragOverAsync(elemId))"
+                 @ondrop="@(async () => await OnDropAsync())"
+                 @ondragend="@(() => OnDragEnd())">
+                @RenderItem(item)
+            </div>
+        }
+    }
+</div>

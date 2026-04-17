@@ -69,7 +69,6 @@
 
 bower_components/
 node_modules/
-wwwroot/
 
 ################################################################################
 # Custom rules added for this repository.

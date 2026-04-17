@@ -15,7 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Neon.ECharts.Options.Series.Bar
+namespace Neon.ECharts.Options.Series.Bar3D
 {
     /// <summary>
     /// Represents a 3D bar series in ECharts.

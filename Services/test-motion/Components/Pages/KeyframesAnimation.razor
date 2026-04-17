@@ -1,0 +1,72 @@
+@page "/keyframes"
+@rendermode InteractiveServer
+
+<PageTitle>Motion Demo - Keyframes</PageTitle>
+
+<div class="page-header">
+    <h1>Keyframes</h1>
+    <p>Pass an array of values to animate through multiple states in sequence. Each array entry is a keyframe.</p>
+</div>
+
+<div class="demo-container">
+    <div class="demo-stage cols-3">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0.75rem">
+            <MotionDiv @ref="_scaleBox" class="motion-box" />
+            <span style="font-size:0.75rem;color:#64748b;font-weight:500">Scale</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0.75rem">
+            <MotionDiv @ref="_colorBox" class="motion-box" />
+            <span style="font-size:0.75rem;color:#64748b;font-weight:500">Color</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0.75rem">
+            <MotionDiv @ref="_bounceBox" class="motion-box" />
+            <span style="font-size:0.75rem;color:#64748b;font-weight:500">Bounce</span>
+        </div>
+    </div>
+    <div class="demo-controls">
+        <span class="demo-controls-label">Play:</span>
+        <button class="btn btn-primary" @onclick="PlayAll">Play All</button>
+        <button class="btn btn-ghost" @onclick="PlayScale">Scale Keyframes</button>
+        <button class="btn btn-ghost" @onclick="PlayColor">Color Keyframes</button>
+        <button class="btn btn-ghost" @onclick="PlayBounce">Bounce Keyframes</button>
+    </div>
+</div>
+
+<div class="code-block">
+<span class="cm">// Scale through keyframes</span>
+<span class="fn">animate</span>(<span class="str">"#box"</span>, &#123; <span class="str">scale</span>: [<span class="num">1</span>, <span class="num">1.4</span>, <span class="num">0.9</span>, <span class="num">1.1</span>, <span class="num">1</span>] &#125;, &#123; <span class="str">duration</span>: <span class="num">0.8</span> &#125;)
+
+<span class="cm">// Cycle through background colors</span>
+<span class="fn">animate</span>(<span class="str">"#box"</span>, &#123; <span class="str">backgroundColor</span>: [<span class="str">"#6366f1"</span>, <span class="str">"#ec4899"</span>, <span class="str">"#f59e0b"</span>, <span class="str">"#6366f1"</span>] &#125;,
+  &#123; <span class="str">duration</span>: <span class="num">1.2</span>, <span class="str">ease</span>: <span class="str">"easeInOut"</span> &#125;)
+
+<span class="cm">// Bounce via y keyframes</span>
+<span class="fn">animate</span>(<span class="str">"#box"</span>, &#123; <span class="str">y</span>: [<span class="num">0</span>, <span class="num">-40</span>, <span class="num">0</span>, <span class="num">-20</span>, <span class="num">0</span>] &#125;,
+  &#123; <span class="str">duration</span>: <span class="num">0.9</span>, <span class="str">ease</span>: <span class="str">"easeOut"</span> &#125;)
+</div>
+
+@code {
+    private MotionDiv _scaleBox;
+    private MotionDiv _colorBox;
+    private MotionDiv _bounceBox;
+
+    async Task PlayScale() =>
+        await _scaleBox.AnimateAsync(
+            new AnimationValues().Scale(1, 1.4, 0.9, 1.1, 1),
+            new AnimateOptions { Duration = 0.8 });
+
+    async Task PlayColor() =>
+        await _colorBox.AnimateAsync(
+            new AnimationValues().BackgroundColor("#6366f1", "#ec4899", "#f59e0b", "#6366f1"),
+            new AnimateOptions { Duration = 1.2, Ease = "easeInOut" });
+
+    async Task PlayBounce() =>
+        await _bounceBox.AnimateAsync(
+            new AnimationValues().Y(0, -40, 0, -20, 0),
+            new AnimateOptions { Duration = 0.9, Ease = "easeOut" });
+
+    async Task PlayAll()
+    {
+        await Task.WhenAll(PlayScale(), PlayColor(), PlayBounce());
+    }
+}

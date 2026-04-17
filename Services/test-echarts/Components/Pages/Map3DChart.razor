@@ -1,0 +1,31 @@
+@page "/map3d"
+@rendermode InteractiveServer
+
+<PageTitle>Map 3D Chart</PageTitle>
+
+<h1>Map 3D Chart</h1>
+<p>A 3D map chart for geographic data visualization with terrain.</p>
+
+<div class="chart-container">
+    <EChart OptionRaw="@_option" style="width:100%;height:100%;" />
+</div>
+
+<div class="alert" style="background:#fff3cd;border:1px solid #ffc107;padding:1rem;border-radius:8px;margin-top:1rem;">
+    <strong>Note:</strong> Map3D charts require GeoJSON map registration to render geographic regions.
+    This demo shows the configuration structure.
+</div>
+
+@code {
+    private string _option = @"{
+        ""title"": { ""text"": ""3D Map (requires GeoJSON)"" },
+        ""tooltip"": { ""trigger"": ""item"" },
+        ""series"": [{
+            ""type"": ""map3D"",
+            ""map"": ""world"",
+            ""shading"": ""lambert"",
+            ""label"": { ""show"": false },
+            ""viewControl"": { ""autoRotate"": false },
+            ""data"": []
+        }]
+    }";
+}

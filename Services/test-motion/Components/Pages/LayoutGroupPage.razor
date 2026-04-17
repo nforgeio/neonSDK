@@ -1,0 +1,130 @@
+@page "/layout-group"
+@rendermode InteractiveServer
+
+<PageTitle>Motion Demo - LayoutGroup</PageTitle>
+
+<div class="page-header">
+    <h1>LayoutGroup</h1>
+    <p>The <code>&lt;LayoutGroup&gt;</code> and <code>&lt;LayoutGroupItem&gt;</code> components coordinate FLIP layout animations — each item smoothly slides to its new position whenever the layout changes.</p>
+</div>
+
+<div class="demo-container">
+    <div class="demo-stage" style="align-items:stretch;padding:1.5rem 2rem">
+        <LayoutGroup @ref="_group" Transition="@(new AnimateOptions { Type = "spring", Bounce = 0.25 })">
+            @foreach (var item in _items)
+            {
+                var color = item.Color;
+                <LayoutGroupItem ItemId="@item.Id" class="lg-item">
+                    <div class="lg-pill" style="background:@color">
+                        <span class="lg-pill-label">@item.Label</span>
+                    </div>
+                </LayoutGroupItem>
+            }
+        </LayoutGroup>
+    </div>
+    <div class="demo-controls">
+        <button class="btn btn-primary" @onclick="ShuffleAsync">Shuffle</button>
+        <button class="btn btn-ghost" @onclick="ResetAsync">Reset</button>
+    </div>
+</div>
+
+<h2>Filter items</h2>
+<p>Items leaving the layout cause remaining items to FLIP-animate into their new gaps.</p>
+
+<div class="demo-container">
+    <div class="demo-stage" style="align-items:stretch;padding:1.5rem 2rem">
+        <LayoutGroup @ref="_filterGroup" Transition="@(new AnimateOptions { Duration = 0.4, Ease = "easeOut" })">
+            @foreach (var item in _filteredItems)
+            {
+                var i = item;
+                <LayoutGroupItem ItemId="@i.Id" class="lg-item">
+                    <div class="lg-pill" style="background:@i.Color">
+                        <span class="lg-pill-label">@i.Label</span>
+                        <button class="lg-pill-remove" @onclick="@(() => RemoveItemAsync(i))" title="Remove">×</button>
+                    </div>
+                </LayoutGroupItem>
+            }
+        </LayoutGroup>
+    </div>
+    <div class="demo-controls">
+        <button class="btn btn-ghost" @onclick="RestoreItemsAsync">Restore all</button>
+    </div>
+</div>
+
+<div class="code-block">
+&lt;<span class="fn">LayoutGroup</span> <span class="str">@@ref</span>=<span class="str">"_group"</span>
+  <span class="str">Transition</span>=<span class="str">"@@(new AnimateOptions &#123; Type = "spring", Bounce = 0.25 &#125;)"</span>&gt;
+  @@foreach (<span class="kw">var</span> item <span class="kw">in</span> _items)
+  &#123;
+    &lt;<span class="fn">LayoutGroupItem</span> <span class="str">ItemId</span>=<span class="str">"@@item.Id"</span>&gt;
+      &lt;div&gt;@@item.Name&lt;/div&gt;
+    &lt;/<span class="fn">LayoutGroupItem</span>&gt;
+  &#125;
+&lt;/<span class="fn">LayoutGroup</span>&gt;
+
+<span class="cm">// Before changing the list:</span>
+<span class="kw">await</span> _group.<span class="fn">CaptureAsync</span>();
+_items = _items.<span class="fn">OrderBy</span>(_ =&gt; Random.Shared.<span class="fn">Next</span>()).<span class="fn">ToList</span>();
+</div>
+
+@code {
+    private LayoutGroup _group;
+    private LayoutGroup _filterGroup;
+
+    private record DemoItem(string Id, string Label, string Color);
+
+    private List<DemoItem> _items = new()
+    {
+        new("a", "Motion",        "#6366f1"),
+        new("b", "Blazor",        "#8b5cf6"),
+        new("c", "Spring",        "#a78bfa"),
+        new("d", "Stagger",       "#c084fc"),
+        new("e", "Keyframes",     "#e879f9"),
+        new("f", "AnimateView",   "#f472b6"),
+    };
+
+    private readonly List<DemoItem> _allFilterItems = new()
+    {
+        new("f1", "Design",        "#6366f1"),
+        new("f2", "Engineering",   "#8b5cf6"),
+        new("f3", "Animation",     "#a78bfa"),
+        new("f4", "Interaction",   "#c084fc"),
+        new("f5", "Performance",   "#e879f9"),
+        new("f6", "Accessibility", "#f472b6"),
+    };
+
+    private List<DemoItem> _filteredItems;
+
+    protected override void OnInitialized()
+    {
+        _filteredItems = new List<DemoItem>(_allFilterItems);
+    }
+
+    async Task ShuffleAsync()
+    {
+        if (_group == null) return;
+        await _group.CaptureAsync();
+        _items = _items.OrderBy(_ => Random.Shared.Next()).ToList();
+    }
+
+    async Task ResetAsync()
+    {
+        if (_group == null) return;
+        await _group.CaptureAsync();
+        _items = _items.OrderBy(i => i.Id).ToList();
+    }
+
+    async Task RemoveItemAsync(DemoItem item)
+    {
+        if (_filterGroup == null) return;
+        await _filterGroup.CaptureAsync();
+        _filteredItems.Remove(item);
+    }
+
+    async Task RestoreItemsAsync()
+    {
+        if (_filterGroup == null) return;
+        await _filterGroup.CaptureAsync();
+        _filteredItems = new List<DemoItem>(_allFilterItems);
+    }
+}

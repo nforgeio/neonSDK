@@ -1,0 +1,42 @@
+@page "/lines3d"
+@rendermode InteractiveServer
+
+<PageTitle>Lines 3D Chart</PageTitle>
+
+<h1>Lines 3D Chart</h1>
+<p>A 3D lines chart showing flight paths between cities on a globe.</p>
+
+<div class="chart-container">
+    <EChart OptionRaw="@_option" style="width:100%;height:100%;" />
+</div>
+
+@code {
+    private string _option = @"{
+        ""title"": { ""text"": ""Flight Paths"" },
+        ""globe"": {
+            ""baseColor"": ""#334455"",
+            ""shading"": ""color"",
+            ""viewControl"": { ""autoRotate"": true, ""autoRotateSpeed"": 3 },
+            ""light"": {
+                ""main"": { ""intensity"": 1.2 },
+                ""ambient"": { ""intensity"": 0.3 }
+            }
+        },
+        ""series"": [{
+            ""type"": ""lines3D"",
+            ""coordinateSystem"": ""globe"",
+            ""lineStyle"": { ""width"": 2, ""color"": ""#ff6600"", ""opacity"": 0.6 },
+            ""effect"": { ""show"": true, ""period"": 4, ""trailLength"": 0.2 },
+            ""data"": [
+                { ""coords"": [[-74.00, 40.71, 0], [-0.12, 51.51, 0]] },
+                { ""coords"": [[-74.00, 40.71, 0], [139.69, 35.69, 0]] },
+                { ""coords"": [[-0.12, 51.51, 0], [116.40, 39.90, 0]] },
+                { ""coords"": [[2.35, 48.86, 0], [139.69, 35.69, 0]] },
+                { ""coords"": [[-118.24, 34.05, 0], [2.35, 48.86, 0]] },
+                { ""coords"": [[116.40, 39.90, 0], [139.69, 35.69, 0]] },
+                { ""coords"": [[-118.24, 34.05, 0], [-74.00, 40.71, 0]] },
+                { ""coords"": [[-0.12, 51.51, 0], [2.35, 48.86, 0]] }
+            ]
+        }]
+    }";
+}

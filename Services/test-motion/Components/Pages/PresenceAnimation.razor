@@ -1,0 +1,96 @@
+@page "/presence"
+@rendermode InteractiveServer
+
+<PageTitle>Motion Demo - AnimatePresence</PageTitle>
+
+<div class="page-header">
+    <h1>AnimatePresence</h1>
+    <p>The <code>&lt;AnimatePresence&gt;</code> component keeps its children mounted until the exit animation finishes before removing them from the DOM — just like <code>AnimatePresence</code> in motion-react.</p>
+</div>
+
+<div class="demo-container">
+    <div class="presence-stage">
+        <AnimatePresence IsPresent="@_showCard"
+                         Initial="@(new AnimationValues().Opacity(0).Y(24).Scale(0.95))"
+                         Animate="@(new AnimationValues().Opacity(1).Y(0).Scale(1))"
+                         Exit="@(new AnimationValues().Opacity(0).Y(24).Scale(0.95))"
+                         Transition="@(new AnimateOptions { Duration = 0.35, Ease = "easeOut" })"
+                         OnExitComplete="@OnExitComplete">
+            <div class="presence-card">
+                <div class="presence-card-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" /></svg>
+                </div>
+                <h3>Motion</h3>
+                <p>Animates in on mount,<br/>out on unmount.</p>
+            </div>
+        </AnimatePresence>
+    </div>
+    <div class="demo-controls">
+        <button class="btn btn-primary" @onclick="Toggle">
+            @(_showCard ? "Hide Card" : "Show Card")
+        </button>
+        <span style="font-size:0.78rem;color:#94a3b8;margin-left:0.5rem">
+            Status: <strong style="color:@(_showCard ? "#22c55e" : "#94a3b8")">@(_status)</strong>
+        </span>
+    </div>
+</div>
+
+<h2>Multiple cards</h2>
+<p>Stagger multiple <code>&lt;AnimatePresence&gt;</code> instances to create cascade effects.</p>
+
+<div class="demo-container">
+    <div class="demo-stage" style="gap:1rem;flex-wrap:wrap">
+        @for (int i = 0; i < 3; i++)
+        {
+            var idx   = i;
+            var shown = _cardVisible[idx];
+            var colors = new[] { "#6366f1", "#8b5cf6", "#a78bfa" };
+            <AnimatePresence IsPresent="@shown"
+                             Initial="@(new AnimationValues().Opacity(0).Scale(0.8))"
+                             Animate="@(new AnimationValues().Opacity(1).Scale(1))"
+                             Exit="@(new AnimationValues().Opacity(0).Scale(0.8))"
+                             Transition="@(new AnimateOptions { Type = "spring", Bounce = 0.3 })">
+                <div class="motion-box" style="background:linear-gradient(135deg,@colors[idx],@colors[idx]cc);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:1.1rem">
+                    @(idx + 1)
+                </div>
+            </AnimatePresence>
+        }
+    </div>
+    <div class="demo-controls">
+        <span class="demo-controls-label">Toggle:</span>
+        @for (int i = 0; i < 3; i++)
+        {
+            var idx = i;
+            <button class="btn @(_cardVisible[idx] ? "btn-primary" : "btn-ghost")"
+                    @onclick="() => _cardVisible[idx] = !_cardVisible[idx]">
+                Card @(idx + 1)
+            </button>
+        }
+    </div>
+</div>
+
+<div class="code-block">
+&lt;<span class="fn">AnimatePresence</span>
+  <span class="str">IsPresent</span>=<span class="str">"@@_show"</span>
+  <span class="str">Initial</span>=<span class="str">"@@(new AnimationValues().Opacity(0).Y(24))"</span>
+  <span class="str">Animate</span>=<span class="str">"@@(new AnimationValues().Opacity(1).Y(0))"</span>
+  <span class="str">Exit</span>=<span class="str">"@@(new AnimationValues().Opacity(0).Y(24))"</span>
+  <span class="str">Transition</span>=<span class="str">"@@(new AnimateOptions &#123; Duration = 0.35 &#125;)"</span>&gt;
+  &lt;div class=<span class="str">"card"</span>&gt;…&lt;/div&gt;
+&lt;/<span class="fn">AnimatePresence</span>&gt;
+</div>
+
+@code {
+    private bool _showCard = true;
+    private string _status = "visible";
+    private readonly bool[] _cardVisible = [true, true, true];
+
+    void Toggle() => _showCard = !_showCard;
+
+    void OnExitComplete() => _status = "exited";
+
+    protected override void OnParametersSet()
+    {
+        _status = _showCard ? "visible" : "exiting…";
+    }
+}

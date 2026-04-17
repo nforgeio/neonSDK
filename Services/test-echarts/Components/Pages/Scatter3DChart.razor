@@ -1,0 +1,34 @@
+@page "/scatter3d"
+@rendermode InteractiveServer
+
+<PageTitle>Scatter 3D Chart</PageTitle>
+
+<h1>Scatter 3D Chart</h1>
+<p>A 3D scatter plot showing data points in three-dimensional space.</p>
+
+<div class="chart-container">
+    <EChart OptionRaw="@_option" style="width:100%;height:100%;" />
+</div>
+
+@code {
+    private string _option = @"{
+        ""title"": { ""text"": ""3D Scatter Plot"" },
+        ""tooltip"": {},
+        ""xAxis3D"": { ""type"": ""value"" },
+        ""yAxis3D"": { ""type"": ""value"" },
+        ""zAxis3D"": { ""type"": ""value"" },
+        ""grid3D"": { ""viewControl"": { ""autoRotate"": true } },
+        ""series"": [{
+            ""type"": ""scatter3D"",
+            ""symbolSize"": 8,
+            ""data"": [
+                [1, 2, 3], [4, 5, 6], [7, 8, 9], [2, 4, 6],
+                [3, 6, 2], [5, 1, 8], [8, 3, 5], [6, 7, 1],
+                [9, 2, 4], [1, 8, 7], [4, 3, 9], [7, 5, 2],
+                [2, 9, 5], [5, 4, 3], [8, 6, 8], [3, 1, 6],
+                [6, 8, 4], [9, 5, 7], [1, 3, 1], [4, 7, 5]
+            ],
+            ""itemStyle"": { ""opacity"": 0.8 }
+        }]
+    }";
+}

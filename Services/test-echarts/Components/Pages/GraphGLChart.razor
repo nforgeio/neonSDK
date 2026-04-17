@@ -1,0 +1,65 @@
+@page "/graphgl"
+@rendermode InteractiveServer
+
+<PageTitle>Graph GL Chart</PageTitle>
+
+<h1>Graph GL Chart</h1>
+<p>A GPU-accelerated graph visualization for rendering large-scale network data.</p>
+
+<div class="chart-container">
+    <EChart OptionRaw="@_option" style="width:100%;height:100%;" />
+</div>
+
+@code {
+    private string _option;
+
+    protected override void OnInitialized()
+    {
+        // Generate a random graph with nodes and edges
+        var random = new Random(42);
+        var nodes = new System.Text.StringBuilder();
+        var links = new System.Text.StringBuilder();
+
+        nodes.Append("[");
+        for (int i = 0; i < 50; i++)
+        {
+            if (i > 0) nodes.Append(",");
+            double x = random.NextDouble() * 100;
+            double y = random.NextDouble() * 100;
+            int size = random.Next(5, 20);
+            nodes.Append($"{{\"name\":\"{i}\",\"x\":{x:F1},\"y\":{y:F1},\"symbolSize\":{size}}}");
+        }
+        nodes.Append("]");
+
+        links.Append("[");
+        bool firstLink = true;
+        for (int i = 0; i < 80; i++)
+        {
+            int source = random.Next(0, 50);
+            int target = random.Next(0, 50);
+            if (source == target) continue;
+            if (!firstLink) links.Append(",");
+            firstLink = false;
+            links.Append($"{{\"source\":\"{source}\",\"target\":\"{target}\"}}");
+        }
+        links.Append("]");
+
+        _option = $@"{{
+            ""title"": {{ ""text"": ""Large-Scale Graph (GL)"" }},
+            ""series"": [{{
+                ""type"": ""graphGL"",
+                ""layout"": ""forceAtlas2"",
+                ""forceAtlas2"": {{
+                    ""steps"": 5,
+                    ""jitterTolerence"": 10,
+                    ""edgeWeightInfluence"": 1
+                }},
+                ""symbolSize"": 10,
+                ""itemStyle"": {{ ""opacity"": 0.8 }},
+                ""lineStyle"": {{ ""width"": 0.5, ""opacity"": 0.3 }},
+                ""data"": {nodes},
+                ""links"": {links}
+            }}]
+        }}";
+    }
+}

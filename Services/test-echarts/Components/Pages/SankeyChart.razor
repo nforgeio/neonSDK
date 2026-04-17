@@ -1,0 +1,44 @@
+@page "/sankey"
+@rendermode InteractiveServer
+
+<PageTitle>Sankey Chart</PageTitle>
+
+<h1>Sankey Chart</h1>
+<p>A sankey diagram showing energy flow between sources and targets.</p>
+
+<div class="chart-container">
+    <EChart OptionRaw="@_option" style="width:100%;height:100%;" />
+</div>
+
+@code {
+    private string _option = @"{
+        ""title"": { ""text"": ""Energy Flow"" },
+        ""tooltip"": { ""trigger"": ""item"" },
+        ""series"": [{
+            ""type"": ""sankey"",
+            ""layout"": ""none"",
+            ""emphasis"": { ""focus"": ""adjacency"" },
+            ""data"": [
+                { ""name"": ""Coal"" },
+                { ""name"": ""Natural Gas"" },
+                { ""name"": ""Oil"" },
+                { ""name"": ""Electricity"" },
+                { ""name"": ""Heat"" },
+                { ""name"": ""Industry"" },
+                { ""name"": ""Transport"" },
+                { ""name"": ""Residential"" }
+            ],
+            ""links"": [
+                { ""source"": ""Coal"", ""target"": ""Electricity"", ""value"": 25 },
+                { ""source"": ""Coal"", ""target"": ""Heat"", ""value"": 10 },
+                { ""source"": ""Natural Gas"", ""target"": ""Electricity"", ""value"": 20 },
+                { ""source"": ""Natural Gas"", ""target"": ""Heat"", ""value"": 15 },
+                { ""source"": ""Oil"", ""target"": ""Transport"", ""value"": 30 },
+                { ""source"": ""Electricity"", ""target"": ""Industry"", ""value"": 25 },
+                { ""source"": ""Electricity"", ""target"": ""Residential"", ""value"": 20 },
+                { ""source"": ""Heat"", ""target"": ""Industry"", ""value"": 15 },
+                { ""source"": ""Heat"", ""target"": ""Residential"", ""value"": 10 }
+            ]
+        }]
+    }";
+}

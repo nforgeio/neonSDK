@@ -1,0 +1,27 @@
+/* Neon.Motion base styles
+ * Include this in your app: <link rel="stylesheet" href="_content/Neon.Motion/neon-motion.css" />
+ */
+
+/* Applied by SharedLayoutItem on every render so the element is invisible
+ * before the JS animation starts — prevents the one-frame FOUC where the
+ * element briefly appears at its natural CSS position before the transform
+ * is applied. Removed by JS (motionReveal / motionSharedLayout) either
+ * immediately (no animation) or at the start of the opacity fade-in. */
+.sli-hidden {
+    opacity: 0;
+    /* Elevate the element above its siblings while the FLIP animation is
+     * in flight so it isn't painted behind later-DOM-order elements.
+     * position:relative is required for z-index to take effect on elements
+     * that don't already create a stacking context another way.
+     * Both are reset when JS calls _reveal() at the end of the animation. */
+    position: relative;
+    z-index: 100;
+    /* Suppress any CSS transitions defined on the element's other classes
+     * (e.g. transition: transform) while the element is in the hidden
+     * pre-animation state.  Without this, the CSS transition fires at the
+     * same time motion.dev applies the initial FLIP displacement, creating
+     * a competing animation that produces the "drift away then back" effect.
+     * The !important is necessary because user stylesheets (loaded after
+     * this file) would otherwise win on equal specificity. */
+    transition: none !important;
+}

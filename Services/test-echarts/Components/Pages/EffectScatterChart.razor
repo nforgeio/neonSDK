@@ -1,0 +1,31 @@
+@page "/effectscatter"
+@rendermode InteractiveServer
+
+<PageTitle>Effect Scatter Chart</PageTitle>
+
+<h1>Effect Scatter Chart</h1>
+<p>A scatter chart with ripple animation effects, useful for highlighting key data points.</p>
+
+<div class="chart-container">
+    <EChart OptionRaw="@_option" style="width:100%;height:100%;" />
+</div>
+
+@code {
+    private string _option = @"{
+        ""title"": { ""text"": ""City Population"" },
+        ""tooltip"": { ""trigger"": ""item"" },
+        ""xAxis"": { ""type"": ""value"", ""name"": ""Longitude"" },
+        ""yAxis"": { ""type"": ""value"", ""name"": ""Latitude"" },
+        ""series"": [{
+            ""type"": ""effectScatter"",
+            ""symbolSize"": 20,
+            ""showEffectOn"": ""render"",
+            ""rippleEffect"": { ""brushType"": ""stroke"", ""scale"": 4 },
+            ""data"": [
+                [121.47, 31.23], [116.40, 39.90], [113.26, 23.13],
+                [114.10, 22.55], [112.94, 28.23], [108.95, 34.27],
+                [104.06, 30.67], [106.55, 29.56], [118.79, 32.06]
+            ]
+        }]
+    }";
+}

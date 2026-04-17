@@ -1,0 +1,61 @@
+@page "/calendar"
+@rendermode InteractiveServer
+
+<PageTitle>Calendar Chart</PageTitle>
+
+<h1>Calendar Chart</h1>
+<p>A calendar heatmap showing daily activity over a year using the calendar coordinate system.</p>
+
+<div class="chart-container">
+    <EChart OptionRaw="@_option" style="width:100%;height:100%;" />
+</div>
+
+@code {
+    private string _option;
+
+    protected override void OnInitialized()
+    {
+        var random = new Random(42);
+        var sb = new System.Text.StringBuilder();
+        sb.Append("[");
+
+        var start = new DateTime(2024, 1, 1);
+        var end = new DateTime(2024, 12, 31);
+        bool first = true;
+
+        for (var date = start; date <= end; date = date.AddDays(1))
+        {
+            if (!first) sb.Append(",");
+            first = false;
+            sb.Append($"[\"{date:yyyy-MM-dd}\",{random.Next(0, 15000)}]");
+        }
+        sb.Append("]");
+
+        _option = $@"{{
+            ""title"": {{ ""text"": ""Daily Step Count (2024)"", ""left"": ""center"" }},
+            ""tooltip"": {{ ""formatter"": ""{{b0}}: {{c0}} steps"" }},
+            ""visualMap"": {{
+                ""min"": 0,
+                ""max"": 15000,
+                ""calculable"": true,
+                ""orient"": ""horizontal"",
+                ""left"": ""center"",
+                ""top"": 40
+            }},
+            ""calendar"": {{
+                ""top"": 100,
+                ""left"": 50,
+                ""right"": 30,
+                ""cellSize"": [""auto"", 16],
+                ""range"": ""2024"",
+                ""itemStyle"": {{ ""borderWidth"": 0.5 }},
+                ""yearLabel"": {{ ""show"": false }}
+            }},
+            ""series"": [{{
+                ""type"": ""heatmap"",
+                ""coordinateSystem"": ""calendar"",
+                ""data"": {sb}
+            }}]
+        }}";
+    }
+}

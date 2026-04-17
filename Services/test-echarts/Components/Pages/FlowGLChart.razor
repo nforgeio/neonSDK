@@ -1,0 +1,41 @@
+@page "/flowgl"
+@rendermode InteractiveServer
+
+<PageTitle>Flow GL Chart</PageTitle>
+
+<h1>Flow GL Chart</h1>
+<p>A GPU-accelerated vector field flow visualization.</p>
+
+<div class="chart-container">
+    <EChart OptionRaw="@_option" style="width:100%;height:100%;" />
+</div>
+
+<div class="alert" style="background:#fff3cd;border:1px solid #ffc107;padding:1rem;border-radius:8px;margin-top:1rem;">
+    <strong>Note:</strong> FlowGL charts require vector field data (typically from weather or fluid simulations) and
+    work best with geographic coordinate systems. This demo shows the configuration structure.
+</div>
+
+@code {
+    private string _option = @"{
+        ""title"": { ""text"": ""Flow GL (Vector Field)"" },
+        ""tooltip"": {},
+        ""xAxis"": { ""type"": ""value"" },
+        ""yAxis"": { ""type"": ""value"" },
+        ""series"": [{
+            ""type"": ""flowGL"",
+            ""data"": [
+                [0, 0, 1, 0.5],
+                [1, 0, 0.8, 0.6],
+                [2, 0, 0.5, 0.8],
+                [0, 1, 0.9, 0.3],
+                [1, 1, 0.6, 0.7],
+                [2, 1, 0.3, 0.9],
+                [0, 2, 0.7, 0.1],
+                [1, 2, 0.4, 0.5],
+                [2, 2, 0.1, 0.8]
+            ],
+            ""particleDensity"": 64,
+            ""particleSize"": 2
+        }]
+    }";
+}

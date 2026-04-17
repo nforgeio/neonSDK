@@ -1,0 +1,149 @@
+@page "/shared-layout"
+@rendermode InteractiveServer
+
+<PageTitle>Motion Demo - SharedLayout</PageTitle>
+
+<div class="page-header">
+    <h1>SharedLayout</h1>
+    <p>The <code>&lt;SharedLayout&gt;</code> and <code>&lt;SharedLayoutItem&gt;</code> components coordinate transitions of a single logical element across different DOM positions — move an indicator between tabs, morph a card's size, or animate multiple items rearranging as a group.</p>
+</div>
+
+<!-- ============================================================== -->
+<!-- 1. Tab indicator — single element moving between 5 tabs         -->
+<!-- ============================================================== -->
+
+<h2>Tab indicator</h2>
+<p>A single underline moves from the old tab to the new tab by animating from the previous rect to the current rect — one continuous transition, not a fade.</p>
+
+<div class="demo-container">
+    <div class="demo-stage sl-stage">
+        <SharedLayout Transition="@(new AnimateOptions { Type = "spring", Bounce = 0.2, Duration = 0.5 })">
+            <div class="sl-tabbar">
+                @foreach (var tab in _tabs)
+                {
+                    var t = tab;
+                    <button type="button"
+                            class="@("sl-tab" + (t == _activeTab ? " sl-tab-active" : ""))"
+                            @onclick="@(() => _activeTab = t)">
+                        <span>@t</span>
+                        @if (t == _activeTab)
+                        {
+                            <SharedLayoutItem LayoutId="tab-indicator" class="sl-tab-underline" />
+                        }
+                    </button>
+                }
+            </div>
+        </SharedLayout>
+    </div>
+</div>
+
+<!-- ============================================================== -->
+<!-- 2. Multiple elements with individual layoutIds                  -->
+<!-- ============================================================== -->
+
+<h2>Multiple shared items</h2>
+<p>Every circle has its own <code>LayoutId</code>. When the list is shuffled each circle animates continuously from its old seat to its new seat — multiple shared-layout transitions running at once.</p>
+
+<div class="demo-container">
+    <div class="demo-stage sl-stage">
+        <SharedLayout Transition="@(new AnimateOptions { Type = "spring", Bounce = 0.3 })">
+            <div class="sl-circles">
+                @foreach (var c in _circleOrder)
+                {
+                    var circle = c;
+                    <SharedLayoutItem @key="circle.Id"
+                                      LayoutId="@("circle-" + circle.Id)"
+                                      class="sl-circle-wrap">
+                        <div class="sl-circle" style="background:@circle.Color">@circle.Label</div>
+                    </SharedLayoutItem>
+                }
+            </div>
+        </SharedLayout>
+    </div>
+    <div class="demo-controls">
+        <button class="btn btn-primary" @onclick="ShuffleCircles">Shuffle</button>
+        <button class="btn btn-ghost"   @onclick="ResetCircles">Reset</button>
+    </div>
+</div>
+
+<!-- ============================================================== -->
+<!-- 3. Changing shape — same LayoutId, different size/position      -->
+<!-- ============================================================== -->
+
+<h2>Changing shape</h2>
+<p>Clicking a preset changes the card's size and position inside its stage. The card animates continuously between states because every preset shares the same <code>LayoutId</code>.</p>
+
+<div class="demo-container">
+    <div class="demo-stage sl-shape-stage">
+        <SharedLayout Transition="@(new AnimateOptions { Duration = 0.5, Ease = "easeInOut" })">
+            <div class="sl-shape-container sl-shape-@_shapeState">
+                <SharedLayoutItem LayoutId="morph-card" class="@("sl-shape sl-shape-card-" + _shapeState)">
+                    <span class="sl-shape-label">@_shapeState</span>
+                </SharedLayoutItem>
+            </div>
+        </SharedLayout>
+    </div>
+    <div class="demo-controls">
+        <button class="@Btn("small")"   @onclick="@(() => _shapeState = "small")">Small</button>
+        <button class="@Btn("wide")"    @onclick="@(() => _shapeState = "wide")">Wide</button>
+        <button class="@Btn("tall")"    @onclick="@(() => _shapeState = "tall")">Tall</button>
+        <button class="@Btn("large")"   @onclick="@(() => _shapeState = "large")">Large</button>
+    </div>
+</div>
+
+<div class="code-block">
+&lt;<span class="fn">SharedLayout</span> <span class="str">Transition</span>=<span class="str">"@@(new AnimateOptions &#123; Type = "spring", Bounce = 0.2 &#125;)"</span>&gt;
+  @@foreach (<span class="kw">var</span> tab <span class="kw">in</span> _tabs)
+  &#123;
+    &lt;<span class="fn">button</span> <span class="str">@@onclick</span>=<span class="str">"@@(() =&gt; _activeTab = tab)"</span>&gt;
+      @@tab
+      @@if (tab == _activeTab)
+      &#123;
+        &lt;<span class="fn">SharedLayoutItem</span> <span class="str">LayoutId</span>=<span class="str">"tab-indicator"</span> <span class="str">class</span>=<span class="str">"underline"</span> /&gt;
+      &#125;
+    &lt;/<span class="fn">button</span>&gt;
+  &#125;
+&lt;/<span class="fn">SharedLayout</span>&gt;
+</div>
+
+@code {
+    // ---------- Tab indicator ----------
+    private readonly string[] _tabs = { "Overview", "Design", "Engineering", "Motion", "About" };
+    private string _activeTab = "Overview";
+
+    // ---------- Circles ----------
+    private record Circle(string Id, string Label, string Color);
+
+    private readonly List<Circle> _allCircles = new()
+    {
+        new("1", "1", "#6366f1"),
+        new("2", "2", "#8b5cf6"),
+        new("3", "3", "#a78bfa"),
+        new("4", "4", "#c084fc"),
+        new("5", "5", "#e879f9"),
+        new("6", "6", "#f472b6"),
+    };
+
+    private List<Circle> _circleOrder;
+
+    // ---------- Shape ----------
+    private string _shapeState = "small";
+
+    protected override void OnInitialized()
+    {
+        _circleOrder = new List<Circle>(_allCircles);
+    }
+
+    void ShuffleCircles()
+    {
+        _circleOrder = _circleOrder.OrderBy(_ => Random.Shared.Next()).ToList();
+    }
+
+    void ResetCircles()
+    {
+        _circleOrder = new List<Circle>(_allCircles);
+    }
+
+    string Btn(string state)
+        => "btn " + (state == _shapeState ? "btn-primary" : "btn-ghost");
+}

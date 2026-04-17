@@ -1,0 +1,44 @@
+@page "/globe"
+@rendermode InteractiveServer
+
+<PageTitle>Globe Chart</PageTitle>
+
+<h1>Globe Chart</h1>
+<p>A globe visualization for displaying data on a 3D earth model.</p>
+
+<div class="chart-container">
+    <EChart OptionRaw="@_option" style="width:100%;height:100%;" />
+</div>
+
+<div class="alert" style="background:#fff3cd;border:1px solid #ffc107;padding:1rem;border-radius:8px;margin-top:1rem;">
+    <strong>Note:</strong> Globe charts benefit from base texture images for earth surface rendering.
+    This demo shows a basic globe configuration.
+</div>
+
+@code {
+    private string _option = @"{
+        ""title"": { ""text"": ""Globe Visualization"" },
+        ""globe"": {
+            ""baseColor"": ""#334455"",
+            ""shading"": ""color"",
+            ""viewControl"": { ""autoRotate"": true, ""autoRotateSpeed"": 5 },
+            ""light"": {
+                ""main"": { ""intensity"": 1.2, ""shadow"": false },
+                ""ambient"": { ""intensity"": 0.3 }
+            }
+        },
+        ""series"": [{
+            ""type"": ""scatter3D"",
+            ""coordinateSystem"": ""globe"",
+            ""symbolSize"": 8,
+            ""data"": [
+                [-74.00, 40.71, 1000],
+                [-0.12, 51.51, 800],
+                [139.69, 35.69, 900],
+                [116.40, 39.90, 850],
+                [2.35, 48.86, 750]
+            ],
+            ""itemStyle"": { ""color"": ""#ff6600"" }
+        }]
+    }";
+}

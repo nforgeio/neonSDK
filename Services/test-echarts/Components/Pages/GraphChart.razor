@@ -1,0 +1,44 @@
+@page "/graph"
+@rendermode InteractiveServer
+
+<PageTitle>Graph Chart</PageTitle>
+
+<h1>Graph Chart</h1>
+<p>A force-directed graph showing relationships between nodes.</p>
+
+<div class="chart-container">
+    <EChart OptionRaw="@_option" style="width:100%;height:100%;" />
+</div>
+
+@code {
+    private string _option = @"{
+        ""title"": { ""text"": ""Social Network"" },
+        ""tooltip"": {},
+        ""series"": [{
+            ""type"": ""graph"",
+            ""layout"": ""force"",
+            ""symbolSize"": 50,
+            ""roam"": true,
+            ""label"": { ""show"": true },
+            ""force"": { ""repulsion"": 200, ""edgeLength"": 100 },
+            ""data"": [
+                { ""name"": ""Alice"", ""symbolSize"": 60 },
+                { ""name"": ""Bob"", ""symbolSize"": 50 },
+                { ""name"": ""Carol"", ""symbolSize"": 45 },
+                { ""name"": ""Dave"", ""symbolSize"": 40 },
+                { ""name"": ""Eve"", ""symbolSize"": 35 },
+                { ""name"": ""Frank"", ""symbolSize"": 30 }
+            ],
+            ""links"": [
+                { ""source"": ""Alice"", ""target"": ""Bob"" },
+                { ""source"": ""Alice"", ""target"": ""Carol"" },
+                { ""source"": ""Bob"", ""target"": ""Dave"" },
+                { ""source"": ""Carol"", ""target"": ""Dave"" },
+                { ""source"": ""Carol"", ""target"": ""Eve"" },
+                { ""source"": ""Dave"", ""target"": ""Frank"" },
+                { ""source"": ""Eve"", ""target"": ""Frank"" }
+            ],
+            ""lineStyle"": { ""opacity"": 0.9, ""width"": 2, ""curveness"": 0.1 }
+        }]
+    }";
+}

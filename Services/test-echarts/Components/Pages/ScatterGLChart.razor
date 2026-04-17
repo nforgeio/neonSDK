@@ -1,0 +1,48 @@
+@page "/scattergl"
+@rendermode InteractiveServer
+
+<PageTitle>Scatter GL Chart</PageTitle>
+
+<h1>Scatter GL Chart</h1>
+<p>A GPU-accelerated scatter chart optimized for rendering large datasets with thousands of points.</p>
+
+<div class="chart-container">
+    <EChart OptionRaw="@_option" style="width:100%;height:100%;" />
+</div>
+
+@code {
+    private string _option;
+
+    protected override void OnInitialized()
+    {
+        var random = new Random(42);
+        var sb = new System.Text.StringBuilder();
+        sb.Append("[");
+
+        for (int i = 0; i < 5000; i++)
+        {
+            if (i > 0) sb.Append(",");
+            // Generate clustered data
+            int cluster = random.Next(0, 3);
+            double cx = cluster == 0 ? 30 : cluster == 1 ? 60 : 45;
+            double cy = cluster == 0 ? 70 : cluster == 1 ? 30 : 50;
+            double x = cx + (random.NextDouble() - 0.5) * 30;
+            double y = cy + (random.NextDouble() - 0.5) * 30;
+            sb.Append($"[{x:F2},{y:F2}]");
+        }
+
+        sb.Append("]");
+
+        _option = $@"{{
+            ""title"": {{ ""text"": ""ScatterGL (5,000 points)"" }},
+            ""xAxis"": {{ ""type"": ""value"" }},
+            ""yAxis"": {{ ""type"": ""value"" }},
+            ""series"": [{{
+                ""type"": ""scatterGL"",
+                ""symbolSize"": 3,
+                ""data"": {sb},
+                ""itemStyle"": {{ ""opacity"": 0.5, ""color"": ""#5470c6"" }}
+            }}]
+        }}";
+    }
+}

@@ -1,0 +1,40 @@
+@page "/funnel"
+@rendermode InteractiveServer
+
+<PageTitle>Funnel Chart</PageTitle>
+
+<h1>Funnel Chart</h1>
+<p>A funnel chart showing conversion rates through a sales pipeline.</p>
+
+<div class="chart-container">
+    <EChart OptionRaw="@_option" style="width:100%;height:100%;" />
+</div>
+
+@code {
+    private string _option = @"{
+        ""title"": { ""text"": ""Sales Funnel"" },
+        ""tooltip"": { ""trigger"": ""item"", ""formatter"": ""{b}: {c}%"" },
+        ""series"": [{
+            ""name"": ""Funnel"",
+            ""type"": ""funnel"",
+            ""left"": ""10%"",
+            ""top"": 60,
+            ""bottom"": 60,
+            ""width"": ""80%"",
+            ""min"": 0,
+            ""max"": 100,
+            ""minSize"": ""0%"",
+            ""maxSize"": ""100%"",
+            ""sort"": ""descending"",
+            ""gap"": 2,
+            ""label"": { ""show"": true, ""position"": ""inside"" },
+            ""data"": [
+                { ""value"": 100, ""name"": ""Visits"" },
+                { ""value"": 80, ""name"": ""Inquiries"" },
+                { ""value"": 60, ""name"": ""Orders"" },
+                { ""value"": 40, ""name"": ""Payments"" },
+                { ""value"": 20, ""name"": ""Completed"" }
+            ]
+        }]
+    }";
+}

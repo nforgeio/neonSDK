@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "test-echarts",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": ["run", "--project", "Services/test-echarts/test-echarts.csproj", "--urls", "http://localhost:5200"],
+      "port": 5200
+    },
+    {
+      "name": "test-motion",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": ["run", "--project", "Services/test-motion/test-motion.csproj", "--urls", "http://localhost:5201"],
+      "port": 5201
+    }
+  ]
+}

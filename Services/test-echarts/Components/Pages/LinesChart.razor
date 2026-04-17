@@ -1,0 +1,40 @@
+@page "/lines"
+@rendermode InteractiveServer
+
+<PageTitle>Lines Chart</PageTitle>
+
+<h1>Lines Chart</h1>
+<p>A lines chart showing animated routes between points with trailing effects.</p>
+
+<div class="chart-container">
+    <EChart OptionRaw="@_option" style="width:100%;height:100%;" />
+</div>
+
+@code {
+    private string _option = @"{
+        ""title"": { ""text"": ""Route Lines"" },
+        ""xAxis"": { ""type"": ""value"", ""min"": 0, ""max"": 100 },
+        ""yAxis"": { ""type"": ""value"", ""min"": 0, ""max"": 100 },
+        ""series"": [{
+            ""type"": ""lines"",
+            ""coordinateSystem"": ""cartesian2d"",
+            ""polyline"": false,
+            ""lineStyle"": { ""color"": ""#c23531"", ""width"": 2, ""opacity"": 0.6 },
+            ""effect"": {
+                ""show"": true,
+                ""period"": 6,
+                ""trailLength"": 0.2,
+                ""symbol"": ""arrow"",
+                ""symbolSize"": 8,
+                ""color"": ""#c23531""
+            },
+            ""data"": [
+                { ""coords"": [[10, 20], [80, 70]], ""lineStyle"": { ""curveness"": 0.3 } },
+                { ""coords"": [[20, 80], [90, 30]], ""lineStyle"": { ""curveness"": -0.3 } },
+                { ""coords"": [[50, 10], [30, 90]], ""lineStyle"": { ""curveness"": 0.2 } },
+                { ""coords"": [[10, 50], [70, 60]], ""lineStyle"": { ""curveness"": -0.2 } },
+                { ""coords"": [[60, 20], [40, 80]], ""lineStyle"": { ""curveness"": 0.4 } }
+            ]
+        }]
+    }";
+}
