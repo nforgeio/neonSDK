@@ -84,9 +84,9 @@ try
     }
 
     $msbuild     = $env:MSBUILDPATH
-    $neonBuild   = "$env:NF_ROOT\ToolBin\neon-build\neon-build.exe"
+    $neonBuild   = "$env:NF_ROOT\ToolBin\neon-build.exe"
     $nfRoot      = $env:NF_ROOT
-    $nfSolution  = "$nfRoot\neonSDK.sln"
+    $nfSolution  = "$nfRoot\neonSDK.slnx"
     $nfBuild     = "$env:NF_BUILD"
     $nfLib       = "$nfRoot\Lib"
     $nfTools     = "$nfRoot\Tools"
