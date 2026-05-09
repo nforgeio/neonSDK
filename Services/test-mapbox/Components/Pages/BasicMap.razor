@@ -1,0 +1,39 @@
+@page "/basic"
+@rendermode InteractiveServer
+
+<PageTitle>Mapbox Demo - Basic Map</PageTitle>
+
+<div class="page-header">
+    <h1>Basic Map</h1>
+    <p>Render a Mapbox map with the <code>&lt;MapboxMap&gt;</code> component. The component takes an <code>Options</code> with center, zoom, and style; the access token comes from <code>AddMapbox(...)</code>.</p>
+</div>
+
+<div class="demo-container">
+    <div class="map-stage">
+        <MapboxMap Height="500px" style="height:500px;width:100%;display:block" Options="@_options" />
+    </div>
+</div>
+
+<div class="code-block"><span class="cm">// Program.cs</span>
+builder.<span class="fn">Services</span>.<span class="fn">AddMapbox</span>(<span class="str">"pk.…"</span>);
+
+<span class="cm">// Razor</span>
+&lt;<span class="kw">MapboxMap</span> <span class="fn">Height</span>=<span class="str">"500px"</span> <span class="fn">Options</span>=<span class="str">"@_options"</span> /&gt;
+
+<span class="cm">// C# code-behind</span>
+<span class="kw">private</span> Options _options = <span class="kw">new</span>()
+{
+    Style  = Options.DefaultStyles.Streets,
+    Center = <span class="kw">new</span> LngLat(<span class="num">-122.4194f</span>, <span class="num">37.7749f</span>),
+    Zoom   = <span class="num">11</span>
+};
+</div>
+
+@code {
+    private Options _options = new()
+    {
+        Style  = Options.DefaultStyles.Streets,
+        Center = new LngLat(-122.4194f, 37.7749f),
+        Zoom   = 11
+    };
+}

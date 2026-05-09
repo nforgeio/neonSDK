@@ -25,6 +25,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 
 using Neon.Blazor;
+using Neon.Tasks;
 
 namespace Neon.Tailwind
 {
@@ -96,6 +97,8 @@ namespace Neon.Tailwind
 
         private async Task HandleClick(MouseEventArgs e)
         {
+            await SyncContext.Clear;
+
             if (!IsEnabled) return;
             await Menu.Close();
             await OnClick.InvokeAsync();
@@ -114,6 +117,8 @@ namespace Neon.Tailwind
 
         private async Task HandleMouseEnter(MouseEventArgs e)
         {
+            await SyncContext.Clear;
+
             if (!IsEnabled) return;
             if (Menu.State == MenuState.Closed) return;
 
@@ -123,6 +128,8 @@ namespace Neon.Tailwind
         }
         private async Task HandlePointerMove(PointerEventArgs e)
         {
+            await SyncContext.Clear;
+
             if (!IsEnabled) return;
             if (Menu.State == MenuState.Closed) return;
 

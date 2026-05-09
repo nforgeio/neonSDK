@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 
+using Neon.Tasks;
+
 namespace Neon.Blazor
 {
     public partial class SwipeHandler : ComponentBase, IDisposable
@@ -43,6 +45,8 @@ namespace Neon.Blazor
         /// <inheritdoc/>
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
+            await SyncContext.Clear;
+
             await base.OnAfterRenderAsync(firstRender);
         }
 
@@ -74,6 +78,8 @@ namespace Neon.Blazor
         /// <returns></returns>
         private async Task HandleTouchStart(TouchEventArgs args)
         {
+            await SyncContext.Clear;
+
             _startPoint = args.TargetTouches[0];
             _startTime = DateTime.UtcNow;
 
@@ -87,6 +93,8 @@ namespace Neon.Blazor
         /// <returns></returns>
         private async Task HandleTouchEnd(TouchEventArgs args)
         {
+            await SyncContext.Clear;
+
             _endPoint = args.ChangedTouches[0];
 
             var diffX = _startPoint.ClientX - _endPoint.ClientX;
@@ -124,6 +132,8 @@ namespace Neon.Blazor
         /// <returns></returns>
         private async Task HandleTouchMove(TouchEventArgs args)
         {
+            await SyncContext.Clear;
+
             await Task.CompletedTask;
         }
     }

@@ -30,6 +30,7 @@ using ICSharpCode.SharpZipLib.Zip;
 
 using Neon.Common;
 using Neon.IO;
+using Neon.Tasks;
 
 namespace Neon.Common
 {
@@ -107,13 +108,15 @@ namespace Neon.Common
         /// </note>
         /// </remarks>
         public static async Task ZipAsync(
-            this IStaticDirectory   directory, 
-            string                  zipPath, 
-            string                  searchPattern = null, 
-            SearchOption            searchOptions = SearchOption.TopDirectoryOnly,
-            StaticZipOptions        zipOptions    = StaticZipOptions.None,
-            ZipPreprocessor         preprocessor  = null)
+            this IStaticDirectory directory,
+            string zipPath,
+            string searchPattern = null,
+            SearchOption searchOptions = SearchOption.TopDirectoryOnly,
+            StaticZipOptions zipOptions = StaticZipOptions.None,
+            ZipPreprocessor preprocessor = null)
         {
+            await SyncContext.Clear;
+
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(zipPath), nameof(zipPath));
 
             using (var stream = new FileStream(zipPath, FileMode.CreateNew, FileAccess.ReadWrite))
@@ -153,13 +156,15 @@ namespace Neon.Common
         /// </note>
         /// </remarks>
         public static async Task ZipAsync(
-            this IStaticDirectory   directory, 
-            Stream                  zipStream, 
-            string                  searchPattern = null,
-            SearchOption            searchOptions = SearchOption.TopDirectoryOnly,
-            StaticZipOptions        zipOptions    = StaticZipOptions.None,
-            ZipPreprocessor         preprocessor  = null)
+            this             IStaticDirectory directory,
+            Stream           zipStream,
+            string           searchPattern = null,
+            SearchOption     searchOptions = SearchOption.TopDirectoryOnly,
+            StaticZipOptions zipOptions    = StaticZipOptions.None,
+            ZipPreprocessor  preprocessor  = null)
         {
+            await SyncContext.Clear;
+
             Covenant.Requires<ArgumentNullException>(zipStream != null, nameof(zipStream));
 
             using (var zip = ZipFile.Create(zipStream))
@@ -198,7 +203,7 @@ namespace Neon.Common
                     {
                         if (preprocessor != null)
                         {
-                            using (var input = File.OpenRead(file.Path) )
+                            using (var input = File.OpenRead(file.Path))
                             {
                                 using (var output = await preprocessor(relativePath, input))
                                 {

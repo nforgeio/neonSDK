@@ -1,0 +1,65 @@
+@page "/bounds"
+@rendermode InteractiveServer
+
+<PageTitle>Mapbox Demo - Fit Bounds</PageTitle>
+
+<div class="page-header">
+    <h1>Fit Bounds</h1>
+    <p>Frame the camera around a geographic region with <code>FitBounds(LngLatBounds)</code>. The map zooms and pans to fit the southwest/northeast corners.</p>
+</div>
+
+<div class="demo-container">
+    <div class="map-stage">
+        <MapboxMap @ref="_map" Height="500px" style="height:500px;width:100%;display:block" Options="@_options" OnLoad="OnLoad" />
+    </div>
+    <div class="demo-controls">
+        <span class="demo-controls-label">Fit:</span>
+        @foreach (var region in _regions)
+        {
+            <button class="btn btn-ghost btn-sm" @onclick="() => Fit(region)">@region.Name</button>
+        }
+    </div>
+</div>
+
+<div class="code-block"><span class="cm">// Continental US</span>
+<span class="kw">await</span> _map.<span class="fn">FitBounds</span>(<span class="kw">new</span> LngLatBounds(
+    southwest: <span class="kw">new</span> LngLat(<span class="num">-125f</span>, <span class="num">24f</span>),
+    northeast: <span class="kw">new</span> LngLat( <span class="num">-66f</span>, <span class="num">49f</span>)));
+</div>
+
+@code {
+    private record Region(string Name, LngLat Southwest, LngLat Northeast);
+
+    private readonly Region[] _regions = new[]
+    {
+        new Region("Continental US", new LngLat(-125f,  24f), new LngLat( -66f, 49f)),
+        new Region("Europe",         new LngLat( -10f,  35f), new LngLat(  35f, 60f)),
+        new Region("Japan",          new LngLat( 128f,  30f), new LngLat( 146f, 46f)),
+        new Region("Australia",      new LngLat( 112f, -44f), new LngLat( 154f,-10f)),
+        new Region("World",          new LngLat(-170f, -55f), new LngLat( 170f, 70f)),
+    };
+
+    private MapboxMap _map;
+
+    private Options _options = new()
+    {
+        Style  = Options.DefaultStyles.Light,
+        Center = new LngLat(-95f, 38f),
+        Zoom   = 2
+    };
+
+    private async Task OnLoad(EventArgs _)
+    {
+        await Fit(_regions[0]);
+    }
+
+    private async Task Fit(Region region)
+    {
+        if (_map is null || !_map.IsLoaded)
+        {
+            return;
+        }
+
+        await _map.FitBounds(new LngLatBounds(region.Southwest, region.Northeast));
+    }
+}

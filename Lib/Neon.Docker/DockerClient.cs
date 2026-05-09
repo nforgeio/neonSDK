@@ -90,6 +90,8 @@ namespace Neon.Docker
                 handler = new ManagedHandler(
                     async (string host, int port, CancellationToken cancellationToken) =>
                     {
+                        await SyncContext.Clear;
+
                         var sock = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.Unspecified);
 
                         // $todo(jefflill):

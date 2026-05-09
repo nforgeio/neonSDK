@@ -351,6 +351,8 @@ namespace Neon.Deployment
                             await retry.InvokeAsync(
                                 async () =>
                                 {
+                                    await SyncContext.Clear;
+
                                     output.Position = pos;
 
                                     var response = await httpClient.GetAsync(part.Uri, HttpCompletionOption.ResponseHeadersRead, cancellationToken);

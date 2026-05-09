@@ -17,11 +17,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 using Neon.Common;
 
@@ -40,6 +42,7 @@ namespace Neon.Roslyn.Xunit
         internal List<string> AdditionalFilePaths { get; set; } = new List<string>();
         internal List<string> AdditionalFiles { get; set; } = new List<string>();
         internal List<ISourceGenerator> Generators { get; set; } = new List<ISourceGenerator>();
+        internal List<DiagnosticAnalyzer> DiagnosticAnalyzers { get; set; } = new();
 
         internal CompilationOptionsProvider CompilationOptionsProvider { get; set; }
 
@@ -63,7 +66,7 @@ namespace Neon.Roslyn.Xunit
             CompilationOptionsProvider = new CompilationOptionsProvider();
             CompilationOptionsProvider.SetOptions(new CompilationOptions()
             {
-                Options = Options
+                Options = Options,
             });
 
             foreach (var path in AssemblyPaths)
@@ -123,10 +126,19 @@ namespace Neon.Roslyn.Xunit
                 }
             }
 
+            var diags = generateDiagnostics.ToList();
+
+            if (!DiagnosticAnalyzers.IsEmpty())
+            {
+                var compilationWithAnalyzers = outputCompilation.WithAnalyzers(ImmutableArray.CreateRange(DiagnosticAnalyzers));
+                var diagnostics = compilationWithAnalyzers.GetAllDiagnosticsAsync().Result;
+                diags = diags.Concat(diagnostics.ToList()).ToList();
+            }
+
             return new TestCompilation()
             {
                 Compilation = outputCompilation,
-                Diagnostics = generateDiagnostics.ToList(),
+                Diagnostics = diags,
                 HashCodes   = outputCompilation.SyntaxTrees
                 .Where(s => !string.IsNullOrWhiteSpace(s.ToString()))
                 .Select(s => s.ToString().GetHashCodeIgnoringWhitespace(ignoreCase: false))

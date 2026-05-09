@@ -17,6 +17,9 @@
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+
+using Neon.Tasks;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,6 +45,8 @@ namespace Neon.Tailwind
 
         protected override async Task OnInitializedAsync()
         {
+            await SyncContext.Clear;
+
             try
             {
                 var jsModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", $"./_content/Neon.Tailwind/{jsFileName}.js");
@@ -70,6 +75,8 @@ namespace Neon.Tailwind
 
         public async Task RegisterElement(ElementReference element)
         {
+            await SyncContext.Clear;
+
             if (element.Id == null) return;
             if (registeredElements.Any(e => e.Id == element.Id)) return;
             registeredElements.Add(element);
@@ -79,6 +86,8 @@ namespace Neon.Tailwind
 
         public async Task UnregisterElement(ElementReference element)
         {
+            await SyncContext.Clear;
+
             if (element.Id == null) return;
             registeredElements.Remove(element);
             if (jsHandlerReference == null) return;

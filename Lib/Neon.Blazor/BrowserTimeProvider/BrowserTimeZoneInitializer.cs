@@ -21,6 +21,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
+using Neon.Tasks;
+
 namespace Neon.Blazor
 {
     internal class BrowserTimeZoneInitializer : ComponentBase
@@ -35,6 +37,8 @@ namespace Neon.Blazor
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
+            await SyncContext.Clear;
+
             if (!firstRender)
             {
                 return;

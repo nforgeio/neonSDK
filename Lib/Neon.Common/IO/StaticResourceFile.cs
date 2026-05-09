@@ -24,6 +24,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Neon.Common;
+using Neon.Tasks;
 
 namespace Neon.IO
 {
@@ -87,6 +88,8 @@ namespace Neon.IO
         /// <inheritdoc/>
         public async override Task<byte[]> ReadAllBytesAsync()
         {
+            await SyncContext.Clear;
+
             using (var stream = assembly.GetManifestResourceStream(resourceName))
             {
                 return await stream.ReadToEndAsync();
@@ -110,6 +113,8 @@ namespace Neon.IO
         /// <inheritdoc/>
         public async override Task<string> ReadAllTextAsync(Encoding encoding = null)
         {
+            await SyncContext.Clear;
+
             encoding = encoding ?? Encoding.UTF8;
 
             using (var stream = assembly.GetManifestResourceStream(resourceName))

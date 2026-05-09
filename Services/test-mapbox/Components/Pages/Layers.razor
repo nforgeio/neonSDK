@@ -1,0 +1,127 @@
+@page "/layers"
+@rendermode InteractiveServer
+@using NetTopologySuite.Features
+@using NetTopologySuite.Geometries
+
+<PageTitle>Mapbox Demo - GeoJSON Layers</PageTitle>
+
+<div class="page-header">
+    <h1>GeoJSON Layers</h1>
+    <p>Add a <code>GeoJsonSource</code> on map load and render it with a <code>fill</code> layer styled by <code>PaintFill</code>. Toggle the layer with the controls below.</p>
+</div>
+
+<div class="demo-container">
+    <div class="map-stage">
+        <MapboxMap @ref="_map" Height="500px" style="height:500px;width:100%;display:block" Options="@_options" OnLoad="OnLoad" />
+    </div>
+    <div class="demo-controls">
+        <span class="demo-controls-label">Layer:</span>
+        <button class="btn @(_visible ? "btn-active" : "btn-ghost") btn-sm"
+                @onclick="ToggleLayer">
+            @(_visible ? "Hide" : "Show") polygon
+        </button>
+        <button class="btn btn-ghost btn-sm" @onclick="@(() => SetColor("#0ea5e9"))">Blue</button>
+        <button class="btn btn-ghost btn-sm" @onclick="@(() => SetColor("#14b8a6"))">Teal</button>
+        <button class="btn btn-ghost btn-sm" @onclick="@(() => SetColor("#f59e0b"))">Amber</button>
+        <button class="btn btn-ghost btn-sm" @onclick="@(() => SetColor("#ef4444"))">Red</button>
+    </div>
+</div>
+
+<div class="code-block"><span class="cm">// 1. Define a GeoJSON source from NetTopologySuite features</span>
+<span class="kw">var</span> source = <span class="kw">new</span> GeoJsonSource { Data = featureCollection };
+<span class="kw">await</span> _map.<span class="fn">AddSource</span>(<span class="str">"area"</span>, source);
+
+<span class="cm">// 2. Add a fill layer that references the source</span>
+<span class="kw">await</span> _map.<span class="fn">AddLayer</span>(<span class="kw">new</span> Layer
+{
+    Id     = <span class="str">"area-fill"</span>,
+    Type   = <span class="str">"fill"</span>,
+    Source = <span class="str">"area"</span>,
+    Paint  = <span class="kw">new</span> PaintFill
+    {
+        FillColor   = <span class="str">"#0ea5e9"</span>,
+        FillOpacity = <span class="num">0.4m</span>
+    }
+});
+</div>
+
+@code {
+    private const string SourceId = "area";
+    private const string LayerId  = "area-fill";
+
+    private MapboxMap _map;
+    private bool _visible = true;
+    private string _color = "#0ea5e9";
+
+    private Options _options = new()
+    {
+        Style  = Options.DefaultStyles.Light,
+        Center = new LngLat(-122.42f, 37.78f),
+        Zoom   = 11
+    };
+
+    // Rough polygon over San Francisco.
+    private static FeatureCollection BuildFeatures()
+    {
+        var ring = new[]
+        {
+            new Coordinate(-122.5150, 37.7080),
+            new Coordinate(-122.3550, 37.7080),
+            new Coordinate(-122.3550, 37.8330),
+            new Coordinate(-122.5150, 37.8330),
+            new Coordinate(-122.5150, 37.7080)
+        };
+
+        var polygon = new Polygon(new LinearRing(ring));
+        var attrs   = new AttributesTable { { "name", "San Francisco" } };
+        var feature = new NetTopologySuite.Features.Feature(polygon, attrs);
+
+        return new FeatureCollection { feature };
+    }
+
+    private async Task OnLoad(EventArgs _)
+    {
+        await _map.AddSource(SourceId, new GeoJsonSource { Data = BuildFeatures() });
+        await AddLayer();
+    }
+
+    private async Task AddLayer()
+    {
+        await _map.AddLayer(new Layer
+        {
+            Id     = LayerId,
+            Type   = "fill",
+            Source = SourceId,
+            Paint  = new PaintFill
+            {
+                FillColor   = _color,
+                FillOpacity = 0.4m
+            }
+        });
+        _visible = true;
+    }
+
+    private async Task ToggleLayer()
+    {
+        if (_visible)
+        {
+            await _map.RemoveLayer(LayerId);
+            _visible = false;
+        }
+        else
+        {
+            await AddLayer();
+        }
+    }
+
+    private async Task SetColor(string color)
+    {
+        _color = color;
+
+        if (_visible)
+        {
+            await _map.RemoveLayer(LayerId);
+            await AddLayer();
+        }
+    }
+}

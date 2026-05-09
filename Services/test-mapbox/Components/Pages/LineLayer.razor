@@ -1,0 +1,101 @@
+@page "/line"
+@rendermode InteractiveServer
+@using NetTopologySuite.Features
+@using NetTopologySuite.Geometries
+
+<PageTitle>Mapbox Demo - Line Layer</PageTitle>
+
+<div class="page-header">
+    <h1>Line Layer</h1>
+    <p>Render a polyline route from a GeoJSON <code>LineString</code>. The line's color, width, and join/cap come from <code>PaintLine</code> and <code>Layout</code>.</p>
+</div>
+
+<div class="demo-container">
+    <div class="map-stage">
+        <MapboxMap @ref="_map" Height="500px" style="height:500px;width:100%;display:block" Options="@_options" OnLoad="OnLoad" />
+    </div>
+    <div class="demo-controls">
+        <span class="demo-controls-label">Width:</span>
+        @foreach (var width in new[] { 2, 4, 6, 10 })
+        {
+            <button class="btn @(width == _width ? "btn-active" : "btn-ghost") btn-sm"
+                    @onclick="() => SetWidth(width)">
+                @width px
+            </button>
+        }
+    </div>
+</div>
+
+<div class="code-block"><span class="cm">// LineString from coordinates → GeoJSON source → line layer</span>
+<span class="kw">var</span> line   = <span class="kw">new</span> LineString(coordinates);
+<span class="kw">var</span> source = <span class="kw">new</span> GeoJsonSource { Data = <span class="kw">new</span> FeatureCollection { <span class="kw">new</span> Feature(line, <span class="kw">null</span>) } };
+<span class="kw">await</span> _map.<span class="fn">AddSource</span>(<span class="str">"route"</span>, source);
+
+<span class="kw">await</span> _map.<span class="fn">AddLayer</span>(<span class="kw">new</span> Layer
+{
+    Id     = <span class="str">"route-line"</span>,
+    Type   = <span class="str">"line"</span>,
+    Source = <span class="str">"route"</span>,
+    Layout = <span class="kw">new</span> Layout { LineJoin = <span class="str">"round"</span>, LineCap = <span class="str">"round"</span> },
+    Paint  = <span class="kw">new</span> PaintLine { LineColor = <span class="str">"#0ea5e9"</span>, LineWidth = <span class="num">4</span> }
+});
+</div>
+
+@code {
+    private const string SourceId = "route";
+    private const string LayerId  = "route-line";
+
+    private MapboxMap _map;
+    private int _width = 4;
+
+    // Coast-to-coast US route waypoints (lng, lat).
+    private static readonly Coordinate[] _route = new[]
+    {
+        new Coordinate(-122.4194, 37.7749), // San Francisco
+        new Coordinate(-115.1398, 36.1699), // Las Vegas
+        new Coordinate(-104.9903, 39.7392), // Denver
+        new Coordinate( -94.5786, 39.0997), // Kansas City
+        new Coordinate( -87.6298, 41.8781), // Chicago
+        new Coordinate( -75.1652, 39.9526), // Philadelphia
+        new Coordinate( -74.0060, 40.7128), // New York
+    };
+
+    private Options _options = new()
+    {
+        Style  = Options.DefaultStyles.Outdoors,
+        Center = new LngLat(-98f, 39f),
+        Zoom   = 3
+    };
+
+    private async Task OnLoad(EventArgs _)
+    {
+        var line    = new LineString(_route);
+        var feature = new NetTopologySuite.Features.Feature(line, new AttributesTable());
+
+        await _map.AddSource(SourceId, new GeoJsonSource
+        {
+            Data = new FeatureCollection { feature }
+        });
+
+        await AddLineLayer();
+    }
+
+    private async Task AddLineLayer()
+    {
+        await _map.AddLayer(new Layer
+        {
+            Id     = LayerId,
+            Type   = "line",
+            Source = SourceId,
+            Layout = new Layout { LineJoin = "round", LineCap = "round" },
+            Paint  = new PaintLine { LineColor = "#0ea5e9", LineWidth = _width }
+        });
+    }
+
+    private async Task SetWidth(int width)
+    {
+        _width = width;
+        await _map.RemoveLayer(LayerId);
+        await AddLineLayer();
+    }
+}

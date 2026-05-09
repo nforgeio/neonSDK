@@ -72,6 +72,8 @@ namespace Neon.Net
             return await safeRetryPolicy.InvokeAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     var requestUri = FormatUri(uri, args);
 
                     try
@@ -126,6 +128,8 @@ namespace Neon.Net
             var result = await safeRetryPolicy.InvokeAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     var requestUri = FormatUri(uri, args);
 
                     try
@@ -186,6 +190,8 @@ namespace Neon.Net
             return await retryPolicy.InvokeAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     var requestUri = FormatUri(uri, args);
 
                     try
@@ -238,6 +244,8 @@ namespace Neon.Net
             return await unsafeRetryPolicy.InvokeAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     var requestUri = FormatUri(uri, args);
 
                     try
@@ -292,6 +300,8 @@ namespace Neon.Net
             return await retryPolicy.InvokeAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     var requestUri = FormatUri(uri, args);
 
                     try

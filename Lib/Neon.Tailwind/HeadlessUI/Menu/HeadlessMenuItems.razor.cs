@@ -25,6 +25,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 
 using Neon.Blazor;
+using Neon.Tasks;
 
 namespace Neon.Tailwind
 {
@@ -92,12 +93,16 @@ namespace Neon.Tailwind
         protected override void OnInitialized() => Menu.RegisterItems(this);
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
+            await SyncContext.Clear;
+
             if (keyDownEventHandler != null)
                 await keyDownEventHandler.RegisterElement(rootElement!);
         }
 
         public async Task HandleKeyDown(KeyboardEventArgs eventArgs)
         {
+            await SyncContext.Clear;
+
             string key = eventArgs.Key;
             if (string.IsNullOrEmpty(key)) return;
 
@@ -134,6 +139,8 @@ namespace Neon.Tailwind
 
         public async ValueTask DisposeAsync()
         {
+            await SyncContext.Clear;
+
             if (keyDownEventHandler != null)
                 await keyDownEventHandler.UnregisterElement(rootElement!);
         }

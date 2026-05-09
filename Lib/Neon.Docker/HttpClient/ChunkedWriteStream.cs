@@ -4,6 +4,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Neon.Tasks;
+
 namespace Microsoft.Net.Http.Client
 {
     internal class ChunkedWriteStream : Stream
@@ -69,6 +71,8 @@ namespace Microsoft.Net.Http.Client
 
         public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
+            await SyncContext.Clear;
+
             if (count == 0)
             {
                 return;

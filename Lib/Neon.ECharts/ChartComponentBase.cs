@@ -106,6 +106,8 @@ namespace Neon.ECharts
 
             _eventInvokeHelper = new EventInvokeHelper(async echartsParams =>
             {
+                await SyncContext.Clear;
+
                 if (EventTypes.Count > 0 && OnEventCallback.HasDelegate)
                     await OnEventCallback.InvokeAsync(echartsParams);
             });
@@ -146,6 +148,8 @@ namespace Neon.ECharts
 
         private async Task SetupChartAsync()
         {
+            await SyncContext.Clear;
+
             if (Option == null && string.IsNullOrWhiteSpace(OptionRaw) && ChildContent == null) return;
 
             if (ChildContent != null)
@@ -214,6 +218,8 @@ namespace Neon.ECharts
         /// <param name="opt">The option to set up the chart component with.</param>
         public async Task SetupOptionAsync(string opt)
         {
+            await SyncContext.Clear;
+
             await JsInterop.SetupChart(Id, Theme, opt, NotMerge);
         }
 
@@ -223,6 +229,8 @@ namespace Neon.ECharts
         /// <param name="opt">The option to set up the chart component with.</param>
         public async Task SetupOptionAsync(EChartsOption<T> opt)
         {
+            await SyncContext.Clear;
+
             await JsInterop.SetupChart(Id, Theme, opt, NotMerge);
         }
 
@@ -231,6 +239,8 @@ namespace Neon.ECharts
         /// </summary>
         public async Task ResizeAsync()
         {
+            await SyncContext.Clear;
+
             await JsInterop.Resize(Id);
         }
 
@@ -249,11 +259,15 @@ namespace Neon.ECharts
 
         private async Task AddResizeListener()
         {
+            await SyncContext.Clear;
+
             await JsInterop.InvokeVoidAsync("echartsFunctions.addResizeListener", _objectReference);
         }
 
         private async Task RemoveResizeListener()
         {
+            await SyncContext.Clear;
+
             await JsInterop.InvokeVoidAsync("echartsFunctions.removeResizeListener", _objectReference);
         }
 
@@ -272,6 +286,8 @@ namespace Neon.ECharts
         /// <param name="dotNetObject">The DotNetObjectReference to assign.</param>
         public async Task AssignDotNetHelper<TD>(DotNetObjectReference<TD> dotNetObject) where TD : class
         {
+            await SyncContext.Clear;
+
             await JsInterop.InvokeVoidAsync("echartsFunctions.assignDotNetHelper", Id, dotNetObject);
         }
 
@@ -318,6 +334,8 @@ namespace Neon.ECharts
         /// <returns>The converted pixel coordinates.</returns>
         public async ValueTask<TN> ConvertToPixel<TN>(string finder, object value)
         {
+            await SyncContext.Clear;
+
             return await JsInterop.ConvertToPixel<TN>(Id, finder, value);
         }
 
@@ -330,11 +348,15 @@ namespace Neon.ECharts
         /// <returns>The converted value.</returns>
         public async ValueTask<TN> ConvertFromPixel<TN>(string finder, object value)
         {
+            await SyncContext.Clear;
+
             return await JsInterop.ConvertFromPixel<TN>(Id, finder, value);
         }
 
         public async ValueTask DisposeAsync()
         {
+            await SyncContext.Clear;
+
             if (IsPrerenderPhase) return;
             await RemoveResizeListener();
             _objectReference?.Dispose();

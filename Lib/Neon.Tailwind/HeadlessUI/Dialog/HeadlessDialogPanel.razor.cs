@@ -102,6 +102,8 @@ namespace Neon.Tailwind
         /// <inheritdoc/>
         protected override async Task OnInitializedAsync()
         {
+            await SyncContext.Clear;
+
             await Dialog.RegisterPanel(this);
         }
 
@@ -127,6 +129,8 @@ namespace Neon.Tailwind
 
         protected override async Task OnParametersSetAsync()
         {
+            await SyncContext.Clear;
+
             if (Show) 
             { 
                 await Task.CompletedTask;
@@ -185,6 +189,8 @@ namespace Neon.Tailwind
 
         public async Task Open()
         {
+            await SyncContext.Clear;
+
             //if (!IsEnabled) return;
             Show = true;
             shouldFocus = true;
@@ -195,6 +201,8 @@ namespace Neon.Tailwind
 
         public async Task Close()
         {
+            await SyncContext.Clear;
+
             //if (!IsEnabled) return;
             Show = false;
             //await Dialog.Close();

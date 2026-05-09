@@ -27,8 +27,10 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Neon.Common;
+using Neon.Tasks;
 
 using Npgsql;
+
 using NpgsqlTypes;
 
 namespace Neon.Postgres
@@ -56,6 +58,8 @@ namespace Neon.Postgres
         /// <inheritdoc/>
         public async IAsyncEnumerator<NpgsqlDataReader> GetAsyncEnumerator(CancellationToken cancellationToken = default)
         {
+            await SyncContext.Clear;
+
             if (reader == null)
             {
                 throw new InvalidOperationException($"You may only enumerate a [{nameof(NpgsqlDataReader)}] one time.");

@@ -1,3 +1,9 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
 using Microsoft.AspNetCore.Components;
 //-----------------------------------------------------------------------------
 // FILE:        PortalContent.cs
@@ -17,11 +23,8 @@ using Microsoft.AspNetCore.Components;
 // limitations under the License.
 
 using Microsoft.AspNetCore.Components.Rendering;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
+using Neon.Tasks;
 
 namespace Neon.Tailwind
 {
@@ -44,7 +47,8 @@ namespace Neon.Tailwind
             InvokeAsync(
                 async () =>
                 {
-                    await Task.CompletedTask;
+                    await SyncContext.Clear;
+
                     portal.RenderContent(ChildContent);
                 });
         }

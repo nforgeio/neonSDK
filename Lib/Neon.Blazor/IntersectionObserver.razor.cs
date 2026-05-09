@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 
 using Neon.Diagnostics;
+using Neon.Tasks;
 
 namespace Neon.Blazor
 {
@@ -64,6 +65,8 @@ namespace Neon.Blazor
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
+            await SyncContext.Clear;
+
             if (jsModule == null)
             {
                 jsModule = await JS.InvokeAsync<IJSObjectReference>("import", "./_content/Neon.Blazor/interop.js");
@@ -103,6 +106,8 @@ namespace Neon.Blazor
 
         public async ValueTask DisposeAsync()
         {
+            await SyncContext.Clear;
+
             if (intersectionObserver is not null)
             {
                 try
@@ -134,6 +139,8 @@ namespace Neon.Blazor
 
         private async Task OnIntersectionChangedInternal(IntersectionChangedEventArgs args)
         {
+            await SyncContext.Clear;
+
             if (this.IntersectionObserverContext == null)
             {
                 this.IntersectionObserverContext = new IntersectionObserverContext();

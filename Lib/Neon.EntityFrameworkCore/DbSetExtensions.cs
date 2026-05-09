@@ -27,6 +27,8 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 
+using Neon.Tasks;
+
 namespace Neon.EntityFrameworkCore
 {
     /// <summary>
@@ -45,6 +47,8 @@ namespace Neon.EntityFrameworkCore
         public static async Task<bool> ExistsAsync<TEntity>(this DbSet<TEntity> dbSet, object[] keyValues, CancellationToken cancellationToken = default)
             where TEntity : class
         {
+            await SyncContext.Clear;
+
             var primaryKey = dbSet.EntityType.FindPrimaryKey();
 
             return await dbSet.AnyAsync(BuildLambda<TEntity>(keyProperties: primaryKey.Properties, keyValues: new ValueBuffer(keyValues)));
@@ -103,6 +107,8 @@ namespace Neon.EntityFrameworkCore
         public static async Task UpsertAsync<TEntity>(this DbSet<TEntity> dbSet, TEntity value, CancellationToken cancellationToken = default)
             where TEntity : class
         {
+            await SyncContext.Clear;
+
             var primaryKey = dbSet.EntityType.FindPrimaryKey();
 
             var pkValues = new object[primaryKey.Properties.Count];

@@ -22,6 +22,7 @@ using Microsoft.JSInterop;
 
 using Neon.ECharts.Options;
 using Neon.ECharts.Options.Enum;
+using Neon.Tasks;
 
 namespace Neon.ECharts
 {
@@ -59,13 +60,17 @@ namespace Neon.ECharts
 
         public async ValueTask InitAsync()
         {
-            module          = await moduleTask.Value.ConfigureAwait(false);
+            await SyncContext.Clear;
+
+            module = await moduleTask.Value.ConfigureAwait(false);
             EchartsModule   = await echartsTask.Value.ConfigureAwait(false);
             EchartsGlModule = await echartsGlTask.Value.ConfigureAwait(false);
         }
 
         public async ValueTask<string> Prompt(string message)
         {
+            await SyncContext.Clear;
+
             await InitAsync();
 
             return await Module.InvokeAsync<string>("showPrompt", message);
@@ -73,29 +78,39 @@ namespace Neon.ECharts
 
         public async ValueTask<IJSObjectReference> InitChart(string id, string theme = "light")
         {
+            await SyncContext.Clear;
+
             if (string.IsNullOrWhiteSpace(id)) throw new ArgumentNullException(nameof(id), "echarts_id_");
             await InitAsync();
             return await Module.InvokeAsync<IJSObjectReference>("echartsFunctions.initChart", id, theme);
         }
         public async Task RegisterMap(string name, string svg)
         {
+            await SyncContext.Clear;
+
             await InitAsync();
             await Module.InvokeVoidAsync("echartsFunctions.registerMap", name, svg);
         }
 
         public async Task RegisterGeoMap(string name, string geoJSON)
         {
+            await SyncContext.Clear;
+
             await InitAsync();
             await Module.InvokeVoidAsync("echartsFunctions.registerGeoJSON", name, geoJSON);
         }
 
         public async Task SetupChart<T>(string id, string theme, EChartsOption<T> option, bool notMerge = false)
         {
+            await SyncContext.Clear;
+
             await SetupChart(id, theme, option.ToString(), notMerge);
         }
 
         public async Task SetupChart(string id, string theme, string option, bool notMerge = false)
         {
+            await SyncContext.Clear;
+
             if (string.IsNullOrWhiteSpace(id)) throw new ArgumentNullException(nameof(id), "echarts_id_");
             if (option == null) throw new ArgumentNullException(nameof(option), "echarts");
             if (string.IsNullOrWhiteSpace(theme)) theme = "light";
@@ -115,6 +130,8 @@ namespace Neon.ECharts
 
         public async Task Resize(string id)
         {
+            await SyncContext.Clear;
+
             if (string.IsNullOrWhiteSpace(id)) throw new ArgumentNullException(nameof(id), "echarts_id_");
             await InitAsync();
             await Module.InvokeVoidAsync("echartsFunctions.resize", id);
@@ -122,6 +139,8 @@ namespace Neon.ECharts
 
         public async Task ChartOn(string id, EventType eventType, DotNetObjectReference<EventInvokeHelper> objectReference)
         {
+            await SyncContext.Clear;
+
             if (string.IsNullOrWhiteSpace(id)) throw new ArgumentNullException(nameof(id), "echarts_id_");
             await InitAsync();
             await Module.InvokeVoidAsync("echartsFunctions.on", id, eventType.ToString(), objectReference);
@@ -129,6 +148,8 @@ namespace Neon.ECharts
 
         public async Task ChartShowLoading(string id, string type = "default", LoadingOption opts = null)
         {
+            await SyncContext.Clear;
+
             if (string.IsNullOrWhiteSpace(id)) throw new ArgumentNullException(nameof(id), "echarts_id_");
             if (opts == null) opts = new LoadingOption();
             await InitAsync();
@@ -137,6 +158,8 @@ namespace Neon.ECharts
 
         public async Task ChartHideLoading(string id)
         {
+            await SyncContext.Clear;
+
             if (string.IsNullOrWhiteSpace(id)) throw new ArgumentNullException(nameof(id), "echarts_id_");
             await InitAsync();
             await Module.InvokeVoidAsync("echartsFunctions.hideLoading", id);
@@ -144,6 +167,8 @@ namespace Neon.ECharts
 
         public async Task DispatchAction(string id, DispatchActionOption option)
         {
+            await SyncContext.Clear;
+
             if (string.IsNullOrWhiteSpace(id)) throw new ArgumentNullException(nameof(id), "echarts_id_");
             await InitAsync();
             await Module.InvokeVoidAsync("echartsFunctions.dispatchAction", id, option.ToString());
@@ -151,6 +176,8 @@ namespace Neon.ECharts
 
         public async ValueTask<T> ConvertToPixel<T>(string id, string finder, object value)
         {
+            await SyncContext.Clear;
+
             if (string.IsNullOrWhiteSpace(id)) throw new ArgumentNullException(nameof(id), "echarts_id_");
             await InitAsync();
             return await Module.InvokeAsync<T>("echartsFunctions.convertToPixel", id, finder, value);
@@ -158,6 +185,8 @@ namespace Neon.ECharts
 
         public async ValueTask<T> ConvertFromPixel<T>(string id, string finder, object value)
         {
+            await SyncContext.Clear;
+
             if (string.IsNullOrWhiteSpace(id)) throw new ArgumentNullException(nameof(id), "echarts_id_");
             await InitAsync();
             return await Module.InvokeAsync<T>("echartsFunctions.convertFromPixel", id, finder, value);
@@ -165,6 +194,8 @@ namespace Neon.ECharts
 
         public async Task DisposeChart(string id)
         {
+            await SyncContext.Clear;
+
             if (string.IsNullOrWhiteSpace(id)) throw new ArgumentNullException(nameof(id), "echarts_id_");
             await InitAsync();
             await Module.InvokeVoidAsync("echartsFunctions.dispose", id);
@@ -172,6 +203,8 @@ namespace Neon.ECharts
 
         public async Task ClearChart(string id)
         {
+            await SyncContext.Clear;
+
             if (string.IsNullOrWhiteSpace(id)) throw new ArgumentNullException(nameof(id), "echarts_id_");
             await InitAsync();
             await Module.InvokeVoidAsync("echartsFunctions.clear", id);
@@ -180,6 +213,8 @@ namespace Neon.ECharts
 
         public async ValueTask InvokeVoidAsync(string identifier, params object?[] args)
         {
+            await SyncContext.Clear;
+
             await InitAsync();
             await Module.InvokeVoidAsync(identifier, args);
         }
@@ -187,6 +222,8 @@ namespace Neon.ECharts
 
         public async ValueTask DisposeAsync()
         {
+            await SyncContext.Clear;
+
             if (moduleTask.IsValueCreated)
             {
                 await InitAsync();

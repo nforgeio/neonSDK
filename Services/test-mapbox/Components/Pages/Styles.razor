@@ -1,0 +1,62 @@
+@page "/styles"
+@rendermode InteractiveServer
+
+<PageTitle>Mapbox Demo - Styles</PageTitle>
+
+<div class="page-header">
+    <h1>Map Styles</h1>
+    <p>Mapbox provides several built-in styles. Switch between them via the <code>Style</code> property on <code>Options</code>. The map is recreated when the style key changes.</p>
+</div>
+
+<div class="demo-container">
+    <div class="map-stage">
+        @* keyed re-render so each style swap fully reinitializes the map *@
+        <div @key="@_currentStyle">
+            <MapboxMap Height="500px" style="height:500px;width:100%;display:block" Options="@CurrentOptions" />
+        </div>
+    </div>
+    <div class="demo-controls">
+        <span class="demo-controls-label">Style:</span>
+        @foreach (var style in _styles)
+        {
+            <button class="btn @(style.Url == _currentStyle ? "btn-active" : "btn-ghost") btn-sm"
+                    @onclick="() => SetStyle(style.Url)">
+                @style.Label
+            </button>
+        }
+    </div>
+</div>
+
+<div class="code-block"><span class="cm">// Built-in style URLs</span>
+Options.DefaultStyles.Streets
+Options.DefaultStyles.Outdoors
+Options.DefaultStyles.Light
+Options.DefaultStyles.Dark
+Options.DefaultStyles.Satellite
+Options.DefaultStyles.SatelliteStreets
+</div>
+
+@code {
+    private record StyleOption(string Label, string Url);
+
+    private readonly StyleOption[] _styles = new[]
+    {
+        new StyleOption("Streets",           Options.DefaultStyles.Streets),
+        new StyleOption("Outdoors",          Options.DefaultStyles.Outdoors),
+        new StyleOption("Light",             Options.DefaultStyles.Light),
+        new StyleOption("Dark",              Options.DefaultStyles.Dark),
+        new StyleOption("Satellite",         Options.DefaultStyles.Satellite),
+        new StyleOption("Satellite Streets", Options.DefaultStyles.SatelliteStreets),
+    };
+
+    private string _currentStyle = Options.DefaultStyles.Streets;
+
+    private Options CurrentOptions => new()
+    {
+        Style  = _currentStyle,
+        Center = new LngLat(2.3522f, 48.8566f),
+        Zoom   = 11
+    };
+
+    private void SetStyle(string url) => _currentStyle = url;
+}

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 
 using Neon.Blazor;
+using Neon.Tasks;
 
 namespace Neon.Tailwind
 {
@@ -24,15 +25,22 @@ namespace Neon.Tailwind
 
         protected override async Task OnInitializedAsync()
         {
+            await SyncContext.Clear;
+
             await Disclosure.RegisterButton(this);
             TagName = "button";
 
         }
         public async void HandleClick()
         {
+            await SyncContext.Clear;
+
             if (IsEnabled)
-               await Disclosure.Toggle();
+            {
+                await Disclosure.Toggle();
+            }
         }
+
         /// <inheritdoc/>
         public void Dispose()
         {

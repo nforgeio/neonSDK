@@ -115,6 +115,8 @@ namespace Neon.Mapbox
         [JSInvokable]
         public async Task OnLoadCallback()
         {
+            await SyncContext.Clear;
+
             IsLoaded = true;
             await OnLoad.InvokeAsync(EventArgs.Empty);
         }
@@ -182,6 +184,8 @@ namespace Neon.Mapbox
 
         public async Task<Listener> AddListener<T>(Events eventName, string layer, Action<T> handler)
         {
+            await SyncContext.Clear;
+
             var callback = new CallbackAction(Module, eventName.ToString(), handler, typeof(T));
             var reference = Microsoft.JSInterop.DotNetObjectReference.Create(callback);
             References.TryAdd(Guid.NewGuid(), reference);
@@ -202,6 +206,8 @@ namespace Neon.Mapbox
 
         public async Task<Popup> GetPopup(PopupOptions options)
         {
+            await SyncContext.Clear;
+
             Module ??= await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/Neon.Mapbox/MapboxInterop.js");
 
             var popup = new Popup(Module, Id);
@@ -212,6 +218,8 @@ namespace Neon.Mapbox
 
         public async ValueTask DisposeAsync()
         {
+            await SyncContext.Clear;
+
             foreach (var value in References.Values)
             {
                 value?.Dispose();
@@ -237,6 +245,8 @@ namespace Neon.Mapbox
         /// If this argument is not specified, the layer will be appended to the end of the layers array and appear visually above all other layers.</param>
         public async ValueTask AddLayer(Layer layer, string beforeId = null)
         {
+            await SyncContext.Clear;
+
             Module ??= await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/Neon.Mapbox/MapboxInterop.js");
 
             await Module.InvokeVoidAsync("Mapbox.addLayer", Id, layer, beforeId);
@@ -248,6 +258,8 @@ namespace Neon.Mapbox
         /// <param name="id">The ID of the layer to remove.</param>
         public async ValueTask RemoveLayer(string id)
         {
+            await SyncContext.Clear;
+
             Module ??= await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/Neon.Mapbox/MapboxInterop.js");
 
             await Module.InvokeVoidAsync("Mapbox.removeLayer", Id, id);
@@ -261,6 +273,8 @@ namespace Neon.Mapbox
         public async ValueTask AddSource<T>(string id, T source)
             where T : Source
         {
+            await SyncContext.Clear;
+
             source.Map = this;
 
             Module ??= await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/Neon.Mapbox/MapboxInterop.js");
@@ -274,6 +288,8 @@ namespace Neon.Mapbox
         /// <param name="id">The ID of the layer to remove.</param>
         public async ValueTask RemoveSource(string id)
         {
+            await SyncContext.Clear;
+
             Module ??= await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/Neon.Mapbox/MapboxInterop.js");
 
             await Module.InvokeVoidAsync("Mapbox.removeSource", Id, id);
@@ -285,6 +301,8 @@ namespace Neon.Mapbox
         /// <param name="bounds">Center these bounds in the viewport and use the highest zoom level up to and including Map#getMaxZoom() that fits them in the viewport.</param>
         public async ValueTask FitBounds(LngLatBounds bounds)
         {
+            await SyncContext.Clear;
+
             Module ??= await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/Neon.Mapbox/MapboxInterop.js");
 
             await Module.InvokeVoidAsync($"Mapbox.fitBounds", Id, bounds);
@@ -296,6 +314,8 @@ namespace Neon.Mapbox
         /// <returns><see cref="LatLng">LngLat</see>: The map's geographical centerpoint.</returns>
         public async ValueTask<LngLat> GetCenter()
         {
+            await SyncContext.Clear;
+
             Module ??= await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/Neon.Mapbox/MapboxInterop.js");
 
             return await Module.InvokeAsync<LngLat>($"Mapbox.getCenter", Id);
@@ -310,6 +330,8 @@ namespace Neon.Mapbox
         /// <returns>The Point corresponding to lnglat, relative to the map's container.</returns>
         public async ValueTask<Point> Project(LngLat coordinate)
         {
+            await SyncContext.Clear;
+
             Module ??= await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/Neon.Mapbox/MapboxInterop.js");
 
             return await Module.InvokeAsync<Point>("Mapbox.project", Id, coordinate);
@@ -321,6 +343,8 @@ namespace Neon.Mapbox
         /// </summary>
         public async ValueTask Resize()
         {
+            await SyncContext.Clear;
+
             Module ??= await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/Neon.Mapbox/MapboxInterop.js");
 
             await Module.InvokeVoidAsync($"Mapbox.resize", Id);
@@ -341,6 +365,8 @@ namespace Neon.Mapbox
         /// <param name="state">A set of key-value pairs. The values should be valid JSON types.</param>
         public async ValueTask SetFeatureState(Feature feature, Dictionary<string, object> state)
         {
+            await SyncContext.Clear;
+
             Module ??= await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/Neon.Mapbox/MapboxInterop.js");
 
             await Module.InvokeVoidAsync("Mapbox.setFeatureState", Id, feature, state);
@@ -362,6 +388,8 @@ namespace Neon.Mapbox
         /// <returns></returns>
         public async ValueTask FlyTo(CameraOptions options, object eventData = null)
         {
+            await SyncContext.Clear;
+
             Module ??= await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/Neon.Mapbox/MapboxInterop.js");
 
             await Module.InvokeVoidAsync("Mapbox.flyTo", Id, options, eventData);
@@ -370,6 +398,8 @@ namespace Neon.Mapbox
         public async ValueTask<T> GetSource<T>(string id)
             where T : Source
         {
+            await SyncContext.Clear;
+
             Module ??= await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/Neon.Mapbox/MapboxInterop.js");
 
             var source       = await Module.InvokeAsync<dynamic>("Mapbox.getSource", Id, id);
@@ -384,6 +414,8 @@ namespace Neon.Mapbox
 
         public async ValueTask SetSourceData<T>(string id, T data)
         {
+            await SyncContext.Clear;
+
             Module ??= await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/Neon.Mapbox/MapboxInterop.js");
 
             await Module.InvokeVoidAsync("Mapbox.setSourceData", Id, id, JsonSerializer.Serialize(data, DefaultSerializerOptions));
@@ -391,6 +423,8 @@ namespace Neon.Mapbox
 
         public async ValueTask UpdateSourceData<T>(string id, T data)
         {
+            await SyncContext.Clear;
+
             Module ??= await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/Neon.Mapbox/MapboxInterop.js");
 
             await Module.InvokeVoidAsync("Mapbox.updateSourceData", Id, id, JsonSerializer.Serialize(data, DefaultSerializerOptions));
@@ -398,6 +432,8 @@ namespace Neon.Mapbox
 
         public async ValueTask ResizeContainer()
         {
+            await SyncContext.Clear;
+
             Module ??= await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/Neon.Mapbox/MapboxInterop.js");
 
             await Module.InvokeVoidAsync($"ResizeMapContainer", Id);
@@ -408,6 +444,8 @@ namespace Neon.Mapbox
 
         public async ValueTask RemoveStyle()
         {
+            await SyncContext.Clear;
+
             Module ??= await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/Neon.Mapbox/MapboxInterop.js");
 
             await Module.InvokeVoidAsync($"RemoveMapContainerStyle", Id);

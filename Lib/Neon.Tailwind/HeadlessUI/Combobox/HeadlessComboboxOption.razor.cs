@@ -25,6 +25,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 
 using Neon.Blazor;
+using Neon.Tasks;
 
 namespace Neon.Tailwind
 {
@@ -105,6 +106,8 @@ namespace Neon.Tailwind
 
         private async Task HandleClick()
         {
+            await SyncContext.Clear;
+
             if (!IsEnabled) return;
 
             Combobox.CurrentValue = Value;
@@ -123,6 +126,8 @@ namespace Neon.Tailwind
         }
         protected async Task HandleMouseEnter(MouseEventArgs e)
         {
+            await SyncContext.Clear;
+
             if (!IsEnabled) return;
             if (Combobox.State == ComboboxState.Closed) return;
 

@@ -16,6 +16,7 @@
 // limitations under the License.
 
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 using System.Collections.Generic;
 using System.IO;
@@ -241,6 +242,18 @@ namespace Neon.Roslyn.Xunit
                 compilation.Options.Add(opt.Key, opt.Value);
             }
 
+            return compilation;
+        }
+
+        /// <summary>
+        /// Adds a <see cref="DiagnosticAnalyzer"/> to the compilation.
+        /// </summary>
+        /// <param name="compilation"></param>
+        /// <param name="analyzer"></param>
+        /// <returns></returns>
+        public static TestCompilationBuilder AddDiagnosticAnalyzer(this TestCompilationBuilder compilation, DiagnosticAnalyzer analyzer)
+        {
+            compilation.DiagnosticAnalyzers.Add(analyzer);
             return compilation;
         }
     }

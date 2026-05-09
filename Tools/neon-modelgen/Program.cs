@@ -28,6 +28,7 @@ using Neon;
 using Neon.Common;
 using Neon.ModelGen;
 using Neon.Retry;
+using Neon.Tasks;
 
 namespace NeonModelGen
 {
@@ -116,6 +117,8 @@ style design conventions.
         /// <returns>The program exit code.</returns>
         public static async Task<int> Main(string[] args)
         {
+            await SyncContext.Clear;
+
             var commandLine = new CommandLine(args).Preprocess();
 
             if (commandLine.HasHelpOption)

@@ -18,6 +18,8 @@
 using System;
 using System.Threading.Tasks;
 
+using Neon.Tasks;
+
 namespace Neon.Mapbox
 {
     public class Listener : IDisposable
@@ -36,6 +38,8 @@ namespace Neon.Mapbox
 
         public async Task Remove()
         {
+            await SyncContext.Clear;
+
             await Action.Remove();
         }
     }

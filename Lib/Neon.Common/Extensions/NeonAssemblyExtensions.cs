@@ -28,6 +28,7 @@ using System.Threading.Tasks;
 
 using Neon.Common;
 using Neon.IO;
+using Neon.Tasks;
 
 namespace Neon.Common
 {
@@ -116,8 +117,10 @@ namespace Neon.Common
             }
 
             /// <inheritdoc/>
-            public async override Task<TextReader> OpenReaderAsync(Encoding encoding = null)
+            public override async Task<TextReader> OpenReaderAsync(Encoding encoding = null)
             {
+                await SyncContext.Clear;
+
                 return await Task.FromResult(OpenReader(encoding));
             }
 
@@ -130,6 +133,8 @@ namespace Neon.Common
             /// <inheritdoc/>
             public async override Task<Stream> OpenStreamAsync()
             {
+                await SyncContext.Clear;
+
                 return await Task.FromResult(assembly.GetManifestResourceStream(resourceName));
             }
 
@@ -145,6 +150,8 @@ namespace Neon.Common
             /// <inheritdoc/>
             public async override Task<byte[]> ReadAllBytesAsync()
             {
+                await SyncContext.Clear;
+
                 var stream = await OpenStreamAsync();
 
                 using (stream)
@@ -165,6 +172,8 @@ namespace Neon.Common
             /// <inheritdoc/>
             public async override Task<string> ReadAllTextAsync(Encoding encoding = null)
             {
+                await SyncContext.Clear;
+
                 var reader = await OpenReaderAsync(encoding ?? Encoding.UTF8);
 
                 using (reader)

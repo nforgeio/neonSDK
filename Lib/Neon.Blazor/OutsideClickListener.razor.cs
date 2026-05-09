@@ -22,6 +22,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
+using Neon.Tasks;
+
 namespace Neon.Blazor
 {
     public partial class OutsideClickListener : ComponentBase, IAsyncDisposable
@@ -48,11 +50,15 @@ namespace Neon.Blazor
         [JSInvokable]
         public async Task OnClickOutsideAsync()
         {
+            await SyncContext.Clear;
+
             await OnClickOutside.InvokeAsync();
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
+            await SyncContext.Clear;
+
             if (!firstRender)
             {
                 return;
@@ -69,6 +75,8 @@ namespace Neon.Blazor
 
         private async Task AttachAsync()
         {
+            await SyncContext.Clear;
+
             if (jsModule == null)
             {
                 return;
@@ -94,6 +102,8 @@ namespace Neon.Blazor
 
         private async Task DetachAsync()
         {
+            await SyncContext.Clear;
+    
             if (jsModule == null)
             {
                 return;
@@ -117,6 +127,8 @@ namespace Neon.Blazor
 
         public async ValueTask DisposeAsync()
         {
+            await SyncContext.Clear;
+
             if (jsModule != null)
             {
                 await DetachAsync();

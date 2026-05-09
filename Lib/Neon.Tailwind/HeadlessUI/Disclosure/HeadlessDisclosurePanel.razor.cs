@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 
 using Neon.Blazor;
+using Neon.Tasks;
 
 namespace Neon.Tailwind
 {
@@ -54,16 +55,22 @@ namespace Neon.Tailwind
         private bool isOpen { get; set; }
         protected async override Task OnInitializedAsync()
         {
+            await SyncContext.Clear;
+
             await Disclosure.RegisterPanel(this);
         }
         public async Task Open()
         {
+            await SyncContext.Clear;
+
             isOpen = true;
 
             await Task.CompletedTask;
         }
         public async Task Close()
         {
+            await SyncContext.Clear;
+
             isOpen = false;
 
             await Task.CompletedTask;

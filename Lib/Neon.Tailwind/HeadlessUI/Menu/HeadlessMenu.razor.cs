@@ -176,6 +176,8 @@ namespace Neon.Tailwind
         private bool shouldFocus;
         public async Task Toggle()
         {
+            await SyncContext.Clear;
+
             if (State == MenuState.Closed)
                 await Open();
             else
@@ -183,6 +185,8 @@ namespace Neon.Tailwind
         }
         public async Task Open()
         {
+            await SyncContext.Clear;
+
             if (State == MenuState.Open) return;
             State = MenuState.Open;
             await OnOpen.InvokeAsync();
@@ -191,6 +195,8 @@ namespace Neon.Tailwind
         }
         public async Task Close(bool suppressFocus = false)
         {
+            await SyncContext.Clear;
+
             if (State == MenuState.Closed) return;
             State = MenuState.Closed;
             await OnClose.InvokeAsync();
@@ -212,6 +218,8 @@ namespace Neon.Tailwind
         }
         public async Task SearchAsync(string key)
         {
+            await SyncContext.Clear;
+
             await searchAssistant.SearchAsync(key);
         }
 

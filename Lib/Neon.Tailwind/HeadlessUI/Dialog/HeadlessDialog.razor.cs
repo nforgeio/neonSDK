@@ -23,6 +23,8 @@ using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Components;
 
+using Neon.Tasks;
+
 namespace Neon.Tailwind
 {
     public partial class HeadlessDialog : ComponentBase, IAsyncDisposable
@@ -73,6 +75,8 @@ namespace Neon.Tailwind
         /// <inheritdoc/>
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
+            await SyncContext.Clear;
+
             await base.OnAfterRenderAsync(firstRender);
 
             if (clickOffEventHandler != null)
@@ -105,7 +109,8 @@ namespace Neon.Tailwind
         /// <param name="item"></param>
         public async Task RegisterPanel(HeadlessDialogPanel item)
         {
-            await Task.CompletedTask;
+            await SyncContext.Clear;
+
             dialogPanel = item;
         }
 
@@ -116,7 +121,8 @@ namespace Neon.Tailwind
         /// <param name="item"></param>
         public async Task UnregisterPanel(HeadlessDialogPanel item)
         {
-            await Task.CompletedTask;
+            await SyncContext.Clear;
+
             dialogPanel = null;
         }
 
@@ -126,6 +132,8 @@ namespace Neon.Tailwind
         /// <returns></returns>
         public async Task Toggle()
         {
+            await SyncContext.Clear;
+
             if (State == MenuState.Closed)
                 await Open();
             else
@@ -138,6 +146,8 @@ namespace Neon.Tailwind
         /// <returns></returns>
         public async Task Open()
         {
+            await SyncContext.Clear;
+
             Show = true;
             await OnOpen.InvokeAsync();
 
@@ -150,6 +160,8 @@ namespace Neon.Tailwind
         /// <returns></returns>
         public async Task Close()
         {
+            await SyncContext.Clear;
+
             Show = false;
             await OnClose.InvokeAsync();
             await dialogPanel.Close();

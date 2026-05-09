@@ -25,6 +25,7 @@ using System.Threading.Tasks;
 using Microsoft.JSInterop;
 
 using Neon.Cryptography;
+using Neon.Tasks;
 
 namespace Neon.Blazor
 {
@@ -54,7 +55,9 @@ namespace Neon.Blazor
             string hash,
             string fallback = null)
         {
-           jsModule ??= await JS.InvokeAsync<IJSObjectReference>("import", "./_content/Neon.Blazor/interop.js");
+            await SyncContext.Clear;
+
+            jsModule ??= await JS.InvokeAsync<IJSObjectReference>("import", "./_content/Neon.Blazor/interop.js");
 
            var checkedIntegrity = await jsModule.InvokeAsync<bool>("checkIntegrityAsync",src,$"{hashMethod}-{hash}");
 

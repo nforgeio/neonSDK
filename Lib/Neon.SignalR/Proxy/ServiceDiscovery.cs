@@ -23,6 +23,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 using Neon.SignalR.Proxy;
+using Neon.Tasks;
 
 namespace Neon.SignalR
 {
@@ -58,6 +59,8 @@ namespace Neon.SignalR
         /// <returns></returns>
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            await SyncContext.Clear;
+
             logger?.LogInformation("Timed Hosted Service running.");
 
             using PeriodicTimer timer = new PeriodicTimer(config.DnsProbeInterval);

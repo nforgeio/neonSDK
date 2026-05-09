@@ -127,6 +127,8 @@ namespace Neon.Tailwind
         public static string GenerateId() => Guid.NewGuid().ToString("N");
         private async Task NotifyTransitionChangedAsync()
         {
+            await SyncContext.Clear;
+
             childRendered = new TaskCompletionSource<bool>();
 
             await InvokeAsync(StateHasChanged);

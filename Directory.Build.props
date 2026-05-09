@@ -56,6 +56,18 @@
         <Optimize>true</Optimize>
     </PropertyGroup>
 
+    <!--
+    Apply the Neon.Analyzers package to every project in the repo, except the analyzer
+    project itself (would be a circular reference) and any project that opts out by
+    setting <UseNeonAnalyzers>false</UseNeonAnalyzers>.
+    -->
+
+    <ItemGroup Condition="'$(MSBuildProjectName)' != 'Neon.Analyzers' and '$(UseNeonAnalyzers)' != 'false'">
+        <ProjectReference Include="$(NF_ROOT)\Lib\Neon.Analyzers\Neon.Analyzers.csproj"
+                          OutputItemType="Analyzer"
+                          ReferenceOutputAssembly="false" />
+    </ItemGroup>
+
     <!-- Telerik JustMock settings -->
 
     <PropertyGroup Condition="'$(JUSTMOCK_ENABLED)' == 'true'">

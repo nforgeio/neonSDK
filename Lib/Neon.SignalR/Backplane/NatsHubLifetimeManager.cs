@@ -453,6 +453,8 @@ namespace Neon.SignalR
             string               connectionSubject,
             CancellationToken    cancellationToken)
         {
+            await SyncContext.Clear;
+
             while (!cancellationToken.IsCancellationRequested)
             {
                 await foreach (var msg in nats.SubscribeAsync<byte[]>(connectionSubject).WithCancellation(cancellationToken))
@@ -512,6 +514,8 @@ namespace Neon.SignalR
             string               userSubject,
             CancellationToken    cancellationToken)
         {
+            await SyncContext.Clear;
+
             while (!cancellationToken.IsCancellationRequested)
             {
                 await foreach (var msg in nats.SubscribeAsync<byte[]>(userSubject).WithCancellation(cancellationToken))

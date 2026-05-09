@@ -1,0 +1,82 @@
+@page "/flyto"
+@rendermode InteractiveServer
+
+<PageTitle>Mapbox Demo - FlyTo</PageTitle>
+
+<div class="page-header">
+    <h1>FlyTo</h1>
+    <p>Animate the camera between locations with <code>FlyTo(CameraOptions)</code>. The transition curves through zoom and pan together for a smooth flight.</p>
+</div>
+
+<div class="demo-container">
+    <div class="map-stage">
+        <MapboxMap @ref="_map" Height="500px" style="height:500px;width:100%;display:block" Options="@_options" OnLoad="OnLoad" />
+    </div>
+    <div class="demo-controls">
+        <span class="demo-controls-label">Fly to:</span>
+        @foreach (var city in _cities)
+        {
+            <button class="btn @(city == _current ? "btn-active" : "btn-ghost") btn-sm"
+                    @onclick="() => GoTo(city)">
+                @city.Name
+            </button>
+        }
+    </div>
+</div>
+
+<div class="code-block"><span class="cm">// Animate the camera</span>
+<span class="kw">await</span> _map.<span class="fn">FlyTo</span>(<span class="kw">new</span> CameraOptions
+{
+    Center  = <span class="kw">new</span> LngLat(<span class="num">2.3522f</span>, <span class="num">48.8566f</span>),
+    Zoom    = <span class="num">12</span>,
+    Pitch   = <span class="num">45</span>,
+    Bearing = <span class="num">0</span>
+});
+</div>
+
+@code {
+    private record City(string Name, float Lng, float Lat, double Zoom, double Pitch, double Bearing);
+
+    private readonly City[] _cities = new[]
+    {
+        new City("San Francisco", -122.4194f, 37.7749f, 12, 0,  0),
+        new City("New York",       -74.0060f, 40.7128f, 12, 30, 20),
+        new City("Paris",            2.3522f, 48.8566f, 13, 45, 0),
+        new City("Tokyo",          139.6503f, 35.6762f, 12, 0,  0),
+        new City("Sydney",         151.2093f,-33.8688f, 12, 40, -10),
+        new City("Cape Town",       18.4241f,-33.9249f, 11, 0,  0),
+    };
+
+    private MapboxMap _map;
+    private City _current;
+
+    private Options _options = new()
+    {
+        Style  = Options.DefaultStyles.Streets,
+        Center = new LngLat(0f, 20f),
+        Zoom   = 1
+    };
+
+    private async Task OnLoad(EventArgs _)
+    {
+        await GoTo(_cities[0]);
+    }
+
+    private async Task GoTo(City city)
+    {
+        _current = city;
+
+        if (_map is null || !_map.IsLoaded)
+        {
+            return;
+        }
+
+        await _map.FlyTo(new CameraOptions
+        {
+            Center  = new LngLat(city.Lng, city.Lat),
+            Zoom    = city.Zoom,
+            Pitch   = city.Pitch,
+            Bearing = city.Bearing
+        });
+    }
+}

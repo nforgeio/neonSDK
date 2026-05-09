@@ -28,6 +28,7 @@ using Microsoft.Extensions.Primitives;
 using Neon.Common;
 using Neon.Diagnostics;
 using Neon.SignalR.Proxy;
+using Neon.Tasks;
 
 using Yarp.ReverseProxy.Forwarder;
 
@@ -78,6 +79,8 @@ namespace Neon.SignalR
             IDataProtectionProvider         dataProtectionProvider = null,
             ILogger<SignalrProxyMiddleware> logger = null)
         {
+            await SyncContext.Clear;
+
             using var activity = TraceContext.ActivitySource?.StartActivity();
 
             var dataProtector = dataProtectionProvider?.CreateProtector(TraceContext.ActivitySourceName);

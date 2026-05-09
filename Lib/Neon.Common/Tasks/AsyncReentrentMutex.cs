@@ -135,6 +135,8 @@ namespace Neon.Tasks
         /// <returns>The tracking <see cref="Task"/>.</returns>
         public async Task ExecuteActionAsync(Func<Task> action)
         {
+            await SyncContext.Clear;
+
             Covenant.Requires<ArgumentNullException>(action != null, nameof(action));
 
             if (isDisposed)
@@ -184,6 +186,8 @@ namespace Neon.Tasks
         /// <returns>The function result.</returns>
         public async Task<TResult> ExecuteFuncAsync<TResult>(Func<Task<TResult>> function)
         {
+            await SyncContext.Clear;
+
             Covenant.Requires<ArgumentNullException>(function != null, nameof(function));
 
             if (isDisposed)

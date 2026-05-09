@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 
 using Microsoft.JSInterop;
 
+using Neon.Tasks;
+
 namespace Neon.Blazor
 {
     public class MobileDetector : IDisposable
@@ -24,6 +26,8 @@ namespace Neon.Blazor
 
         public async Task<bool?> IsMobileAsync()
         {
+            await SyncContext.Clear;
+
             if (jsModule == null)
             {
                 jsModule = await JS.InvokeAsync<IJSObjectReference>("import", "./_content/Neon.Blazor/interop.js");

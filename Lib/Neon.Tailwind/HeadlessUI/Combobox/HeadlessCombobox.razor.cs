@@ -24,6 +24,8 @@ using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Components;
 
+using Neon.Tasks;
+
 namespace Neon.Tailwind
 {
     public partial class HeadlessCombobox<TValue> : ComponentBase
@@ -171,6 +173,8 @@ namespace Neon.Tailwind
         private bool shouldFocus;
         public async Task Toggle()
         {
+            await SyncContext.Clear;
+
             if (State == ComboboxState.Closed)
                 await Open();
             else
@@ -178,6 +182,8 @@ namespace Neon.Tailwind
         }
         public async Task Close(bool suppressFocus = false)
         {
+            await SyncContext.Clear;
+
             if (State == ComboboxState.Closed) return;
             State = ComboboxState.Closed;
             await OnClose.InvokeAsync();
@@ -187,6 +193,8 @@ namespace Neon.Tailwind
         }
         public async Task Open()
         {
+            await SyncContext.Clear;
+
             if (State == ComboboxState.Open) return;
             State = ComboboxState.Open;
             await OnOpen.InvokeAsync();
@@ -194,7 +202,15 @@ namespace Neon.Tailwind
 
             StateHasChanged();
         }
-        public ValueTask OptionsFocusAsync() => optionsElement?.FocusAsync() ?? ValueTask.CompletedTask;
+        public async ValueTask OptionsFocusAsync()
+        {
+            await SyncContext.Clear;
+
+            if (optionsElement != null)
+            {
+                await optionsElement.FocusAsync();
+            }
+        }
         public void SetActiveAsValue() => CurrentValue = activeOption is null ? default : activeOption.Value;
 
         public Task HandleClickOff() => Close();

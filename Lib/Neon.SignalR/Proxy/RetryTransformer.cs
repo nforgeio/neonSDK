@@ -21,6 +21,8 @@ using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Http;
 
+using Neon.Tasks;
+
 using Yarp.ReverseProxy.Forwarder;
 
 namespace Neon.SignalR
@@ -33,6 +35,8 @@ namespace Neon.SignalR
                     HttpResponseMessage proxyResponse,
                     CancellationToken cancellationToken = default)
         {
+            await SyncContext.Clear;
+
             // Copy all request headers
             await base.TransformResponseAsync(httpContext, proxyResponse, cancellationToken);
 

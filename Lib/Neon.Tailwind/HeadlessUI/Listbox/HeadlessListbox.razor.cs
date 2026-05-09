@@ -111,6 +111,8 @@ namespace Neon.Tailwind
 
         public async Task SetValue(TValue value)
         {
+            await SyncContext.Clear;
+
             bool valueChanged = !EqualityComparer<TValue>.Default.Equals(Value, value);
             Value = value;
             if (valueChanged)
@@ -219,6 +221,8 @@ namespace Neon.Tailwind
         private bool shouldFocus;
         public async Task Toggle()
         {
+            await SyncContext.Clear;
+
             if (State == ListboxState.Closed)
                 await Open();
             else
@@ -226,6 +230,8 @@ namespace Neon.Tailwind
         }
         public async Task Close(bool suppressFocus = false)
         {
+            await SyncContext.Clear;
+
             if (State == ListboxState.Closed) return;
             State = ListboxState.Closed;
             await OnClose.InvokeAsync();
@@ -235,6 +241,8 @@ namespace Neon.Tailwind
         }
         public async Task Open()
         {
+            await SyncContext.Clear;
+
             if (State == ListboxState.Open) return;
             State = ListboxState.Open;
             await OnOpen.InvokeAsync();
@@ -256,6 +264,8 @@ namespace Neon.Tailwind
         }
         public async Task SearchAsync(string key)
         {
+            await SyncContext.Clear;
+
             await searchAssistant.SearchAsync(key);
         }
 

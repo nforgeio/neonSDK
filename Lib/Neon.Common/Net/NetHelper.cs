@@ -1481,6 +1481,8 @@ namespace Neon.Net
         /// </remarks>
         public static async Task<byte[]> GetMacAddressAsync(IPAddress address)
         {
+            await SyncContext.Clear;
+
             Covenant.Requires<ArgumentNullException>(address != null, nameof(address));
 
             if (!NeonHelper.IsWindows)
@@ -1522,6 +1524,8 @@ namespace Neon.Net
         /// <exception cref="NotSupportedException">Thrown when the current platform is not supported.</exception>
         public static async Task<Dictionary<IPAddress, Dictionary<IPAddress, byte[]>>> GetArpTableAsync()
         {
+            await SyncContext.Clear;
+
             if (NeonHelper.IsWindows)
             {
                 return await GetWindowsArpTableAsync();
@@ -1545,6 +1549,8 @@ namespace Neon.Net
         /// <exception cref="NotSupportedException">Thrown when the current platform is not supported.</exception>
         public static async Task<Dictionary<IPAddress, byte[]>> GetArpFlatTableAsync()
         {
+            await SyncContext.Clear;
+
             if (!NeonHelper.IsWindows)
             {
                 throw new NotSupportedException($"[NetHelper.{nameof(GetArpFlatTableAsync)}()] is only supported for Windows.");
@@ -1575,6 +1581,8 @@ namespace Neon.Net
         /// <returns>The full ARP table.</returns>
         private static async Task<Dictionary<IPAddress, Dictionary<IPAddress, byte[]>>> GetWindowsArpTableAsync()
         {
+            await SyncContext.Clear;
+
             Covenant.Assert(NeonHelper.IsWindows);
 
             // We're going to use the [ar /a] command line utility to retrieve this table.

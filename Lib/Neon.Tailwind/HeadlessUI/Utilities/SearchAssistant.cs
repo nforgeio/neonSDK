@@ -20,6 +20,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 
+using Neon.Tasks;
+
 namespace Neon.Tailwind
 {
     public class SearchAssistant : IDisposable
@@ -34,6 +36,8 @@ namespace Neon.Tailwind
 
         public async Task SearchAsync(string key)
         {
+            await SyncContext.Clear;
+
             SearchQuery += key;
             OnChange?.Invoke(this, EventArgs.Empty);
 
@@ -48,6 +52,8 @@ namespace Neon.Tailwind
 
         private async Task DebounceAsync()
         {
+            await SyncContext.Clear;
+
             cts.Cancel();
 
             cts = new CancellationTokenSource();

@@ -1,0 +1,105 @@
+@page "/events"
+@rendermode InteractiveServer
+
+<PageTitle>Mapbox Demo - Events</PageTitle>
+
+<div class="page-header">
+    <h1>Map Events</h1>
+    <p>Subscribe to <code>Events.click</code>, <code>Events.move</code>, and <code>Events.zoom</code> with <code>AddListener&lt;T&gt;</code>. Pan, zoom, or click the map to see live values below.</p>
+</div>
+
+<div class="demo-container">
+    <div class="map-stage">
+        <MapboxMap @ref="_map" Height="500px" style="height:500px;width:100%;display:block" Options="@_options" OnLoad="OnLoad" />
+    </div>
+    <div class="info-row">
+        <span>Center: <span class="badge">@FormatLngLat(_center)</span></span>
+        <span>Zoom: <span class="badge">@_zoom.ToString("0.00")</span></span>
+        <span>Last click: <span class="badge">@FormatLngLat(_lastClick)</span></span>
+        <span>Events received: <span class="badge">@_eventCount</span></span>
+    </div>
+</div>
+
+<div class="code-block"><span class="cm">// Subscribe to map events</span>
+<span class="kw">await</span> _map.<span class="fn">AddListener</span>&lt;ClickEvent&gt;(Events.click, layer: <span class="kw">null</span>, OnClick);
+<span class="kw">await</span> _map.<span class="fn">AddListener</span>&lt;MoveEvent&gt;(Events.move,  layer: <span class="kw">null</span>, OnMove);
+<span class="kw">await</span> _map.<span class="fn">AddListener</span>&lt;ZoomEvent&gt;(Events.zoom,  layer: <span class="kw">null</span>, OnZoom);
+</div>
+
+@code {
+    private MapboxMap _map;
+    private LngLat _center;
+    private LngLat _lastClick;
+    private double _zoom;
+    private int _eventCount;
+
+    private Options _options = new()
+    {
+        Style  = Options.DefaultStyles.Streets,
+        Center = new LngLat(-74.006f, 40.7128f),
+        Zoom   = 10
+    };
+
+    private async Task OnLoad(EventArgs _)
+    {
+        _center = await _map.GetCenter();
+        _zoom   = (double)_options.Zoom!;
+
+        await _map.AddListener<ClickArgs>(Events.click, null, OnClick);
+        await _map.AddListener<CenterArgs>(Events.move, null, OnMove);
+        await _map.AddListener<ZoomArgs>(Events.zoom,  null, OnZoom);
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async void OnClick(ClickArgs args)
+    {
+        _lastClick = args?.LngLat;
+        _eventCount++;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async void OnMove(CenterArgs _)
+    {
+        if (_map is null)
+        {
+            return;
+        }
+
+        _center = await _map.GetCenter();
+        _eventCount++;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async void OnZoom(ZoomArgs args)
+    {
+        if (args is not null)
+        {
+            _zoom = args.Zoom;
+        }
+
+        _eventCount++;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private static string FormatLngLat(LngLat l)
+        => l is null ? "—" : $"{l.Lng:0.0000}, {l.Lat:0.0000}";
+
+    public class ClickArgs
+    {
+        [System.Text.Json.Serialization.JsonPropertyName("lngLat")]
+        public LngLat LngLat { get; set; }
+    }
+
+    public class CenterArgs
+    {
+        [System.Text.Json.Serialization.JsonPropertyName("lngLat")]
+        public LngLat LngLat { get; set; }
+    }
+
+    public class ZoomArgs
+    {
+        [System.Text.Json.Serialization.JsonPropertyName("zoom")]
+        public double Zoom { get; set; }
+    }
+}

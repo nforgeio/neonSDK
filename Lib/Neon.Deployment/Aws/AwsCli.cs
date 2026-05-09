@@ -716,6 +716,8 @@ namespace Neon.Deployment
             var uploadOddTask = Task.Run(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     // Wait for the event task to upload the first part and then
                     // delay for 1/2 the time it took to upload that first part.
                     // This is intended to have the even/off part uploads overlap

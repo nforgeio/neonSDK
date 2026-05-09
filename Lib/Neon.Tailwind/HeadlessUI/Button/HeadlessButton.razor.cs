@@ -24,6 +24,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 
 using Neon.Blazor;
+using Neon.Tasks;
 
 namespace Neon.Tailwind
 {
@@ -55,11 +56,15 @@ namespace Neon.Tailwind
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
+            await SyncContext.Clear;
+
             await EnsureInitialized();
         }
 
         private async Task EnsureInitialized()
         {
+            await SyncContext.Clear;
+
             if (buttonElement == null) return;
             if (buttonElement.AsElementReference().Id != previouslyRenderedElementId)
             {
@@ -77,6 +82,8 @@ namespace Neon.Tailwind
 
         private async Task PreventDefaultKeyBehaviorOnEnterAndSpace()
         {
+            await SyncContext.Clear;
+
             if (jsRuntime is null || buttonElement is null) return;
 
             jsModule = await jsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/Neon.Tailwind/common.js");
@@ -85,6 +92,8 @@ namespace Neon.Tailwind
 
         protected async Task HandleClick(MouseEventArgs e)
         {
+            await SyncContext.Clear;
+
             if (!IsEnabled || !IsVisible) return;
 
             await OnClick.InvokeAsync((this, e));
@@ -93,6 +102,8 @@ namespace Neon.Tailwind
         [JSInvokable]
         public async Task HandleKeyUp(KeyboardEventArgs eventArgs)
         {
+            await SyncContext.Clear;
+
             if (!IsEnabled || !IsVisible) return;
 
             switch (eventArgs.Key)
@@ -108,6 +119,8 @@ namespace Neon.Tailwind
 
         public async ValueTask DisposeAsync()
         {
+            await SyncContext.Clear;
+
             if (jsModule is null || buttonElement is null) return;
             await jsModule.InvokeVoidAsync("preventDefaultKeyBehaviorOnKeys", buttonElement.AsElementReference(), new List<string> { }, false);
         }

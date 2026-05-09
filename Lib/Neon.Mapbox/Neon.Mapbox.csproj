@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Razor">
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
@@ -35,7 +35,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="wwwroot\" />
+      <Content Remove="wwwroot\MapboxInterop.js" />
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Components.Web" />

@@ -25,6 +25,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 
 using Neon.Blazor;
+using Neon.Tasks;
 
 namespace Neon.Tailwind
 {
@@ -70,12 +71,16 @@ namespace Neon.Tailwind
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
+            await SyncContext.Clear;
+
             if (keyDownEventHandler != null)
                 await keyDownEventHandler.RegisterElement(rootElement!);
         }
 
         protected async Task HandleKeyDown(KeyboardEventArgs eventArgs)
         {
+            await SyncContext.Clear;
+
             switch (eventArgs.Key)
             {
                 case KeyboardKey.Space:
@@ -98,11 +103,19 @@ namespace Neon.Tailwind
 
         protected async Task HandleFocus(EventArgs eventArgs)
         {
+            await SyncContext.Clear;
+
             if (Listbox.State == ListboxState.Open)
                 await Listbox.OptionsFocusAsync();
         }
 
-        public async Task HandleClick() => await Listbox.Toggle();
+        public async Task HandleClick()
+        {
+            await SyncContext.Clear;
+
+            await Listbox.Toggle();
+        }
+
         public ValueTask FocusAsync() => rootElement?.FocusAsync() ?? ValueTask.CompletedTask;
         public static implicit operator ElementReference(HeadlessListboxButton<TValue> element) => element?.rootElement ?? default!;
     }

@@ -21,6 +21,8 @@ using System.Threading.Tasks;
 
 using Microsoft.JSInterop;
 
+using Neon.Tasks;
+
 namespace Neon.Mapbox
 {
     public class CallbackAction 
@@ -47,6 +49,8 @@ namespace Neon.Mapbox
 
         public async Task Remove()
         {
+            await SyncContext.Clear;
+
             // TODO: Need to determine if it is a popup or map event to remove. 
             //await Runtime.InvokeVoidAsync("Mapbox.off", EventType);
 

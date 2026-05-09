@@ -73,9 +73,10 @@ namespace Neon.Tailwind
             }
         }
 
-            public async Task RegisterButton(HeadlessDisclosureButton button)
+        public async Task RegisterButton(HeadlessDisclosureButton button)
         {
-            await Task.CompletedTask;
+            await SyncContext.Clear;
+
             disclosureButton = button;
 
 
@@ -83,7 +84,8 @@ namespace Neon.Tailwind
 
         public async Task RegisterPanel(HeadlessDisclosurePanel item)
         {
-            await Task.CompletedTask;
+            await SyncContext.Clear;
+
             disclosurePanel = item;
         }
 
@@ -94,7 +96,8 @@ namespace Neon.Tailwind
         /// <param name="item"></param>
         public async Task UnregisterPanel(HeadlessDisclosurePanel item)
         {
-            await Task.CompletedTask;
+            await SyncContext.Clear;
+
             disclosurePanel = null;
         }
         /// <summary>
@@ -104,7 +107,8 @@ namespace Neon.Tailwind
         /// <param name="button"></param>
         public async Task UnregisterButton(HeadlessDisclosureButton button)
         {
-            await Task.CompletedTask;
+            await SyncContext.Clear;
+
             disclosureButton = null;
         }
 
@@ -115,6 +119,8 @@ namespace Neon.Tailwind
         /// <returns></returns>
         public async Task Open()
         {
+            await SyncContext.Clear;
+
             Show = true;
 
             if (disclosurePanel != null) 
@@ -131,6 +137,8 @@ namespace Neon.Tailwind
         /// <returns></returns>
         public async Task Close()
         {
+            await SyncContext.Clear;
+
             Show = false;
 
             if (disclosurePanel != null)
@@ -148,6 +156,8 @@ namespace Neon.Tailwind
         /// <returns></returns>
         public async Task Toggle()
         {
+            await SyncContext.Clear;
+
             if (State == DisclosureState.Closed)
                 await Open();
             else

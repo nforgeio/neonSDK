@@ -1,0 +1,136 @@
+@page "/popups"
+@rendermode InteractiveServer
+@using NetTopologySuite.Features
+@using NetTopologySuite.Geometries
+
+<PageTitle>Mapbox Demo - Popups</PageTitle>
+
+<div class="page-header">
+    <h1>Popups</h1>
+    <p>Place markers from a GeoJSON point source, then open a <code>Popup</code> at the clicked feature's location with HTML content.</p>
+</div>
+
+<div class="demo-container">
+    <div class="map-stage">
+        <MapboxMap @ref="_map" Height="500px" style="height:500px;width:100%;display:block" Options="@_options" OnLoad="OnLoad" />
+    </div>
+    <div class="info-row">
+        <span>Click any blue dot on the map to open its popup.</span>
+        @if (_lastClicked is not null)
+        {
+            <span>Last selected: <span class="badge">@_lastClicked</span></span>
+        }
+    </div>
+</div>
+
+<div class="code-block"><span class="cm">// Listen for clicks on a layer and open a popup</span>
+<span class="kw">await</span> _map.<span class="fn">AddListener</span>&lt;ClickEvent&gt;(Events.click, <span class="str">"city-points"</span>, <span class="kw">async</span> e =>
+{
+    <span class="kw">var</span> popup = <span class="kw">await</span> _map.<span class="fn">GetPopup</span>(<span class="kw">new</span> PopupOptions { CloseOnClick = <span class="kw">true</span> });
+    <span class="kw">await</span> popup.<span class="fn">SetLngLat</span>(e.LngLat);
+    <span class="kw">await</span> popup.<span class="fn">SetHtml</span>(<span class="str">"&lt;b&gt;Hello&lt;/b&gt;"</span>);
+    <span class="kw">await</span> popup.<span class="fn">AddTo</span>(_map);
+});
+</div>
+
+@code {
+    private record CityPoint(string Name, string Country, float Lng, float Lat);
+
+    private const string SourceId = "cities";
+    private const string LayerId  = "city-points";
+
+    private readonly CityPoint[] _points = new[]
+    {
+        new CityPoint("San Francisco", "USA",        -122.4194f, 37.7749f),
+        new CityPoint("New York",      "USA",         -74.0060f, 40.7128f),
+        new CityPoint("London",        "UK",           -0.1276f, 51.5074f),
+        new CityPoint("Paris",         "France",        2.3522f, 48.8566f),
+        new CityPoint("Tokyo",         "Japan",       139.6503f, 35.6762f),
+        new CityPoint("Sydney",        "Australia",   151.2093f,-33.8688f),
+    };
+
+    private MapboxMap _map;
+    private string _lastClicked;
+
+    private Options _options = new()
+    {
+        Style  = Options.DefaultStyles.Light,
+        Center = new LngLat(0f, 25f),
+        Zoom   = 1
+    };
+
+    private async Task OnLoad(EventArgs _)
+    {
+        var features = new FeatureCollection();
+
+        foreach (var p in _points)
+        {
+            var attrs = new AttributesTable
+            {
+                { "name",    p.Name },
+                { "country", p.Country }
+            };
+
+            features.Add(new NetTopologySuite.Features.Feature(
+                new NetTopologySuite.Geometries.Point(p.Lng, p.Lat),
+                attrs));
+        }
+
+        await _map.AddSource(SourceId, new GeoJsonSource { Data = features });
+
+        await _map.AddLayer(new Layer
+        {
+            Id     = LayerId,
+            Type   = "circle",
+            Source = SourceId
+        });
+
+        await _map.AddListener<ClickEventArgs>(Events.click, LayerId, OnFeatureClick);
+    }
+
+    private async void OnFeatureClick(ClickEventArgs args)
+    {
+        if (args?.LngLat is null || args.Features is null || args.Features.Length == 0)
+        {
+            return;
+        }
+
+        var feature = args.Features[0];
+        var name    = feature.Properties.TryGetValue("name", out var n) ? n?.ToString() : "Unknown";
+        var country = feature.Properties.TryGetValue("country", out var c) ? c?.ToString() : "";
+
+        _lastClicked = name;
+
+        var popup = await _map.GetPopup(new PopupOptions
+        {
+            CloseButton  = true,
+            CloseOnClick = true,
+            MaxWidth     = "240px"
+        });
+
+        await popup.SetLngLat(args.LngLat);
+        await popup.SetHtml(
+            $"<div style=\"font-family:Inter,sans-serif;padding:0.25rem 0.5rem;\">" +
+            $"<div style=\"font-weight:600;color:#0f172a;margin-bottom:0.15rem;\">{name}</div>" +
+            $"<div style=\"font-size:0.8rem;color:#64748b;\">{country}</div>" +
+            $"</div>");
+        await popup.AddTo(_map);
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public class ClickEventArgs
+    {
+        [System.Text.Json.Serialization.JsonPropertyName("lngLat")]
+        public LngLat LngLat { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("features")]
+        public FeatureProperties[] Features { get; set; }
+    }
+
+    public class FeatureProperties
+    {
+        [System.Text.Json.Serialization.JsonPropertyName("properties")]
+        public System.Collections.Generic.Dictionary<string, object> Properties { get; set; } = new();
+    }
+}

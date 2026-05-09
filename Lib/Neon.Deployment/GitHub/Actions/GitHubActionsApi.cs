@@ -154,6 +154,8 @@ namespace Neon.Deployment
                     var response = await retry.InvokeAsync(
                         async () =>
                         {
+                            await SyncContext.Clear;
+
                             var request = new HttpRequestMessage(HttpMethod.Get, $"/repos/{repoPath.Owner}/{repoPath.Repo}/actions/runs?page={page}");
 
                             // We're seeing some 502 Bad Gateway responses from GHCR.io.  We're going to
@@ -215,6 +217,8 @@ namespace Neon.Deployment
                     var response = await retry.InvokeAsync(
                         async () =>
                         {
+                            await SyncContext.Clear;
+
                             var request = new HttpRequestMessage(HttpMethod.Delete, $"/repos/{repoPath.Owner}/{repoPath.Repo}/actions/runs/{run.Id}");
 
                             return await client.SendAsync(request);

@@ -695,7 +695,7 @@ namespace TestGitHub
 
             var repoPath = Environment.GetEnvironmentVariable("NK_ROOT");
 
-            if (string.IsNullOrEmpty(repoPath) || !Directory.Exists(repoPath) || !File.Exists(Path.Combine(repoPath, "neonKUBE.sln")))
+            if (string.IsNullOrEmpty(repoPath) || !Directory.Exists(repoPath) || !File.Exists(Path.Combine(repoPath, "neonKUBE.slnx")))
             {
                 return;
             }
