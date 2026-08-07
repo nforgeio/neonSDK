@@ -130,7 +130,13 @@ namespace Neon.Roslyn.Xunit
 
             if (!DiagnosticAnalyzers.IsEmpty())
             {
-                var compilationWithAnalyzers = outputCompilation.WithAnalyzers(ImmutableArray.CreateRange(DiagnosticAnalyzers));
+                var analyzerOptions = new AnalyzerOptions(
+                    additionalFiles.Cast<AdditionalText>().ToImmutableArray(),
+                    CompilationOptionsProvider);
+
+                var compilationWithAnalyzers = outputCompilation.WithAnalyzers(
+                    ImmutableArray.CreateRange(DiagnosticAnalyzers),
+                    analyzerOptions);
                 var diagnostics = compilationWithAnalyzers.GetAllDiagnosticsAsync().Result;
                 diags = diags.Concat(diagnostics.ToList()).ToList();
             }
