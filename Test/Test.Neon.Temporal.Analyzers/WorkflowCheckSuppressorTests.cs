@@ -103,6 +103,86 @@ namespace TestNamespace
             }
         }
 
+        [Fact]
+        public void SuppressesSyncContextClearInsideWorkflowClasses()
+        {
+            var testCompilation = new TestCompilationBuilder()
+                .AddDiagnosticAnalyzer(new global::Neon.Analyzers.SyncContextClearAnalyzer())
+                .AddDiagnosticAnalyzer(new global::Neon.Temporal.Analyzers.WorkflowCheckSuppressor())
+                .AddSource(SyncContextClearSource(workflowAttribute: "[Temporalio.Workflows.Workflow]"))
+                .Build();
+
+            testCompilation.Diagnostics.Should().NotContain(diagnostic => diagnostic.Id == "NEON0001");
+        }
+
+        [Fact]
+        public void DoesNotSuppressSyncContextClearOutsideWorkflowClasses()
+        {
+            var testCompilation = new TestCompilationBuilder()
+                .AddDiagnosticAnalyzer(new global::Neon.Analyzers.SyncContextClearAnalyzer())
+                .AddDiagnosticAnalyzer(new global::Neon.Temporal.Analyzers.WorkflowCheckSuppressor())
+                .AddSource(SyncContextClearSource(workflowAttribute: string.Empty))
+                .Build();
+
+            testCompilation.Diagnostics.Should().ContainSingle(
+                diagnostic => diagnostic.Id == "NEON0001" && !diagnostic.IsSuppressed);
+        }
+
+        /// <summary>
+        /// Returns a workflow-like class whose <c>async</c> method omits <c>await SyncContext.Clear;</c>,
+        /// along with the minimal <c>Neon.Tasks.SyncContext</c> and Temporal attribute stubs the
+        /// analyzers need to resolve.
+        /// </summary>
+        /// <param name="workflowAttribute">The attribute to apply to the class, or empty for none.</param>
+        private static string SyncContextClearSource(string workflowAttribute)
+        {
+            return @"
+using System;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
+
+namespace Neon.Tasks
+{
+    public struct SyncContext : INotifyCompletion
+    {
+        public static SyncContext Clear { get; } = default;
+
+        public bool IsCompleted => true;
+        public void OnCompleted(Action continuation) { }
+        public SyncContext GetAwaiter() => this;
+        public void GetResult() { }
+    }
+}
+
+namespace Temporalio.Workflows
+{
+    [AttributeUsage(AttributeTargets.Class)]
+    public sealed class WorkflowAttribute : Attribute
+    {
+    }
+
+    [AttributeUsage(AttributeTargets.Method)]
+    public sealed class WorkflowRunAttribute : Attribute
+    {
+    }
+}
+
+namespace TestNamespace
+{
+    " + workflowAttribute + @"
+    public class TestWorkflow
+    {
+        [Temporalio.Workflows.WorkflowRun]
+        public async Task<string> RunAsync()
+        {
+            await Task.Yield();
+
+            return ""done"";
+        }
+    }
+}";
+        }
+
         [DiagnosticAnalyzer(LanguageNames.CSharp)]
         private sealed class WorkflowDiagnosticsAnalyzer : DiagnosticAnalyzer
         {
@@ -113,7 +193,8 @@ namespace TestNamespace
                 "CA2008",
                 "CA5394",
                 "CS1998",
-                "VSTHRD105");
+                "VSTHRD105",
+                "NEON0001");
 
             private static readonly ImmutableArray<DiagnosticDescriptor> Rules = SupportedDiagnosticIds
                 .Select(id => new DiagnosticDescriptor(

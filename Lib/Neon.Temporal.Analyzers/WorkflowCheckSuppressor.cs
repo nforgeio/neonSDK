@@ -40,6 +40,8 @@ namespace Neon.Temporal.Analyzers
         private static readonly SuppressionDescriptor CA5394Suppression = CreateSuppression("SPTEMP0005", "CA5394");
         private static readonly SuppressionDescriptor CS1998Suppression = CreateSuppression("SPTEMP0006", "CS1998");
         private static readonly SuppressionDescriptor VSTHRD105Suppression = CreateSuppression("SPTEMP0007", "VSTHRD105");
+        private static readonly SuppressionDescriptor NEON0001Suppression = CreateSuppression("SPTEMP0008", "NEON0001",
+            "Temporal nulls the synchronization context for the entire workflow activation, so 'await SyncContext.Clear' is a no-op inside a workflow and risks yielding to the default task scheduler when SyncContext.Mode is changed globally.");
 
         private static readonly ImmutableDictionary<string, SuppressionDescriptor> SuppressionsByDiagnosticId =
             ImmutableDictionary.CreateRange(new[]
@@ -50,7 +52,8 @@ namespace Neon.Temporal.Analyzers
                 new KeyValuePair<string, SuppressionDescriptor>("CA2008", CA2008Suppression),
                 new KeyValuePair<string, SuppressionDescriptor>("CA5394", CA5394Suppression),
                 new KeyValuePair<string, SuppressionDescriptor>("CS1998", CS1998Suppression),
-                new KeyValuePair<string, SuppressionDescriptor>("VSTHRD105", VSTHRD105Suppression)
+                new KeyValuePair<string, SuppressionDescriptor>("VSTHRD105", VSTHRD105Suppression),
+                new KeyValuePair<string, SuppressionDescriptor>("NEON0001", NEON0001Suppression)
             });
 
         /// <inheritdoc/>
@@ -90,12 +93,12 @@ namespace Neon.Temporal.Analyzers
             }
         }
 
-        private static SuppressionDescriptor CreateSuppression(string id, string suppressedDiagnosticId)
+        private static SuppressionDescriptor CreateSuppression(string id, string suppressedDiagnosticId, string justification = null)
         {
             return new SuppressionDescriptor(
                 id:                     id,
                 suppressedDiagnosticId: suppressedDiagnosticId,
-                justification:          "Temporal workflow classes intentionally use patterns required by deterministic workflow execution.");
+                justification:          justification ?? "Temporal workflow classes intentionally use patterns required by deterministic workflow execution.");
         }
 
         private static bool IsInWorkflowClass(
