@@ -437,6 +437,8 @@ namespace TestDeployment
         [Fact]
         public async Task Find()
         {
+            await SyncContext.Clear;
+
             // Create a couple releases one draft and the other published and then
             // verify that Find() works with different predicates.
 
@@ -495,6 +497,8 @@ namespace TestDeployment
         [Fact]
         public async Task Download()
         {
+            await SyncContext.Clear;
+
             // Upload file as a multi-part release and verify that we can download it.
 
             var tagName = Guid.NewGuid().ToString("d");
@@ -576,6 +580,8 @@ namespace TestDeployment
         [Fact]
         public async Task Download_Restart()
         {
+            await SyncContext.Clear;
+
             // Upload file as a multi-part release, simulate a partial download and then verify
             // that downloading it again completes the download.
 
@@ -702,6 +708,8 @@ namespace TestDeployment
         [Fact]
         public async Task DownloadError_Md5()
         {
+            await SyncContext.Clear;
+
             // Upload file as a multi-part release, mess with a part's MD5 and
             // verify that we detect the problem when downloading.
 
@@ -727,7 +735,12 @@ namespace TestDeployment
                 {
                     var targetPath = Path.Combine(tempFolder.Path, download.Filename);
 
-                    await Assert.ThrowsAsync<IOException>(async () => await DeploymentHelper.DownloadMultiPartAsync(download, targetPath));
+                    await Assert.ThrowsAsync<IOException>(async () =>
+                    {
+                        await SyncContext.Clear;
+
+                        await DeploymentHelper.DownloadMultiPartAsync(download, targetPath);
+                    });
                 }
             }
             finally
@@ -739,6 +752,8 @@ namespace TestDeployment
         [Fact]
         public async Task DownloadError_TooLong()
         {
+            await SyncContext.Clear;
+
             // Upload file as a multi-part release and then remove a part
             // from the download and verify that we detect that the downloaded
             // data is longer than we expected.
@@ -765,7 +780,12 @@ namespace TestDeployment
                 {
                     var targetPath = Path.Combine(tempFolder.Path, download.Filename);
 
-                    await Assert.ThrowsAsync<IOException>(async () => await DeploymentHelper.DownloadMultiPartAsync(download, targetPath));
+                    await Assert.ThrowsAsync<IOException>(async () =>
+                    {
+                        await SyncContext.Clear;
+
+                        await DeploymentHelper.DownloadMultiPartAsync(download, targetPath);
+                    });
                 }
             }
             finally
@@ -777,6 +797,8 @@ namespace TestDeployment
         [Fact]
         public async Task DownloadError_TooShort()
         {
+            await SyncContext.Clear;
+
             // Upload file as a multi-part release and then add a fake part
             // to the download and verify that we detect that the downloaded
             // data is shorter than we expected.
@@ -803,7 +825,12 @@ namespace TestDeployment
                 {
                     var targetPath = Path.Combine(tempFolder.Path, download.Filename);
 
-                    await Assert.ThrowsAsync<IOException>(async () => await DeploymentHelper.DownloadMultiPartAsync(download, targetPath));
+                    await Assert.ThrowsAsync<IOException>(async () =>
+                    {
+                        await SyncContext.Clear;
+
+                        await DeploymentHelper.DownloadMultiPartAsync(download, targetPath);
+                    });
                 }
             }
             finally

@@ -154,6 +154,8 @@ namespace TestGitHub
         /// <returns>The tracking <see cref="Task"/>.</returns>
         public static async Task RemoveTestReleasesAsync()
         {
+            await SyncContext.Clear;
+
             using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepoPath))
             {
                 foreach (var release in await repo.Remote.Release.GetAllAsync())
@@ -169,6 +171,8 @@ namespace TestGitHub
         /// <returns>The tracking <see cref="Task"/>.</returns>
         public static async Task RemoveTestTagsAsync()
         {
+            await SyncContext.Clear;
+
             using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepoPath))
             {
                 foreach (var tag in await repo.Remote.Tag.GetAllAsync())
@@ -184,6 +188,8 @@ namespace TestGitHub
         /// <returns>The tracking <see cref="Task"/>.</returns>
         public static async Task CloseIssuesAsync()
         {
+            await SyncContext.Clear;
+
             using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepoPath))
             {
                 foreach (var issue in await repo.Remote.Issue.GetAllAsync())
@@ -213,6 +219,8 @@ namespace TestGitHub
         /// <returns>The tracking <see cref="Task"/>,</returns>
         public static async Task RunTestAsync(Func<Task> action)
         {
+            await SyncContext.Clear;
+
             Covenant.Requires<ArgumentNullException>(action != null, nameof(action));
 
             // We're going to save and restore the ambient service container and then

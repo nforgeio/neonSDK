@@ -131,7 +131,12 @@ namespace TestNeonService
 
                 await SendTaskFunc();
             });
-            receiveTask = Task.Run(async () => await ReceiveTaskFunc());
+            receiveTask = Task.Run(async () =>
+            {
+                await SyncContext.Clear;
+
+                await ReceiveTaskFunc();
+            });
 
             // Indicate that the service is running.
 
@@ -178,6 +183,8 @@ namespace TestNeonService
         /// <returns>The tracking <see cref="Task"/>.</returns>
         private async Task SendTaskFunc()
         {
+            await SyncContext.Clear;
+
             while (!Terminator.TerminateNow)
             {
                 try
@@ -207,6 +214,8 @@ namespace TestNeonService
         /// <returns>The tracking <see cref="Task"/>.</returns>
         private async Task ReceiveTaskFunc()
         {
+            await SyncContext.Clear;
+
             try
             {
                 nats.SubscribeAsync(natsQueue,

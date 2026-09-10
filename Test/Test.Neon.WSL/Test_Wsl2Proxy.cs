@@ -127,6 +127,8 @@ namespace TestWSL
         [Fact]
         public async Task Execute()
         {
+            await SyncContext.Clear;
+
             // Verify that we can execute SUDO and non-SUDO commands.
 
             var imagePath = await TestHelper.GetTestImageAsync();
@@ -152,6 +154,8 @@ namespace TestWSL
         [Fact]
         public async Task Execute_WithPathSpaces()
         {
+            await SyncContext.Clear;
+
             // Verify that we can execute SUDO and non-SUDO commands from a temporary
             // folder that includes spaces.  This happens when the user's Windows username
             // include spaces.
@@ -184,6 +188,8 @@ namespace TestWSL
         [Fact]
         public async Task PathMapping()
         {
+            await SyncContext.Clear;
+
             // Verify that file system path mapping works in both directions.
 
             var imagePath = await TestHelper.GetTestImageAsync();
@@ -216,6 +222,8 @@ namespace TestWSL
         [Fact]
         public async Task UploadFile()
         {
+            await SyncContext.Clear;
+
             // Verify that we can upload a text file to the distribution
             // and set its owner and permissions.
 
@@ -264,6 +272,8 @@ namespace TestWSL
         [Fact]
         public async Task StartAs_Root()
         {
+            await SyncContext.Clear;
+
             // Verify that we can start a distro as [root] without configuring
             // or starting systemd.
 

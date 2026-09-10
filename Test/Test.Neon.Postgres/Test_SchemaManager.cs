@@ -117,6 +117,8 @@ namespace Test.Neon.Postgres
         [Fact]
         public async Task Constructor_NoScripts()
         {
+            await SyncContext.Clear;
+
             // Verify that we detect the situation where the script folder has no scripts.
 
             var databaseName = GetUniqueDatabaseName();
@@ -136,6 +138,8 @@ namespace Test.Neon.Postgres
         [Fact]
         public async Task Constructor_NoCreateScript()
         {
+            await SyncContext.Clear;
+
             // Verify that we detect the situation where the script folder has some scripts
             // but no database creation script.
 
@@ -161,6 +165,8 @@ namespace Test.Neon.Postgres
         [Fact]
         public async Task Create()
         {
+            await SyncContext.Clear;
+
             // Verify that the schema manager can create a database.
 
             var databaseName = GetUniqueDatabaseName();
@@ -188,6 +194,8 @@ namespace Test.Neon.Postgres
         [Fact]
         public async Task Create_DatabaseExists()
         {
+            await SyncContext.Clear;
+
             // Verify that the schema manager database creation handles the case
             // where the database already exists and has a proper DBINFO table.
 
@@ -228,6 +236,8 @@ namespace Test.Neon.Postgres
         [Fact]
         public async Task Create_DatabaseExists_NoDBInfo()
         {
+            await SyncContext.Clear;
+
             // Verify that create throws an exception when the database already
             // exists but doesn't have a valid DBINFO table.
 
@@ -250,7 +260,12 @@ namespace Test.Neon.Postgres
                     Assert.Equal(0, status.MaxVersion);
                     Assert.False(status.IsCurrent);
 
-                    await Assert.ThrowsAsync<SchemaManagerException>(async () => await schemaManager.CreateDatabaseAsync());
+                    await Assert.ThrowsAsync<SchemaManagerException>(async () =>
+                    {
+                        await SyncContext.Clear;
+
+                        await schemaManager.CreateDatabaseAsync();
+                    });
                 }
             }
         }
@@ -258,6 +273,8 @@ namespace Test.Neon.Postgres
         [Fact]
         public async Task Update_MissingScript()
         {
+            await SyncContext.Clear;
+
             // Verify that we detect the situation where the script folder has a database
             // creation script but there's a version gap in the remaining scripts.
 
@@ -278,7 +295,12 @@ namespace Test.Neon.Postgres
                 using (var schemaManager = new SchemaManager(postgres, databaseName, tempFolder.Path))
                 {
                     await schemaManager.CreateDatabaseAsync();
-                    await Assert.ThrowsAsync<FileNotFoundException>(async () => await schemaManager.UpgradeDatabaseAsync());
+                    await Assert.ThrowsAsync<FileNotFoundException>(async () =>
+                    {
+                        await SyncContext.Clear;
+
+                        await schemaManager.UpgradeDatabaseAsync();
+                    });
                 }
             }
         }
@@ -286,6 +308,8 @@ namespace Test.Neon.Postgres
         [Fact]
         public async Task Update_MissingDBInfo()
         {
+            await SyncContext.Clear;
+
             // Verify that update detects when the target database doesn't
             // have a DBINFO table.
 
@@ -316,7 +340,12 @@ namespace Test.Neon.Postgres
                     status = await schemaManager.GetStatusAsync();
                     Assert.Equal(SchemaStatus.ExistsNoSchema, status.SchemaStatus);
 
-                    await Assert.ThrowsAsync<SchemaManagerException>(async () => await schemaManager.UpgradeDatabaseAsync());
+                    await Assert.ThrowsAsync<SchemaManagerException>(async () =>
+                    {
+                        await SyncContext.Clear;
+
+                        await schemaManager.UpgradeDatabaseAsync();
+                    });
                 }
             }
         }
@@ -324,6 +353,8 @@ namespace Test.Neon.Postgres
         [Fact]
         public async Task Update_InvalidDBInfo()
         {
+            await SyncContext.Clear;
+
             // Verify that update detects when the target database has a DBINFO
             // table but that it's invalid.
 
@@ -350,7 +381,12 @@ namespace Test.Neon.Postgres
                     // Set a negative version in DBINFO and verify the exception.
 
                     await schemaManager.TargetConnection.ExecuteNonQueryAsync($"UPDATE {SchemaManager.DbInfoTableName} SET version = -1;");
-                    await Assert.ThrowsAsync<SchemaManagerException>(async () => await schemaManager.GetStatusAsync());
+                    await Assert.ThrowsAsync<SchemaManagerException>(async () =>
+                    {
+                        await SyncContext.Clear;
+
+                        await schemaManager.GetStatusAsync();
+                    });
                 }
             }
         }
@@ -358,6 +394,8 @@ namespace Test.Neon.Postgres
         [Fact]
         public async Task Update_Required()
         {
+            await SyncContext.Clear;
+
             // Verify that update actually applies required updates.
 
             // Create the initial database and verify that it's up to date.
@@ -450,6 +488,8 @@ INSERT INTO my_table (version) values (1);",
         [Fact]
         public async Task Update_NotRequired()
         {
+            await SyncContext.Clear;
+
             // Verify that update does not apply updates that have already
             // been applied.
 
@@ -540,6 +580,8 @@ INSERT INTO my_table (version) values (101);",
         [Fact]
         public async Task Update_Stop()
         {
+            await SyncContext.Clear;
+
             // Verify that we can stop updates at a specific version.
 
             var databaseName = GetUniqueDatabaseName();
@@ -610,6 +652,8 @@ INSERT INTO my_table (version) values (1);",
         [Fact]
         public async Task Update_Stop_Error()
         {
+            await SyncContext.Clear;
+
             // Verify that we're not allowed to stop at a version lower
             // than the current database version.
 
@@ -669,7 +713,12 @@ INSERT INTO my_table (version) values (1);",
                     // Verify that we're not allowed to stop at an update that's
                     // already been applied.
 
-                    await Assert.ThrowsAsync<SchemaManagerException>(async () => await schemaManager.UpgradeDatabaseAsync(stopVersion: 2));
+                    await Assert.ThrowsAsync<SchemaManagerException>(async () =>
+                    {
+                        await SyncContext.Clear;
+
+                        await schemaManager.UpgradeDatabaseAsync(stopVersion: 2);
+                    });
 
                     // Verify that the database version hasn't changed.
 
@@ -684,6 +733,8 @@ INSERT INTO my_table (version) values (1);",
         [Fact]
         public async Task Scripts_WithLeadingZeros()
         {
+            await SyncContext.Clear;
+
             // Verify that we support script file names with leading zeros in
             // the version numbers.
 
@@ -777,6 +828,8 @@ INSERT INTO my_table (version) values (1);",
         [Fact]
         public async Task Update_Conflict()
         {
+            await SyncContext.Clear;
+
             // Verify that we can detect when another updater appears to be 
             // updating the database.
 
@@ -833,7 +886,12 @@ INSERT INTO my_table (version) values (1);",
                     // Attempt to apply the updates.  This should fail because another updater
                     // appears to be updating.
 
-                    await Assert.ThrowsAsync<SchemaManagerException>(async () => await schemaManager.UpgradeDatabaseAsync());
+                    await Assert.ThrowsAsync<SchemaManagerException>(async () =>
+                    {
+                        await SyncContext.Clear;
+
+                        await schemaManager.UpgradeDatabaseAsync();
+                    });
 
                     // Try updating again with [force=true].  It should work this time.
 
@@ -850,6 +908,8 @@ INSERT INTO my_table (version) values (1);",
         [Fact]
         public async Task Update_Error()
         {
+            await SyncContext.Clear;
+
             // Verify that we can detect when another updater appears to be 
             // failed due to a simulated script execution error.
 
@@ -907,7 +967,12 @@ INSERT INTO my_table (version) values (1);",
                     // Attempt to apply the updates.  This should fail because another updater
                     // appears to be updating.
 
-                    await Assert.ThrowsAsync<SchemaManagerException>(async () => await schemaManager.UpgradeDatabaseAsync());
+                    await Assert.ThrowsAsync<SchemaManagerException>(async () =>
+                    {
+                        await SyncContext.Clear;
+
+                        await schemaManager.UpgradeDatabaseAsync();
+                    });
 
                     // Try updating again with [force=true].  It should work this time.
 
@@ -924,6 +989,8 @@ INSERT INTO my_table (version) values (1);",
         [Fact]
         public async Task EmbeddedScripts()
         {
+            await SyncContext.Clear;
+
             // Verify that we can process scripts loaded from embedded resources.
 
             var databaseName = GetUniqueDatabaseName();

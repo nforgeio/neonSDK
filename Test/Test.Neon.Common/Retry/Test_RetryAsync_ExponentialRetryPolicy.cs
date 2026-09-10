@@ -116,6 +116,8 @@ namespace TestCommon
                     await policy.InvokeAsync(
                         async () =>
                         {
+                            await SyncContext.Clear;
+
                             times.Add(DateTime.UtcNow);
                             await Task.CompletedTask;
                             throw new TransientException();
@@ -129,15 +131,21 @@ namespace TestCommon
         [Fact]
         public async Task FailAll_Result()
         {
+            await SyncContext.Clear;
+
             var policy = new ExponentialRetryPolicy(TransientDetector);
             var times  = new List<DateTime>();
 
             await Assert.ThrowsAsync<TransientException>(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     await policy.InvokeAsync<string>(
                         async () =>
                         {
+                            await SyncContext.Clear;
+
                             times.Add(DateTime.UtcNow);
                             await Task.CompletedTask;
                             throw new TransientException();
@@ -151,15 +159,21 @@ namespace TestCommon
         [Fact]
         public async Task FailImmediate()
         {
+            await SyncContext.Clear;
+
             var policy = new ExponentialRetryPolicy(TransientDetector);
             var times  = new List<DateTime>();
 
             await Assert.ThrowsAsync<NotImplementedException>(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     await policy.InvokeAsync(
                         async () =>
                         {
+                            await SyncContext.Clear;
+
                             times.Add(DateTime.UtcNow);
                             await Task.CompletedTask;
                             throw new NotImplementedException();
@@ -172,15 +186,21 @@ namespace TestCommon
         [Fact]
         public async Task FailImmediate_Result()
         {
+            await SyncContext.Clear;
+
             var policy = new ExponentialRetryPolicy(TransientDetector);
             var times  = new List<DateTime>();
 
             await Assert.ThrowsAsync<NotImplementedException>(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     await policy.InvokeAsync<string>(
                         async () =>
                         {
+                            await SyncContext.Clear;
+
                             times.Add(DateTime.UtcNow);
                             await Task.CompletedTask;
                             throw new NotImplementedException();
@@ -193,15 +213,21 @@ namespace TestCommon
         [Fact]
         public async Task FailDelayed()
         {
+            await SyncContext.Clear;
+
             var policy = new ExponentialRetryPolicy(TransientDetector);
             var times  = new List<DateTime>();
 
             await Assert.ThrowsAsync<NotImplementedException>(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     await policy.InvokeAsync(
                         async () =>
                         {
+                            await SyncContext.Clear;
+
                             times.Add(DateTime.UtcNow);
                             await Task.CompletedTask;
 
@@ -223,15 +249,21 @@ namespace TestCommon
         [Fact]
         public async Task FailDelayed_Result()
         {
+            await SyncContext.Clear;
+
             var policy = new ExponentialRetryPolicy(TransientDetector);
             var times  = new List<DateTime>();
 
             await Assert.ThrowsAsync<NotImplementedException>(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     await policy.InvokeAsync<string>(
                         async () =>
                         {
+                            await SyncContext.Clear;
+
                             times.Add(DateTime.UtcNow);
                             await Task.CompletedTask;
 
@@ -253,6 +285,8 @@ namespace TestCommon
         [Fact]
         public async Task SuccessImmediate()
         {
+            await SyncContext.Clear;
+
             var policy  = new ExponentialRetryPolicy(TransientDetector);
             var times   = new List<DateTime>();
             var success = false;
@@ -260,6 +294,8 @@ namespace TestCommon
             await policy.InvokeAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     times.Add(DateTime.UtcNow);
                     await Task.CompletedTask;
 
@@ -273,12 +309,16 @@ namespace TestCommon
         [Fact]
         public async Task SuccessImmediate_Result()
         {
+            await SyncContext.Clear;
+
             var policy = new ExponentialRetryPolicy(TransientDetector);
             var times  = new List<DateTime>();
 
             var success = await policy.InvokeAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     times.Add(DateTime.UtcNow);
                     await Task.CompletedTask;
 
@@ -292,6 +332,8 @@ namespace TestCommon
         [Fact]
         public async Task SuccessDelayed()
         {
+            await SyncContext.Clear;
+
             var policy  = new ExponentialRetryPolicy(TransientDetector);
             var times   = new List<DateTime>();
             var success = false;
@@ -299,6 +341,8 @@ namespace TestCommon
             await policy.InvokeAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     times.Add(DateTime.UtcNow);
                     await Task.CompletedTask;
 
@@ -318,12 +362,16 @@ namespace TestCommon
         [Fact]
         public async Task SuccessDelayed_Result()
         {
+            await SyncContext.Clear;
+
             var policy = new ExponentialRetryPolicy(TransientDetector);
             var times  = new List<DateTime>();
 
             var success = await policy.InvokeAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     times.Add(DateTime.UtcNow);
                     await Task.CompletedTask;
 
@@ -343,6 +391,8 @@ namespace TestCommon
         [Fact]
         public async Task SuccessDelayedByType()
         {
+            await SyncContext.Clear;
+
             var policy  = new ExponentialRetryPolicy(typeof(NotReadyException));
             var times   = new List<DateTime>();
             var success = false;
@@ -350,6 +400,8 @@ namespace TestCommon
             await policy.InvokeAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     times.Add(DateTime.UtcNow);
                     await Task.CompletedTask;
 
@@ -369,6 +421,8 @@ namespace TestCommon
         [Fact]
         public async Task SuccessDelayedAggregateSingle()
         {
+            await SyncContext.Clear;
+
             var policy  = new ExponentialRetryPolicy(typeof(NotReadyException));
             var times   = new List<DateTime>();
             var success = false;
@@ -376,6 +430,8 @@ namespace TestCommon
             await policy.InvokeAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     times.Add(DateTime.UtcNow);
                     await Task.CompletedTask;
 
@@ -395,6 +451,8 @@ namespace TestCommon
         [Fact]
         public async Task SuccessDelayedAggregateArray()
         {
+            await SyncContext.Clear;
+
             var policy  = new ExponentialRetryPolicy(new Type[] { typeof(NotReadyException), typeof(KeyNotFoundException) });
             var times   = new List<DateTime>();
             var success = false;
@@ -402,6 +460,8 @@ namespace TestCommon
             await policy.InvokeAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     times.Add(DateTime.UtcNow);
                     await Task.CompletedTask;
 
@@ -428,6 +488,8 @@ namespace TestCommon
         [Fact]
         public async Task SuccessCustom()
         {
+            await SyncContext.Clear;
+
             var policy  = new ExponentialRetryPolicy(TransientDetector, maxAttempts: 10, initialRetryInterval: TimeSpan.FromSeconds(0.5), maxRetryInterval: TimeSpan.FromSeconds(4));
             var times   = new List<DateTime>();
             var success = false;
@@ -439,6 +501,8 @@ namespace TestCommon
             await policy.InvokeAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     times.Add(DateTime.UtcNow);
                     await Task.CompletedTask;
 
@@ -458,6 +522,8 @@ namespace TestCommon
         [Fact]
         public async Task SuccessCustom_Result()
         {
+            await SyncContext.Clear;
+
             var policy = new ExponentialRetryPolicy(TransientDetector, maxAttempts: 10, initialRetryInterval: TimeSpan.FromSeconds(0.5), maxRetryInterval: TimeSpan.FromSeconds(4));
             var times  = new List<DateTime>();
 
@@ -468,6 +534,8 @@ namespace TestCommon
             var success = await policy.InvokeAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     times.Add(DateTime.UtcNow);
                     await Task.CompletedTask;
 
@@ -487,6 +555,8 @@ namespace TestCommon
         [Fact]
         public async Task Timeout()
         {
+            await SyncContext.Clear;
+
             var timeout = TimeSpan.FromSeconds(1.5);
             var policy  = new ExponentialRetryPolicy(TransientDetector, initialRetryInterval: TimeSpan.FromSeconds(0.5), maxRetryInterval: TimeSpan.FromSeconds(4), timeout: timeout);
             var times   = new List<DateTime>();
@@ -504,9 +574,13 @@ namespace TestCommon
             await Assert.ThrowsAsync<TransientException>(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     await policy.InvokeAsync(
                         async () =>
                         {
+                            await SyncContext.Clear;
+
                             times.Add(DateTime.UtcNow);
                             await Task.CompletedTask;
 
@@ -542,9 +616,13 @@ namespace TestCommon
             await Assert.ThrowsAsync<TransientException>(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     await policy.InvokeAsync(
                         async () =>
                         {
+                            await SyncContext.Clear;
+
                             times.Add(DateTime.UtcNow);
                             await Task.CompletedTask;
 
@@ -558,6 +636,8 @@ namespace TestCommon
         [Fact]
         public async Task Cancel()
         {
+            await SyncContext.Clear;
+
             // Use a cancellation token to cancel an operation.
 
             var cts    = new CancellationTokenSource();
@@ -568,9 +648,13 @@ namespace TestCommon
             await Assert.ThrowsAnyAsync<OperationCanceledException>(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     await policy.InvokeAsync(
                         async () =>
                         {
+                            await SyncContext.Clear;
+
                             await Task.CompletedTask;
                             throw new TransientException();
                         },

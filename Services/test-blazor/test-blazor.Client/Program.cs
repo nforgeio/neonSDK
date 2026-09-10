@@ -20,6 +20,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
 using Neon.Blazor;
+using Neon.Tasks;
 
 namespace TestBlazor.Client
 {
@@ -30,6 +31,8 @@ namespace TestBlazor.Client
     {
         static async Task Main(string[] args)
         {
+            await SyncContext.Clear;
+
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.Services.AddNeonBlazor();
             await builder.Build().RunAsync();

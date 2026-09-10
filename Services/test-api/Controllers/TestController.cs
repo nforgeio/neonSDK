@@ -26,6 +26,7 @@ using Microsoft.AspNetCore.Mvc;
 using Neon.Common;
 using Neon.Service;
 using Neon.Web;
+using Neon.Tasks;
 
 namespace TestApiService
 {
@@ -44,6 +45,8 @@ namespace TestApiService
         [HttpGet("echo")]
         public async Task EchoAsync()
         {
+            await SyncContext.Clear;
+
             // Return the query string if there is one.
 
             if (Request.QueryString.HasValue)
@@ -92,6 +95,8 @@ namespace TestApiService
         [HttpPost("exit")]
         public async Task ExitAsync()
         {
+            await SyncContext.Clear;
+
             // We're going to start a parallel task that will wait a bit so the
             // HTTP reply can be transmitted before terminating the service.
 

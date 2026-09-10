@@ -71,7 +71,12 @@ namespace TestCommon
 
                         await pinger.SendPingAsync("240.0.0.0");
                     });
-                    await Assert.ThrowsAsync<PingException>(async () => await pinger.SendPingAsync(IPAddress.Parse("240.0.0.0")));
+                    await Assert.ThrowsAsync<PingException>(async () =>
+                    {
+                        await SyncContext.Clear;
+
+                        await pinger.SendPingAsync(IPAddress.Parse("240.0.0.0"));
+                    });
                 }
             }
         }

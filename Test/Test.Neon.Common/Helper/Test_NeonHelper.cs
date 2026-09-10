@@ -284,9 +284,16 @@ namespace TestCommon
         [Fact]
         public async Task GetObjectResultAsync()
         {
+            await SyncContext.Clear;
+
             // We should see an ArgumentException here because the task doesn't return a result.
 
-            await Assert.ThrowsAsync<ArgumentException>(async () => await NeonHelper.GetTaskResultAsObjectAsync(GetNoResultAsync()));
+            await Assert.ThrowsAsync<ArgumentException>(async () =>
+            {
+                await SyncContext.Clear;
+
+                await NeonHelper.GetTaskResultAsObjectAsync(GetNoResultAsync());
+            });
 
             // This should succeed.
 

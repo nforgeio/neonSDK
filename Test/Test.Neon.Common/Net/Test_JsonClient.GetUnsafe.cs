@@ -90,11 +90,15 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task GetUnsafeAsync_NotJson()
         {
+            await SyncContext.Clear;
+
             // Ensure that GET returning a non-JSON content type returns a NULL document.
 
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -133,11 +137,15 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task GetUnsafeAsync_Args()
         {
+            await SyncContext.Clear;
+
             // Ensure that GET with query arguments work.
 
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -184,11 +192,15 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task GetUnsafeAsync_Headers()
         {
+            await SyncContext.Clear;
+
             // Ensure that GET with query arguments work.
 
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -235,11 +247,15 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task GetUnsafeAsync_Dynamic()
         {
+            await SyncContext.Clear;
+
             // Ensure that GET returning a dynamic works.
 
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -278,11 +294,15 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task GetUnsafeAsync_Dynamic_NotJson()
         {
+            await SyncContext.Clear;
+
             // Ensure that GET returning non-JSON returns a NULL dynamic document.
 
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -321,11 +341,15 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task GetUnsafeAsync_Error()
         {
+            await SyncContext.Clear;
+
             // Ensure that GET returning a hard error works.
 
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var response = context.Response;
 
                     response.StatusCode = (int)HttpStatusCode.NotFound;
@@ -348,6 +372,8 @@ namespace TestCommon
         [Fact(Skip = "TODO")]
         public async Task GetUnsafeAsync_Retry()
         {
+            await SyncContext.Clear;
+
             // Ensure that GET will retry after soft errors.
 
             // $todo(jefflill): Simulate socket errors via HttpClient mocking.
@@ -358,6 +384,8 @@ namespace TestCommon
         [Fact(Skip = "TODO")]
         public async Task GetUnsafeAsync_NoRetryNull()
         {
+            await SyncContext.Clear;
+
             // Ensure that GET won't retry if [retryPolicy=NULL]
 
             // $todo(jefflill): Simulate socket errors via HttpClient mocking.
@@ -368,6 +396,8 @@ namespace TestCommon
         [Fact(Skip = "TODO")]
         public async Task GetUnsafeAsync_NoRetryExplicit()
         {
+            await SyncContext.Clear;
+
             // Ensure that GET won't retry if [retryPolicy=NoRetryPolicy]
 
             // $todo(jefflill): Simulate socket errors via HttpClient mocking.

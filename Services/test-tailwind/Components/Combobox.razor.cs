@@ -36,6 +36,8 @@ namespace TestTailwind.Components
         }
         private async Task OnInputChangedAsync(string input)
         {
+            await SyncContext.Clear;
+
             filteredPeople = string.IsNullOrWhiteSpace(input)
                 ? allPeople
                 : allPeople.Where(p => p.Name.Contains(input, StringComparison.OrdinalIgnoreCase)).ToList();

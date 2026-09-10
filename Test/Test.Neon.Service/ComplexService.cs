@@ -173,7 +173,12 @@ namespace TestNeonService
 
             // Start the service task 
 
-            task = Task.Run(async () => await TaskFunc());
+            task = Task.Run(async () =>
+            {
+                await SyncContext.Clear;
+
+                await TaskFunc();
+            });
 
             // Indicate that the service is running.
 
@@ -196,6 +201,8 @@ namespace TestNeonService
         /// <returns>The tracking <see cref="Task"/>.</returns>
         public async Task OnWebRequest(HttpContext context)
         {
+            await SyncContext.Clear;
+
             await context.Response.WriteAsync(responseText);
         }
 
@@ -232,6 +239,8 @@ namespace TestNeonService
         /// <returns>The tracking <see cref="Task"/>.</returns>
         private async Task TaskFunc()
         {
+            await SyncContext.Clear;
+
             while (true)
             {
                 try

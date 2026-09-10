@@ -130,6 +130,8 @@ namespace TestNeonService
         [Fact]
         public async Task EmulatedFileConfig()
         {
+            await SyncContext.Clear;
+
             // Restart the service specifying the configuration via
             // a emulated configuration file.
 
@@ -149,6 +151,8 @@ namespace TestNeonService
 
         public async Task PhysicalFileConfig()
         {
+            await SyncContext.Clear;
+
             // Restart the service specifying the configuration via
             // a physical configuration file.
 
@@ -172,6 +176,8 @@ namespace TestNeonService
         [Fact]
         public async Task EncryptedFileConfig()
         {
+            await SyncContext.Clear;
+
             // Restart the service specifying the configuration via
             // an encrypted physical configuration file.
 
@@ -203,6 +209,8 @@ namespace TestNeonService
         [Fact]
         public async Task EnvironmentFileConfig()
         {
+            await SyncContext.Clear;
+
             // Restart the service specifying by loading a file with
             // the environment variable assignment.
 
@@ -230,6 +238,8 @@ WEB_RESULT=HELLO WORLD!
         [Fact]
         public async Task EncryptedEnvironmentFileConfig()
         {
+            await SyncContext.Clear;
+
             // Restart the service specifying by loading an encrypted file with
             // the environment variable assignment.
 

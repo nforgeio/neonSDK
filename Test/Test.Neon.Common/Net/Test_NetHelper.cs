@@ -905,6 +905,8 @@ namespace TestCommon
         [Fact]
         public async Task GetMacAddress()
         {
+            await SyncContext.Clear;
+
             // Attempt to fetch the MAC address for the local gateway.
 
             var gatewayAddress = NetHelper.GetConnectedGatewayAddress();

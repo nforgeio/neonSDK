@@ -494,6 +494,8 @@ namespace TestModelGen.ServiceModel
         [Fact]
         public async Task MethodService()
         {
+            await SyncContext.Clear;
+
             // Verify that the correct HTTP methods are used.
 
             var settings = new ModelGeneratorSettings("Default")
@@ -522,6 +524,8 @@ namespace TestModelGen.ServiceModel
             using (new MockHttpServer(TestSettings.BaseAddress,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -628,6 +632,8 @@ namespace TestModelGen.ServiceModel
         [Fact]
         public async Task UnsafeMethodService()
         {
+            await SyncContext.Clear;
+
             // Verify that the correct HTTP methods are used when performing unsafe
             // operations.
 
@@ -657,6 +663,8 @@ namespace TestModelGen.ServiceModel
             using (new MockHttpServer(TestSettings.BaseAddress,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -762,6 +770,8 @@ namespace TestModelGen.ServiceModel
         [Fact]
         public async Task ResultsService()
         {
+            await SyncContext.Clear;
+
             // Verify that we can parse various types of service results.
 
             var settings = new ModelGeneratorSettings("Default")
@@ -790,6 +800,8 @@ namespace TestModelGen.ServiceModel
             using (new MockHttpServer(TestSettings.BaseAddress,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request    = context.Request;
                     var response   = context.Response;
                     var method     = request.Path.Replace("/ResultsService/", string.Empty);
@@ -961,6 +973,8 @@ namespace TestModelGen.ServiceModel
         [Fact]
         public async Task RouteService1()
         {
+            await SyncContext.Clear;
+
             // Verify that we do URI routing properly.
 
             var settings = new ModelGeneratorSettings("Default")
@@ -989,6 +1003,8 @@ namespace TestModelGen.ServiceModel
             using (new MockHttpServer(TestSettings.BaseAddress,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -1040,6 +1056,8 @@ namespace TestModelGen.ServiceModel
         [Fact]
         public async Task RouteService2()
         {
+            await SyncContext.Clear;
+
             // Verify that we do URI routing properly.
 
             var settings = new ModelGeneratorSettings("Default")
@@ -1068,6 +1086,8 @@ namespace TestModelGen.ServiceModel
             using (new MockHttpServer(TestSettings.BaseAddress,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -1119,6 +1139,8 @@ namespace TestModelGen.ServiceModel
         [Fact]
         public async Task RouteService3()
         {
+            await SyncContext.Clear;
+
             // Verify that we do URI routing properly.
 
             var settings = new ModelGeneratorSettings("Default")
@@ -1147,6 +1169,8 @@ namespace TestModelGen.ServiceModel
             using (new MockHttpServer(TestSettings.BaseAddress,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -1198,6 +1222,8 @@ namespace TestModelGen.ServiceModel
         [Fact]
         public async Task SpecialQuery()
         {
+            await SyncContext.Clear;
+
             // Verify that we can pass some complex and nullable types as query parameters.
 
             var settings = new ModelGeneratorSettings("Default")
@@ -1226,6 +1252,8 @@ namespace TestModelGen.ServiceModel
             using (new MockHttpServer(TestSettings.BaseAddress,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -1553,6 +1581,8 @@ namespace TestModelGen.ServiceModel
         [Fact]
         public async Task FromBody()
         {
+            await SyncContext.Clear;
+
             // Verify that we can transmit [FromBody] parameters properly.
 
             var settings = new ModelGeneratorSettings("Default")
@@ -1581,6 +1611,8 @@ namespace TestModelGen.ServiceModel
             using (new MockHttpServer(TestSettings.BaseAddress,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -1656,6 +1688,8 @@ namespace TestModelGen.ServiceModel
         [Fact]
         public async Task Composed()
         {
+            await SyncContext.Clear;
+
             // Verify that a client composed from multiple service models work.
 
             var settings = new ModelGeneratorSettings("Default")
@@ -1684,6 +1718,8 @@ namespace TestModelGen.ServiceModel
             using (new MockHttpServer(TestSettings.BaseAddress,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 

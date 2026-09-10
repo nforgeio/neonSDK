@@ -88,11 +88,15 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task HeadUnsafeAsync_NotJson()
         {
+            await SyncContext.Clear;
+
             // Ensure that HEAD returning a non-JSON content type returns a NULL document.
 
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -129,11 +133,15 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task HeadUnsafeAsync_Args()
         {
+            await SyncContext.Clear;
+
             // Ensure that HEAD with query arguments work.
 
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -177,11 +185,15 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task HeadUnsafeAsync_Headers()
         {
+            await SyncContext.Clear;
+
             // Ensure that HEAD with query arguments work.
 
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -225,11 +237,15 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task HeadUnsafeAsync_Dynamic()
         {
+            await SyncContext.Clear;
+
             // Ensure that HEAD returning a dynamic works.
 
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -266,11 +282,15 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task HeadUnsafeAsync_Dynamic_NotJson()
         {
+            await SyncContext.Clear;
+
             // Ensure that HEAD returning non-JSON returns a NULL dynamic document.
 
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -307,11 +327,15 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task HeadUnsafeAsync_Error()
         {
+            await SyncContext.Clear;
+
             // Ensure that HEAD returning a hard error works.
 
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var response = context.Response;
 
                     response.StatusCode = (int)HttpStatusCode.NotFound;
@@ -330,6 +354,8 @@ namespace TestCommon
         [Fact(Skip = "TODO")]
         public async Task HeadUnsafeAsync_Retry()
         {
+            await SyncContext.Clear;
+
             // Ensure that HEAD will retry after soft errors.
 
             // $todo(jefflill): Simulate socket errors via HttpClient mocking.
@@ -340,6 +366,8 @@ namespace TestCommon
         [Fact(Skip = "TODO")]
         public async Task HeadUnsafeAsync_NoRetryNull()
         {
+            await SyncContext.Clear;
+
             // Ensure that HEAD won't retry if [retryPolicy=NULL]
 
             // $todo(jefflill): Simulate socket errors via HttpClient mocking.
@@ -350,6 +378,8 @@ namespace TestCommon
         [Fact(Skip = "TODO")]
         public async Task HeadUnsafeAsync_NoRetryExplicit()
         {
+            await SyncContext.Clear;
+
             // Ensure that HEAD won't retry if [retryPolicy=NoRetryPolicy]
 
             // $todo(jefflill): Simulate socket errors via HttpClient mocking.

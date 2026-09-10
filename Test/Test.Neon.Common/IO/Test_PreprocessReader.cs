@@ -170,6 +170,8 @@ namespace TestCommon
         [Fact]
         public async Task NoChange()
         {
+            await SyncContext.Clear;
+
             const string input =
 @"This is a test
 
@@ -183,6 +185,8 @@ emergency broadcasting system.
         [Fact]
         public async Task Comments()
         {
+            await SyncContext.Clear;
+
             await VerifyAsync(
 @"// This is a comment
      // This is a comment
@@ -367,6 +371,8 @@ abc
         [Fact]
         public async Task VariablesDefault()
         {
+            await SyncContext.Clear;
+
             await VerifyAsync(
 @"
 $<hello>
@@ -403,6 +409,8 @@ Hello World! Goodbye!
             await Assert.ThrowsAsync<FormatException>(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     await VerifyAsync("$<recursive>", string.Empty,
                         new KeyValuePair<string, string>[]
                         {
@@ -415,6 +423,8 @@ Hello World! Goodbye!
         [Fact]
         public async Task VariablesCurly()
         {
+            await SyncContext.Clear;
+
             try
             {
                 variableRegex = PreprocessReader.CurlyVariableExpansionRegex;
@@ -455,6 +465,8 @@ Hello World! Goodbye!
                 await Assert.ThrowsAsync<FormatException>(
                     async () =>
                     {
+                        await SyncContext.Clear;
+
                         await VerifyAsync("${recursive}", string.Empty,
                             new KeyValuePair<string, string>[]
                             {
@@ -472,6 +484,8 @@ Hello World! Goodbye!
         [Fact]
         public async Task CheckForUndefinedVariables()
         {
+            await SyncContext.Clear;
+
             // Verify that we can disable undefined variable checks.
 
             try
@@ -502,13 +516,20 @@ Hello World! Goodbye!
 
             // Verify checks for simple undefined variable references.
 
-            await Assert.ThrowsAsync<KeyNotFoundException>(async () => await VerifyAsync(">>>$<hello><<<", string.Empty));
+            await Assert.ThrowsAsync<KeyNotFoundException>(async () =>
+            {
+                await SyncContext.Clear;
+
+                await VerifyAsync(">>>$<hello><<<", string.Empty);
+            });
 
             // Verify checks for indirect undefined variable references.
 
             await Assert.ThrowsAsync<KeyNotFoundException>(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     await VerifyAsync(">>>$<ref><<<", string.Empty,
                     new KeyValuePair<string, string>[]
                         {
@@ -522,6 +543,8 @@ Hello World! Goodbye!
             await Assert.ThrowsAsync<KeyNotFoundException>(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     await VerifyAsync(
 @"
 ---$<env:NF_TEST_VARIABLE>---
@@ -584,6 +607,8 @@ Hello World! Goodbye!
         [Fact]
         public async Task VariablesParen()
         {
+            await SyncContext.Clear;
+
             try
             {
                 variableRegex = PreprocessReader.ParenVariableExpansionRegex;
@@ -624,6 +649,8 @@ Hello World! Goodbye!
                 await Assert.ThrowsAsync<FormatException>(
                     async () =>
                     {
+                        await SyncContext.Clear;
+
                         await VerifyAsync("$(recursive)", string.Empty,
                             new KeyValuePair<string, string>[]
                             {
@@ -641,6 +668,8 @@ Hello World! Goodbye!
         [Fact]
         public async Task Define()
         {
+            await SyncContext.Clear;
+
             await VerifyAsync(
 @"
 #define test = 1
@@ -674,15 +703,37 @@ FOOBAR
 ");
             // Verify that we detect invalid #define statements.
 
-            await Assert.ThrowsAsync<FormatException>(async () => await VerifyAsync("#define", string.Empty));
-            await Assert.ThrowsAsync<FormatException>(async () => await VerifyAsync("#define =", string.Empty));
-            await Assert.ThrowsAsync<FormatException>(async () => await VerifyAsync("#define %%2 = 10", string.Empty));
-            await Assert.ThrowsAsync<FormatException>(async () => await VerifyAsync("#define test junk", string.Empty));
+            await Assert.ThrowsAsync<FormatException>(async () =>
+            {
+                await SyncContext.Clear;
+
+                await VerifyAsync("#define", string.Empty);
+            });
+            await Assert.ThrowsAsync<FormatException>(async () =>
+            {
+                await SyncContext.Clear;
+
+                await VerifyAsync("#define =", string.Empty);
+            });
+            await Assert.ThrowsAsync<FormatException>(async () =>
+            {
+                await SyncContext.Clear;
+
+                await VerifyAsync("#define %%2 = 10", string.Empty);
+            });
+            await Assert.ThrowsAsync<FormatException>(async () =>
+            {
+                await SyncContext.Clear;
+
+                await VerifyAsync("#define test junk", string.Empty);
+            });
         }
 
         [Fact]
         public async Task If()
         {
+            await SyncContext.Clear;
+
             await VerifyAsync(
 @"
 #if test==test
@@ -953,20 +1004,67 @@ one
 ");
             // Verify that we detect invalid #if statements.
 
-            await Assert.ThrowsAsync<FormatException>(async () => await VerifyAsync("#if\r\n#endif", string.Empty));
-            await Assert.ThrowsAsync<FormatException>(async () => await VerifyAsync("#if =\r\n#endif", string.Empty));
-            await Assert.ThrowsAsync<FormatException>(async () => await VerifyAsync("#if <>\r\n#endif", string.Empty));
-            await Assert.ThrowsAsync<FormatException>(async () => await VerifyAsync("#if defined\r\n#endif", string.Empty));
-            await Assert.ThrowsAsync<FormatException>(async () => await VerifyAsync("#if defined()\r\n#endif", string.Empty));
-            await Assert.ThrowsAsync<FormatException>(async () => await VerifyAsync("#if defined()\r\n#endif", string.Empty));
-            await Assert.ThrowsAsync<FormatException>(async () => await VerifyAsync("#if", string.Empty));
-            await Assert.ThrowsAsync<FormatException>(async () => await VerifyAsync("#else", string.Empty));
-            await Assert.ThrowsAsync<FormatException>(async () => await VerifyAsync("#endif", string.Empty));
+            await Assert.ThrowsAsync<FormatException>(async () =>
+            {
+                await SyncContext.Clear;
+
+                await VerifyAsync("#if\r\n#endif", string.Empty);
+            });
+            await Assert.ThrowsAsync<FormatException>(async () =>
+            {
+                await SyncContext.Clear;
+
+                await VerifyAsync("#if =\r\n#endif", string.Empty);
+            });
+            await Assert.ThrowsAsync<FormatException>(async () =>
+            {
+                await SyncContext.Clear;
+
+                await VerifyAsync("#if <>\r\n#endif", string.Empty);
+            });
+            await Assert.ThrowsAsync<FormatException>(async () =>
+            {
+                await SyncContext.Clear;
+
+                await VerifyAsync("#if defined\r\n#endif", string.Empty);
+            });
+            await Assert.ThrowsAsync<FormatException>(async () =>
+            {
+                await SyncContext.Clear;
+
+                await VerifyAsync("#if defined()\r\n#endif", string.Empty);
+            });
+            await Assert.ThrowsAsync<FormatException>(async () =>
+            {
+                await SyncContext.Clear;
+
+                await VerifyAsync("#if defined()\r\n#endif", string.Empty);
+            });
+            await Assert.ThrowsAsync<FormatException>(async () =>
+            {
+                await SyncContext.Clear;
+
+                await VerifyAsync("#if", string.Empty);
+            });
+            await Assert.ThrowsAsync<FormatException>(async () =>
+            {
+                await SyncContext.Clear;
+
+                await VerifyAsync("#else", string.Empty);
+            });
+            await Assert.ThrowsAsync<FormatException>(async () =>
+            {
+                await SyncContext.Clear;
+
+                await VerifyAsync("#endif", string.Empty);
+            });
         }
 
         [Fact]
         public async Task Switch()
         {
+            await SyncContext.Clear;
+
             await VerifyAsync(
 @"
 #switch one
@@ -1083,30 +1181,74 @@ E
 ");
             // Verify that we detect invalid [#switch] statements.
 
-            await Assert.ThrowsAsync<FormatException>(async () => await VerifyAsync("#switch 10\r\n#case 10\r\n#case 10\r\n#endswitch", string.Empty));
-            await Assert.ThrowsAsync<FormatException>(async () => await VerifyAsync("#switch 10\r\n#default\r\n#case 10\r\n#endswitch", string.Empty));
-            await Assert.ThrowsAsync<FormatException>(async () => await VerifyAsync("#switch", string.Empty));
-            await Assert.ThrowsAsync<FormatException>(async () => await VerifyAsync("#case", string.Empty));
-            await Assert.ThrowsAsync<FormatException>(async () => await VerifyAsync("#default", string.Empty));
-            await Assert.ThrowsAsync<FormatException>(async () => await VerifyAsync("#endswitch", string.Empty));
+            await Assert.ThrowsAsync<FormatException>(async () =>
+            {
+                await SyncContext.Clear;
+
+                await VerifyAsync("#switch 10\r\n#case 10\r\n#case 10\r\n#endswitch", string.Empty);
+            });
+            await Assert.ThrowsAsync<FormatException>(async () =>
+            {
+                await SyncContext.Clear;
+
+                await VerifyAsync("#switch 10\r\n#default\r\n#case 10\r\n#endswitch", string.Empty);
+            });
+            await Assert.ThrowsAsync<FormatException>(async () =>
+            {
+                await SyncContext.Clear;
+
+                await VerifyAsync("#switch", string.Empty);
+            });
+            await Assert.ThrowsAsync<FormatException>(async () =>
+            {
+                await SyncContext.Clear;
+
+                await VerifyAsync("#case", string.Empty);
+            });
+            await Assert.ThrowsAsync<FormatException>(async () =>
+            {
+                await SyncContext.Clear;
+
+                await VerifyAsync("#default", string.Empty);
+            });
+            await Assert.ThrowsAsync<FormatException>(async () =>
+            {
+                await SyncContext.Clear;
+
+                await VerifyAsync("#endswitch", string.Empty);
+            });
         }
 
         [Fact]
         public async Task NotImplemented()
         {
+            await SyncContext.Clear;
+
             var reader = new PreprocessReader(string.Empty);
 
             Assert.Throws<NotImplementedException>(() => reader.Peek());
             Assert.Throws<NotImplementedException>(() => reader.Read());
             Assert.Throws<NotImplementedException>(() => reader.Read(new char[100], 0, 100));
-            await Assert.ThrowsAsync<NotImplementedException>(async () => await reader.ReadAsync(new char[100], 0, 100));
+            await Assert.ThrowsAsync<NotImplementedException>(async () =>
+            {
+                await SyncContext.Clear;
+
+                await reader.ReadAsync(new char[100], 0, 100);
+            });
             Assert.Throws<NotImplementedException>(() => reader.ReadBlock(new char[100], 0, 100));
-            await Assert.ThrowsAsync<NotImplementedException>(async () => await reader.ReadBlockAsync(new char[100], 0, 100));
+            await Assert.ThrowsAsync<NotImplementedException>(async () =>
+            {
+                await SyncContext.Clear;
+
+                await reader.ReadBlockAsync(new char[100], 0, 100);
+            });
         }
 
         [Fact]
         public async Task TabStops()
         {
+            await SyncContext.Clear;
+
             try
             {
                 tabStop = 4;
@@ -1161,6 +1303,8 @@ line1
         [Fact]
         public async Task DisableStripComments()
         {
+            await SyncContext.Clear;
+
             try
             {
                 stripComments = false;
@@ -1183,6 +1327,8 @@ line1
         [Fact]
         public async Task RemoveComments()
         {
+            await SyncContext.Clear;
+
             try
             {
                 removeComments = true;
@@ -1203,6 +1349,8 @@ line1
         [Fact]
         public async Task RemoveBlank()
         {
+            await SyncContext.Clear;
+
             try
             {
                 removeBlank = true;
@@ -1225,6 +1373,8 @@ line1
         [Fact]
         public async Task DisableCommands()
         {
+            await SyncContext.Clear;
+
             try
             {
                 processCommands = false;
@@ -1250,6 +1400,8 @@ line1
         [Fact]
         public async Task StatementMarker()
         {
+            await SyncContext.Clear;
+
             try
             {
                 statementMarker = '@';
@@ -1281,6 +1433,8 @@ Hello World!
         [Fact]
         public async Task Indent()
         {
+            await SyncContext.Clear;
+
             try
             {
                 indent = 4;
@@ -1302,6 +1456,8 @@ Test
         [Fact]
         public async Task LineEndings()
         {
+            await SyncContext.Clear;
+
             const string input =
 @"line1
 line2

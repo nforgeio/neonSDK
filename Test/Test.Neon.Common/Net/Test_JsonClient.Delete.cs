@@ -93,11 +93,15 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task DeleteAsync_NotJson()
         {
+            await SyncContext.Clear;
+
             // Ensure that DELETE returning a non-JSON content type returns a NULL document.
 
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -135,11 +139,15 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task DeleteAsync_Args()
         {
+            await SyncContext.Clear;
+
             // Ensure that DELETE with query arguments work.
 
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -185,11 +193,15 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task DeleteAsync_Headers()
         {
+            await SyncContext.Clear;
+
             // Ensure that DELETE with headers work.
 
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -235,11 +247,15 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task DeleteAsync_Dynamic()
         {
+            await SyncContext.Clear;
+
             // Ensure that DELETE returning a dynamic works.
 
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -277,11 +293,15 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task DeleteAsync_Dynamic_NotJson()
         {
+            await SyncContext.Clear;
+
             // Ensure that DELETE returning non-JSON returns a NULL dynamic document.
 
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -319,11 +339,15 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task DeleteAsync_Error()
         {
+            await SyncContext.Clear;
+
             // Ensure that DELETE returning a hard error works.
 
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var response = context.Response;
 
                     response.StatusCode = (int)HttpStatusCode.NotFound;
@@ -333,7 +357,12 @@ namespace TestCommon
             {
                 using (var jsonClient = new JsonClient())
                 {
-                    await Assert.ThrowsAsync<HttpException>(async () => await jsonClient.DeleteAsync(baseUri + "info"));
+                    await Assert.ThrowsAsync<HttpException>(async () =>
+                    {
+                        await SyncContext.Clear;
+
+                        await jsonClient.DeleteAsync(baseUri + "info");
+                    });
                 }
             }
         }
@@ -341,6 +370,8 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task DeleteAsync_Retry()
         {
+            await SyncContext.Clear;
+
             // Ensure that DELETE will retry after soft errors.
 
             var attemptCount = 0;
@@ -348,6 +379,8 @@ namespace TestCommon
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -381,6 +414,8 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task DeleteAsync_NoRetryNull()
         {
+            await SyncContext.Clear;
+
             // Ensure that DELETE won't retry if [retryPolicy=NULL]
 
             var attemptCount = 0;
@@ -388,6 +423,8 @@ namespace TestCommon
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -410,7 +447,12 @@ namespace TestCommon
             {
                 using (var jsonClient = new JsonClient())
                 {
-                    await Assert.ThrowsAsync<HttpException>(async () => await jsonClient.DeleteAsync(null, baseUri + "info"));
+                    await Assert.ThrowsAsync<HttpException>(async () =>
+                    {
+                        await SyncContext.Clear;
+
+                        await jsonClient.DeleteAsync(null, baseUri + "info");
+                    });
 
                     Assert.Equal(1, attemptCount);
                 }
@@ -420,6 +462,8 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task DeleteAsync_NoRetryExplicit()
         {
+            await SyncContext.Clear;
+
             // Ensure that DELETE won't retry if [retryPolicy=NoRetryPolicy]
 
             var attemptCount = 0;
@@ -427,6 +471,8 @@ namespace TestCommon
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -449,7 +495,12 @@ namespace TestCommon
             {
                 using (var jsonClient = new JsonClient())
                 {
-                    await Assert.ThrowsAsync<HttpException>(async () => await jsonClient.DeleteAsync(NoRetryPolicy.Instance, baseUri + "info"));
+                    await Assert.ThrowsAsync<HttpException>(async () =>
+                    {
+                        await SyncContext.Clear;
+
+                        await jsonClient.DeleteAsync(NoRetryPolicy.Instance, baseUri + "info");
+                    });
 
                     Assert.Equal(1, attemptCount);
                 }

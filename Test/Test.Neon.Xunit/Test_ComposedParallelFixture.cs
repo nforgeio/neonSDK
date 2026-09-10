@@ -179,6 +179,8 @@ namespace TestXunit
         [Fact]
         public async Task Verify()
         {
+            await SyncContext.Clear;
+
             var yugabyteFixture  = (YugabyteFixture)fixture["yugabyte"];
             var natsFixture      = (NatsFixture)fixture["nats"];
             var containerFixture = (ContainerFixture)fixture["container"];

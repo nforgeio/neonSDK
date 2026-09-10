@@ -75,11 +75,15 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task CreateGetRemove()
         {
+            await SyncContext.Clear;
+
             // Verify that we can create, get and then remove a GitHub release.
 
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepoPath))
                     {
                         var newTestName = $"test-{Guid.NewGuid()}";
@@ -101,7 +105,12 @@ namespace TestGitHub
 
                         // Verify that [GetAsync()] returns throws for a non-existent one.
 
-                        await Assert.ThrowsAsync<Octokit.NotFoundException>(async () => await repo.Remote.Release.GetAsync($"{Guid.NewGuid()}"));
+                        await Assert.ThrowsAsync<Octokit.NotFoundException>(async () =>
+                        {
+                            await SyncContext.Clear;
+
+                            await repo.Remote.Release.GetAsync($"{Guid.NewGuid()}");
+                        });
                     }
                 });
         }
@@ -109,11 +118,15 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task Update()
         {
+            await SyncContext.Clear;
+
             // Verify that we can edit and existing release.
 
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepoPath))
                     {
                         var newTestName = $"test-{Guid.NewGuid()}";
@@ -138,11 +151,15 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task AddFileAsset()
         {
+            await SyncContext.Clear;
+
             // Verify that we can add a file asset to a release.
 
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepoPath))
                     {
                         var releaseName = $"test-{Guid.NewGuid()}";
@@ -173,11 +190,15 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task AddStreamAsset()
         {
+            await SyncContext.Clear;
+
             // Verify that we can add a stream asset to a release.
 
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepoPath))
                     {
                         var releaseName = $"test-{Guid.NewGuid()}";
@@ -209,11 +230,15 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task Publish()
         {
+            await SyncContext.Clear;
+
             // Verify that we can publish a release.
 
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepoPath))
                     {
                         var releaseName = $"test-{Guid.NewGuid()}";
@@ -236,11 +261,15 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task Zipball()
         {
+            await SyncContext.Clear;
+
             // Publish a release and download its source code as a Zipball.
 
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepoPath))
                     {
                         var releaseName = $"test-{Guid.NewGuid()}";
@@ -292,11 +321,15 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task AddDownloadManifest()
         {
+            await SyncContext.Clear;
+
             // Verify that we can publish a release with a multi-part download.
 
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepoPath))
                     {
                         var releaseName = $"test-{Guid.NewGuid()}";
@@ -347,6 +380,8 @@ namespace TestGitHub
         /// </remarks>
         private async Task<DownloadManifest> PublishMultipartAssetAsync(GitHubRepo repo, Release release, string name, string version, int partCount, long partSize)
         {
+            await SyncContext.Clear;
+
             Covenant.Requires<ArgumentNullException>(release != null, nameof(release));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(name), nameof(name));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(version), nameof(version));

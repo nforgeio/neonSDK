@@ -28,6 +28,7 @@ using Neon.Service;
 using CommandLine;
 
 using Prometheus.DotNetRuntime;
+using Neon.Tasks;
 
 namespace NeonSignalRProxy
 {
@@ -59,6 +60,8 @@ namespace NeonSignalRProxy
         /// <param name="args">The command line arguments.</param>
         public static async Task Main(string[] args)
         {
+            await SyncContext.Clear;
+
             var options = Parser.Default.ParseArguments<Options>(args).Value;
 
             try

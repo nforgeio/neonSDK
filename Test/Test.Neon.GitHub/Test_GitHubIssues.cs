@@ -89,11 +89,15 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task GetSearch()
         {
+            await SyncContext.Clear;
+
             // Verify that we can get and search for issues.
 
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepoPath))
                     {
                         var title1 = $"Test Issue: {Guid.NewGuid()}";
@@ -175,11 +179,15 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task Comments()
         {
+            await SyncContext.Clear;
+
             // Verify that the issue comment API works.
 
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepoPath))
                     {
                         var title = $"Test Issue: {Guid.NewGuid()}";

@@ -150,6 +150,8 @@ INSERT INTO enumerate_table (value) values (9);
         [Fact]
         public async Task PrepareCommand_Arg()
         {
+            await SyncContext.Clear;
+
             var singleParameters = new Dictionary<string, NpgsqlDbType>()
             {
                 { "Value", NpgsqlDbType.Integer }

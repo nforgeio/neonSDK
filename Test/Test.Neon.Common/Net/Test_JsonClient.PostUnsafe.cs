@@ -106,6 +106,8 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task PostUnsafeAsync_NotJson()
         {
+            await SyncContext.Clear;
+
             // Ensure that POST returning a non-JSON content type returns a NULL document.
 
             RequestDoc requestDoc = null;
@@ -113,6 +115,8 @@ namespace TestCommon
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -164,6 +168,8 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task PostUnsafeAsync_Args()
         {
+            await SyncContext.Clear;
+
             // Ensure that POST with query arguments work.
 
             RequestDoc requestDoc = null;
@@ -171,6 +177,8 @@ namespace TestCommon
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -230,6 +238,8 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task PostUnsafeAsync_Headers()
         {
+            await SyncContext.Clear;
+
             // Ensure that POST with query arguments work.
 
             RequestDoc requestDoc = null;
@@ -237,6 +247,8 @@ namespace TestCommon
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -296,6 +308,8 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task PostUnsafeAsync_Dynamic()
         {
+            await SyncContext.Clear;
+
             // Ensure that POST returning a dynamic works.
 
             RequestDoc requestDoc = null;
@@ -303,6 +317,8 @@ namespace TestCommon
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -353,6 +369,8 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task PostUnsafeAsync_Dynamic_NotJson()
         {
+            await SyncContext.Clear;
+
             // Ensure that POST returning non-JSON returns a NULL dynamic document.
 
             RequestDoc requestDoc = null;
@@ -360,6 +378,8 @@ namespace TestCommon
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -410,11 +430,15 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task PostUnsafeAsync_Error()
         {
+            await SyncContext.Clear;
+
             // Ensure that POST returning a hard error works.
 
             using(new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var response = context.Response;
 
                     response.StatusCode = (int)HttpStatusCode.NotFound;
@@ -444,6 +468,8 @@ namespace TestCommon
         [Fact(Skip = "TODO")]
         public async Task PostUnsafeAsync_Retry()
         {
+            await SyncContext.Clear;
+
             // Ensure that POST will retry after soft errors.
 
             // $todo(jefflill): Simulate socket errors via HttpClient mocking.
@@ -454,6 +480,8 @@ namespace TestCommon
         [Fact(Skip = "TODO")]
         public async Task PostUnsafeAsync_NoRetryNull()
         {
+            await SyncContext.Clear;
+
             // Ensure that POST won't retry if [retryPolicy=NULL]
 
             // $todo(jefflill): Simulate socket errors via HttpClient mocking.
@@ -464,6 +492,8 @@ namespace TestCommon
         [Fact(Skip = "TODO")]
         public async Task PostUnsafeAsync_NoRetryExplicit()
         {
+            await SyncContext.Clear;
+
             // Ensure that POST won't retry if [retryPolicy=NoRetryPolicy]
 
             // $todo(jefflill): Simulate socket errors via HttpClient mocking.

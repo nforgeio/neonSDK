@@ -129,6 +129,8 @@ namespace Test.Neon.Cassandra
         /// <returns>The tracking <see cref="Task"/>.</returns>
         private async Task ExecuteWithKeyspaceAsync(string tempKeyspace, Func<Task> action)
         {
+            await SyncContext.Clear;
+
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(tempKeyspace), nameof(tempKeyspace));
             Covenant.Requires<ArgumentNullException>(action != null, nameof(action));
 
@@ -149,6 +151,8 @@ namespace Test.Neon.Cassandra
         [Fact]
         public async Task Constructor_NoScripts()
         {
+            await SyncContext.Clear;
+
             // Verify that we detect the situation where the script folder has no scripts.
 
             var keyspaceName = GetUniqueKeyspaceName();
@@ -168,6 +172,8 @@ namespace Test.Neon.Cassandra
         [Fact]
         public async Task Constructor_NoCreateScript()
         {
+            await SyncContext.Clear;
+
             // Verify that we detect the situation where the script folder has some scripts
             // but no keyspace creation script.
 
@@ -193,6 +199,8 @@ namespace Test.Neon.Cassandra
         [Fact]
         public async Task Create()
         {
+            await SyncContext.Clear;
+
             // Verify that the schema manager can create a keyspace.
 
             var keyspaceName = GetUniqueKeyspaceName();
@@ -220,6 +228,8 @@ namespace Test.Neon.Cassandra
         [Fact]
         public async Task Create_KeyspaceExists()
         {
+            await SyncContext.Clear;
+
             // Verify that the schema manager keyspace creation handles the case
             // where the keyspace already exists and has a proper DBINFO table.
 
@@ -260,6 +270,8 @@ namespace Test.Neon.Cassandra
         [Fact]
         public async Task Create_KeyspaceExists_NoDBInfo()
         {
+            await SyncContext.Clear;
+
             // Verify that create throws an exception when the keyspace already
             // exists but doesn't have a valid DBINFO table.
 
@@ -282,7 +294,12 @@ namespace Test.Neon.Cassandra
                     Assert.Equal(0, status.MaxVersion);
                     Assert.False(status.IsCurrent);
 
-                    await Assert.ThrowsAsync<SchemaManagerException>(async () => await schemaManager.CreateKeyspaceAsync());
+                    await Assert.ThrowsAsync<SchemaManagerException>(async () =>
+                    {
+                        await SyncContext.Clear;
+
+                        await schemaManager.CreateKeyspaceAsync();
+                    });
                 }
             }
         }
@@ -290,6 +307,8 @@ namespace Test.Neon.Cassandra
         [Fact]
         public async Task Update_MissingScript()
         {
+            await SyncContext.Clear;
+
             // Verify that we detect the situation where the script folder has a keyspace
             // creation script but there's a version gap in the remaining scripts.
 
@@ -310,7 +329,12 @@ namespace Test.Neon.Cassandra
                 using (var schemaManager = new SchemaManager(cassandra, keyspaceName, tempFolder.Path))
                 {
                     await schemaManager.CreateKeyspaceAsync();
-                    await Assert.ThrowsAsync<FileNotFoundException>(async () => await schemaManager.UpgradeKeyspaceAsync());
+                    await Assert.ThrowsAsync<FileNotFoundException>(async () =>
+                    {
+                        await SyncContext.Clear;
+
+                        await schemaManager.UpgradeKeyspaceAsync();
+                    });
                 }
             }
         }
@@ -318,6 +342,8 @@ namespace Test.Neon.Cassandra
         [Fact]
         public async Task Update_MissingDBInfo()
         {
+            await SyncContext.Clear;
+
             // Verify that update detects when the target keyspace doesn't
             // have a DBINFO table.
 
@@ -346,13 +372,20 @@ namespace Test.Neon.Cassandra
                     await ExecuteWithKeyspaceAsync(keyspaceName,
                         async () =>
                         {
+                            await SyncContext.Clear;
+
                             await cassandra.ExecuteAsync($"DROP TABLE {SchemaManager.DbInfoTableName};");
                         });
 
                     status = await schemaManager.GetStatusAsync();
                     Assert.Equal(SchemaStatus.ExistsNoSchema, status.SchemaStatus);
 
-                    await Assert.ThrowsAsync<SchemaManagerException>(async () => await schemaManager.UpgradeKeyspaceAsync());
+                    await Assert.ThrowsAsync<SchemaManagerException>(async () =>
+                    {
+                        await SyncContext.Clear;
+
+                        await schemaManager.UpgradeKeyspaceAsync();
+                    });
                 }
             }
         }
@@ -360,6 +393,8 @@ namespace Test.Neon.Cassandra
         [Fact]
         public async Task Update_InvalidDBInfo()
         {
+            await SyncContext.Clear;
+
             // Verify that update detects when the target keyspace has a DBINFO
             // table but that it's invalid.
 
@@ -388,10 +423,17 @@ namespace Test.Neon.Cassandra
                     await ExecuteWithKeyspaceAsync(keyspaceName,
                         async () =>
                         {
+                            await SyncContext.Clear;
+
                             await cassandra.ExecuteAsync($"UPDATE {SchemaManager.DbInfoTableName} SET version = -1 WHERE key = 1;");
                         });
                     
-                    await Assert.ThrowsAsync<SchemaManagerException>(async () => await schemaManager.GetStatusAsync());
+                    await Assert.ThrowsAsync<SchemaManagerException>(async () =>
+                    {
+                        await SyncContext.Clear;
+
+                        await schemaManager.GetStatusAsync();
+                    });
                 }
             }
         }
@@ -399,6 +441,8 @@ namespace Test.Neon.Cassandra
         [Fact]
         public async Task Update_Required()
         {
+            await SyncContext.Clear;
+
             // Verify that update actually applies required updates.
 
             // Create the initial keyspace and verify that it's up to date.
@@ -453,6 +497,8 @@ INSERT INTO my_table (key, version) values (1, 1);",
                     await ExecuteWithKeyspaceAsync(keyspaceName,
                         async () =>
                         {
+                            await SyncContext.Clear;
+
                             var row = (await cassandra.ExecuteAsync("SELECT version FROM my_table WHERE key = 1;")).Single();
 
                             Assert.Equal(4, row.GetValue<int>("version"));
@@ -492,6 +538,8 @@ INSERT INTO my_table (key, version) values (1, 1);",
                     await ExecuteWithKeyspaceAsync(keyspaceName,
                         async () =>
                         {
+                            await SyncContext.Clear;
+
                             var row = (await cassandra.ExecuteAsync("SELECT version FROM my_table WHERE key = 1;")).Single();
 
                             Assert.Equal(6, row.GetValue<int>("version"));
@@ -503,6 +551,8 @@ INSERT INTO my_table (key, version) values (1, 1);",
         [Fact]
         public async Task Update_NotRequired()
         {
+            await SyncContext.Clear;
+
             // Verify that update does not apply updates that have already
             // been applied.
 
@@ -556,6 +606,8 @@ INSERT INTO my_table (key, version) values (1, 1);",
                     await ExecuteWithKeyspaceAsync(keyspaceName,
                         async () =>
                         {
+                            await SyncContext.Clear;
+
                             var row = (await cassandra.ExecuteAsync("SELECT version FROM my_table WHERE key = 1;")).Single();
 
                             Assert.Equal(4, row.GetValue<int>("version"));
@@ -594,6 +646,8 @@ INSERT INTO my_table (key, version) values (1, 101);",
                     await ExecuteWithKeyspaceAsync(keyspaceName,
                         async () =>
                         {
+                            await SyncContext.Clear;
+
                             var row = (await cassandra.ExecuteAsync("SELECT version FROM my_table WHERE key = 1;")).Single();
 
                             Assert.Equal(4, row.GetValue<int>("version"));
@@ -605,6 +659,8 @@ INSERT INTO my_table (key, version) values (1, 101);",
         [Fact]
         public async Task Update_Stop()
         {
+            await SyncContext.Clear;
+
             // Verify that we can stop updates at a specific version.
 
             var keyspaceName = GetUniqueKeyspaceName();
@@ -661,6 +717,8 @@ INSERT INTO my_table (key, version) values (1, 1);",
                     await ExecuteWithKeyspaceAsync(keyspaceName,
                         async () =>
                         {
+                            await SyncContext.Clear;
+
                             var row = (await cassandra.ExecuteAsync("SELECT version FROM my_table WHERE key = 1;")).Single();
 
                             Assert.Equal(2, row.GetValue<int>("version"));
@@ -676,6 +734,8 @@ INSERT INTO my_table (key, version) values (1, 1);",
                     await ExecuteWithKeyspaceAsync(keyspaceName,
                         async () =>
                         {
+                            await SyncContext.Clear;
+
                             var row = (await cassandra.ExecuteAsync("SELECT version FROM my_table WHERE key = 1;")).Single();
 
                             Assert.Equal(4, row.GetValue<int>("version"));
@@ -687,6 +747,8 @@ INSERT INTO my_table (key, version) values (1, 1);",
         [Fact]
         public async Task Update_Stop_Error()
         {
+            await SyncContext.Clear;
+
             // Verify that we're not allowed to stop at a version lower
             // than the current keyspace version.
 
@@ -744,6 +806,8 @@ INSERT INTO my_table (key, version) values (1, 1);",
                     await ExecuteWithKeyspaceAsync(keyspaceName,
                         async () =>
                         {
+                            await SyncContext.Clear;
+
                             var row = (await cassandra.ExecuteAsync("SELECT version FROM my_table WHERE key = 1;")).Single();
 
                             Assert.Equal(4, row.GetValue<int>("version"));
@@ -752,7 +816,12 @@ INSERT INTO my_table (key, version) values (1, 1);",
                     // Verify that we're not allowed to stop at an update that's
                     // already been applied.
 
-                    await Assert.ThrowsAsync<SchemaManagerException>(async () => await schemaManager.UpgradeKeyspaceAsync(stopVersion: 2));
+                    await Assert.ThrowsAsync<SchemaManagerException>(async () =>
+                    {
+                        await SyncContext.Clear;
+
+                        await schemaManager.UpgradeKeyspaceAsync(stopVersion: 2);
+                    });
 
                     // Verify that the keyspace version hasn't changed.
 
@@ -762,6 +831,8 @@ INSERT INTO my_table (key, version) values (1, 1);",
                     await ExecuteWithKeyspaceAsync(keyspaceName,
                         async () =>
                         {
+                            await SyncContext.Clear;
+
                             var row = (await cassandra.ExecuteAsync("SELECT version FROM my_table WHERE key = 1;")).Single();
 
                             Assert.Equal(4, row.GetValue<int>("version"));
@@ -773,6 +844,8 @@ INSERT INTO my_table (key, version) values (1, 1);",
         [Fact]
         public async Task Scripts_WithLeadingZeros()
         {
+            await SyncContext.Clear;
+
             // Verify that we support script file names with leading zeros in
             // the version numbers.
 
@@ -828,6 +901,8 @@ INSERT INTO my_table (key, version) values (1, 1);",
                     await ExecuteWithKeyspaceAsync(keyspaceName,
                         async () =>
                         {
+                            await SyncContext.Clear;
+
                             var row = (await cassandra.ExecuteAsync("SELECT version FROM my_table WHERE key = 1;")).Single();
 
                             Assert.Equal(4, row.GetValue<int>("version"));
@@ -867,6 +942,8 @@ INSERT INTO my_table (key, version) values (1, 1);",
                     await ExecuteWithKeyspaceAsync(keyspaceName,
                         async () =>
                         {
+                            await SyncContext.Clear;
+
                             var row = (await cassandra.ExecuteAsync("SELECT version FROM my_table WHERE key = 1;")).Single();
 
                             Assert.Equal(6, row.GetValue<int>("version"));
@@ -878,6 +955,8 @@ INSERT INTO my_table (key, version) values (1, 1);",
         [Fact]
         public async Task Updater_Conflict()
         {
+            await SyncContext.Clear;
+
             // Verify that we can detect when another updater appears to be 
             // updating the keyspace.
 
@@ -905,6 +984,8 @@ INSERT INTO my_table (key, version) values (1, 1);",
                     await ExecuteWithKeyspaceAsync(keyspaceName,
                         async () =>
                         {
+                            await SyncContext.Clear;
+
                             await cassandra.ExecuteAsync($"UPDATE {SchemaManager.DbInfoTableName} SET updater = 'another-updater', update_start_utc = currenttimestamp(), update_finish_utc = NULL WHERE key = 1;");
                         });
                 }
@@ -938,7 +1019,12 @@ INSERT INTO my_table (key, version) values (1, 1);",
                     // Attempt to apply the updates.  This should fail because another updater
                     // reported an error.
 
-                    await Assert.ThrowsAsync<SchemaManagerException>(async () => await schemaManager.UpgradeKeyspaceAsync());
+                    await Assert.ThrowsAsync<SchemaManagerException>(async () =>
+                    {
+                        await SyncContext.Clear;
+
+                        await schemaManager.UpgradeKeyspaceAsync();
+                    });
 
                     // Try updating again with [force=true].  It should work this time.
 
@@ -950,6 +1036,8 @@ INSERT INTO my_table (key, version) values (1, 1);",
                     await ExecuteWithKeyspaceAsync(keyspaceName,
                         async () =>
                         {
+                            await SyncContext.Clear;
+
                             var row = (await cassandra.ExecuteAsync("SELECT version FROM my_table WHERE key = 1;")).Single();
 
                             Assert.Equal(4, row.GetValue<int>("version"));
@@ -961,6 +1049,8 @@ INSERT INTO my_table (key, version) values (1, 1);",
         [Fact]
         public async Task Updater_Error()
         {
+            await SyncContext.Clear;
+
             // Verify that we can detect when another updater appears to be 
             // failed due to a simulated script execution error.
 
@@ -988,6 +1078,8 @@ INSERT INTO my_table (key, version) values (1, 1);",
                     await ExecuteWithKeyspaceAsync(keyspaceName,
                         async () =>
                         {
+                            await SyncContext.Clear;
+
                             await cassandra.ExecuteAsync($"UPDATE {SchemaManager.DbInfoTableName} SET updater = 'another-updater', update_start_utc = currenttimestamp(), update_finish_utc = NULL, error = 'Something bad happened!' WHERE key = 1;");
                         });
                 }
@@ -1022,7 +1114,12 @@ INSERT INTO my_table (key, version) values (1, 1);",
                     // Attempt to apply the updates.  This should fail because another updater
                     // appears to be updating.
 
-                    await Assert.ThrowsAsync<SchemaManagerException>(async () => await schemaManager.UpgradeKeyspaceAsync());
+                    await Assert.ThrowsAsync<SchemaManagerException>(async () =>
+                    {
+                        await SyncContext.Clear;
+
+                        await schemaManager.UpgradeKeyspaceAsync();
+                    });
 
                     // Try updating again with [force=true].  It should work this time.
 
@@ -1034,6 +1131,8 @@ INSERT INTO my_table (key, version) values (1, 1);",
                     await ExecuteWithKeyspaceAsync(keyspaceName,
                         async () =>
                         {
+                            await SyncContext.Clear;
+
                             var row = (await cassandra.ExecuteAsync("SELECT version FROM my_table WHERE key = 1;")).Single();
 
                             Assert.Equal(4, row.GetValue<int>("version"));
@@ -1045,6 +1144,8 @@ INSERT INTO my_table (key, version) values (1, 1);",
         [Fact]
         public async Task EmbeddedScripts()
         {
+            await SyncContext.Clear;
+
             // Verify that we can process scripts loaded from embedded resources.
 
             var keyspaceName = GetUniqueKeyspaceName();

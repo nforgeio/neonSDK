@@ -1068,6 +1068,8 @@ namespace TestCommon
         [Fact]
         public async Task ZipToFile_WithLinuxLineEndings()
         {
+            await SyncContext.Clear;
+
             var fs = Assembly.GetExecutingAssembly().GetResourceFileSystem("TestCommon.IORes.Resources");
 
             // Verify that we can zip all text files, converting any Windows style CRLF
@@ -1100,6 +1102,8 @@ namespace TestCommon
         [Fact]
         public async Task ZipToStream_Preprocessed()
         {
+            await SyncContext.Clear;
+
             var fs = Assembly.GetExecutingAssembly().GetResourceFileSystem("TestCommon.IORes.Resources");
 
             // Verify that we can zip a single preprocessed file from the root directory.
@@ -1109,6 +1113,8 @@ namespace TestCommon
                 var preprocessor = new ZipPreprocessor(
                     async (path, input) =>
                     {
+                        await SyncContext.Clear;
+
                         Assert.EndsWith(path, "TextFile1.txt");
                         Assert.NotNull(input);
                         Assert.NotEmpty(await input.ReadToEndAsync());
@@ -1143,6 +1149,8 @@ namespace TestCommon
         [Fact]
         public async Task ZipToFile_Preprocessed()
         {
+            await SyncContext.Clear;
+
             var fs = Assembly.GetExecutingAssembly().GetResourceFileSystem("TestCommon.IORes.Resources");
 
             // Verify that we can zip a single preprocessed file from the root directory.
@@ -1152,6 +1160,8 @@ namespace TestCommon
                 var preprocessor = new ZipPreprocessor(
                     async (path, input) =>
                     {
+                        await SyncContext.Clear;
+
                         Assert.EndsWith(path, "TextFile1.txt");
                         Assert.NotNull(input);
                         Assert.NotEmpty(await input.ReadToEndAsync());
@@ -1203,6 +1213,8 @@ Line 9
         [Fact]
         public async Task All_ReadAllTextAsync()
         {
+            await SyncContext.Clear;
+
             var fs   = Assembly.GetExecutingAssembly().GetResourceFileSystem();
             var file = fs.GetFile("/TestCommon/IORes/Resources/TextFile2.txt");
 
@@ -1245,6 +1257,8 @@ Line 9
         [Fact]
         public async Task All_ReadAllBytesAsync()
         {
+            await SyncContext.Clear;
+
             var fs   = Assembly.GetExecutingAssembly().GetResourceFileSystem();
             var file = fs.GetFile("/TestCommon/IORes/Resources/Folder1/TextFile4.txt");
 
@@ -1290,6 +1304,8 @@ Line 9
         [Fact]
         public async Task All_OpenReaderAsync()
         {
+            await SyncContext.Clear;
+
             var fs     = Assembly.GetExecutingAssembly().GetResourceFileSystem();
             var file   = fs.GetFile("/TestCommon/IORes/Resources/Folder2/Folder4/TextFile8.txt");
             var reader = await file.OpenReaderAsync();
@@ -1339,6 +1355,8 @@ Line 9
         [Fact]
         public async Task All_OpenStreamAsync()
         {
+            await SyncContext.Clear;
+
             var fs     = Assembly.GetExecutingAssembly().GetResourceFileSystem();
             var file   = fs.GetFile("/TestCommon/IORes/Resources/Folder2/Folder4/TextFile8.txt");
             var stream = await file.OpenStreamAsync();
@@ -1388,6 +1406,8 @@ Line 9
         [Fact]
         public async Task Partial_ReadAllTextAsync()
         {
+            await SyncContext.Clear;
+
             var fs   = Assembly.GetExecutingAssembly().GetResourceFileSystem("TestCommon.IORes.Resources");
             var file = fs.GetFile("/TextFile2.txt");
 
@@ -1430,6 +1450,8 @@ Line 9
         [Fact]
         public async Task Partial_ReadAllBytesAsync()
         {
+            await SyncContext.Clear;
+
             var fs   = Assembly.GetExecutingAssembly().GetResourceFileSystem("TestCommon.IORes.Resources");
             var file = fs.GetFile("/Folder1/TextFile4.txt");
 
@@ -1475,6 +1497,8 @@ Line 9
         [Fact]
         public async Task Partial_OpenReaderAsync()
         {
+            await SyncContext.Clear;
+
             var fs     = Assembly.GetExecutingAssembly().GetResourceFileSystem("TestCommon.IORes.Resources");
             var file   = fs.GetFile("/Folder2/Folder4/TextFile8.txt");
             var reader = await file.OpenReaderAsync();
@@ -1524,6 +1548,8 @@ Line 9
         [Fact]
         public async Task Partial_OpenStreamAsync()
         {
+            await SyncContext.Clear;
+
             var fs     = Assembly.GetExecutingAssembly().GetResourceFileSystem("TestCommon.IORes.Resources");
             var file   = fs.GetFile("/Folder2/Folder4/TextFile8.txt");
             var stream = await file.OpenStreamAsync();

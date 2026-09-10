@@ -25,6 +25,7 @@ using Neon.Common;
 using Newtonsoft.Json;
 
 using YamlDotNet.Serialization;
+using Neon.Tasks;
 
 namespace NeonSignalRProxy
 {
@@ -97,6 +98,8 @@ namespace NeonSignalRProxy
         /// <returns></returns>
         public static async Task<ProxyConfig> FromFileAsync(string file)
         {
+            await SyncContext.Clear;
+
             using (StreamReader reader = new StreamReader(new FileStream(file, FileMode.Open, FileAccess.Read)))
             {
                 var config = NeonHelper.YamlDeserializeViaJson<ProxyConfig>(await reader.ReadToEndAsync());

@@ -42,6 +42,7 @@ using OpenTelemetry;
 using OpenTelemetry.Trace;
 
 using Prometheus;
+using Neon.Tasks;
 
 namespace NeonSignalRProxy
 {
@@ -157,6 +158,8 @@ namespace NeonSignalRProxy
         /// <inheritdoc/>
         protected async override Task<int> OnRunAsync()
         {
+            await SyncContext.Clear;
+
             Config = await ProxyConfig.FromFileAsync(GetConfigFilePath(ConfigFile));
 
             if (!string.IsNullOrEmpty(GetEnvironmentVariable("DEBUG")))

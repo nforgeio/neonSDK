@@ -27,6 +27,7 @@ using Microsoft.Extensions.Logging;
 
 using Neon.Common;
 using Neon.Diagnostics;
+using Neon.Tasks;
 
 namespace TestApiService
 {
@@ -46,6 +47,8 @@ namespace TestApiService
         /// <param name="args">The command line arguments.</param>
         public static async Task Main(string[] args)
         {
+            await SyncContext.Clear;
+
             try
             {
                 Service = new Service("test-api");

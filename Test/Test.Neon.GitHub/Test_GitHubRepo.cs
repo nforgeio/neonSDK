@@ -109,6 +109,8 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task Clone_Private()
         {
+            await SyncContext.Clear;
+
             // Verify that we can clone a private repo to a temporary local folder.
 
             using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
@@ -127,11 +129,15 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task Local_Open()
         {
+            await SyncContext.Clear;
+
             // Verify that we can open an existing local repo.
 
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     // Verify that we can open an existing local repo.
 
                     using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
@@ -162,14 +168,24 @@ namespace TestGitHub
 
                     using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
                     {
-                        await Assert.ThrowsAsync<RepositoryNotFoundException>(async () => await GitHubRepo.OpenAsync(tempFolder.Path));
+                        await Assert.ThrowsAsync<RepositoryNotFoundException>(async () =>
+                        {
+                            await SyncContext.Clear;
+
+                            await GitHubRepo.OpenAsync(tempFolder.Path);
+                        });
                     }
 
                     // Verify that we see an exception when trying to open an empty local repo folder.
 
                     using (var tempFolder = new TempFolder(prefix: "repo-", create: true))
                     {
-                        await Assert.ThrowsAsync<RepositoryNotFoundException>(async () => await GitHubRepo.OpenAsync(tempFolder.Path));
+                        await Assert.ThrowsAsync<RepositoryNotFoundException>(async () =>
+                        {
+                            await SyncContext.Clear;
+
+                            await GitHubRepo.OpenAsync(tempFolder.Path);
+                        });
                     }
                 });
         }
@@ -177,11 +193,15 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task Local_Fetch()
         {
+            await SyncContext.Clear;
+
             // Verify that we can fetch remote info for a local repo.
 
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
                     {
                         var repoPath = tempFolder.Path;
@@ -198,6 +218,8 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task Remote_CommitPushPull()
         {
+            await SyncContext.Clear;
+
             // Here's what we're going to do:
             //
             //       1. Clone the remote repo to two local folders
@@ -214,6 +236,8 @@ namespace TestGitHub
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     using (var tempFolder1 = new TempFolder(prefix: "repo1-", create: false))
                     {
                         using (var tempFolder2 = new TempFolder(prefix: "repo2-", create: false))
@@ -270,11 +294,15 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task Local_CreateBranch()
         {
+            await SyncContext.Clear;
+
             // Verify that we can create a new local branch from master.
 
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
                     {
                         var repoPath      = tempFolder.Path;
@@ -308,11 +336,15 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task Remote_GetBranches()
         {
+            await SyncContext.Clear;
+
             // Verify that we can list remote branches.
 
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
                     {
                         var repoPath = tempFolder.Path;
@@ -330,11 +362,15 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task Local_CreateRemoveBranch()
         {
+            await SyncContext.Clear;
+
             // Verify that we can create a local branch (from master) and then remove it.
 
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
                     {
                         var repoPath      = tempFolder.Path;
@@ -366,11 +402,15 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task Remote_Branch_Protection()
         {
+            await SyncContext.Clear;
+
             // Verify that we can change branch protection by locking and then unlocking a branch.
 
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
                     {
                         var repoPath      = tempFolder.Path;
@@ -427,11 +467,21 @@ namespace TestGitHub
 
                             File.WriteAllText(await repo.Local.GetLocalFilePathAsync("/test.txt"), "HELLO WORLD!");
                             await repo.Local.CommitAsync("This is a test.");
-                            await Assert.ThrowsAsync<LibGit2Sharp.LibGit2SharpException>(async () => await repo.Local.PushAsync());
+                            await Assert.ThrowsAsync<LibGit2Sharp.LibGit2SharpException>(async () =>
+                            {
+                                await SyncContext.Clear;
+
+                                await repo.Local.PushAsync();
+                            });
 
                             // Deleting the branch should fail too.
 
-                            await Assert.ThrowsAsync<ApiValidationException>(async () => await repo.Remote.Branch.RemoveAsync(newBranchName));
+                            await Assert.ThrowsAsync<ApiValidationException>(async () =>
+                            {
+                                await SyncContext.Clear;
+
+                                await repo.Remote.Branch.RemoveAsync(newBranchName);
+                            });
 
                             // Remove all protections and verify.
 
@@ -456,11 +506,15 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task Local_Merge()
         {
+            await SyncContext.Clear;
+
             // Verify that we can merge changes from one branch into another.
 
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
                     {
                         var repoPath      = tempFolder.Path;
@@ -498,11 +552,15 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task Local_Merge_WithConflict()
         {
+            await SyncContext.Clear;
+
             // Verify that merge conflicts are detected.
 
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
                     {
                         var repoPath      = tempFolder.Path;
@@ -535,7 +593,12 @@ namespace TestGitHub
                             // a merge conflict exception.  We'll also verify that the original
                             // test file was restored.
 
-                            await Assert.ThrowsAsync<LibGit2SharpException>(async () => await repo.Local.MergeAsync(newBranchName));
+                            await Assert.ThrowsAsync<LibGit2SharpException>(async () =>
+                            {
+                                await SyncContext.Clear;
+
+                                await repo.Local.MergeAsync(newBranchName);
+                            });
                             Assert.Equal("GOODBYE WORLD!", File.ReadAllText(testFilePath));
 
                             // Try merging again with [throwOnConflict=false] and verify.
@@ -550,7 +613,12 @@ namespace TestGitHub
                             // an exception because merge doesn't work when the repo is dirty.
 
                             File.WriteAllText(testFilePath, "HI WORLD!");
-                            await Assert.ThrowsAsync<LibGit2SharpException>(async () => await repo.Local.MergeAsync(newBranchName, throwOnConflict: false));
+                            await Assert.ThrowsAsync<LibGit2SharpException>(async () =>
+                            {
+                                await SyncContext.Clear;
+
+                                await repo.Local.MergeAsync(newBranchName, throwOnConflict: false);
+                            });
                         }
                     }
                 });
@@ -559,11 +627,15 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task Local_Undo()
         {
+            await SyncContext.Clear;
+
             // Verify that we can undo uncommited changes to a repo.
 
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
                     {
                         var repoPath      = tempFolder.Path;
@@ -591,12 +663,16 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task Remote_CreateRemoveBranch()
         {
+            await SyncContext.Clear;
+
             // Verify that we can create a local branch (from master), push it to
             // the remote, and then remove it from both local and remote.
 
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
                     {
                         var repoPath      = tempFolder.Path;
@@ -627,7 +703,12 @@ namespace TestGitHub
                             // Verify that [GetAsync()] returns an existing branch and throws for a non-existent one.
 
                             Assert.NotNull(await repo.Remote.Branch.GetAsync(newBranchName));
-                            await Assert.ThrowsAsync<Octokit.NotFoundException>(async () => await repo.Remote.Branch.GetAsync($"{Guid.NewGuid()}"));
+                            await Assert.ThrowsAsync<Octokit.NotFoundException>(async () =>
+                            {
+                                await SyncContext.Clear;
+
+                                await repo.Remote.Branch.GetAsync($"{Guid.NewGuid()}");
+                            });
 
                             // Remove the new local branch and then verify.
 
@@ -641,6 +722,8 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task Remote_Checkout()
         {
+            await SyncContext.Clear;
+
             // Verify that we can checkout an existing remote branch to the
             // local repo with the same name (the default) or to a new branch
             // name.
@@ -648,6 +731,8 @@ namespace TestGitHub
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
                     {
                         var repoPath       = tempFolder.Path;
@@ -695,6 +780,8 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task Local_Open_NeonKube()
         {
+            await SyncContext.Clear;
+
             // Verify that we can open the NeonKUBE repo when present
             // at the standard location.
 
@@ -715,11 +802,15 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task ObjectDisposedException()
         {
+            await SyncContext.Clear;
+
             // Verify that [ObjectDisposedException] is thrown calling APIs on a disposed [GitHubRepo] instance.
 
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
                     {
                         var repo = await GitHubRepo.CloneAsync(GitHubTestHelper.RemoteTestRepoPath, tempFolder.Path);
@@ -735,17 +826,72 @@ namespace TestGitHub
                         Assert.Throws<ObjectDisposedException>(() => _ = repo.Origin);
                         Assert.Throws<ObjectDisposedException>(() => _ = repo.Remote);
 
-                        await Assert.ThrowsAsync<ObjectDisposedException>(async () => await repo.Local.CheckoutAsync("master"));
-                        await Assert.ThrowsAsync<ObjectDisposedException>(async () => await repo.Local.CheckoutOriginAsync("master"));
-                        await Assert.ThrowsAsync<ObjectDisposedException>(async () => await repo.Local.CreateBranchAsync("test", "master"));
-                        await Assert.ThrowsAsync<ObjectDisposedException>(async () => await repo.Local.CommitAsync());
-                        await Assert.ThrowsAsync<ObjectDisposedException>(async () => await repo.Local.FetchAsync());
-                        await Assert.ThrowsAsync<ObjectDisposedException>(async () => await repo.Local.MergeAsync("master"));
-                        await Assert.ThrowsAsync<ObjectDisposedException>(async () => await repo.Local.PullAsync());
-                        await Assert.ThrowsAsync<ObjectDisposedException>(async () => await repo.Local.PushAsync());
-                        await Assert.ThrowsAsync<ObjectDisposedException>(async () => await repo.Local.RemoveBranchAsync("master"));
-                        await Assert.ThrowsAsync<ObjectDisposedException>(async () => await repo.Local.ListBranchesAsync());
-                        await Assert.ThrowsAsync<ObjectDisposedException>(async () => await repo.Local.BranchExistsAsync("master"));
+                        await Assert.ThrowsAsync<ObjectDisposedException>(async () =>
+                        {
+                            await SyncContext.Clear;
+
+                            await repo.Local.CheckoutAsync("master");
+                        });
+                        await Assert.ThrowsAsync<ObjectDisposedException>(async () =>
+                        {
+                            await SyncContext.Clear;
+
+                            await repo.Local.CheckoutOriginAsync("master");
+                        });
+                        await Assert.ThrowsAsync<ObjectDisposedException>(async () =>
+                        {
+                            await SyncContext.Clear;
+
+                            await repo.Local.CreateBranchAsync("test", "master");
+                        });
+                        await Assert.ThrowsAsync<ObjectDisposedException>(async () =>
+                        {
+                            await SyncContext.Clear;
+
+                            await repo.Local.CommitAsync();
+                        });
+                        await Assert.ThrowsAsync<ObjectDisposedException>(async () =>
+                        {
+                            await SyncContext.Clear;
+
+                            await repo.Local.FetchAsync();
+                        });
+                        await Assert.ThrowsAsync<ObjectDisposedException>(async () =>
+                        {
+                            await SyncContext.Clear;
+
+                            await repo.Local.MergeAsync("master");
+                        });
+                        await Assert.ThrowsAsync<ObjectDisposedException>(async () =>
+                        {
+                            await SyncContext.Clear;
+
+                            await repo.Local.PullAsync();
+                        });
+                        await Assert.ThrowsAsync<ObjectDisposedException>(async () =>
+                        {
+                            await SyncContext.Clear;
+
+                            await repo.Local.PushAsync();
+                        });
+                        await Assert.ThrowsAsync<ObjectDisposedException>(async () =>
+                        {
+                            await SyncContext.Clear;
+
+                            await repo.Local.RemoveBranchAsync("master");
+                        });
+                        await Assert.ThrowsAsync<ObjectDisposedException>(async () =>
+                        {
+                            await SyncContext.Clear;
+
+                            await repo.Local.ListBranchesAsync();
+                        });
+                        await Assert.ThrowsAsync<ObjectDisposedException>(async () =>
+                        {
+                            await SyncContext.Clear;
+
+                            await repo.Local.BranchExistsAsync("master");
+                        });
 
                         Assert.Throws<ObjectDisposedException>(() => repo.NormalizeBranchName("master"));
                     }
@@ -755,9 +901,13 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task Local_GetCommits()
         {
+            await SyncContext.Clear;
+
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
                     {
                         var repoPath = tempFolder.Path;
@@ -805,9 +955,13 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task Local_Commit_NotAheadOrBehind()
         {
+            await SyncContext.Clear;
+
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     //-------------------------------------------------
                     // Clone a repo and then verify that the the local repo is not ahead
                     // or behind on commits (since both local and remote should be on the
@@ -829,9 +983,13 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task Local_Commit_IsAhead()
         {
+            await SyncContext.Clear;
+
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     //-------------------------------------------------
                     // Clone a repo add a file and perform a local commit and then verify
                     // that the the local repo is ahead of the remote.
@@ -859,9 +1017,13 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task Local_Commit_IsBehind()
         {
+            await SyncContext.Clear;
+
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     //-------------------------------------------------
                     // Clone two repos.  In the first, add a file, commit that and push
                     // to GitHub.  Then verify that the second repos is now behind.
@@ -894,9 +1056,13 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task Remote_GetFile()
         {
+            await SyncContext.Clear;
+
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     //-------------------------------------------------
                     // Clone a repo add a file and perform a local commit and then push
                     // and then verify that we can download the file directly from the
@@ -932,15 +1098,30 @@ namespace TestGitHub
                                     Assert.Equal("HELLO WORLD!", reader.ReadToEnd());
                                 }
 
-                                await Assert.ThrowsAsync<Octokit.NotFoundException>((async () => await repo.Remote.Branch.GetBranchFileAsync("master", $"/{GitHubTestHelper.TestFolder}/{fileName}.bad", ms)));
+                                await Assert.ThrowsAsync<Octokit.NotFoundException>((async () =>
+                                {
+                                    await SyncContext.Clear;
+
+                                    await repo.Remote.Branch.GetBranchFileAsync("master", $"/{GitHubTestHelper.TestFolder}/{fileName}.bad", ms);
+                                }));
                             }
 
                             Assert.Equal("HELLO WORLD!", await repo.Remote.Branch.GetBranchFileAsTextAsync("master", $"/{GitHubTestHelper.TestFolder}/{fileName}"));
 
                             // Verify that we detect missing remote branches and files.
 
-                            await Assert.ThrowsAsync<Octokit.NotFoundException>(async () => await repo.Remote.Branch.GetBranchFileAsTextAsync("bad", $"/{GitHubTestHelper.TestFolder}/{fileName}"));
-                            await Assert.ThrowsAsync<Octokit.NotFoundException>(async () => await repo.Remote.Branch.GetBranchFileAsTextAsync("master", $"/{GitHubTestHelper.TestFolder}/{fileName}.bad"));
+                            await Assert.ThrowsAsync<Octokit.NotFoundException>(async () =>
+                            {
+                                await SyncContext.Clear;
+
+                                await repo.Remote.Branch.GetBranchFileAsTextAsync("bad", $"/{GitHubTestHelper.TestFolder}/{fileName}");
+                            });
+                            await Assert.ThrowsAsync<Octokit.NotFoundException>(async () =>
+                            {
+                                await SyncContext.Clear;
+
+                                await repo.Remote.Branch.GetBranchFileAsTextAsync("master", $"/{GitHubTestHelper.TestFolder}/{fileName}.bad");
+                            });
                         }
                     }
                 });
@@ -949,9 +1130,13 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task Local_ListBranches()
         {
+            await SyncContext.Clear;
+
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     //-------------------------------------------------
                     // Clone a repo, add a branch, and then verify that we can list local branches.
 
@@ -986,9 +1171,13 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task Local_BranchExistsFindGet()
         {
+            await SyncContext.Clear;
+
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     //-------------------------------------------------
                     // Clone a repo and then verify that BranchExistsAsync(),
                     // GetBranchAsync(), and FindBranchAsync() all work.
@@ -1025,7 +1214,12 @@ namespace TestGitHub
                             Assert.NotNull(master);
                             Assert.Equal("master", master.FriendlyName);
 
-                            await Assert.ThrowsAsync<LibGit2Sharp.NotFoundException>(async () => await repo.Local.GetBranchAsync(missingBranchName));
+                            await Assert.ThrowsAsync<LibGit2Sharp.NotFoundException>(async () =>
+                            {
+                                await SyncContext.Clear;
+
+                                await repo.Local.GetBranchAsync(missingBranchName);
+                            });
                         }
                     }
                 });
@@ -1034,9 +1228,13 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task Local_Commit_AutoStage()
         {
+            await SyncContext.Clear;
+
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
                     {
                         var repoPath = tempFolder.Path;
@@ -1089,9 +1287,13 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task Local_CherryPick()
         {
+            await SyncContext.Clear;
+
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     //-------------------------------------------------
                     // Verify cherry picking commits from one branch to another.
                     //
@@ -1152,9 +1354,13 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task Local_Stage()
         {
+            await SyncContext.Clear;
+
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     //-------------------------------------------------
                     // Verify that we can stage and unstage files.
 
@@ -1244,9 +1450,13 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task Local_IsPathRooted()
         {
+            await SyncContext.Clear;
+
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     //-------------------------------------------------
                     // Verify that [IsPathRooted()] works as expected.
 
@@ -1304,15 +1514,45 @@ namespace TestGitHub
                             //-------------------------------------------------
                             // Verify that we check for invalid paths.
 
-                            await Assert.ThrowsAsync<ArgumentNullException>(async () => await repo.Local.IsPathIgnoredAsync(null));
-                            await Assert.ThrowsAsync<ArgumentNullException>(async () => await repo.Local.IsPathIgnoredAsync(@""));
-                            await Assert.ThrowsAsync<ArgumentException>(async () => await repo.Local.IsPathIgnoredAsync(@"/test.txt"));
-                            await Assert.ThrowsAsync<ArgumentException>(async () => await repo.Local.IsPathIgnoredAsync(@"\test.txt"));
+                            await Assert.ThrowsAsync<ArgumentNullException>(async () =>
+                            {
+                                await SyncContext.Clear;
+
+                                await repo.Local.IsPathIgnoredAsync(null);
+                            });
+                            await Assert.ThrowsAsync<ArgumentNullException>(async () =>
+                            {
+                                await SyncContext.Clear;
+
+                                await repo.Local.IsPathIgnoredAsync(@"");
+                            });
+                            await Assert.ThrowsAsync<ArgumentException>(async () =>
+                            {
+                                await SyncContext.Clear;
+
+                                await repo.Local.IsPathIgnoredAsync(@"/test.txt");
+                            });
+                            await Assert.ThrowsAsync<ArgumentException>(async () =>
+                            {
+                                await SyncContext.Clear;
+
+                                await repo.Local.IsPathIgnoredAsync(@"\test.txt");
+                            });
 
                             if (NeonHelper.IsWindows)
                             {
-                                await Assert.ThrowsAsync<ArgumentException>(async () => await repo.Local.IsPathIgnoredAsync(@"C:test.txt"));
-                                await Assert.ThrowsAsync<ArgumentException>(async () => await repo.Local.IsPathIgnoredAsync(@"C:\test.txt"));
+                                await Assert.ThrowsAsync<ArgumentException>(async () =>
+                                {
+                                    await SyncContext.Clear;
+
+                                    await repo.Local.IsPathIgnoredAsync(@"C:test.txt");
+                                });
+                                await Assert.ThrowsAsync<ArgumentException>(async () =>
+                                {
+                                    await SyncContext.Clear;
+
+                                    await repo.Local.IsPathIgnoredAsync(@"C:\test.txt");
+                                });
                             }
                         }
                     }
@@ -1322,9 +1562,13 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task Local_Reset_Hard()
         {
+            await SyncContext.Clear;
+
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     //-------------------------------------------------
                     // Verify HARD reset on the HEAD branch.
 
@@ -1386,9 +1630,13 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task Local_Reset_Soft()
         {
+            await SyncContext.Clear;
+
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     //-------------------------------------------------
                     // Verify SOFT reset on the HEAD branch.
 
@@ -1449,9 +1697,13 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task Local_Reset_Hard_ToCommit()
         {
+            await SyncContext.Clear;
+
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     //-------------------------------------------------
                     // Verify HARD reset to a previous commit.
 
@@ -1522,9 +1774,13 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task Local_Reset_Soft_ToCommit()
         {
+            await SyncContext.Clear;
+
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     //-------------------------------------------------
                     // Verify HARD reset to a previous commit.
 
@@ -1596,9 +1852,13 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task Local_AnnotatedTag()
         {
+            await SyncContext.Clear;
+
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     //-------------------------------------------------
                     // Clone a repo and then verify that [ListTagsAsync()]
                     // and [ApplyTagAsync()] work.
@@ -1633,7 +1893,12 @@ namespace TestGitHub
                             Assert.Null(await repo.Local.FindAnnotatedTagAsync(Guid.NewGuid().ToString("d")));
 
                             Assert.NotNull(await repo.Local.GetAnnotatedTagAsync(tagName));
-                            await Assert.ThrowsAsync<LibGit2Sharp.NotFoundException>(async () => await repo.Local.GetAnnotatedTagAsync(Guid.NewGuid().ToString("d")));
+                            await Assert.ThrowsAsync<LibGit2Sharp.NotFoundException>(async () =>
+                            {
+                                await SyncContext.Clear;
+
+                                await repo.Local.GetAnnotatedTagAsync(Guid.NewGuid().ToString("d"));
+                            });
 
                             // Verify that we can push the tag to GitHub.
 
@@ -1647,9 +1912,13 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task Remote_Checkout_Tracking()
         {
+            await SyncContext.Clear;
+
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     //-------------------------------------------------
                     // Clone a repo and then verify that we can manage branches locally
                     // and also push them to GitHub.
@@ -1724,9 +1993,13 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task Local_SetOrigin()
         {
+            await SyncContext.Clear;
+
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     //-------------------------------------------------
                     // Clone a repo and then verify that we can change the remote origin.
 

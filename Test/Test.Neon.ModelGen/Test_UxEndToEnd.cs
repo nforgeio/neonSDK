@@ -356,6 +356,8 @@ namespace TestModelGen.UxAspNet
         [Fact]
         public async Task GetInt()
         {
+            await SyncContext.Clear;
+
             Assert.Equal(0, await client.GetIntAsync(0));
             Assert.Equal(100, await client.GetIntAsync(100));
             Assert.Equal(-100, await client.GetIntAsync(-100));
@@ -364,6 +366,8 @@ namespace TestModelGen.UxAspNet
         [Fact]
         public async Task GetDouble()
         {
+            await SyncContext.Clear;
+
             Assert.Equal(0, await client.GetDoubleAsync(0));
             Assert.Equal(1.234, await client.GetDoubleAsync(1.234));
             Assert.Equal(-1.234, await client.GetDoubleAsync(-1.234));
@@ -372,6 +376,8 @@ namespace TestModelGen.UxAspNet
         [Fact]
         public async Task GetTimeSpan()
         {
+            await SyncContext.Clear;
+
             Assert.Equal(TimeSpan.Zero, await client.GetTimeSpanAsync(TimeSpan.Zero));
             Assert.Equal(TimeSpan.FromDays(2.3456), await client.GetTimeSpanAsync(TimeSpan.FromDays(2.3456)));
             Assert.Equal(TimeSpan.FromDays(-2.3456), await client.GetTimeSpanAsync(TimeSpan.FromDays(-2.3456)));
@@ -380,6 +386,8 @@ namespace TestModelGen.UxAspNet
         [Fact]
         public async Task GetVersion()
         {
+            await SyncContext.Clear;
+
             var version = new Version(1, 2, 3);
 
             Assert.Equal(version, await client.GetVersionAsync(version));
@@ -388,6 +396,8 @@ namespace TestModelGen.UxAspNet
         [Fact]
         public async Task CreatePerson()
         {
+            await SyncContext.Clear;
+
             var person = await client.CreatePersonAsync(10, "Jeff", 58, Gender.Male);
 
             Assert.Equal(10, person.Id);
@@ -399,6 +409,8 @@ namespace TestModelGen.UxAspNet
         [Fact]
         public async Task PutPerson()
         {
+            await SyncContext.Clear;
+
             var person = new Person()
             {
                 Id = 10,
@@ -437,6 +449,8 @@ namespace TestModelGen.UxAspNet
         [Fact]
         public async Task OptionalParams()
         {
+            await SyncContext.Clear;
+
             Assert.Null(await client.GetOptionalStringViaHeader_NullAsync());
             Assert.Equal("Goodbye World!", await client.GetOptionalStringViaHeader_ValueAsync("Goodbye World!"));
             Assert.Equal("Hello World!", await client.GetOptionalStringViaHeader_ValueAsync());
@@ -471,6 +485,8 @@ namespace TestModelGen.UxAspNet
         [Fact]
         public async Task GetStringList()
         {
+            await SyncContext.Clear;
+
             Assert.Null(await client.GetStringListAsync(null));
             Assert.Empty(await client.GetStringListAsync(new ObservableCollection<string>()));
 
@@ -486,6 +502,8 @@ namespace TestModelGen.UxAspNet
         [Fact]
         public async Task GetPersonList()
         {
+            await SyncContext.Clear;
+
             Assert.Null(await client.GetPersonListAsync(null));
             Assert.Empty(await client.GetPersonListAsync(new ObservableCollection<Person>()));
 
@@ -515,6 +533,8 @@ namespace TestModelGen.UxAspNet
         [Fact]
         public async Task GetPersonArray()
         {
+            await SyncContext.Clear;
+
             Assert.Null(await client.GetPersonArrayAsync(null));
             Assert.Empty(await client.GetPersonArrayAsync(new Person[0]));
 

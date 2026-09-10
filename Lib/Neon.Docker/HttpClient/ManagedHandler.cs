@@ -327,6 +327,8 @@ namespace Microsoft.Net.Http.Client
 
         private static async Task<Socket> TCPSocketOpenerAsync(string host, int port, CancellationToken cancellationToken)
         {
+            await SyncContext.Clear;
+
             var addresses = await Dns.GetHostAddressesAsync(host).ConfigureAwait(false);
 
             if (addresses.Length == 0)
@@ -373,6 +375,8 @@ namespace Microsoft.Net.Http.Client
 
         private async Task TunnelThroughProxyAsync(HttpRequestMessage request, Stream transport, CancellationToken cancellationToken)
         {
+            await SyncContext.Clear;
+
             // Send a Connect request:
             // CONNECT server.example.com:80 HTTP / 1.1
             // Host: server.example.com:80

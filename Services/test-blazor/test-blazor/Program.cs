@@ -41,6 +41,7 @@ using Neon.Web;
 using TestBlazor.Components;
 
 using Yarp.ReverseProxy.Configuration;
+using Neon.Tasks;
 
 namespace TestBlazor
 {
@@ -68,6 +69,8 @@ namespace TestBlazor
         /// <returns></returns>
         public static async Task Main(string[] args)
         {
+            await SyncContext.Clear;
+
             var tasks = new List<Task>();
             var tokens = new List<CancellationTokenSource>();
 
@@ -144,6 +147,8 @@ namespace TestBlazor
                     options.ActivityTimeout = TimeSpan.FromMilliseconds(int.MaxValue);
                     options.ReadyFunction   = async () =>
                     {
+                        await SyncContext.Clear;
+
                         await Task.Delay(1000);
                     };
                 });

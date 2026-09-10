@@ -23,6 +23,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 
 using Neon.Tailwind;
+using Neon.Tasks;
 
 namespace TestTailwind.Components
 {
@@ -39,6 +40,8 @@ namespace TestTailwind.Components
 
         private async Task ShowTransitionAsync()
         {
+            await SyncContext.Clear;
+
             if (isTransitioning) { return; }
             isTransitioning = true;
 

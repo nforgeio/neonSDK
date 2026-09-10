@@ -89,11 +89,15 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task HeadAsync_NotJson()
         {
+            await SyncContext.Clear;
+
             // Ensure that HEAD returning a non-JSON content type returns a NULL document.
 
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -130,11 +134,15 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task HeadAsync_Args()
         {
+            await SyncContext.Clear;
+
             // Ensure that HEAD with query arguments work.
 
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -178,11 +186,15 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task HeadAsync_Headers()
         {
+            await SyncContext.Clear;
+
             // Ensure that HEAD with query arguments work.
 
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -226,11 +238,15 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task HeadAsync_Dynamic()
         {
+            await SyncContext.Clear;
+
             // Ensure that HEAD returning a dynamic works.
 
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -267,11 +283,15 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task HeadAsync_Dynamic_NotJson()
         {
+            await SyncContext.Clear;
+
             // Ensure that HEAD returning non-JSON returns a NULL dynamic document.
 
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -308,11 +328,15 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task HeadAsync_Error()
         {
+            await SyncContext.Clear;
+
             // Ensure that HEAD returning a hard error works.
 
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var response = context.Response;
 
                     response.StatusCode = (int)HttpStatusCode.NotFound;
@@ -322,7 +346,12 @@ namespace TestCommon
             {
                 using (var jsonClient = new JsonClient())
                 {
-                    await Assert.ThrowsAsync<HttpException>(async () => await jsonClient.HeadAsync(baseUri + "info"));
+                    await Assert.ThrowsAsync<HttpException>(async () =>
+                    {
+                        await SyncContext.Clear;
+
+                        await jsonClient.HeadAsync(baseUri + "info");
+                    });
                 }
             }
             ;
@@ -331,6 +360,8 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task HeadAsync_Retry()
         {
+            await SyncContext.Clear;
+
             // Ensure that HEAD will retry after soft errors.
 
             var attemptCount = 0;
@@ -338,6 +369,8 @@ namespace TestCommon
             using (new MockHttpServer(baseUri,
                  async context =>
                  {
+                     await SyncContext.Clear;
+
                      var request  = context.Request;
                      var response = context.Response;
 
@@ -368,6 +401,8 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task HeadAsync_NoRetryNull()
         {
+            await SyncContext.Clear;
+
             // Ensure that HEAD won't retry if [retryPolicy=NULL]
 
             var attemptCount = 0;
@@ -375,6 +410,8 @@ namespace TestCommon
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -397,7 +434,12 @@ namespace TestCommon
             {
                 using (var jsonClient = new JsonClient())
                 {
-                    await Assert.ThrowsAsync<HttpException>(async () => await jsonClient.HeadAsync(null, baseUri + "info"));
+                    await Assert.ThrowsAsync<HttpException>(async () =>
+                    {
+                        await SyncContext.Clear;
+
+                        await jsonClient.HeadAsync(null, baseUri + "info");
+                    });
 
                     Assert.Equal(1, attemptCount);
                 }
@@ -408,6 +450,8 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task HeadAsync_NoRetryExplicit()
         {
+            await SyncContext.Clear;
+
             // Ensure that HEAD won't retry if [retryPolicy=NoRetryPolicy]
 
             var attemptCount = 0;
@@ -415,6 +459,8 @@ namespace TestCommon
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -437,7 +483,12 @@ namespace TestCommon
             {
                 using (var jsonClient = new JsonClient())
                 {
-                    await Assert.ThrowsAsync<HttpException>(async () => await jsonClient.HeadAsync(NoRetryPolicy.Instance, baseUri + "info"));
+                    await Assert.ThrowsAsync<HttpException>(async () =>
+                    {
+                        await SyncContext.Clear;
+
+                        await jsonClient.HeadAsync(NoRetryPolicy.Instance, baseUri + "info");
+                    });
 
                     Assert.Equal(1, attemptCount);
                 }

@@ -40,6 +40,7 @@ using Neon.Service;
 using Neon.Xunit;
 
 using Xunit;
+using Neon.Tasks;
 
 namespace TestApiService
 {
@@ -97,6 +98,8 @@ namespace TestApiService
         /// <inheritdoc/>
         protected async override Task<int> OnRunAsync()
         {
+            await SyncContext.Clear;
+
             // Parse the environment variables.
 
             var portVariable = GetEnvironmentVariable("PORT", "80");

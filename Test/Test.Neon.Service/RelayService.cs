@@ -173,6 +173,8 @@ namespace TestNeonService
         /// <returns>The tracking <see cref="Task"/>.</returns>
         public async Task OnWebRequest(HttpContext context)
         {
+            await SyncContext.Clear;
+
             // Call the [web-service] and return what it returns back 
             // to our caller.
 

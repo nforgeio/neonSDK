@@ -194,6 +194,8 @@ namespace Test.Neon.SignalR
         [Fact]
         public async Task CanSendAndReceiveUserMessagesToOtherUsers()
         {
+            await SyncContext.Clear;
+
             var tcs = new TaskCompletionSource<string>();
 
             connection.On<string>("Echo", message => tcs.SetResult(message));
@@ -236,6 +238,8 @@ namespace Test.Neon.SignalR
         [Fact]
         public async Task HubConnectionCanSendAndReceiveGroupMessages()
         {
+            await SyncContext.Clear;
+
             var tcs = new TaskCompletionSource<string>();
 
             connection.On<string>("Echo", message => tcs.SetResult(message));
@@ -261,6 +265,8 @@ namespace Test.Neon.SignalR
         [Fact]
         public async Task HubConnectionCanUnsubscribeFromGroupMessages()
         {
+            await SyncContext.Clear;
+
             var tcs = new TaskCompletionSource<string>();
 
             connection.On<string>("Echo", message => tcs.SetResult(message));
@@ -292,6 +298,8 @@ namespace Test.Neon.SignalR
         [Fact]
         public async Task HubConnectionCanAddUserToGroup()
         {
+            await SyncContext.Clear;
+
             var tcs = new TaskCompletionSource<string>();
 
             connection.On<string>("Echo", message => tcs.SetResult(message));
@@ -312,6 +320,8 @@ namespace Test.Neon.SignalR
         [Fact]
         public async Task HubConnectionCanRemoveUserFromGroup()
         {
+            await SyncContext.Clear;
+
             var tcs = new TaskCompletionSource<string>();
 
             connection.On<string>("Echo", message => tcs.SetResult(message));
@@ -338,6 +348,8 @@ namespace Test.Neon.SignalR
 
         private async Task CheckConnectionsAsync()
         {
+            await SyncContext.Clear;
+
             if (connection.State != HubConnectionState.Connected)
             {
                 await connection.StartAsync();
@@ -384,6 +396,8 @@ namespace Test.Neon.SignalR
 
         private async Task<T> AwaitWithTimeoutAsync<T>(Task<T> task, int timeout = 500, bool throwOnTimeout = true)
         {
+            await SyncContext.Clear;
+
             if (await Task.WhenAny(task, Task.Delay(timeout)) == task)
             {
                 return await task;

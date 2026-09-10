@@ -122,6 +122,8 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task OptionsDynamicAsync()
         {
+            await SyncContext.Clear;
+
             // Ensure that OPTIONS sending a dynamic document works.
 
             RequestDoc requestDoc = null;
@@ -129,6 +131,8 @@ namespace TestCommon
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request = context.Request;
                     var response = context.Response;
 
@@ -179,6 +183,8 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task OptionsAsync_NotJson()
         {
+            await SyncContext.Clear;
+
             // Ensure that OPTIONS returning a non-JSON content type returns a NULL document.
 
             RequestDoc requestDoc = null;
@@ -186,6 +192,8 @@ namespace TestCommon
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -237,6 +245,8 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task OptionsAsync_Args()
         {
+            await SyncContext.Clear;
+
             // Ensure that OPTIONS with query arguments work.
 
             RequestDoc requestDoc = null;
@@ -244,6 +254,8 @@ namespace TestCommon
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -303,6 +315,8 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task OptionsAsync_Headers()
         {
+            await SyncContext.Clear;
+
             // Ensure that OPTIONS with query arguments work.
 
             RequestDoc requestDoc = null;
@@ -310,6 +324,8 @@ namespace TestCommon
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -369,6 +385,8 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task OptionsAsync_Dynamic()
         {
+            await SyncContext.Clear;
+
             // Ensure that OPTIONS returning a dynamic works.
 
             RequestDoc requestDoc = null;
@@ -376,6 +394,8 @@ namespace TestCommon
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -427,6 +447,8 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task OptionsAsync_Dynamic_NotJson()
         {
+            await SyncContext.Clear;
+
             // Ensure that OPTIONS returning non-JSON returns a NULL dynamic document.
 
             RequestDoc requestDoc = null;
@@ -434,6 +456,8 @@ namespace TestCommon
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -485,11 +509,15 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task OptionsAsync_Error()
         {
+            await SyncContext.Clear;
+
             // Ensure that OPTIONS returning a hard error works.
 
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var response = context.Response;
 
                     response.StatusCode = (int)HttpStatusCode.NotFound;
@@ -506,7 +534,12 @@ namespace TestCommon
                         Arg1      = "World"
                     };
 
-                    await Assert.ThrowsAsync<HttpException>(async () => await jsonClient.OptionsAsync(baseUri + "info", doc));
+                    await Assert.ThrowsAsync<HttpException>(async () =>
+                    {
+                        await SyncContext.Clear;
+
+                        await jsonClient.OptionsAsync(baseUri + "info", doc);
+                    });
                 }
             }
             ;
@@ -515,6 +548,8 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task OptionsAsync_Retry()
         {
+            await SyncContext.Clear;
+
             // Ensure that OPTIONS will retry after soft errors.
 
             RequestDoc requestDoc = null;
@@ -524,6 +559,8 @@ namespace TestCommon
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -571,6 +608,8 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task OptionsAsync_NoRetryNull()
         {
+            await SyncContext.Clear;
+
             // Ensure that OPTIONS won't retry if [retryPolicy=NULL]
 
             var attemptCount = 0;
@@ -578,6 +617,8 @@ namespace TestCommon
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -607,7 +648,12 @@ namespace TestCommon
                         Arg1      = "World"
                     };
 
-                    await Assert.ThrowsAsync<HttpException>(async () => await jsonClient.OptionsAsync(null, baseUri + "info", doc));
+                    await Assert.ThrowsAsync<HttpException>(async () =>
+                    {
+                        await SyncContext.Clear;
+
+                        await jsonClient.OptionsAsync(null, baseUri + "info", doc);
+                    });
 
                     Assert.Equal(1, attemptCount);
                 }
@@ -618,6 +664,8 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task OptionsAsync_NoRetryExplicit()
         {
+            await SyncContext.Clear;
+
             // Ensure that OPTIONS won't retry if [retryPolicy=NoRetryPolicy]
 
             var attemptCount = 0;
@@ -625,6 +673,8 @@ namespace TestCommon
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -654,7 +704,12 @@ namespace TestCommon
                         Arg1      = "World"
                     };
 
-                    await Assert.ThrowsAsync<HttpException>(async () => await jsonClient.OptionsAsync(NoRetryPolicy.Instance, baseUri + "info", doc));
+                    await Assert.ThrowsAsync<HttpException>(async () =>
+                    {
+                        await SyncContext.Clear;
+
+                        await jsonClient.OptionsAsync(NoRetryPolicy.Instance, baseUri + "info", doc);
+                    });
 
                     Assert.Equal(1, attemptCount);
                 }
@@ -665,11 +720,15 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task Options_CustomPayloadAsync()
         {
+            await SyncContext.Clear;
+
             // Ensure that OPTIONS uploading a [JsonCustomPayload] works.
 
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request = context.Request;
                     var response = context.Response;
 
@@ -711,11 +770,15 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task OptionsAsync_NullPayloadAsync()
         {
+            await SyncContext.Clear;
+
             // Ensure that OPTIONS uploading a NULL payload works.
 
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request = context.Request;
                     var response = context.Response;
 

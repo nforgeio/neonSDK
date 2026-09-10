@@ -221,6 +221,8 @@ namespace TestModelGen
         /// </remarks>
         public async Task ComposedCallAsync(string methodGroup, string methodName, params object[] args)
         {
+            await SyncContext.Clear;
+
             var property = instanceType.GetProperty(methodGroup);
 
             if (property == null)
@@ -271,6 +273,8 @@ namespace TestModelGen
         /// </remarks>
         public async Task<TResult> ComposedCallAsync<TResult>(string methodGroup, string methodName, params object[] args)
         {
+            await SyncContext.Clear;
+
             var property = instanceType.GetProperty(methodGroup);
 
             if (property == null)

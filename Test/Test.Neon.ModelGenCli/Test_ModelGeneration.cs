@@ -162,6 +162,8 @@ namespace Test.NeonCli
         [Fact]
         public async Task Filter2()
         {
+            await SyncContext.Clear;
+
             using (var runner = new ProgramRunner())
             {
                 // Verify that all types are generated when no targets
@@ -186,6 +188,8 @@ namespace Test.NeonCli
         [Fact]
         public async Task FilterClient()
         {
+            await SyncContext.Clear;
+
             using (var runner = new ProgramRunner())
             {
                 // Verify that all types are generated when no targets
@@ -210,6 +214,8 @@ namespace Test.NeonCli
         [Fact]
         public async Task Filter3AndClient()
         {
+            await SyncContext.Clear;
+
             using (var runner = new ProgramRunner())
             {
                 // Verify that all types are generated when no targets
@@ -234,6 +240,8 @@ namespace Test.NeonCli
         [Fact]
         public async Task SourceNamespace()
         {
+            await SyncContext.Clear;
+
             using (var runner = new ProgramRunner())
             {
                 // Verify that all types are generated when no targets
@@ -258,6 +266,8 @@ namespace Test.NeonCli
         [Fact]
         public async Task NoServices()
         {
+            await SyncContext.Clear;
+
             using (var runner = new ProgramRunner())
             {
                 // Verify that all types are generated when no targets

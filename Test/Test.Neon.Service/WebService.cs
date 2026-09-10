@@ -183,6 +183,8 @@ namespace TestNeonService
         /// <returns>The tracking <see cref="Task"/>.</returns>
         public async Task OnWebRequest(HttpContext context)
         {
+            await SyncContext.Clear;
+
             await context.Response.WriteAsync(responseText);
         }
     }
