@@ -16,7 +16,9 @@
 // limitations under the License.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.IO;
@@ -27,13 +29,11 @@ using System.Threading.Tasks;
 
 using Microsoft.Extensions.DependencyInjection;
 
+using Neon.Diagnostics;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
-
-using Neon.Diagnostics;
-using System.Collections;
-using System.ComponentModel;
 
 namespace Neon.Common
 {

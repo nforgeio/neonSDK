@@ -15,13 +15,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
-using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
 using System.Reflection.Metadata;
 using System.Threading.Tasks;
+
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 
 namespace Neon.Tailwind
 {
@@ -29,7 +30,8 @@ namespace Neon.Tailwind
     {
         [Parameter] public EventCallback<KeyboardEventArgs> OnKeyDown { get; set; }
         [Parameter] public List<string> PreventDefaultForKeys { get; set; } = new();
-        [JSInvokable] public Task HandleKeyDown(KeyboardEventArgs args)
+        [JSInvokable]
+        public Task HandleKeyDown(KeyboardEventArgs args)
         {
             return OnKeyDown.InvokeAsync(args);
         }

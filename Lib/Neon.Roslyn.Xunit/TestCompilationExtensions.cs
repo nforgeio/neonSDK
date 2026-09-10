@@ -15,6 +15,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using FluentAssertions.Execution;
+
 namespace Neon.Roslyn.Xunit
 {
     /// <summary>
@@ -29,7 +31,7 @@ namespace Neon.Roslyn.Xunit
         /// <returns></returns>
         public static TestCompilationAssertions Should(this TestCompilation instance)
         {
-            return new TestCompilationAssertions(instance);
+            return new TestCompilationAssertions(instance, AssertionChain.GetOrCreate());
         }
     }
 }

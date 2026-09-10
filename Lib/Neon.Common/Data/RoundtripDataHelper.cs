@@ -27,13 +27,13 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Neon.Common;
+using Neon.Diagnostics;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
-
-using Neon.Common;
-using Neon.Diagnostics;
 
 namespace Neon.Data
 {

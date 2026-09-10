@@ -103,6 +103,8 @@ namespace Neon.Xunit
                     var task = Task.Factory.StartNew(
                         async (object arg) =>
                         {
+                            await SyncContext.Clear;
+
                             using (var context = (RequestContext)arg)
                             {
                                 await handler(context);

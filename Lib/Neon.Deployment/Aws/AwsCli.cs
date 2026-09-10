@@ -18,13 +18,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
-using Newtonsoft.Json;
 
 using Neon.Common;
 using Neon.Cryptography;
@@ -32,7 +31,8 @@ using Neon.IO;
 using Neon.Net;
 using Neon.Retry;
 using Neon.Tasks;
-using System.Diagnostics;
+
+using Newtonsoft.Json;
 
 namespace Neon.Deployment
 {

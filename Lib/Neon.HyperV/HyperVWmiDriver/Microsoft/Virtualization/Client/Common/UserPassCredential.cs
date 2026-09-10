@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Security;
 using System.Text.RegularExpressions;
+
 using Microsoft.Virtualization.Client.Common.Types.Resources;
 
 namespace Microsoft.Virtualization.Client.Common;

@@ -18,10 +18,10 @@
 using System;
 using System.ComponentModel;
 
+using Neon.Common;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-
-using Neon.Common;
 
 namespace Neon.Data
 {

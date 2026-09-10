@@ -24,12 +24,12 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
-
 using Neon.Common;
 using Neon.Deployment;
 using Neon.Tasks;
+
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace Neon.IO
 {

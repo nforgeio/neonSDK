@@ -18,14 +18,15 @@
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
+using System.IO;
 using System.Runtime.Serialization;
 
 using Neon.Common;
 using Neon.Xunit;
 
-using YamlDotNet.Core;
 using Xunit;
-using System.IO;
+
+using YamlDotNet.Core;
 
 namespace TestCommon
 {

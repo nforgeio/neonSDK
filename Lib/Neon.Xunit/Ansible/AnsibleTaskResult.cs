@@ -21,9 +21,9 @@ using System.Diagnostics.Contracts;
 using System.IO;
 using System.Text;
 
-using Newtonsoft.Json.Linq;
-
 using Neon.Common;
+
+using Newtonsoft.Json.Linq;
 
 namespace Neon.Xunit
 {

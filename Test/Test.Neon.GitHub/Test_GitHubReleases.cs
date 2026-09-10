@@ -27,6 +27,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using ICSharpCode.SharpZipLib.Zip;
+
 using LibGit2Sharp;
 
 using Neon.Common;
@@ -38,6 +39,7 @@ using Neon.Xunit;
 using Xunit;
 
 using Release = Octokit.Release;
+using Neon.Tasks;
 
 namespace TestGitHub
 {
@@ -54,11 +56,15 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task GetAll()
         {
+            await SyncContext.Clear;
+
             // Verify that we can list releases without crashing.
 
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepoPath))
                     {
                         await repo.Remote.Release.GetAllAsync();

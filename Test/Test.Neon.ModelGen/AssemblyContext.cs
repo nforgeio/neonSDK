@@ -28,9 +28,9 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
-using Neon.ModelGen;
 using Neon.Common;
 using Neon.Data;
+using Neon.ModelGen;
 using Neon.Xunit;
 
 using Newtonsoft.Json;

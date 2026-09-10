@@ -21,14 +21,15 @@ using System.Collections.ObjectModel;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Threading.Tasks;
 
-using Neon.ModelGen;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+
 using Neon.Common;
 using Neon.Data;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
-using System.Runtime.InteropServices.ComTypes;
+using Neon.ModelGen;
 
 namespace Neon.Xunit
 {

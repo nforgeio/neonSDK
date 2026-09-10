@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFrameworks>net10.0</TargetFrameworks>
@@ -53,7 +53,7 @@
         <ProjectReference Include="..\..\Lib\Neon.BuildInfo\Neon.BuildInfo.csproj" />
         <ProjectReference Include="..\..\Lib\Neon.Common\Neon.Common.csproj" />
         <ProjectReference Include="..\..\Lib\Neon.Postgres\Neon.Postgres.csproj" />
-        <ProjectReference Include="..\..\Lib\Neon.Xunit.YugaByte\Neon.Xunit.YugaByte.csproj" />
+        <ProjectReference Include="..\..\Lib\Neon.Xunit.YugaByte\Neon.Xunit.Yugabyte.csproj" />
         <ProjectReference Include="..\..\Lib\Neon.Xunit\Neon.Xunit.csproj" />
     </ItemGroup>
 

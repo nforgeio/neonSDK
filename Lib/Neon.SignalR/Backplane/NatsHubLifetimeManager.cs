@@ -479,7 +479,8 @@ namespace Neon.SignalR
                         logger?.LogDebugEx($"Failed writing message: [Subject={connectionSubject}] [Connection{connection.ConnectionId}]");
                     }
 
-                };
+                }
+                ;
             }
         }
 
@@ -544,7 +545,8 @@ namespace Neon.SignalR
                         logger?.LogErrorEx(e);
                         logger?.LogDebugEx($"Failed writing message: [Subject={userSubject}].");
                     }
-                };
+                }
+                ;
             }
 
         }
@@ -586,7 +588,8 @@ namespace Neon.SignalR
                         logger?.LogErrorEx(e);
                         logger?.LogDebugEx($"Failed writing message: [Subject={groupSubject}].");
                     }
-                };
+                }
+                ;
             }
         }
 
@@ -705,7 +708,8 @@ namespace Neon.SignalR
                         logger?.LogErrorEx(e);
                         logger?.LogDebugEx($"Failed writing message: [Subject={subjects.All}].");
                     }
-                };
+                }
+                ;
             }
         }
 
@@ -767,7 +771,8 @@ namespace Neon.SignalR
                         logger?.LogErrorEx(e);
                         logger?.LogDebugEx($"Error processing message for internal server message: [Subject={subjects.GroupManagement}]");
                     }
-                };
+                }
+                ;
             }
         }
 

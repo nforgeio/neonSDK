@@ -23,10 +23,10 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
+using Neon.Common;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-
-using Neon.Common;
 
 namespace Neon.Docker
 {

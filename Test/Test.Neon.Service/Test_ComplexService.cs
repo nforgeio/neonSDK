@@ -31,6 +31,7 @@ using Neon.Service;
 using Neon.Xunit;
 
 using Xunit;
+using Neon.Tasks;
 
 namespace TestNeonService
 {
@@ -91,6 +92,8 @@ namespace TestNeonService
         [Fact]
         public async Task NoConfig()
         {
+            await SyncContext.Clear;
+
             // Restart the service without specifying a configuration variable 
             // or file and verify that its endpoint returns the default response.
 
@@ -107,6 +110,8 @@ namespace TestNeonService
         [Fact]
         public async Task EnvironmentConfig()
         {
+            await SyncContext.Clear;
+
             // Restart the service specifying the configuration via
             // an environment variable.
 

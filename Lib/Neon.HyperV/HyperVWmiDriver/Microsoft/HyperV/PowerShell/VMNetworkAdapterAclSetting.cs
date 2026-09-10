@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+
 using Microsoft.Virtualization.Client;
 using Microsoft.Virtualization.Client.Management;
 

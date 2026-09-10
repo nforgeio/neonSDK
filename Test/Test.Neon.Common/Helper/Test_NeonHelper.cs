@@ -29,6 +29,7 @@ using Neon.Common;
 using Neon.Xunit;
 
 using Xunit;
+using Neon.Tasks;
 
 namespace TestCommon
 {
@@ -268,11 +269,15 @@ namespace TestCommon
 
         private async static Task GetNoResultAsync()
         {
+            await SyncContext.Clear;
+
             await Task.CompletedTask;
         }
 
         public static async Task<string> GetResultAsync()
         {
+            await SyncContext.Clear;
+
             return await Task.FromResult("Hello World!");
         }
 

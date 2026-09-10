@@ -23,7 +23,7 @@ using System.Reflection;
 
 using Neon.Common;
 
-namespace Neon.YugaByte
+namespace Neon.Yugabyte
 {
     /// <summary>
     /// This namespace includes the YugaByte related utilities and extensions.

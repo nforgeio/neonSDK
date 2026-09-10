@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFrameworks>net10.0</TargetFrameworks>
@@ -56,9 +56,9 @@
         <ProjectReference Include="..\..\Lib\Neon.Nats\Neon.Nats.csproj" />
         <ProjectReference Include="..\..\Lib\Neon.Service\Neon.Service.csproj" />
         <ProjectReference Include="..\..\Lib\Neon.Web\Neon.Web.csproj" />
-        <ProjectReference Include="..\..\Lib\Neon.Xunit.YugaByte\Neon.Xunit.YugaByte.csproj" />
+        <ProjectReference Include="..\..\Lib\Neon.Xunit.YugaByte\Neon.Xunit.Yugabyte.csproj" />
         <ProjectReference Include="..\..\Lib\Neon.Xunit\Neon.Xunit.csproj" />
-        <ProjectReference Include="..\..\Lib\Neon.YugaByte\Neon.YugaByte.csproj" />
+        <ProjectReference Include="..\..\Lib\Neon.YugaByte\Neon.Yugabyte.csproj" />
         <ProjectReference Include="..\Test.Neon.Models\Test.Neon.Models.csproj" />
     </ItemGroup>
 

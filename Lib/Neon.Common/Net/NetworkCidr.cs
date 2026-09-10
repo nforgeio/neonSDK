@@ -25,8 +25,8 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
-using Neon.Common;
 using Neon.Collections;
+using Neon.Common;
 
 // $todo(jefflill): Support IPv6.
 

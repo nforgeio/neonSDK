@@ -29,6 +29,7 @@ using System.Threading.Tasks;
 using Neon.Common;
 using Neon.IO;
 using Neon.WSL;
+using Neon.Tasks;
 
 namespace WslUtil
 {
@@ -68,6 +69,8 @@ This command returns the exitcode and output from the script.
         /// <inheritdoc/>
         public override async Task RunAsync(CommandLine commandLine)
         {
+            await SyncContext.Clear;
+
             if (commandLine.HasHelpOption || commandLine.Arguments.Length == 0)
             {
                 Console.WriteLine(usage);

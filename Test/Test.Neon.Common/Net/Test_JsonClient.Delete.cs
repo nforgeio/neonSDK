@@ -18,14 +18,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-
-using Newtonsoft;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 using Neon.Collections;
 using Neon.Common;
@@ -33,7 +29,12 @@ using Neon.Net;
 using Neon.Retry;
 using Neon.Xunit;
 
+using Newtonsoft;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
 using Xunit;
+using Neon.Tasks;
 
 namespace TestCommon
 {
@@ -42,11 +43,15 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task DeletetAsync()
         {
+            await SyncContext.Clear;
+
             // Ensure that DELETE returning an explict type works.
 
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 

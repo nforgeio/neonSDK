@@ -23,12 +23,12 @@ using System.IO;
 using System.IO.Pipes;
 using System.Text;
 using System.Threading;
+using System.Xml.Linq;
+
+using Neon.Common;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-
-using Neon.Common;
-using System.Xml.Linq;
 
 namespace Neon.Deployment
 {

@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+
 using Microsoft.HyperV.PowerShell.ExtensionMethods;
 using Microsoft.Virtualization.Client.Management;
 

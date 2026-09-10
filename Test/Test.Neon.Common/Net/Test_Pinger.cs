@@ -18,9 +18,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -29,6 +29,7 @@ using Neon.Net;
 using Neon.Xunit;
 
 using Xunit;
+using Neon.Tasks;
 
 namespace TestCommon
 {
@@ -38,6 +39,8 @@ namespace TestCommon
         [Fact]
         public async Task Basic()
         {
+            await SyncContext.Clear;
+
             using (var pinger = new Pinger())
             {
                 // The loopback address should always answer.
@@ -62,7 +65,12 @@ namespace TestCommon
 
                 if (!NeonHelper.IsOSX)
                 {
-                    await Assert.ThrowsAsync<PingException>(async () => await pinger.SendPingAsync("240.0.0.0"));
+                    await Assert.ThrowsAsync<PingException>(async () =>
+                    {
+                        await SyncContext.Clear;
+
+                        await pinger.SendPingAsync("240.0.0.0");
+                    });
                     await Assert.ThrowsAsync<PingException>(async () => await pinger.SendPingAsync(IPAddress.Parse("240.0.0.0")));
                 }
             }

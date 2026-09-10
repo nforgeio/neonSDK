@@ -20,10 +20,10 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.IO;
 
+using Neon.Common;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-
-using Neon.Common;
 
 namespace Neon.Deployment
 {

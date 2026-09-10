@@ -42,6 +42,8 @@ namespace TestCommon
         [Fact]
         public async Task Basic()
         {
+            await SyncContext.Clear;
+
             // Create a mutex and then several tasks that acquire the mutex for
             // a period of time, verifying that each obtains exclusive
             // access.
@@ -62,6 +64,8 @@ namespace TestCommon
                     tasks.Add(Task.Run(
                         async () =>
                         {
+                            await SyncContext.Clear;
+
                             while (stopwatch.Elapsed < testTime)
                             {
                                 using (await mutex.AcquireAsync())
@@ -98,6 +102,8 @@ namespace TestCommon
         [Fact]
         public async Task Dispose()
         {
+            await SyncContext.Clear;
+
             // Create a mutex, acquire it, and then create another task that will
             // attempt to acquire it as well (and will fail because the mutex has
             // already been acquired).  Then dispose the mutex and verify that the
@@ -113,6 +119,8 @@ namespace TestCommon
             var task = Task.Run(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     try
                     {
                         var acquireTask = mutex.AcquireAsync();

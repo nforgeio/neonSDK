@@ -1,4 +1,4 @@
-﻿Neon.YugaByte
+Neon.Yugabyte
 =============
 
-Implements the YugaByte database related utilities and extensions.  You can get started here: [Neon.YugaByte](https://sdk.neonforge.com/N_Neon_YugaByte.htm)
+Implements the Yugabyte database related utilities and extensions. You can get started here: [Neon.Yugabyte](https://sdk.neonforge.com/N_Neon_Yugabyte.htm)

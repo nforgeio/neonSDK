@@ -30,12 +30,12 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 
 using Neon.BuildInfo;
+using Neon.Diagnostics;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 
-using Neon.Diagnostics;
 using OpenTelemetry.Trace;
 
 namespace Neon.Common

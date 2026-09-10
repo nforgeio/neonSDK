@@ -78,6 +78,69 @@ namespace TestNamespace
         }
 
         [Fact]
+        public void DoesNotReportWorkflowRulesInsideInvokedActivityMethods()
+        {
+            var testCompilation = BuildCompilation(@"
+using System;
+using System.Threading.Tasks;
+
+namespace TestNamespace
+{
+    [Temporalio.Workflows.Workflow]
+    public class TestWorkflow
+    {
+        public Task RunAsync()
+        {
+            return TestActivities.RunAsync();
+        }
+    }
+
+    public static class TestActivities
+    {
+        [Temporalio.Activities.Activity]
+        public static Task RunAsync()
+        {
+            var now = DateTime.UtcNow;
+
+            return Task.CompletedTask;
+        }
+    }
+}");
+
+            testCompilation.Diagnostics.Should().NotContain(diagnostic => diagnostic.Id == "NEONTEMP0004");
+        }
+
+        [Fact]
+        public void DoesNotTreatActivityMethodsOnWorkflowClassesAsWorkflowRoots()
+        {
+            var testCompilation = BuildCompilation(@"
+using System;
+using System.Threading.Tasks;
+
+namespace TestNamespace
+{
+    [Temporalio.Workflows.Workflow]
+    public class TestWorkflow
+    {
+        public Task RunAsync()
+        {
+            return Task.CompletedTask;
+        }
+
+        [Temporalio.Activities.Activity]
+        public Task RunActivityAsync()
+        {
+            var now = DateTime.UtcNow;
+
+            return Task.CompletedTask;
+        }
+    }
+}");
+
+            testCompilation.Diagnostics.Should().NotContain(diagnostic => diagnostic.Id == "NEONTEMP0004");
+        }
+
+        [Fact]
         public void ReportsTaskAndThreadingInvalidActions()
         {
             var testCompilation = BuildCompilation(@"
@@ -270,6 +333,145 @@ namespace TestNamespace
         }
 
         [Fact]
+        public void DoesNotReportActivityAsyncCallsWithoutCancellationTokenOverload()
+        {
+            var testCompilation = BuildCompilation(@"
+using System.Threading.Tasks;
+
+namespace TestNamespace
+{
+    public class TestActivities
+    {
+        [Temporalio.Activities.Activity]
+        public async Task RunAsync()
+        {
+            await ServiceAsync();
+        }
+
+        private static Task ServiceAsync()
+        {
+            return Task.CompletedTask;
+        }
+    }
+}");
+
+            testCompilation.Diagnostics.Should().NotContain(diagnostic => diagnostic.Id == "NEONTEMP0009");
+        }
+
+        [Fact]
+        public void DoesNotReportActivityAsyncCallsWithOnlyIncompatibleCancellationTokenOverload()
+        {
+            var testCompilation = BuildCompilation(@"
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace TestNamespace
+{
+    public class TestActivities
+    {
+        [Temporalio.Activities.Activity]
+        public async Task RunAsync()
+        {
+            await ServiceAsync();
+        }
+
+        private static Task ServiceAsync()
+        {
+            return Task.CompletedTask;
+        }
+
+        private static Task ServiceAsync(int value, CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
+    }
+}");
+
+            testCompilation.Diagnostics.Should().NotContain(diagnostic => diagnostic.Id == "NEONTEMP0009");
+        }
+
+        [Fact]
+        public void DoesNotReportActivityAsyncCallsWithUnusableCancellationTokenOverloads()
+        {
+            var testCompilation = BuildCompilation(@"
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace TestNamespace
+{
+    public class TestActivities
+    {
+        [Temporalio.Activities.Activity]
+        public async Task RunAsync()
+        {
+            await Service.RunAsync();
+            await Service.LookupAsync();
+        }
+    }
+
+    public static class Service
+    {
+        public static Task RunAsync()
+        {
+            return Task.CompletedTask;
+        }
+
+        private static Task RunAsync(CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
+
+        public static Task LookupAsync()
+        {
+            return Task.CompletedTask;
+        }
+
+        public static int LookupAsync(CancellationToken cancellationToken)
+        {
+            return 0;
+        }
+    }
+}");
+
+            testCompilation.Diagnostics.Should().NotContain(diagnostic => diagnostic.Id == "NEONTEMP0009");
+        }
+
+        [Fact]
+        public void ReportsActivityExtensionAsyncCallsWithCancellationTokenOverload()
+        {
+            var testCompilation = BuildCompilation(@"
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace TestNamespace
+{
+    public class TestActivities
+    {
+        [Temporalio.Activities.Activity]
+        public async Task RunAsync()
+        {
+            await ""value"".ServiceAsync();
+        }
+    }
+
+    public static class ServiceExtensions
+    {
+        public static Task ServiceAsync(this string value)
+        {
+            return Task.CompletedTask;
+        }
+
+        public static Task ServiceAsync(this string value, CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
+    }
+}");
+
+            testCompilation.Diagnostics.Should().ContainSingle(diagnostic => diagnostic.Id == "NEONTEMP0009");
+        }
+
+        [Fact]
         public void DoesNotReportActivityCancellationTokenRuleOutsideActivityMethods()
         {
             var testCompilation = BuildCompilation(@"
@@ -299,6 +501,7 @@ namespace TestNamespace
         {
             var source = @"
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Temporalio.Activities
@@ -320,6 +523,11 @@ namespace TestNamespace
         }
 
         private static Task ServiceAsync()
+        {
+            return Task.CompletedTask;
+        }
+
+        private static Task ServiceAsync(CancellationToken cancellationToken)
         {
             return Task.CompletedTask;
         }

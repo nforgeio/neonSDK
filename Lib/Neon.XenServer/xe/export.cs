@@ -32,11 +32,12 @@
 #pragma warning disable CS1591
 
 using System;
-using System.IO;
-using System.Xml;
 using System.Collections;
-using System.Text;
+using System.IO;
 using System.Security.Cryptography;
+using System.Text;
+using System.Xml;
+
 using YYProject.XXHash;
 
 /* Thrown if we fail to verify a block (ie sha1) checksum */

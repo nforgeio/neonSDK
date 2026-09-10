@@ -30,17 +30,17 @@ namespace Neon.SignalR
         /// <summary>
         /// The assembly name.
         /// </summary>
-        internal static readonly AssemblyName AssemblyName = typeof(TracerProviderBuilderExtensions).Assembly.GetName();
+        internal static readonly AssemblyName AssemblyName = TraceContext.AssemblyName;
 
         /// <summary>
         /// The activity source name.
         /// </summary>
-        internal static readonly string ActivitySourceName = AssemblyName.Name;
+        internal static readonly string ActivitySourceName = TraceContext.ActivitySourceName;
 
         /// <summary>
         /// The version.
         /// </summary>
-        internal static readonly Version Version = AssemblyName.Version;
+        internal static readonly Version Version = TraceContext.Version;
 
         /// <summary>
         /// Adds Neon.SignalR to the tracing pipeline.

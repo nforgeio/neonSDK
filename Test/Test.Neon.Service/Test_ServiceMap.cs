@@ -32,6 +32,7 @@ using Neon.Service;
 using Neon.Xunit;
 
 using Xunit;
+using Neon.Tasks;
 
 namespace TestNeonService
 {
@@ -142,6 +143,8 @@ namespace TestNeonService
         [Fact]
         public async Task Test()
         {
+            await SyncContext.Clear;
+
             using (var client = new HttpClient())
             {
                 // Both the [web-service] and [relay-services] should be running.

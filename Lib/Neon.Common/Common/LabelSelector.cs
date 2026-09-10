@@ -29,11 +29,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 
+using Neon.Common;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
-
-using Neon.Common;
 
 namespace Neon.Common
 {
@@ -1132,4 +1132,3 @@ namespace Neon.Common
         }
     }
 }
-

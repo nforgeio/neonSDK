@@ -26,6 +26,7 @@ using Neon.Common;
 using Neon.Xunit;
 
 using Xunit;
+using Neon.Tasks;
 
 namespace TestCommon
 {
@@ -58,6 +59,8 @@ namespace TestCommon
         [Fact]
         public async Task WriteAsync()
         {
+            await SyncContext.Clear;
+
             using (var ms = new MemoryStream())
             {
                 await ms.WriteAsync(Array.Empty<byte>());
@@ -100,6 +103,8 @@ namespace TestCommon
         [Fact]
         public async Task ReadToEndAsync()
         {
+            await SyncContext.Clear;
+
             using (var ms = new MemoryStream())
             {
                 var data = new byte[128 * 1024 - 221];

@@ -26,15 +26,17 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Xunit;
-
 using Neon.Common;
 using Neon.Cryptography;
 using Neon.Deployment;
 using Neon.IO;
 using Neon.Xunit;
+
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
+using Xunit;
+using Neon.Tasks;
 
 namespace TestDeployment
 {
@@ -263,6 +265,8 @@ namespace TestDeployment
         [InlineData(true)]
         public async Task S3_MultiPart(bool publicReadAccess)
         {
+            await SyncContext.Clear;
+
             CheckCredentials();
 
             // Verify that uploading a multi-part file to S3 works.
@@ -364,7 +368,12 @@ namespace TestDeployment
                 {
                     // Verify that [DownloadMultiPartAsync()] checks the [Content-Type] header.
 
-                    await Assert.ThrowsAsync<JsonReaderException>(async () => await DeploymentHelper.DownloadMultiPartAsync("https://www.google.com", Path.Combine(tempFolder.Path, "test1.dat")));
+                    await Assert.ThrowsAsync<JsonReaderException>(async () =>
+                    {
+                        await SyncContext.Clear;
+
+                        await DeploymentHelper.DownloadMultiPartAsync("https://www.google.com", Path.Combine(tempFolder.Path, "test1.dat"));
+                    });
 
                     // Verify that [DownloadMultiPartAsync()] actually works.
 

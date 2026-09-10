@@ -28,9 +28,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Neon.ModelGen;
 using Neon.Common;
 using Neon.Diagnostics;
+using Neon.ModelGen;
 using Neon.Retry;
 using Neon.Xunit;
 
@@ -38,6 +38,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 using Xunit;
+using Neon.Tasks;
 
 namespace TestModelGen
 {
@@ -115,6 +116,8 @@ namespace TestModelGen
         /// </remarks>
         public async Task CallAsync(string methodName, params object[] args)
         {
+            await SyncContext.Clear;
+
             if (!methodName.EndsWith("Async"))
             {
                 methodName += "Async";
@@ -157,6 +160,8 @@ namespace TestModelGen
         /// </remarks>
         public async Task<TResult> CallAsync<TResult>(string methodName, params object[] args)
         {
+            await SyncContext.Clear;
+
             if (!methodName.EndsWith("Async"))
             {
                 methodName += "Async";

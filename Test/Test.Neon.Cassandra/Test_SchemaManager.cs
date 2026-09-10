@@ -24,22 +24,23 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
+using Cassandra;
+
 using Neon.Cassandra;
 using Neon.Common;
 using Neon.IO;
 using Neon.Xunit;
-using Neon.Xunit.YugaByte;
-
-using Cassandra;
+using Neon.Xunit.Yugabyte;
 
 using Xunit;
+using Neon.Tasks;
 
 namespace Test.Neon.Cassandra
 {
     [Trait(TestTrait.Category, TestArea.NeonCassandra)]
     [Collection(TestCollection.NonParallel)]
     [CollectionDefinition(TestCollection.NonParallel, DisableParallelization = true)]
-    public class Test_SchemaManager : IClassFixture<YugaByteFixture>
+    public class Test_SchemaManager : IClassFixture<YugabyteFixture>
     {
         //---------------------------------------------------------------------
         // These need to be static because they maintain state across test runs.
@@ -52,11 +53,11 @@ namespace Test.Neon.Cassandra
 
         private ISession    cassandra;
 
-        public Test_SchemaManager(YugaByteFixture fixture)
+        public Test_SchemaManager(YugabyteFixture fixture)
         {
             TestHelper.ResetDocker(this.GetType());
 
-            // We're not going to restart YugaByte for every unit test because
+            // We're not going to restart Yugabyte for every unit test because
             // that's too slow.  Instead, each test will work with unique keyspace
             // names.
 
@@ -84,6 +85,8 @@ namespace Test.Neon.Cassandra
         /// <returns>The <see cref="TempFolder"/> holding the files.</returns>
         private async Task<TempFolder> PersistSchemaScriptsAsync(string[] scripts)
         {
+            await SyncContext.Clear;
+
             var tempFolder = new TempFolder();
 
             for (int i = 0; i < scripts.Length; i++)
@@ -102,6 +105,8 @@ namespace Test.Neon.Cassandra
         /// <returns>The <see cref="TempFolder"/> holding the files.</returns>
         private async Task<TempFolder> PersistSchemaScriptsWithZerosAsync(string[] scripts)
         {
+            await SyncContext.Clear;
+
             var tempFolder = new TempFolder();
 
             for (int i = 0; i < scripts.Length; i++)

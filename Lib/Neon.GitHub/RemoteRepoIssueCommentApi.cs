@@ -29,6 +29,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+using LibGit2Sharp;
+using LibGit2Sharp.Handlers;
+
 using Neon.Common;
 using Neon.Cryptography;
 using Neon.Deployment;
@@ -36,19 +39,16 @@ using Neon.IO;
 using Neon.Net;
 using Neon.Tasks;
 
-using LibGit2Sharp;
-using LibGit2Sharp.Handlers;
-
 using Octokit;
 
+using YamlDotNet.Core.Events;
+
+using GitBranch = LibGit2Sharp.Branch;
 using GitHubBranch = Octokit.Branch;
 using GitHubRepository = Octokit.Repository;
 using GitHubSignature = Octokit.Signature;
-
-using GitBranch = LibGit2Sharp.Branch;
 using GitRepository = LibGit2Sharp.Repository;
 using GitSignature = LibGit2Sharp.Signature;
-using YamlDotNet.Core.Events;
 
 namespace Neon.GitHub
 {
@@ -77,6 +77,8 @@ namespace Neon.GitHub
         /// <returns>The <see cref="IssueComment"/>.</returns>
         public async Task<IssueComment> GetAsync(int id)
         {
+            await SyncContext.Clear;
+
             return await root.GitHubApi.Issue.Comment.Get(root.Remote.Id, id);
         }
 
@@ -86,6 +88,8 @@ namespace Neon.GitHub
         /// <returns>The <see cref="IssueComment"/> instances</returns>
         public async Task<IEnumerable<IssueComment>> GetAllForRepository()
         {
+            await SyncContext.Clear;
+
             return await root.GitHubApi.Issue.Comment.GetAllForRepository(root.Remote.Id);
         }
 
@@ -97,6 +101,8 @@ namespace Neon.GitHub
         /// <returns>The <see cref="IssueComment"/> instances</returns>
         public async Task<IEnumerable<IssueComment>> GetAllForIssue(int number)
         {
+            await SyncContext.Clear;
+
             return await root.GitHubApi.Issue.Comment.GetAllForIssue(root.Remote.Owner, root.Remote.Name, number);
         }
 
@@ -108,6 +114,8 @@ namespace Neon.GitHub
         /// <returns></returns>
         public async Task<IssueComment> CreateAsync(int number, string newComment)
         {
+            await SyncContext.Clear;
+
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(newComment), nameof(newComment));
 
             return await root.GitHubApi.Issue.Comment.Create(root.Remote.Id, number, newComment);
@@ -120,6 +128,8 @@ namespace Neon.GitHub
         /// <returns>The tracking <see cref="Task"/>.</returns>
         public async Task DeleteAsync(int id)
         {
+            await SyncContext.Clear;
+
             await root.GitHubApi.Issue.Comment.Delete(root.Remote.Id, id);
         }
 
@@ -131,6 +141,8 @@ namespace Neon.GitHub
         /// <returns>The updated <see cref="IssueComment"/>.</returns>
         public async Task<IssueComment> UpdateAsync(int id, string commentUpdate)
         {
+            await SyncContext.Clear;
+
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(commentUpdate), nameof(commentUpdate));
 
             return await root.GitHubApi.Issue.Comment.Update(root.Remote.Id, id, commentUpdate);

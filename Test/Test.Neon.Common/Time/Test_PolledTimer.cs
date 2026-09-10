@@ -28,6 +28,7 @@ using Neon.Time;
 using Neon.Xunit;
 
 using Xunit;
+using Neon.Tasks;
 
 namespace TestCommon
 {
@@ -59,6 +60,8 @@ namespace TestCommon
         [Fact]
         public async Task Async()
         {
+            await SyncContext.Clear;
+
             var timer  = new PolledTimer(TimeSpan.FromSeconds(1.0));
             var sysNow = SysTime.Now;
 

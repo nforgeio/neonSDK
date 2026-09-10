@@ -36,6 +36,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 using Xunit;
+using Neon.Tasks;
 
 namespace TestModelGen.ServiceVersioning
 {
@@ -65,6 +66,8 @@ namespace TestModelGen.ServiceVersioning
         [Fact]
         public async Task VerifyVersions()
         {
+            await SyncContext.Clear;
+
             // Verify that we're generating [api-version] query parameters correctly.
 
             var settings = new ModelGeneratorSettings("Default")
@@ -93,6 +96,8 @@ namespace TestModelGen.ServiceVersioning
             using (new MockHttpServer(TestSettings.BaseAddress,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 

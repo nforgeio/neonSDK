@@ -26,6 +26,7 @@ using Neon.WSL;
 using Neon.Xunit;
 
 using Xunit;
+using Neon.Tasks;
 
 namespace TestWSL
 {
@@ -47,6 +48,8 @@ namespace TestWSL
         [Fact]
         public async Task ImportExport()
         {
+            await SyncContext.Clear;
+
             // Verify that we can import and export distributions.
 
             var imagePath = await TestHelper.GetTestImageAsync();
@@ -97,6 +100,8 @@ namespace TestWSL
         [Fact]
         public async Task NoSudoPassword()
         {
+            await SyncContext.Clear;
+
             // Verify that the distribution doesn't prompt for a SUDO password.
 
             var imagePath = await TestHelper.GetTestImageAsync();

@@ -40,6 +40,8 @@ namespace TestCommon
         [Fact]
         public async Task SimpleAsync()
         {
+            await SyncContext.Clear;
+
             // Verify that we can execute a simple periodic task that terminates 
             // itself by returning TRUE.
 
@@ -50,6 +52,8 @@ namespace TestCommon
                 onTaskAsync:
                     async () =>
                     {
+                        await SyncContext.Clear;
+
                         await Task.CompletedTask;
                         return ++taskCalls == 5;
                     });
@@ -62,6 +66,8 @@ namespace TestCommon
         [Fact]
         public async Task ExceptionAsync()
         {
+            await SyncContext.Clear;
+
             // Verify that the exception callback is called and that
             // we can terminate the task by returning TRUE.
 
@@ -73,6 +79,8 @@ namespace TestCommon
                 onTaskAsync:
                     async () =>
                     {
+                        await SyncContext.Clear;
+
                         taskCalls++;
                         await Task.CompletedTask;
                         throw new TimeoutException();
@@ -80,6 +88,8 @@ namespace TestCommon
                 onExceptionAsync:
                     async e =>
                     {
+                        await SyncContext.Clear;
+
                         exception = e;
                         await Task.CompletedTask;
                         return taskCalls == 5;
@@ -94,6 +104,8 @@ namespace TestCommon
         [Fact]
         public async Task TerminateViaTaskAsync()
         {
+            await SyncContext.Clear;
+
             // Verify that the termination callback is called when the task
             // is terminated by the task callback.
 
@@ -105,12 +117,16 @@ namespace TestCommon
                 onTaskAsync:
                     async () =>
                     {
+                        await SyncContext.Clear;
+
                         await Task.CompletedTask;
                         return true;
                     },
                 onExceptionAsync:
                     async e =>
                     {
+                        await SyncContext.Clear;
+
                         exception = e;
                         await Task.CompletedTask;
                         return false;
@@ -118,6 +134,8 @@ namespace TestCommon
                 onTerminateAsync:
                     async () =>
                     {
+                        await SyncContext.Clear;
+
                         terminated = true;
                         await Task.CompletedTask;
                     });
@@ -131,6 +149,8 @@ namespace TestCommon
         [Fact]
         public async Task TerminateViaExceptionAsync()
         {
+            await SyncContext.Clear;
+
             // Verify that the termination callback is called when the task
             // throws an exception and there's no exception callback.
 
@@ -142,12 +162,16 @@ namespace TestCommon
                 onTaskAsync:
                     async () =>
                     {
+                        await SyncContext.Clear;
+
                         await Task.CompletedTask;
                         throw new TimeoutException();
                     },
                 onTerminateAsync:
                     async () =>
                     {
+                        await SyncContext.Clear;
+
                         terminated = true;
                         await Task.CompletedTask;
                     });
@@ -161,6 +185,8 @@ namespace TestCommon
         [Fact]
         public async Task TerminateViaExceptionHandlerAsync()
         {
+            await SyncContext.Clear;
+
             // Verify that the termination callback is called when the task
             // throws an exception and the exception callback returns TRUE.
 
@@ -172,12 +198,16 @@ namespace TestCommon
                 onTaskAsync:
                     async () =>
                     {
+                        await SyncContext.Clear;
+
                         await Task.CompletedTask;
                         throw new TimeoutException();
                     },
                 onExceptionAsync:
                     async e =>
                     {
+                        await SyncContext.Clear;
+
                         exception = e;
                         await Task.CompletedTask;
                         return true;
@@ -185,6 +215,8 @@ namespace TestCommon
                 onTerminateAsync:
                     async () =>
                     {
+                        await SyncContext.Clear;
+
                         terminated = true;
                         await Task.CompletedTask;
                     });
@@ -198,6 +230,8 @@ namespace TestCommon
         [Fact]
         public async Task TerminateViaExternalCancellationAsync()
         {
+            await SyncContext.Clear;
+
             // Verify that the termination callback is called when the task
             // is cancelled from outside the task and also that the exception
             // callback was not called.
@@ -210,12 +244,16 @@ namespace TestCommon
                 onTaskAsync:
                     async () =>
                     {
+                        await SyncContext.Clear;
+
                         await Task.CompletedTask;
                         return false;
                     },
                 onExceptionAsync:
                     async e =>
                     {
+                        await SyncContext.Clear;
+
                         exception = e;
                         await Task.CompletedTask;
                         return false;
@@ -223,6 +261,8 @@ namespace TestCommon
                 onTerminateAsync:
                     async () =>
                     {
+                        await SyncContext.Clear;
+
                         terminated = true;
                         await Task.CompletedTask;
                     });
@@ -232,7 +272,8 @@ namespace TestCommon
                     periodicTask.Run(),
                     Task.Run(
                         async () =>
-                        {
+                        { await SyncContext.Clear;
+
                             await Task.Delay(TimeSpan.FromSeconds(2)); 
                             periodicTask.CancellationTokenSource.Cancel();
                         })

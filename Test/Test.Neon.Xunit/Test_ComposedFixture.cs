@@ -25,22 +25,24 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+
+using NATS.Client;
 
 using Neon.Common;
 using Neon.Xunit;
 
-using NATS.Client;
 using Xunit;
+using Neon.Tasks;
 
 // NOTE: We're not testing [NatsStreamingFixture] here because we can't run
 //       it at the same time as the [NatsFixture] (by default) due to port 
 //       conflicts.  We'll test [NatsStreamingFixture] by composing it with
-//       the YugaByteFixture.
+//       the YugabyteFixture.
 
 namespace TestXunit
 {
@@ -75,6 +77,8 @@ namespace TestXunit
                 app.Run(
                     async context =>
                     {
+                        await SyncContext.Clear;
+
                         await context.Response.WriteAsync("World!");
                     });
             }
@@ -142,6 +146,8 @@ namespace TestXunit
         [Fact]
         public async Task Verify()
         {
+            await SyncContext.Clear;
+
             // Verify AspNetFixture.
 
             using (var client = new HttpClient() { BaseAddress = aspNetFixture.BaseAddress })

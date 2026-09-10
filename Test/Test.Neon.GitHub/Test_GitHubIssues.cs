@@ -27,6 +27,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using ICSharpCode.SharpZipLib.Zip;
+
 using LibGit2Sharp;
 
 using Neon.Common;
@@ -40,6 +41,7 @@ using Octokit;
 using Xunit;
 
 using Release = Octokit.Release;
+using Neon.Tasks;
 
 namespace TestGitHub
 {
@@ -56,11 +58,15 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task Create()
         {
+            await SyncContext.Clear;
+
             // Verify that we can create an issue.
 
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepoPath))
                     {
                         var newIssue = await repo.Remote.Issue.CreateAsync(

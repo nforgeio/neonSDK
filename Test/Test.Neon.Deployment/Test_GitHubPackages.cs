@@ -22,14 +22,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Xunit;
-
 using Neon.Common;
 using Neon.Deployment;
 using Neon.IO;
 using Neon.Xunit;
+
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
+using Xunit;
+using Neon.Tasks;
 
 namespace TestDeployment
 {
@@ -41,6 +43,8 @@ namespace TestDeployment
         [MaintainerFact]
         public async Task ListPackages()
         {
+            await SyncContext.Clear;
+
             // Verify that we can list container packages.
 
             var packages = await GitHub.Packages.ListAsync("neonkube-stage", packageType: GitHubPackageType.Container, includeVersions: true);

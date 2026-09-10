@@ -24,17 +24,19 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Xunit;
-
 using Neon.Common;
 using Neon.Cryptography;
 using Neon.Deployment;
 using Neon.IO;
 using Neon.Xunit;
 
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
 using Octokit;
+
+using Xunit;
+using Neon.Tasks;
 
 namespace TestDeployment
 {
@@ -269,6 +271,8 @@ namespace TestDeployment
         [Fact]
         public async Task EndToEnd_WithDefaults()
         {
+            await SyncContext.Clear;
+
             var tagName = Guid.NewGuid().ToString("d");
 
             using (var httpClient = new HttpClient())
@@ -360,6 +364,8 @@ namespace TestDeployment
         [Fact]
         public async Task Delete_Draft()
         {
+            await SyncContext.Clear;
+
             // Verify that we can list and delete draft releases.
 
             var tagName = Guid.NewGuid().ToString("d");

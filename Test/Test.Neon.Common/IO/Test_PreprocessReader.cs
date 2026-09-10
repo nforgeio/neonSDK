@@ -32,6 +32,7 @@ using Neon.IO;
 using Neon.Xunit;
 
 using Xunit;
+using Neon.Tasks;
 
 namespace TestCommon
 {
@@ -86,6 +87,8 @@ namespace TestCommon
 
         private async Task VerifyAsync(string input, string output, params KeyValuePair<string, string>[] variables)
         {
+            await SyncContext.Clear;
+
             PreprocessReader reader;
             StringBuilder sb;
 
@@ -159,6 +162,8 @@ namespace TestCommon
         [Fact]
         public async Task Empty()
         {
+            await SyncContext.Clear;
+
             await VerifyAsync(string.Empty, string.Empty);
         }
 

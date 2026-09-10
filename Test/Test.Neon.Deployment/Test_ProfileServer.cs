@@ -22,14 +22,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Xunit;
-
 using Neon.Common;
 using Neon.Deployment;
 using Neon.IO;
 using Neon.Xunit;
+
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
+using Xunit;
+using Neon.Tasks;
 
 namespace TestDeployment
 {
@@ -151,6 +153,8 @@ namespace TestDeployment
         [Repeat(repeatCount)]
         public async Task MultipleRequests_Parallel(int repeatCount)
         {
+            await SyncContext.Clear;
+
             // Verify that the server is able to handle multiple requests
             // submitted in parallel but with only one server thread.
 

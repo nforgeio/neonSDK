@@ -176,6 +176,8 @@ try
     Publish Neon.Docker                 $neonSdkVersion
     Publish Neon.ECharts                $neonSdkVersion
     Publish Neon.EntityFrameworkCore    $neonSdkVersion
+    Publish Neon.EntityFrameworkCore.Analyzers      $neonSdkVersion
+    Publish Neon.EntityFrameworkCore.Npgsql         $neonSdkVersion
     Publish Neon.GitHub                 $neonSdkVersion
     Publish Neon.HyperV                 $neonSdkVersion
     Publish Neon.JsonConverters         $neonSdkVersion
@@ -192,13 +194,14 @@ try
     Publish Neon.SSH                    $neonSdkVersion
     Publish Neon.Tailwind               $neonSdkVersion
     Publish Neon.Temporal               $neonSdkVersion
+    Publish Neon.Temporal.Analyzers                 $neonSdkVersion
     Publish Neon.Web                    $neonSdkVersion
     Publish Neon.WinTTY                 $neonSdkVersion
     Publish Neon.WSL                    $neonSdkVersion
     Publish Neon.XenServer              $neonSdkVersion
     Publish Neon.Xunit                  $neonSdkVersion
-    Publish Neon.Xunit.YugaByte         $neonSdkVersion
-    Publish Neon.YugaByte               $neonSdkVersion
+    Publish Neon.Xunit.Yugabyte                     $neonSdkVersion
+    Publish Neon.Yugabyte                           $neonSdkVersion
 
     #------------------------------------------------------------------------------
     # Remove all of the generated nuget files so these don't accumulate.

@@ -29,12 +29,12 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
+using Neon.Common;
+using Neon.Retry;
+
 using Newtonsoft;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-
-using Neon.Common;
-using Neon.Retry;
 
 namespace Neon.Collections
 {

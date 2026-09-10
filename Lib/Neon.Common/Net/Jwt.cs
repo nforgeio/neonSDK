@@ -29,10 +29,10 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Newtonsoft.Json.Linq;
-
 using Neon.Common;
 using Neon.Retry;
+
+using Newtonsoft.Json.Linq;
 
 namespace Neon.Net
 {

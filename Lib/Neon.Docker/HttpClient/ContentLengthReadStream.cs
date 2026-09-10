@@ -3,6 +3,8 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Neon.Tasks;
+
 namespace Microsoft.Net.Http.Client
 {
     internal class ContentLengthReadStream : Stream
@@ -101,6 +103,8 @@ namespace Microsoft.Net.Http.Client
 
         public async override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
+            await SyncContext.Clear;
+
             // TODO: Validate args
             if (_disposed)
             {

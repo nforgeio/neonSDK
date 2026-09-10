@@ -1,5 +1,6 @@
 using System;
 using System.Security.Principal;
+
 using Microsoft.Virtualization.Client.Management;
 
 namespace Microsoft.HyperV.PowerShell;

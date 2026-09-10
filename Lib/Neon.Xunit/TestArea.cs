@@ -81,9 +81,9 @@ namespace Neon.Xunit
         public const string NeonWeb = "Neon.Web";
 
         /// <summary>
-        /// Identifies <b>Neon.YugaByte</b> tests.
+        /// Identifies <b>Neon.Yugabyte</b> tests.
         /// </summary>
-        public const string NeonYugaByte = "Neon.YugaByte";
+        public const string NeonYugabyte = "Neon.Yugabyte";
 
         /// <summary>
         /// Identifies <b>Neon.Postgres</b> tests.
@@ -139,5 +139,10 @@ namespace Neon.Xunit
         /// Identifies the <b>Neon.Operator</b> unit tests.
         /// </summary>
         public const string NeonOperator = "Neon.Operator";
+
+        /// <summary>
+        /// Identifies the <b>Neon.EntityFrameworkCore</b> unit tests.
+        /// </summary>
+        public const string NeonEntityFrameworkCore = "Neon.EntityFrameworkCore";
     }
 }

@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------
-// FILE:        YugaByteFixture.cs
+// FILE:        YugabyteFixture.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:   Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 //
@@ -19,36 +19,39 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Sockets;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+
+using Cassandra;
 
 using Neon.Common;
 using Neon.Data;
 using Neon.Diagnostics;
-using Neon.Retry;
 using Neon.Net;
+using Neon.Retry;
 
-using Cassandra;
 using Newtonsoft.Json.Linq;
+
 using Npgsql;
+
 using Xunit;
 
-namespace Neon.Xunit.YugaByte
+namespace Neon.Xunit.Yugabyte
 {
     /// <summary>
-    /// Used to run YugaByte database server and its related and services as
+    /// Used to run Yugabyte database server and its related and services as
     /// a Docker compose application on the current machine as a test fixture while tests 
     /// are being performed  and then deletes the application when the fixture is
     /// disposed.
     /// </summary>
     /// <remarks>
     /// <para>
-    /// This fixture assumes that YugaByte is not currently running on the
+    /// This fixture assumes that Yugabyte is not currently running on the
     /// local workstation or is running as a application named <b>yugabyte-dev</b>.
     /// You may see port conflict errors if either of these conditions
     /// are not true.
@@ -59,12 +62,15 @@ namespace Neon.Xunit.YugaByte
     /// </para>
     /// </remarks>
     /// <threadsafety instance="true"/>
-    public sealed class YugaByteFixture : DockerComposeFixture
+    public sealed class YugabyteFixture : DockerComposeFixture
     {
+        private const string YugabyteImage = "yugabytedb/yugabyte";
+        private const string YugabyteVersion = "2026.1.0.1-b1";
         private string      cassandraKeyspace;
         private string      postgresDatabase;
         private int         ycqlPort;
         private int         ysqlPort;
+        private int         adminPort;
 
         /// <summary>
         /// Specifies the default Cassandra keyspace.
@@ -87,11 +93,16 @@ namespace Neon.Xunit.YugaByte
         private const int DefaultYsqlPort = NetworkPorts.Postgres;
 
         /// <summary>
+        /// Specifies the default Yugabyte admin port.
+        /// </summary>
+        private const int DefaultAdminPort = 9000;
+
+        /// <summary>
         /// The default Docker compose file text used to spin up YugaByte and it's related services
-        /// by the <see cref="YugaByteFixture"/>.
+        /// by the <see cref="YugabyteFixture"/>.
         /// </summary>
         private const string BaseComposeFile =
-@"version: '3.5'
+$@"version: '3.5'
 
 # This compose file is parameterized to support custom ports as well
 # as to prefix the custom container names with the compose application
@@ -100,10 +111,19 @@ namespace Neon.Xunit.YugaByte
 #
 #       YCQLPORT    - will be replaced by the Cassandra port
 #       YSQLPORT    - will be replaced by the Postgres port
+#       ADMINPORT   - will be replaced by the tserver admin port
+#
+# [--ysql_yb_ddl_transaction_block_enabled] turns on transactional DDL, which is an
+# early access feature that Yugabyte ships disabled.  Without it, DDL survives a
+# rollback or a lost connection, so an interrupted schema migration strands a
+# partially applied change.  The setting is postmaster scoped, so it can only be
+# turned on here rather than per session.  See:
+#
+#       https://docs.yugabyte.com/stable/explore/transactions/transactional-ddl/
 
 services:
   yb-master:
-    image: yugabytedb/yugabyte:2.12.6.1-b4 
+    image: {YugabyteImage}:{YugabyteVersion}
     container_name: yb-master-n1
     command: [ '/home/yugabyte/bin/yb-master',
                '--fs_data_dirs=/mnt/master',
@@ -116,22 +136,23 @@ services:
       SERVICE_7000_NAME: yb-master
 
   yb-tserver:
-    image: yugabytedb/yugabyte:2.12.6.1-b4 
+    image: {YugabyteImage}:{YugabyteVersion}
     container_name: yb-tserver-n1
     command: [ '/home/yugabyte/bin/yb-tserver',
                '--fs_data_dirs=/mnt/tserver',
                '--start_pgsql_proxy',
                '--rpc_bind_addresses=yb-tserver-n1:9100',
+               '--ysql_yb_ddl_transaction_block_enabled=true',
                '--tserver_master_addrs=yb-master-n1:7100' ]
     ports:
       - '127.0.0.1:YCQLPORT:9042'
       - '127.0.0.1:YSQLPORT:5433'
-      - '127.0.0.1:9000:9000'
+      - '127.0.0.1:ADMINPORT:9000'
     environment:
       SERVICE_YSQLPORT_NAME: ysql
       SERVICE_YCQLPORT_NAME: ycql
       SERVICE_6379_NAME: yedis
-      SERVICE_9000_NAME: yb-tserver
+      SERVICE_ADMINPORT_NAME: yb-tserver
     depends_on:
       - yb-master 
 ";
@@ -139,7 +160,7 @@ services:
         /// <summary>
         /// Constructs the fixture.
         /// </summary>
-        public YugaByteFixture()
+        public YugabyteFixture()
         {
         }
 
@@ -155,7 +176,7 @@ services:
 
         /// <summary>
         /// <para>
-        /// Starts a YugaByte compose application if it's not already running.  You'll generally want
+        /// Starts a Yugabyte compose application if it's not already running.  You'll generally want
         /// to call this in your test class constructor instead of <see cref="ITestFixture.Start(Action)"/>.
         /// </para>
         /// <note>
@@ -185,6 +206,10 @@ services:
         /// Specifies the port to be exposed by the Postgres YCQL service.  This defaults to <see cref="DefaultYsqlPort"/>
         /// which is set to the default Postgres port <b>5433</b>.
         /// </param>
+        /// <param name="adminPort">
+        /// Specifies the port to be exposed by the Yugabyte admin service.  This defaults to <see cref="DefaultAdminPort"/>
+        /// which is set to the default admin port <b>9000</b>.
+        /// </param>
         /// <returns>
         /// <see cref="TestFixtureStatus.Started"/> if the fixture wasn't previously started and
         /// this method call started it or <see cref="TestFixtureStatus.AlreadyRunning"/> if the 
@@ -196,7 +221,8 @@ services:
             string      postgresDatabase  = DefaultPostgresDatabase,
             bool        keepRunning       = false,
             int         ycqlPort          = DefaultYcqlPort,
-            int         ysqlPort          = DefaultYsqlPort)
+            int ysqlPort = DefaultYsqlPort,
+            int adminPort = DefaultAdminPort)
         {
             return base.Start(
                 () =>
@@ -207,14 +233,15 @@ services:
                         postgresDatabase:  postgresDatabase,
                         keepRunning:       keepRunning,
                         ycqlPort:          ycqlPort,
-                        ysqlPort:          ysqlPort);
+                        ysqlPort: ysqlPort,
+                        adminPort: adminPort);
                 });
         }
 
         /// <summary>
         /// Used to start the fixture within a <see cref="ComposedFixture"/>.
         /// </summary>
-        /// <param name="name">Optionally specifies the YugaByte compose application name (defaults to <b>yugabyte-dev</b>).</param>
+        /// <param name="name">Optionally specifies the Yugabyte compose application name (defaults to <b>yugabyte-dev</b>).</param>
         /// <param name="cassandraKeyspace">
         /// Optionally specifies the name of the test Cassandra keyspace to be created.  This defaults to <b>test_cassandra</b>.
         /// Note that the <paramref name="cassandraKeyspace"/> and <paramref name="postgresDatabase"/> must be different.
@@ -236,13 +263,18 @@ services:
         /// Specifies the port to be exposed by the Postgres YCQL service.  This defaults to <see cref="DefaultYsqlPort"/>
         /// which is set to the default Postgres port <b>5433</b>.
         /// </param>
+        /// <param name="adminPort">
+        /// Specifies the port to be exposed by the Yugabyte admin service.  This defaults to <see cref="DefaultAdminPort"/>
+        /// which is set to the default admin port <b>9000</b>.
+        /// </param>
         public void StartAsComposed(
             string      name              = "yugabyte-dev",
             string      cassandraKeyspace = DefaultCassandraKeyspace,
             string      postgresDatabase  = DefaultPostgresDatabase,
             bool        keepRunning       = false,
             int         ycqlPort          = DefaultYcqlPort,
-            int         ysqlPort          = DefaultYsqlPort)
+            int ysqlPort = DefaultYsqlPort,
+            int adminPort = DefaultAdminPort)
         {
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(cassandraKeyspace), nameof(cassandraKeyspace));
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(postgresDatabase), nameof(postgresDatabase));
@@ -254,15 +286,17 @@ services:
             this.postgresDatabase  = postgresDatabase;
             this.ycqlPort          = ycqlPort;
             this.ysqlPort          = ysqlPort;
+            this.adminPort = adminPort;
 
             if (!IsRunning)
             {
-                // Start the YugaByte compose application.
+                // Start the Yugabyte compose application.
 
                 var composeFile = BaseComposeFile;
 
                 composeFile = composeFile.Replace("YCQLPORT", ycqlPort.ToString());
                 composeFile = composeFile.Replace("YSQLPORT", ysqlPort.ToString());
+                composeFile = composeFile.Replace("ADMINPORT", adminPort.ToString());
 
                 base.StartAsComposed(name, composeFile, keepRunning, new string[] { "yb-master-n1", "yb-tserver-n1" });
                 Initialize();

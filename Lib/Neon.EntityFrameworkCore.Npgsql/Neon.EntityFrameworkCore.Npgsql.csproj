@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <OutputType>Library</OutputType>
+        <RootNamespace>Neon.EntityFrameworkCore.Npgsql</RootNamespace>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <PackageProjectUrl>https://github.com/nforgeio/neonSDK/blob/master/Lib/Neon.EntityFrameworkCore.Npgsql/README.md</PackageProjectUrl>
+        <PackageIcon>nuget-icon.png</PackageIcon>
+        <RepositoryUrl>https://github.com/nforgeio/neonSDK</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageReleaseNotes>https://github.com/nforgeio/neonSDK/releases</PackageReleaseNotes>
+        <Configurations>Debug;Release</Configurations>
+        <Description>EntityFrameworkCore extensions for the Npgsql PostgreSQL provider, including advisory lock based migration locking for YugabyteDB and other Postgres wire compatible databases that don't implement LOCK TABLE.</Description>
+        <PackageTags>neon entityframeworkcore efcore npgsql postgres postgresql yugabyte yugabytedb migrations advisory lock opentelemetry</PackageTags>
+        <NoWarn>$(NoWarn);1591</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Include="..\Neon.BuildInfo\AssemblyAttributes.cs" Link="Properties\AssemblyAttributes.cs" />
+        <Compile Include="..\Neon.BuildInfo\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="..\nuget-icon.png" Pack="true" PackagePath="" />
+        <None Include="..\..\LICENSE" Pack="true" PackagePath="" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.EntityFrameworkCore" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+        <PackageReference Include="OpenTelemetry" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Neon.EntityFrameworkCore\Neon.EntityFrameworkCore.csproj" />
+    </ItemGroup>
+
+</Project>

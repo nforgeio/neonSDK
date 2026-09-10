@@ -22,10 +22,10 @@ using System.IO;
 using System.IO.Pipes;
 using System.Text;
 
+using Neon.Common;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-
-using Neon.Common;
 
 namespace Neon.Deployment
 {

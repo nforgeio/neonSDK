@@ -30,9 +30,9 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
 
-using Newtonsoft.Json;
-
 using Neon.Common;
+
+using Newtonsoft.Json;
 
 namespace Neon.ModelGen
 {

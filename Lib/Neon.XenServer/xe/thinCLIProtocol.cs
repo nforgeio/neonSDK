@@ -33,12 +33,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Security.Cryptography.X509Certificates;
-using System.Net.Security;
 using System.IO;
+using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
+
 using Neon.Common;
 
 namespace CommandLib
@@ -103,7 +104,8 @@ namespace CommandLib
         
     }
 
-    internal class Transport{
+    internal class Transport
+    {
         // The following method is invoked by the RemoteCertificateValidationDelegate.
         private static bool ValidateServerCertificate(
               object sender,
@@ -118,11 +120,14 @@ namespace CommandLib
 
         public static Stream connect(thinCLIProtocol tCLIprotocol, String hostname, int port)
         {
-            if (port != 443){
+            if (port != 443)
+            {
                 TcpClient client = new TcpClient(hostname, port);
                 Stream stream = client.GetStream();
                 return stream;
-            } else {
+            }
+            else
+            {
                 TcpClient client = new TcpClient(hostname, port);
                 // Create an SSL stream that will close the client's stream.
                 SslStream sslStream = new SslStream(
@@ -135,12 +140,15 @@ namespace CommandLib
                 {
                     sslStream.AuthenticateAsClient("", null, SslProtocols.Tls | SslProtocols.Tls11 | SslProtocols.Tls12, true);
                 }
-                catch (AuthenticationException){
+                catch (AuthenticationException)
+                {
                     if (tCLIprotocol.conf.debug) throw;
                     tCLIprotocol.dGlobalError("Authentication failed - closing the connection.");
                     client.Close();
                     return null;
-                } catch (Exception) {
+                }
+                catch (Exception)
+                {
                     if (tCLIprotocol.conf.debug) throw;
                     tCLIprotocol.dGlobalError("Exception during SSL auth - closing the connection.");
                     client.Close();
@@ -151,10 +159,13 @@ namespace CommandLib
         }
     }
 
-    internal class HTTP{
-        public static string readLine(Stream stream){
+    internal class HTTP
+    {
+        public static string readLine(Stream stream)
+        {
             StringBuilder messageData = new StringBuilder();
-            do {
+            do
+            {
                 int i = stream.ReadByte();
                 if (i == -1)
                 {
@@ -171,13 +182,15 @@ namespace CommandLib
             return messageData.ToString();
         }
 
-        public static void writeLine(Stream stream, string line){
+        public static void writeLine(Stream stream, string line)
+        {
             byte[] message = Encoding.UTF8.GetBytes(string.Format("{0}\r\n", line));
             stream.Write(message, 0, message.Length);
             stream.Flush();
         }
 
-        public static int getResultCode(string line){
+        public static int getResultCode(string line)
+        {
             string[] bits = line.Split(new char[] {' '});
             if (bits.Length < 2) return 0;
             return Int32.Parse(bits[1]);
@@ -227,8 +240,10 @@ namespace CommandLib
         }
     }
 
-    internal class Types{
-        public static uint unmarshal_int32(Stream stream){
+    internal class Types
+    {
+        public static uint unmarshal_int32(Stream stream)
+        {
             uint a = (uint)stream.ReadByte();
             uint b = (uint)stream.ReadByte();
             uint c = (uint)stream.ReadByte();
@@ -236,30 +251,36 @@ namespace CommandLib
             //Console.WriteLine("a = " + a + " b = " + b + " c = " + c + " d = " + d);
             return (a << 0) | (b << 8) | (c << 16) | (d << 24);
         }
-        public static void marshal_int32(Stream stream, uint x){
+        public static void marshal_int32(Stream stream, uint x)
+        {
             uint mask = 0xff;
             stream.WriteByte((byte) ((x >> 0) & mask));
             stream.WriteByte((byte) ((x >> 8) & mask));
             stream.WriteByte((byte) ((x >> 16) & mask));
             stream.WriteByte((byte) ((x >> 24) & mask));
         }
-        public static int unmarshal_int(Stream stream){
+        public static int unmarshal_int(Stream stream)
+        {
             return (int)unmarshal_int32(stream);
         }
-        public static void marshal_int(Stream stream, int x){
+        public static void marshal_int(Stream stream, int x)
+        {
             marshal_int32(stream, (uint)x);
         }
-        public static byte[] unmarshal_n(Stream stream, uint n){
+        public static byte[] unmarshal_n(Stream stream, uint n)
+        {
             byte[] buffer = new byte[n];
             int toread = (int)n;
             int offset = 0;
-            while (toread > 0){
+            while (toread > 0)
+            {
                 int nread = stream.Read(buffer, offset, toread);
                 offset= nread; toread -= nread;
             }
             return buffer;
         }
-        public static string unmarshal_string(Stream stream){
+        public static string unmarshal_string(Stream stream)
+        {
             uint length = unmarshal_int32(stream);
             byte[] buffer = unmarshal_n(stream, length);
             Decoder decoder = Encoding.UTF8.GetDecoder();
@@ -267,7 +288,8 @@ namespace CommandLib
             decoder.GetChars(buffer, 0, (int)length, chars, 0);
             return new string(chars);
         }
-        public static void marshal_string(Stream stream, string x){
+        public static void marshal_string(Stream stream, string x)
+        {
             marshal_int(stream, x.Length);
             char[] c = x.ToCharArray();
             Encoder encoder = Encoding.UTF8.GetEncoder();

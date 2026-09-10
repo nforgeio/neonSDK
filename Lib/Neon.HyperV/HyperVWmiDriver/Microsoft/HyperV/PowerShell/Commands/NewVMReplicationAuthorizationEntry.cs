@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Management.Automation;
+
 using Microsoft.HyperV.PowerShell.Commands.Resources;
 using Microsoft.Virtualization.Client.Management;
 

@@ -27,6 +27,8 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
+using ICSharpCode.SharpZipLib.Zip;
+
 using Neon.Common;
 using Neon.Cryptography;
 using Neon.Diagnostics;
@@ -34,8 +36,6 @@ using Neon.IO;
 using Neon.Net;
 using Neon.Retry;
 using Neon.Time;
-
-using ICSharpCode.SharpZipLib.Zip;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;

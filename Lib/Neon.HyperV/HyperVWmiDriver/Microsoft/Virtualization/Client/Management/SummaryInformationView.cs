@@ -1,6 +1,7 @@
 #define TRACE
 using System.Globalization;
 using System.Linq;
+
 using Microsoft.Management.Infrastructure;
 
 namespace Microsoft.Virtualization.Client.Management;

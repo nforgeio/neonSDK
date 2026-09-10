@@ -1,10 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFrameworks>net10.0</TargetFrameworks>
         <OutputType>Library</OutputType>
         <IsPackable>false</IsPackable>
-        <RootNamespace>TestYugaByte</RootNamespace>
+        <RootNamespace>TestYugabyte</RootNamespace>
         <Configurations>Debug;Release</Configurations>
         <GenerateDocumentationFile>false</GenerateDocumentationFile>
     </PropertyGroup>
@@ -44,7 +44,7 @@
     <ItemGroup>
         <ProjectReference Include="..\..\Lib\Neon.BuildInfo\Neon.BuildInfo.csproj" />
         <ProjectReference Include="..\..\Lib\Neon.Common\Neon.Common.csproj" />
-        <ProjectReference Include="..\..\Lib\Neon.Xunit.YugaByte\Neon.Xunit.YugaByte.csproj" />
+        <ProjectReference Include="..\..\Lib\Neon.Xunit.YugaByte\Neon.Xunit.Yugabyte.csproj" />
         <ProjectReference Include="..\..\Lib\Neon.Xunit\Neon.Xunit.csproj" />
     </ItemGroup>
 

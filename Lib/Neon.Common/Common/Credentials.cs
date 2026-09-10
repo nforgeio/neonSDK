@@ -26,12 +26,13 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Neon.Common;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
-using YamlDotNet.Serialization;
 
-using Neon.Common;
+using YamlDotNet.Serialization;
 
 namespace Neon.Common
 {

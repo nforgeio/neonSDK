@@ -19,22 +19,23 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 using NATS.Client;
 
-using Newtonsoft.Json.Linq;
-using Xunit;
-
 using Neon.Common;
 using Neon.Data;
-using Neon.Retry;
 using Neon.Net;
+using Neon.Retry;
+
+using Newtonsoft.Json.Linq;
+
+using Xunit;
 
 namespace Neon.Xunit
 {

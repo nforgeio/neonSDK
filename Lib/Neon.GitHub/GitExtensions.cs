@@ -29,19 +29,18 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Neon.Common;
-using Neon.Deployment;
-
 using LibGit2Sharp;
 using LibGit2Sharp.Handlers;
 
+using Neon.Common;
+using Neon.Deployment;
+
 using Octokit;
 
+using GitBranch = LibGit2Sharp.Branch;
 using GitHubBranch     = Octokit.Branch;
 using GitHubRepository = Octokit.Repository;
 using GitHubSignature  = Octokit.Signature;
-
-using GitBranch     = LibGit2Sharp.Branch;
 using GitRepository = LibGit2Sharp.Repository;
 using GitSignature  = LibGit2Sharp.Signature;
 

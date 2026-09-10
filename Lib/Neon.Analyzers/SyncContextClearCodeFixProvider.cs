@@ -27,6 +27,7 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Formatting;
+using Microsoft.CodeAnalysis.Operations;
 using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.CodeAnalysis.Text;
 
@@ -92,6 +93,7 @@ namespace Neon.Analyzers
             var sourceText = await document.GetTextAsync(cancellationToken).ConfigureAwait(false);
             var endOfLine  = DetectEndOfLine(sourceText);
             var clearStatement = BuildClearStatement(endOfLine);
+            var semanticModel = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
 
             SyntaxNode newFunctionNode;
 
@@ -100,31 +102,31 @@ namespace Neon.Analyzers
                 case MethodDeclarationSyntax method:
                     newFunctionNode = ReplaceBody(method, method.Body, method.ExpressionBody?.Expression,
                         newBlock => method.WithBody(newBlock).WithExpressionBody(null).WithSemicolonToken(default),
-                        clearStatement);
+                        clearStatement, semanticModel, cancellationToken);
                     break;
 
                 case LocalFunctionStatementSyntax local:
                     newFunctionNode = ReplaceBody(local, local.Body, local.ExpressionBody?.Expression,
                         newBlock => local.WithBody(newBlock).WithExpressionBody(null).WithSemicolonToken(default),
-                        clearStatement);
+                        clearStatement, semanticModel, cancellationToken);
                     break;
 
                 case AnonymousMethodExpressionSyntax anon:
                     newFunctionNode = ReplaceBody(anon, anon.Block, anon.ExpressionBody as ExpressionSyntax,
                         newBlock => anon.WithBlock(newBlock).WithExpressionBody(null),
-                        clearStatement);
+                        clearStatement, semanticModel, cancellationToken);
                     break;
 
                 case ParenthesizedLambdaExpressionSyntax paren:
                     newFunctionNode = ReplaceBody(paren, paren.Block, paren.ExpressionBody,
                         newBlock => paren.WithBlock(newBlock).WithExpressionBody(null),
-                        clearStatement);
+                        clearStatement, semanticModel, cancellationToken);
                     break;
 
                 case SimpleLambdaExpressionSyntax simple:
                     newFunctionNode = ReplaceBody(simple, simple.Block, simple.ExpressionBody,
                         newBlock => simple.WithBlock(newBlock).WithExpressionBody(null),
-                        clearStatement);
+                        clearStatement, semanticModel, cancellationToken);
                     break;
 
                 default:
@@ -144,7 +146,9 @@ namespace Neon.Analyzers
             BlockSyntax                     existingBlock,
             ExpressionSyntax                existingExpression,
             System.Func<BlockSyntax, TNode> withNewBlock,
-            StatementSyntax                 clearStatement)
+            StatementSyntax                 clearStatement,
+            SemanticModel                   semanticModel,
+            CancellationToken               cancellationToken)
             where TNode : SyntaxNode
         {
             BlockSyntax newBlock;
@@ -156,12 +160,20 @@ namespace Neon.Analyzers
             }
             else if (existingExpression != null)
             {
-                // Convert expression body to a block. The expression-bodied async function returned
-                // a Task / Task<T> / ValueTask, so we must preserve the awaited inner expression.
-                // We conservatively wrap as ExpressionStatement (works for Task-returning async voids/methods).
-                // For Task<T>-returning methods this would change semantics, but that's a rare edge case
-                // an expression-bodied async method that ALSO violates the rule. Author can tweak after.
-                var wrapped = SyntaxFactory.ExpressionStatement(existingExpression);
+                // Preserve the compiler's implicit return, including the delegate's inferred result.
+                // Expression type alone is insufficient: async void can discard an invocation's value.
+                IBlockOperation body = semanticModel?.GetOperation(original, cancellationToken) switch
+                {
+                    IAnonymousFunctionOperation anonymous => anonymous.Body,
+                    ILocalFunctionOperation local => local.Body,
+                    IMethodBodyOperation method => method.ExpressionBody,
+                    _ => null
+                };
+                bool returnsValue = body?.Operations.OfType<IReturnOperation>()
+                    .Any(operation => operation.ReturnedValue != null) == true;
+                StatementSyntax wrapped = returnsValue
+                    ? SyntaxFactory.ReturnStatement(existingExpression)
+                    : SyntaxFactory.ExpressionStatement(existingExpression);
                 newBlock = SyntaxFactory.Block(clearStatement, wrapped)
                     .WithAdditionalAnnotations(Formatter.Annotation);
             }

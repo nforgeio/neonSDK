@@ -36,9 +36,9 @@ using Neon.Xunit;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-using Xunit;
-
 using Test.Neon.UxModels;
+
+using Xunit;
 
 namespace TestModelGen.UxDataModel
 {

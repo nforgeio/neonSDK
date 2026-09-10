@@ -34,8 +34,11 @@ using Neon.Deployment;
 using Neon.GitHub;
 using Neon.IO;
 using Neon.Xunit;
+
 using Octokit;
+
 using Xunit;
+using Neon.Tasks;
 
 namespace TestGitHub
 {
@@ -87,6 +90,8 @@ namespace TestGitHub
         /// <returns>The tracking <see cref="Task"/>.</returns>
         public static async Task RemoveTestFilesAsync()
         {
+            await SyncContext.Clear;
+
             using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
             {
                 var repoPath = tempFolder.Path;
@@ -111,6 +116,8 @@ namespace TestGitHub
         /// <returns>The tracking <see cref="Task"/>.</returns>
         public static async Task RemoveTestBranchesAsync()
         {
+            await SyncContext.Clear;
+
             using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
             {
                 var repoPath = tempFolder.Path;

@@ -42,6 +42,8 @@ namespace TestCommon
         [Fact]
         public async Task Basic()
         {
+            await SyncContext.Clear;
+
             var rwLock = (AsyncReaderWriterLock)null;
             var haveLock = false;
 
@@ -75,6 +77,8 @@ namespace TestCommon
         [Fact]
         public async Task ReaderThenWriter()
         {
+            await SyncContext.Clear;
+
             // Verify that obtaining a reader lock blocks a writer lock and then
             // that releasing the read lock, unblocks the writer.
 
@@ -87,6 +91,8 @@ namespace TestCommon
             var task = Task.Run(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     inTask = true;
 
                     using (await rwLock.GetWriteLockAsync())
@@ -108,6 +114,8 @@ namespace TestCommon
         [Fact]
         public async Task ReaderThenReader()
         {
+            await SyncContext.Clear;
+
             // Verify that obtaining a reader lock does not block
             // another reader.
 
@@ -120,6 +128,8 @@ namespace TestCommon
             var task = Task.Run(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     inTask = true;
 
                     using (await rwLock.GetReadLockAsync())
@@ -141,6 +151,8 @@ namespace TestCommon
         [Fact]
         public async Task WriterThenReader()
         {
+            await SyncContext.Clear;
+
             // Verify that obtaining a writer lock blocks a reader lock and then
             // that releasing the write lock, unblocks the reader.
 
@@ -153,6 +165,8 @@ namespace TestCommon
             var task = Task.Run(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     inTask = true;
 
                     using (await rwLock.GetReadLockAsync())
@@ -174,6 +188,8 @@ namespace TestCommon
         [Fact]
         public async Task WriterThenMultipleReaders()
         {
+            await SyncContext.Clear;
+
             // Verify that obtaining a writer lock blocks multiple readers and then
             // that releasing the write lock, unblocks all of the readers.
 
@@ -189,6 +205,8 @@ namespace TestCommon
                 var task = Task.Run(
                     async () =>
                     {
+                        await SyncContext.Clear;
+
                         Interlocked.Increment(ref waitCount);
 
                         using (await rwLock.GetReadLockAsync())
@@ -211,6 +229,8 @@ namespace TestCommon
         [Fact]
         public async Task WriterThenMultipleWriters()
         {
+            await SyncContext.Clear;
+
             // Verify that obtaining a writer lock blocks multiple writers and then
             // that releasing the write lock, unblocks all of the other writers.
 
@@ -226,6 +246,8 @@ namespace TestCommon
                 var task = Task.Run(
                     async () =>
                     {
+                        await SyncContext.Clear;
+
                         Interlocked.Increment(ref waitCount);
 
                         //using (await rwLock.GetWriteLockAsync())
@@ -255,6 +277,8 @@ namespace TestCommon
         [Fact]
         public async Task Basic_Repeat()
         {
+            await SyncContext.Clear;
+
             using (var rwLock = new AsyncReaderWriterLock())
             {
                 var haveLock = false;
@@ -286,6 +310,8 @@ namespace TestCommon
         [Fact]
         public async Task ReaderThenWriter_Repeat()
         {
+            await SyncContext.Clear;
+
             // Verify that obtaining a reader lock blocks a writer lock and then
             // that releasing the read lock, unblocks the writer.
 
@@ -300,6 +326,8 @@ namespace TestCommon
                     var task = Task.Run(
                         async () =>
                         {
+                            await SyncContext.Clear;
+
                             inTask = true;
 
                             var writeLock = await rwLock.GetWriteLockAsync();
@@ -322,6 +350,8 @@ namespace TestCommon
         [Fact]
         public async Task ReaderThenReader_Repeat()
         {
+            await SyncContext.Clear;
+
             // Verify that obtaining a reader lock does not block
             // another reader.
 
@@ -336,6 +366,8 @@ namespace TestCommon
                     var task = Task.Run(
                         async () =>
                         {
+                            await SyncContext.Clear;
+
                             inTask = true;
 
                             using (await rwLock.GetReadLockAsync())
@@ -357,6 +389,8 @@ namespace TestCommon
         [Fact]
         public async Task WriterThenReader_Repeat()
         {
+            await SyncContext.Clear;
+
             // Verify that obtaining a writer lock blocks a reader lock and then
             // that releasing the write lock, unblocks the reader.
 
@@ -371,6 +405,8 @@ namespace TestCommon
                     var task = Task.Run(
                         async () =>
                         {
+                            await SyncContext.Clear;
+
                             inTask = true;
 
                             using (await rwLock.GetReadLockAsync())
@@ -392,6 +428,8 @@ namespace TestCommon
         [Fact]
         public async Task WriterThenMultipleReaders_Repeat()
         {
+            await SyncContext.Clear;
+
             // Verify that obtaining a writer lock blocks multiple readers and then
             // that releasing the write lock, unblocks all of the readers.
 
@@ -410,6 +448,8 @@ namespace TestCommon
                         var task = Task.Run(
                             async () =>
                             {
+                                await SyncContext.Clear;
+
                                 Interlocked.Increment(ref waitCount);
 
                                 using (await rwLock.GetReadLockAsync())
@@ -432,6 +472,8 @@ namespace TestCommon
         [Fact]
         public async Task WriterThenMultipleWriters_Repeat()
         {
+            await SyncContext.Clear;
+
             // Verify that obtaining a writer lock blocks multiple writers and then
             // that releasing the write lock, unblocks all of the other writers.
 
@@ -450,6 +492,8 @@ namespace TestCommon
                         var task = Task.Run(
                             async () =>
                             {
+                                await SyncContext.Clear;
+
                                 Interlocked.Increment(ref waitCount);
 
                                 using (await rwLock.GetWriteLockAsync())
@@ -474,6 +518,8 @@ namespace TestCommon
         [Fact]
         public async Task Basic_Delay()
         {
+            await SyncContext.Clear;
+
             var rwLock = (AsyncReaderWriterLock)null;
             var haveLock = false;
 
@@ -510,6 +556,8 @@ namespace TestCommon
         [Fact]
         public async Task ReaderThenWriter_Delay()
         {
+            await SyncContext.Clear;
+
             // Verify that obtaining a reader lock blocks a writer lock and then
             // that releasing the read lock, unblocks the writer.    We'll add delay
             // to mix things up.
@@ -523,6 +571,8 @@ namespace TestCommon
             var task = Task.Run(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     inTask = true;
 
                     using (await rwLock.GetWriteLockAsync())
@@ -545,6 +595,8 @@ namespace TestCommon
         [Fact]
         public async Task ReaderThenReader_Delay()
         {
+            await SyncContext.Clear;
+
             // Verify that obtaining a reader lock does not block
             // another reader.  We'll add delay to mix things up.
 
@@ -557,6 +609,8 @@ namespace TestCommon
             var task = Task.Run(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     inTask = true;
 
                     using (await rwLock.GetReadLockAsync())
@@ -579,6 +633,8 @@ namespace TestCommon
         [Fact]
         public async Task WriterThenReader_Delay()
         {
+            await SyncContext.Clear;
+
             // Verify that obtaining a writer lock blocks a reader lock and then
             // that releasing the write lock, unblocks the reader.  We'll add delay
             // to mix things up.
@@ -592,6 +648,8 @@ namespace TestCommon
             var task = Task.Run(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     inTask = true;
 
                     using (await rwLock.GetReadLockAsync())
@@ -614,6 +672,8 @@ namespace TestCommon
         [Fact]
         public async Task WriterThenMultipleReaders_Delay()
         {
+            await SyncContext.Clear;
+
             // Verify that obtaining a writer lock blocks multiple readers and then
             // that releasing the write lock, unblocks all of the readers.  We'll 
             // add delay to mix things up.
@@ -630,6 +690,8 @@ namespace TestCommon
                 var task = Task.Run(
                     async () =>
                     {
+                        await SyncContext.Clear;
+
                         Interlocked.Increment(ref waitCount);
 
                         using (await rwLock.GetReadLockAsync())
@@ -653,6 +715,8 @@ namespace TestCommon
         [Fact]
         public async Task WriterThenMultipleWriters_Delay()
         {
+            await SyncContext.Clear;
+
             // Verify that obtaining a writer lock blocks multiple writers and then
             // that releasing the write lock, unblocks all of the other writers.
             // We'll add delay to mix things up.
@@ -669,6 +733,8 @@ namespace TestCommon
                 var task = Task.Run(
                     async () =>
                     {
+                        await SyncContext.Clear;
+
                         Interlocked.Increment(ref waitCount);
 
                         using (await rwLock.GetWriteLockAsync())
@@ -694,6 +760,8 @@ namespace TestCommon
         [Fact]
         public async Task Basic_Repeat_Delay()
         {
+            await SyncContext.Clear;
+
             using (var rwLock = new AsyncReaderWriterLock())
             {
                 var haveLock = false;
@@ -729,6 +797,8 @@ namespace TestCommon
         [Fact]
         public async Task ReaderThenWriter_Repeat_Delay()
         {
+            await SyncContext.Clear;
+
             // Verify that obtaining a reader lock blocks a writer lock and then
             // that releasing the read lock, unblocks the writer.  We'll add delay
             // to mix things up.
@@ -744,6 +814,8 @@ namespace TestCommon
                     var task = Task.Run(
                         async () =>
                         {
+                            await SyncContext.Clear;
+
                             inTask = true;
 
                             using (await rwLock.GetWriteLockAsync())
@@ -766,6 +838,8 @@ namespace TestCommon
         [Fact]
         public async Task ReaderThenReader_Repeat_Delay()
         {
+            await SyncContext.Clear;
+
             // Verify that obtaining a reader lock does not block
             // another reader.  We'll add delay to mix things up.
 
@@ -780,6 +854,8 @@ namespace TestCommon
                     var task = Task.Run(
                         async () =>
                         {
+                            await SyncContext.Clear;
+
                             inTask = true;
 
                             using (await rwLock.GetReadLockAsync())
@@ -802,6 +878,8 @@ namespace TestCommon
         [Fact]
         public async Task WriterThenReader_Repeat_Delay()
         {
+            await SyncContext.Clear;
+
             // Verify that obtaining a writer lock blocks a reader lock and then
             // that releasing the write lock, unblocks the reader.  We'll add 
             // delay to mix things up.
@@ -817,6 +895,8 @@ namespace TestCommon
                     var task = Task.Run(
                         async () =>
                         {
+                            await SyncContext.Clear;
+
                             inTask = true;
 
                             using (await rwLock.GetReadLockAsync())
@@ -839,6 +919,8 @@ namespace TestCommon
         [Fact]
         public async Task WriterThenMultipleReaders_Repeat_Delay()
         {
+            await SyncContext.Clear;
+
             // Verify that obtaining a writer lock blocks multiple readers and then
             // that releasing the write lock, unblocks all of the readers.  We'll add 
             // delay to mix things up.
@@ -858,6 +940,8 @@ namespace TestCommon
                         var task = Task.Run(
                             async () =>
                             {
+                                await SyncContext.Clear;
+
                                 Interlocked.Increment(ref waitCount);
 
                                 using (await rwLock.GetReadLockAsync())
@@ -881,6 +965,8 @@ namespace TestCommon
         [Fact]
         public async Task WriterThenMultipleWriters_Repeat_Delay()
         {
+            await SyncContext.Clear;
+
             // Verify that obtaining a writer lock blocks multiple writers and then
             // that releasing the write lock, unblocks all of the other writers.
             // We'll add delay to mix things up.
@@ -900,6 +986,8 @@ namespace TestCommon
                         var task = Task.Run(
                             async () =>
                             {
+                                await SyncContext.Clear;
+
                                 Interlocked.Increment(ref waitCount);
 
                                 using (await rwLock.GetWriteLockAsync())
@@ -941,6 +1029,8 @@ namespace TestCommon
                 haveLock = false;
                 t = Task.Run(async () =>
                 {
+                    await SyncContext.Clear;
+
                     var lk = await read1LockTask;
 
                     haveLock = true;
@@ -955,6 +1045,8 @@ namespace TestCommon
                 haveLock = false;
                 t = Task.Run(async () =>
                 {
+                    await SyncContext.Clear;
+
                     var lk = await write1LockTask;
 
                     haveLock = true;
@@ -970,6 +1062,8 @@ namespace TestCommon
                 haveLock = false;
                 t = Task.Run(async () =>
                 {
+                    await SyncContext.Clear;
+
                     var lk = await write2LockTask;
 
                     haveLock = true;
@@ -984,6 +1078,8 @@ namespace TestCommon
                 haveLock = false;
                 t = Task.Run(async () =>
                 {
+                    await SyncContext.Clear;
+
                     var lk = await read2LockTask;
 
                     haveLock = true;
@@ -998,6 +1094,8 @@ namespace TestCommon
         [Fact]
         public async Task MultipleTasks()
         {
+            await SyncContext.Clear;
+
             // Verify that we can acquire and release both read and write
             // locks over an extended period of time from several parallel
             // tasks.  We're also going to verify that only one writer is
@@ -1022,6 +1120,8 @@ namespace TestCommon
                     tasks.Add(Task.Run(
                         async () =>
                         {
+                            await SyncContext.Clear;
+
                             while (!exit)
                             {
                                 using (await rwLock.GetReadLockAsync())
@@ -1044,6 +1144,8 @@ namespace TestCommon
                     tasks.Add(Task.Run(
                         async () =>
                         {
+                            await SyncContext.Clear;
+
                             while (!exit)
                             {
                                 using (await rwLock.GetWriteLockAsync())

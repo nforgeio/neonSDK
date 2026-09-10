@@ -32,14 +32,17 @@ namespace Neon.Roslyn.Xunit
     /// </summary>
     public class TestCompilationAssertions : ReferenceTypeAssertions<TestCompilation, TestCompilationAssertions>
     {
+        private AssertionChain assertionChain;
+
         /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="compilation"></param>
-        public TestCompilationAssertions(TestCompilation compilation)
-            : base(compilation)
+        /// <param name="assertionChain"></param>
+        public TestCompilationAssertions(TestCompilation compilation, AssertionChain assertionChain)
+            : base(compilation, assertionChain)
         {
-
+            this.assertionChain = assertionChain;
         }
 
         /// <summary>
@@ -57,7 +60,7 @@ namespace Neon.Roslyn.Xunit
         public AndConstraint<TestCompilationAssertions> ContainSource(
             string source, string because = "", params object[] becauseArgs)
         {
-            Execute.Assertion
+            assertionChain
                 .BecauseOf(because, becauseArgs)
                 .ForCondition(!string.IsNullOrEmpty(source))
                 .FailWith("Input source cannot be null or empty.")
@@ -80,7 +83,7 @@ namespace Neon.Roslyn.Xunit
         public AndConstraint<TestCompilationAssertions> NotContainSource(
             string source, string because = "", params object[] becauseArgs)
         {
-            Execute.Assertion
+            assertionChain
                 .BecauseOf(because, becauseArgs)
                 .ForCondition(!string.IsNullOrEmpty(source))
                 .FailWith("Input source cannot be null or empty.")
@@ -103,7 +106,7 @@ namespace Neon.Roslyn.Xunit
         public AndConstraint<TestCompilationAssertions> HaveDiagnostic(
             string id, string because = "", params object[] becauseArgs)
         {
-            Execute.Assertion
+            assertionChain
                 .BecauseOf(because, becauseArgs)
                 .ForCondition(!string.IsNullOrEmpty(id))
                 .FailWith("Input id cannot be null or empty.")
@@ -126,7 +129,7 @@ namespace Neon.Roslyn.Xunit
         public AndConstraint<TestCompilationAssertions> HaveDiagnostics(
             string[] ids, string because = "", params object[] becauseArgs)
         {
-            Execute.Assertion
+            assertionChain
                 .BecauseOf(because, becauseArgs)
                 .Given(() => Subject.Diagnostics)
                 .ForCondition(d => ids.All(id => d.Any(d => d.Id == id)))
@@ -146,7 +149,7 @@ namespace Neon.Roslyn.Xunit
         public AndConstraint<TestCompilationAssertions> HaveDiagnostic(
             Diagnostic diagnostic, string because = "", params object[] becauseArgs)
         {
-            Execute.Assertion
+            assertionChain
                 .BecauseOf(because, becauseArgs)
                 .ForCondition(diagnostic != null)
                 .FailWith("Input diagnostic cannot be null.")

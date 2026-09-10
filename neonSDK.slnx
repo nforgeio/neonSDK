@@ -60,6 +60,9 @@
   </Folder>
   <Folder Name="/Lib/">
     <File Path="Lib/nuget-icon.png" />
+    <Project Path="Lib/Neon.Analyzers/Neon.Analyzers.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Debug" />
+    </Project>
     <Project Path="Lib/Neon.Blazor.Analyzers/Neon.Blazor.Analyzers.csproj">
       <BuildType Solution="CodeDoc|*" Project="Debug" />
     </Project>
@@ -90,6 +93,18 @@
     <Project Path="Lib/Neon.Docker/Neon.Docker.csproj">
       <BuildType Solution="CodeDoc|*" Project="Release" />
     </Project>
+    <Project Path="Lib/Neon.ECharts/Neon.ECharts.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Lib/Neon.EntityFrameworkCore/Neon.EntityFrameworkCore.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Lib/Neon.EntityFrameworkCore.Npgsql/Neon.EntityFrameworkCore.Npgsql.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Lib/Neon.EntityFrameworkCore.Analyzers/Neon.EntityFrameworkCore.Analyzers.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Debug" />
+    </Project>
     <Project Path="Lib/Neon.GitHub/Neon.GitHub.csproj">
       <BuildType Solution="CodeDoc|*" Project="Release" />
     </Project>
@@ -97,6 +112,9 @@
       <BuildType Solution="CodeDoc|*" Project="Release" />
     </Project>
     <Project Path="Lib/Neon.JsonConverters/Neon.JsonConverters.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Lib/Neon.Mapbox/Neon.Mapbox.csproj">
       <BuildType Solution="CodeDoc|*" Project="Release" />
     </Project>
     <Project Path="Lib/Neon.Motion/Neon.Motion.csproj">
@@ -119,7 +137,13 @@
     <Project Path="Lib/Neon.Roslyn/Neon.Roslyn.csproj">
       <BuildType Solution="CodeDoc|*" Project="Debug" />
     </Project>
+    <Project Path="Lib/Neon.Roslyn.Xunit/Neon.Roslyn.Xunit.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
     <Project Path="Lib/Neon.Service/Neon.Service.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Lib/Neon.SignalR/Neon.SignalR.csproj">
       <BuildType Solution="CodeDoc|*" Project="Release" />
     </Project>
     <Project Path="Lib/Neon.SSH/Neon.SSH.csproj">
@@ -127,6 +151,12 @@
     </Project>
     <Project Path="Lib/Neon.Tailwind/Neon.Tailwind.csproj">
       <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Lib/Neon.Temporal/Neon.Temporal.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Lib/Neon.Temporal.Analyzers/Neon.Temporal.Analyzers.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Debug" />
     </Project>
     <Project Path="Lib/Neon.Web/Neon.Web.csproj">
       <BuildType Solution="CodeDoc|*" Project="Release" />
@@ -167,6 +197,21 @@
     <Project Path="Services/test-api/test-api.csproj">
       <BuildType Solution="CodeDoc|*" Project="Release" />
     </Project>
+    <Project Path="Services/test-blazor/test-blazor/test-blazor.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Services/test-blazor/test-blazor.Client/test-blazor.Client.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Services/test-echarts/test-echarts.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Services/test-mapbox/test-mapbox.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Services/test-motion/test-motion.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
     <Project Path="services/test-tailwind/test-tailwind.csproj">
       <BuildType Solution="CodeDoc|*" Project="Release" />
     </Project>
@@ -174,6 +219,9 @@
   <Folder Name="/Test/">
     <File Path="Test/README.md" />
     <Project Path="Test/Test.ExecTarget/Test.ExecTarget.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Test/Test.Neon.Analyzers/Test.Neon.Analyzers.csproj">
       <BuildType Solution="CodeDoc|*" Project="Release" />
     </Project>
     <Project Path="Test/Test.Neon.Blazor/Test.Neon.Blazor.csproj">
@@ -193,6 +241,15 @@
     <Project Path="Test/Test.Neon.Deployment/Test.Neon.Deployment.csproj">
       <BuildType Solution="CodeDoc|*" Project="Release" />
     </Project>
+    <Project Path="Test/Test.Neon.ECharts/Test.Neon.ECharts.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Test/Test.Neon.EntityFrameworkCore/Test.Neon.EntityFrameworkCore.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Test/Test.Neon.EntityFrameworkCore.Analyzers/Test.Neon.EntityFrameworkCore.Analyzers.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
     <Project Path="Test/Test.Neon.GitHub/Test.Neon.GitHub.csproj">
       <BuildType Solution="CodeDoc|*" Project="Release" />
     </Project>
@@ -200,6 +257,9 @@
       <BuildType Solution="CodeDoc|*" Project="Debug" />
     </Project>
     <Project Path="Test/Test.Neon.JsonConverters/Test.Neon.JsonConverters.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Test/Test.Neon.Mapbox/Test.Neon.Mapbox.csproj">
       <BuildType Solution="CodeDoc|*" Project="Release" />
     </Project>
     <Project Path="Test/Test.Neon.ModelGen/Test.Neon.ModelGen.csproj">
@@ -212,7 +272,16 @@
     <Project Path="Test/Test.Neon.Postgres/Test.Neon.Postgres.csproj">
       <BuildType Solution="CodeDoc|*" Project="Release" />
     </Project>
+    <Project Path="Test/Test.Neon.Roslyn/Test.Neon.Roslyn.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
     <Project Path="Test/Test.Neon.Service/Test.Neon.Service.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Test/Test.Neon.SignalR/Test.Neon.SignalR.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Test/Test.Neon.Temporal.Analyzers/Test.Neon.Temporal.Analyzers.csproj">
       <BuildType Solution="CodeDoc|*" Project="Release" />
     </Project>
     <Project Path="Test/Test.Neon.Web/Test.Neon.Web.csproj">
@@ -270,9 +339,15 @@
     <Project Path="Tools/neon-modelgen/neon-modelgen.csproj">
       <BuildType Solution="CodeDoc|*" Project="Release" />
     </Project>
+    <Project Path="Tools/nanoshell/nanoshell.csproj">
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
     <Project Path="Tools/pubcore/pubcore.csproj" />
     <Project Path="Tools/unix-text/unix-text.csproj">
       <BuildDependency Project="Tools/pubcore/pubcore.csproj" />
+      <BuildType Solution="CodeDoc|*" Project="Release" />
+    </Project>
+    <Project Path="Tools/uuid-gen/uuid-gen.csproj">
       <BuildType Solution="CodeDoc|*" Project="Release" />
     </Project>
     <Project Path="Tools/wsl-util/wsl-util.csproj">

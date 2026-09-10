@@ -23,28 +23,32 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Cassandra;
+
 using Neon.Common;
 using Neon.IO;
 using Neon.Postgres;
 using Neon.Xunit;
-using Neon.Xunit.YugaByte;
+using Neon.Xunit.Yugabyte;
+using Neon.Yugabyte;
 
-using Cassandra;
 using Npgsql;
+
 using NpgsqlTypes;
 
 using Xunit;
+using Neon.Tasks;
 
 namespace Test.Neon.Postgres
 {
     [Trait(TestTrait.Category, TestArea.NeonPostgres)]
     [Collection(TestCollection.NonParallel)]
     [CollectionDefinition(TestCollection.NonParallel, DisableParallelization = true)]
-    public class Test_Extensions : IClassFixture<YugaByteFixture>
+    public class Test_Extensions : IClassFixture<YugabyteFixture>
     {
         private NpgsqlConnection postgres;
 
-        public Test_Extensions(YugaByteFixture fixture)
+        public Test_Extensions(YugabyteFixture fixture)
         {
             TestHelper.ResetDocker(this.GetType());
 
@@ -102,6 +106,8 @@ INSERT INTO enumerate_table (value) values (9);
         [Fact]
         public async Task EnumerateAsync()
         {
+            await SyncContext.Clear;
+
             var values = new HashSet<int>();
 
             using (var reader = await postgres.ExecuteReaderAsync("SELECT value FROM enumerate_table;"))
@@ -121,6 +127,8 @@ INSERT INTO enumerate_table (value) values (9);
         [Fact]
         public async Task PrepareCommand_NoArg()
         {
+            await SyncContext.Clear;
+
             var preparedCommand = new PreparedCommand(postgres, "SELECT value FROM enumerate_table WHERE value = @value;");
             var command         = preparedCommand.Clone();
             var values          = new HashSet<int>();

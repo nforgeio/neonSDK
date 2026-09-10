@@ -137,6 +137,8 @@ namespace TestCommon
                     new Task(
                         async state =>
                         {
+                            await SyncContext.Clear;
+
                             int taskIndex = (int)state;
 
                             taskInfo[taskIndex].IsRunning = true;
@@ -173,6 +175,8 @@ namespace TestCommon
                     new Task(
                         async state =>
                         {
+                            await SyncContext.Clear;
+
                             int taskIndex = (int)state;
 
                             taskInfo[taskIndex].IsRunning = true;
@@ -208,6 +212,8 @@ namespace TestCommon
                     new Task(
                         async state =>
                         {
+                            await SyncContext.Clear;
+
                             int taskIndex = (int)state;
 
                             taskInfo[taskIndex].IsRunning = true;
@@ -250,6 +256,8 @@ namespace TestCommon
         [Fact]
         public async Task Auto()
         {
+            await SyncContext.Clear;
+
             // Verify that auto reset events actually reset automatically.
 
             using (var autoEvent = new AsyncAutoResetEvent())
@@ -259,6 +267,8 @@ namespace TestCommon
                 var task = Task.Run(
                     async () =>
                     {
+                        await SyncContext.Clear;
+
                         while (true)
                         {
                             await autoEvent.WaitAsync();
@@ -298,7 +308,12 @@ namespace TestCommon
             autoEvent.Dispose();
             Assert.Throws<ObjectDisposedException>(() => autoEvent.Set());
             Assert.Throws<ObjectDisposedException>(() => autoEvent.Reset());
-            Task.Run(() => Assert.ThrowsAsync<ObjectDisposedException>(async () => await autoEvent.WaitAsync())).WaitWithoutAggregate();
+            Task.Run(() => Assert.ThrowsAsync<ObjectDisposedException>(async () =>
+            {
+                await SyncContext.Clear;
+
+                await autoEvent.WaitAsync();
+            })).WaitWithoutAggregate();
 
             // Verify that disposing an event causes any waiting tasks
             // to unblock with an [ObjectDisposedException].
@@ -313,6 +328,8 @@ namespace TestCommon
                 new Task(
                     async state =>
                     {
+                        await SyncContext.Clear;
+
                         int taskIndex = (int)state;
 
                         taskInfo[taskIndex].IsRunning = true;

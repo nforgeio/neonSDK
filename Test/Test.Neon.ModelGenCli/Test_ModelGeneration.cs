@@ -24,13 +24,15 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-using Neon.ModelGen;
 using Neon.Common;
 using Neon.CSharp;
+using Neon.ModelGen;
 using Neon.Xunit;
 
-using Xunit;
 using NeonModelGen;
+
+using Xunit;
+using Neon.Tasks;
 
 namespace FooBar
 {
@@ -108,6 +110,8 @@ namespace Test.NeonCli
         [Fact]
         public async Task AllTargets()
         {
+            await SyncContext.Clear;
+
             using (var runner = new ProgramRunner())
             {
                 // Verify that all types are generated when no targets
@@ -132,6 +136,8 @@ namespace Test.NeonCli
         [Fact]
         public async Task Filter1()
         {
+            await SyncContext.Clear;
+
             using (var runner = new ProgramRunner())
             {
                 // Verify that all types are generated when no targets

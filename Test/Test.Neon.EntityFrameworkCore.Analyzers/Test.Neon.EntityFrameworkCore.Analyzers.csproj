@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net10.0</TargetFrameworks>
+        <OutputType>Library</OutputType>
+        <IsPackable>false</IsPackable>
+        <Configurations>Debug;Release</Configurations>
+        <GenerateDocumentationFile>false</GenerateDocumentationFile>
+        <PlatformTarget>x64</PlatformTarget>
+        <NoWarn>$(NoWarn);RS1001;RS1036</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Include="$(NF_ROOT)\Lib\Neon.BuildInfo\AssemblyAttributes.cs" Link="Properties\AssemblyAttributes.cs" />
+        <Compile Include="$(NF_ROOT)\Lib\Neon.BuildInfo\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="coverlet.collector" />
+        <PackageReference Include="FluentAssertions" />
+        <PackageReference Include="Microsoft.CodeAnalysis" />
+        <PackageReference Include="Microsoft.CodeAnalysis.Analyzer.Testing" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CodeFix.Testing" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Analyzer.Testing" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeFix.Testing" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" />
+        <PackageReference Include="Microsoft.TestPlatform.TestHost" />
+        <PackageReference Include="xunit" />
+        <PackageReference Include="xunit.runner.visualstudio" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\Lib\Neon.EntityFrameworkCore.Analyzers\Neon.EntityFrameworkCore.Analyzers.csproj" />
+        <ProjectReference Include="..\..\Lib\Neon.Roslyn.Xunit\Neon.Roslyn.Xunit.csproj" />
+        <ProjectReference Include="..\..\Lib\Neon.Roslyn\Neon.Roslyn.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Using Include="Xunit" />
+    </ItemGroup>
+
+</Project>

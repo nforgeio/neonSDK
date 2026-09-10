@@ -26,6 +26,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Neon.Common;
+using Neon.Tasks;
 
 namespace WslUtil
 {
@@ -67,6 +68,8 @@ OPTIONS:
         /// <inheritdoc/>
         public override async Task RunAsync(CommandLine commandLine)
         {
+            await SyncContext.Clear;
+
             if (commandLine.HasHelpOption)
             {
                 Console.WriteLine(usage);

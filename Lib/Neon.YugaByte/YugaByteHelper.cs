@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------
-// FILE:        YugaByteHelper.cs
+// FILE:        YugabyteHelper.cs
 // CONTRIBUTOR: Jeff Lill
 // COPYRIGHT:   Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.
 //
@@ -15,29 +15,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Diagnostics.Contracts;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Net.Sockets;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-
-using Neon.Common;
-
-using Cassandra;
-using Npgsql;
-
-namespace Neon.YugaByte
+namespace Neon.Yugabyte
 {
     /// <summary>
-    /// Implements YugaByte related utilities.
+    /// Implements Yugabyte related utilities.
     /// </summary>
-    public static class YugaByteHelper
+    public static class YugabyteHelper
     {
     }
 }

@@ -26,18 +26,19 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 using Neon.Common;
 using Neon.Service;
 using Neon.Xunit;
-using Neon.Xunit.YugaByte;
+using Neon.Xunit.Yugabyte;
 
 using Xunit;
+using Neon.Tasks;
 
 namespace TestXunit
 {
@@ -60,6 +61,8 @@ namespace TestXunit
 
             protected async override Task<int> OnRunAsync()
             {
+                await SyncContext.Clear;
+
                 await StartedAsync();
 
                 while (!Terminator.CancellationToken.IsCancellationRequested)
@@ -79,6 +82,8 @@ namespace TestXunit
 
             protected async override Task<int> OnRunAsync()
             {
+                await SyncContext.Clear;
+
                 await StartedAsync();
 
                 while (!Terminator.CancellationToken.IsCancellationRequested)
@@ -100,9 +105,9 @@ namespace TestXunit
             composedFixture.Start(
                 () =>
                 {
-                    // Start [YugaByteFixture] as [group=0].
+                    // Start [YugabyteFixture] as [group=0].
 
-                    composedFixture.AddFixture("yugabyte", new YugaByteFixture(),
+                    composedFixture.AddFixture("yugabyte", new YugabyteFixture(),
                         yugabyteFixture =>
                         {
                             yugabyteFixture.StartAsComposed();
@@ -124,7 +129,7 @@ namespace TestXunit
                         {
                             // Write a key to the database.
 
-                            var yugabyteFixture = (YugaByteFixture)composedFixture["yugabyte"];
+                            var yugabyteFixture = (YugabyteFixture)composedFixture["yugabyte"];
 
                             if (yugabyteFixture.PostgresConnection.State != ConnectionState.Open)
                             {
@@ -174,13 +179,13 @@ namespace TestXunit
         [Fact]
         public async Task Verify()
         {
-            var yugabyteFixture  = (YugaByteFixture)fixture["yugabyte"];
+            var yugabyteFixture  = (YugabyteFixture)fixture["yugabyte"];
             var natsFixture      = (NatsFixture)fixture["nats"];
             var containerFixture = (ContainerFixture)fixture["container"];
             var service1Fixture  = (NeonServiceFixture<MyService1>)fixture["service1"];
             var service2Fixture  = (NeonServiceFixture<MyService2>)fixture["service2"];
 
-            // Verify that YugaByte from [group 0] is running.
+            // Verify that Yugabyte from [group 0] is running.
 
             if (yugabyteFixture.PostgresConnection.State != ConnectionState.Open)
             {

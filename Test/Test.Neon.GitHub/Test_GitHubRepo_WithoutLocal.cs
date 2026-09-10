@@ -32,6 +32,7 @@ using Neon.IO;
 using Neon.Xunit;
 
 using Xunit;
+using Neon.Tasks;
 
 namespace TestGitHub
 {
@@ -48,11 +49,15 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task Connect()
         {
+            await SyncContext.Clear;
+
             // Verify that we can connect to a GitHub account without a local git repo.
 
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     using (var repo = await GitHubRepo.ConnectAsync(GitHubTestHelper.RemoteTestRepoPath))
                     {
                         // These shouldn't throw any exceptions.

@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
+
 using Microsoft.Virtualization.Client.Management;
 
 namespace Microsoft.HyperV.PowerShell;

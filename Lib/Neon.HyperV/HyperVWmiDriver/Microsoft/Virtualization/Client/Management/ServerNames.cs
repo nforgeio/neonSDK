@@ -8,7 +8,10 @@ using System.Net.Sockets;
 using System.Runtime.ExceptionServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+
 using Microsoft.Virtualization.Client.Common;
+
+using Neon.Tasks;
 
 namespace Microsoft.Virtualization.Client.Management;
 
@@ -98,6 +101,8 @@ internal sealed class ServerNames
 
     private static async Task<IPHostEntry> GetHostEntrySafeAsync(string hostNameOrAddress)
     {
+        await SyncContext.Clear;
+
         return await Dns.GetHostEntryAsync(hostNameOrAddress).ConfigureAwait(continueOnCapturedContext: false);
     }
 
@@ -108,6 +113,8 @@ internal sealed class ServerNames
 
     private static async Task<IPHostEntry> GetHostEntrySafeAsync(IPAddress address)
     {
+        await SyncContext.Clear;
+
         return await Dns.GetHostEntryAsync(address).ConfigureAwait(continueOnCapturedContext: false);
     }
 

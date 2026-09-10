@@ -24,14 +24,16 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using YamlDotNet.RepresentationModel;
-using Xunit;
-
 using Neon.Common;
 using Neon.Docker;
 using Neon.IO;
+
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
+using Xunit;
+
+using YamlDotNet.RepresentationModel;
 
 namespace Neon.Xunit
 {

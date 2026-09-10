@@ -18,14 +18,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-
-using Newtonsoft;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 using Neon.Collections;
 using Neon.Common;
@@ -33,7 +29,12 @@ using Neon.Net;
 using Neon.Retry;
 using Neon.Xunit;
 
+using Newtonsoft;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
 using Xunit;
+using Neon.Tasks;
 
 namespace TestCommon
 {
@@ -42,11 +43,15 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task GetUnsafeAsync()
         {
+            await SyncContext.Clear;
+
             // Ensure that GET returning an explict type works.
 
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -78,7 +83,8 @@ namespace TestCommon
 
                     Assert.Equal("Hello World!", reply.Value1);
                 }
-            };
+            }
+            ;
         }
 
         [PlatformFact(TargetPlatforms.Windows)]
@@ -120,7 +126,8 @@ namespace TestCommon
 
                     Assert.Null(reply);
                 }
-            };
+            }
+            ;
         }
 
         [PlatformFact(TargetPlatforms.Windows)]
@@ -170,7 +177,8 @@ namespace TestCommon
                     Assert.Equal("test1", reply.Value1);
                     Assert.Equal("test2", reply.Value2);
                 }
-            };
+            }
+            ;
         }
 
         [PlatformFact(TargetPlatforms.Windows)]
@@ -220,7 +228,8 @@ namespace TestCommon
                     Assert.Equal("test1", reply.Value1);
                     Assert.Equal("test2", reply.Value2);
                 }
-            };
+            }
+            ;
         }
 
         [PlatformFact(TargetPlatforms.Windows)]
@@ -262,7 +271,8 @@ namespace TestCommon
 
                     Assert.Equal("Hello World!", (string)reply.Value1);
                 }
-            };
+            }
+            ;
         }
  
         [PlatformFact(TargetPlatforms.Windows)]
@@ -304,7 +314,8 @@ namespace TestCommon
 
                     Assert.Null(reply);
                 }
-            };
+            }
+            ;
         }
 
         [PlatformFact(TargetPlatforms.Windows)]
@@ -330,7 +341,8 @@ namespace TestCommon
                     Assert.False(response.IsSuccess);
                     Assert.Throws<HttpException>(() => response.EnsureSuccess());
                 }
-            };
+            }
+            ;
         }
 
         [Fact(Skip = "TODO")]

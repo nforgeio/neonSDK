@@ -21,10 +21,10 @@ using System.Data;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Sockets;
-using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -1438,6 +1438,8 @@ namespace Neon.Service
         /// <returns>The tracking <see cref="Task"/>.</returns>
         public async Task WaitUntilStarted()
         {
+            await SyncContext.Clear;
+
             await startedEvent.WaitAsync();
         }
 
@@ -1544,6 +1546,8 @@ namespace Neon.Service
         /// </remarks>
         public async virtual Task<int> RunAsync(bool disableProcessExit = false)
         {
+            await SyncContext.Clear;
+
             lock (syncLock)
             {
                 if (isRunning)
@@ -1751,6 +1755,8 @@ namespace Neon.Service
                 await NeonHelper.WaitForAsync(
                     async () =>
                     {
+                        await SyncContext.Clear;
+
                         // Verify DNS availability first because services won't be available anyway
                         // when there's no DNS.
 

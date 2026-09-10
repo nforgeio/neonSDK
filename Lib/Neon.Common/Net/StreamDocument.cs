@@ -30,16 +30,16 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Newtonsoft;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-
-using Neon.Common;
 using Neon.Collections;
+using Neon.Common;
 using Neon.Diagnostics;
 using Neon.ModelGen;
 using Neon.Retry;
 using Neon.Tasks;
+
+using Newtonsoft;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Neon.Net
 {

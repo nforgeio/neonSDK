@@ -28,6 +28,7 @@ using Neon.Time;
 using Neon.Xunit;
 
 using Xunit;
+using Neon.Tasks;
 
 // $todo(jefflill): Need to add tests for MINUTE and QUARTERHOUR.
 
@@ -127,6 +128,8 @@ namespace TestCommon
         [Trait(TestTrait.Category, TestArea.NeonCommon)]
         public async Task RecurringTimer_Async()
         {
+            await SyncContext.Clear;
+
             var timer  = new RecurringTimer(RecurringTimerType.Interval, TimeSpan.FromSeconds(1));
             var sysNow = SysTime.Now;
 
@@ -140,6 +143,8 @@ namespace TestCommon
         [Trait(TestTrait.Category, TestArea.NeonCommon)]
         public async Task RecurringTimer_Set()
         {
+            await SyncContext.Clear;
+
             var timer = new RecurringTimer("Interval:00:00:05");
 
             Assert.False(timer.HasFired());

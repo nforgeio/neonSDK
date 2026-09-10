@@ -23,31 +23,32 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Cassandra;
+
 using Neon.Common;
 using Neon.Xunit;
-using Neon.Xunit.YugaByte;
+using Neon.Xunit.Yugabyte;
 
-using Cassandra;
 using Npgsql;
 
 using Xunit;
 
-namespace TestYugaByte
+namespace TestYugabyte
 {
     /// <summary>
     /// These tests verify that we can connect to via Cassandra and Postgres and also
     /// that we can initialize test databases and that the data will be retained across
     /// unit test runs.
     /// </summary>
-    [Trait(TestTrait.Category, TestArea.NeonYugaByte)]
+    [Trait(TestTrait.Category, TestArea.NeonYugabyte)]
     [Collection(TestCollection.NonParallel)]
     [CollectionDefinition(TestCollection.NonParallel, DisableParallelization = true)]
-    public class Test_UseDataset : IClassFixture<YugaByteFixture>
+    public class Test_UseDataset : IClassFixture<YugabyteFixture>
     {
         private ISession            cassandra;
         private NpgsqlConnection    postgres;
 
-        public Test_UseDataset(YugaByteFixture fixture)
+        public Test_UseDataset(YugabyteFixture fixture)
         {
             if (fixture.Start() == TestFixtureStatus.Started)
             {

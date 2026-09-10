@@ -15,15 +15,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
-
-using Neon.Tasks;
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
+using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
+
+using Neon.Tasks;
 
 namespace Neon.Tailwind
 {

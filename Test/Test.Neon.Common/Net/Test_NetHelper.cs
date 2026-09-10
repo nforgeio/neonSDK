@@ -25,11 +25,13 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit;
 
 using Neon.Common;
 using Neon.Net;
 using Neon.Xunit;
+
+using Xunit;
+using Neon.Tasks;
 
 namespace TestCommon
 {
@@ -859,6 +861,8 @@ namespace TestCommon
         [Fact]
         public async Task ArpTable()
         {
+            await SyncContext.Clear;
+
             // Fetch the local ARP table and that it looks reasonable (not a very
             // thorough check).  The main thing we're verifying is that executing
             // the ARP tool and then parsing its output doesn't barf.
@@ -882,6 +886,8 @@ namespace TestCommon
         [Fact]
         public async Task ArpFlatTable()
         {
+            await SyncContext.Clear;
+
             // Fetch the flasttened ARP table and make sure it looks reasonable.
 
             var arpTable = await NetHelper.GetArpFlatTableAsync();

@@ -18,20 +18,22 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net.Http;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.Mvc;
+
+using NATS.Client;
 
 using Neon.Common;
 using Neon.Cryptography;
@@ -40,12 +42,12 @@ using Neon.IO;
 using Neon.Web;
 using Neon.Xunit;
 
-using NATS.Client;
 using STAN.Client;
 
-using Xunit;
-
 using Test.Neon.Models;
+
+using Xunit;
+using Neon.Tasks;
 
 namespace TestXunit
 {
@@ -434,6 +436,8 @@ namespace TestXunit
         [Fact]
         public async Task RequestAsync()
         {
+            await SyncContext.Clear;
+
             Assert.Equal(ConnState.CONNECTED, connection.State);
 
             using (var subscription = connection.SubscribeSync<Person>("subject"))

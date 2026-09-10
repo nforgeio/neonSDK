@@ -26,6 +26,7 @@ using Neon.WSL;
 using Neon.Xunit;
 
 using Xunit;
+using Neon.Tasks;
 
 namespace TestWSL
 {
@@ -56,6 +57,8 @@ namespace TestWSL
         /// <returns>Returns the path to the decompressed Wsl2 base TAR file.</returns>
         public static async Task<string> GetTestImageAsync()
         {
+            await SyncContext.Clear;
+
             var imagePath = Path.Combine(TestCacheFolder, "neontest-ubuntu-20.04.tar");
 
             Directory.CreateDirectory(TestCacheFolder);

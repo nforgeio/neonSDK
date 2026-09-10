@@ -28,6 +28,7 @@ using System.Threading.Tasks;
 using Neon.Common;
 
 using Npgsql;
+
 using NpgsqlTypes;
 
 namespace Neon.Postgres

@@ -41,6 +41,8 @@ namespace TestCommon
         [Fact]
         public async Task Nested_Action()
         {
+            await SyncContext.Clear;
+
             // Verify that action reentrancy actually works.
 
             var inner1 = false;
@@ -52,16 +54,22 @@ namespace TestCommon
                 await mutex.ExecuteActionAsync(
                     async () =>
                     {
+                        await SyncContext.Clear;
+
                         inner1 = true;
 
                         await mutex.ExecuteActionAsync(
                             async () =>
                             {
+                                await SyncContext.Clear;
+
                                 inner2 = true;
 
                                 await mutex.ExecuteActionAsync(
                                     async () =>
                                     {
+                                        await SyncContext.Clear;
+
                                         inner3 = true;
 
                                         await Task.CompletedTask;
@@ -78,6 +86,8 @@ namespace TestCommon
         [Fact]
         public async Task Blocked_Action()
         {
+            await SyncContext.Clear;
+
             // Verify that non-nested action acquistions block.
 
             using (var mutex = new AsyncReentrantMutex())
@@ -88,6 +98,8 @@ namespace TestCommon
                 var task1 = mutex.ExecuteActionAsync(
                     async () =>
                     {
+                        await SyncContext.Clear;
+
                         task1Time = DateTime.UtcNow;
 
                         await Task.Delay(TimeSpan.FromSeconds(2));
@@ -96,6 +108,8 @@ namespace TestCommon
                 var task2 = mutex.ExecuteActionAsync(
                     async () =>
                     {
+                        await SyncContext.Clear;
+
                         task2Time = DateTime.UtcNow;
 
                         await Task.Delay(TimeSpan.FromSeconds(2));
@@ -128,6 +142,8 @@ namespace TestCommon
         [Fact]
         public async Task Dispose_Action()
         {
+            await SyncContext.Clear;
+
             // Verify that [ObjectDisposedException] is thrown for action tasks waiting
             // to acquire the mutex.
 
@@ -144,6 +160,8 @@ namespace TestCommon
                 var task1 = mutex.ExecuteActionAsync(
                     async () =>
                     {
+                        await SyncContext.Clear;
+
                         task1Acquired = true;
                         await Task.Delay(TimeSpan.FromSeconds(2));
                     });
@@ -157,6 +175,8 @@ namespace TestCommon
                 var task2 = mutex.ExecuteActionAsync(
                     async () =>
                     {
+                        await SyncContext.Clear;
+
                         task2Acquired = true;
                         await Task.CompletedTask;
                     });
@@ -164,6 +184,8 @@ namespace TestCommon
                 var task3 = mutex.ExecuteActionAsync(
                     async () =>
                     {
+                        await SyncContext.Clear;
+
                         task3Acquired = true;
                         await Task.CompletedTask;
                     });
@@ -174,10 +196,20 @@ namespace TestCommon
 
                 mutex.Dispose();
 
-                await Assert.ThrowsAsync<ObjectDisposedException>(async () => await task2);
+                await Assert.ThrowsAsync<ObjectDisposedException>(async () =>
+                {
+                    await SyncContext.Clear;
+
+                    await task2;
+                });
                 Assert.False(task2Acquired);
 
-                await Assert.ThrowsAsync<ObjectDisposedException>(async () => await task3);
+                await Assert.ThrowsAsync<ObjectDisposedException>(async () =>
+                {
+                    await SyncContext.Clear;
+
+                    await task3;
+                });
                 Assert.False(task3Acquired);
 
                 await task1;
@@ -194,6 +226,8 @@ namespace TestCommon
         [Fact]
         public async Task Nested_Func()
         {
+            await SyncContext.Clear;
+
             // Verify that function reentrancy actually works.
 
             var inner1 = false;
@@ -205,16 +239,22 @@ namespace TestCommon
                 var result = await mutex.ExecuteFuncAsync(
                     async () =>
                     {
+                        await SyncContext.Clear;
+
                         inner1 = true;
 
                         return await mutex.ExecuteFuncAsync(
                             async () =>
                             {
+                                await SyncContext.Clear;
+
                                 inner2 = true;
 
                                 return await mutex.ExecuteFuncAsync(
                                     async () =>
                                     {
+                                        await SyncContext.Clear;
+
                                         inner3 = true;
 
                                         return await Task.FromResult("HELLO WORLD!");
@@ -233,6 +273,8 @@ namespace TestCommon
         [Fact]
         public async Task Blocked_Func()
         {
+            await SyncContext.Clear;
+
             // Verify that non-nested function acquistions block.
 
             using (var mutex = new AsyncReentrantMutex())
@@ -243,6 +285,8 @@ namespace TestCommon
                 var task1 = mutex.ExecuteFuncAsync(
                     async () =>
                     {
+                        await SyncContext.Clear;
+
                         task1Time = DateTime.UtcNow;
 
                         await Task.Delay(TimeSpan.FromSeconds(2));
@@ -252,6 +296,8 @@ namespace TestCommon
                 var task2 = mutex.ExecuteFuncAsync(
                     async () =>
                     {
+                        await SyncContext.Clear;
+
                         task2Time = DateTime.UtcNow;
 
                         await Task.Delay(TimeSpan.FromSeconds(2));
@@ -288,6 +334,8 @@ namespace TestCommon
         [Fact]
         public async Task Dispose_Func()
         {
+            await SyncContext.Clear;
+
             // Verify that [ObjectDisposedException] is thrown for function tasks waiting
             // to acquire the mutex.
 
@@ -304,6 +352,8 @@ namespace TestCommon
                 var task1 = mutex.ExecuteFuncAsync(
                     async () =>
                     {
+                        await SyncContext.Clear;
+
                         task1Acquired = true;
                         await Task.Delay(TimeSpan.FromSeconds(2));
                         return "TASK1";
@@ -318,6 +368,8 @@ namespace TestCommon
                 var task2 = mutex.ExecuteFuncAsync(
                     async () =>
                     {
+                        await SyncContext.Clear;
+
                         task2Acquired = true;
                         await Task.CompletedTask;
                         return "TASK2";
@@ -326,6 +378,8 @@ namespace TestCommon
                 var task3 = mutex.ExecuteFuncAsync(
                     async () =>
                     {
+                        await SyncContext.Clear;
+
                         task3Acquired = true;
                         await Task.CompletedTask;
                         return "TASK1";
@@ -337,10 +391,20 @@ namespace TestCommon
 
                 mutex.Dispose();
 
-                await Assert.ThrowsAsync<ObjectDisposedException>(async () => await task2);
+                await Assert.ThrowsAsync<ObjectDisposedException>(async () =>
+                {
+                    await SyncContext.Clear;
+
+                    await task2;
+                });
                 Assert.False(task2Acquired);
 
-                await Assert.ThrowsAsync<ObjectDisposedException>(async () => await task3);
+                await Assert.ThrowsAsync<ObjectDisposedException>(async () =>
+                {
+                    await SyncContext.Clear;
+
+                    await task3;
+                });
                 Assert.False(task3Acquired);
 
                 await task1;

@@ -31,6 +31,7 @@ using Neon.IO;
 using Neon.Xunit;
 
 using Xunit;
+using Neon.Tasks;
 
 namespace TestCommon
 {
@@ -939,6 +940,8 @@ namespace TestCommon
         [Fact]
         public async Task ZipToStream()
         {
+            await SyncContext.Clear;
+
             var fs = Assembly.GetExecutingAssembly().GetResourceFileSystem("TestCommon.IORes.Resources");
 
             // Verify that we can zip all embedded resources to a stream.
@@ -1007,6 +1010,8 @@ namespace TestCommon
         [Fact]
         public async Task ZipToFile()
         {
+            await SyncContext.Clear;
+
             var fs = Assembly.GetExecutingAssembly().GetResourceFileSystem("TestCommon.IORes.Resources");
 
             // Verify that we can zip all embedded resources to a file.

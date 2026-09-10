@@ -32,15 +32,16 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
+using NATS.Client;
+
 using Neon.Common;
 using Neon.Diagnostics;
 using Neon.IO;
 using Neon.Service;
 using Neon.Xunit;
 
-using NATS.Client;
-
 using Xunit;
+using Neon.Tasks;
 
 namespace TestNeonService
 {
@@ -92,6 +93,8 @@ namespace TestNeonService
         /// <inheritdoc/>
         protected async override Task<int> OnRunAsync()
         {
+            await SyncContext.Clear;
+
             // Load the configuration environment variables, exiting with a
             // non-zero exit code if they don't exist.
 
@@ -122,7 +125,12 @@ namespace TestNeonService
 
             // Start the service tasks
 
-            sendTask    = Task.Run(async () => await SendTaskFunc());
+            sendTask = Task.Run(async () =>
+            {
+                await SyncContext.Clear;
+
+                await SendTaskFunc();
+            });
             receiveTask = Task.Run(async () => await ReceiveTaskFunc());
 
             // Indicate that the service is running.

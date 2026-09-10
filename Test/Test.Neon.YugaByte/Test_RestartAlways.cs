@@ -23,33 +23,34 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Cassandra;
+
 using Neon.Common;
 using Neon.Xunit;
-using Neon.Xunit.YugaByte;
+using Neon.Xunit.Yugabyte;
 
-using Cassandra;
 using Npgsql;
 
 using Xunit;
 
-namespace TestYugaByte
+namespace TestYugabyte
 {
     /// <summary>
     /// These tests verify that we can connect to via Cassandra and Postgres and also
-    /// that <see cref="YugaByteFixture.Restart()"/> actually clears the database.
+    /// that <see cref="YugabyteFixture.Restart()"/> actually clears the database.
     /// </summary>
-    [Trait(TestTrait.Category, TestArea.NeonYugaByte)]
+    [Trait(TestTrait.Category, TestArea.NeonYugabyte)]
     [Collection(TestCollection.NonParallel)]
     [CollectionDefinition(TestCollection.NonParallel, DisableParallelization = true)]
-    public class Test_RestartAlways : IClassFixture<YugaByteFixture>
+    public class Test_RestartAlways : IClassFixture<YugabyteFixture>
     {
-        private YugaByteFixture     fixture;
+        private YugabyteFixture     fixture;
         private ISession            cassandra;
         private string              cassandraKeyspace;
         private NpgsqlConnection    postgres;
         private string              postgresDatabase;
 
-        public Test_RestartAlways(YugaByteFixture fixture)
+        public Test_RestartAlways(YugabyteFixture fixture)
         {
             if (fixture.Start() == TestFixtureStatus.AlreadyRunning)
             {

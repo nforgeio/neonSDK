@@ -53,6 +53,8 @@ namespace TestCommon
 
                 Task.Run(async () =>
                 {
+                    await SyncContext.Clear;
+
                     taskRunning = true;
                     await manualEvent.WaitAsync();
                     taskCompleted = true;
@@ -73,6 +75,8 @@ namespace TestCommon
 
                 Task.Run(async () =>
                 {
+                    await SyncContext.Clear;
+
                     taskRunning = true;
                     await manualEvent.WaitAsync();
                     taskCompleted = true;
@@ -91,6 +95,8 @@ namespace TestCommon
 
                 Task.Run(async () =>
                 {
+                    await SyncContext.Clear;
+
                     taskRunning = true;
                     await manualEvent.WaitAsync();
                     taskCompleted = true;
@@ -112,6 +118,8 @@ namespace TestCommon
 
                 Task.Run(async () =>
                 {
+                    await SyncContext.Clear;
+
                     taskRunning = true;
                     await manualEvent.WaitAsync();
                     taskCompleted = true;
@@ -138,6 +146,8 @@ namespace TestCommon
 
                 Task.Run(async () =>
                 {
+                    await SyncContext.Clear;
+
                     taskRunning = true;
                     await manualEvent.WaitAsync();
                     taskCompleted = true;
@@ -156,6 +166,8 @@ namespace TestCommon
 
                 Task.Run(async () =>
                 {
+                    await SyncContext.Clear;
+
                     taskRunning = true;
                     await manualEvent.WaitAsync();
                     taskCompleted = true;
@@ -174,6 +186,8 @@ namespace TestCommon
 
                 Task.Run(async () =>
                 {
+                    await SyncContext.Clear;
+
                     taskRunning = true;
                     await manualEvent.WaitAsync();
                     taskCompleted = true;
@@ -195,6 +209,8 @@ namespace TestCommon
 
                     Task.Run(async () =>
                     {
+                        await SyncContext.Clear;
+
                         taskRunning = true;
                         await manualEvent.WaitAsync();
                         taskCompleted = true;
@@ -316,6 +332,8 @@ namespace TestCommon
                     new Task(
                         async state =>
                         {
+                            await SyncContext.Clear;
+
                             int taskIndex = (int)state;
 
                             taskInfo[taskIndex].IsRunning = true;
@@ -350,6 +368,8 @@ namespace TestCommon
                     new Task(
                         async state =>
                         {
+                            await SyncContext.Clear;
+
                             int taskIndex = (int)state;
 
                             taskInfo[taskIndex].IsRunning = true;
@@ -375,6 +395,8 @@ namespace TestCommon
                     new Task(
                         async state =>
                         {
+                            await SyncContext.Clear;
+
                             int taskIndex = (int)state;
 
                             taskInfo[taskIndex].IsRunning = true;
@@ -403,6 +425,8 @@ namespace TestCommon
                         new Task(
                             async state =>
                             {
+                                await SyncContext.Clear;
+
                                 int taskIndex = (int)state;
 
                                 taskInfo[taskIndex].IsRunning = true;
@@ -434,7 +458,12 @@ namespace TestCommon
             manualEvent.Dispose();
             Assert.Throws<ObjectDisposedException>(() => manualEvent.Set());
             Assert.Throws<ObjectDisposedException>(() => manualEvent.Reset());
-            Task.Run(() => Assert.ThrowsAsync<ObjectDisposedException>(async () => await manualEvent.WaitAsync())).WaitWithoutAggregate();
+            Task.Run(() => Assert.ThrowsAsync<ObjectDisposedException>(async () =>
+            {
+                await SyncContext.Clear;
+
+                await manualEvent.WaitAsync();
+            })).WaitWithoutAggregate();
 
             // Verify that disposing an event causes any waiting tasks
             // to unblock with an [ObjectDisposedException].
@@ -449,6 +478,8 @@ namespace TestCommon
                 new Task(
                     async state =>
                     {
+                        await SyncContext.Clear;
+
                         int taskIndex = (int)state;
 
                         taskInfo[taskIndex].IsRunning = true;

@@ -16,8 +16,8 @@
 // limitations under the License.
 
 using System;
-using System.Collections.Generic;
 using System.CodeDom.Compiler;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
 using System.IO;
@@ -25,15 +25,15 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime;
 using System.Runtime.Serialization;
-using System.Threading.Tasks;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 using Microsoft.CodeAnalysis;
 
-using Newtonsoft.Json;
-
 using Neon.Common;
+
+using Newtonsoft.Json;
 
 namespace Neon.ModelGen
 {

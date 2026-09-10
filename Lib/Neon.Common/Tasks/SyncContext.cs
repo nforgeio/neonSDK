@@ -18,7 +18,6 @@
 // Code based on a MSDN article by Stephen Toub (MSFT):
 // http://blogs.msdn.com/b/pfxteam/archive/2012/02/12/10267069.aspx
 
-using Neon.Common;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
@@ -27,6 +26,8 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+
+using Neon.Common;
 
 namespace Neon.Tasks
 {

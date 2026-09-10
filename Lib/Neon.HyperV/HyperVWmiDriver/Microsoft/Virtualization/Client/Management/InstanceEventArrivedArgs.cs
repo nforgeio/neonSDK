@@ -1,4 +1,5 @@
 using System;
+
 using Microsoft.Management.Infrastructure;
 
 namespace Microsoft.Virtualization.Client.Management;

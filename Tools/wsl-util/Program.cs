@@ -25,6 +25,7 @@ using Neon;
 using Neon.BuildInfo;
 using Neon.Common;
 using Neon.WSL;
+using Neon.Tasks;
 
 namespace WslUtil
 {
@@ -54,6 +55,8 @@ namespace WslUtil
         /// <param name="args">Command line arguments.</param>
         public static async Task<int> Main(string[] args)
         {
+            await SyncContext.Clear;
+
             const string usage = $@"
 wsl-util [v{Program.Version}]
 {Build.Copyright}

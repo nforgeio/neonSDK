@@ -13,6 +13,8 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Neon.Tasks;
+
 namespace Microsoft.Net.Http.Client
 {
     public class ManagedHandler : HttpMessageHandler
@@ -67,6 +69,8 @@ namespace Microsoft.Net.Http.Client
 
         protected async override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
+            await SyncContext.Clear;
+
             if (request == null)
             {
                 throw new ArgumentNullException("request");
@@ -144,6 +148,8 @@ namespace Microsoft.Net.Http.Client
 
         private async Task<HttpResponseMessage> ProcessRequestAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
+            await SyncContext.Clear;
+
             cancellationToken.ThrowIfCancellationRequested();
 
             ProcessUrl(request);

@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Management.Automation;
 using System.Reflection;
+
 using Microsoft.HyperV.PowerShell.Common;
 using Microsoft.Virtualization.Client.Management;
 using Microsoft.Virtualization.Client.Management.Clustering;

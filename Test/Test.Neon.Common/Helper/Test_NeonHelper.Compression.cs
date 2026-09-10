@@ -24,6 +24,7 @@ using Neon.IO;
 using Neon.Xunit;
 
 using Newtonsoft.Json;
+
 using Xunit;
 
 namespace TestCommon

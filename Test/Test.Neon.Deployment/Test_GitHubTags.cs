@@ -22,14 +22,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Xunit;
-
 using Neon.Common;
 using Neon.Deployment;
 using Neon.IO;
 using Neon.Xunit;
+
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
+using Xunit;
 
 namespace TestDeployment
 {

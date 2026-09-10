@@ -24,6 +24,7 @@ using System.Runtime.InteropServices;
 using Microsoft.Win32.SafeHandles;
 
 using static Neon.WinTTY.ProcessApi;
+
 using Process = Neon.WinTTY.Process;
 
 namespace Neon.WinTTY

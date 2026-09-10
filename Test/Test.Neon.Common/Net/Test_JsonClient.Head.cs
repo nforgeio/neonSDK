@@ -18,14 +18,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-
-using Newtonsoft;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 using Neon.Collections;
 using Neon.Common;
@@ -33,7 +29,12 @@ using Neon.Net;
 using Neon.Retry;
 using Neon.Xunit;
 
+using Newtonsoft;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
 using Xunit;
+using Neon.Tasks;
 
 namespace TestCommon
 {
@@ -42,11 +43,15 @@ namespace TestCommon
         [PlatformFact(TargetPlatforms.Windows)]
         public async Task HeadAsync()
         {
+            await SyncContext.Clear;
+
             // Ensure that HEAD returning an explict type works.
 
             using (new MockHttpServer(baseUri,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -77,7 +82,8 @@ namespace TestCommon
                     await jsonClient.HeadAsync(baseUri + "info");
                     await jsonClient.HeadAsync<ReplyDoc>(baseUri + "info");
                 }
-            };
+            }
+            ;
         }
 
         [PlatformFact(TargetPlatforms.Windows)]
@@ -117,7 +123,8 @@ namespace TestCommon
                 {
                     await jsonClient.HeadAsync(baseUri + "info");
                 }
-            };
+            }
+            ;
         }
 
         [PlatformFact(TargetPlatforms.Windows)]
@@ -164,7 +171,8 @@ namespace TestCommon
 
                     await jsonClient.HeadAsync(baseUri + "info", args: args);
                 }
-            };
+            }
+            ;
         }
 
         [PlatformFact(TargetPlatforms.Windows)]
@@ -211,7 +219,8 @@ namespace TestCommon
 
                     await jsonClient.HeadAsync(baseUri + "info", headers: headers);
                 }
-            };
+            }
+            ;
         }
 
         [PlatformFact(TargetPlatforms.Windows)]
@@ -251,7 +260,8 @@ namespace TestCommon
                 {
                     await jsonClient.HeadAsync(baseUri + "info");
                 }
-            };
+            }
+            ;
         }
 
         [PlatformFact(TargetPlatforms.Windows)]
@@ -291,7 +301,8 @@ namespace TestCommon
                 {
                     await jsonClient.HeadAsync(baseUri + "info");
                 }
-            };
+            }
+            ;
         }
 
         [PlatformFact(TargetPlatforms.Windows)]
@@ -313,7 +324,8 @@ namespace TestCommon
                 {
                     await Assert.ThrowsAsync<HttpException>(async () => await jsonClient.HeadAsync(baseUri + "info"));
                 }
-            };
+            }
+            ;
         }
 
         [PlatformFact(TargetPlatforms.Windows)]
@@ -349,7 +361,8 @@ namespace TestCommon
                 {
                     await jsonClient.HeadAsync(baseUri + "info");
                 }
-            };
+            }
+            ;
         }
 
         [PlatformFact(TargetPlatforms.Windows)]
@@ -388,7 +401,8 @@ namespace TestCommon
 
                     Assert.Equal(1, attemptCount);
                 }
-            };
+            }
+            ;
         }
 
         [PlatformFact(TargetPlatforms.Windows)]
@@ -427,7 +441,8 @@ namespace TestCommon
 
                     Assert.Equal(1, attemptCount);
                 }
-            };
+            }
+            ;
         }
     }
 }

@@ -27,11 +27,11 @@ using System.Threading.Tasks;
 
 using Microsoft.Extensions.DependencyInjection;
 
+using Neon.Diagnostics;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
-
-using Neon.Diagnostics;
 
 namespace Neon.Common
 {
@@ -63,7 +63,7 @@ namespace Neon.Common
         /// <param name="message">The error message.</param>
         /// <param name="outputText">Optionally specifies the program standard output text.</param>
         /// <param name="errorText">Optionally specifies the program standard error text.</param>
-        public ExecuteException(int exitCode, string message, string outputText = null, string errorText = null)
+        public ExecuteException(int? exitCode, string message, string outputText = null, string errorText = null)
             : base(message)
         {
             this.ExitCode   = exitCode;
@@ -74,7 +74,7 @@ namespace Neon.Common
         /// <summary>
         /// Returns the command exit code.
         /// </summary>
-        public int ExitCode { get; private set; }
+        public int? ExitCode { get; private set; }
 
         /// <summary>
         /// Returns the command standard output text.

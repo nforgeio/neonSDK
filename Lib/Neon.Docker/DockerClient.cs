@@ -29,13 +29,14 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.Net.Http.Client;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 using Neon.Common;
 using Neon.Net;
 using Neon.Retry;
 using Neon.Tasks;
+
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Neon.Docker
 {
@@ -282,6 +283,8 @@ namespace Neon.Docker
             await retryPolicy.InvokeAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     var volumesResponse = new VolumeListResponse(await JsonClient.GetAsync(NoRetryPolicy.Instance, GetUri("volumes"), cancellationToken: cancellationToken));
 
                     if (volumesResponse.Volumes.Count == 0)

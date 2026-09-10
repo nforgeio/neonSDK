@@ -26,9 +26,9 @@ using System.Runtime;
 using System.Runtime.Serialization;
 using System.Text;
 
-using Newtonsoft.Json;
-
 using Neon.Common;
+
+using Newtonsoft.Json;
 
 namespace Neon.ModelGen
 {

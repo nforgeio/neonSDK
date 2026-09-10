@@ -28,8 +28,9 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 
-using YamlDotNet.Core;
 using Xunit;
+
+using YamlDotNet.Core;
 
 namespace TestCommon
 {

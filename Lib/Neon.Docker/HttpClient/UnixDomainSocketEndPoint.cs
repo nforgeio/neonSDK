@@ -4,9 +4,9 @@
 
 using System;
 using System.Diagnostics;
-using System.Text;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 
 namespace Microsoft.Net.Http.Client
 {

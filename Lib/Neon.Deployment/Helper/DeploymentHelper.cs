@@ -26,15 +26,15 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-
 using Neon.Common;
 using Neon.Cryptography;
 using Neon.IO;
 using Neon.Net;
 using Neon.Retry;
 using Neon.Tasks;
+
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Neon.Deployment
 {

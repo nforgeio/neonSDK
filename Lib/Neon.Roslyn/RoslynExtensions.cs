@@ -240,7 +240,7 @@ namespace Neon.Roslyn
 
                         while (i < fields.Length && !found)
                         {
-                            if (fields[i].GetFieldSymbol().ConstantValue == defaultValue)
+                            if (fields[i].GetFieldSymbol()?.ConstantValue == defaultValue)
                             {
                                 var enumAttr = ((RoslynFieldInfo)fields[i]).GetCustomAttribute<EnumMemberAttribute>();
                                 defaultValue = enumAttr?.Value ?? fields[i].Name;

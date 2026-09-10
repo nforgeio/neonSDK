@@ -21,8 +21,10 @@ using System.Text.Json.Serialization;
 
 using Neon.ECharts.Options.Series;
 using Neon.ECharts.Options.Series.Bar;
+using Neon.ECharts.Options.Series.Bar3D;
 using Neon.ECharts.Options.Series.Boxplot;
 using Neon.ECharts.Options.Series.Candlestick;
+using Neon.ECharts.Options.Series.Custom;
 using Neon.ECharts.Options.Series.EffectScatter;
 using Neon.ECharts.Options.Series.FlowGL;
 using Neon.ECharts.Options.Series.Funnel;
@@ -35,6 +37,7 @@ using Neon.ECharts.Options.Series.Line;
 using Neon.ECharts.Options.Series.Line3D;
 using Neon.ECharts.Options.Series.Lines;
 using Neon.ECharts.Options.Series.Lines3D;
+using Neon.ECharts.Options.Series.LinesGL;
 using Neon.ECharts.Options.Series.Map;
 using Neon.ECharts.Options.Series.Map3D;
 using Neon.ECharts.Options.Series.Parallel;
@@ -43,16 +46,13 @@ using Neon.ECharts.Options.Series.Pie;
 using Neon.ECharts.Options.Series.Radar;
 using Neon.ECharts.Options.Series.Sankey;
 using Neon.ECharts.Options.Series.Scatter;
+using Neon.ECharts.Options.Series.Scatter3D;
 using Neon.ECharts.Options.Series.ScatterGL;
 using Neon.ECharts.Options.Series.Sunburst;
 using Neon.ECharts.Options.Series.Surface;
 using Neon.ECharts.Options.Series.ThemeRiver;
 using Neon.ECharts.Options.Series.Tree;
 using Neon.ECharts.Options.Series.Treemap;
-using Neon.ECharts.Options.Series.Custom;
-using Neon.ECharts.Options.Series.LinesGL;
-using Neon.ECharts.Options.Series.Bar3D;
-using Neon.ECharts.Options.Series.Scatter3D;
 
 namespace Neon.ECharts
 {
@@ -292,7 +292,8 @@ namespace Neon.ECharts
                     break;
                 default:
                     throw new NotImplementedException();
-            };
+            }
+            ;
         }
     }
 }

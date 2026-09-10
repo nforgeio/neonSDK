@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,7 +33,6 @@ using Neon.Time;
 
 using Renci.SshNet;
 using Renci.SshNet.Common;
-using System.Net;
 
 namespace Neon.SSH
 {
@@ -57,7 +57,7 @@ namespace Neon.SSH
         /// <summary>
         /// Returns the command exit code.
         /// </summary>
-        public int ExitCode { get; internal set; }
+        public int? ExitCode { get; internal set; }
 
         /// <summary>
         /// Returns <c>true</c> if the command exit code was zero, 

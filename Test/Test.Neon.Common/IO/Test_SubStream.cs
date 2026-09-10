@@ -27,6 +27,7 @@ using Neon.IO;
 using Neon.Xunit;
 
 using Xunit;
+using Neon.Tasks;
 
 namespace TestCommon
 {
@@ -587,6 +588,8 @@ namespace TestCommon
         [Fact]
         public async Task MultiThread()
         {
+            await SyncContext.Clear;
+
             // Divide a 100 byte stream into 4 non-overlapping substreams of
             // 25 bytes each and then have 4 threads party on this for a while
             // and then verify that the underlying data is still intact.

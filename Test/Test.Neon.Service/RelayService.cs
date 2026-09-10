@@ -40,6 +40,7 @@ using Neon.Service;
 using Neon.Xunit;
 
 using Xunit;
+using Neon.Tasks;
 
 namespace TestNeonService
 {
@@ -67,7 +68,12 @@ namespace TestNeonService
             // Forward all requests to the parent service to have them
             // handled there.
 
-            app.Run(async context => await service.OnWebRequest(context));
+            app.Run(async context =>
+            {
+                await SyncContext.Clear;
+
+                await service.OnWebRequest(context);
+            });
         }
     }
 
@@ -118,6 +124,8 @@ namespace TestNeonService
         /// <inheritdoc/>
         protected async override Task<int> OnRunAsync()
         {
+            await SyncContext.Clear;
+
             // Query the service map for the [web-service] endpoint and setup
             // the HTTP client we'll use to communicate with that service.
 

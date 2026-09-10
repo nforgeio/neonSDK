@@ -27,6 +27,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+
 using Neon.Common;
 using Neon.Cryptography;
 using Neon.Diagnostics;
@@ -68,6 +69,8 @@ namespace TestNeonService
             /// <returns>The service exit code.</returns>
             protected override async Task<int> OnRunAsync()
             {
+                await SyncContext.Clear;
+
                 Running.Set();
 
                 return await Task.FromResult(0);
@@ -90,6 +93,8 @@ namespace TestNeonService
         [Fact]
         public async Task Wait_Explicit()
         {
+            await SyncContext.Clear;
+
             // Verify that a service will honor the wait time specified in code.
 
             var service   = new TestService();
@@ -111,6 +116,8 @@ namespace TestNeonService
         [Fact]
         public async Task Wait_EnvironmentVar()
         {
+            await SyncContext.Clear;
+
             // Verify that a service will honor the wait time specified as
             // an environment variable.
 
@@ -136,6 +143,8 @@ namespace TestNeonService
         [Fact]
         public async Task Wait_BadEnvironmentVar()
         {
+            await SyncContext.Clear;
+
             // Verify that a service ignores an invalid environment variable.
 
             Environment.SetEnvironmentVariable("NEON_SERVICE_DEPENDENCIES_WAIT_SECONDS", "NOT-A-DOUBLE");
@@ -151,6 +160,8 @@ namespace TestNeonService
         [Fact]
         public async Task Dependencies_Explicit()
         {
+            await SyncContext.Clear;
+
             // Verify that a service will wait for service dependencies for each
             // supported URI scheme set explicitly.
 
@@ -212,6 +223,8 @@ namespace TestNeonService
         [Fact]
         public async Task Dependencies_EnvironmentVar()
         {
+            await SyncContext.Clear;
+
             // Verify that a service will wait for service dependencies for each
             // supported URI scheme set via an environment variable.
 
@@ -276,6 +289,8 @@ namespace TestNeonService
         [Fact]
         public async Task Dependencies_BadEnvironmentVar()
         {
+            await SyncContext.Clear;
+
             // Verify that a service will wait for service dependencies for each
             // supported URI scheme set via an environment variable while 
             // ignorning an invalid URI and unsupported URI scheme.
@@ -341,6 +356,8 @@ namespace TestNeonService
         [Fact]
         public async Task Dependencies_Timeout_Explicit()
         {
+            await SyncContext.Clear;
+
             // Verify that a service will timeout waiting for a service
             // that is never available when the timeout is configured
             // explicitly.
@@ -363,6 +380,8 @@ namespace TestNeonService
         [Fact]
         public async Task Dependencies_Timeout_EnvironmentVar()
         {
+            await SyncContext.Clear;
+
             // Verify that a service will timeout waiting for a service
             // that is never available when the timeout is configured
             // via an environment variable.
@@ -389,6 +408,8 @@ namespace TestNeonService
         [Fact]
         public async Task Dependencies_Timeout_BadEnvironmentVar()
         {
+            await SyncContext.Clear;
+
             // Verify that a service will ignore an invalid timeout specified
             // as an environment variable.
 

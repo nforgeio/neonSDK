@@ -21,10 +21,10 @@ using System.Diagnostics.Contracts;
 using System.IO;
 using System.Text;
 
+using Neon.Common;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-
-using Neon.Common;
 
 namespace Neon.Deployment
 {

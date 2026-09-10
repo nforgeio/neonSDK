@@ -36,6 +36,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 using Xunit;
+using Neon.Tasks;
 
 namespace TestModelGen.ServiceModel
 {
@@ -399,6 +400,8 @@ namespace TestModelGen.ServiceModel
         [Fact]
         public async Task VoidService()
         {
+            await SyncContext.Clear;
+
             // Verify that we can generate and call a service defined without
             // any special routing (etc) attributes and where all methods
             // return VOID.
@@ -429,6 +432,8 @@ namespace TestModelGen.ServiceModel
             using (new MockHttpServer(TestSettings.BaseAddress,
                 async context =>
                 {
+                    await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 

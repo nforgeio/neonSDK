@@ -29,6 +29,7 @@ using Neon.Xunit;
 
 using Xunit;
 using Xunit.Abstractions;
+using Neon.Tasks;
 
 namespace TestCommon
 {
@@ -102,12 +103,16 @@ namespace TestCommon
         [Fact]
         public async Task FailAll()
         {
+            await SyncContext.Clear;
+
             var policy = new ExponentialRetryPolicy(TransientDetector);
             var times  = new List<DateTime>();
 
             await Assert.ThrowsAsync<TransientException>(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     await policy.InvokeAsync(
                         async () =>
                         {

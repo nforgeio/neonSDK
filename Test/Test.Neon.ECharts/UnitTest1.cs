@@ -24,7 +24,7 @@ using FluentAssertions;
 using Neon.ECharts.Options;
 using Neon.ECharts.Options.Enum;
 using Neon.ECharts.Options.Series;
-using Neon.ECharts.Options.Series.Scatter;
+using Neon.ECharts.Options.Series.Scatter3D;
 
 namespace Test.Neon_ECharts
 {

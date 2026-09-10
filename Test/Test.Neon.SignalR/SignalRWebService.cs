@@ -34,6 +34,7 @@ using NATS.Client.Hosting;
 using Neon.Diagnostics;
 using Neon.Service;
 using Neon.SignalR;
+using Neon.Tasks;
 
 namespace Test.Neon.SignalR
 {
@@ -125,6 +126,8 @@ namespace Test.Neon.SignalR
         /// <inheritdoc/>
         protected async override Task<int> OnRunAsync()
         {
+            await SyncContext.Clear;
+
             // Load the configuration environment variables, exiting with a
             // non-zero exit code if they don't exist.
 

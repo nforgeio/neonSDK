@@ -25,6 +25,7 @@ using System.Threading;
 
 using Neon.Common;
 using Neon.Diagnostics;
+
 using OpenTelemetry.Trace;
 
 namespace Neon.HyperV

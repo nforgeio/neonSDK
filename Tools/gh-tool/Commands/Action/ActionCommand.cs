@@ -25,10 +25,11 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Neon.Common;
+
 using Newtonsoft;
 using Newtonsoft.Json;
-
-using Neon.Common;
+using Neon.Tasks;
 
 namespace GHTool
 {
@@ -58,6 +59,8 @@ USAGE:
         /// <inheritdoc/>
         public override async Task RunAsync(CommandLine commandLine)
         {
+            await SyncContext.Clear;
+
             Help();
             await Task.CompletedTask;
         }

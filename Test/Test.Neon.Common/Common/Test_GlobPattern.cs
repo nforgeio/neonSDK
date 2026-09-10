@@ -21,7 +21,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 using NATS.Client;
+
 using Neon.Common;
 using Neon.Xunit;
 

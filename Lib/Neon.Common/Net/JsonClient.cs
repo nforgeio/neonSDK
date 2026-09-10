@@ -26,20 +26,20 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Newtonsoft;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-
-using Neon.Common;
 using Neon.Collections;
+using Neon.Common;
 using Neon.Data;
 using Neon.Diagnostics;
 using Neon.Retry;
-using System.Runtime.CompilerServices;
+
+using Newtonsoft;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Neon.Net
 {

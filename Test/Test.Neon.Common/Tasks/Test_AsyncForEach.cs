@@ -57,6 +57,8 @@ namespace TestCommon
         [Fact]
         public async Task Constrained()
         {
+            await SyncContext.Clear;
+
             // Verify that we can constrain the number of tasks that run in
             // parallel to something less than the number of available threads
             // in the pool.
@@ -78,6 +80,8 @@ namespace TestCommon
             await Async.ForEachAsync(workItems,
                 async item =>
                 {
+                    await SyncContext.Clear;
+
                     lock (syncLock)
                     {
                         parallelCount++;
@@ -116,6 +120,8 @@ namespace TestCommon
         [Fact]
         public async Task Unconstrained()
         {
+            await SyncContext.Clear;
+
             // Verify that all tasks run in parallel when the number of
             // tasks is less than the number allowed to run simultaneously.
 
@@ -134,6 +140,8 @@ namespace TestCommon
             await Async.ForEachAsync(workItems,
                 async item =>
                 {
+                    await SyncContext.Clear;
+
                     lock (syncLock)
                     {
                         parallelCount++;
@@ -172,6 +180,8 @@ namespace TestCommon
         [Fact]
         public async Task Cancellation()
         {
+            await SyncContext.Clear;
+
             // Verify that cancellation tokens work.
 
             var syncLock       = new object();
@@ -192,6 +202,8 @@ namespace TestCommon
             var task = Async.ForEachAsync(workItems,
                 async (item, cancellationToken) =>
                 {
+                    await SyncContext.Clear;
+
                     lock (syncLock)
                     {
                         parallelCount++;
@@ -218,7 +230,12 @@ namespace TestCommon
 
             await Task.Delay(TimeSpan.FromSeconds(delay.TotalSeconds / 2));
             cts.Cancel();
-            await Assert.ThrowsAsync<OperationCanceledException>(async () => await task);
+            await Assert.ThrowsAsync<OperationCanceledException>(async () =>
+            {
+                await SyncContext.Clear;
+
+                await task;
+            });
 
             // Verify
 
@@ -229,6 +246,8 @@ namespace TestCommon
         [Fact]
         public async Task Exception()
         {
+            await SyncContext.Clear;
+
             // Verify that exceptions thrown by work items work as expected.
 
             var syncLock       = new object();
@@ -248,6 +267,8 @@ namespace TestCommon
             var task = Async.ForEachAsync(workItems,
                 async item =>
                 {
+                    await SyncContext.Clear;
+
                     lock (syncLock)
                     {
                         parallelCount++;

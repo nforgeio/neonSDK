@@ -132,6 +132,8 @@ namespace Microsoft.Net.Http.Client
 
         private async Task<List<string>> ReadResponseLinesAsync(CancellationToken cancellationToken)
         {
+            await SyncContext.Clear;
+
             var lines = new List<string>();
             var line  = await Transport.ReadLineAsync(cancellationToken);
 

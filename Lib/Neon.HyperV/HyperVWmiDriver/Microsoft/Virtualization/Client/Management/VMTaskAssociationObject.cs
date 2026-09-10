@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
+
 using Microsoft.Management.Infrastructure;
 
 namespace Microsoft.Virtualization.Client.Management;

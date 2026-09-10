@@ -2,6 +2,7 @@
 using System;
 using System.Globalization;
 using System.Runtime.InteropServices;
+
 using Microsoft.Management.Infrastructure;
 
 namespace Microsoft.Virtualization.Client.Management;

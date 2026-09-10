@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Management.Automation;
+
 using Microsoft.HyperV.PowerShell.Commands.Resources;
 using Microsoft.Vhd.PowerShell;
 using Microsoft.Virtualization.Client.Management;

@@ -21,14 +21,16 @@ using System.Data;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Sockets;
-using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+
+using DnsClient;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -42,14 +44,13 @@ using Neon.Retry;
 using Neon.Tasks;
 using Neon.Time;
 
-using DnsClient;
-using Prometheus;
-
 using OpenTelemetry;
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+
+using Prometheus;
 
 namespace Neon.Service
 {
@@ -192,6 +193,8 @@ namespace Neon.Service
         /// <returns>The tracking <see cref="Task"/>.</returns>
         private static async Task CheckForCollectorAsync()
         {
+            await SyncContext.Clear;
+
             var lookup = await dns.QueryAsync(collectorHostName, QueryType.A);
             
             Ready = !(lookup.HasError || lookup.Answers.IsEmpty());
@@ -204,6 +207,8 @@ namespace Neon.Service
         /// <returns>The tracking <see cref="Task"/>.</returns>
         private static async Task CheckerLoopAsync()
         {
+            await SyncContext.Clear;
+
             while (true)
             {
                 await Task.Delay(checkInterval);

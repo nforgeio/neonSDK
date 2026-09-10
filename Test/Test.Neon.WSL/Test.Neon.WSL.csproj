@@ -43,7 +43,7 @@
         <ProjectReference Include="..\..\Lib\Neon.Common\Neon.Common.csproj" />
         <ProjectReference Include="..\..\Lib\Neon.WSL\Neon.WSL.csproj" />
         <ProjectReference Include="..\..\Lib\Neon.Xunit\Neon.Xunit.csproj" />
-        <ProjectReference Include="..\Test.Neon.YugaByte\Test.Neon.YugaByte.csproj" />
+        <ProjectReference Include="..\Test.Neon.Yugabyte\Test.Neon.Yugabyte.csproj" />
     </ItemGroup>
 
     <ItemGroup>

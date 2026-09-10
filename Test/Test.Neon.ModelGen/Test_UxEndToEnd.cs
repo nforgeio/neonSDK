@@ -19,29 +19,31 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Net.Http;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.Mvc;
 
 using Neon.Common;
 using Neon.Web;
 using Neon.Xunit;
 
-using Test.Neon.UxModels;
 using Newtonsoft.Json.Linq;
+
+using Test.Neon.UxModels;
 
 using Xunit;
 using Xunit.Abstractions;
+using Neon.Tasks;
 
 namespace TestModelGen.UxAspNet
 {
@@ -320,6 +322,8 @@ namespace TestModelGen.UxAspNet
         [Fact]
         public async Task GetString()
         {
+            await SyncContext.Clear;
+
             Assert.Equal("Hello World!", await client.GetStringAsync("Hello World!"));
             Assert.Equal("Goodbye World!", await client.GetStringAsync("Goodbye World!"));
             Assert.Null(await client.GetStringAsync(null));
@@ -343,6 +347,8 @@ namespace TestModelGen.UxAspNet
         [Fact]
         public async Task GetBool()
         {
+            await SyncContext.Clear;
+
             Assert.True(await client.GetBoolAsync(true));
             Assert.False(await client.GetBoolAsync(false));
         }

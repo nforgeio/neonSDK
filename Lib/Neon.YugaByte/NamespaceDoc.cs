@@ -15,18 +15,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics.Contracts;
-using System.Reflection;
-
-using Neon.Common;
-
-namespace Neon.Xunit.YugaByte
+namespace Neon.Xunit.Yugabyte
 {
     /// <summary>
-    /// This namespace includes the YugaByte database Xunit test fixture.
+    /// This namespace includes the Yugabyte database Xunit test fixture.
     /// </summary>
     [System.Runtime.CompilerServices.CompilerGenerated]
     class NamespaceDoc

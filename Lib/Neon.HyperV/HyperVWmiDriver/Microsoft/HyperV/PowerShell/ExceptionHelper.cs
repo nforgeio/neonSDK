@@ -6,6 +6,7 @@ using System.Linq;
 using System.Management.Automation;
 using System.Runtime.InteropServices;
 using System.Text;
+
 using Microsoft.HyperV.PowerShell.Common;
 using Microsoft.Virtualization.Client;
 using Microsoft.Virtualization.Client.Management;

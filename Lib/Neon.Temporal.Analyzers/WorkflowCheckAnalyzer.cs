@@ -245,7 +245,7 @@ namespace Neon.Temporal.Analyzers
             {
                 context.RegisterOperationAction(c => AnalyzeObjectCreation(c, graph), OperationKind.ObjectCreation);
                 context.RegisterOperationAction(c => AnalyzePropertyReference(c, graph), OperationKind.PropertyReference);
-                context.RegisterCompilationEndAction(c => ReportInvalidActions(c, graph, workflowAttributeType));
+                context.RegisterCompilationEndAction(c => ReportInvalidActions(c, graph, workflowAttributeType, activityAttributeType));
             }
         }
 
@@ -273,6 +273,7 @@ namespace Neon.Temporal.Analyzers
             if (activityAttributeType != null
                 && IsActivityMethod(containingMethod, activityAttributeType)
                 && IsAsyncCall(invocation.TargetMethod)
+                && HasCancellationTokenOverload(context.Compilation, containingMethod, invocation.TargetMethod)
                 && !HasCancellationTokenArgument(invocation))
             {
                 context.ReportDiagnostic(Diagnostic.Create(
@@ -319,9 +320,10 @@ namespace Neon.Temporal.Analyzers
         private static void ReportInvalidActions(
             CompilationAnalysisContext context,
             WorkflowCallGraph          graph,
-            INamedTypeSymbol           workflowAttributeType)
+            INamedTypeSymbol workflowAttributeType,
+            INamedTypeSymbol activityAttributeType)
         {
-            foreach (var invalidAction in graph.GetInvalidActionsReachableFromWorkflow(workflowAttributeType))
+            foreach (var invalidAction in graph.GetInvalidActionsReachableFromWorkflow(workflowAttributeType, activityAttributeType))
             {
                 context.ReportDiagnostic(Diagnostic.Create(
                     RulesByInvalidAction[invalidAction.Spec.Rule],
@@ -392,6 +394,57 @@ namespace Neon.Temporal.Analyzers
         private static bool HasCancellationTokenArgument(IInvocationOperation invocation)
         {
             return invocation.Arguments.Any(argument => GetTypeKey(argument.Value.Type) == "System.Threading.CancellationToken");
+        }
+
+        private static bool HasCancellationTokenOverload(
+            Compilation compilation,
+            IMethodSymbol containingMethod,
+            IMethodSymbol invokedMethod)
+        {
+            var methodDefinition = (invokedMethod.ReducedFrom ?? invokedMethod).OriginalDefinition;
+
+            return methodDefinition.ContainingType
+                .GetMembers(methodDefinition.Name)
+                .OfType<IMethodSymbol>()
+                .Select(method => method.OriginalDefinition)
+                .Any(candidate =>
+                    compilation.IsSymbolAccessibleWithin(candidate, containingMethod.ContainingType)
+                    && HasCompatibleCancellationTokenSignature(methodDefinition, candidate));
+        }
+
+        private static bool HasCompatibleCancellationTokenSignature(IMethodSymbol invokedMethod, IMethodSymbol candidate)
+        {
+            if (invokedMethod.Arity != candidate.Arity
+                || invokedMethod.IsStatic != candidate.IsStatic
+                || !IsAsyncCall(candidate))
+            {
+                return false;
+            }
+
+            var candidateParameters = candidate.Parameters
+                .Where(parameter => GetTypeKey(parameter.Type) != "System.Threading.CancellationToken")
+                .ToImmutableArray();
+
+            if (candidateParameters.Length == candidate.Parameters.Length
+                || candidateParameters.Length != invokedMethod.Parameters.Length)
+            {
+                return false;
+            }
+
+            for (var i = 0; i < invokedMethod.Parameters.Length; i++)
+            {
+                var invokedParameter   = invokedMethod.Parameters[i];
+                var candidateParameter = candidateParameters[i];
+
+                if (invokedParameter.RefKind != candidateParameter.RefKind
+                    || invokedParameter.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
+                        != candidateParameter.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         private static string GetSymbolKey(ISymbol symbol)
@@ -549,10 +602,14 @@ namespace Neon.Temporal.Analyzers
                 }
             }
 
-            internal IEnumerable<InvalidAction> GetInvalidActionsReachableFromWorkflow(INamedTypeSymbol workflowAttributeType)
+            internal IEnumerable<InvalidAction> GetInvalidActionsReachableFromWorkflow(
+                INamedTypeSymbol workflowAttributeType,
+                INamedTypeSymbol activityAttributeType)
             {
                 var snapshot = Snapshot();
-                var workflowMethods = snapshot.Keys.Where(method => IsWorkflowMethod(method, workflowAttributeType)).ToArray();
+                var workflowMethods = snapshot.Keys
+                    .Where(method => IsWorkflowMethod(method, workflowAttributeType, activityAttributeType))
+                    .ToArray();
                 var visited = new HashSet<IMethodSymbol>(SymbolEqualityComparer.Default);
                 var stack = new Stack<IMethodSymbol>(workflowMethods);
 
@@ -576,9 +633,12 @@ namespace Neon.Temporal.Analyzers
 
                     foreach (var callee in record.Callees)
                     {
+                        if (!IsActivityMethod(callee, activityAttributeType))
+                    {
                         stack.Push(callee.OriginalDefinition);
                     }
                 }
+            }
             }
 
             private Dictionary<IMethodSymbol, MethodRecord> Snapshot()
@@ -609,10 +669,15 @@ namespace Neon.Temporal.Analyzers
                 return record;
             }
 
-            private static bool IsWorkflowMethod(IMethodSymbol method, INamedTypeSymbol workflowAttributeType)
+            private static bool IsWorkflowMethod(
+                IMethodSymbol method,
+                INamedTypeSymbol workflowAttributeType,
+                INamedTypeSymbol activityAttributeType)
             {
                 var containingType = method.ContainingType;
+
                 return containingType != null
+                    && !IsActivityMethod(method, activityAttributeType)
                     && containingType.GetAttributes().Any(
                         attribute => SymbolEqualityComparer.Default.Equals(attribute.AttributeClass, workflowAttributeType));
             }

@@ -158,6 +158,8 @@ namespace Microsoft.Net.Http.Client
 
         private async Task EnsureBufferedAsync(CancellationToken cancel)
         {
+            await SyncContext.Clear;
+
             if (_bufferCount == 0)
             {
                 _bufferOffset = 0;

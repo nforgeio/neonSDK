@@ -16,9 +16,9 @@
 // limitations under the License.
 
 using System;
-using System.Text;
-using System.Reflection;
 using System.Diagnostics;
+using System.Reflection;
+using System.Text;
 
 namespace Neon.Time
 {

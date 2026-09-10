@@ -99,6 +99,8 @@ namespace TestNeonService
             /// <returns>The service exit code.</returns>
             protected override async Task<int> OnRunAsync()
             {
+                await SyncContext.Clear;
+
                 var logger = TelemetryHub.CreateLogger(this.Name);
 
                 await StartedAsync();
@@ -176,6 +178,8 @@ namespace TestNeonService
             /// <returns>The service exit code.</returns>
             protected override async Task<int> OnRunAsync()
             {
+                await SyncContext.Clear;
+
                 // Increment the test counter.
 
                 TestCounter.Inc();
@@ -243,6 +247,8 @@ namespace TestNeonService
         [Fact]
         public async Task Disabled()
         {
+            await SyncContext.Clear;
+
             // Verify that a service with disabled metrics (the default) does not
             // expose a metrics endpoint.
 
@@ -262,8 +268,18 @@ namespace TestNeonService
             {
                 // We're expecting the metrics scrape request to fail since metrics are disabled.
 
-                await Assert.ThrowsAsync<HttpRequestException>(async () => await httpClient.GetAsync($"http://127.0.0.1:{NetworkPorts.PrometheusMetrics}"));
-                await Assert.ThrowsAsync<HttpRequestException>(async () => await httpClient.GetAsync($"http://127.0.0.1:{NetworkPorts.PrometheusMetrics}/metrics/"));
+                await Assert.ThrowsAsync<HttpRequestException>(async () =>
+                {
+                    await SyncContext.Clear;
+
+                    await httpClient.GetAsync($"http://127.0.0.1:{NetworkPorts.PrometheusMetrics}");
+                });
+                await Assert.ThrowsAsync<HttpRequestException>(async () =>
+                {
+                    await SyncContext.Clear;
+
+                    await httpClient.GetAsync($"http://127.0.0.1:{NetworkPorts.PrometheusMetrics}/metrics/");
+                });
             }
 
             // Tell the service it can exit.
@@ -275,6 +291,8 @@ namespace TestNeonService
         [Fact]
         public async Task Scrape_Default()
         {
+            await SyncContext.Clear;
+
             // Verify that a service with default metric settings actually exposes metrics.
 
             var service = new TestService();
@@ -323,6 +341,8 @@ namespace TestNeonService
         [Fact]
         public async Task Scrape_WithPort()
         {
+            await SyncContext.Clear;
+
             // Verify that a service with a specified port and default path actually exposes metrics.
 
             var service     = new TestService();
@@ -373,6 +393,8 @@ namespace TestNeonService
         [Fact]
         public async Task Scrape_WithPath()
         {
+            await SyncContext.Clear;
+
             // Verify that a service with the default port and a specific path actually exposes metrics.
 
             var service     = new TestService();
@@ -423,6 +445,8 @@ namespace TestNeonService
         [Fact]
         public async Task Scrape_WithPortAndPath()
         {
+            await SyncContext.Clear;
+
             // Verify that a service with the specific port and path actually exposes metrics.
 
             var service     = new TestService();
@@ -475,6 +499,8 @@ namespace TestNeonService
         [Fact]
         public async Task Push()
         {
+            await SyncContext.Clear;
+
             // Verify that a service can be configured to push metrics to a
             // simulated Push Gateway.
 
@@ -509,6 +535,8 @@ namespace TestNeonService
                 _ = Task.Run(
                     async () =>
                     {
+                        await SyncContext.Clear;
+
                         while (true)
                         {
                             if (stopwatch.Elapsed >= TimeSpan.FromMinutes(2))
@@ -563,6 +591,8 @@ namespace TestNeonService
         [Fact]
         public async Task RuntimeMetrics()
         {
+            await SyncContext.Clear;
+
             // Verify that we can also expose .NET Runtime exposes metrics via the [GetCollector()] callback.
 
             var service     = new TestService();

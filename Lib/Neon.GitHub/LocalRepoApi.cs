@@ -29,23 +29,22 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+using LibGit2Sharp;
+using LibGit2Sharp.Handlers;
+
 using Neon.Common;
 using Neon.Deployment;
 using Neon.Tasks;
 
-using LibGit2Sharp;
-using LibGit2Sharp.Handlers;
-
 using Octokit;
 
+using GitBranch = LibGit2Sharp.Branch;
+using GitCommit = LibGit2Sharp.Commit;
 using GitHubBranch     = Octokit.Branch;
 using GitHubRepository = Octokit.Repository;
 using GitHubSignature  = Octokit.Signature;
-
-using GitBranch     = LibGit2Sharp.Branch;
 using GitRepository = LibGit2Sharp.Repository;
 using GitSignature  = LibGit2Sharp.Signature;
-using GitCommit     = LibGit2Sharp.Commit;
 
 namespace Neon.GitHub
 {
@@ -296,7 +295,12 @@ namespace Neon.GitHub
             }
 
             root.GitApi.Network.Push(currentBranch, CreatePushOptions());
-            await root.WaitForGitHubAsync(async () => await root.Remote.Branch.FindAsync(currentBranch.FriendlyName) != null);
+            await root.WaitForGitHubAsync(async () =>
+            {
+                await SyncContext.Clear;
+
+                return await root.Remote.Branch.FindAsync(currentBranch.FriendlyName) != null;
+            });
 
             return true;
         }
@@ -665,6 +669,8 @@ namespace Neon.GitHub
         /// <returns>The local commits in decending order by commit date/time.</returns>
         public async Task<IEnumerable<LibGit2Sharp.Commit>> GetCommitsAsync()
         {
+            await SyncContext.Clear;
+
             return await Task.FromResult(root.GitApi.Commits.ToList());
         }
 
@@ -751,6 +757,8 @@ namespace Neon.GitHub
         /// <returns>The <see cref="GitBranch"/> if it exists, <c>null</c> otherwise.</returns>
         public async Task<GitBranch> FindBranchAsync(string branchName)
         {
+            await SyncContext.Clear;
+
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
 
             return await Task.FromResult(root.GitApi.Branches.SingleOrDefault(branch => branch.FriendlyName == branchName));
@@ -764,6 +772,8 @@ namespace Neon.GitHub
         /// <exception cref="LibGit2Sharp.NotFoundException">Thrown if the branch doesn't exist.</exception>
         public async Task<GitBranch> GetBranchAsync(string branchName)
         {
+            await SyncContext.Clear;
+
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(branchName), nameof(branchName));
 
             var branch = await FindBranchAsync(branchName);
@@ -1181,6 +1191,8 @@ namespace Neon.GitHub
         /// <returns>The annotated <see cref="Tag"/> if it exists, <c>null</c> otherwise.</returns>
         public async Task<Tag> FindAnnotatedTagAsync(string tagName)
         {
+            await SyncContext.Clear;
+
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(tagName), nameof(tagName));
 
             return (await ListAnnotatedTagsAsync()).SingleOrDefault(tag => tag.FriendlyName == tagName);
@@ -1194,6 +1206,8 @@ namespace Neon.GitHub
         /// <exception cref="LibGit2Sharp.NotFoundException">Thrown if the annotated tag doesn't exist.</exception>
         public async Task<Tag> GetAnnotatedTagAsync(string tagName)
         {
+            await SyncContext.Clear;
+
             Covenant.Requires<ArgumentNullException>(!string.IsNullOrEmpty(tagName), nameof(tagName));
 
             var tag = await FindAnnotatedTagAsync(tagName);
@@ -1254,7 +1268,12 @@ namespace Neon.GitHub
             // It appears that it can take a moment or two for the new tag
             // to show up on GitHub, so we'll wait for that to happen.
 
-            await root.WaitForGitHubAsync(async () => (await root.Remote.Tag.FindAsync(tag.FriendlyName)) != null);
+            await root.WaitForGitHubAsync(async () =>
+            {
+                await SyncContext.Clear;
+
+                return (await root.Remote.Tag.FindAsync(tag.FriendlyName)) != null;
+            });
         }
 
         /// <summary>

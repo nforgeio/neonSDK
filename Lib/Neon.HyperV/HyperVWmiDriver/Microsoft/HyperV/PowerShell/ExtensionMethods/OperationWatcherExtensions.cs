@@ -1,5 +1,6 @@
 using System;
 using System.Threading;
+
 using Microsoft.Virtualization.Client.Management;
 
 namespace Microsoft.HyperV.PowerShell.ExtensionMethods;

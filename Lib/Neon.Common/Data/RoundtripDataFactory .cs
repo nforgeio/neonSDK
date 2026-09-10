@@ -28,14 +28,14 @@ using System.Threading.Tasks;
 
 using Microsoft.Extensions.DependencyInjection;
 
+using Neon.Common;
+using Neon.Diagnostics;
+using Neon.Tasks;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
-
-using Neon.Diagnostics;
-using Neon.Common;
-using Neon.Tasks;
 
 namespace Neon.Data
 {

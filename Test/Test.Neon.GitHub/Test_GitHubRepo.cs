@@ -37,6 +37,7 @@ using Neon.Xunit;
 using Octokit;
 
 using Xunit;
+using Neon.Tasks;
 
 namespace TestGitHub
 {
@@ -53,11 +54,15 @@ namespace TestGitHub
         [MaintainerFact]
         public async Task Clone_Public()
         {
+            await SyncContext.Clear;
+
             // Verify that we can clone a public repo to a temporary local folder.
 
             await GitHubTestHelper.RunTestAsync(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     using (var tempFolder = new TempFolder(prefix: "repo-", create: false))
                     {
                         var repoPath = tempFolder.Path;

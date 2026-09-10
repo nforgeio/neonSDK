@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+
 using Microsoft.Management.Infrastructure;
 using Microsoft.Management.Infrastructure.Generic;
 

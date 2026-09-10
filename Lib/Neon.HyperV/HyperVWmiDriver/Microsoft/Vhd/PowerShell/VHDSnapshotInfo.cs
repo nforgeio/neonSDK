@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+
 using Microsoft.Virtualization.Client.Management;
 
 namespace Microsoft.Vhd.PowerShell;

@@ -32,17 +32,20 @@
 #pragma warning disable CS1591
 
 using System;
-using System.Collections.Generic;
 using System.Collections;
-using System.Net;
+using System.Collections.Generic;
 using System.IO;
+using System.Net;
 
-internal class IO{
+internal class IO
+{
 
-    public static void unmarshal_n_into(Stream stream, uint n, byte[] buffer){
+    public static void unmarshal_n_into(Stream stream, uint n, byte[] buffer)
+    {
     int toread = (int)n;
     int offset = 0;
-    while (toread > 0){
+        while (toread > 0)
+        {
         int nread = stream.Read(buffer, offset, toread);
         if (nread <= 0)
         throw new EndOfStreamException 
@@ -52,15 +55,18 @@ internal class IO{
     }
     }
 
-    public static byte[] unmarshal_n(Stream stream, uint n){
+    public static byte[] unmarshal_n(Stream stream, uint n)
+    {
     byte[] buffer = new byte[n];
     unmarshal_n_into(stream, n, buffer);
     return buffer;
     }
     
-    public static void skip(Stream stream, uint n){
+    public static void skip(Stream stream, uint n)
+    {
     byte[] buffer = new byte[63356];
-    while(n > 0){
+        while (n > 0)
+        {
         uint toread = (uint)buffer.Length;
         if (n < toread) toread = n;
         unmarshal_n_into(stream, toread, buffer);

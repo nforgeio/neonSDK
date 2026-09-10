@@ -4,7 +4,8 @@
       "Bash(dotnet build:*)",
       "WebSearch",
       "mcp__Claude_Preview__preview_start",
-      "Bash(gh api:*)"
+      "Bash(gh api:*)",
+      "WebFetch(domain:*.githubusercontent.com)"
     ]
   },
   "enabledMcpjsonServers": [

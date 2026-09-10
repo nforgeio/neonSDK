@@ -26,10 +26,12 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Http.Connections;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.AspNetCore.SignalR.Protocol;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+
+using NATS.Client;
 
 using Neon.Common;
 using Neon.Cryptography;
@@ -41,7 +43,7 @@ using Neon.Web;
 using Neon.Xunit;
 
 using Xunit;
-using NATS.Client;
+using Neon.Tasks;
 
 namespace Test.Neon.SignalR
 {
@@ -152,6 +154,8 @@ namespace Test.Neon.SignalR
         [Fact]
         public async Task CanSendAndReceiveUserMessagesFromMultipleConnectionsWithSameUser()
         {
+            await SyncContext.Clear;
+
             var tcs = new TaskCompletionSource<string>();
 
             connection.On<string>("Echo", message => tcs.SetResult(message));
@@ -170,6 +174,8 @@ namespace Test.Neon.SignalR
         [Fact]
         public async Task CanInvokeMethodWithoutOptionalParams()
         {
+            await SyncContext.Clear;
+
             var tcs = new TaskCompletionSource<string>();
 
             connection.On<string>("Echo", message => tcs.SetResult(message));

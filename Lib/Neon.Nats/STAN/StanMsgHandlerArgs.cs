@@ -24,12 +24,13 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using NATS.Client;
-using STAN.Client;
 
 using Neon.Common;
 using Neon.Data;
 using Neon.Diagnostics;
 using Neon.Net;
+
+using STAN.Client;
 
 namespace STAN.Client
 {

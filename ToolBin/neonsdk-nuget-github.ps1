@@ -158,6 +158,7 @@ try
     #------------------------------------------------------------------------------
     # Build and publish the projects.
 
+    Publish Neon.Analyzers                          $neonSdkVersion
     Publish Neon.Blazor                 $neonSdkVersion
     Publish Neon.Blazor.Analyzers       $neonSdkVersion
     Publish Neon.BuildInfo              $neonSdkVersion
@@ -168,10 +169,17 @@ try
     Publish Neon.CSharp                 $neonSdkVersion
     Publish Neon.Deployment             $neonSdkVersion
     Publish Neon.Docker                 $neonSdkVersion
+    Publish Neon.ECharts                            $neonSdkVersion
+    Publish Neon.EntityFrameworkCore                $neonSdkVersion
+    Publish Neon.EntityFrameworkCore.Analyzers      $neonSdkVersion
+    Publish Neon.EntityFrameworkCore.Npgsql         $neonSdkVersion
     Publish Neon.GitHub                 $neonSdkVersion
     Publish Neon.HyperV                 $neonSdkVersion
     Publish Neon.JsonConverters         $neonSdkVersion
+    Publish Neon.Mapbox                             $neonSdkVersion
     Publish Neon.ModelGen               $neonSdkVersion
+    Publish Neon.ModelGenerator                     $neonSdkVersion
+    Publish Neon.Motion                             $neonSdkVersion
     Publish Neon.Nats                   $neonSdkVersion
     Publish Neon.Postgres               $neonSdkVersion
     Publish Neon.Roslyn                 $neonSdkVersion
@@ -181,13 +189,14 @@ try
     Publish Neon.SSH                    $neonSdkVersion
     Publish Neon.Tailwind               $neonSdkVersion
     Publish Neon.Temporal               $neonSdkVersion
+    Publish Neon.Temporal.Analyzers                 $neonSdkVersion
     Publish Neon.Web                    $neonSdkVersion
     Publish Neon.WinTTY                 $neonSdkVersion
     Publish Neon.WSL                    $neonSdkVersion
     Publish Neon.XenServer              $neonSdkVersion
     Publish Neon.Xunit                  $neonSdkVersion
-    Publish Neon.Xunit.YugaByte         $neonSdkVersion
-    Publish Neon.YugaByte               $neonSdkVersion
+    Publish Neon.Xunit.Yugabyte                     $neonSdkVersion
+    Publish Neon.Yugabyte                           $neonSdkVersion
 
     #------------------------------------------------------------------------------
     # Remove all of the generated nuget files so these don't accumulate.

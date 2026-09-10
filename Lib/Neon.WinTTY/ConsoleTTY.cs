@@ -30,6 +30,7 @@ using System.Threading.Tasks;
 using Microsoft.Win32.SafeHandles;
 
 using static Neon.WinTTY.ConsoleApi;
+
 using Process = Neon.WinTTY.Process;
 
 namespace Neon.WinTTY

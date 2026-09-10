@@ -16,8 +16,8 @@
 // limitations under the License.
 
 using System;
-using System.Globalization;
 using System.Diagnostics.Contracts;
+using System.Globalization;
 using System.Threading;
 
 namespace Neon.Time

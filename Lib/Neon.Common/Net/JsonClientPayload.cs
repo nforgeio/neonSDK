@@ -29,14 +29,14 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Neon.Collections;
+using Neon.Common;
+using Neon.Diagnostics;
+using Neon.Retry;
+
 using Newtonsoft;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-
-using Neon.Common;
-using Neon.Collections;
-using Neon.Diagnostics;
-using Neon.Retry;
 
 namespace Neon.Net
 {

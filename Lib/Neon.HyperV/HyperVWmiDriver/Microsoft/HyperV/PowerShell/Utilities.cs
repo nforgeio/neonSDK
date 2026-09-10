@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Management.Automation;
 using System.Text.RegularExpressions;
+
 using Microsoft.Virtualization.Client.Management;
 
 namespace Microsoft.HyperV.PowerShell;

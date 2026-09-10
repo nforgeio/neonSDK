@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Management.Automation;
+
 using Microsoft.Management.Infrastructure;
 
 namespace Microsoft.HyperV.PowerShell.Commands;

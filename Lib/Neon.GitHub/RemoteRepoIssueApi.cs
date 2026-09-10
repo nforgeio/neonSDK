@@ -29,6 +29,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+using LibGit2Sharp;
+using LibGit2Sharp.Handlers;
+
 using Neon.Common;
 using Neon.Cryptography;
 using Neon.Deployment;
@@ -36,16 +39,12 @@ using Neon.IO;
 using Neon.Net;
 using Neon.Tasks;
 
-using LibGit2Sharp;
-using LibGit2Sharp.Handlers;
-
 using Octokit;
 
+using GitBranch = LibGit2Sharp.Branch;
 using GitHubBranch     = Octokit.Branch;
 using GitHubRepository = Octokit.Repository;
 using GitHubSignature  = Octokit.Signature;
-
-using GitBranch     = LibGit2Sharp.Branch;
 using GitRepository = LibGit2Sharp.Repository;
 using GitSignature  = LibGit2Sharp.Signature;
 

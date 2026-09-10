@@ -15,32 +15,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 
 using Neon.Common;
 using Neon.IO;
 using Neon.Postgres;
 using Neon.Xunit;
-using Neon.Xunit.YugaByte;
+using Neon.Xunit.Yugabyte;
 
-using Cassandra;
 using Npgsql;
 
 using Xunit;
+using Neon.Tasks;
 
 namespace Test.Neon.Postgres
 {
     [Trait(TestTrait.Category, TestArea.NeonPostgres)]
     [Collection(TestCollection.NonParallel)]
     [CollectionDefinition(TestCollection.NonParallel, DisableParallelization = true)]
-    public class Test_SchemaManager : IClassFixture<YugaByteFixture>
+    public class Test_SchemaManager : IClassFixture<YugabyteFixture>
     {
         //---------------------------------------------------------------------
         // These need to be static because they maintain state across test runs.
@@ -53,11 +48,11 @@ namespace Test.Neon.Postgres
 
         private NpgsqlConnection    postgres;
 
-        public Test_SchemaManager(YugaByteFixture fixture)
+        public Test_SchemaManager(YugabyteFixture fixture)
         {
             TestHelper.ResetDocker(this.GetType());
 
-            // We're not going to restart YugaByte for every unit test because
+            // We're not going to restart Yugabyte for every unit test because
             // that's too slow.  Instead, each test will work with unique database
             // names.
 
@@ -85,6 +80,8 @@ namespace Test.Neon.Postgres
         /// <returns>The <see cref="TempFolder"/> holding the files.</returns>
         private async Task<TempFolder> PersistSchemaScriptsAsync(string[] scripts)
         {
+            await SyncContext.Clear;
+
             var tempFolder = new TempFolder();
 
             for (int i = 0; i < scripts.Length; i++)
@@ -103,6 +100,8 @@ namespace Test.Neon.Postgres
         /// <returns>The <see cref="TempFolder"/> holding the files.</returns>
         private async Task<TempFolder> PersistSchemaScriptsWithZerosAsync(string[] scripts)
         {
+            await SyncContext.Clear;
+
             var tempFolder = new TempFolder();
 
             for (int i = 0; i < scripts.Length; i++)

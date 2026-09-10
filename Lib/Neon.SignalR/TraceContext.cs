@@ -23,7 +23,7 @@ namespace Neon.SignalR
 {
     internal static class TraceContext
     {
-        internal static readonly AssemblyName AssemblyName = typeof(TracerProviderBuilderExtensions).Assembly.GetName();
+        internal static readonly AssemblyName AssemblyName = typeof(TraceContext).Assembly.GetName();
 
         internal static readonly string ActivitySourceName = AssemblyName.Name;
 

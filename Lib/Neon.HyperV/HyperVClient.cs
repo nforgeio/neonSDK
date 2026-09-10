@@ -15,10 +15,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Microsoft.Win32;
-using Neon.Common;
-using Neon.Net;
-using Neon.Retry;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
@@ -28,6 +24,12 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading;
+
+using Microsoft.Win32;
+
+using Neon.Common;
+using Neon.Net;
+using Neon.Retry;
 
 namespace Neon.HyperV
 {

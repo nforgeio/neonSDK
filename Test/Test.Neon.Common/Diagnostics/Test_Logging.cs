@@ -20,13 +20,20 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.IO;
-using System.Net;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+
+using Neon.Common;
+using Neon.Diagnostics;
+using Neon.IO;
+using Neon.Xunit;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -35,13 +42,7 @@ using OpenTelemetry.Logs;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
-using Neon.Common;
-using Neon.Diagnostics;
-using Neon.Xunit;
-
 using Xunit;
-using Neon.IO;
-using Microsoft.AspNetCore.Mvc;
 
 namespace TestCommon
 {

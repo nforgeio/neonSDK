@@ -25,11 +25,11 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Neon.Data;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
-
-using Neon.Data;
 
 namespace Neon.Common
 {

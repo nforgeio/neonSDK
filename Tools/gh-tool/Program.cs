@@ -33,6 +33,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 using Neon.Common;
 using Neon.Deployment;
+using Neon.Tasks;
 
 namespace GHTool
 {
@@ -49,6 +50,8 @@ namespace GHTool
         /// <param name="args">The command line arguments.</param>
         public static async Task<int> Main(params string[] args)
         {
+            await SyncContext.Clear;
+
             string usage = $@"
 {Program.Name} [v{Program.Version}]
 {Neon.Build.Copyright}

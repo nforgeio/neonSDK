@@ -38,6 +38,8 @@ namespace TestCommon
         [Fact]
         public async Task StartStop()
         {
+            await SyncContext.Clear;
+
             // Verify that basic start/stop operations work.
 
             var ticks = 0;
@@ -45,6 +47,8 @@ namespace TestCommon
             using (var timer = new AsyncTimer(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     ticks++;
                     await Task.CompletedTask;
                 }))
@@ -70,6 +74,8 @@ namespace TestCommon
         [Fact]
         public async Task StartStop_DelayFirstTick()
         {
+            await SyncContext.Clear;
+
             var ticks = 0;
 
             // Verify that basic start/stop operations work when
@@ -78,6 +84,8 @@ namespace TestCommon
             using (var timer = new AsyncTimer(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     ticks++;
                     await Task.CompletedTask;
                 }))
@@ -101,6 +109,8 @@ namespace TestCommon
         [Fact]
         public async Task Restart_SameInterval()
         {
+            await SyncContext.Clear;
+
             // Verify that we can restart a timer using the original interval.
 
             var ticks = 0;
@@ -108,6 +118,8 @@ namespace TestCommon
             using (var timer = new AsyncTimer(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     ticks++;
                     await Task.CompletedTask;
                 }))
@@ -140,6 +152,8 @@ namespace TestCommon
         [Fact]
         public async Task Restart_DifferentCallback()
         {
+            await SyncContext.Clear;
+
             // Verify that we can restart a timer using the original interval
             // and a different callback.
 
@@ -149,6 +163,8 @@ namespace TestCommon
             using (var timer = new AsyncTimer(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     ticks0++;
                     await Task.CompletedTask;
                 }))
@@ -170,6 +186,8 @@ namespace TestCommon
                 timer.Start(
                     callback: async () =>
                     {
+                        await SyncContext.Clear;
+
                         ticks1++;
                         await Task.CompletedTask;
                     });
@@ -186,6 +204,8 @@ namespace TestCommon
         [Fact]
         public async Task Restart_DifferentInterval()
         {
+            await SyncContext.Clear;
+
             // Verify that we can restart a timer using a different interval
             // and also delaying the first tick.
 
@@ -194,6 +214,8 @@ namespace TestCommon
             using (var timer = new AsyncTimer(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     ticks++;
                     await Task.CompletedTask;
                 }))
@@ -226,6 +248,8 @@ namespace TestCommon
         [Fact]
         public async Task Dispose()
         {
+            await SyncContext.Clear;
+
             // Verify that [Dispose()] stops the timer.
 
             var ticks = 0;
@@ -233,6 +257,8 @@ namespace TestCommon
             var timer = new AsyncTimer(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     ticks++;
                     await Task.CompletedTask;
                 });
@@ -255,6 +281,8 @@ namespace TestCommon
         [Fact]
         public async Task Callback_Exceptions()
         {
+            await SyncContext.Clear;
+
             // Verify that the timer continues to tick even when the callback
             // throws exceptions.
 
@@ -263,6 +291,8 @@ namespace TestCommon
             using (var timer = new AsyncTimer(
                 async () =>
                 {
+                    await SyncContext.Clear;
+
                     ticks++;
                     await Task.CompletedTask;
                     throw new Exception();
@@ -279,7 +309,12 @@ namespace TestCommon
         {
             // Check error detection.
 
-            var timer = new AsyncTimer(async () => await Task.CompletedTask);
+            var timer = new AsyncTimer(async () =>
+            {
+                await SyncContext.Clear;
+
+                await Task.CompletedTask;
+            });
 
             Assert.Throws<ArgumentException>(() => timer.Start(TimeSpan.FromSeconds(-1)));
             Assert.Throws<InvalidOperationException>(() => timer.Start());
