@@ -386,6 +386,8 @@ namespace TestCommon
             using (new MockHttpServer(baseUri,
                  async context =>
                  {
+                     await SyncContext.Clear;
+
                     var request  = context.Request;
                     var response = context.Response;
 
@@ -403,7 +405,7 @@ namespace TestCommon
 
                     response.ContentType = "application/json";
 
-                     await response.WriteAsync(NeonHelper.JsonSerialize(output));
+                    await response.WriteAsync(NeonHelper.JsonSerialize(output));
                 }))
             {
                 using (var jsonClient = new JsonClient())

@@ -103,6 +103,8 @@ namespace TestApiService
             _ = Task.Run(
                     async () =>
                     {
+                        await SyncContext.Clear;
+
                         await Task.Delay(TimeSpan.FromSeconds(1));
                         Environment.Exit(0);
                     });

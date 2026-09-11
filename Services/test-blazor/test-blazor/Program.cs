@@ -177,6 +177,8 @@ namespace TestBlazor
 
                     endpoints.MapGet("/err", async context =>
                     {
+                        await SyncContext.Clear;
+
                         context.Response.StatusCode = 503;
                         await context.Response.WriteAsync("This is an error page.");
                     });
