@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{12E8C084-88B8-47A9-82AD-038C206089AA}</ProjectGuid>
+    <ProjectGuid>{61168CE8-EEBC-16A4-9651-6D3A02C7B7D5}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>uuid_gen</RootNamespace>
     <AssemblyName>uuid-gen</AssemblyName>

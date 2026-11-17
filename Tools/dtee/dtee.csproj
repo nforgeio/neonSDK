@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{2A1EDB89-5C24-4339-996F-DD893FC75BF5}</ProjectGuid>
+    <ProjectGuid>{079BFF82-3B0E-6730-625A-711FDBF106C8}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>DTee</RootNamespace>
     <AssemblyName>dtee</AssemblyName>
