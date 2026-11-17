@@ -325,7 +325,7 @@
   </Folder>
   <Folder Name="/Tools/">
     <Project Path="Tools/core-layers/core-layers.csproj" />
-    <Project Path="Tools/dtee/dtee.csproj">
+    <Project Path="Tools/dtee/dtee.csproj" Id="2a1edb89-5c24-4339-996f-dd893fc75bf5">
       <BuildType Solution="CodeDoc|*" Project="Debug" />
       <BuildType Solution="Release|Any CPU" Project="Debug" />
     </Project>
@@ -347,7 +347,7 @@
       <BuildDependency Project="Tools/pubcore/pubcore.csproj" />
       <BuildType Solution="CodeDoc|*" Project="Release" />
     </Project>
-    <Project Path="Tools/uuid-gen/uuid-gen.csproj">
+    <Project Path="Tools/uuid-gen/uuid-gen.csproj" Id="12e8c084-88b8-47a9-82ad-038c206089aa">
       <BuildType Solution="CodeDoc|*" Project="Release" />
     </Project>
     <Project Path="Tools/wsl-util/wsl-util.csproj">

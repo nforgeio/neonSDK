@@ -124,7 +124,7 @@ Note that you MUST ADD something like the following to a <PropertyGroup> section
 your project CSPROJ file for this to work:
 
     <PropertyGroup>
-        <TargetFramework>net10.0</TargetFramework>
+        <TargetFramework>net11.0</TargetFramework>
         <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     </PropertyGroup>
 
