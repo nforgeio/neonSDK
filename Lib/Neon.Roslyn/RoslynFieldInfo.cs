@@ -37,7 +37,7 @@ namespace Neon.Roslyn
             this.metadataLoadContext = metadataLoadContext;
         }
 
-        public IFieldSymbol FieldSymbol => field;
+        public IFieldSymbol FieldSymbol => this.field;
 
         public override FieldAttributes Attributes
         {

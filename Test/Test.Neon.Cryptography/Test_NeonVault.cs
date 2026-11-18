@@ -286,7 +286,7 @@ ask the blind man, he saw it, too.
                 {
                     var encrypted = new byte[(int)target.Length];
 
-                    target.Read(encrypted, 0, encrypted.Length);
+                    target.ReadExactly(encrypted, 0, encrypted.Length);
 
                     var lastHexDigit = (char)encrypted[encrypted.Length - 1];
 
@@ -405,7 +405,7 @@ ask the blind man, he saw it, too.
                 {
                     var encrypted = new byte[(int)target.Length];
 
-                    target.Read(encrypted, 0, encrypted.Length);
+                    target.ReadExactly(encrypted, 0, encrypted.Length);
 
                     encrypted[encrypted.Length - 1] = (byte)'Z';
 
@@ -431,7 +431,7 @@ ask the blind man, he saw it, too.
                 {
                     var encrypted = new byte[(int)target.Length];
 
-                    target.Read(encrypted, 0, encrypted.Length);
+                    target.ReadExactly(encrypted, 0, encrypted.Length);
 
                     target.Position = 0;
                     target.Write(encrypted, 0, encrypted.Length - 1);

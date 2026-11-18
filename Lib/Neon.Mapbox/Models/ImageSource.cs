@@ -36,7 +36,7 @@ namespace Neon.Mapbox.Models
         public new string Type { get; set; }
 
         /// <summary>
-        /// A URL to a TileJSON resource. Supported protocols are http:, https:, and mapbox://<Tileset ID>.
+        /// A URL to a TileJSON resource. Supported protocols are http:, https:, and mapbox://[Tileset ID].
         /// </summary>
         [JsonPropertyName("url")]
         public string Url { get; set; }

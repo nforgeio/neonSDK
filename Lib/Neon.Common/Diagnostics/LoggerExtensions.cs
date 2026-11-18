@@ -257,7 +257,7 @@ namespace Neon.Diagnostics
             {
                 if (exception != null)
                 {
-                    Activity.Current?.RecordException(exception);
+                    Activity.Current?.AddException(exception);
                 }
 
                 var context = Activity.Current.Context;

@@ -57,7 +57,7 @@ namespace Neon.Xunit.Yugabyte
     /// are not true.
     /// </para>
     /// <para>
-    /// See <see cref="Start(string, string, string, bool, int, int)"/>
+    /// See <see cref="YugabyteFixture.Start(string, string, string, bool, int, int, int)"/>
     /// for more information about how this works.
     /// </para>
     /// </remarks>
@@ -180,7 +180,7 @@ services:
         /// to call this in your test class constructor instead of <see cref="ITestFixture.Start(Action)"/>.
         /// </para>
         /// <note>
-        /// You'll need to call <see cref="StartAsComposed(string, string, string, bool, int, int)"/>
+        /// You'll need to call <see cref="YugabyteFixture.StartAsComposed(string, string, string, bool, int, int, int)"/>
         /// instead when this fixture is being added to a <see cref="ComposedFixture"/>.
         /// </note>
         /// </summary>
