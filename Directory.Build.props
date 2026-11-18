@@ -4,7 +4,6 @@
         <Product>NeonSDK</Product>
         <Authors>NEONFORGE Team</Authors>
         <Company>NEONFORGE LLC</Company>
-        <NeonSdkVersion>4.0.0</NeonSdkVersion>
         <Copyright>Copyright © 2005-2024 by NEONFORGE LLC.  All rights reserved.</Copyright>
         <PackageReadmeFile Condition="Exists('README.md')">README.md</PackageReadmeFile>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -145,7 +144,7 @@
         </When>
         <Otherwise>
             <PropertyGroup>
-                <ModelGeneratorPath>$(NF_ROOT)\Tools\neon-modelgen\bin\$(Configuration)\net10.0\win-x64\neon-modelgen</ModelGeneratorPath>
+                <ModelGeneratorPath>$(NF_ROOT)\Tools\neon-modelgen\bin\$(Configuration)\net11.0\win-x64\neon-modelgen</ModelGeneratorPath>
             </PropertyGroup>
         </Otherwise>
     </Choose>

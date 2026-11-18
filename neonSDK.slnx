@@ -48,6 +48,7 @@
     <File Path="buildenv.cmd" />
     <File Path="buildenv.ps1" />
     <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
     <File Path="global.json" />
     <File Path="LICENSE" />
     <File Path="nuget.config" />

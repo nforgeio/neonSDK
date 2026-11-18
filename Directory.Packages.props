@@ -7,12 +7,12 @@
   </PropertyGroup>
   <PropertyGroup>
     <NeonSdkVersion>4.0.19-preview.2</NeonSdkVersion>
-    <DotNetVersion Condition="'$(TargetFramework)' == 'net10.0'">[10.*,)</DotNetVersion>
+    <DotNetVersion Condition="'$(TargetFramework)' == 'net11.0'">11.*</DotNetVersion>
+    <DotNetVersion Condition="'$(TargetFramework)' == 'net10.0'">[10.*,11.0)</DotNetVersion>
     <DotNetVersion Condition="'$(TargetFramework)' == 'net9.0'">[9.*,10.0)</DotNetVersion>
     <DotNetVersion Condition="'$(TargetFramework)' == 'net8.0'">[8.*,9.0)</DotNetVersion>
     <DotNetVersion Condition="'$(TargetFramework)' == 'net7.0'">[7.*,8.0)</DotNetVersion>
-    <DotNetVersion Condition="'$(TargetFramework)' == 'net6.0'">[6.*,7.0)</DotNetVersion>
-    <DotNetVersion Condition="'$(DotNetVersion)' == ''">[10.*,)</DotNetVersion>
+    <DotNetVersion Condition="'$(DotNetVersion)' == ''">11.*</DotNetVersion>    <!-- handles: netstandard* frameworks -->
         <EfCoreVersion>[10.*,)</EfCoreVersion>
         <NpgsqlVersion>[10.*,)</NpgsqlVersion>
         <!--
@@ -25,7 +25,7 @@
         <NpgsqlEfCoreVersion>[10.*,11.0)</NpgsqlEfCoreVersion>
   </PropertyGroup>
   <ItemGroup>
-        <PackageVersion Include="AsyncKeyedLock" Version="8.0.*" />
+    <PackageVersion Include="AsyncKeyedLock" Version="8.0.*" />
     <PackageVersion Include="Basic.Reference.Assemblies" Version="1.4.5" />
     <PackageVersion Include="CommandLineParser" Version="2.9.1" />
     <PackageVersion Include="CouchbaseNetClient" Version="2.7.27" />
@@ -33,7 +33,7 @@
     <PackageVersion Include="DiscUtils.Iso9660" Version="0.16.13" />
     <PackageVersion Include="DnsClient" Version="1.7.0" />
     <PackageVersion Include="EnyimMemcachedCore" Version="3.2.2" />
-        <PackageVersion Include="FluentAssertions" Version="8.*" />
+    <PackageVersion Include="FluentAssertions" Version="8.*" />
     <PackageVersion Include="FluentAssertions.Analyzers" Version="0.34.1" />
     <PackageVersion Include="GitInfo" Version="3.3.5" />
     <PackageVersion Include="HeroIcons.Blazor" Version="1.0.6" />
@@ -86,24 +86,24 @@
     <PackageVersion Include="NATS.Net" Version="2.3.3" />
     <PackageVersion Include="Neon.Octokit" Version="6.0.2" />
     <PackageVersion Include="NetTopologySuite.IO.GeoJSON4STJ" Version="4.0.0" />
-        <PackageVersion Include="Newtonsoft.Json" Version="13.*" />
+    <PackageVersion Include="Newtonsoft.Json" Version="13.*" />
     <PackageVersion Include="Npgsql" Version="$(NpgsqlVersion)" />
-        <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="$(NpgsqlEfCoreVersion)" />
-        <PackageVersion Include="Npgsql.OpenTelemetry" Version="$(NpgsqlVersion)" />
+    <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="$(NpgsqlEfCoreVersion)" />
+    <PackageVersion Include="Npgsql.OpenTelemetry" Version="$(NpgsqlVersion)" />
     <PackageVersion Include="Octokit" Version="11.0.1" />
     <PackageVersion Include="OneOf" Version="3.0.271" />
-        <PackageVersion Include="OpenTelemetry" Version="1.*" />
-        <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.*" />
-        <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.*" />
-        <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.*" />
+    <PackageVersion Include="OpenTelemetry" Version="1.*" />
+    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.*" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.*" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.*" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.StackExchangeRedis" Version="1.0.0-rc9.8" />
     <PackageVersion Include="PowerShellStandard.Library" Version="5.1.1" />
-        <PackageVersion Include="prometheus-net" Version="8.*" />
-        <PackageVersion Include="prometheus-net.AspNetCore" Version="8.*" />
-        <PackageVersion Include="prometheus-net.DotNetRuntime" Version="4.*" />
+    <PackageVersion Include="prometheus-net" Version="8.*" />
+    <PackageVersion Include="prometheus-net.AspNetCore" Version="8.*" />
+    <PackageVersion Include="prometheus-net.DotNetRuntime" Version="4.*" />
     <PackageVersion Include="Quartz" Version="3.13.0" />
     <PackageVersion Include="SharpZipLib.NETStandard" Version="1.0.7" />
-        <PackageVersion Include="SSH.NET" Version="2026.0.0" />
+    <PackageVersion Include="SSH.NET" Version="2026.0.0" />
     <PackageVersion Include="STAN.Client" Version="0.3.0" />
     <PackageVersion Include="System.Buffers" Version="4.6.1" />
     <PackageVersion Include="System.CodeDom" Version="$(DotNetVersion)" />
@@ -127,7 +127,7 @@
     <PackageVersion Include="System.Text.Json" Version="$(DotNetVersion)" />
     <PackageVersion Include="System.Threading.Thread" Version="4.3.0" />
     <PackageVersion Include="System.ValueTuple" Version="4.6.2" />
-        <PackageVersion Include="Temporalio" Version="1.*" />
+    <PackageVersion Include="Temporalio" Version="1.*" />
     <PackageVersion Include="xunit" Version="2.9.0" />
     <PackageVersion Include="xunit.extensibility.core" Version="2.9.0" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="2.8.2" />

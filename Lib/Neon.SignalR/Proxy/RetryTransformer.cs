@@ -29,7 +29,6 @@ namespace Neon.SignalR
 {
     public class RetryTransformer : HttpTransformer
     {
-        /// the RequestUri.</param>
         public override async ValueTask<bool> TransformResponseAsync(
                     HttpContext httpContext,
                     HttpResponseMessage proxyResponse,

@@ -1770,7 +1770,7 @@ namespace Neon.Service
                             }
                             catch (DnsResponseException e)
                             {
-                                return e.Code == DnsResponseCode.ConnectionTimeout;
+                                return e.Code == DnsClient.DnsResponseCode.ConnectionTimeout;
                             }
                         }
 

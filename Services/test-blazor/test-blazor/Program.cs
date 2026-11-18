@@ -90,7 +90,7 @@ namespace TestBlazor
             var answers = new List<DnsResourceRecord>();
             for (int i = 0; i < servers.Length; i++)
             {
-                answers.Add(new SrvRecord(
+                answers.Add(new DnsClient.Protocol.SrvRecord(
                     info:     new ResourceRecordInfo($"{Dns.GetHostName()}-{i}", ResourceRecordType.SRV, QueryClass.IN, 1000, 0),
                     priority: 0,
                     weight:   50,

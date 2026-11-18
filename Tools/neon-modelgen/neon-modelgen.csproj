@@ -32,8 +32,4 @@
         <Folder Include="Properties\PublishProfiles\" />
     </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
-    </ItemGroup>
-
 </Project>
