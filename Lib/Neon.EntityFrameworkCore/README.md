@@ -171,4 +171,4 @@ exception-event and error-rate views in your backend light up.
 
 Full API documentation: [https://sdk.neonforge.com](https://sdk.neonforge.com)
 
-_Copyright © 2005-2024 by NEONFORGE LLC. All rights reserved._
+_Copyright © 2005-2026 by NEONFORGE LLC. All rights reserved._

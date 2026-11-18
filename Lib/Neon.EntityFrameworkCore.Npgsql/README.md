@@ -381,4 +381,4 @@ Full API documentation: [https://sdk.neonforge.com](https://sdk.neonforge.com)
 - EF Core `Migrator` — lock/transaction ordering: `dotnet/efcore`, `src/EFCore.Relational/Migrations/Internal/Migrator.cs`
 - Npgsql history repository — the `LOCK TABLE`: `npgsql/efcore.pg`, `src/EFCore.PG/Migrations/Internal/NpgsqlHistoryRepository.cs`
 
-_Copyright © 2005-2024 by NEONFORGE LLC. All rights reserved._
+_Copyright © 2005-2026 by NEONFORGE LLC. All rights reserved._
