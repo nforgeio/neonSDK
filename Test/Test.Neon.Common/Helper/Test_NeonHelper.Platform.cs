@@ -75,7 +75,19 @@ namespace TestCommon
             return;
 #endif
 
-#if NET8_0_OR_GREATER
+#if NET11_0_OR_GREATER
+            Assert.Equal(NetFramework.Net, NeonHelper.Framework);
+            Assert.Equal(11, NeonHelper.FrameworkVersion.Major);
+            return;
+#elif NET10_0_OR_GREATER
+            Assert.Equal(NetFramework.Net, NeonHelper.Framework);
+            Assert.Equal(10, NeonHelper.FrameworkVersion.Major);
+            return;
+#elif NET9_0_OR_GREATER
+            Assert.Equal(NetFramework.Net, NeonHelper.Framework);
+            Assert.Equal(9, NeonHelper.FrameworkVersion.Major);
+            return;
+#elif NET8_0_OR_GREATER
             Assert.Equal(NetFramework.Net, NeonHelper.Framework);
             Assert.Equal(8, NeonHelper.FrameworkVersion.Major);
             return;
