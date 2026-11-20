@@ -121,14 +121,6 @@
     <Project Path="Lib/Neon.Motion/Neon.Motion.csproj">
       <BuildType Solution="CodeDoc|*" Project="Release" />
     </Project>
-    <Project Path="Lib/Neon.ModelGen/Neon.ModelGen.csproj">
-      <BuildType Solution="CodeDoc|*" Project="Release" />
-    </Project>
-    <Project Path="Lib/Neon.ModelGenerator/Neon.ModelGenerator.csproj">
-      <BuildDependency Project="Tools/neon-modelgen/neon-modelgen.csproj" />
-      <BuildDependency Project="Tools/pubcore/pubcore.csproj" />
-      <BuildType Solution="CodeDoc|*" Project="Release" />
-    </Project>
     <Project Path="Lib/Neon.Nats/Neon.Nats.csproj">
       <BuildType Solution="CodeDoc|*" Project="Release" />
     </Project>
@@ -263,13 +255,6 @@
     <Project Path="Test/Test.Neon.Mapbox/Test.Neon.Mapbox.csproj">
       <BuildType Solution="CodeDoc|*" Project="Release" />
     </Project>
-    <Project Path="Test/Test.Neon.ModelGen/Test.Neon.ModelGen.csproj">
-      <BuildDependency Project="Test/Test.Neon.Models/Test.Neon.Models.csproj" />
-      <BuildType Solution="CodeDoc|*" Project="Release" />
-    </Project>
-    <Project Path="Test/Test.Neon.ModelGenCli/Test.Neon.ModelGenCli.csproj">
-      <BuildType Solution="CodeDoc|*" Project="Release" />
-    </Project>
     <Project Path="Test/Test.Neon.Postgres/Test.Neon.Postgres.csproj">
       <BuildType Solution="CodeDoc|*" Project="Release" />
     </Project>
@@ -304,8 +289,6 @@
       <BuildType Solution="CodeDoc|*" Project="Release" />
     </Project>
     <Project Path="Test/Test.Neon.Models/Test.Neon.Models.csproj">
-      <BuildDependency Project="Lib/Neon.ModelGen/Neon.ModelGen.csproj" />
-      <BuildDependency Project="Tools/neon-modelgen/neon-modelgen.csproj" />
       <BuildType Solution="CodeDoc|*" Project="Release" />
     </Project>
   </Folder>
@@ -335,9 +318,6 @@
     </Project>
     <Project Path="Tools/neon-build/neon-build.csproj">
       <BuildDependency Project="Tools/pubcore/pubcore.csproj" />
-      <BuildType Solution="CodeDoc|*" Project="Release" />
-    </Project>
-    <Project Path="Tools/neon-modelgen/neon-modelgen.csproj">
       <BuildType Solution="CodeDoc|*" Project="Release" />
     </Project>
     <Project Path="Tools/nanoshell/nanoshell.csproj">
